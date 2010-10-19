@@ -1,0 +1,78 @@
+<label for="useraddress_prefix">Prefix</label>
+<select class="c2" name="useraddress_prefix">
+	{% for prefix in useraddress_prefixes %}
+	<option value="{{prefix}}" {% if useraddress.nameprefix == prefix %}selected{% endif %}>{{prefix}}{% if not prefix %}(select){% endif %}</option>
+	{% endfor %}
+</select><br />
+
+<label for="useraddress_firstname">First Name</label>
+<input class="c2" id="useraddress_firstname" name="useraddress_firstname" type="text" value="{{useraddress.firstname}}"/><br />
+
+<label for="useraddress_lastname">Last Name</label>
+<input class="c2" id="useraddress_lastname" name="useraddress_lastname" type="text" value="{{useraddress.lastname}}"/><br />
+
+<label for="useraddress_suffix">Suffix</label>
+<select class="c2" name="useraddress_suffix">
+	{% for suffix in useraddress_suffixes %}
+	<option value="{{suffix}}" {% if useraddress.namesuffix == suffix %}selected{% endif %}>{{suffix}}{% if not suffix %}(none){% endif %}</option>
+	{% endfor %}
+</select><br />
+
+<label for="useraddress_address1">Address Line 1</label>
+<input class="c3" id="useraddress_address1" name="useraddress_address1" type="text" value="{{useraddress.address1}}"/><br />
+
+<label for="useraddress_address2">Address Line 2</label>
+<input class="c3" id="useraddress_address2" name="useraddress_address2" type="text" value="{{useraddress.address2}}"/><br />
+
+<label for="useraddress_city">City</label>
+<input class="c2" id="useraddress_city"  name="useraddress_city" type="text" value="{{useraddress.city}}"/><br />
+
+<label for="useraddress_state">State</label>
+<select class="c2" name="useraddress_state">
+	{% for state in useraddress_states %}
+	<option value="{{state}}" {% if useraddress.state == state %}selected{% endif %}>{{state}}</option>
+	{% endfor %}
+</select><br />
+
+<label for="useraddress_zipcode">ZIP Code</label>
+<input class="c2" id="useraddress_zipcode" name="useraddress_zipcode" type="text" value="{{useraddress.zipcode}}"/><br />
+
+<label>Congressional District</label>
+<div id="useraddress_congressionaldistrict_label" class="field">{% if useraddress.congressionaldistrict == 0 %}At-Large District{% else %}{{useraddress.congressionaldistrict}}{% endif %}</div>
+<input class="c3" id="useraddress_congressionaldistrict" name="useraddress_congressionaldistrict" type="hidden" value="{{useraddress.congressionaldistrict}}"/><br />
+
+<script>
+function useraddress_get_district() {
+	$('#useraddress_congressionaldistrict').text("Checking...");
+	var address = $('#useraddress_address1').val() + "\n" + $('#useraddress_address2').val() + "\n" + $('#useraddress_city').val() + ", " + $('#useraddress_state').val() + " " + $('#useraddress_zipcode').val();
+	
+	if (address.replace("\n", "") == "") {
+		$('#useraddress_congressionaldistrict_label').text("");
+		return;
+	}
+	
+	ajax("{% url congressional_district.views.district_lookup %}",
+		{
+			address: address,
+			zipcode: $('#useraddress_zipcode').val()},
+		{
+			failure: function(res) {
+				$('#useraddress_congressionaldistrict_label').text(res.msg);
+				$('#useraddress_congressionaldistrict').val("");
+			},
+			success: function(res) {
+				if (res.state.toLowerCase() != $('#useraddress_state').val().toLowerCase() && $('#useraddress_state').val() != "") {
+					$('#useraddress_congressionaldistrict_label').text("ZIP Code doesn't match state.");
+					$('#useraddress_congressionaldistrict').val("");
+					return;
+				}
+				if (res.district > 0)
+					$('#useraddress_congressionaldistrict_label').text("District " + res.district);
+				else
+					$('#useraddress_congressionaldistrict_label').text("At-Large District");
+				$('#useraddress_congressionaldistrict').val(res.district);
+			}
+		});
+};
+$('#useraddress_address1, #useraddress_address2, #useraddress_city, #useraddress_state, #useraddress_zipcode').keyup_delayed(useraddress_get_district);
+</script>

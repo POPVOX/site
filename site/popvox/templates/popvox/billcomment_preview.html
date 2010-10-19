@@ -1,0 +1,152 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Preview Comment on {{ bill.title }}{% endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+{% endblock %}
+{% block content %}
+<div class="content">
+
+	{% with "preview" as billcomment_progress_step %}
+	{% include "popvox/billcomment_progress.html" %}
+	{% endwith %}
+
+	<div class="tab_pane">
+	
+	<form method="post" id="commentform">
+	
+	{% csrf_token %}
+	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
+	<input type="hidden" name="message" value="{{message}}"/>
+	<input type="hidden" name="district" value="{{district}}" id="districtfield"/>
+	
+	{% if not error %}
+		<h1>Preview Your Comment</h1>
+	    
+		 <p>Writing your comment is the hardest step but you&rsquo;re doing great.
+			Before we go on, read it over to make sure you are happy with it.
+			(You can edit or remove your comment later.)</p>
+			
+		<div class="message_preview">{{message|wraplines:"p"}}</div>
+	
+	{% else %}
+		<h1>Submit Your comment</h1>
+	
+	{% endif %}
+		
+	{% if not user.is_authenticated %}
+		<div id="needsauth">
+		<h2>Sign-In or Sign-Up</h2>
+		
+		 <div class="tip_inline">
+			<p>You&rsquo;re going to have to create a POPVOX account before you can
+			submit your comment. Your account is free and anonymous, but we need to
+			find your congressional district so your comment gets to the right place.</p>
+		</div>		
+
+		<div class="">
+			<h3>Create a POPVOX Account</h3>
+			
+			<p>We require everyone to create an account so we can prevent troublemakers from leaving many messages on the same legislation.</p>
+			
+			<p>Create an account instantly using one of these services:</p>
+			<div class="signin_social" style="float: none">
+			{% include "registration/login_singlesignon.html" %}
+			</div>
+			
+			<div class="clear"></div>
+			
+			<p>Or fill out the following fields to create a POPVOX account. 
+
+			<div class="form">
+				<label for="createacct_username">Screen name</label>
+				<input class="c3" type="text" name="createacct_username" value="{{username}}"/>
+				<div id="createacct_errorlabel_username" class="error" style="display: block">{{newaccount_error.username}}</div>
+				<small>Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces.</small>
+				
+				<label for="createacct_password">Password</label>
+				<input class="c3" type="password" name="createacct_password" value="{{password}}"/>
+				<div id="createacct_errorlabel_password" class="error" style="display: block">{{newaccount_error.password}}</div>
+				
+				<label for="createacct_email">Email Address</label>
+				<input class="c3" type="text" name="createacct_email" value="{{email}}"/>
+				<div id="createacct_errorlabel_email" class="error" style="display: block">{{newaccount_error.email}}</div>
+				<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
+	
+				<div class="error" id="createacct_errorlabel"></div>
+			</div>
+		</div>
+		
+		<div class="">
+			<script>
+			function trylogin() {
+				ajax(
+					"/registration/ajax/login",
+					{ email: $('#login_email').val(), password: $('#login_password').val() },
+					{
+					statusfield: "login_errorlabel",
+					success: function() {
+						$('#login_errorlabel').text("Please wait...");
+						window.location = "{{ singlesignon_next|escapejs }}";
+					}
+					}
+				);
+			}
+			$(function() {
+					$('#login_email, #login_password').keydown_enter(trylogin);
+			});
+			</script>
+		
+			<h3>Already have an account?</h3>
+			<p>Please log in:</p>
+			
+			<div class="signin_social">
+			{% include "registration/login_singlesignon.html" %}
+			</div>
+			
+			<div class="form">
+			<label for="login_email">Email</label>
+			<input class="c2" type="text" id="login_email"/>
+			<span id="login_errorlabel_email" class="error"></span>
+			
+			<label for="login_password">Password</label>
+			<input class="c2" type="password" id="login_password"/>
+			<span id="login_errorlabel_password" class="error"></span>
+			
+			<input type="button" value="Login" onclick="trylogin()" class="submit"/>
+			<div class="error" id="login_errorlabel"></div>
+			</div>
+		</div>
+		
+		<div style="clear: both"></div>
+
+		<p>
+			<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
+			<input class="b_create_accnt btn" type="button" value="Create Account >" onclick="submitform('Create Account >')"/>
+		</p>
+	</div>
+	
+	{% else %}
+		
+		<p class="mar_top pad_btm">
+			<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
+			<input class="b_next btn" type="button" value="Next >" onclick="submitform('Next >')"/>
+		</p>
+			
+	{% endif %}
+
+	</form>
+	
+	<script>
+	function submitform(mode) {
+		$('#submitmode').val(mode);
+		$('#commentform').submit();
+	}
+	</script>
+	
+	</div>
+	
+</div>
+{% endblock %}
+

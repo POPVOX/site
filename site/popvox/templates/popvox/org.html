@@ -1,0 +1,182 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% load humanize %}
+{% block title %}{{ org.name }}{% endblock%}
+{%block nav_orgadmin_class_profile%}{%if admin%}active{%endif%}{%endblock%}
+{%block nav_orgadmin_class_orgs%}{%if not admin%}active{%endif%}{%endblock%}
+{%block nav_citzen_class_orgs%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block head %}
+	{% include "popvox/org_common_scripts.html" %}
+{% endblock %}
+{% block content %}
+<div class="content"> 
+	<div class="col_3 col_top profile_block">
+		{% if admin and not org.logo %}<a href="{{org.slug}}/_edit" style="border: none">{% endif %}
+		<img id="profileimage" src="{% if org.logo %}{{org.logo.url}}{% else %}/media/master/grey.gif{% endif %}" alt="Profile Image" width="220" height="166" />
+		{% if admin and not org.logo %}</a>{% endif %}
+		
+		{% if admin %}
+		<p class="edit"><a href="{{org.slug}}/_edit">EDIT PROFILE</a></p>
+		{% endif %}
+		
+		<h3 class="info">Info</h3> 
+		{% if org.website %}
+		<p><a href="{{org.website}}">{{org.website}}</a></p>
+		{% endif %} 
+		
+		{% if org.facebookurl %}
+		<h4>facebook:</h4> 
+		<p><a href="{{org.facebookurl}}">Go to Facebook Page</a> {% if org.facebook_fan_count %}<span>({{ org.facebook_fan_count|intcomma }} fans)</span>{% endif %}</p>
+		{% endif %} 
+		
+		{% if org.twittername %}
+		<h4>twitter:</h4> 
+		<p><a href="http://www.twitter.com/{{org.twittername}}">@{{org.twittername}}</a> {% if org.twitter_follower_count %}<span>({{ org.twitter_follower_count|intcomma }} followers)</span>{% endif %}</p>
+		{% endif %} 
+		
+		{% if org.postaladdress %}
+		<p class="address">{{org.postaladdress|wraplines:'div'}}</p>
+		{% endif %}
+		{% if org.phonenumber %}
+		<p class="address">{{org.phonenumber}}</p>
+		{% endif %}
+		
+		{% comment %}
+		<div class="col_top">
+			<h3 class="info">Issue Areas</h3>
+			<p class="tag">Wars &amp; Conflicts</p>
+			<p class="tag">Health &amp; Warfare</p>
+			</ul>
+		</div>
+		{% endcomment %}
+	</div><!-- e: col_3 --> 
+	
+	<div class="col_6 col_top"> 
+		<div class="section_head">
+			{% if admin %}
+					{% if not org.description %}
+						<p class="whattodonext">Welcome to POPVOX.
+						{% if not org.approved %}Your organization will need to be approved by POPVOX staff before it can be published to our organization directory. In the meanwhile, please go ahead and get started filling in your profile and legislative agenda.{% endif %}
+						The first step is to <a href="{{org.url}}/_edit">edit your organization profile</a>.</p>
+					{% else %}
+						{% if not cams %}
+							<p class="whattodonext">You haven&rsquo;t endorsed or opposed any legislation yet. Check out the Legislative Agenda section below.</p>
+						{% else %}
+							{% if not org.visible %}
+								{% if org.approved %}
+									<p class="whattodonext">You must <a href="{{org.url}}/_edit">publish your profile</a>.</p>
+								{% else %}
+									<p class="whattodonext">Your organization will need to be approved by POPVOX staff before it can be published to our organization directory.</p>
+								{% endif %}
+							{% endif %}
+						{% endif %}
+					{% endif %}
+			{% endif %}
+		
+			<h1>{{org.name}}</h1>
+
+			{% if org.description %}
+			<p class="mission"><strong>Mission:</strong> {{org.description}}</p>
+			{% endif %}
+			
+			{% if org.createdbyus %}
+			<small><em>* This organization profile has been set up by POPVOX.</em></small>
+			{% endif %}
+			
+			{% comment %}
+			{% if org.issues.all %}
+				<div>
+					<ul>
+					{% for issue in org.issues.all %}
+						{% if not forloop.first %} {% endif %}
+						<li></li><a href="{{ issue.url }}">{{ issue.name }}</a></li>
+					{% endfor %}
+					</ul>
+				</div>
+			{% endif %}
+			{% endcomment %}
+		</div> <!-- e: section_head -->
+		
+		{% if cams or admin %}
+		<div class="block campaigns">
+			<h3>Legislative Agenda</h3>
+			
+			{% for cam in cams %}
+				{% if not cam.default %}
+				<p class="campaign_edit">
+					<a class="b_view" href="{{ cam.url }}">view</a>
+					{% if admin %} <a class="b_edit" href="{{cam.url}}/_edit">edit</a>{% endif %}
+				</p>
+				<h4>{{ cam.name }}</h4>
+				<p class="campaign_description"><em>{{ cam.description }}</em></p>
+				{% endif %}
+				
+				{% if not cam.visible %}<p class="whattodonext">This campaign has not yet been <a href="{{cam.url}}/_edit">published</a>.</p>{% endif %}
+				
+				{% for position in cam.positions.all %}
+					{% include "popvox/org_common_position.html" %}
+				{% endfor %}
+			{% endfor %}
+			
+			{% if admin %}
+			<p><em>To endorse or oppose legislation you have the option to <a href="{{org.url}}/_newcampaign">create a new campaign</a> or search for a bill:</em></p>
+			
+			<div class="bill_search search_orange">
+				<div class="search_box">
+					<p><strong>Bill Search</strong></p>
+					{% include "popvox/endorse_oppose.html" %}	
+				</div>
+			</div>
+			{% endif %}			
+		</div> 
+		{% endif %}
+		
+		
+		{% if org.contacts.all %}
+		<div class="block"> 
+			<h3>Contacts</h3>
+			
+			{% if admin or user.userprofile.is_leg_staff %}
+				<p>This information is shared only with Congressional legislative staff.</p>
+				
+				<div class="point_people">
+				{% regroup org.contacts.all by issues.all as issues_list %}
+				{% for issue in issues_list %}
+				<h4>{{issue.grouper|join:','}}</h4> 
+				{% for contact in issue.list|dictsort:"name" %}
+					<div class="point_person">
+						{% comment %} <div class="headshot"> </div> {% endcomment %}
+						<h5>{{ contact.name }}</h5>
+						<h6>{{ contact.title }}</h6>
+						{% comment %}<p class="staff_email"><a href="mailto:{{contact.email}}">{{contact.email}}</a></p>{% endcomment %}
+						<p class="staff_number">{{contact.phonenumber}}</p>
+					</div>
+				{% endfor %}
+				{% endfor %}
+
+				{% if org.createdbyus %}
+				<small><em>* This organization profile was set up by POPVOX and the contact information has not been verified by the organization.</em></small>
+				{% endif %}
+				</div>
+
+			{% else %}
+
+				<p>This information is shared only with Congressional legislative staff. If you have a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> email address, <a href="/accounts/register/legstaff?next={{org.url}}">register</a> to get instant access to this information.</p>
+				
+			{% endif %}
+		</div> 
+		{% endif %}
+	
+		{% if admin and cams and org.visible %}
+		<p class="whattodonext">Done setting up your organization&rsquo;s profile? Check on your legislation on your <a href="/home">home dashboard</a>.</p>
+		{% endif %}
+		
+	</div><!-- e: col_6 -->
+	
+	{% include "ads/rightbar.html" %}
+ 
+</div>	<!-- e: content -->
+	
+{% endblock %}
+

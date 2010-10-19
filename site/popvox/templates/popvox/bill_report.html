@@ -1,0 +1,367 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}POPVOX Report -- {{ bill.title }}{% endblock%}
+{%block nav_orgadmin_class_reports%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
+{% endblock %}
+{% block adunits %}
+		GA_googleAddSlot("ca-pub-4482124597959107", "Legislative_Report_Leaderboard");
+		GA_googleAddSlot("ca-pub-4482124597959107", "Legislative_Report_Top");
+{% endblock %}
+{% block content %}
+	<script>
+	var report_state = "{{default_state}}";
+	var report_district = "{{default_district}}";
+	
+	var stateapp = Array();
+	{% for stateabbr, statename, stateapp in stateabbrs %}stateapp['{{stateabbr}}']={{stateapp}};{% endfor %}
+	
+	function update(initial) {
+		// Update district dropdown list options and make sure that
+		// report_district is a valid value for the current state.
+		if (initial) $('#options_state').val(report_state);
+		if (initial) $('#options_district').val(report_district);
+		$('#options_district').html("");
+		if (report_state == "") {
+			report_district = 0;
+			$('#options_district').hide();
+		} else if (stateapp[report_state] == 1) {
+			$('#options_district').
+				append($("<option></option>").
+					attr("value", 0).
+					text("At Large"));
+			report_district = 0;
+			$('#options_district').hide();
+		} else {
+			$('#options_district').show();
+			if (report_district == 0)
+				report_district = "";
+			if (report_district > stateapp[report_state])
+				report_district = 1;
+			$('#options_district').
+				append($("<option></option>").
+					attr("value", "").
+					attr("selected", report_district == 0).
+					text("Whole State"));
+			for (var i = 1; i <= stateapp[report_state]; i++) {
+				$('#options_district').
+					append($("<option></option>").
+						attr("value", i).
+						attr("selected", i == report_district).
+						text("District " + i)); 
+			}
+		}
+		
+		if (!initial) {
+			var hashstate = Object();
+			if (report_state) hashstate.state = report_state;
+				else hashstate.q = 0; // if we give an empty hash, browser scrolls to the top
+			if (report_district) hashstate.district = report_district;
+			window.location = "#" + $.param(hashstate);
+		}
+		
+		// Post report info and then update.
+		$('#loadingstatus').text("Loading...");
+		$.ajax({
+			type:"POST",
+			url: "/ajax{{bill.url}}/report/getinfo",
+			data: {
+				state: report_state,
+				district: report_district,
+			},
+			complete: function(res, status) {
+				$('#loadingstatus').text("");
+				
+				if (status != "success") {
+					$('#shortmessages').text("Error loading report.");
+					return;
+				}
+				
+				res = eval('(' + res.responseText + ')');
+				
+				$('#reporttitle').text(res.reporttitle);
+				$('#reportsubtitle').text(res.reportsubtitle);
+				
+				{% if not user.is_anonymous %}
+				$('#shortmessages').html("");
+				for (var i = 0; i < res.shortmessages.length; i++) {
+					var elem = $('#tweet_template div.tweet').clone();
+					elem.find("p span.username").text(res.shortmessages[i].user);
+					elem.find("p span.message").text(res.shortmessages[i].msg);
+					elem.find("p span.date").text(res.shortmessages[i].date);
+					elem.appendTo($('#shortmessages'));
+				}
+				if (res.shortmessages.length == 0)
+					$('#shortmessages').append($("<p>No tweets were found.</p>"));
+				
+				$('#longmessages').html("");
+				for (var i = 0; i < res.longmessages.length; i++) {
+					var elem = $('#comment_template div.comment').clone();
+					elem.find("h4 span.username").text(res.longmessages[i].user)
+					elem.find("h4 span.location").text("in " + res.longmessages[i].location)
+					elem.find("h4 span.date").text(", " + res.longmessages[i].date);
+					elem.find("h4 span.share a").attr("href", res.longmessages[i].share);
+					elem.find("p").text(res.longmessages[i].msg)
+					elem.find(".endorse_oppose_image").addClass((res.longmessages[i].pos == "+") ? "endorse" : "oppose")
+					elem.appendTo($('#longmessages'));
+				}
+				if (res.longmessages.length == 0)
+					$('#longmessages').append($("<p>No comments have been left.</p>"));
+				{% endif %}
+				
+				function escapeHTML(text) {
+					var div = document.createElement('div');
+					var text = document.createTextNode(text);
+					div.appendChild(text);
+					return div.innerHTML;
+				}
+				
+				function buildchart(stats, index, islast) {
+					$('#chart' + index).show(); // must come before chart load so dimensions get set right
+				
+					if (!islast) $('#chart' + index).addClass("chart_notlast");
+					else $('#chart' + index).removeClass("chart_notlast");
+					
+					$('#chart' + index + " .chart_title").text(stats.longdescription);
+					$('#chart' + index + " .users").text("(" + stats.total + " users)");
+					$('#chart' + index + " .bg_support").text(stats.pro_pct + "% Support");
+					$('#chart' + index + " .bg_oppose").text(stats.con_pct + "% Oppose");
+					
+					bill_chart('chart_pie_' + index, stats.pro_pct, stats.con_pct, { "small": true });
+					bill_timeseries('chart_time_' + index, stats.timeseries);
+				}
+
+				$('#stats_overall_info').text("");
+				if (!res.stats) {
+				} else if (res.stats.district) {
+					buildchart(res.stats.district, 0);
+					buildchart(res.stats.state, 1);
+					buildchart(res.stats.overall, 2, true);
+				} else if (res.stats.state) {
+					if (report_district != "" && report_district != "0")
+						$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart for the Congressional district.");
+					buildchart(res.stats.state, 0);
+					buildchart(res.stats.overall, 1, true);
+					$('#chart2').hide();
+				} else if (res.stats.overall) {
+					if (report_district != "")
+						$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart for the Congressional district.");
+					else if (report_state != "")
+						$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart for the state.");
+					buildchart(res.stats.overall, 0, true);
+					$('#chart1').hide();
+					$('#chart2').hide();
+				} else {
+					$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart.");
+				}
+			}
+		});
+	}
+
+	$(function() {
+		$(window).bind( "hashchange", function(e) {
+			var hashargs = $.deparam.fragment();
+			if (hashargs.state) report_state = hashargs.state;
+			if (hashargs.district) report_district = hashargs.district;
+			update(true);
+		});
+		$(window).trigger( "hashchange" );
+	});
+
+	</script>
+	
+	<div class="legreport">
+	
+	<div class="section"> 
+		<div class="col_9 col_top">
+			<a class="btn b_back" href="{{bill.url}}">
+				Back to {{bill.displaynumber}}
+			</a>
+		
+			<h1>Bill Report</h1>
+
+			<div class="block">
+				<h2>{{ bill.title }}</h2> 
+				{% if bill.sponsor %}
+				<div id="sponsor">
+					<h4>Sponsor:</h4>
+					<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
+				</div>
+				{% endif %}
+				<div id="status">
+					<h4>Status:</h4>
+					{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
+						{{bill.status_advanced}}
+					{% else %}
+						{{bill.status}}
+					{% endif %}
+					(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More</a>)
+				</div>
+			</div>
+			<div class="clear"> </div>
+				
+			<div class="stroke_top"> </div>
+
+			<h3 id="reporttitle">Loading Legislative Report...</h3>
+			<h3 id="reportsubtitle"></h3>
+	    
+			{% if not user.is_anonymous %}
+			<div class="search_box">
+				<p>
+					Change Report: 
+					<select id="options_state" size="1" onchange="report_state = this.value; update()">
+						<option value="">POPVOX Nation</option>
+						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+					</select>
+					<select id="options_district" size="1" onchange="report_district = this.value; update()">
+					</select>
+					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
+				</p>
+			</div>
+		{% else %}
+			<div class="search_box">
+				<p>
+					<a href="{% url registration.views.loginform %}?next={{bill.url}}/report">Log in</a> to view the full report including citizens&rsquo; comments and the ability to drill-down to Congressional districts.
+				</p>
+			</div>
+		{% endif %}
+		
+		</div>
+		
+		<div class="col_3 col_last col_ad"> 
+			<h4>Sponsor Ads</h4>
+			<!-- ca-pub-4482124597959107/Legislative_Report_Top -->
+			<script type='text/javascript'>
+			GA_googleFillSlot("Legislative_Report_Top");
+			</script>
+		</div> 
+		<div class="clear"> </div>
+		
+	</div><!-- e: section --> 
+
+	<div class="section clearfix"> 
+		<div class="col_6 rule"> 
+			<div>
+				<h3>Constituents Say</h3>
+				<div id="stats_overall_info"></div>
+				{% for index in "3"|range %}
+				<div id="chart{{index}}" class="clear" style="display: none; padding-bottom: 1em">
+					<div class="col_1">
+						<div id="chart_pie_{{index}}" style="height: 75px"></div>
+					</div>
+					 <div class="col_2" style="padding-right: 1em; width: 110px">
+						<p class="chart_stats">
+							<span class="chart_title">XXX:</span> <br />
+							<span class="bg_support">YYY% Support</span><br />
+							<span class="bg_oppose">ZZZ% Oppose </span><br />
+							<span class="users">(WWW users)</span>
+						</p>
+					</div>
+					<div class="col_3 col_last">
+						<div id="chart_time_{{index}}" style="height: 100px"></div>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+		
+		
+		<div class="col_6 col_last rule"> 
+			<div class="col_3 org_endorse"> 
+				<h3>Orgs Endorsing</h3>
+				{% with "orgsendorsing" as org_group %}
+				{% with orgs_supporting as org_list %}
+					{% include "popvox/bill_report_orglist.html" %}
+				{% endwith %}
+				{% endwith %}
+			</div>
+			
+			<div class="col_3 col_last org_oppose"> 
+				<h3>Orgs Opposing</h3> 
+				{% with "orgsopposing" as org_group %}
+				{% with orgs_opposing as org_list %}
+					{% include "popvox/bill_report_orglist.html" %}
+				{% endwith %}
+				{% endwith %}
+				</ul>
+			</div>
+		</div>
+
+	<div class="col_6 col_last rule btm_10"> 
+		<div class="cosponsor"> 
+			<h3>Co-Sponsors</h3> 
+			{% if bill.cosponsors|length == 0 %}
+				<ul class="smalllist"> 
+					<li>(none)</li>
+				</ul>
+			{% endif %}
+			{% for col in bill.cosponsors|split_in_two %}
+				{% with forloop.counter0 as coli %}
+				<div class="col_3 {% if forloop.last %}col_last{% endif %}">
+				<ul class="smalllist">
+				{% for grp in col|split_at:5 %}
+					{% if coli == 1 and forloop.counter0 == 1 %}
+						<p id="cosponsors_more"><a href="#" onclick="$('#cosponsors01, #cosponsors11').fadeIn(); $('#cosponsors_more').hide(); $('#cosponsors_less').show(); return false;">show {{bill.cosponsors|length|add:-10}} more</a></p>
+					{% endif %}
+					<div id="cosponsors{{coli}}{{forloop.counter0}}" {% if forloop.counter0 == 1 %}style="display: none"{% endif %}>
+					{% for cs in grp %}
+						<li><a href="http://www.govtrack.us/congress/person.xpd?id={{cs.id}}" class="blank" title="More information on www.GovTrack.us">{{ cs.name }}</a></li>
+					{% endfor %}
+					</div>
+					{% if coli == 1 and forloop.counter0 == 1 %}
+						<p id="cosponsors_less" style="display: none"><a href="#" onclick="$('#cosponsors01, #cosponsors11').fadeOut(); $('#cosponsors_less').hide(); $('#cosponsors_more').show(); return false;">show less</a></p>
+					{% endif %}
+				{% endfor%}
+				{% endwith %}
+				</ul>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+	
+	</div><!-- e: section --> 
+
+	<div class="section clearfix stroke_top"> 
+		<div class="ad_btm"> 
+			<!-- ca-pub-4482124597959107/Legislative_Report_Leaderboard -->
+			<script type='text/javascript'>
+			GA_googleFillSlot("Legislative_Report_Leaderboard");
+			</script>
+		</div> 
+	</div>
+	
+	{% if not user.is_anonymous %}
+	<div class="section clearfix"> 
+		<div class="col_8 rule"> 
+			<div class="comments"> 
+				<h3>Comments</h3>
+				<div id="longmessages">Loading...</div>
+				<div style="display: none" id="comment_template">
+					<div class="comment">
+						<h4><span class="username">UserUser</span> <span class="location">in City, State</span><span class="date">, Tuesday</span> <span class="share">[<a href="">share</a></span>]</h4>
+						<div class="endorse_oppose_image"></div>
+						<p>Lorem ipsum etc etc</p>
+					</div>
+				</div>
+			</div> 
+		</div> 
+		<div class="col_4 col_last rule"> 
+			<div class="tweets"> 
+				<h3>Tweets</h3>
+				<p>Tweets are not verified from a Congressional district.</p>
+				<div id="shortmessages">Loading...</div>
+				<div style="display: none" id="tweet_template">
+					<div class="tweet">
+						<p><span class="username">UserUser</span> says: &ldquo;<span class="message">....</span>&rdquo; (<span class="date">...</span>)</p>
+					</div>
+				</div>
+			</div>
+		</div> 
+	</div><!-- e: section -->
+	{% endif %}
+
+{% endblock %}
+

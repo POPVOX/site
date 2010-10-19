@@ -1,0 +1,44 @@
+Security:
+	SSH disallows password authentication
+	MySQL connections that permit remote hosts must require SSL.
+	phpMyAdmin should require SSL in the PHP config and in the Apache config.
+
+packages:
+	python-beautifulsoup memcached python-memcache python-feedparser python-recaptcha python-httplib2 rdiff-backup
+
+Django 1.2
+https://launchpad.net/ubuntu/maverick/i386/python-django/1.2.1-1
+
+DNS
+	72.249.66.163, with reverse DNS to www.popvox.com
+	named.conf.local has entries for thevoxpop.us, popvox.com, popvox.net
+	all three use popvox.hosts zone file
+	sendonary slave dns @ rimuhosting
+
+Mail
+	We've agreed to provide forwarding for a year (until
+	the end of August 2011) for David Troy:
+	  dave@popvox.com -> davetroy@gmail.com
+	  jennifer@popvox.com -> jtroy@roundhousetech.com (updated from jennifer.troy1@gmail.com on 8/19/10)
+
+Apache
+	/etc/apache2/conf/local.conf points to our ~/httpd.conf
+
+Twilio:
+	we have a local 202 number
+	if someone dials it, a URL is set in twilio to receive the call
+
+WordPress
+	/etc/wordpress/config-www.popvox.com.php
+	A symlink is in /usr/share/wordpress/wp-content/themes to blog-theme
+	The admin account has tauberer@gmail.com as its email address,
+	but the site's contact address is josh@popvox.com.
+
+Google/Doubleclick for Publishers Small Business
+	josh@popvox.com
+	
+OAuth Etcetera
+	Google: The OAuth key is configured under tauberer@gmail.com. But we're not using that anyway.
+	Facebook: The application is configured under Josh.
+	LinkedIn: The application is owned by Josh.
+

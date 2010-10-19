@@ -1,0 +1,106 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Preview Comment on {{ bill.title }}{% endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+{% endblock %}
+{% block content %}
+<div class="content">
+
+	{% with "address" as billcomment_progress_step %}
+	{% include "popvox/billcomment_progress.html" %}
+	{% endwith %}
+
+	<div class="tab_pane">
+	
+	<form method="post" id="commentform">
+	
+	{% csrf_token %}
+	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
+	<input type="hidden" name="message" value="{{message}}"/>
+	<input type="hidden" name="district" value="{{district}}" id="districtfield"/>
+	
+	<h1>You&rsquo;re Almost Done</h1>
+	
+		 <div class="tip_inline">
+			<p>Members of Congress take messages more seriously when you are willing to stand behind your message with a name and address. They also want to know whether or not you are one of their constituents. In order to maximize the effectiveness of your communication, we require that you provide your address.</p>
+		
+			<p>We may share your address with your Members of Congress.</p>
+			<div class="hr"> </div>
+		</div>
+		<p class="error">{{ error }}</p>
+	
+		{% if useraddress.id %}
+			<div id="savedaddress">
+				<div>{{useraddress.prefix}} {{useraddress.firstname}} {{useraddress.lastname}} {% if useraddress.suffix %}, {{useraddress.suffix}}{% endif %}</div>
+				<div>{{useraddress.address1}}</div>
+				<div>{{useraddress.address2}}</div>
+				<div>{{useraddress.city}}, {{useraddress.state}} {{useraddress.zipcode}}</div>
+				
+				{% if not useraddress_fixed %}
+					<div><a href="#" onclick="$('#savedaddress').hide(); $('#editdaddress').show()">Change Address</a></div>
+				{% else %}
+					<div class="tip_inline">
+						<p>{{ useraddress_fixed }}</p>
+					</div>
+				{% endif %}
+			</div>
+		{% endif %}
+		
+		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
+			<div class="float_right col_3">
+				<p>It is in your best interest to provide the address where you intend to vote. If you provide a fake address or an address in another district, your Members of Congress are likely to discount your comment and your POPVOX account may be suspended.</p>
+			</div>
+			{% include "popvox/address_form.html" %}
+		</div>
+
+		<script>
+		function congressional_district_callback(state, district) {
+			$('#cdist').html("Fantastic, you live in congressional district " + state + district + ".");
+			$('#accountinfo').fadeIn();
+			$('#submitcomment').attr('disabled', '');
+			$('#districtfield').val(state + district);
+		}
+		</script>
+		
+		<div class="clear"> </div>
+	
+		<div class="captcha">
+			{% if captcha %}
+			<p>Please type the words you see below to help us prevent spam:</p>
+			{{captcha|safe}}
+			{% endif %}
+		
+			<p class="mar_top pad_btm">
+				<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
+				<input class="b_comment" id="submitcomment" type="submit" value="Comment >" onclick="return validate_address()"/>
+			</p>
+
+		</div>
+		
+		<script>
+		function validate_address() {
+			if ($('#useraddress_congressionaldistrict').val() == "") {
+				useraddress_get_district(); // refresh just in case, and then user can go again
+				alert("We couldn't find your congressional district. Please check your address or provide a 9-digit ZIP code.");
+				return false;
+			}
+			return true;
+		}
+		</script>
+
+	</form>
+	
+	<script>
+	function submitform(mode) {
+		$('#submitmode').val(mode);
+		$('#commentform').submit();
+	}
+	</script>
+	
+	</div>
+	
+</div>
+{% endblock %}
+

@@ -1,0 +1,157 @@
+{% extends "master.html" %}
+{% block title %}Your Account{% endblock%}
+{% block disable_login_redirect %}{% endblock %}
+{% block head %}
+		<script src="/media/js/jquery.colorbox-min.js"></script>
+		<link rel="stylesheet" href="/media/css/colorbox/colorbox.css" type="text/css" />
+		
+		<script>
+		function updateprofile(validate) {
+			ajaxform("/ajax/accounts/profile/updatefields",
+				{ "validate": (validate ? "validate" : "") },
+				{
+					"username": "#username",
+					"email": "#email",
+					{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
+					"fullname": "#fullname",
+					{% endif %}
+					{% if user.userprofile.is_leg_staff %}
+					"member": "#member",
+					"committee": "#committee",
+					"position": "#position",
+					{% endif %}
+					{% for orgrole in user.orgroles.all %}
+					"orgrole_{{orgrole.org.slug}}_title": "#orgrole_{{orgrole.org.slug}}_title",
+					{% endfor %}
+				},
+				{
+					statusfield: "errorlabel",
+					savebutton: "submitbutton",
+					success: function(res) {
+					}
+				}
+				);
+		}
+		function addRemoveIssueArea(add_remove, id, statuslabelid, callback) {
+			ajax(
+				"/ajax/accounts/profile/updatefield",
+				{ name: "issue-" + add_remove, value: id},
+				{
+					success: function() {
+						callback(issuearea_list);
+						$('#issuearealist').html("");
+						for (var ix in issuearea_list) {
+							var n = $("<li></li>");
+							$(n).text(issuearea_list[ix][1]);
+							$('#issuearealist').append(n);
+						}
+					},
+				}
+			);
+		}
+		var issuearea_list = [{% for issue in user.userprofile.issues.all %}[{{issue.id}}, "{{issue.name|escapejs}}"],{% endfor %}];						
+		</script>
+{% endblock %}
+{% block content %}
+	<div class="section">
+
+	<h1>Your POPVOX Account</h1>
+
+	<p>We appreciate that you have taken the time to create an account on POPVOX.</p>
+	
+	<div class="form">
+	
+	<label for="username">Screen Name</label>
+	<input id="username" type="text" value="{{user.username}}"/>
+	<div id="errorlabel_username" class="error"></div>
+	<small>Your screen name is how you are known publicly on POPVOX when you leave a public comment on legislation. Screen names must be at least five characters and cannot contain spaces.</small>
+	
+	{% if user.password %}
+	<small><a href="profile/change_password">Change Password</a></small>
+	{% endif %}
+
+	<label for="email">Email</label>
+	<input id="email" type="text" value="{{user.email}}"/>
+	<div id="errorlabel_email" class="error"></div>
+	<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
+	
+	{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
+	<label for="fullname">Full Name</label>
+	<input id="fullname" type="text" value="{% if user.userprofile.fullname %}{{user.userprofile.fullname}}{% endif %}"/>
+	<div id="errorlabel_fullname" class="error"></div>
+	{% endif %}
+	{% if user.userprofile.is_org_admin %}
+	<small>Your full name is shown on your organization&rsquo;s profile page for congressional legislative staff.</small>
+	{% endif %}
+	{% if user.userprofile.is_leg_staff %}
+	<small>Your name is not displayed publicly.</small>
+	{% endif %}
+
+	{% if user.userprofile.is_leg_staff %}
+	<label for="member">Member</label>
+	<select id="member" class="c5">
+		<option value="">(Select If Applicable)</option>
+		{% for c in mocs %}
+		<option value="{{c.id}}" {% if c.id == user.legstaffrole.member %}selected="1"{% endif %}>{{c.name}}</option>
+		{% endfor %}
+	</select>
+	<div id="errorlabel_member" class="error"></div>
+	<small>Select the Member of Congress you work for. If you work directly for a congressional committee, leave this field as is.</small>
+	
+	<label for="committee">Committee</label>
+	<select id="committee"class="c5">
+		<option value="">(Select If Applicable)</option>
+		{% for c in committees %}
+		<option value="{{c.id}}" {% if c.id == user.legstaffrole.committee %}selected="1"{% endif %}>{{c.name}}</option>
+		{% endfor %}
+	</select>
+	<small>If you are committee staff, choose the committee you work for.</small>
+
+	<label for="position">Position</label>
+	<input id="position" type="text" value="{{user.legstaffrole.position}}"/>
+	<div id="errorlabel_position" class="error"></div>
+	{% endif %}
+	
+	<script>
+	$('#username, #email, #fullname').keyup_delayed(function() { updateprofile(true) });
+	$('#username, #email, #fullname').input_default();
+	</script>
+	
+	{% for orgrole in user.orgroles.all %}
+	<p>Please enter your contact information at <a href="{{orgrole.org.url}}">{{orgrole.org.name}}</a> which will be shared with congressional staff only.</p>
+	<label for="orgrole_{{orgrole.org.slug}}_title">Job Title</label>
+	<input id="orgrole_{{orgrole.org.slug}}_title" type="text" value="{{orgrole.title}}"/>
+	<div id="errorlabel_orgrole_{{orgrole.org.slug}}_title" class="error"></div>
+	
+	<script>
+	$('#orgrole_{{orgrole.org.slug}}_title').keyup_delayed(function() { updateprofile(true) });
+	$('#orgrole_{{orgrole.org.slug}}_title').input_default();
+	</script>
+	{% endfor %}
+	
+	<input type="button" class="submit" id="submitbutton" value="Save" onclick="updateprofile(false)"/>
+	<p id="errorlabel" class="error"/>
+	<div class="hr"></div>
+	
+	{% if user.userprofile.is_leg_staff %}
+	<h2>Interest Areas</h2>
+	<p>Customize your tracked legislation feed on your <a href="/home">home dashboard</a> by choosing interest areas from the list of Congressional Research Service Legislative Indexing Vocabulary:</p>
+	<ul id="issuearealist" class="bullets">
+		{% for ix in user.userprofile.issues.all %}
+			<li>{{ ix.name }}</li>
+		{% endfor %}
+	</ul>
+	<ul class="bullets">
+		<li><a href="#" onclick="return showIssueAreaChooser(issuearea_list);">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a></li>
+	</ul>
+	{% endif %}
+	
+	{% include "popvox/issueareachooser.html" %}	
+	
+	<div class="hr"></div>
+	{% include "registration/profile_singlesignon.html" %}
+	
+	</div>
+	</div>
+{% endblock %}
+

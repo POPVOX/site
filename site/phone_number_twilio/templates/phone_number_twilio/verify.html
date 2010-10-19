@@ -1,0 +1,98 @@
+<script>
+	var phone_number_twilio_focus = false;
+	var phone_number_twilio_polling = false;
+	function phone_number_twilio_initiate() {
+		var n = $('#phone_number_twilio_number').val();
+		if (n == "" || n == "123 456-7890") { return; }
+		$('#phone_number_twilio_initiate').attr('disabled', 'true');
+		
+		$('#phone_number_twilio_status').text("Please wait...");
+		
+		$.ajax({ type:"POST", url: "/ajax/phone_number_twilio/initiate", data:{phonenumber: n }, complete: function(res, status) {
+			if (status != "success") {
+				res = { status: "generic-failure" };
+			} else {
+				res = eval('(' + res.responseText + ')');
+			}
+			if (!res || res.status == "generic-failure") {
+				$('#phone_number_twilio_status').text("Sorry we can't process phone numbers right now.");
+				$('#phone_number_twilio_code_container').hide();
+				$('#phone_number_twilio_initiate').attr('disabled', '');
+			} else if (res.status == "phone-number-invalid") {
+				$('#phone_number_twilio_status').text("That's not a valid phone number. Enter 10 digits.");
+				$('#phone_number_twilio_code_container').hide();
+				$('#phone_number_twilio_initiate').attr('disabled', '');
+			} else if (res.status == "phone-number-taken") {
+				$('#phone_number_twilio_status').text("Someone else has already validated that phone number.");
+				$('#phone_number_twilio_code_container').hide();
+				$('#phone_number_twilio_initiate').attr('disabled', '');
+			} else if (res.status == "phone-number-locked") {
+				$('#phone_number_twilio_status').text("In order to prevent misuse, that number cannot be verified at this time.");
+				$('#phone_number_twilio_code_container').hide();
+				$('#phone_number_twilio_initiate').attr('disabled', '');
+			} else if (res.status == "thats-your-number") {
+				$('#phone_number_twilio_status').text("You are already verified with that number.");
+				$('#phone_number_twilio_code_container').hide();
+				$('#phone_number_twilio_initiate').attr('disabled', '');
+			} else if (res.status == "you-are-already-verified") {
+				$('#phone_number_twilio_status').text("You recently verified a number. You'll have to wait until " + res.until + " before verifying another.");
+				$('#phone_number_twilio_code_container').hide();
+			} else if (res.status == "too-many-calls") {
+				$('#phone_number_twilio_status').text("You've placed too many calls. You won't be able to verify your number.");
+				$('#phone_number_twilio_code_container').hide();
+			} else if (res.status == "initiated") {
+				$('#phone_number_twilio_status').text("");
+				$('#phone_number_twilio_code_container').fadeIn();
+				$('#phone_number_twilio_code').text(res.code);
+				if (!phone_number_twilio_polling)
+					window.setTimeout("phone_number_twilio_poll()", 1);
+			} else {
+				alert("Internal error: Invalid status: " + res.status + "/" + res.msg);
+			}
+		}	
+		});
+	}
+	
+	function phone_number_twilio_poll() {
+		$.ajax({ type:"POST", url: "/ajax/phone_number_twilio/status", data:{ }, complete: function(res, status) {
+			if (status != "success") {
+				res = { status: "generic-failure" };
+			} else {
+				res = eval('(' + res.responseText + ')');
+			}
+			if (!res || res.status == "generic-failure") {
+				$('#phone_number_twilio_status').text("Sorry we can't process phone numbers right now.");
+				$('#phone_number_twilio_code_container').hide();
+				$('#phone_number_twilio_initiate').attr('disabled', '');
+			} else if (res.status == "waiting") {
+				$('#phone_number_twilio_status').text(res.callstatus);
+				window.setTimeout("phone_number_twilio_poll()", 1000);
+			} else if (res.status == "expired") {
+				$('#phone_number_twilio_status').text("Did you pick up? You can try again.");
+				$('#phone_number_twilio_code_container').hide();
+				$('#phone_number_twilio_initiate').attr('disabled', '');
+			} else if (res.status == "fail") {
+				$('#phone_number_twilio_status').text(res.callstatus);
+				$('#phone_number_twilio_code_container').hide();
+				$('#phone_number_twilio_initiate').attr('disabled', '');
+			} else if (res.status == "verified") {
+				$('#phone_number_twilio_status').text("Phone number verified.");
+				$('#phone_number_twilio_code_container').hide();
+				phone_number_twilio_callback();
+			} else {
+				alert("Internal error: Invalid status: " + res.status);
+			}
+		}	
+		});
+	}
+</script>
+
+<p>In order to verify your phone number, we will call you and ask you to enter a verification code. To begin, enter your phone number:</p>
+<div style="margin-left: 2em">
+	<input id="phone_number_twilio_number" type="text" value="123 456-7890" onfocus="if (!phone_number_twilio_focus) { this.value=''; phone_number_twilio_focus=true; $('#phone_number_twilio_initiate').attr('disabled', ''); }"/>
+	<input id="phone_number_twilio_initiate" type="button" value="Call Me" onclick="phone_number_twilio_initiate()" disabled="1"/>
+	<span id="phone_number_twilio_status" style="color: #555"></span>
+</div>
+<div id="phone_number_twilio_code_container" style="display: none; margin: 2em; border: 2px solid black; padding: 1em">
+	We&rsquo;re going to call your number in just a moment. PIck up and when prompted enter the verification code <span id="phone_number_twilio_code" style="font-size: 150%; font-weight: bold"></span>.
+</div>

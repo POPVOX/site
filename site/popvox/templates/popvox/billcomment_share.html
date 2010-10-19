@@ -1,0 +1,159 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% load registration_providers %}
+{% block title %}Share Your Comment on {{ bill.title }}{% endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+var working = false;
+function share(method) {
+	if (method == "email" && $('#share_email_field').hasClass("default")) {
+		alert("Enter some email addresses.");
+		return;
+	};
+	working = true;
+	ajax("/ajax/bills/share",
+		{ "bill": {{bill.id}}, "comment": {{comment.id}}, "message": $('#share_message').val(), "method": method, "emails": $('#share_email_field').val() },
+		{ "savebutton": "share_" + method + "_button",
+		   "statusfield": "share_" + method + "_status",
+		   "success": function() {
+			   working = false;
+		   },
+		   "failure": function() {
+			   working = false;
+		   },
+		});
+}
+</script>
+{% endblock %}
+{% block content %}
+<div class="content">
+{% if mode == "post" %}
+	{% bill_statistics bill as stats %}
+
+	{% with "share" as billcomment_progress_step %}
+	{% include "popvox/billcomment_progress.html" %}
+	{% endwith %}
+
+	<div class="tab_pane">
+	
+	{% if stats %}
+	<h1>You Changed the Pie Chart!</h1>
+	{% else %}
+	<h1>Share Your Comment</h1>
+	{% endif %}
+	
+	<div class="col_8 col_top clear">
+		{% if not stats %}
+			<p>You are one of the first few people to comment on {{bill.displaynumber}}. Spread the word with the tools below to put this bill on the radar of your Members of Congress.</p>
+		{% endif %}
+		{% if stats and stats.total <= 50 %}
+			<p>You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}. But it will take more people than that to get the attention of your Members of Congress. Spread the word with the tools below.</p>
+		{% endif %}
+		{% if stats and stats.total > 50 and stats.total <= 200 %}
+			<p>You nudged the pie chart in your direction by about one percent! This bill is starting to get attention in {{stats.longdescription}} but it will take more people than that to get traction in Congress. Spread the word about {{bill.displaynumber}} with the tools below.</p>
+		{% endif %}
+		{% if stats and stats.total > 200 %}
+			<p>You nudged the pie chart in your direction but this bill is becoming popular in {{stats.longdescription}}. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}} with the tools below.</p>
+		{% endif %}
+		
+{% else %}
+	<h1>Share Comment</h1>
+	
+	<div class="col_4 col_top">
+		<h4 class="clear">{{comment.user.username}} from {{comment.address.city}}, {{comment.address.state}} wrote {{comment.updated|date2}}:</h4>
+		<div style="margin-top: 1em">{{comment.message|wraplines:"p"}}</div>
+	</div>
+
+	<div class="col_8 col_top col_last">
+{% endif %}
+		
+		<h3>Personalized Message to Recipients</h3>
+		<textarea id="share_message" style="width: 500px">{% if method == "post" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}</textarea>
+		<script>$(function() { $('#share_message').input_autosize(); });</script>
+		
+		<h3>Email Your Friends</h3>
+		<p>We&rsquo;ll send your message in an email to these recipients. Separate multiple email addresses with commas or newlines:</p>
+		<textarea id="share_email_field" style="width: 500px"></textarea>
+		<p>The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
+		<div>
+			<input id="share_email_button" type="button" class="submit" value="Share Via Email" onclick="share('email')"/>
+			<span id="share_email_status" class="error"></span>
+		</div>
+		<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
+
+		<h3>Post to Facebook</h3>
+		<div style="float: left; margin-right: 1em">
+			<img src="{{"facebook"|provider_logo:32}}"/> 
+		</div>
+		{% if not facebook %}
+			<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin:</p>
+			<p><a href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/share">
+			<img src="/media/icons/sm/facebook-login.png"/></a></p>
+		{% else %}
+			{% if comment.fb_linkid %}
+				<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
+			{% endif %}
+			<p>Click the Facebook Share icon to post your message on your Wall (in the account {{facebook.profile.screen_name}}):</p>
+			<p><a href="#" onclick="return share('facebook')"> 
+				<img src="/media/icons/sm/facebook-share.png"/> 
+			</a></p>
+			<p id="share_facebook_status"></p>
+		{% endif %}
+		
+		<h3>Send a Tweet</h3>
+		{% if not twitter %}
+			<div style="float: left; margin-right: 1em">
+				<img src="{{"twitter"|provider_logo:32}}"/> 
+			</a>
+			<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button begin:</p>
+			<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/share"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
+		{% else %}
+			<div style="float: left; margin-right: 1em"><a href="#" onclick="return share('tweet')"> 
+				<img src="{{"twitter"|provider_logo:32}}"/> 
+			</a></div>
+			{% if comment.tweet_id %}
+				<p>You have already tweeted about this bill, but if you go strongly about the issue please go over to Twitter and <a href="http://twitter.com/?status=%20{{bill.hashtag|urlencode}}">tweet some more</a>.</p>
+			{% else %}
+				<p>Click the Twitter icon to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
+				<p id="share_twitter_status"></p>
+			{% endif %}
+		{% endif %}
+	</div>
+	
+	{% if mode == "post" %}
+	<div class="col_4 col_top col_last">
+		{% if stats %}
+		<h4>What Others Think</h4>
+		<div>
+			<a href="{{bill.url}}/report">
+				<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
+			</a>
+			<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
+			
+			<div class="chart_info">
+				<div class="col_chart">
+					<p class="chart_stats">
+						<span class="chart_title">{{stats.longdescription}}:</span><br />
+						<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
+						<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
+						<span class="users">({{stats.total}} users)</span>
+					</p>
+					<!--<p class="view_report">
+						<span><a href="{{billrec.bill.url}}/report">View Report</a></span>
+					</p>-->
+				</div>
+			</div>
+		</div>
+		{% endif %}
+
+		<h4 class="clear">What You Wrote</h4>
+		<div style="margin-top: 1em">{{comment.message|wraplines:"p"}}</div>
+	</div>
+	</div>
+	{% endif %}
+</div>
+{% endblock %}
+

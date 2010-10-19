@@ -1,0 +1,144 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Bills in Congress{% endblock%}
+{%block nav_legstaff_class_bills%}active{%endblock%}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block head %}
+<script>
+var slider_index = 0;
+function slide(direction) {
+	slider_index += direction;
+	if (slider_index == -1) slider_index = {{hotbills|length}}-1;
+	if (slider_index == {{hotbills|length}}) slider_index = 0;
+	$('#hotbills_container').animate( {"margin-left": -510*slider_index}, "slow"  );
+	return false; // important to cancel click
+}
+$(function() {
+		$('#hotbills_container').width(510 * {{hotbills|length}});
+});
+</script>
+{% endblock %}
+{% block content %}
+<div class="content">
+	
+	<div class="col_9 col_top">
+		<h1>Bills in Congress</h1>
+		
+		{% if user.userprofile.is_org_admin %}
+		<p>Click on a bill to view its &ldquo;opinion pie&rdquo; for a state or Congressional district, or the entire POPVOX Nation.   You will also find the bill’s status, co-sponsors and which other advocacy organizations and trade associations endorse it.  Then, endorse or oppose the bill on behalf of your organization so that Congressional staffers and the public can learn about your organization’s positions. <a href="#" id="intro_more">Learn more...</a></p>
+		{% more intro %}
+		<p>As you know, advocacy organizations and trade associations play a significant role in the policy-making process.  They help shepherd bills through Congress by lobbying Members of Congress to co-sponsor bills and garnering public support for bills to persuade Congress &mdash; or even specific Members &mdash; to act.</p> 
+		<p>Getting &ldquo;face time&rdquo; with Congressional staffers is often challenging however, and mobilizing the public may be a slow process.  POPVOX simplifies these tasks by enabling advocacy groups to endorse or oppose legislation on a public platform accessible to Congressional staffers and the public. | <a href="#" id="intro_less">hide</a></p>
+		{% endmore %}
+		{% endif %}
+		
+		{% if not user.userprofile.is_org_admin and not user.userprofile.is_leg_staff %}
+		{% comment %}<p>While Members of Congress create laws, your part in the lawmaking process is critical.  POPVOX helps you weigh in on legislation and delivers your message directly to your Members of Congress in a format that is tailored for Congressional staffers.</p>{% endcomment %}  
+		<p>Click on a bill to learn more about the issue, see which advocacy organizations and trade associations endorse it and how far along it is in the policy-making process.  Then, advise your own Members of Congress on how they should vote on the bill by supporting or opposing it &mdash; and sharing your comments. <a href="#" id="intro_more">Learn more...</a></p>
+		{% more intro %}
+		<p>Creating laws is the most important responsibility of Congress.  Each proposed law begins as legislation, or a bill, sponsored by a Member of Congress in the House or the Senate.  Once a bill is introduced, it is shepherded through various committees before it comes to the House or Senate floor for a vote.  Once both the House and Senate pass the bill, it goes to the President to be signed into law.</p>
+		<p>Advocacy organizations and trade associations play a significant role in this process.  They can help push bills through the process by lobbying Members of Congress to co-sponsor the bill and garnering public support for the bill to persuade Congress &mdash; or even specific Members &mdash; to act. </p>
+		<p>Your role in the lawmaking process is just as critical: to help Congress understand your opinions.  POPVOX simplifies this task by allowing you to voice your concerns about specific legislation by issue area and delivers your message directly to your Members of Congress in a format that is tailored for Congressional staffers.</p>  
+		<p>Just click on a bill to learn more about the issue, see which advocacy organizations and trade associations endorse it and how far along it is in the policy-making process.  Then weigh in. | <a href="#" id="intro_less">hide</a></p>
+		{% endmore %}
+		{% endif %}
+		
+		{% if hotbills|length > 1 %}
+		<div class="hot_bills">
+			
+			<a class="b_arrow_l btn" href="#" onclick="return slide(-1)"> </a>
+			<a class="b_arrow_r btn" href="#" onclick="return slide(1)"> </a>
+			
+			<div class="hot_col_r" style="overflow: hidden; width: 510px">
+			<div id="hotbills_container" style="width: 510px">
+				{% for bill in hotbills %}
+					<div id="hotbill_{{forloop.counter0}}" style="float: left; width: 510px;">
+					<a class="action" href="{{bill.url}}">Action</a>
+					<h3><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></h3>
+					{% if bill.sponsor %}
+						<p>
+						<span>Sponsor:</span> <a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
+						</p>
+					{% endif %}
+					<p>
+						<span class="status">Status:</span>
+						{{bill.status_advanced|truncatewords:8}}
+					</p>
+					{% if bill.officialtitle %}
+						<p>{{ bill.officialtitle|truncatewords:20 }}</p>
+					{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+			</div>
+			<div class="clear"> </div>
+		</div>
+		{% endif %}
+		
+		<div class="block bill_search search_orange">
+			<div class="search_box">
+				<p><strong>Bill Search</strong> {% comment %} <span>search by bill number or keyword</span>{% endcomment %}</p> 
+				{% include "popvox/billsearch_form.html" %}
+			</div>
+		</div>
+		
+		<div class="block bills rule col_12">
+			
+			<h3 class="no_rule">Most Searched</h3>
+		
+				{% for billrec in popular_bills %}
+					<div class="col_6 {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %} {% if forloop.counter|divisibleby:"2" %}col_last{% endif %}">
+						{% with billrec.bill as bill %}
+						
+						{% if billrec.pos == "" %}
+						<a class="action" href="{{bill.url}}">Action</a>
+						{% endif %}
+						
+						<h4><a href="{{billrec.bill.url}}">{{ billrec.bill.title }}</a></h4>
+						{% if bill.sponsor %}
+						<p><strong>Sponsor:</strong>
+						<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
+						</p>
+						{% endif %}
+						
+						<p><strong>Status:</strong>
+						<em>
+						{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
+							{{bill.status_advanced}}
+						{% else %}
+							{{bill.status}}
+						{% endif %}
+						</em></p>
+						
+						{% if bill.officialtitle %}<p class="bill_detail">{{ bill.officialtitle|truncatewords:18 }}</p>{% endif %}
+						
+						{% for org in billrec.orgs %}
+						<div class="bill_endorseoppose">
+							<p>
+								{% if org.position == "+" %}Endorsed{% endif %}
+								{% if org.position == "-" %}Opposed{% endif %}
+								by
+								<a href="{{org.url}}">{{org.name}}</a>
+							</p>
+							{% for cam in org.campaigns %}
+								<p style="margin-left: 1.5em"><a href="{{cam.url}}">{{cam.name}}</a>{% if cam.description %}: {{ cam.description|truncatewords:50 }}{% endif %}</p>
+							{% endfor %}
+						</div>
+						{% endfor %}
+					</div>
+					
+					{% endwith %}
+					
+					{% if forloop.counter|divisibleby:"2" and not forloop.last %}<div class="hr_dot"> </div> {% endif %}
+				{% endfor %}
+		</div>
+	</div>
+		
+		   
+	{% include "ads/rightbar.html" %}
+</div>
+		    
+{% endblock %}
+

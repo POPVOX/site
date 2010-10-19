@@ -1,0 +1,180 @@
+<script>
+	var congressional_district_map;
+	var congressional_district_marker;
+	var congressional_district_marker_info;
+	var congressional_district_map_init = false;
+	var congressional_district_addr_focus = false;
+	
+	function congressional_district_finddistrict() {
+		$('#congressional_district_finddistrict_button').attr('disabled', 'true');
+		var addr = $('#congressional_district_addr').val();
+		var status_span = $('#congressional_district_status');
+		
+		status_span.show();
+		status_span.css('color','#444');
+		status_span.text("Looking up your congressional district...");
+		
+		$.ajax({ type:"POST", url: "/ajax/district-lookup", data:{"address": addr}, complete:
+				function(res, status) {
+					$('#congressional_district_finddistrict_button').attr('disabled', '');
+					if (status != "success") {
+						res = { status: "generic-failure" };
+					} else {
+						res = eval('(' + res.responseText + ')');
+					}
+					if (!res || res.status != "success") {
+						status_span.css('color','#F33');
+						if (!res || res.status == "generic-failure" || !res.msg || res.msg == "") {
+							status_span.text("Sorry, there was an error. Please try again later. :(...");
+						} else {
+							status_span.text(res.msg);
+						}
+					} else {
+						if (res.msg && res.msg != "") {
+							status_span.css('color','#33F');
+							status_span.text(res.msg);
+						} else {
+							status_span.hide();
+						}
+						
+						if (res.method == "zipcode-exact") {
+							status_span.css('color','#33F');
+							status_span.text("You live in district " + res.state + "-" + res.district + ". Setting saved.");
+							status_span.fadeIn();
+							$('#map_canvas').hide();
+							congressional_district_callback(res.state, res.district);
+							return
+						}
+						
+						var myLatlng = new google.maps.LatLng(res.lat, res.lng);
+						var myZoom = 11;
+							
+						if (!congressional_district_map_init) {
+							congressional_district_map_init = true;
+							
+							var myOptions = {
+								zoom: myZoom,
+								center: myLatlng,
+								mapTypeId: google.maps.MapTypeId.ROADMAP,
+								mapTypeControlOptions: { mapTypeIds: [ google.maps.MapTypeId.ROADMAP, "styledroadmap"] }
+								}
+							congressional_district_map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+							
+							var styledMapType = new google.maps.StyledMapType(
+								[
+								    {
+									 featureType: "landscape",
+									 stylers: [
+									   { hue: "#FFFFFF" },
+									 ]
+								    },
+								    {
+									 featureType: "poi.park",
+									 stylers: [
+									   { visibility: "off" }
+									 ]
+								    },
+								    {
+									 featureType: "poi.business",
+									 stylers: [
+									   { visibility: "off" }
+									 ]
+								    },
+							    ],
+							    { name: "Simplified Map" })
+							
+							congressional_district_map.mapTypes.set('styledroadmap', styledMapType);
+							
+							congressional_district_map.overlayMapTypes.push(
+								new google.maps.ImageMapType(
+									{
+									  getTileUrl: function(coord, zoom) {								
+									    return "http://www.govtrack.us/perl/wms/wms.cgi?LAYERS=cd-110&FORMAT=image/png&google_tile_template_values=" + coord.x + "," + coord.y + "," + zoom + "";
+									  },
+									  tileSize: new google.maps.Size(256, 256),
+									  isPng: true,
+									  opacity: .1,
+									}
+							));
+								
+							congressional_district_map.overlayMapTypes.push(
+								new google.maps.ImageMapType(
+									{
+									  getTileUrl: function(coord, zoom) {								
+									    return "http://www.govtrack.us/perl/wms/wms.cgi?LAYERS=cd-110-outlines&FORMAT=image/png&google_tile_template_values=" + coord.x + "," + coord.y + "," + zoom + "";
+									  },
+									  tileSize: new google.maps.Size(256, 256),
+									  isPng: true,
+									  opacity: .8,
+									}
+							));
+							
+							congressional_district_marker = new google.maps.Marker({
+								    map: congressional_district_map, 
+								    position: myLatlng,
+								    title: "Drag me!",
+								    draggable: true,
+								});
+						    
+						    congressional_district_marker_info = new google.maps.InfoWindow({
+								    content: "<div style='color: black; width: 18em; height: 5em'><p>Drag me to your home address.</p> <p id='map_cur_district'></p></div>"
+						    });
+						    
+						    function updatedist(coord) {
+							    $('#map_cur_district').text("Loading location...");
+							    	$.ajax({ type:"POST", url: "/ajax/district-lookup", data:{"lat": coord.lat(), "lng": coord.lng() }, complete:
+									function(res, status) {
+										if (status != "success") { $('#map_cur_district').text(""); return; }
+										res = eval('(' + res.responseText + ')');
+										if (!res || res.status != "success") { $('#map_cur_district').text(""); return; }
+										
+										$('#map_cur_district').html("This is district " + res.state + "-" + res.district + ". <input type='button' value='Save Location' onclick='congressional_district_callback(\"" + res.state + "\", " + res.district + ");'/>");
+									}
+								});
+						    }
+		    
+						    google.maps.event.addListener(congressional_district_marker_info, "domready", function(e) { // update on open 
+								    updatedist(myLatlng);
+						    	});
+						    
+						    congressional_district_marker_info.open(congressional_district_map, congressional_district_marker);
+						    
+						    google.maps.event.addListener(congressional_district_marker, "dragend", function(e) { 
+								    updatedist(e.latLng);
+						    	});
+							
+							$('#map_canvas_container').show();
+							
+							$('html, body').animate({
+								scrollTop: $("#map_canvas_container").offset().top
+								}, 2000);
+	
+						} else {
+							congressional_district_map.setCenter(myLatlng);
+							congressional_district_map.setZoom(myZoom);
+						}
+					}
+				}
+			});
+	}
+</script>
+<div>
+	<p>In order to find your congressional district, we ask you to provide your
+	street address so that we can locate you on a map. We&rsquo;ll toss the
+	information away as soon as we figure out what congressional district
+	you live in.</p>
+	<div style="margin-left: 2em">
+		<div><textarea id="congressional_district_addr" cols="40" rows="2" wrap="virtual" onfocus="if (!congressional_district_addr_focus) { this.value=''; congressional_district_addr_focus=true; }">1600 Pennsylvania Avenue
+Washington, DC 20500-0004</textarea></div>
+		<div style="color: #555; font-size: 95%; margin: .4em 0 .5em 0">(Please include your 9-digit ZIP code if you know it. That will help us locate you faster.)</div>
+		<div>
+			<input id="congressional_district_finddistrict_button" type="button" value="Find District" onclick="congressional_district_finddistrict()"/>
+			<span id="congressional_district_status" style="display: none"></span>
+		</div>
+	</div>
+	
+	<div id="map_canvas_container" style="display: none; margin-top: 1em">
+		<h3>Verify Your Location</h3>
+		<div id="map_canvas" style="margin-top: 1em; height: 450px; border: 1px solid black"></div>
+	</div>
+</div>

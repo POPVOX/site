@@ -1,0 +1,40 @@
+{% extends "master.html" %}
+{% block title %}Bill Search{% endblock%}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block content %}
+	<div class="content">
+	<div class="col_9 col_top">
+
+	<h1>Bill Search</h1>
+	
+	{% include "popvox/billsearch_form.html" %}
+	
+	{% if not bills %}
+	<p>Sorry, no bills matched your search.</p>
+	{% endif %}
+	
+	{% if status == "overflow" %}
+	<p>More than 100 bills came back for your search but only the first 100 are displayed below. To dig deeper, <a href="http://www.govtrack.us/congress/billsearch.xpd">use bill search at GovTrack.us</a>.</p>
+	{% endif %}
+	
+	{% if status == "callfail" %}
+	<p>The search function had an internal error.</p>
+	{% endif %}
+	
+	<ul>
+	{% for bill in bills %}
+		<li>
+				<a href="{{ bill.url }}">{{ bill.title }}</a>
+		</li>
+	{% endfor %}
+	</ul>
+	
+	</div>
+	
+	{% include "ads/rightbar.html" %}
+	
+	</div>
+
+{% endblock %}
+

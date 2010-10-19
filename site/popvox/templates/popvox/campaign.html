@@ -1,0 +1,105 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% load humanize %}
+{% block title %}{{ cam.org.name }} - {{ cam.name }}{% endblock %}
+{%block nav_orgadmin_class_profile%}{%if admin%}active{%endif%}{%endblock%}
+{%block nav_orgadmin_class_orgs%}{%if not admin%}active{%endif%}{%endblock%}
+{%block nav_citzen_class_orgs%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block head %}
+	{% with cam.org as org %}
+		{% include "popvox/org_common_scripts.html" %}
+	{% endwith %}
+{% endblock %}
+{% block content %}
+<div class="content"> 
+	<div class="col_3 col_top profile_block"> 
+		<a href="{{cam.org.url}}{% if admin and not cam.org.logo %}/_edit{% endif %}" style="border: none">
+		<img id="profileimage" src="{% if cam.org.logo %}{{cam.org.logo.url}}{% else %}/media/master/grey.gif{% endif %}" alt="Profile Image" width="220" height="166" />
+		</a>
+		
+		<p><a href="{{cam.org.url}}">Back to {{cam.org.name}}</a></p>
+		
+		{% if admin %}
+		<p class="edit"><a href="{{cam.slug}}/_edit">EDIT CAMPAIGN</a></p>
+		{% endif %}
+		
+		<h3 class="info">Info</h3>
+		
+		{% if cam.description %}
+		<div>
+			<em>{{ cam.description }}</em>
+		</div>
+		{% endif %}
+
+		{% if cam.website_or_orgsite %}
+		<p><a href="{{cam.website_or_orgsite}}">{{cam.website_or_orgsite}}</a></p>
+		{% endif %} 
+		
+		{% if cam.org.facebookurl %}
+		<h4>facebook:</h4> 
+		<p><a href="{{cam.org.facebookurl}}">Go to Facebook Page</a></p>
+		{% endif %} 
+		
+		{% if cam.org.twittername %}
+		<h4>twitter:</h4> 
+		<p><a href="http://www.twitter.com/{{cam.org.twittername}}">@{{cam.org.twittername}}</a></p>
+		{% endif %} 
+		
+		{% if cam.org.postaladdress %}
+		<p class="address"><div>{{cam.org.name}}</div>{{cam.org.postaladdress|wraplines:'div'}}</p>
+		{% endif %}
+		{% if cam.org.phonenumber %}
+		<p class="address">{{cam.org.phonenumber}}</p>
+		{% endif %}
+	</div><!-- e: col_3 --> 
+	
+	<div class="col_6 col_top"> 
+		<div class="section_head"> 
+			{% if admin %}
+				{% if not cam.description or not cam.message %}
+					<p class="whattodonext">You need to <a href="{{cam.url}}/_edit">edit this campaign</a> to provide a description of the campaign.</p>
+				{% else %}
+					{% if not cam.positions.all %}
+						<p class="whattodonext">You haven&rsquo;t endorsed or opposed any legislation in this campaign yet. <a href="{{cam.url}}/_edit">Add legislation</a> to this campaign.</p>
+					{% else %}
+						{% if not cam.visible %}
+							<p class="whattodonext">This campaign is currently <a href="{{cam.url}}/_edit">hidden from public view</a>.</p>
+						{% endif %}
+					{% endif %}
+				{% endif %}
+			{% endif %}
+			
+			<h4>{{cam.org.name}}</h4>
+			<h1>Campaign: {{cam.name}}</h1>
+
+			{% if cam.message %}
+			<div class="userrichtextcontent">
+				{{ cam.message|safe }}
+			</div>
+			{% endif %}	
+		</div> 
+		
+		{% if cam.positions.all %}
+		<h3>Campaign Legislative Agenda</h3>
+		<div>
+		{% for position in cam.positions.all %}
+			{% include "popvox/org_common_position.html" %}
+		{% endfor %}
+		</div>
+		{% endif %}
+		
+		{% if admin %}
+		<p class="whattodonext" style="margin-top: 2em">
+		Done setting up the legislative agenda of this campaign? Go back to your profile&rsquo;s <a href="{{cam.org.url}}">main page</a> and review what you entered or check on your legislation on your <a href="/home">home dashboard</a>.
+		</p>
+		{% endif %}
+				
+	</div><!-- e: col_6 --> 
+
+    {% include "ads/rightbar.html" %}
+
+</div>	
+	
+{% endblock %}
+

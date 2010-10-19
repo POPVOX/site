@@ -1,0 +1,127 @@
+<script>
+var selected_bill;
+function billsearch_q_submit() {
+	$('#billsearch_error').hide();
+	
+	if ($('#billsearch_q').hasClass('default')) return false; // don't do anything if default text
+	var v = $('#billsearch_q').val();
+	v = v.replace(" ", "").replace(".", "")
+	if (v == "") return false; // don't do anything if blank
+	var billnumberre = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
+	var match = billnumberre.exec(v);
+	if (!match) return true; // not a bill number, so submit form like normal
+	var billtype = match[1];
+	var billnumber = match[2];
+	var congressnumber = match[4]; // possibly undefined, GovTrack style prev congress search
+	
+	ajax("/ajax/bills/search",
+		{ "congressnumber": (congressnumber ? congressnumber : 0),
+		   "billtype": billtype,
+		   "billnumber": billnumber,
+		},
+		{
+			savebutton: "billsearch_button",
+			success: function(res) {
+				$.colorbox({
+					transition: "none",
+					inline: true,
+					href:'#billsearch_endorse_oppose',
+					opacity: .85,
+					height: {% if not cam %}"525px"{% else %}"410px"{% endif %},
+					width: "620px",
+					onComplete: function() {
+					}
+				});
+				
+				$('#billsearch_endorse_oppose_title').text(res.title);
+				$('#billsearch_endorse_oppose_sponsor span').text(res.sponsor.name);
+				$('#billsearch_endorse_oppose_status span').text(res.billstatus);
+				selected_bill = res;
+			},
+			failure: function(res) {
+				$('#billsearch_error').text("That is not a bill number.");
+				$('#billsearch_error').fadeIn();
+			}
+		}
+		);
+	
+	return false;
+}
+function billsearch_endorse_oppose(pos) {
+	$('#billsearch_endorse_oppose_submit_endorse').attr('disabled', '1');
+	$('#billsearch_endorse_oppose_submit_oppose').attr('disabled', '1');
+	$('#billsearch_endorse_oppose_submit_cancel').attr('disabled', '1');
+	
+	ajax("/post/org_support_oppose",
+		{ "org": "{{org.slug}}",
+		   "cam": ( $('#billsearch_endorse_oppose_forcam')[0].checked ? $('#billsearch_endorse_oppose_cam').val() : "_default_"),
+		   "bill": selected_bill.url,
+		   "position": pos,
+		   "comment": $('#bill_endorse_oppose_comment').val()
+		},
+		{
+			success: function(res) {
+				if ($('#billsearch_endorse_oppose_forcam')[0].checked && $('#billsearch_endorse_oppose_cam').val() == "_new_")
+					window.location = res.camurl + "/_edit";
+				else if ($('#billsearch_endorse_oppose_forcam')[0].checked)
+					window.location = res.camurl;
+				else
+					window.location = "{{org.url|escapejs}}";
+			},
+			failure: function() {
+				$('#billsearch_endorse_oppose_submit_endorse').attr('disabled', '');
+				$('#billsearch_endorse_oppose_submit_oppose').attr('disabled', '');
+				$('#billsearch_endorse_oppose_submit_cancel').attr('disabled', '');
+			}
+		}
+		);					
+}
+</script>
+<div class="">
+    <form method="get" action="/bills/search" onsubmit="return billsearch_q_submit()">
+		<input id="billsearch_q" type="text" class="search" name="q" value=""/>
+		<input id="billsearch_button" class="btn submit_search" type="submit" value="Search"/>
+		<div id="billsearch_error" class="error"></div>
+    </form>
+    <script>$('#billsearch_q').input_default("search by bill number or keywords");</script>
+
+    <div style="display: none;">
+    <div id="billsearch_endorse_oppose" class="colorbox">
+    	<div>
+    		<strong id="billsearch_endorse_oppose_title"></strong>
+    	</div>
+		<div class="billsearch_endorse_oppose_info">
+			<div id="billsearch_endorse_oppose_sponsor">
+				<label>Sponsor</label> <span></span>
+			</div>
+			<div id="billsearch_endorse_oppose_status">
+				<label>Status</label> <span></span>
+			</div>
+		</div>
+		<p>Provide a short explanation of your position: (optional)</p>
+		<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%"></textarea>
+		<div id="billsearch_endorse_oppose_campaign" {% if cam %}style="display: none"{% endif %}>
+			<p>Campaigns are issue silos in which your organization may endorse or oppose one or more bills.</p>
+			<p>
+				<input type="checkbox" id="billsearch_endorse_oppose_forcam" onclick="if ($('#billsearch_endorse_oppose_forcam')[0].checked) $('#billsearch_endorse_oppose_camdiv').show(); else $('#billsearch_endorse_oppose_camdiv').hide();" {% if cam or lastviewedcampaign %}checked="1"{% endif %}/>
+				<label for="billsearch_endorse_oppose_forcam">Add this bill to a campaign.</label>
+			</p>
+			<div id="billsearch_endorse_oppose_camdiv" style="{% if not cam and not lastviewedcampaign %}display: none{% endif %}">
+				<select id="billsearch_endorse_oppose_cam">
+					{% for campaign in org.orgcampaign_set.all %}{% if not campaign.default %}<option value="{{campaign.slug}}" {% if camaign.id == cam.id or campaign.id == lastviewedcampaign.id %}selected="1"{% endif %}>{{ campaign.name }}</option>{% endif %}{% endfor %}
+					<option value="_new_">&lt; Create a New Campaign... &gt;</option>
+				</select>
+			</div>
+		</div>
+		<div id="bill_endorse_oppose_holder">
+			<input id="billsearch_endorse_oppose_submit_endorse" class="submit" type="button" value="Endorse" onclick="billsearch_endorse_oppose('+')"/>
+			<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="billsearch_endorse_oppose('-')"/>
+		</div>
+		{% comment %}<div style="text-align: center">
+			<a id="billsearch_endorse_oppose_submit_cancel" href="#" onclick="$.colorbox.close(); return false">Cancel</a>
+		</div>{% endcomment %}
+    </div>
+    </div>
+</div>
+
+

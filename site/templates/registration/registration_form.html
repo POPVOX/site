@@ -1,0 +1,190 @@
+{% extends "master.html" %}
+{% block title %}
+	Create Account
+	{% if mode == "legstaff" %}: Congressional Legislative Staff{% endif %}
+	{% if mode == "orgstaff" %}: Advocacy Organization Staff{% endif %}
+{% endblock%}
+{% block disable_login_redirect %}{% endblock %}
+{% block head %}
+<script>
+function submit_registration() {
+	ajaxform("/ajax/accounts/register",
+		{ // general post data
+		   "mode": "{{mode}}",
+		   "recaptcha_challenge_field": document.forms.captcha.recaptcha_challenge_field.value,
+		   "recaptcha_response_field": document.forms.captcha.recaptcha_response_field.value,
+		   {% if next %}"next": "{{next|escapejs}}",{% endif %}
+		},
+		{ // fields
+		   {% if mode == "" %}
+		   "username": "#username",
+		   {% endif %}
+		   "password": "#password",
+		   "password2": "#password2",
+		   "email": "#email",
+		   {% if mode == "legstaff" %}
+		   "fullname": "#fullname",
+		   "member": "#member",
+		   "committee": '#committee',
+		   "position": '#position',
+		   {% endif %}
+		   {% if mode == "orgstaff" %}
+		   "fullname": '#fullname',
+		   "orgname": '#orgname',
+		   "orgwebsite": '#orgwebsite',
+		   "title": '#title',
+		   {% endif %}
+		},
+		{
+			statusfield: "errorlabel",
+			savebutton: "submitbutton",
+			success: function() {
+				$('#submitbutton').attr('disabled', '1');
+				document.location = "/accounts/register/check_inbox?email=" + escape($("#email").val());
+			}
+		});
+}
+</script>
+{% endblock %}
+{% block content %}
+<div class="section reg">
+
+	<div class="choose_user">
+		<p>Please choose which type of user applies to you:</p>
+		<ul>
+			<li><a class="b_individual {% if mode == "" %}active{% endif %}" href="/accounts/register{% if next %}?next={{next|urlencode}}{% endif %}">Individual</a></li>
+			<li><a class="b_org_staffer {% if mode == "orgstaff" %}active{% endif %}" href="/accounts/register/orgstaff{% if next %}?next={{next|urlencode}}{% endif %}">Organization Staff</a></li>
+			<li><a class="b_con_staffer {% if mode == "legstaff" %}active{% endif %}" href="/accounts/register/legstaff{% if next %}?next={{next|urlencode}}{% endif %}">Congressional Staff</a></li>
+		</ul>
+	</div>
+	
+	{% if mode == "" %}
+		<h1>Create Account:<br /> <span>Individual</span></h1>
+		<p class="hint">Creating a POPVOX account allows you to comment on legislation before Congress.</p>
+	{% endif %}
+
+	{% if mode == "legstaff" %}
+		<h1>Create Account:<br /> <span>Congressional Staff</span></h1>
+		<p class="hint">Creating a POPVOX account with a <tt>mail.house.gov</tt> or <tt>senate.gov</tt> email address gives you access to additional information for legislative staff only.</p>
+	{% endif %}
+
+	{% if mode == "orgstaff" %}
+		<h1>Create Account:<br /> <span>Advocacy Organization Staff</span></h1>
+		<p class="hint">Add your organization to POPVOX to put your legislative agenda before Congressional staff. We are accepting only non-profit organizations at this time.</p>
+	{% endif %}
+
+	<div class="clear"> </div>
+	
+	<div class="form" style="clear: both">
+		<div class="col_9 rule">
+			{% if mode == "" %}
+			<label for="username">screen name</label>
+			<input type="text" class="c3" id="username"/><br />
+			<div id="errorlabel_username" class="error"></div>
+			<small>Your screen name is how you are known publicly on POPVOX when you leave a public comment on legislation. Screen names must be at least five characters and cannot contain spaces.</small>
+			{% endif %}
+			
+			<label for="email">email</label>
+			<input type="text" class="c4" id="email"/><br />
+			<div id="errorlabel_email" class="error"></div>
+			{% if mode == "" %}
+			<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
+			{% endif %}
+			{% if mode == "legstaff" %}
+			<small>Enter a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> address. Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
+			{% endif %}
+			{% if mode == "orgstaff" %}
+			<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
+			{% endif %}
+			
+			<label for="password">password</label>
+			<input type="password" class="c3" id="password"/><br />
+
+			<label for="password2">password again</label>
+			<input type="password" class="c3" id="password2"/><br />
+			<div id="errorlabel_password" class="error"></div>
+			
+			{% if mode == "orgstaff" or mode == "legstaff" %}
+			<label for="fullname">full name</label>
+			<input type="text" id="fullname" class="c4"/>
+			<div id="errorlabel_fullname" class="error"></div>
+			{% endif %}
+			
+		</div>
+		
+		{% if mode == "legstaff" %}
+		<div class="col_9 rule">
+			
+			<label for="member">member</label>
+			<select id="member" class="c5">
+				<option value="">(Select If Applicable)</option>
+				{% for c in mocs %}
+				<option value="{{c.id}}">{{c.name}}</option>
+				{% endfor %}
+			</select>
+			<div id="errorlabel_member" class="error"></div>
+			<small>Select the Member of Congress you work for. If you work directly for a congressional committee, leave this field as is.</small>
+			
+			<label for="committee">committee</label>
+			<select id="committee"class="c5">
+				<option value="">(Select If Applicable)</option>
+				{% for c in committees %}
+				<option value="{{c.id}}">{{c.name}}</option>
+				{% endfor %}
+			</select>
+			<small>If you are committee staff, choose the committee you work for.</small>
+
+			<label for="position">position</label>
+			<select id="position" class="c5">
+				<option value="">(Please Select)</option>
+				<option>Legislative Assistant</option>
+				<option>Legislative Counsel</option>
+				<option>Other Legislative/Policy Staff</option>
+				<option>Legislative Correspondent</option>
+				<option>Press Secretary</option>
+				<option>Other Communications Staff</option>
+				<option>System Administrator / IT</option>
+				<option>Other</option>
+			</select>
+			<div id="errorlabel_position" class="error"></div>
+			
+		</div>
+		{% endif %}
+			
+		{% if mode == "orgstaff" %}
+		<div class="col_9 rule">
+			<label for="orgname">organization</label>
+			<input type="text" id="orgname" class="c5"/>
+			<div id="errorlabel_orgname" class="error"></div>
+			
+			<label for="orgwebsite">website</label>
+			<input type="text" id="orgwebsite" class="c5" value="http://"/>
+			<div id="errorlabel_orgwebsite" class="error"></div>
+		
+			<label for="title">job title</label>
+			<input type="text" id="title" class="c5"/>
+			<div id="errorlabel_title" class="error"></div>
+		</div>
+		{% endif %}
+		
+		<div class="clear"> </div>
+	</div>
+	
+	<div class="col_9 rule">
+		<div class="captcha">
+			<p>Please type the words you see below{% comment %} to help us prevent &ldquo;<abbr title="a.k.a. comment spam" style="border-bottom: 1px dotted gray; cursor: help">astroturfing</abbr>&rdquo;{% endcomment %}:</p>
+			<form name="captcha" onsubmit="submit_registration(); return false">{{captcha|safe}}</form>
+		</div>
+	
+		<div class="form">
+		<small style="margin-top: 2em"l>We&rsquo;ll send you an email to confirm your email address once you click Submit. Click the link in the email once you get it.</small>
+		<input id="submitbutton" type="button" value="Submit" onclick="submit_registration()" class="submit"/>
+		
+		<p id="errorlabel" class="error"></p>
+	</div>
+	
+	<div class="clear"></div>
+
+</div>
+{% endblock %}
+

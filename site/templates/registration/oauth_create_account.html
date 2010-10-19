@@ -1,0 +1,41 @@
+{% extends "master.html" %}
+{% load registration_providers %}
+{% block title %}Finish Creating Your Account{% endblock%}
+{% block disable_login_redirect %}{% endblock %}
+{% block content %}
+	<div class="content">
+	<h1>Finish Creating Your Account</h1>
+	
+	<form method="post">
+		<div class="form">
+
+		<div class="col_9">
+			<p>It&rsquo;s just one more step to register your {{provider|provider_name}} account on POPVOX. Please choose a username for POPVOX and provide your email address.</p>
+			
+			<p>Some people prefer to keep their political activity and opinions anonymous. If this describes you, please choose a screen name that is not personally identifiable.</p>
+	
+			<label for="username">POPVOX Screen Name</label>
+			<input type="text" size="20" id="username" name="username" value="{{username}}"/>
+			<small>Your screen name is how you are known publicly on POPVOX when you leave a public comment on legislation. Screen names must be at least five characters and cannot contain spaces.</small>
+			
+			{% if email %}
+			<p>We are also collecting your email address {{email}} from {{provider|provider_name}} which will only be used to send you notifications about your account. It will not be shown publicly or shared with third parties.</p>
+			<input type="hidden" name="email" value="{{email}}"/>
+			{% else %}
+			<label for="email">Email Address</label>
+			<input type="text" size="20" id="email" name="email" value="{{email}}"/>
+			<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
+			{% endif %}
+
+			<p class="error" style="display: block">{{error}}</p>
+			
+			<input type="submit" class="submit" value="Continue"/>
+	
+		</div>
+		
+		</div>
+	</form>
+	
+	</div>
+{% endblock %}
+

@@ -1,0 +1,31 @@
+{% load popvox_utils %}
+<div id="campos_{{cam.id}}_{{position.id}}">
+	{% if admin %}
+	<a href="#" class="btn b_remove" onclick="if (confirm ('Are you sure you want to remove your position on this bill?')) delpos('{{cam.slug|escapejs}}', {{cam.id}}, {{position.id}}); return false;" title="Remove Bill From Agenda">remove</a>
+	{% endif %}
+	<div class="{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}">
+		<a href="{{position.bill.url}}{% if admin %}/report{% endif %}">{{ position.bill }}</a>
+		
+		{% with position.bill.getDeadReason as deadstatus %}
+			{% if deadstatus %}
+				<p>(This bill {{deadstatus}}.)</p>
+			{% endif %}
+		{% endwith %}
+		
+		<div id="campos_{{cam.id}}_{{position.id}}_comment" class="comment">{% if position.comment %}{{position.comment|wraplines:"p"}}{% else %}{% if admin %}<em>No comment.</em>{% endif %}{% endif %}</div>
+		
+		{% if admin %}
+		<div id="campos_{{cam.id}}_{{position.id}}_comment_editor" style="display: none">
+			<textarea id="campos_{{cam.id}}_{{position.id}}_comment_textarea" style="width: 375px">{% if position.comment %}{{position.comment}}{% endif %}</textarea>
+		</div>
+		<script>
+			$('#campos_{{cam.id}}_{{position.id}}_comment').inline_edit(
+				function(value) {
+					setposcomment('{{cam.slug|escapejs}}', {{cam.id}}, {{position.id}}, value);
+				} );
+			$('#campos_{{cam.id}}_{{position.id}}_comment_textarea').input_autosize();
+		</script>
+		{% endif %}
+	</div>
+</div>
+

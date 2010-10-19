@@ -1,0 +1,203 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% load humanize %}
+{% block title %}Edit: {{ cam.org.name }} - {{ cam.name }}{% endblock %}
+{%block nav_orgadmin_class_profile%}active{%endblock%}
+{% block breadcrumbs %}
+<li><a href="{{cam.org.url}}">{{cam.org.name|truncatewords:4}}</a></li>
+<li><a href="{{cam.url}}" class="active">{{ cam.name|truncatewords:4 }}</a></li>
+{% endblock %}
+{% block head %}
+	{% with cam.org as org %}
+		{% include "popvox/org_common_scripts.html" %}
+	{% endwith %}
+	
+		<script>
+		function updateslug(validate) {
+			ajaxform("/ajax/orgs/cam/updatefields",
+				{ "org": "{{cam.org.slug|escapejs}}", "cam": "{{cam.slug|escapejs}}", "validate": (validate ? "validate" : "") },
+				{
+					"slug": "#slug",
+				},
+				{
+					statusfield: "slugerrorlabel",
+					savebutton: "slugsubmitbutton",
+					success: function(res) {
+						if (!validate) {
+							$('#slugsubmitbutton').attr('disabled', '1');
+							$('#submitbutton').attr('disabled', '1');
+							$('#slugerrorlabel').text("Please wait until the page is reloaded...");
+							$('#slugerrorlabel').show();
+							document.location = "/orgs/{{cam.org.slug|escapejs}}/" + res.newslug + "/_edit#editurl";
+						}
+					}
+				}
+				);
+		}
+		function updatecampaign(validate) {
+			ajaxform("/ajax/orgs/cam/updatefields",
+				{ "org": "{{cam.org.slug|escapejs}}", "cam": "{{cam.slug|escapejs}}", "validate": (validate ? "validate" : "") },
+				{
+					"name": "#name",
+					"description": "#description",
+					"website": "#website",
+					"message": function () { return tinyMCE.get('message').getContent() },
+				},
+				{
+					statusfield: "errorlabel",
+					savebutton: "submitbutton",
+					statussuccess: (validate ? null : "Saved."),
+				}
+				);
+		}
+		function delcam(id) {
+			ajax(
+				"/ajax/orgs/cam/updatefield",
+				{ org:"{{cam.org.slug|escapejs}}", cam:"{{cam.slug|escapejs}}", name: "action", value: "delete-campaign"},
+				{
+					success: function() {
+						window.location = "/orgs/{{cam.org.slug|escapejs}}";
+					}
+				}
+			);
+		}
+		</script>
+{% endblock %}
+{% block content %}
+<div class="content"> 
+	<div class="col_3 col_top profile_block"> 
+		<a href="{{cam.org.url}}{% if admin and not cam.org.logo %}/_edit{% endif %}" style="border: none">
+		<img id="profileimage" src="{% if cam.org.logo %}{{cam.org.logo.url}}{% else %}/media/master/grey.gif{% endif %}" alt="Profile Image" width="220" height="166" />
+		</a>
+		
+		<p><a href="{{cam.url}}">VIEW CAMPAIGN</a></p>
+		
+		<a href="#" onclick="if (confirm ('Are you sure you want to delete this campaign?')) delcam(); return false;">Delete This Campaign</a>
+	</div><!-- e: col_3 --> 
+	
+	<div class="col_9 col_top col_last col_plus"> 
+		{% if not cam.description or not cam.message %}
+			<p class="whattodonext">Fill out the information below about your campaign.</p>
+		{% else %}	
+			{% if cam.positions.all|length == 0 %}
+				<p class="whattodonext">You haven&rsquo;t endorsed or opposed any legislation in this campaign yet. Check out the Legislative Agenda section below.</p>
+			{% else %}
+				{% if not org.visible %}
+					<p class="whattodonext">You must publish your profile using the Publish button toward the bottom of this page.</p>
+				{% endif %}
+			{% endif %}
+		{% endif %}
+
+		<h2>{{cam.org.name}}:</h2>
+		<h1>Edit Campaign: {{cam.name}}</h1>
+		
+		<h3>Campaign Information</h3>
+		
+		<div class="form">
+			<label for="name">Name</label>
+			<input id="name" type="text" value="{{cam.name}}"/>
+			<div id="errorlabel_name" class="error"></div>
+			
+			<label for="description">Summary</label>
+			<textarea id="description">{{cam.description}}</textarea>
+			<div id="errorlabel_description" class="error"></div>
+			<script>$('#description').input_autosize();</script>
+			
+			<label for="website">Campaign Website</label>
+			<input id="website" type="text" value="{% if cam.website %}{{cam.website}}{% endif %}"/>
+			<div id="errorlabel_website" class="error"></div>
+			<small>Leave blank if the same as the organization&rsquo;s main website.</small>
+				
+			<label for="message">Detailed Description</label>
+			<textarea id="message" name="message">{{cam.message}}</textarea>
+			<script>tinyMCE.execCommand("mceAddControl", true, "message");</script>
+			
+			<div class="hr"></div>
+
+			<a name="editurl"></a> {% comment %} higher up so that eye goes back to same place {% endcomment %}
+			
+			<input type="button" class="submit" id="submitbutton" value="Save Your Changes" onclick="updatecampaign(false)"/>
+			<p id="errorlabel" class="error"/>
+			<script>
+			$('#name, #description, #website').keyup_delayed(function() { updatecampaign(true) });
+			$('#name, #description, #website').input_default();
+			</script>
+		</div>
+
+		<div class="hr"></div>
+		
+		<div id="slugedit" class="form" {% if cam.visible %}style="display: none"{% endif %}>
+			<div id="slugwhathappened" style="display: none" class="error">The page was reloaded to reflect the change in this campaign&rsquo;s POPVOX address.</div>
+			<script>if (window.location.hash == "#editurl") $('#slugwhathappened').show();</script>
+		
+			<label for="slug">Custom URL:</label>
+			<div class="field">http://www.popvox.com/orgs/{{cam.org.slug}}/<input type="text" id="slug" value="{{cam.slug}}"/></div>
+			<div id="slugerrorlabel_slug" class="error"></div>
+			<small>Enter a short, lowercase abbreviation for your campaign. It can contain only letters, numbers, underscores and hyphens. Note that if you change the URL, existing links outside of POPVOX to your landing page on POPVOX for this campaign will break, so it is not advised that you change your URL once you publish your campaign.</small>
+			<input type="button" class="submit" id="slugsubmitbutton" value="Change URL" onclick="updateslug(false)"/>
+			<div id="slugerrorlabel" class="error"></div>
+			<script>
+			$('#slug').keyup_delayed(function() { updateslug(true) });
+			$('#slug').input_default();
+			</script>
+		</div>
+		<div class="clear"> </div>
+
+		<div class="block">
+			<h3>Legislative Agenda</h3>
+			<div style="margin: 1em 0 0 0">
+			{% for position in cam.positions.all %}
+				{% with "true" as admin %}
+					{% include "popvox/org_common_position.html" %}
+				{% endwith %}
+			{% empty %}
+				Add legislation to your campaign by searching for a bill your organization endorses or opposes.
+			{% endfor %}
+			</div>
+
+			{% with cam.org as org %}
+			{% include "popvox/endorse_oppose.html" %}
+			{% endwith %}
+		</div>
+
+		<h3>Publish This Campaign</h3>
+		<div class="form">
+		<script>
+		var currently_visible = {% if cam.visible %}true{% else %}false{% endif %};
+		function updatevisibility_setcaptions() {
+			if (!currently_visible) {
+				$('#publishbutton').val('Publish');
+				$('#visiblestatus').html("<b>Be sure to publish your campaign when you are done editing so that it becomes visible to legislative staff and the public.</b>");
+				$('#slugedit').show();
+				$('#viewprofilebutton').fadeOut();
+			} else {
+				$('#publishbutton').val('Hide Campaign');
+				$('#visiblestatus').html("You can hide this campaign in the event that you do not want the public and legislative staff to see this legislative silo.");
+				$('#slugedit').fadeOut();
+				$('#viewprofilebutton').show();
+			}
+		}
+		function updatevisibility() {
+			ajax(
+				"/ajax/orgs/cam/updatefield",
+				{ org:"{{cam.org.slug|escapejs}}", cam:"{{cam.slug|escapejs}}", name: "visible", value: (!currently_visible) ? "true" : "false"},
+				{
+					success: function() {
+						currently_visible = !currently_visible;
+						updatevisibility_setcaptions();
+					},
+				}
+			);
+		}
+		</script>
+		<p id="visiblestatus"></p>
+		<input type="button" class="submit stackbutton" id="viewprofilebutton" value="View Campaign" onclick="window.location = '{{cam.url|escapejs}}'; return false;"/>
+		<input type="button" class="submit stackbutton" id="publishbutton" value="Publish" onclick="updatevisibility()"/>
+		<script>$(updatevisibility_setcaptions);</script>
+		</div>
+		
+	</div> <!-- e: col_9 -->	
+</div>
+
+{% endblock %}
+

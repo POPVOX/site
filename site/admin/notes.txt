@@ -1,0 +1,5 @@
+This directory is used to set up a separate Django instance
+in WSGI for the admin panel. It's in a separate directory
+because the Apache SSLVerifyClient directive, which requires
+a client certificate signed by *us*, can only apply to
+entire vhosts or directories.

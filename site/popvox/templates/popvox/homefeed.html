@@ -1,0 +1,105 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Home{% endblock%}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script>
+function clear_all_panels() {
+	$('#newsfeed').hide();
+	$('#pverify').hide();
+}
+
+function phone_number_twilio_callback() {
+	$('#verify_phone').fadeOut();
+	clear_all_panels();
+	$('#newsfeed').fadeIn(); 
+	$('#status').fadeIn();
+	$('#status').text("Your phone number has been verified.");
+	$('#status').delay(3000).fadeOut();
+}
+</script>
+{% endblock %}
+{% block content %}
+	<div class="section content"> 
+	<div class="col_3 col_top profile_block">
+		{% if not user.phonenumber.get.verified %}
+		<h3>Homework</h3>
+		{% endif %}
+	
+		{% if not user.phonenumber.get.verified %}
+		<div id="verify_phone">
+			<h4>Verify A Phone Number</h4>
+			<p>Verifying a phone number helps us ensure one person one communication.</p>
+			<p style="margin-left: 2em"><a href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Verify Phone</a></p>
+		</div>
+		{% endif %}
+	
+		<h3>Settings</h3>
+		
+		<p><a href="/accounts/profile">Edit Profile</a>
+
+		{% if user.phonenumber.get.verified %}
+		<p>
+			Phone Number: Verified
+			{% if not user.phonenumber.get.locked_until %}
+			(<a href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Change Number</a>)
+			{% endif %}
+			{% if user.phonenumber.get.locked_until %}
+			<span style="color: #888">(Locked until {{ user.phonenumber.get.locked_until }})</span>
+			{% endif %}
+		</p>
+		{% endif %}
+	</div>
+	<div class="col_9 col_top col_last">
+		<div id="status" style="display: none; position: absolute; margin-top: -1em; color: #497">
+		</div>
+		
+		<div id="postmsg" style="display: none; margin: 1em 0 1em 0; border: 1px solid black; color: #497; padding: .75em">
+		</div>
+		
+		<script>
+		if (window.location.hash == "#welcome") {
+			$('#postmsg').text("Welcome to POPVOX!")
+			$('#postmsg').show();
+		}
+		if (window.location.hash == "#welcome-comment") {
+			$('#postmsg').text("Welcome to POPVOX and thank you for submitting a comment on legislation before Congress!")
+			$('#postmsg').show();
+		}
+		</script>
+		
+		<div id="newsfeed" class="your_feed">
+			<h2 style="margin-top: 0">Your Recent Comments</h2>
+			
+			{% with user.comments.all as comments %}
+			{% if comments|length == 0 %}
+				<p>You have not made any comments on legislation yet. Go <a href="/bills">find a bill</a> that you have an opinion about.</p>
+			{% endif %}
+			{% for comment in comments %}
+				<p class="date">{{comment.updated|date2}}</p>
+				<h5>&ldquo;{{comment.message|truncatewords:30}}&rdquo; </h5>
+				<div style="margin-left: 2em;">
+					<p class="tag">you {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.displaynumber}}</a></p>
+					<p class="tag">
+						<a href="{{comment.bill.url}}/comment">edit</a> |
+						<a href="{{comment.bill.url}}/comment/clear">remove</a> |
+						<a href="{{comment.bill.url}}/comment/share">share</a>
+					</p>
+				</div>
+			{% endfor %}
+			{% endwith %}
+			
+		</div>
+		
+		<div id="pverify" style="display: none">
+			<h2 style="margin-top: 0">Verify A Phone Number</h2>
+			<p>Verifying a phone number helps us ensure that no one is gaming the system by registering many accounts. We won&rsquo;t save your phone number in our records, but we will be able to make sure that no two people use the same number.</p>
+			{% include "phone_number_twilio/verify.html" %}
+			<p><input type='button' value='Cancel' onclick="clear_all_panels(); $('#newsfeed').fadeIn();"/></p>
+		</div>
+		
+	</div>
+	</div>
+{% endblock %}
+

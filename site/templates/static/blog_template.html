@@ -1,0 +1,60 @@
+{% extends "master.html" %}
+{% block title %}
+	<?php if ( is_front_page() ) : ?>
+		<?php bloginfo( 'name'); ?>
+	<?php elseif ( is_404() ) : ?>
+		<?php _e( 'Page Not Found |', 'titan' ); ?> | <?php bloginfo( 'name'); ?>
+	<?php elseif ( is_search() ) : ?>
+		<?php printf(__ ("Search results for '%s'", "titan"), attribute_escape(get_search_query())); ?> | <?php bloginfo( 'name'); ?>
+	<?php else : ?>
+		<?php wp_title($sep = ''); ?> | <?php the_time(__ ( 'F jS, Y', 'titan')); ?> | <?php bloginfo( 'name');?>
+	<?php endif; ?>
+{% endblock %}
+{% block title2 %}{% endblock %}
+{% block bodyattributes %}class="land"{% endblock %}
+{% block navattributes %}id="head_r"{% endblock %}
+{% block head %}
+	<?php if ((is_single() || is_category() || is_page() || is_home()) && (!is_paged())){} else { ?>
+		<meta name="robots" content="noindex,follow" />
+	<?php } ?>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="<?php bloginfo( 'stylesheet_directory'); ?>/images/favicon.ico" />
+
+	<!--Stylesheets-->
+	<link href="<?php bloginfo( 'stylesheet_url'); ?>" type="text/css" media="screen" rel="stylesheet" />
+	<!--[if lt IE 8]>
+	<link rel="stylesheet" type="text/css" media="screen" href="<?php bloginfo( 'template_url'); ?>/stylesheets/ie.css" />
+	<![endif]-->
+	
+	<!--WordPress-->
+	<link rel="alternate" type="application/rss+xml" title="<?php bloginfo( 'name'); ?> RSS Feed" href="<?php bloginfo( 'rss2_url'); ?>" />
+	<link rel="pingback" href="<?php bloginfo( 'pingback_url'); ?>" />
+
+	<!--WP Hook-->
+	<?php if ( is_singular() ) wp_enqueue_script( 'comment-reply' ); ?>
+	<?php wp_head(); ?>
+{% endblock %}
+{% block head_r_content %}
+<h1 id="landing">Your Voice. Verified. Quantified. Amplified</h1>
+{% endblock %}
+{% block content %}
+<div class="blog">
+	<div id="header" class="clear">
+		<div class="wrapper">
+			<?php if (is_home()) { echo( '<h1 id="pagetitle">POPVOX Blog</h1>'); } else { ?><div id="pagetitle"><a href="<?php bloginfo( 'url'); ?>">&lt; Blog Home</a></div><?php } ?>
+		</div><!--end wrapper-->
+	</div><!--end header-->
+	<div class="content-background">
+		<div class="wrapper">
+			<div class="notice"></div>
+			<div id="content">
+			
+	HEADER---FOOTER
+			
+			</div>
+		</div><!--end wrapper-->
+	</div><!--end content-background-->
+</div>
+{% endblock %}
+

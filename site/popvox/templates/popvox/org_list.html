@@ -1,0 +1,106 @@
+{% extends "master.html" %}
+{% block title %}Advocacy Organizations{% endblock%}
+{%block nav_legstaff_class_orgs%}active{%endblock%}
+{%block nav_orgadmin_class_orgs%}active{%endblock%}
+{%block nav_citzen_class_orgs%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block head %}
+<script>
+var last_issue_elem = null;
+function showlist(elem, issueslug) {
+	$('#orglist_title').text($(elem).text() + " organizations:");
+	$('#orglist_list').text('');
+	if (last_issue_elem) $(last_issue_elem).removeClass('active');
+	$(elem).addClass('active');
+	last_issue_elem = elem;
+	ajax(
+		'ajax/orgs/search',
+		{ "issue": issueslug, "format": "json" },
+		{
+			statusfield: "orglist_status",
+			success: function(ret) {
+				var lst = $('#orglist_list');
+				lst.text('');
+				for (orgx in ret.orgs) {
+					var org = ret.orgs[orgx];
+					var tn = document.createTextNode(org.label);
+					var an = document.createElement("a");
+					an.setAttribute("href", org.url);
+					an.appendChild(tn);
+					var ln = document.createElement("li");
+					ln.appendChild(an);
+					lst.append(ln);
+					if (!org.createdbyus)
+						an.setAttribute("class", "notcreatedbyus");
+				}
+				$(window).scrollTop($('#orglist_title').offset().top - 30);
+			}
+		}
+		);
+	return false; // cancel click
+}
+</script>
+{% endblock %}
+{% block content %}
+	<div class="content">
+
+		<div class="col_9 col_top">
+			<div class="">
+				<h1>Advocacy Organizations</h1>
+				<div class="block bill_search">
+					<div class="search_box">
+						<input id="orgsearchbox" type="text" class="search" value="search for an organization"  onfocus="if (this.value=='search for an organization') this.value='';"/>
+						<span>Start typing the name of an organization</span>	
+					</div>
+				    <script>
+				    $(document).ready(function(){
+						  $("#orgsearchbox").autocomplete({
+						  	source: "/ajax/orgs/search",
+							select: function(event, ui) {
+								location.href = "/orgs/" + ui.item.slug;
+							},
+						  });
+				    });
+				    </script>
+				</div>
+			</div>
+			
+			<div class="block orgs rule">
+				<div class="col_50">
+					<h2>Issue Areas:</h2>
+					<ul class="issue_list">
+					   {% for issue in issueareas %}
+						  <li>
+							<a href="#" onclick="return showlist(this, '{{issue.object.slug|escapejs}}')">{{ issue.object.name }}</a>
+						  <ul>
+						   {% for issue2 in issue.subissues %}
+							  <li>
+								<a href="#" onclick="return showlist(this, '{{issue2.slug|escapejs}}')">{{ issue2.name }}</a>
+							  </li>
+						   {% endfor %}
+						  </ul>
+						</li>
+					   {% endfor %}
+					  </ul>
+				</div>
+				
+				<div class="col_50 col_last">
+					<h2 id="orglist_title">All Organizations:</h2>
+					<p>(Entries in bold indicate information reported by the organization itself.)</p>
+					<div id="orglist_status"></div>
+					<ul id="orglist_list" class="org_all">
+					   {% for org in orgs %}
+						  <li>
+							<a href="{{ org.url }}" {% if not org.createdbyus %}class="notcreatedbyus"{% endif %}>{{ org.name }}</a>
+						  </li>
+					   {% endfor %}
+					 </ul>
+				</div>
+			</div>
+		</div>
+
+		{% include "ads/rightbar.html" %}
+
+    </div>
+{% endblock %}
+

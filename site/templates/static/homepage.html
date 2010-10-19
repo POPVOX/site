@@ -1,0 +1,205 @@
+{% extends "master.html" %}
+{% load registration_providers %}
+{% block title %}POPVOX - Your Voice. Verified. Quantified. Amplified.{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
+{% block bodyattributes %}class="land"{% endblock %}
+{% block navattributes %}id="head_r"{% endblock %}
+{% block head %}
+<script>
+var slider_index = 0;
+function slide(direction, new_index) {
+	var divs = [ "overview", "individuals", "organizations", "legstaff", "media" ];
+	var last_slider_index = slider_index;
+	if (direction) {
+		slider_index += direction;
+		if (slider_index == -1) slider_index = 3;
+		if (slider_index == 4) slider_index = 0;
+	} else if (new_index != null) {
+		slider_index = new_index;
+	}
+	//$('#slider').animate( {"margin-left": (-slider_index*$('#landing_slider_individuals').width())} );
+	//if (last_slider_index != slider_index) $('#slider_tab_' + last_slider_index).animate( {"background-color": "#999" } );
+	//$('#slider_tab_' + slider_index).animate( {"background-color": "#555"} );
+	$('#landing_slider_' + divs[last_slider_index]).hide();
+	$('#landing_slider_' + divs[slider_index]).show();
+	$('#landing_button_' + divs[last_slider_index]).removeClass("active");
+	$('#landing_button_' + divs[slider_index]).addClass("active");
+	$('#landing_slider_' + divs[slider_index] + ' .b_get_started').animate({"opacity": 0}, 0, null, function () { $(this).delay(500).animate({"opacity": 100}); });
+	return false; // important to cancel click;
+}
+$(function() {
+	slide();
+	$('#subscribe_email').input_default("email address");
+	$('#subscribe_email').keyup_delayed(function () { subscribe(true); });
+});
+function subscribe(validate) {
+	if ($('#subscribe_email').hasClass("default")) return;
+	ajaxform("post/home/subscribe",
+		{ "validate": (validate ? "validate" : "submit"), },
+		{ "email": "#subscribe_email" },
+		{ "statusfield": "subscribe_status",
+		   "statussuccess": (validate ? null : "Thanks!")} );
+}
+</script>
+{% endblock %}
+{% block head_r_content %}
+<h1 id="landing">Your Voice. Verified. Quantified. Amplified</h1>
+{% endblock %}
+{% block content %}
+<div class="hm_ads">
+	<div class="hm_ad_mid">
+		<h2>POPVOX is for</h2>
+		<div id="landing_slider_overview">
+			<h3 class="user_action">Individuals</h3>
+			<div class="user_text">
+				<p>POPVOX is different from political discussion sites. It is a place for action &mdash; and designed by people who understand Congress to deliver your message in the way Congress needs it. POPVOX provides a real-time metric of public sentiment on specific bills.</p>
+				<p>Much of the technology that simplifies contacting Congress has made it more difficult for Congress to get a read on what is being said. POPVOX cuts through the noise.</p>
+				<p>Interested in knowning more? <a href="/about">Read on</a> or subscribe for updates:</p>
+				<p id="subscribe">
+					<input id="subscribe_email"/>
+					<input id="subscribe_button" type="button" value="Subscribe" onclick="subscribe(false)"/>
+				</p>
+				<div id="subscribe_status"></div> <!--style="position: absolute; margin-left: 2em; background-color:black; padding: 3px; color: white"-->
+			</div>
+			<p id="hack"><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
+		</div>
+		<div id="landing_slider_individuals" style="display: none">
+			<h3 class="user_individual">Individuals</h3>
+			<div class="user_text">
+				<p>POPVOX gets our message to Congress and makes sure our input counts by maintaining a public tally of public comments on pending bills. POPVOX also connects individuals with the advocacy groups and trade associations that can amplify our voices in the policy-making process.</p>
+			</div>
+			<p><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
+		</div>
+		<div id="landing_slider_organizations" style="display: none">
+			<h3 class="user_org">Organizations</h3>
+			<div class="user_text">
+				<p>Your top priority is to present your positions to Congress and influence policy-making. POPVOX puts your legislative agenda before Congressional staff, helps you keep on top of pending bills, and demonstrates verified grassroots support in a Congressional district. </p>
+			</div>
+			<p><a class="b_get_started btn_c" href="/accounts/register/orgstaff">Let&rsquo;s Get Started</a></p>
+		</div>
+		<div id="landing_slider_legstaff" style="display: none">
+			<h3 class="user_cong_staff">Congressional Staff</h3>
+			<div class="user_text">
+				<p>As a staffer, you analyze enormous quantities of information from constituents, advocacy organizations and experts to advise your boss. Thousands vie for your attention as millions of constituent emails, letters and calls flood your office.</p>
+				<p>POPVOX provides staffers with the information you need to do your job: real-time bill specific reports with verified summaries of constituent and organizational support &mdash; and a searchable listing of advocacy groups by issue area.</p>
+			</div>
+			<p><a class="b_get_started btn_c" href="/accounts/register/legstaff">Let&rsquo;s Get Started</a></p>
+		</div>
+		<div id="landing_slider_media" style="display: none">
+			<h3 class="user_media">The Media</h3>
+			<div class="user_text">
+				<p>Coming soon, POPVOX will provide newsrooms &mdash; from small-town newspapers to political blogs &mdash; with Congressional district- and issue-specific analysis and contacts for man-on-the-street reporting.</p>
+			</div>
+			<p><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
+		</div>
+		<ul id="user_type">					
+			<li><a class="arrow_l btn" href="#" onclick="return slide(-1)">left</a></li>
+			<li><a id="landing_button_overview" class="active" href="#" onclick="return slide(null, 0)">Overview</a></li>
+			<li><a id="landing_button_individuals" href="#" onclick="return slide(null, 1)">Individuals</a></li>
+			<li><a id="landing_button_organizations"  href="#" onclick="return slide(null, 2)">Organizations</a></li>
+			<li><a id="landing_button_legstaff"  href="#" onclick="return slide(null, 3)">Congress</a></li>
+			{% comment %}<li><a id="landing_button_media"  href="#" onclick="return slide(null, 4)">Media</a></li> {% endcomment %}
+			<li><a class="arrow_r btn" href="#" onclick="return slide(1)">right</a></li>
+		</ul>
+	</div>
+</div>
+
+<div class="clear"> </div>
+
+<div class="content">
+	<div class="col_9 rule">
+		{% comment %}
+		<div class="block hot">
+			<h2>HOT TWEETS</h2>
+			<img src="/media/master/_sh_twitterface.jpg" alt="_sh_twitterface" width="32" height="32" />
+			<p class="tweet"><strong>sodiumhalogen</strong> <a href="http://popvox.com">http://popvox.com</a> - exciting new site we are working on where you can let congress know your opinion. effectively. <a href="#">#popvox</a></p>
+			<div class="tweet_info">
+				<p class="tweets">23</p>
+				<a class="retweet btn" href="#">retweet</a>
+			</div>
+			<div class="clear"> </div>
+		</div>
+		{% endcomment %}
+		
+		<div class="block about">
+			<p>POPVOX is currently in a closed beta stage, which means we are testing the site with an invited audience. If you would like to test drive the future of communicating with Congress, <a href="mailto:info@popvox.com">write us</a>.</p>
+			<p>For more about the site, see <a href="/about">About POPVOX</a>.</p>
+	
+		</div>
+			
+	</div><!-- e: col_9 -->
+
+	<div class="col_3 last rule rule_btm">
+		<div class="block follow_us">
+			<h2>Follow Us</h2>
+			<ul class="social" style="height: 60px">
+				<li><a class="twitter" href="http://www.twitter.com/popvox">twitter</a></li>
+				<li><a class="facebook" href="http://www.facebook.com/apps/application.php?id=150910028257528">facebook</a></li>
+				<!--<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fapps%2Fapplication.php%3Fid%3D150910028257528&amp;layout=box_count&amp;show_faces=true&amp;width=60&amp;action=like&amp;colorscheme=light&amp;height=65" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:60px; height:65px;" allowTransparency="true"></iframe>-->
+				<!--<li class="linked_in"></li>-->
+			</ul>
+			<div class="hr_rule"> </div>
+		</div>
+	</div><!-- e: col_3 -->
+	<div class="clear"> </div>
+</div>
+
+{% comment %}
+	<script>
+	function do_login() {
+		if ($('#login_username').hasClass("default") == "user name") $('#login_username').val("");
+		if ($('#login_password').hasClass("default") == "password") $('#login_password').val("");
+		ajax("{% url registration.views.ajax_login %}",
+			{ username: $('#login_username').val(), password: $('#login_password').val() },
+			{ statusfield: "login_error",
+			   success: function() { document.location = "/home"; } }
+		);
+	}
+	</script>
+
+	<div class="col_3 col_top last">
+		<div class="block login">	
+			<h2>Login</h2>
+			
+			<div style="float: left">
+				<a href="{% url registration.views.external_start "google" %}">
+					<img src="{{ "google"|provider_logo:32 }}" title="{{ "google"|provider_name }}"/>
+				</a>
+			</div>
+			<div style="float: left">
+				<a href="{% url registration.views.external_start "facebook" %}">
+					<img src="{{ "facebook"|provider_logo:32 }}" title="{{ "facebook"|provider_name }}"/>
+				</a>
+			</div>
+			<div style="float: left">
+				<a href="{% url registration.views.external_start "twitter" %}">
+					<img src="{{ "twitter"|provider_logo:32 }}" title="{{ "twitter"|provider_name }}"/>
+				</a>
+			</div>
+			<div style="float: left; width: 90px; margin-left: .5em">
+			</div>
+			
+			<div style="clear: both; margin: 32px"></div>
+			
+			<input id="login_username" type="text" class="search"/>
+			<div id="login_error_username" class="error"></div>
+			<input id="login_password" type="text" class="search" />
+			<div id="login_error_password" class="error"></div>
+			<input class="submit" type="button" value="Log In" onclick="do_login()"/><br />
+			<div id="login_error" class="error"></div>
+			<div class="forgot">
+				<!--<a href="#">Forgot your username?</a><br />-->
+				<a href="{% url registration.views.resetpassword %}">Forgot your password?</a>
+			</div>
+			<script>$('#login_username').input_default("user name")</script>
+			<script>$('#login_password').input_default("password")</script>
+								
+			<h2>Need to Register?</h2>
+			<a href="/accounts/register">Let's get started!</a>
+			
+		</div>
+	</div><!-- e: col_3 -->
+{% endcomment %}
+
+{% endblock %}

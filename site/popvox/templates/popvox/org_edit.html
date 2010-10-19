@@ -1,0 +1,472 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% load humanize %}
+{% block title %}Edit Profile: {{ org.name }}{% endblock%}
+{%block nav_orgadmin_class_profile%}active{%endblock%}
+{% block head %}
+		<script src="/media/js/fileuploader.js"></script>
+		<link rel="stylesheet" href="/media/css/fileuploader.css" type="text/css" />
+		
+		<script>
+		function updateslug(validate) {
+			ajaxform("/ajax/orgs/updatefields",
+				{ "org": "{{org.slug|escapejs}}", "validate": (validate ? "validate" : "") },
+				{
+					"slug": "#slug",
+				},
+				{
+					statusfield: "slugerrorlabel",
+					savebutton: "slugsubmitbutton",
+					success: function(res) {
+						if (!validate) {
+							if (res.newslug) {
+								$('#slugsubmitbutton').attr('disabled', '1');
+								$('#submitbutton').attr('disabled', '1');
+								$('#slugerrorlabel').text("Please wait until the page is reloaded...");
+								$('#slugerrorlabel').show();
+								document.location = "/orgs/" + res.newslug + "/_edit#editurl";
+							} else {
+								$('#slugerrorlabel').show();
+								$('#slugerrorlabel').text("No change made.");
+								$('#slugerrorlabel').delay(1000).fadeOut();
+							}
+						}
+					}
+				}
+				);
+		}
+		function updateprofile(validate) {
+			ajaxform("/ajax/orgs/updatefields",
+				{ "org": "{{org.slug|escapejs}}", "validate": (validate ? "validate" : "") },
+				{
+					"description": "#description",
+					"postaladdress": "#postaladdress",
+					"phonenumber": "#phonenumber",
+					"website": "#website",
+					"facebookurl": "#facebookurl",
+					"twittername": "#twittername"
+				},
+				{
+					statusfield: "errorlabel",
+					savebutton: "submitbutton",
+					statussuccess: (validate ? null : "Saved."),
+					success: function() {
+						if (!validate) $('#submitbutton').attr("disabled", '1');
+					}
+				}
+				);
+		}
+		function addRemoveIssueArea(add_remove, id, statuslabelid, callback) {
+			ajax(
+				"/ajax/orgs/updatefield",
+				{ org:"{{org.slug|escapejs}}", name: "issue-" + add_remove, value: id},
+				{
+					statusfield: "issue_add_remove_status",
+					success: function() {
+						callback(issuearea_list);
+						
+						$('#issuearealist').html("");
+						for (var ix in issuearea_list) {
+							var n = $("<li></li>");
+							$(n).text(issuearea_list[ix][1]);
+							$('#issuearealist').append(n);
+						}
+					},
+				}
+			);
+		}
+		var issuearea_list = [{% for issue in org.issues.all %}[{{issue.id}}, "{{issue.name|escapejs}}"],{% endfor %}];						
+
+ 		</script>
+{% endblock %}
+{% block content %}
+<div class="content"> 
+	<div class="col_3 col_top profile_block">
+		
+		<center id="file-uploader-container" style="display: none;">
+			<div id="file-uploader"></div>
+		</center>
+		<script>
+		$(function() {
+			var uploader = new qq.FileUploader({
+			element: document.getElementById('file-uploader'),
+			action: '/ajax/orgs/updatelogo/{{org.slug}}',
+			allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+			onComplete: function(id, fileName, responseJSON) {
+				$('#profileimage').attr('src', responseJSON.url)
+				$('#file-uploader').hide();
+			},
+			});
+		});
+		</script>
+		
+		<div id="profileimagecontainer">
+			<div id="file-uploader-opener" style="display: none; position: absolute; color: white; background-color: black; padding: .25em; width: 220px; text-align: center; font-size: 90%; margin: 70px 0 0 0; padding: 5px 0 5px 0">
+				<a href="#" onclick="$('#file-uploader-container').fadeIn(); return false;" style="color: inherit">CHANGE PROFILE IMAGE</a>
+			</div>
+			<img id="profileimage" src="{% if org.logo %}{{org.logo.url}}{% else %}/media/master/grey.gif{% endif %}" alt="Profile Image" width="220" height="166" />
+		</div>
+		<script>
+		$(function() {
+			$('#profileimagecontainer').mouseenter(function() { $('#file-uploader-opener').show(); });
+			$('#profileimagecontainer').mouseleave(function() { $('#file-uploader-opener').hide(); });
+		});
+		</script>
+			
+		<p class="edit"><a href="{{org.url}}">VIEW PROFILE</a></p>
+
+		<h3>Finished?</h3>
+		<p style="font-size: 85%">Done setting up your organization&rsquo;s profile? Go back to your profile&rsquo;s <a href="{{org.url}}">main page</a> and review what you entered or check on your legislation on your <a href="/home">home dashboard</a>.</p>
+		
+	</div><!-- e: col_3 --> 
+	
+	<div class="col_9 col_top col_last col_plus"> 
+		{% if not org.approved %}
+			<p class="whattodonext">Your organization will need to be approved by POPVOX staff before it can be published to our organization directory. In the meanwhile, please go ahead and get started by filling in your profile and legislative agenda.</p>
+		{% else %}
+			{% if not org.description %}
+				<p class="whattodonext">Let&rsquo;s get you set up on POPVOX. Fill out the information below about your organization.</p>
+			{% else %}	
+				{% if org.orgcampaign_set.all|length == 0 %}
+					<p class="whattodonext">You haven&rsquo;t endorsed or opposed any legislation yet. Check out the Legislative Agenda section on your organization&rsquo;s <a href="{{org.url}}">profile page</a>.</p>
+				{% else %}
+					{% if not org.visible %}
+						<p class="whattodonext">You must publish your profile using the Publish button toward the bottom of this page.</p>
+					{% endif %}
+				{% endif %}
+			{% endif %}
+		{% endif %}
+		
+		<h1>Edit Profile: {{org.name}}</h1>
+		
+		<div class="block"> 
+			
+		<h3>Organization Info</h3>
+
+		<div class="form">
+			<label for="description">Description</label>
+			<textarea id="description" class="c5">{{org.description}}</textarea><br />
+			<div id="errorlabel_description" class="error"></div>
+			
+			<label for="postaladdress">Postal Address</label>
+			<textarea id="postaladdress" class="c5">{{org.postaladdress}}</textarea><br />
+			<div id="errorlabel_postaladdress" class="error"></div>
+			
+			<label for="phonenumber">Phone Number</label>
+			<input type="text" class="c3" id="phonenumber" value="{{org.phonenumber}}"/><br />
+			<div id="errorlabel_phonenumber" class="error"></div>
+			
+			<script>$('#description, #postaladdress').input_autosize();</script>
+
+			<label for="website">Website</label>
+			<input type="text" class="c3" id="website" value="{{org.website}}"/><br />
+			<div id="errorlabel_website" class="error"></div>
+			
+			<label for="facebookurl">Facebook Page</label>
+			<input type="text" id="facebookurl" class="c4" value="{% if org.facebookurl %}{{org.facebookurl}}{% endif %}"/>
+			<div id="errorlabel_facebookurl" class="error"></div>
+			<small>Paste the web address of your Facebook Page or Group. {% if not org.logo %}We&rsquo;ll also grab your profile picture from Facebook if you have one.{% endif%}</small>
+			
+			<a name="editurl"></a> {% comment %} higher up so that eye goes back to same place {% endcomment %}
+				
+			<label for="twittername">Twitter Name</label>
+			@<input type="text" id="twittername" class="c4" value="{% if org.twittername %}{{org.twittername}}{% endif %}"/>
+			<div id="errorlabel_twittername" class="error"></div>
+
+			<input type="button" class="submit" id="submitbutton" value="Save Your Changes" onclick="updateprofile(false)" disabled="1"/>
+			<p id="errorlabel" class="error"/>
+			<script>
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').keyup(function() { $('#submitbutton').attr("disabled", ''); });
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').keyup_delayed(function() { updateprofile(true) });
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').input_default();
+			</script>
+			{% comment %}<div class="clear"><label></label> <a class="edit" href="{{org.url}}">View Profile</a></div>{% endcomment %}
+			<div class="clear stroke"> </div>
+		</div>
+		<div class="hr"> </div>
+
+		<div id="slugedit" class="form clear" {% if org.visible %}style="display: none"{% endif %}>
+			<div id="slugwhathappened" style="display: none" class="error">The page was reloaded to reflect the change in your organization&rsquo;s POPVOX address.</div>
+			<script>if (window.location.hash == "#editurl") $('#slugwhathappened').show();</script>
+			
+			<label for="slug">Custom URL:</label>
+			<div class="field">http://www.popvox.com/orgs/<input type="text" id="slug" value="{{org.slug}}"/></div>
+			<div id="slugerrorlabel_slug" class="error"></div>
+			<small>Enter a short, lowercase abbreviation for your organization. It can contain only letters, numbers, underscores and hyphens. Note that if you change your URL, existing links outside of POPVOX to your landing page on POPVOX will break, so it is not advised that you change your URL once you publish your profile.</small>
+			<input type="button" class="submit" id="slugsubmitbutton" value="Change URL" onclick="updateslug(false)"/>
+			<div id="slugerrorlabel" class="error"></div>
+			<script>
+			$('#slug').keyup_delayed(function() { updateslug(true) });
+			$('#slug').input_default();
+			</script>
+		</div>
+		<div class="clear"> </div>		
+
+		<h3>Issue Areas</h3>
+		
+		<p>Your organization is listed in POPVOX&rsquo;s organization directory according to issue areas that you choose.</p>
+		<ul id="issuearealist" class="bullets">
+			{% for ix in org.issues.all %}
+				<li>{{ ix.name }}</li>
+			{% endfor %}
+		</ul>
+		<ul class="bullets">
+			<li><a href="#" onclick="return showIssueAreaChooser(issuearea_list);">Add{% if org.issues.all %}/Remove{% endif %} Issue Areas</a></li>
+		</ul>
+	
+		
+		{% include "popvox/issueareachooser.html" %}
+
+		<h3>Staff Contacts</h3>
+		{% if org.contacts.all|length == 0 %}
+		<p>Your profile can include staff contact information that will be displayed for Congressional legislative staff. Add your first staff contact:</p>
+		{% else %}
+		<p>The following contact information is made available to Congressional staff.</p>
+		{% endif %}
+		 <script>
+		 var contactinfos = { };
+		 var edit_contact_id = null;
+		 function appendContact(id, name,  title, email, phone) {
+			var d = document.createElement("li");
+			d.setAttribute('id', "contactlist" + id);
+			
+			d.appendChild(document.createTextNode(name + ", " + title + " (" + email + ", " + phone + ") ("));
+	
+			var r = document.createElement("a");
+			r.setAttribute('href', '#');
+			r.setAttribute('onclick', 'editContact(' + id + '); return false;');
+			r.appendChild(document.createTextNode("edit"));
+			d.appendChild(r);
+			
+			d.appendChild(document.createTextNode(" | "));
+	
+			r = document.createElement("a");
+			r.setAttribute('href', '#');
+			r.setAttribute('onclick', 'removeContact(' + id + '); return false;');
+			r.appendChild(document.createTextNode("remove"));
+			d.appendChild(r);
+			
+			d.appendChild(document.createTextNode(")"));
+			
+			var dd = $('#contactlist' + id)[0];
+			if (dd) {
+				dd.parentNode.insertBefore(d, dd);
+				dd.parentNode.removeChild(dd);
+			} else {
+				$('#contactlist').append(d);
+			}
+			
+			contactinfos[id] = { name: name, title: title, email: email, phone: phone };
+		 }
+		 function addContact() {
+			ajax(
+				"/ajax/orgs/add_staff_contact",
+				{ org:"{{org.slug|escapejs}}",
+					id: edit_contact_id ? edit_contact_id : "",
+					name: $('#staffname').val(),
+					title: $('#stafftitle').val(),
+					email: $('#staffemail').val(),
+					phone: $('#staffphone').val(),
+				},
+				{
+					statusfield: "contactlist_add_remove_status",
+					statusfail: "Could not add staff contact at this time.",
+					savebutton: "contactaddbutton",
+					success: function(res) {
+						appendContact(res.id, $('#staffname').val(), $('#stafftitle').val(), $('#staffemail').val(), $('#staffphone').val());
+						resetStaffContactFields();
+						$.colorbox.close();
+					},
+				}
+			);
+		 }
+		 function removeContact(id) {
+			ajax(
+				"/ajax/orgs/updatefield",
+				{ org:"{{org.slug|escapejs}}", name: "contact-remove", value: id},
+				{
+					statusfield: "contactlist_add_remove_status",
+					statusfail: "Could not remove staff contact at this time.",
+					success: function() {
+						$("#contactlist" + id).remove();
+						$.colorbox.close();
+					},
+				}
+			);
+		}
+		 function editContact(id) {
+			edit_contact_id = id;
+			$('#staffname').val(contactinfos[id].name);
+			$('#stafftitle').val(contactinfos[id].title);
+			$('#staffemail').val(contactinfos[id].email);
+			$('#staffphone').val(contactinfos[id].phone);
+			$('#contactaddbutton').val('Update Contact');
+			showStaffContact();
+		 }
+		 function resetStaffContactFields() {
+			edit_contact_id = null;
+			$('#staffname').val("");
+			$('#stafftitle').val("");
+			$('#staffemail').val("");
+			$('#staffphone').val("");
+			 $('#contactaddbutton').val('Add Contact');
+		 }
+		 function showStaffContact() {
+			 $.colorbox({ transition: 'none', inline: true, href:'#staffcontactaddedit', opacity: .5, height: '350px', width: '600px'});
+			 return false;
+		 }
+		 </script>
+		<ul id="contactlist" class="staff bullets">
+		</ul>
+		<ul class="bullets">
+			<li><a href="#" onclick="resetStaffContactFields(); return showStaffContact();">Add Staff Contact</a></li>
+		 </ul>
+		 <script>
+			{% for staff in org.contacts.all %}
+			appendContact("{{ staff.id|escapejs }}", "{{ staff.name|escapejs }}", "{{ staff.title|escapejs }}", "{{ staff.email|escapejs }}", "{{ staff.phonenumber|escapejs }}");
+			{% endfor %}
+			$('#adminlist').append("<li><a id='adminaddmore' href='#' onclick='$(\"#adminaddmore\").hide(); $(\"#adminaddmoreinfo\").fadeIn(); return false;'>Add Additional Administrators</a></li>")
+		</script>
+		
+		<div style="display: none">
+		<div id="staffcontactaddedit" class="colorbox" style="width: 525px">
+		<h1>Add/Edit Staff Contact</h1>
+		<div class="form">
+			<label for="staffname">Name</label>
+			<input id="staffname" class="c4" type="text"/><br />
+
+			<label for="stafftitle">Title</label>
+			<input id="stafftitle" class="c4" type="text"/><br />
+
+			<label for="staffemail">Email Address</label>
+			<input id="staffemail" class="c4" type="text"/><br />
+
+			<label for="staffphone">Phone Number</label>
+			<input id="staffphone" class="c3" type="text"/><br />
+			
+			<input id="contactaddbutton" type="submit" class="submit" value="Add Contact" onclick="addContact();"/>
+			<input id="contactcancelbutton" type="submit" class="submit stackbutton" value="Cancel" onclick="$.colorbox.close()"/>
+
+			<div id="contactlist_add_remove_status" class="error"></div>
+		</div>
+		</div>
+		</div>
+		
+		<div class="clear"></div>
+		
+		{% if org.approved %}
+		<div class="clear form">
+			<h3>Organization Directory Status</h3>
+			<script>
+			var currently_visible = {% if org.visible %}true{% else %}false{% endif %};
+			function updatevisibility_setcaptions() {
+				if (!currently_visible) {
+					$('#publishbutton').val('Publish');
+					$('#visiblestatus').html("<b>Be sure to publish your profile when you are done editing so that it becomes visible to legislative staff and the public.</b>");
+					$('#slugedit').show();
+					$('#viewprofilebutton').fadeOut();
+				} else {
+					$('#publishbutton').val('Hide Profile');
+					$('#visiblestatus').html("Your organization profile is included in the organization directory.");
+					$('#slugedit').fadeOut();
+					$('#viewprofilebutton').show();
+				}
+			}
+			function updatevisibility() {
+				ajax(
+					"/ajax/orgs/updatefield",
+					{ org:"{{org.slug|escapejs}}", name: "visible", value: (!currently_visible) ? "true" : "false"},
+					{
+						success: function() {
+							currently_visible = !currently_visible;
+							updatevisibility_setcaptions();
+						},
+					}
+				);
+				return false;
+			}
+			</script>
+			<p id="visiblestatus"></p>
+			<input type="button" class="submit stackbutton" id="viewprofilebutton" value="View Profile" onclick="window.location = '{{org.url|escapejs}}'; return false;"/>
+			<input type="button" class="submit stackbutton" id="publishbutton" value="Publish" onclick="return updatevisibility()"/>
+			<script>$(updatevisibility_setcaptions);</script>
+		</div>
+		{% endif %}
+		
+		<h3 class="clear">Profile Administrators</h3>
+		 <script>
+		 function appendAdmin(name, id, fullname) {
+			var d = document.createElement("li");
+			d.setAttribute('id', "adminlist" + id);
+			d.appendChild(document.createTextNode((fullname==null ? name : fullname) + " ("));
+	
+			var r = document.createElement("a");
+			r.setAttribute('href', '#');
+			r.setAttribute('onclick', 'removeAdmin(' + id + '); return false;');
+			r.appendChild(document.createTextNode("remove"));
+			d.appendChild(r);
+	
+			d.appendChild(document.createTextNode(")"));
+			
+			$('#adminlist').append(d);
+		 }
+		 function addAdmin() {
+			 if ($('#adminlistinput').val() == "") return;
+			ajax(
+				"/ajax/orgs/updatefield",
+				{ org:"{{org.slug|escapejs}}", name: "admin-add", value: $('#adminlistinput').val()},
+				{
+					statusfield: "adminlist_add_remove_status",
+					statusfail: "Could not add profile administrator at this time.",
+					success: function(res) {
+						appendAdmin(res.username, res.id, res.fullname);
+						$('#adminlistinput').val("");
+					},
+				}
+			);
+		 }
+		 function removeAdmin(id) {
+			ajax(
+				"/ajax/orgs/updatefield",
+				{ org:"{{org.slug|escapejs}}", name: "admin-remove", value: id},
+				{
+					statusfield: "adminlist_add_remove_status",
+					statusfail: "Could not remove profile administrator at this time.",
+					success: function() {
+						$("#adminlist" + id).remove();
+					},
+				}
+			);
+		}
+		 </script>
+			<ul id="adminlist" class="staff"> </ul>
+			<script>
+				{% for staff in org.admins.all %}
+				appendAdmin("{{ staff.user.username|escapejs }}", {{staff.user.id|escapejs}} {% if staff.user.userprofile.fullname %}, "{{ staff.user.userprofile.fullname|escapejs }}"{% endif %});
+				{% endfor %}
+				$('#adminlist').append("<li><a id='adminaddmore' href='#' onclick='$(\"#adminaddmore\").hide(); $(\"#adminaddmoreinfo\").fadeIn(); return false;'>Add Additional Administrators</a></li>")
+			</script>
+			<p id="adminlist_add_remove_status" class="error"></p>
+			<div id="adminaddmoreinfo" style="display: none">
+				<p>To add additional administrators for your organization, send them this link to register an account:</p>
+				<p><tt>http://www.popvox.com{% url popvox.views.profile.register "/legstaff" %}</tt></p>
+				<p>We&rsquo;ll confirm that they are a staff member for your organization. You can remove an administrator by clicking a remove link above. If you need to add someone back, enter their email address here:</p>
+				<div class="form">
+					<label for="adminlistinput">Email</label>
+					<input type="text" id="adminlistinput" class="c4" onkeydown="if (event.which==13) addAdmin()"/><br />
+					<input type="button" class="submit" onclick="addAdmin()" value="Add"/>
+				</div>
+			</div>
+		
+		</div> <!-- e: block -->
+		
+		{% if org.orgcampaign_set.all|length == 0 %}
+			<p class="whattodonext">You haven&rsquo;t endorsed or opposed any legislation yet. Check out the Legislative Agenda section on your organization&rsquo;s <a href="{{org.url}}">profile page</a>.</p>
+		{% endif %}
+		
+	</div><!-- e: col_9 --> 
+
+</div>	
+	
+{% endblock %}
+

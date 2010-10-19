@@ -1,0 +1,29 @@
+{% comment %} for endorse_oppose {% endcomment %}
+<script>
+function delpos(camslug, camid, id) {
+	ajax(
+		"/ajax/orgs/cam/updatefield",
+		{ org:"{{org.slug|escapejs}}", cam:camslug, name: "billposition-remove", value: id},
+		{
+			success: function() {
+				$('#campos_' + camid + "_" + id).remove();
+			}
+		}
+	);
+}
+function setposcomment(camslug, camid, posid, comment) {
+	ajax(
+		"/ajax/orgs/cam/updatefield",
+		{ org:"{{org.slug|escapejs}}", cam:camslug, name: "billposition-comment-" + posid, value: comment},
+		{
+			statusstart: "Saving...",
+			statusfield: "campos_" + camid + "_" + posid + "_comment",
+			success: function(res) {
+				$("#campos_" + camid + "_" + posid + "_comment").show();
+				$("#campos_" + camid + "_" + posid + "_comment").html(res.html);
+			}
+		}
+	);
+}
+</script>
+

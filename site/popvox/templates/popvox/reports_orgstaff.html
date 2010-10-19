@@ -1,0 +1,105 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Reports{% endblock%}
+{%block nav_orgadmin_class_reports%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+{% endblock %}
+{% block content %}
+<div class="content">
+
+	<div class="col_9 col_plus col_top">
+	
+	{% for role in user.orgroles.all %}
+
+		<h1>Legislation for {{role.org.name}}</h1>
+	
+		<div class="block campaigns rule">
+		{% with role.org.orgcampaign_set.all as cams %}
+		{% for cam in cams %}
+			<div class="block">
+			
+			{% if not cam.default %}
+			<h3>{{cam.name}}<span> <a href="{{cam.url}}">View this Campaign</a></span></h3>
+			{% endif %}
+			
+			<div class="support_oppose">
+			{% for pos in cam.positions.all %}
+				<div class="col_50 {% if forloop.counter|divisibleby:"2" %}col_last{% endif %}">
+					{% bill_statistics pos.bill as stats %}
+						<h4>
+							<a href="{{pos.bill.url}}/report">{{pos.bill.title|truncatewords:10}}</a>
+							<span> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %})</span>
+						</h4>
+						
+						{% if stats %}
+						<div class="img_chart">
+							<a href="{{pos.bill.url}}/report">
+								<div id="chart-container--{{cam.id}}-{{pos.id}}" style="width: 75px; height: 75px"></div>
+								<script>bill_chart("chart-container--{{cam.id}}-{{pos.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
+							</a>
+						</div>
+						
+						<div class="chart_info">
+							<div class="col_2">
+								<p class="chart_stats"><strong>{{stats.longdescription}}</strong>:<br />
+									<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
+									<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
+									<span class="users">({{stats.total}} user{{stats.total|pluralize}})</span>
+								</p>
+							 </div>
+							 <div class="col_2 col_last">
+								 <p class="view_report"><strong>Status:</strong><br />
+									<em>{{pos.bill.status_advanced}}</em><br />
+									<span><a href="{{pos.bill.url}}/report">View Report</a></span>
+								</p>
+							</div>
+						</div>
+						{% endif %}
+				</div>
+				
+				{% if forloop.counter|divisibleby:"2" and not forloop.last %}<div class="hr"> </div> {% endif %}
+			{% empty %}
+				<p>There are no bills endorsed or opposed in this campaign.</p>
+			{% endfor %}
+			
+			<div class="clear"> </div>
+
+		
+			</div>
+		
+			</div>			
+		{% endfor %}
+
+		{% if cams %}
+		<h3>Revising Your Legislative Agenda</h3>
+		{% endif %}
+		<p>
+			{% if not cams %}
+			You haven&rsquo;t entered your legislative agenda yet. You can either 					<a href="{{role.org.url}}/_newcampaign">create a new empty	 campaign</a> or search for a bill to endorse or oppose in your legislative agenda:
+			{% else %}
+			To revise your legislative agenda you can use your <a href="{{role.org.url}}">profile page</a> or search for a bill that your organization endorses or opposes:
+			{% endif %}
+		</p>
+		{% with role.org as org %}
+			<div class="bill_search search_orange">
+				<div class="search_box">
+					<p><strong>Bill Search</strong></p>
+					{% include "popvox/endorse_oppose.html" %}
+				</div>
+			</div>
+		{% endwith %}
+		
+		{% endwith %}
+	</div>	
+	{% endfor %}
+	
+	</div>	
+
+	{% include "ads/rightbar.html" %}
+
+</div>
+{% endblock %}
+

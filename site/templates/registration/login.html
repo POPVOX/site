@@ -1,0 +1,46 @@
+{% extends "master.html" %}
+{% load registration_providers %}
+{% block title %}Sign In{% endblock%}
+{% block disable_login_redirect %}{% endblock %}
+{% block content %}
+	<div class="content">
+	
+		<div class="col_9">
+
+			<h3 class="no_rule">Sign in with your Google, Facebook, or Twitter account <div>or <a href="/accounts/register{% if next %}?next={{next|urlencode}}{% endif %}">create a POPVOX account</a>.</div></h3>
+			
+			<form method="post" class="login">
+				{% csrf_token %}
+
+				<div class="signin_social">
+					<h4>Sign in with:</h4>
+					{% with next as singlesignon_next %}
+						{% include "registration/login_singlesignon.html" %}
+					{% endwith %}
+					
+					<div class="clear"></div>
+					<div style="clear: both; width: 190px; font-size: 85%; line-height: 110%; margin-top: 1em">Not for legislative and advocacy organization staff.</div>
+				</div>
+			
+				<p style="padding-bottom: 1em; border-bottom: 1px dotted #AAA; width: 375px"><span style="font: bold 12px helvetica, arial, sans-serif; text-transform: uppercase;">Don&rsquo;t have an account?</span> If you have a Google, Facebook, or Twitter account, click the appropriate icon on the right. Otherwise, <a href="/accounts/register{% if next %}?next={{next|urlencode}}{% endif %}" style="font-weight: bold">register an account</a>.</p>
+			
+				{% if errors %}
+				<p class="error">{{errors}} Please try again.</p>
+				{% endif %}
+			
+				<label for="id_email">Email</label> 
+				<input id="id_email" type="text" name="email" maxlength="30" value="{{email}}"/><br /> 
+				
+				<label for="id_password">Password</label> 
+				<input type="password" name="password" id="id_password" value="{{password}}" /><br /> 
+				
+				<input class="submit" type="submit" value="Login" />
+				<a class="forgot" href="{% url registration.views.resetpassword %}">Forgot your password?</a>
+				
+				<input type="hidden" name="next" value="{{ next }}" />
+			</form>
+
+		</div>		
+	</div>
+{% endblock %}
+

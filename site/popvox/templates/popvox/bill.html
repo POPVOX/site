@@ -1,0 +1,313 @@
+{% extends "master.html" %}
+{% load humanize %}
+{% load popvox_utils %}
+{% block title %}{{ bill.title }}{% endblock%}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{% block adunits %}
+	{% if welcome %}
+		{% include "ads/rightbar_single_head.html" %}
+	{% endif %}
+{% endblock %}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+function showtab(tab) {
+	$('.tab_tab li').removeClass('active');
+	$('.tab_pane .tab_panel').hide();
+	$('#' + tab + "_tab").addClass('active');
+	$('#' + tab).fadeIn();
+	return false; // cancel click
+}
+</script>
+{% endblock %}
+{% block content %}
+<div class="content">
+	{% if welcome %}
+		<div class="col_9 col_top cookie-less">
+			<h1>Hello There!</h1>
+			<p>{{welcome}}</p>
+		</div>
+		{% include "ads/rightbar_single.html" %}
+		<div class="clear rule_12"> </div>
+	{% endif %}
+	
+	<h1 class="rule_btm">Bill Summary and Status</h1>
+		
+	<div class="clear col_9 col_top">
+		<div class="block bill_overview_user">
+			<h3 class="no_rule">{{ bill.title }}</h3>
+			{% if bill.officialtitle %}<p><strong>Summary: </strong>{{ bill.officialtitle }}</p>{% endif %}
+			
+			{% if not bill.isAlive %}
+			<p>This bill {{bill.getDeadReason}}. {% if canvote %}You can no longer write a comment about this bill.{% endif %}</p>
+			{% endif %}
+		</div>
+		
+		<div class="hr"> </div>
+	
+	{% comment %} START FOR ORG STAFF {% endcomment %}
+	{% if user_org %}
+		<div class="col_6">
+			<h3 class="stroke">What is your organization&rsquo;s position?</h3>
+			<p>Does <strong>{{user_org.name}}</strong> endorse or oppose this bill?</p>
+	
+			<script>
+			var user_org_pos;
+			function endorse_oppose_1(position) {
+				user_org_pos = position;
+				$.colorbox({
+					transition: "none",
+					inline: true,
+					href:'#bill_endorse_oppose_colorbox',
+					opacity: .5,
+					height: "380px",
+					width: "600px",
+					onComplete: function() {
+						$('#bill_endorse_oppose_descr').text((position == "+") ? "endorse" : "oppose");
+						$('#bill_endorse_oppose_descr2').text((position == "+") ? "Endorse" : "Oppose");
+					}
+				});
+				return false;
+			}
+			function endorse_oppose_2() {
+				// $.colorbox.close(); // don't close colorbox since we are redirecting
+				ajax("/post/org_support_oppose",
+					{ "org": "{{user_org.slug|escapejs}}",
+					   "cam": ( $('#bill_endorse_oppose_forcam')[0].checked ? $('#bill_endorse_oppose_cam').val() : "_default_"),
+					   "bill": "{{bill.url|escapejs}}",
+					   "position": user_org_pos,
+					   "comment": $('#bill_endorse_oppose_comment').val()
+					},
+					{
+						savebutton: "bill_endorse_oppose_submit",
+						success: function(res) {
+							if ($('#bill_endorse_oppose_forcam')[0].checked && $('#bill_endorse_oppose_cam').val() == "_new_")
+								window.location = res.camurl + "/_edit";
+							else if ($('#bill_endorse_oppose_forcam')[0].checked)
+								window.location = res.camurl;
+							else
+								window.location = "{{user_org.url|escapejs}}";
+						},
+						failure: function() {
+							$.colorbox.close();
+						}
+					}
+					);					
+			}
+			</script>
+	
+		    <div id="bill_endorse_oppose"> 
+				<div id="bill_endorse_oppose_holder">
+					<input id="billsearch_endorse_oppose_submit_endorse" class="submit" type="button" value="Endorse" onclick="endorse_oppose_1('+')"/>
+					<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="endorse_oppose_1('-')"/>
+				</div>
+	
+				{% if existing_org_positions %}
+				<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.cam.default %} in <a href="{{pp.cam.url}}">{{pp.cam.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
+				{% endif %}
+		
+				<div style="display: none">
+					<div id="bill_endorse_oppose_colorbox" class="colorbox" style="width: 500px">
+					<h1><span id="bill_endorse_oppose_descr2"></span> {{ bill.displaynumber }}?</h1>
+					<p>You are about to <span id="bill_endorse_oppose_descr"></span> {{ bill.displaynumber }} in {{user_org.name}}&rsquo;s legislative agenda.</p>
+					<p>Please provide a short explanation for your position.</p>
+					<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%">{% for p in existing_org_positions %}{% if forloop.first %}{{p.comment}}{% endif %}{% endfor %}</textarea>
+					<div>
+						<input type="checkbox" id="bill_endorse_oppose_forcam" onclick="if ($('#bill_endorse_oppose_forcam')[0].checked) $('#bill_endorse_oppose_cam').attr('disabled', ''); else $('#bill_endorse_oppose_cam').attr('disabled', '1');" {% if lastviewedcampaign %}checked="1"{% endif %}/>
+						<label for="bill_endorse_oppose_forcam">Add this bill to a campaign.</label>
+					</div>
+					<div id="bill_endorse_oppose_camdiv">
+						<select id="bill_endorse_oppose_cam" {% if not lastviewedcampaign %}disabled="1"{% endif %}>
+							{% for campaign in user_org.orgcampaign_set.all %}{% if not campaign.default %}<option value="{{campaign.slug}}" {% if campaign.id == lastviewedcampaign.id %}selected="1"{% endif %}>{{ campaign.name }}</option>{% endif %}{% endfor %}
+							<option value="_new_">&lt; Create a New Campaign... &gt;</option>
+						</select>
+					</div>
+					<div style="margin-top: 1em">
+						<input id="bill_endorse_oppose_submit" class="submit" type="button" value="OK" onclick="endorse_oppose_2()"/>
+						<input id="bill_endorse_oppose_submit_cancel" class="submit" type="button" value="Cancel" onclick="$.colorbox.close()"/>
+					</div>
+				</div>	
+				</div>
+			
+			</div> <!-- bill_endorse_oppose -->
+		
+		</div> <!-- col_6 -->
+	{% endif %}
+	{% comment %} END FOR ORG STAFF {% endcomment %}
+	
+	{% comment %} START OF USER VOTE {% endcomment %}
+		{% if canvote and bill.isAlive %}
+		<div class="col_3 col_top">
+			<h3 class="no_rule">What do you think</h3>
+			<p>
+				{% if not mocs %}
+				How should your Members of Congress vote?
+				{% endif %}
+				
+				{% if mocs %}
+					How should
+						{% for moc in mocs %}
+							{% if not forloop.first %} and {% endif %}
+							{{ moc.name }}
+						{% endfor %}
+					vote?
+				{% endif %}
+			</p>
+		</div>
+		{% if not user_position %}
+			<div id="bill_endorse_oppose_holder_user">
+				<input id="billsearch_endorse_oppose_submit_support" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
+				<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="window.location = '{{bill.url|escapejs}}/comment/oppose'"/>
+			</div>
+		{% else %}
+			<div id="bill_endorse_oppose_holder_user">
+			{% if user_position.position == "+" %}
+				<input id="billsearch_endorse_oppose_submit_support" class="submit nohover" type="button" value="Support"/>
+			{% else %}
+				<input id="billsearch_endorse_oppose_submit_oppose" class="submit nohover" type="button" value="Oppose"/>
+			{% endif %}
+				<p>
+					You submitted a comment on this bill {{user_position.updated|date2}}. You wrote:
+				</p>
+				<p>&ldquo;{{user_position.message|truncatewords:30}}&rdquo;</p>
+				<div>
+					<p>
+						<a href="{{bill.url}}/comment">edit comment</a> |
+						<a href="{{bill.url}}/comment/clear">remove comment</a> |
+						<a href="{{bill.url}}/comment/share">share comment</a>
+					</p>
+				</div>
+			</div>
+		{% endif %}
+		{% endif %}
+		{% comment %} END OF USER VOTE {% endcomment %}
+	</div>
+	
+	{% comment %} START OF PIE CHART {% endcomment %}
+	{% if stats.overall.total > 0 %}
+	<div class="col_3 col_top col_last">
+		<h3 class="no_rule">What POPVOX Users Say</h3>
+		<div class="chart_info">
+			<div style="float: left; width: 95px; margin-right: 15px">
+				<a href="{{bill.url}}/report">
+					<div id="chart-container" style="width: 95px; height: 95px"></div>
+					<script>bill_chart('chart-container', {{stats.overall.pro_pct}}, {{stats.overall.con_pct}});</script>
+				</a>
+			</div>
+			 <div style="float: left; width: 110px">
+				<p class="chart_stats">
+					<span class="chart_title">{{ stats.overall.longdescription}}:</span><br />
+					<span class="bg_support">{{ stats.overall.pro_pct }}% Support</span><br />
+					<span class="bg_oppose">{{ stats.overall.con_pct }}% Oppose </span><br />
+					<span class="users">({{stats.overall.total}} user{{stats.overall.total|pluralize}})</span>
+				</p>
+				{% comment %}
+				 <p class="view_report">
+					<span><a href="{{bill.url}}/report">View Report</a></span>
+				</p>
+				{% endcomment %}
+			</div>
+		</div>	
+	</div>
+	{% endif %}
+	{% comment %} END OF PIE CHART {% endcomment %}
+	
+	<div class="clear"></div>
+	
+	<div class="col_3">
+		<ul class="tab_tab">
+			{% if welcome_tabname %}
+			<li id="welcome_tab" class="active"><a href="#" onclick="return showtab('welcome')">{{welcome_tabname}}</a></li>
+			{% endif %}
+			<li id="orgssupport_tab" {% if not welcome_tabname %}class="active"{% endif %}><a href="#" onclick="return showtab('orgssupport')">Organizations Endorsing</a></li>
+			<li id="orgsoppose_tab"><a href="#" onclick="return showtab('orgsoppose')">Organizations Opposing</a></li>
+			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
+		</ul>
+	</div>
+	
+	<div class="tab_pane">
+		{% if welcome_tabname %}
+		<div id="welcome" class="tab_panel">
+			{% if referral_comment %}
+				<h3 class="no_rule">{{ referral_comment.user.username }} Wrote:</h3>
+				
+				{{ referral_comment.message|wraplines:"p" }}
+				
+				<p>({{referral_comment.updated|date2}})</p>
+			{% endif %}
+			
+			{% if referral_orgposition %}
+				<h3 class="no_rule">{{ referral_orgposition.campaign.org.name }}</h3>
+				<p>This organization {% if referral_orgposition.position == "+" %}endorses{% else %}opposes{% endif %} this bill. {% if referral_orgposition.comment %}They had this to say about the bill:{% endif %}</p>
+				
+				{{ referral_orgposition.comment|wraplines:"p" }}
+				
+				
+				<p>For more information see 
+					{% if not referral_orgposition.campaign.default %}
+					<a href="{{referral_orgposition.campaign.url}}">{{referral_orgposition.campaign.name}}</a>.
+					{% else %}
+					<a href="{{referral_orgposition.campaign.org.url}}">{{referral_orgposition.campaign.org.name}}</a>.
+					{% endif %}
+				</p>
+				
+			{% endif %}
+		</div>
+		{% endif %}
+	
+		<div id="billstatus" style="display: none" class="tab_panel">
+			<h3>Bill Status</h3>
+			
+			{% if bill.sponsor %}
+			<div id="sponsor">
+				<h4>Sponsor</h4>
+				<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
+			</div>
+			{% endif %}
+			<div id="status">
+				<h4>Status</h4>
+				{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
+					{{bill.status_advanced}}
+				{% else %}
+					{{bill.status}}
+				{% endif %}
+				(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More</a>)
+			</div>
+			<div class="clear"> </div>
+		</div>
+	    
+		{% for position, orgset in orgs.items %}
+			<div id="orgs{{position}}" {% if welcome_tabname or forloop.counter == 2 %}style="display: none"{% endif %} class="tab_panel">
+	
+				<h3>{% if position == "support" %}Endorsing{% else %}Opposing{% endif %} Organizations</h3>
+				{% if not orgset %}<p>POPVOX does not know about any organizations {% if position == "support" %}endorsing{% else %}opposing{% endif %} this bill.</p>{% endif %}
+				{% for org in orgset %}
+				<div>
+					<h5><a href="{{org.url}}">{{org.name}}</a></h5>
+					{% if org.comment %}
+						{{org.comment|wraplines:"p"|truncatewords_html:50}}
+					{% endif %}
+					{% for cam in org.campaigns %}
+						<p><a href="{{cam.url}}">{{cam.name}}</a>: {{ cam.description|truncatewords:10 }}</p>
+					{% endfor %}
+				</div>
+				
+			    {% if existing_org_positions %}
+				    {% if user_org and not user_org.approved %}
+						<p>Your organization will appear as an endorsing or opposing group on legislation in your agenda once your organization is approved and published.</p>
+					{% else %}
+						{% if user_org and not user_org.visible %}
+						<p>Your organization will not show up as an endorsing or opposing group on legislation in your agenda until you <a href="{{user_org.url}}/_edit">publish your organization profile</a>.</p>
+						{% endif %}
+				    {% endif %}
+			    {% endif %}
+			{% endfor %}
+	
+			</div>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,12 @@
+{% extends "master.html" %}
+{% block title %}Logged Out{% endblock%}
+{% block disable_login_redirect %}{% endblock %}
+{% block content %}
+	<div class="content">
+		<h1>You Have Been Logged Out</h1>
+	
+		<p>You can <a href="/accounts/login">log back in</a> if you wish.</p>
+	</div>
+
+{% endblock %}
+

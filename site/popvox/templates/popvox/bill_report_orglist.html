@@ -1,0 +1,21 @@
+{% load popvox_utils %}
+<ul class="smalllist">
+{% for grp in org_list|split_at:5 %}
+	{% if forloop.counter0 == 1 %}
+	<p id="{{org_group}}_more"><a href="#" onclick="$('#{{org_group}}1').fadeIn(); $('#{{org_group}}_more').hide(); $('#{{org_group}}_less').show(); return false;">show {{org_list|length|add:-5}} more</a></p>
+	{% endif %}
+	
+	<div id="{{org_group}}{{forloop.counter0}}" {% if forloop.counter0 == 1 %}style="display: none"{% endif %}>
+	{% for org in grp %}
+		<li><a href="{{org.url}}">{{org.name}}</a></li>
+	{% empty %}
+		<li>No organizations known.</li>
+	{% endfor %}
+	</div>
+	
+	{% if forloop.counter0 == 1 %}
+	<p id="{{org_group}}_less" style="display: none"><a href="#" onclick="$('#{{org_group}}1').fadeOut(); $('#{{org_group}}_more').show(); $('#{{org_group}}_less').hide(); return false;">show less</a></p>
+	{% endif %}
+{% endfor %}
+</ul>
+
