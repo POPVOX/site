@@ -2,4 +2,8 @@ git clone http://github.com/shrubberysoft/django-picklefield.git
 git clone http://github.com/simplegeo/python-oauth2.git
 git clone http://github.com/openid/python-openid.git
 hg clone http://bitbucket.org/david/django-storages
-git clone git@github.com:tauberer/django-feedback.git
+svn checkout http://oauth-python-twitter2.googlecode.com/svn/trunk/ oauth-python-twitter2
+svn checkout http://django-tinymce.googlecode.com/svn/trunk/ django-tinymce
+
+git clone git://github.com/tauberer/django-feedback.git
+   #git clone https://tauberer@github.com/tauberer/django-feedback.git

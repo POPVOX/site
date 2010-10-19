@@ -32,7 +32,7 @@ if not DEBUG or "REMOTEDB" in os.environ:
 	    'default': {
 	        'NAME': 'popvox',
 	        'ENGINE': 'django.db.backends.mysql',
-	        'USER': 'popvox',
+	        'USER': 'root',
 	        'PASSWORD': 'qsg;5TtC',
 	        'HOST': '127.0.0.1' if "REMOTEDB" in os.environ else "localhost", # tcp or unix domain
 	        'PORT': 3306
