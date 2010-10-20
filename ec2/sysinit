@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# us-east-1a
+# AMI:  ami-ac07f2c5
+# ubuntu-images-us/ubuntu-lucid-10.04-amd64-server-20100923.manifest.xml
+# Large (m1.large)
+# Keypair: josh
+# Security Group: Web+SSH
+# Associate Elastic IP: 75.101.150.60
+# Attach EBS vol-6c010f05 on /dev/sdf
+
+# mysql root password: qsg;5TtC
+# postfix should be configured as an Internet server, and the IP address should be in the SPF record.
+
+# Basic system setup
+ssh-keygen -q -t rsa -b 2048 -N "" -f .ssh/id_rsa
+
+# Packages
+sudo apt-get update
+sudo apt-get upgrade -y
+
+sudo tasksel install lamp-server
+
+sudo apt-get install -y postfix git-core subversion mercurial libapache2-mod-wsgi python-flup python-beautifulsoup memcached python-memcache python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging rdiff-backup
+
+# Custom packages
+DJANGO=python-django_1.2.3-1ubuntu0.1_all.deb
+wget http://launchpadlibrarian.net/57571527/$DJANGO
+sudo dpkg -i $DJANGO
+rm $DJANGO
+
+# Persistent storage disk
+sudo mkdir /mnt/persistent
+sudo mount /dev/sdf /mnt/persistent
+
+# Users
+sudo useradd -m --shell /bin/bash www
+sudo su www -c "cd; /mnt/persistent/ec2_inituser.sh"
+
+# Apache
+sudo a2dissite default
+sudo a2enmod proxy proxy_http
+sudo sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
+sudo ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
+sudo /etc/init.d/apache2 restart
+
+# Mysql
+sudo service mysql stop
+rm -rf /var/lib/mysql/
+mkdir /var/lib/mysql
+mount --bind /mnt/persistent/mysql/ /var/lib/mysql
+sudo service mysql start
+

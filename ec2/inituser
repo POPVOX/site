@@ -1,0 +1,20 @@
+git clone /mnt/persistent/sources.git sources
+
+#########
+
+cd sources
+
+grep "^##" httpd.conf |sed "s/^##//"|sed "s/__USER__/$USER/g" > ../httpd.conf
+
+#########
+
+cd libs
+
+sh checkouts
+
+#########
+
+cd
+
+mkdir logs
+
