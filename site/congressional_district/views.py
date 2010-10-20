@@ -50,5 +50,5 @@ def district_lookup(request):
 		return { "status": "success", "method": "latlng", "state": states[0].firstChild.data, "district": districts[0].firstChild.data }
 		
 	else:
-		return Http404()
+		raise Http404()
 

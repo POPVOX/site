@@ -70,9 +70,6 @@
 		GS_googleAddAdSenseService("ca-pub-4482124597959107");
 		GS_googleEnableAllServices();
 	</script>
-	<script>
-	_gaq.push(['_setCustomVar', 1, 'usertype', {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}, 1]);
-	</script>
 	<script type='text/javascript'>
 		{% block adunits %}
 		{% endblock %}
@@ -91,6 +88,9 @@
 	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	  })();
+	</script>
+	<script>
+	_gaq.push(['_setCustomVar', 1, 'usertype', {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}, 1]);
 	</script>
 	{% endif %}
 </head>

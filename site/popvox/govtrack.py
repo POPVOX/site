@@ -13,8 +13,8 @@ stateabbrs = ["AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", 
 
 statenames = {"AL":"Alabama", "AK":"Alaska", "AS":"American Samoa", "AZ":"Arizona", "AR":"Arkansas", "CA":"California", "CO":"Colorado", "CT":"Connecticut", "DE":"Deleware", "DC":"District of Columbia", "FL":"Florida", "GA":"Georgia", "GU":"Guam", "HI":"Hawaii", "ID":"Idaho", "IL":"Illinois", "IN":"Indiana", "IA":"Iowa", "KS":"Kansas", "KY":"Kentucky", "LA":"Louisiana", "ME":"Maine", "MD":"Maryland", "MA":"Massachusetts", "MI":"Michigan", "MN":"Minnesota", "MS":"Mississippi", "MO":"Missouri", "MT":"Montana", "NE":"Nebraska", "NV":"Nevada", "NH":"New Hampshire", "NJ":"New Jersey", "NM":"New Mexico", "NY":"New York", "NC":"North Carolina", "MP":"Northern Mariana Islands", "OH":"Ohio", "OK":"Oklahoma", "OR":"Oregon", "PA":"Pennsylvania", "PR":"Puerto Rico", "RI":"Rhode Island", "SC":"South Carolina", "SD":"South Dakota", "TN":"Tennessee", "TX":"Texas", "UT":"Utah", "VT":"Vermont", "VI":"Virgin Islands", "VA":"Virginia", "WA":"Washington", "WV":"West Virginia", "WI":"Wisconsin", "WY":"Wyoming"}
 
-statenamelist = list(statenames.values())
-statenamelist.sort()
+statelist = list(statenames.items())
+statelist.sort(key=lambda x : x[1])
 
 stateapportionment = {"AL":7, "AK":1, "AS":1, "AZ":8, "AR":4, "CA":54, "CO":7, "CT":5, "DE":1, "DC":1, "FL":25, "GA":13, "GU":1, "HI":2, "ID":2, "IL":19, "IN":9, "IA":5, "KS":4, "KY":6, "LA":7, "ME":2, "MD":8, "MA":10, "MI":15, "MN":8, "MS":4, "MO":9, "MT":1, "NE":3, "NV":3, "NH":2, "NJ":13, "NM":3, "NY":29, "NC":13, "MP":1, "OH":18, "OK":5, "OR":5, "PA":19, "PR":1, "RI":2, "SC":6, "SD":1, "TN":9, "TX":32, "UT":3, "VT":1, "VI":1, "VA":11, "WA":9, "WV":3, "WI":8, "WY":1}
 

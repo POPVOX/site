@@ -620,7 +620,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"useraddress_fixed": address_record_fixed,
 				"useraddress_prefixes": PostalAddress.PREFIXES,
 				"useraddress_suffixes": PostalAddress.SUFFIXES,
-				"useraddress_states": govtrack.statenamelist,
+				"useraddress_states": govtrack.statelist,
 				"captcha": captcha_html() if request.user.is_anonymous() or len(request.user.comments.filter(bill = bill)) == 0 else "",
 			}, context_instance=RequestContext(request))
 
@@ -672,7 +672,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"useraddress_fixed": address_record_fixed,
 				"useraddress_prefixes": PostalAddress.PREFIXES,
 				"useraddress_suffixes": PostalAddress.SUFFIXES,
-				"useraddress_states": govtrack.statenamelist,
+				"useraddress_states": govtrack.statelist,
 				"captcha": captcha_html(getattr(e, "recaptcha_error", None)) if request.user.is_anonymous() or len(request.user.comments.filter(bill = bill)) == 0 else "",
 				"error": validation_error_message(e)
 				}, context_instance=RequestContext(request))

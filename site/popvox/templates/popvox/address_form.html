@@ -28,9 +28,9 @@
 <input class="c2" id="useraddress_city"  name="useraddress_city" type="text" value="{{useraddress.city}}"/><br />
 
 <label for="useraddress_state">State</label>
-<select class="c2" name="useraddress_state">
-	{% for state in useraddress_states %}
-	<option value="{{state}}" {% if useraddress.state == state %}selected{% endif %}>{{state}}</option>
+<select class="c2" id="useraddress_state" name="useraddress_state">
+	{% for k,v in useraddress_states %}
+	<option value="{{k}}" {% if useraddress.state == k or useraddress.state == v %}selected{% endif %}>{{v}}</option>
 	{% endfor %}
 </select><br />
 
@@ -54,18 +54,14 @@ function useraddress_get_district() {
 	ajax("{% url congressional_district.views.district_lookup %}",
 		{
 			address: address,
-			zipcode: $('#useraddress_zipcode').val()},
+			zipcode: $('#useraddress_zipcode').val()
+		},
 		{
 			failure: function(res) {
 				$('#useraddress_congressionaldistrict_label').text(res.msg);
 				$('#useraddress_congressionaldistrict').val("");
 			},
 			success: function(res) {
-				if (res.state.toLowerCase() != $('#useraddress_state').val().toLowerCase() && $('#useraddress_state').val() != "") {
-					$('#useraddress_congressionaldistrict_label').text("ZIP Code doesn't match state.");
-					$('#useraddress_congressionaldistrict').val("");
-					return;
-				}
 				if (res.district > 0)
 					$('#useraddress_congressionaldistrict_label').text("District " + res.district);
 				else
