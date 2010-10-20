@@ -22,13 +22,18 @@
 	<input type="hidden" name="district" value="{{district}}" id="districtfield"/>
 	
 	{% if not error %}
-		<h1>Preview Your Comment</h1>
-	    
-		 <p>Writing your comment is the hardest step but you&rsquo;re doing great.
-			Before we go on, read it over to make sure you are happy with it.
-			(You can edit or remove your comment later.)</p>
-			
-		<div class="message_preview">{{message|wraplines:"p"}}</div>
+		<div class="tip_inline mar_no">
+			 <p>Writing your comment is the hardest step but you&rsquo;re doing great.
+				Before we go on, read it over to make sure you are happy with it.
+				(You can edit or remove your comment later.)</p>
+		</div>
+		<div class="clear"> </div>
+
+		<h3>Preview Your Comment</h3>
+		
+		<div class="message_preview">
+		<h5>Subject Line Here</h5>
+		{{message|wraplines:"p"}}</div>
 	
 	{% else %}
 		<h1>Submit Your comment</h1>
@@ -36,49 +41,47 @@
 	{% endif %}
 		
 	{% if not user.is_authenticated %}
-		<div id="needsauth">
-		<h2>Sign-In or Sign-Up</h2>
-		
-		 <div class="tip_inline">
-			<p>You&rsquo;re going to have to create a POPVOX account before you can
-			submit your comment. Your account is free and anonymous, but we need to
-			find your congressional district so your comment gets to the right place.</p>
-		</div>		
-
-		<div class="">
-			<h3>Create a POPVOX Account</h3>
+	<div id="needsauth">
+		<div class="col_4_5">
+<!--			<h2>Sign-In or Sign-Up</h2> -->
 			
-			<p>We require everyone to create an account so we can prevent troublemakers from leaving many messages on the same legislation.</p>
+			<h4>Sign Up</h4>
+			
+<!--			<p>We require everyone to create an account so we can prevent troublemakers from leaving many messages on the same legislation.</p> -->
 			
 			<p>Create an account instantly using one of these services:</p>
 			<div class="signin_social" style="float: none">
 			{% include "registration/login_singlesignon.html" %}
 			</div>
 			
-			<div class="clear"></div>
+			<p class="float_text"><a href="trigger_jquery">Don't have one?</a></p>
 			
-			<p>Or fill out the following fields to create a POPVOX account. 
+			<p class="clear mar_top pad_top">Then fill out the following fields to create a POPVOX account</a></p>
+			
+				<small>A POPVOX account is free and anonymous, but we need your district so your comment gets to the right place in Congress.</small>
+			<div class="clear mar_top"> </div>		
 
-			<div class="form">
-				<label for="createacct_username">Screen name</label>
-				<input class="c3" type="text" name="createacct_username" value="{{username}}"/>
+			<div class="form signinup">
+				<label for="createacct_username">screen name</label>
+				<input class="c2" type="text" name="createacct_username" value="{{username}}"/>*
 				<div id="createacct_errorlabel_username" class="error" style="display: block">{{newaccount_error.username}}</div>
-				<small>Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces.</small>
+<!--			<small>Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces.</small> -->
 				
-				<label for="createacct_password">Password</label>
-				<input class="c3" type="password" name="createacct_password" value="{{password}}"/>
-				<div id="createacct_errorlabel_password" class="error" style="display: block">{{newaccount_error.password}}</div>
-				
-				<label for="createacct_email">Email Address</label>
-				<input class="c3" type="text" name="createacct_email" value="{{email}}"/>
+				<label for="createacct_email">email address</label>
+				<input class="c2" type="text" name="createacct_email" value="{{email}}"/>
 				<div id="createacct_errorlabel_email" class="error" style="display: block">{{newaccount_error.email}}</div>
-				<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
+				<p class="asterisk_orange"><a href="#">See our privacy policy ></a></p>
+<!--			<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small> -->
+
+				<label for="createacct_password">password</label>
+				<input class="c2" type="password" name="createacct_password" value="{{password}}"/>
+				<div id="createacct_errorlabel_password" class="error" style="display: block">{{newaccount_error.password}}</div>
+				<p class="asterisk_red">* Screen name must be at least five characters.</p>
 	
 				<div class="error" id="createacct_errorlabel"></div>
 			</div>
 		</div>
 		
-		<div class="">
 			<script>
 			function trylogin() {
 				ajax(
@@ -98,30 +101,32 @@
 			});
 			</script>
 		
-			<h3>Already have an account?</h3>
-			<p>Please log in:</p>
+		<div class="col_4_3 col_last">
+			<h4>Already A Member? Log In</h4>
 			
-			<div class="signin_social">
-			{% include "registration/login_singlesignon.html" %}
+			<p class="create_text">Login instantly using one of these services:</p>
+			<div class="signin_social social_r">
+				{% include "registration/login_singlesignon.html" %}
 			</div>
+			<div class="clear mar_top"> </div>
 			
-			<div class="form">
-			<label for="login_email">Email</label>
-			<input class="c2" type="text" id="login_email"/>
-			<span id="login_errorlabel_email" class="error"></span>
-			
-			<label for="login_password">Password</label>
-			<input class="c2" type="password" id="login_password"/>
-			<span id="login_errorlabel_password" class="error"></span>
-			
-			<input type="button" value="Login" onclick="trylogin()" class="submit"/>
-			<div class="error" id="login_errorlabel"></div>
+			<div class="form signinup">
+				<label for="login_email">email</label>
+				<input class="c2" type="text" id="login_email"/><br />
+				<span id="login_errorlabel_email" class="error"></span>
+				
+				<label for="login_password">password</label>
+				<input class="c2" type="password" id="login_password"/><br />
+				<span id="login_errorlabel_password" class="error"></span>
+				
+				<input class="b_login btn" type="button" value="Login" onclick="trylogin()" class="submit"/>
+				<div class="error" id="login_errorlabel"></div>
 			</div>
 		</div>
 		
-		<div style="clear: both"></div>
+		<div class="clear"></div>
 
-		<p>
+		<p class="b_create_box">
 			<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
 			<input class="b_create_accnt btn" type="button" value="Create Account >" onclick="submitform('Create Account >')"/>
 		</p>

@@ -102,13 +102,12 @@ function validate_form() {
 		
 		<p>Please explain why your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.displaynumber}}.</p>
 		
-		<div class="tip pad_top">
+		<div class="tip mar_top">
 			<h5>Letter Writing Tips</h5>
-			<p>
-Members of Congress pay attention to personal stories. If possible, tell them how this issue affects you or your community.</p>
+			<p>Members of Congress pay attention to personal stories. If possible, tell them how this issue affects you or your community.</p>
 		</div>
 
-		<div class="form pad_top">
+		<div class="form mar_top">
 			<textarea class="c5 h4" id="message" name="message" wrap="virtual">{% if message %}{{message}}{% endif %}</textarea>
 			<div id="messageerror"></div>
 			<script>

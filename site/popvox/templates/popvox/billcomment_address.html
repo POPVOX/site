@@ -49,8 +49,8 @@
 		{% endif %}
 		
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
-			<div class="float_right col_3">
-				<p>It is in your best interest to provide the address where you intend to vote. If you provide a fake address or an address in another district, your Members of Congress are likely to discount your comment and your POPVOX account may be suspended.</p>
+			<div class="float_right col_3 tip">
+				<p>Provide the address where you intend to vote. A fake address or district may cause POPVOX to suspend your account.</p>
 			</div>
 			{% include "popvox/address_form.html" %}
 		</div>

@@ -298,6 +298,20 @@ p {
 		padding-top: 15px;
 		}
 		
+	.col_4_3 {
+		width: 305px;
+		float: left;
+		margin: 0 0 20px 10px;
+		padding-top: 15px;
+		}
+
+	.col_4_5 {
+		width: 320px;
+		float: left;
+		margin: 0 58px 20px 0;
+		padding-top: 15px;
+		}
+		
 		.content .col_3 h3, .content .col_6 h3, .content .col_12 h3 {
 			font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
 			letter-spacing: .02em;
@@ -1217,11 +1231,100 @@ h1.h1_smaller {
 		float: left;
 		}
 		
-
-
+	.form input.b_login {
+		width: 81px;
+		height: 22px;
+		background: url(b_login.png);
+		display: block;
+		text-indent: -9999em;
+		margin: 0 0 0 100px;
+		border: none;
+		float: left;
+		}
+		
+			.form input.b_login:hover {
+				border: none;
+				}
+	
 .message_preview {
+	background: url(bg_quote_marks.png) left top no-repeat;
 	margin: 20px;
+	padding-left: 80px;
+	min-height: 80px;
+	height: auto !important;
+	height: 80px;
+	}	
+		
+
+#needsauth {
+	border-top: 3px solid #D4D1CA;
 	}
+	
+	.content #needsauth h4 {
+		font: bold 16px/20px helvetica, arial, sans-serif;
+		color: #404045;
+		margin-bottom: 10px;
+		}
+		
+	.float_text {
+		margin-top: 15px;
+		}
+		
+	.singlesignon {
+		margin-bottom: 10px;
+		}	
+	
+	.form.signinup {
+/*		display: none;  */
+		}
+		
+	.form.signinup input.c2 {
+		margin-bottom: 0;
+		margin-right: 5px;
+		height: 18px;
+		width: 188px;
+		}
+		
+	.form.signinup label {
+		width: 80px;
+		}
+		
+	.form.signinup small {
+		margin-bottom: 10px;
+		margin-left: 100px;
+		margin-top: -6px;
+		width: 240px;
+		}
+		
+	.b_create_box {
+		margin-left: 100px;
+		padding-bottom: 20px;
+		}
+		
+	.content p.asterisk_red {
+		font: bold 12px/18px helvetica, arial, sans-serif;
+		color: #cb1919;
+		margin-left: 100px;
+		}	
+
+	.content p.asterisk_orange {
+		font: bold 12px/18px helvetica, arial, sans-serif;
+		color: #CC6A11;
+		margin-left: 100px;
+		margin-top: -5px;
+		}	
+		
+	.social_r {
+		margin-top: 28px;
+		margin-bottom: 100px;
+		}
+		
+	.col_4_3 .form.signinup input {
+		margin-bottom: 12px;
+		}
+		
+
+
 
 #messageerror {
 	font: italic normal 14px georgia, serif;
@@ -1787,44 +1890,48 @@ ul#issuearealist {
 				margin-right: 10px;
 				}
 				
-			.social_Google {
+			.social_google_openid {
 				border: none;
 				display: block;
 				background: url(../icons/sm/b_icon_google.png) left top no-repeat;
-				width: 28px;
-				height: 28px;
+				width: 32px;
+				height: 32px;
 				}
 
-			.social_Facebook {
+			.social_facebook {
 				border: none;
 				display: block;
 				background: url(../icons/sm/b_icon_facebook.png) left top no-repeat;
-				width: 28px;
-				height: 28px;
+				width: 32px;
+				height: 32px;
 				}
 
-			.social_Twitter {
+			.social_twitter {
 				border: none;
 				display: block;
 				background: url(../icons/sm/b_icon_twitter.png) left top no-repeat;
-				width: 28px;
-				height: 28px;
+				width: 32px;
+				height: 32px;
 				}
 
-			.social_Linkedin {
+			.social_linkedin {
 				border: none;
 				display: block;
 				background: url(../icons/sm/b_icon_linkedin.png) left top no-repeat;
-				width: 28px;
-				height: 28px;
+				width: 32px;
+				height: 32px;
 				}
 				
-				.social_Google:hover,
-				.social_Facebook:hover,
-				.social_Twitter:hover,
-				.social_Linkedin:hover {
+				.social_google_openid:hover,
+				.social_facebook:hover,
+				.social_twitter:hover,
+				.social_linkedin:hover {
 					background-position: left bottom;
 					cursor: pointer;
+					}
+					
+				.signin_social img {
+					display: none;
 					}
 		
 		.content .login h2 {
@@ -2131,6 +2238,7 @@ ul#issuearealist {
 	width: 140px;
 	padding: 0px 0px 0 0; 
 	}
+	
 .col_3 .form label {
 	width: 80px;
 }
@@ -2168,8 +2276,8 @@ input.default, textarea.default {
 	padding: 3px 4px;
 	}
 	
-.form input, .form file {
-	height: 12px;
+.form input, .form file, .form select {
+	height: 18px;
 	}
 
 .form input:hover, .form textarea:hover {
@@ -2446,6 +2554,10 @@ ul.staff, .small {
 			
 		.mar_btm {
 			margin-bottom: 15px;
+			}
+			
+		.mar_no {
+			margin: 0;
 			}
 	
 	p.edit {
