@@ -23,7 +23,6 @@ function phone_number_twilio_callback() {
 {% block content %}
 <div class="content"> 
 
-<div class="col_9 col_top">
 	<h1>Home</h1>
 
 	<div class="col_6 col_top">
@@ -129,10 +128,37 @@ function phone_number_twilio_callback() {
 			</div><!-- e:mar -->
 		</div><!-- e:block -->
 	</div>
-</div>
+	
+	<div class="col_3 col_top profile_block">
+		{% if not user.phonenumber.get.verified %}
+		<h3>Homework</h3>
+
+		<div id="verify_phone">
+			<h4>Verify A Phone Number</h4>
+			<p>Verifying a phone number helps us ensure that users do not create multiple accounts to stuff the ballot.</p>
+			<div class="clear"><a class="b_verify_phone btn" href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Verify Phone</a></div>
+			<div class="clear"> </div>
+		</div>
+		{% endif %}
+	
+		<h3>Settings</h3>
+		
+		<p><a class="b_edit_profile btn" href="/accounts/profile">Edit Profile</a></p>
+
+		{% if user.phonenumber.get.verified %}
+		<p>
+			Phone Number: Verified
+			{% if not user.phonenumber.get.locked_until %}
+			(<a href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Change Number</a>)
+			{% endif %}
+			{% if user.phonenumber.get.locked_until %}
+			<span style="color: #888">(Locked until {{ user.phonenumber.get.locked_until }})</span>
+			{% endif %}
+		</p>
+		{% endif %}
+	</div>
 
 	{% include "ads/rightbar.html" %}
-
 </div>
 {% endblock %}
 
