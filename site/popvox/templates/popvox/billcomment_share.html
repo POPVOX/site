@@ -86,7 +86,7 @@ function share(method) {
 		{% endif %}
 		<div class="{% if stats %}col_4_7 col_last{% endif %}">
 			<h3 class="clear">What You Wrote</h3>
-			<div class="message_preview">{{comment.message|wraplines:"p"}}</div>
+			<div class="message_preview">{{comment.message|wraplines:"p"|truncatewords_html:50}}</div>
 		</div>
 		
 		<div class="hr"> </div>
@@ -152,6 +152,10 @@ function share(method) {
 			{% endif %}
 		{% endif %}
 		</div>
+		
+		<div class="clear"> </div>
+		
+		<input type="button" class="submit" value="Finished >" onclick="document.location = '/home/suggestions'"/>
 	</div>
 	
 </div>

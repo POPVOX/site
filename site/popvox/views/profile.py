@@ -545,11 +545,11 @@ def account_profile_update2(request, field, value, validate_only):
 		raise Exception("Bad request: Invalid field.")
 
 def switch_to_demo_account(request, acct):
-		if not request.user.is_authenticated() or (not request.user.is_superuser and not request.user.username == "demo_user" and not request.user.username == "demo_leg_staffer" and not request.user.username == "demo_org_staffer"):
-			raise Http404()
-		
-		user = authenticate(user_object = User.objects.get(username = acct))
-		login(request, user)
-		
-		return HttpResponseRedirect("/")
+	if not request.user.is_authenticated() or (not request.user.is_superuser and not request.user.username == "demo_user" and not request.user.username == "demo_leg_staffer" and not request.user.username == "demo_org_staffer"):
+		raise Http404()
+	
+	user = authenticate(user_object = User.objects.get(username = acct))
+	login(request, user)
+	
+	return HttpResponseRedirect(request.META["HTTP_REFERER"])
 

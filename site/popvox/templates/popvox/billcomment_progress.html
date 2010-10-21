@@ -3,7 +3,7 @@
 		<ul class="tab_tabs">
 			<li class="finished">Support / Oppose</li>
 			<li {% if billcomment_progress_step == "start" %}class="active"{% else %}class="finished"{% endif %}>Message To Congress</li>
-			<li {% if billcomment_progress_step == "preview" %}class="active"{% else %}{% if billcomment_progress_step == "address" or billcomment_progress_step == "share" %}class="finished"{% endif %}{% endif %}>Registration</li>
+			<li {% if billcomment_progress_step == "preview" %}class="active"{% else %}{% if billcomment_progress_step == "address" or billcomment_progress_step == "share" %}class="finished"{% endif %}{% endif %}>Preview / Registration</li>
 			<li {% if billcomment_progress_step == "address" %}class="active"{% else %}{% if billcomment_progress_step == "share" %}class="finished"{% endif %}{% endif %}>Locate Your District</li>
 			<li {% if billcomment_progress_step == "share" %}class="active"{% endif %}>Share Your Comment</li>
 		</ul>

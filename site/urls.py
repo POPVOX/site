@@ -14,6 +14,7 @@ urlpatterns = patterns('',
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	
 	(r'^home$', 'popvox.views.home.home'),
+	(r'^home/suggestions$', 'popvox.views.home.home_suggestions'),
 	(r'^home/reports$', 'popvox.views.home.reports'),
 	
 	(r'^bills$', "popvox.views.bills.bills"),

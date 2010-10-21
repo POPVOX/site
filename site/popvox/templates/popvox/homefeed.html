@@ -70,7 +70,22 @@ function phone_number_twilio_callback() {
 		</script>
 		
 		<div id="newsfeed" class="your_feed">
-			<h2 style="margin-top: 0">Your Recent Comments</h2>
+		
+			{% for sug in suggestions %}
+				{% if forloop.first %}
+				<h2>Suggestions for Action</h2>
+				{% endif %}
+			
+				<p>
+					<a href="{{sug.bill.url}}">{% if sug.position == "+" %}Support{% else %}Oppose{% endif %} {{sug.bill.title|truncatewords:10}}</a>
+				</p>
+				
+				{% if forloop.last %}
+				<p><a href="/home/suggestions">More suggestions...</a></p>
+				{% endif %}
+			{% endfor %}
+					
+			<h2>Your Recent Comments</h2>
 			
 			{% with user.comments.all as comments %}
 			{% if comments|length == 0 %}

@@ -82,6 +82,83 @@ def get_legstaff_district_bills(user):
 		d["stats"] = bill_statistics(d["bill"], None, None,  address__state=f["state"], address__congressionaldistrict=f["congressionaldistrict"] if "congressionaldistrict" in f else None)
 		
 	return bills
+	
+def compute_prompts(request):
+	# Compute prompts for action for users.
+	
+	# Each suggestion is of the form:
+	#   recommended bill, recommended position because you had position on bill
+	
+	sugs = { }
+	
+	# Every comment leads to a suggestion for a different bill+position pair:
+	for c in request.user.comments.all():
+		bid = c.position + str(c.bill.id)
+		
+		# Find all orgs that had the same position.
+		for p in OrgCampaignPosition.objects.filter(bill=c.bill, position=c.position):
+			# Now find all bills endorsed/opposed by that org, except for the original
+			# bill since there's no need to recommend something the user already did.
+			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org).exclude(bill=c.bill):
+				if not q.bill.isAlive():
+					continue
+					
+				# Don't make a recommendation on something the user already took
+				# action on.
+				if request.user.comments.filter(bill=q.bill).exists():
+					continue
+				
+				# Create a record for the recommended bill.
+				qbid = q.position + str(q.bill.id)
+				if not qbid in sugs:
+					sugs[qbid] = { "bill": q.bill, "position": q.position, "sources": [], "orgs": [], "users": 0  }
+					
+				# Mark what bill the user took a position on was a source for this recommendation.
+				if not (c.bill, c.position) in sugs[qbid]["sources"]:
+					sugs[qbid]["sources"].append( (c.bill, c.position) )
+				
+				# Record what the org has to say about this, only once for an org.
+				# The benefit of scanning orgs here is that we're likely to hit an
+				# org the user knows because they took an action on a bill
+				# the org cares about.
+				for op in sugs[qbid]["orgs"]:
+					if op.campaign.org == q.campaign.org:
+						break # i.e. we already have the position of this org
+				else: # didn't see this org
+					sugs[qbid]["orgs"].append(q)
+	
+		# Find all users that had the same position.
+		for d in UserComment.objects.filter(bill=c.bill, position=c.position).exclude(id=c.id):
+			# Now find all of the other positions this user took...
+			for q in d.user.comments.all().exclude(bill=c.bill):
+				if not q.bill.isAlive():
+					continue
+					
+				# Don't make a recommendation on something the user already took
+				# action on.
+				if request.user.comments.filter(bill=q.bill).exists():
+					continue
+				
+				# Create a record for the recommended bill.
+				qbid = q.position + str(q.bill.id)
+				if not qbid in sugs:
+					sugs[qbid] = { "bill": q.bill, "position": q.position, "sources": [], "orgs": [], "users": 0 }
+					
+				# Mark what bill the user took a position on was a source for this recommendation.
+				if not (c.bill, c.position) in sugs[qbid]["sources"]:
+					sugs[qbid]["sources"].append( (c.bill, c.position) )
+				
+				# Increment the number of users recommending this bill.
+				sugs[qbid]["users"] += 1
+		
+	sugs = list(sugs.values())
+	
+	# sort suggestions by the number of users recommending the bill first,
+	# and then by the total comments left on each bill
+	
+	sugs.sort(key = lambda x : (-x["users"], -x["bill"].usercomments.count()))
+	
+	return sugs[0:10] # max number of suggestions to return
 
 @login_required
 def home(request):
@@ -130,9 +207,25 @@ def home(request):
 			context_instance=RequestContext(request))
 	else:
 		return render_to_response('popvox/homefeed.html',
-			{ 'user': request.user,
+			{ 
+			"suggestions": compute_prompts(request)[0:5]
 			    },
 			context_instance=RequestContext(request))
+
+@login_required
+def home_suggestions(request):
+	prof = request.user.get_profile()
+	if prof == None:
+		return Http404()
+		
+	if prof.is_leg_staff() or prof.is_org_admin():
+		return HttpResponseRedirect("/home")
+
+	return render_to_response('popvox/home_suggestions.html',
+		{ 
+		"suggestions": compute_prompts(request)
+		    },
+		context_instance=RequestContext(request))
 
 @login_required
 def reports(request):
