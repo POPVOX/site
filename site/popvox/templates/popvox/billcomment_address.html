@@ -26,7 +26,7 @@
 		 <div class="tip_inline">
 			<p>Members of Congress take messages more seriously when you are willing to stand behind your message with a name and address. They also want to know whether or not you are one of their constituents. In order to maximize the effectiveness of your communication, we require that you provide your address.</p>
 		
-			<p>We may share your address with your Members of Congress.</p>
+			<p>We may share your name and address with your Members of Congress.</p>
 			<div class="hr"> </div>
 		</div>
 		<p class="error">{{ error }}</p>
@@ -37,6 +37,7 @@
 				<div>{{useraddress.address1}}</div>
 				<div>{{useraddress.address2}}</div>
 				<div>{{useraddress.city}}, {{useraddress.state}} {{useraddress.zipcode}}</div>
+				<div style="font-size: 80%">(Congressional District {{useraddress.state}}-{% if useraddress.congressionaldistrict == 0 %}At Large{% else %} {{useraddress.congressionaldistrict}}{% endif %})</div>
 				
 				{% if not useraddress_fixed %}
 					<div><a href="#" onclick="$('#savedaddress').hide(); $('#editdaddress').show()">Change Address</a></div>
