@@ -1,2 +1,2 @@
 #!/bin/sh
-ssh -i josh.pem ubuntu@75.101.150.60 
+ssh -i ~/secure/josh.pem ubuntu@75.101.150.60 

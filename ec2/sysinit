@@ -51,3 +51,6 @@ mkdir /var/lib/mysql
 mount --bind /mnt/persistent/mysql/ /var/lib/mysql
 sudo service mysql start
 
+# Startup scripts. What do I do with these?
+git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/ 
+

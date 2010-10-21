@@ -25,9 +25,8 @@ congresspeople = None # map of state+district strings to ID
 committees = None # list of committees, each committee a dict
 
 def open_govtrack_file(fn):
-	import os.path
 	import settings
-	return open(os.path.dirname(settings.__file__) + "/data/govtrack/" + fn)
+	return open(settings.DATADIR + "govtrack/" + fn)
 
 def loadpeople():
 	global people

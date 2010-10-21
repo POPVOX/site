@@ -7,3 +7,6 @@ svn checkout http://django-tinymce.googlecode.com/svn/trunk/ django-tinymce
 
 git clone git://github.com/tauberer/django-feedback.git
    #git clone https://tauberer@github.com/tauberer/django-feedback.git
+
+# for data prep only
+svn checkout http://primary-maps-2008.googlecode.com/svn/trunk/ primary-maps-2008
