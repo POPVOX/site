@@ -73,7 +73,7 @@ function phone_number_twilio_callback() {
 		
 			{% for sug in suggestions %}
 				{% if forloop.first %}
-				<h2>Suggestions for Action</h2>
+				<h3>Suggestions for Action</h3>
 				{% endif %}
 			
 				<p>
@@ -85,7 +85,7 @@ function phone_number_twilio_callback() {
 				{% endif %}
 			{% endfor %}
 					
-			<h2>Your Recent Comments</h2>
+			<h3>Your Recent Comments</h3>
 			
 			{% with user.comments.all as comments %}
 			{% if comments|length == 0 %}

@@ -969,8 +969,11 @@ h3#reporttitle {
 		display: block;
 		margin-bottom: 15px;
 		padding: 0 0 0 45px;
+		min-height: 35px;
+		height: auto !important;
+		height: 35px;
 		}
-		
+
 	.content div.oppose {
 		background: url(bg_opposed_bubl.png) left top no-repeat;
 		display: block;
@@ -1239,18 +1242,30 @@ h1.h1_smaller {
 		float: left;
 		}
 		
+	.form input.b_finished {
+		width: 81px;
+		height: 22px;
+		background: url(b_finished.png);
+		display: block;
+		text-indent: -9999em;
+		margin: 0 0 0 603px;
+		border: none;
+		float: left;
+		}
+		
 	.form input.b_login {
 		width: 81px;
 		height: 22px;
 		background: url(b_login.png);
 		display: block;
 		text-indent: -9999em;
-		margin: 0 0 0 100px;
+		margin: 5px 0 0 100px;
 		border: none;
 		float: left;
 		}
 		
-			.form input.b_login:hover {
+			.form input.b_login:hover,
+			.form input.b_finished:hover {
 				border: none;
 				}
 				
@@ -1260,7 +1275,7 @@ h1.h1_smaller {
 		background: url(b_share_email.png);
 		display: block;
 		text-indent: -9999em;
-		margin: 0;
+		margin: 0 0 15px;
 		border: none;
 		float: left;
 		}
@@ -1550,6 +1565,10 @@ dt, dd {
 		margin-bottom: 15px;
 		margin-bottom:20px;
 		}
+		
+		.feed_item img {
+			display: none;
+			}
 		
 		.content .feed_item p {
 			font-size: 10px;
