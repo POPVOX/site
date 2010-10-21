@@ -37,54 +37,85 @@ function share(method) {
 	{% include "popvox/billcomment_progress.html" %}
 	{% endwith %}
 
-	<div class="tab_pane">
+	<div class="tab_pane form">
+		{% if stats %}
+			<h1>You Changed the Pie Chart!</h1>
+		{% else %}
+			<h1>Share Your Comment</h1>
+		{% endif %}
 	
-	{% if stats %}
-	<h1>You Changed the Pie Chart!</h1>
-	{% else %}
-	<h1>Share Your Comment</h1>
-	{% endif %}
-	
-	<div class="col_8 col_top clear">
 		{% if not stats %}
-			<p>You are one of the first few people to comment on {{bill.displaynumber}}. Spread the word with the tools below to put this bill on the radar of your Members of Congress.</p>
+			<p class="tip_inline">You are one of the first few people to comment on {{bill.displaynumber}}. Spread the word with the tools below to put this bill on the radar of your Members of Congress.</p>
 		{% endif %}
 		{% if stats and stats.total <= 50 %}
-			<p>You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}. But it will take more people than that to get the attention of your Members of Congress. Spread the word with the tools below.</p>
+			<p class="tip_inline">You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}. But it will take more people than that to get the attention of your Members of Congress. Spread the word with the tools below.</p>
 		{% endif %}
 		{% if stats and stats.total > 50 and stats.total <= 200 %}
-			<p>You nudged the pie chart in your direction by about one percent! This bill is starting to get attention in {{stats.longdescription}} but it will take more people than that to get traction in Congress. Spread the word about {{bill.displaynumber}} with the tools below.</p>
+			<p class="tip_inline">You nudged the pie chart in your direction by about one percent! This bill is starting to get attention in {{stats.longdescription}} but it will take more people than that to get traction in Congress. Spread the word about {{bill.displaynumber}} with the tools below.</p>
 		{% endif %}
 		{% if stats and stats.total > 200 %}
-			<p>You nudged the pie chart in your direction but this bill is becoming popular in {{stats.longdescription}}. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}} with the tools below.</p>
+			<p class="tip_inline">You nudged the pie chart in your direction but this bill is becoming popular in {{stats.longdescription}}. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}} with the tools below.</p>
 		{% endif %}
+		
+		<div class="hr"> </div>
+
+		<div class="col_4">
+			{% if stats %}
+			<h3>What Others Think</h3>
+			<div>
+				<a href="{{bill.url}}/report">
+					<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
+				</a>
+				<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
+				
+				<div class="chart_info">
+					<div class="col_chart">
+						<p class="chart_stats">
+							<span class="chart_title">{{stats.longdescription}}:</span><br />
+							<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
+							<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
+							<span class="users">({{stats.total}} users)</span>
+						</p>
+						<!--<p class="view_report">
+							<span><a href="{{billrec.bill.url}}/report">View Report</a></span>
+						</p>-->
+					</div>
+				</div>
+			</div>
+		</div>
+			{% endif %}
+		<div class="col_4_7 col_last">
+			<h3 class="clear">What You Wrote</h3>
+			<div class="message_preview">{{comment.message|wraplines:"p"}}</div>
+		</div>
 		
 {% else %}
 	<h1>Share Comment</h1>
 	
-	<div class="col_4 col_top">
+	<div class="col_4 col_top float_right">
 		<h4 class="clear">{{comment.user.username}} from {{comment.address.city}}, {{comment.address.state}} wrote {{comment.updated|date2}}:</h4>
 		<div style="margin-top: 1em">{{comment.message|wraplines:"p"}}</div>
 	</div>
 
-	<div class="col_8 col_top col_last">
+	<div class="col_9 col_top col_last">
 {% endif %}
+		<div class="hr"> </div>
 		
-		<h3>Personalized Message to Recipients</h3>
-		<textarea id="share_message" style="width: 500px">{% if method == "post" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}</textarea>
+		<h3 class="no_rule">Personalized Message to Recipients</h3>
+		<textarea id="share_message" class="c5">{% if method == "post" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}</textarea>
 		<script>$(function() { $('#share_message').input_autosize(); });</script>
 		
-		<h3>Email Your Friends</h3>
-		<p>We&rsquo;ll send your message in an email to these recipients. Separate multiple email addresses with commas or newlines:</p>
-		<textarea id="share_email_field" style="width: 500px"></textarea>
-		<p>The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
+		<h3 class="no_rule">Email Your Friends</h3>
+		<textarea id="share_email_field" class="c5"></textarea>
+		<p class="tip">We&rsquo;ll send your message in an email to these recipients. Separate multiple email addresses with commas or newlines. The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
 		<div>
-			<input id="share_email_button" type="button" class="submit" value="Share Via Email" onclick="share('email')"/>
+			<input id="share_email_button" type="button" class="submit btn" value="Share Via Email" onclick="share('email')"/>
 			<span id="share_email_status" class="error"></span>
 		</div>
 		<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
+		<div class="hr"> </div>
 
-		<h3>Post to Facebook</h3>
+		<h3 class="no_rule">Post to Facebook</h3>
 		<div style="float: left; margin-right: 1em">
 			<img src="{{"facebook"|provider_logo:32}}"/> 
 		</div>
@@ -102,12 +133,13 @@ function share(method) {
 			</a></p>
 			<p id="share_facebook_status"></p>
 		{% endif %}
-		
-		<h3>Send a Tweet</h3>
+		<div class="hr"> </div>
+
+		<h3 class="no_rule">Send a Tweet</h3>
 		{% if not twitter %}
 			<div style="float: left; margin-right: 1em">
 				<img src="{{"twitter"|provider_logo:32}}"/> 
-			</a>
+			</div>
 			<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button begin:</p>
 			<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/share"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
 		{% else %}
@@ -123,37 +155,6 @@ function share(method) {
 		{% endif %}
 	</div>
 	
-	{% if mode == "post" %}
-	<div class="col_4 col_top col_last">
-		{% if stats %}
-		<h4>What Others Think</h4>
-		<div>
-			<a href="{{bill.url}}/report">
-				<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-			</a>
-			<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
-			
-			<div class="chart_info">
-				<div class="col_chart">
-					<p class="chart_stats">
-						<span class="chart_title">{{stats.longdescription}}:</span><br />
-						<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-						<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-						<span class="users">({{stats.total}} users)</span>
-					</p>
-					<!--<p class="view_report">
-						<span><a href="{{billrec.bill.url}}/report">View Report</a></span>
-					</p>-->
-				</div>
-			</div>
-		</div>
-		{% endif %}
-
-		<h4 class="clear">What You Wrote</h4>
-		<div style="margin-top: 1em">{{comment.message|wraplines:"p"}}</div>
 	</div>
-	</div>
-	{% endif %}
-</div>
 {% endblock %}
 

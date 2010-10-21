@@ -312,6 +312,13 @@ p {
 		padding-top: 15px;
 		}
 		
+	.col_4_7 {
+		width: 365px;
+		float: left;
+		margin: 0 58px 20px 0;
+		padding-top: 15px;
+		}
+		
 		.content .col_3 h3, .content .col_6 h3, .content .col_12 h3 {
 			font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
 			letter-spacing: .02em;
@@ -1157,7 +1164,6 @@ h1.h1_smaller {
 	}
 
 .tip_inline {
-	float: right;
 	margin: 0 0 2em 0;
 	color: #404045;
 	background: url("bg_alert.png") no-repeat 0 5px;
@@ -1173,7 +1179,9 @@ h1.h1_smaller {
 		}
 		
 	.content .tip p,
-	.content .tip_inline p  {
+	.content .tip_inline p,
+	.content p.tip,
+	.content p.tip_inline {
 		font: italic normal 14px georgia, serif;
 		}
 		
@@ -1245,6 +1253,22 @@ h1.h1_smaller {
 			.form input.b_login:hover {
 				border: none;
 				}
+				
+	#share_email_button {
+		width: 118px;
+		height: 22px;
+		background: url(b_share_email.png);
+		display: block;
+		text-indent: -9999em;
+		margin: 0;
+		border: none;
+		float: left;
+		}
+		
+		#share_email_button:hover {
+			background-position: left bottom;
+			cursor: pointer;
+			}
 	
 .message_preview {
 	background: url(bg_quote_marks.png) left top no-repeat;
@@ -1323,6 +1347,10 @@ h1.h1_smaller {
 		margin-bottom: 12px;
 		}
 		
+
+/* share */
+.share_chart {
+	}
 
 
 
@@ -2343,12 +2371,14 @@ input.default, textarea.default {
 		width: 208px;
 		}
 	
+	.c4,
 	.form input.c4,
 	.form select.c4,
 	.form textarea.c4 {
 		width: 288px;
 		}
 	
+	.c5,
 	.form input.c5,
 	.form select.c5,
 	.form textarea.c5 {
