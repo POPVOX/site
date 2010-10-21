@@ -12,7 +12,7 @@ var auto_advance = true;
 function slide(direction, new_index, isauto) {
 	if (isauto && !auto_advance) return;
 	if (isauto) direction = 1;
-	else auto_advance  = false;
+	else if (direction != null || new_index != null) auto_advance = false;
 	var last_slider_index = slider_index;
 	if (direction != null) {
 		slider_index += direction;
