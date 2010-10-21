@@ -2,8 +2,8 @@
 {% load popvox_utils %}
 {% block title %}Home{% endblock%}
 {%block nav_citzen_class_home%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script>
 function clear_all_panels() {
 	$('#newsfeed').hide();
@@ -21,41 +21,10 @@ function phone_number_twilio_callback() {
 </script>
 {% endblock %}
 {% block content %}
-	<div class="section content"> 
-		<h1>Home</h1>
+<div class="content"> 
+	<h1>Home</h1>
 
-	
-	<div class="col_3 col_top profile_block">
-		{% if not user.phonenumber.get.verified %}
-		<h3>Homework</h3>
-		{% endif %}
-	
-		{% if not user.phonenumber.get.verified %}
-		<div id="verify_phone">
-			<h4>Verify A Phone Number</h4>
-			<p>Verifying a phone number helps us ensure that users do not create multiple accounts to stuff the ballot.</p>
-			<div class="clear"><a class="b_verify_phone btn" href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Verify Phone</a></div>
-			<div class="clear"> </div>
-		</div>
-		{% endif %}
-	
-		<h3>Settings</h3>
-		
-		<p><a class="b_edit_profile btn" href="/accounts/profile">Edit Profile</a></p>
-
-		{% if user.phonenumber.get.verified %}
-		<p>
-			Phone Number: Verified
-			{% if not user.phonenumber.get.locked_until %}
-			(<a href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Change Number</a>)
-			{% endif %}
-			{% if user.phonenumber.get.locked_until %}
-			<span style="color: #888">(Locked until {{ user.phonenumber.get.locked_until }})</span>
-			{% endif %}
-		</p>
-		{% endif %}
-	</div>
-	<div class="col_9 col_top col_last">
+	<div class="col_6 col_top">
 		<div id="status" style="display: none; position: absolute; margin-top: -1em; color: #497">
 		</div>
 		
@@ -65,10 +34,6 @@ function phone_number_twilio_callback() {
 		<script>
 		if (window.location.hash == "#welcome") {
 			$('#postmsg').text("Welcome to POPVOX!")
-			$('#postmsg').show();
-		}
-		if (window.location.hash == "#welcome-comment") {
-			$('#postmsg').text("Welcome to POPVOX and thank you for submitting a comment on legislation before Congress!")
 			$('#postmsg').show();
 		}
 		</script>
@@ -120,5 +85,37 @@ function phone_number_twilio_callback() {
 		
 	</div>
 	</div>
+	
+	<div class="col_3 col_top profile_block">
+		{% if not user.phonenumber.get.verified %}
+		<h3>Homework</h3>
+
+		<div id="verify_phone">
+			<h4>Verify A Phone Number</h4>
+			<p>Verifying a phone number helps us ensure that users do not create multiple accounts to stuff the ballot.</p>
+			<div class="clear"><a class="b_verify_phone btn" href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Verify Phone</a></div>
+			<div class="clear"> </div>
+		</div>
+		{% endif %}
+	
+		<h3>Settings</h3>
+		
+		<p><a class="b_edit_profile btn" href="/accounts/profile">Edit Profile</a></p>
+
+		{% if user.phonenumber.get.verified %}
+		<p>
+			Phone Number: Verified
+			{% if not user.phonenumber.get.locked_until %}
+			(<a href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Change Number</a>)
+			{% endif %}
+			{% if user.phonenumber.get.locked_until %}
+			<span style="color: #888">(Locked until {{ user.phonenumber.get.locked_until }})</span>
+			{% endif %}
+		</p>
+		{% endif %}
+	</div>
+
+	{% include "ads/rightbar.html" %}
+</div>
 {% endblock %}
 
