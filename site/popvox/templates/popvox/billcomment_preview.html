@@ -21,7 +21,7 @@
 	<input type="hidden" name="message" value="{{message}}"/>
 	<input type="hidden" name="district" value="{{district}}" id="districtfield"/>
 	
-	{% if not error %}
+	{% if not newaccount_error %}
 		<div class="tip_inline mar_no">
 			 <p>Writing your comment is the hardest step but you&rsquo;re doing great.
 				Before we go on, read it over to make sure you are happy with it.
@@ -57,15 +57,17 @@
 			
 <!--			<p>We require everyone to create an account so we can prevent troublemakers from leaving many messages on the same legislation.</p> -->
 			
+			{% if not newaccount_error %}
 			<p>Create an account instantly using one of these services:</p>
 			<div class="signin_social" style="float: none">
 			{% include "registration/login_singlesignon.html" %}
 			</div>
 			
 			<p class="float_text"><a href="#" onclick="return false" id="create_account_more">Don't recognize this?</a></p>
+			{% endif %}
 			
 			{% more create_account %}
-			<p id="create_account" class="clear mar_top pad_top">Fill out the following fields to create a POPVOX account</a></p>
+			<p id="create_account" class="clear mar_top pad_top">Fill out the following fields to create a POPVOX account:</a></p>
 			
 				<small>A POPVOX account is free and your public comments will be anonymous, but we will need your name and address later on so your comment gets to the right place in Congress.</small>
 			<div class="clear mar_top"> </div>		
@@ -91,6 +93,9 @@
 				<input class="b_create_accnt btn" type="button" value="Create Account >" onclick="submitform('Create Account >')"/>
 			</p>
 			{% endmore %}
+			{% if newaccount_error %}
+			<script>$(function() {$('#create_account').show()});</script>
+			{% endif %}
 		</div>
 		
 			<script>
