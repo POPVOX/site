@@ -805,8 +805,9 @@ h3#reporttitle {
 		letter-spacing: .02em;
 		display: block;
 		}
-		.content h1 span {
-			
+		
+		.content p.h1_spanner {
+			font: italic normal 14px/20px georgia, serif;
 			}	
 	
 	.content h2 {
@@ -1231,10 +1232,32 @@ h1.h1_smaller {
 		float: left;
 		}
 		
+	.b_edit_profile {
+		width: 95px;
+		height: 22px;
+		background: url(b_edit_profile.png) no-repeat;
+		display: block;
+		text-indent: -9999em;
+		margin: 0;
+		border: none;
+		float: left;
+		}
+		
 	.b_create_accnt {
 		width: 118px;
 		height: 22px;
 		background: url(b_create_accnt.png);
+		display: block;
+		text-indent: -9999em;
+		margin: 0;
+		border: none;
+		float: left;
+		}
+		
+	.b_verify_phone {
+		width: 108px;
+		height: 22px;
+		background: url(b_verify_phone.png) no-repeat left top;
 		display: block;
 		text-indent: -9999em;
 		margin: 0;
@@ -1561,6 +1584,12 @@ dt, dd {
 		line-height: 15px;
 		}	
 		
+		.your_feed .tip {
+			float: none;
+			padding-left: 40px;
+			background-position: left top;
+			}
+		
 	.feed_item {
 		margin-bottom: 15px;
 		margin-bottom:20px;
@@ -1590,7 +1619,7 @@ dt, dd {
 		font-weight: bold;
 		line-height: 20px;
 		text-transform: uppercase;
-		background: url(bg_flag.gif) left 2px no-repeat;
+		background: url(bg_flag.gif) left 5px no-repeat;
 		padding-left: 32px;
 		}
 		

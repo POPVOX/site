@@ -30,7 +30,7 @@
 				{% endif %}
 			
 				{% for pos in cam.positions.all %}
-					<div style="clear: both">
+					<div class="{% if pos.position == '+' %}endorse{% endif %}{% if pos.position == '-' %}oppose{% endif %}">
 						<h4><a href="{{pos.bill.url}}">{{pos.bill.title|truncatewords:10}}</a> <span>({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %})</span></h4>
 						
 						{% bill_statistics pos.bill as stats %}
@@ -91,7 +91,7 @@
 					<p class="more"><a href="{{item.link|translate_govtrack_link}}">details <span>on govtrack.us</span></a></p>
 				</div>
 			{% empty %}
-				<p>There are no recent events to show.</p>
+				<p class="tip">There are no recent events to show.</p>
 			{% endfor %}
 			<p>The feed is based on bills in your legislative agenda and subject areas chosen for your organization.</p>
 			
