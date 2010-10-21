@@ -24,7 +24,7 @@ function slide(direction, new_index, isauto) {
 	$('.hm_ad_mid').animate( {"margin-left": (-slider_index*$('.hm_ad_div').width())}, 1000);
 	$('#landing_button_' + last_slider_index).removeClass('active');
 	$('#landing_button_' + slider_index).addClass('active');
-	setTimeout("slide(null, null, 1)", 6000);
+	if (auto_advance) setTimeout("slide(null, null, 1)", 6000);
 	return false; // important to cancel click;
 }
 $(function() {

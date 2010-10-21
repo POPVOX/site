@@ -8,15 +8,21 @@
 {% block head %}
 <script>
 var slider_index = 0;
-function slide(direction) {
-	slider_index += direction;
+var auto_advance = true;
+function slide(direction, isauto) {
+	if (isauto && !auto_advance) return;
+	if (isauto) direction = 1;
+	else if (direction != null) auto_advance = false;
+	if (direction) slider_index += direction;
 	if (slider_index == -1) slider_index = {{hotbills|length}}-1;
 	if (slider_index == {{hotbills|length}}) slider_index = 0;
 	$('#hotbills_container').animate( {"margin-left": -510*slider_index}, "slow"  );
+	if (auto_advance) setTimeout("slide(null, 1)", 4000);
 	return false; // important to cancel click
 }
 $(function() {
 		$('#hotbills_container').width(510 * {{hotbills|length}});
+		slide();
 });
 </script>
 {% endblock %}

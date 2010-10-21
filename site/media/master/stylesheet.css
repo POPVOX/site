@@ -1289,7 +1289,7 @@ h1.h1_smaller {
 	background: url(bg_quote_marks.png) left top no-repeat;
 	margin: 20px;
 	padding-left: 80px;
-	min-height: 80px;
+	xxx-min-height: 80px;
 	height: auto !important;
 	height: 80px;
 	}	

@@ -35,6 +35,11 @@
 		<h5>{% if position == "+" %}Support{% endif %}{% if position == "-" %}Oppose{% endif %} {{bill.displaynumber}}</h5>
 		{{message|wraplines:"p"}}</div>
 	
+		{% if not user.is_authenticated %}
+		<p class="pad_btm">
+			<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
+		</p>
+		{% endif %}
 	{% else %}
 		<h1>Submit Your comment</h1>
 	
@@ -54,32 +59,35 @@
 			{% include "registration/login_singlesignon.html" %}
 			</div>
 			
-			<p class="float_text"><a href="trigger_jquery">Don't have one?</a></p>
+			<p class="float_text"><a href="#" onclick="return false" id="create_account_more">Don't recognize this?</a></p>
 			
-			<p class="clear mar_top pad_top">Then fill out the following fields to create a POPVOX account</a></p>
+			{% more create_account %}
+			<p id="create_account" class="clear mar_top pad_top">Fill out the following fields to create a POPVOX account</a></p>
 			
-				<small>A POPVOX account is free and anonymous, but we need your district so your comment gets to the right place in Congress.</small>
+				<small>A POPVOX account is free and your public comments will be anonymous, but we will need your name and address later on so your comment gets to the right place in Congress.</small>
 			<div class="clear mar_top"> </div>		
 
 			<div class="form signinup">
 				<label for="createacct_username">screen name</label>
-				<input class="c2" type="text" name="createacct_username" value="{{username}}"/>*
+				<input class="c2" type="text" name="createacct_username" value="{{username}}"/>
 				<div id="createacct_errorlabel_username" class="error" style="display: block">{{newaccount_error.username}}</div>
-<!--			<small>Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces.</small> -->
+			<small>Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces.</small>
 				
 				<label for="createacct_email">email address</label>
 				<input class="c2" type="text" name="createacct_email" value="{{email}}"/>
 				<div id="createacct_errorlabel_email" class="error" style="display: block">{{newaccount_error.email}}</div>
-				<p class="asterisk_orange"><a href="#">See our privacy policy ></a></p>
 <!--			<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small> -->
 
 				<label for="createacct_password">password</label>
 				<input class="c2" type="password" name="createacct_password" value="{{password}}"/>
 				<div id="createacct_errorlabel_password" class="error" style="display: block">{{newaccount_error.password}}</div>
-				<p class="asterisk_red">* Screen name must be at least five characters.</p>
 	
 				<div class="error" id="createacct_errorlabel"></div>
 			</div>
+			<p class="b_create_box">
+				<input class="b_create_accnt btn" type="button" value="Create Account >" onclick="submitform('Create Account >')"/>
+			</p>
+			{% endmore %}
 		</div>
 		
 			<script>
@@ -111,6 +119,8 @@
 			<div class="clear mar_top"> </div>
 			
 			<div class="form signinup">
+				<p class="create_text">or provide your POPVOX email and password:</p>
+			
 				<label for="login_email">email</label>
 				<input class="c2" type="text" id="login_email"/><br />
 				<span id="login_errorlabel_email" class="error"></span>
@@ -125,11 +135,6 @@
 		</div>
 		
 		<div class="clear"></div>
-
-		<p class="b_create_box">
-			<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
-			<input class="b_create_accnt btn" type="button" value="Create Account >" onclick="submitform('Create Account >')"/>
-		</p>
 	</div>
 	
 	{% else %}
