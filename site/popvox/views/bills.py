@@ -48,11 +48,14 @@ def issuearea_chooser_list(request):
 	# TODO: Cache.
 	return render_to_response('popvox/issueareachooser_list.html', {'issues': getissueareas()}, context_instance=RequestContext(request))	
 
-def bills(request):
+def get_popular_bills():
 	global popular_bills
 
+	if popular_bills != None:
+		return popular_bills
+		
 	# Get popular bills from GovTrack.
-	if popular_bills == None:
+	if False:
 		popular_bills = []
 		popular_bills_xml = minidom.parse(open_govtrack_file("misc/popularbills.xml"))
 		for billxml in popular_bills_xml.getElementsByTagName("bill"):
@@ -72,10 +75,23 @@ def bills(request):
 			except:
 				# Ignore invalid data from the API, skip this bill.
 				pass
-		
-		# convert the hash objects to Bill objects
-		popular_bills = getbillsfromhash(popular_bills)
-		
+			
+	popular_bills = [
+		{"congressnumber": 111, "billtype": 'h', "billnumber": 3458},
+		{"congressnumber": 111, "billtype": 'h', "billnumber": 5175},
+		{"congressnumber": 111, "billtype": 's', "billnumber": 3815},
+		{"congressnumber": 111, "billtype": 's', "billnumber": 2827},
+		{"congressnumber": 111, "billtype": 'h', "billnumber": 12},
+		{"congressnumber": 111, "billtype": 's', "billnumber": 510},
+		]
+			
+	# convert the hash objects to Bill objects
+	popular_bills = getbillsfromhash(popular_bills)
+	return popular_bills
+
+def bills(request):
+	popular_bills = get_popular_bills()
+
 	# Get the campaigns that support or oppose any of the bills, in batch.
 	cams = OrgCampaign.objects.filter(positions__bill__in = popular_bills).select_related() # note recursive SQL which goes from OrgCampaign to Org
 	

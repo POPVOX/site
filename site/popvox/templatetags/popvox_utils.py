@@ -82,8 +82,8 @@ def more(parser, token):
 				+ self.nodelist.render(context) \
 				+ "</div>" \
 				+ """<script>$(function(){ """ \
-				+ """$('#%s_more').click( function() { $('#%s_more').hide(); $('#%s_less').show(); $('#%s').fadeIn() } );"""  % (blockid, blockid, blockid, blockid) \
-				+ """$('#%s_less').click( function() { $('#%s_more').show(); $('#%s_less').hide(); $('#%s').fadeOut() } );"""  % (blockid, blockid, blockid, blockid) \
+				+ """$('#%s_more').click( function() { $('#%s_more').hide(); $('#%s_less').show(); $('#%s').fadeIn(); return false; } );"""  % (blockid, blockid, blockid, blockid) \
+				+ """$('#%s_less').click( function() { $('#%s_more').show(); $('#%s_less').hide(); $('#%s').fadeOut(); return false; } );"""  % (blockid, blockid, blockid, blockid) \
 				+ """});</script>"""
 			
 	tag_name, blockid = token.split_contents()

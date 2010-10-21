@@ -151,6 +151,18 @@ def compute_prompts(request):
 				# Increment the number of users recommending this bill.
 				sugs[qbid]["users"] += 1
 		
+	# Add the popular bills to the list of suggestions if they are not already
+	# suggested. The weird thing here compared to what is above is that
+	# we can't suggest a position. Also the bills might not be in the database
+	# so they don't have an id.
+	from bills import get_popular_bills
+	for bill in get_popular_bills():
+		if "+" + str(bill.id) in sugs or "-" + str(bill.id) in sugs:
+			continue
+		if bill.id != None and request.user.comments.filter(bill=bill).exists():
+			continue
+		sugs[bill.govtrack_code()] = { "bill": bill, "users": -1 } # -1 is a flag for the HTML and also to sort them below the other bills
+	
 	sugs = list(sugs.values())
 	
 	# sort suggestions by the number of users recommending the bill first,

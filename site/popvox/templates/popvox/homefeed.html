@@ -30,7 +30,7 @@ function phone_number_twilio_callback() {
 		{% if not user.phonenumber.get.verified %}
 		<div id="verify_phone">
 			<h4>Verify A Phone Number</h4>
-			<p>Verifying a phone number helps us ensure one person one communication.</p>
+			<p>Verifying a phone number helps us ensure that users do not create multiple accounts to stuff the ballot.</p>
 			<p style="margin-left: 2em"><a href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Verify Phone</a></p>
 		</div>
 		{% endif %}
@@ -77,11 +77,11 @@ function phone_number_twilio_callback() {
 				{% endif %}
 			
 				<p>
-					<a href="{{sug.bill.url}}">{% if sug.position == "+" %}Support{% else %}Oppose{% endif %} {{sug.bill.title|truncatewords:10}}</a>
+					<a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a>
 				</p>
 				
 				{% if forloop.last %}
-				<p><a href="/home/suggestions">More suggestions...</a></p>
+				<p><a href="/home/suggestions">More suggestions and explanation...</a></p>
 				{% endif %}
 			{% endfor %}
 					

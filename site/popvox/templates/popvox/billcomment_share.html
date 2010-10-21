@@ -86,7 +86,20 @@ function share(method) {
 		{% endif %}
 		<div class="{% if stats %}col_4_7 col_last{% endif %}">
 			<h3 class="clear">What You Wrote</h3>
-			<div class="message_preview">{{comment.message|wraplines:"p"|truncatewords_html:50}}</div>
+			{% with comment.message|wraplines:"p"|truncatewords_html:25 as cmnt %}
+				<div class="message_preview">
+					{{cmnt}}
+					{% if comment.message|wraplines:"p" != cmnt %}
+						<a href="#" onclick="$.colorbox({transition: 'none', inline: true, href:'#message_preview_full', opacity: .5}); return false">View All</a>
+						<div style="display: none">
+							<div id="message_preview_full" style="width: 400px; height: 400px; overflow: auto; padding: 2em" class="colorbox">
+								<h1>Your Comment</h1>
+								{{comment.message|wraplines:"p"}}
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			{% endwith %}
 		</div>
 		
 		<div class="hr"> </div>

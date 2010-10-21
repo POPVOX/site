@@ -160,7 +160,7 @@ def getBillNumber(metadata):
 		ret += " - " + metadata.documentElement.attributes["session"].value + ordinate(int(metadata.documentElement.attributes["session"].value)) + " Congress"
 	return ret
 
-def getBillTitle(metadata, for_display_title):
+def getBillTitle(metadata, titletype):
 	# To compute the title, look for the last "as" attribute, and use popular title if exists, else short title, else official title.
 	def find_title(m, titletype):
 		elems = m.getElementsByTagName('title')
@@ -177,17 +177,22 @@ def getBillTitle(metadata, for_display_title):
 				return x.firstChild.data
 	
 	# Look for a popular or, failing that, a short title.
-	title = find_title(metadata, "short")
-	if title == None:
+	if titletype != "popular":
+		title = find_title(metadata, "short")
+		if title == None:
+			title = find_title(metadata, "popular")
+	else:
 		title = find_title(metadata, "popular")
+		if title == None:
+			title = find_title(metadata, "short")
 	
 	# If this is for the official title text but we didn't find another title so we're going to use that
 	# for the display title, then return nada so that we don't repeat ourselves.
-	if not for_display_title and title == None:
+	if titletype == "official" and title == None:
 		return None
 	
 	# Continue on to find the official title.	If this is for the official title text, ignore what we previously found.
-	if title == None or not for_display_title:
+	if title == None or titletype == "official":
 		title = find_title(metadata, "official")
 	if title == None:
 		for x in metadata.getElementsByTagName('title'):
@@ -195,16 +200,21 @@ def getBillTitle(metadata, for_display_title):
 	if title == None:
 		title = "No Title"
 	
-	if not for_display_title:
+	if titletype == "official":
 		return title
 		
 	return getBillNumber(metadata) + ": " + title
 		
 def parse_govtrack_date(d):
 	try:
-		return datetime.strptime(d, "%Y-%m-%dT%H:%M:%S")
+		return datetime.strptime(d, "%Y-%m-%dT%H:%M:%S-04:00")
 	except:
-		return datetime.strptime(d, "%Y-%m-%d")
+		pass
+	try:
+		return datetime.strptime(d, "%Y-%m-%dT%H:%M:%S-05:00")
+	except:
+		pass
+	return datetime.strptime(d, "%Y-%m-%d")
 		
 def getBillStatus(metadata) :
 	status = metadata.getElementsByTagName('state')[0].firstChild.data

@@ -51,7 +51,7 @@ class Bill(models.Model):
 	_govtrack_metadata = None
 	
 	def __unicode__(self):
-		return govtrack.getBillTitle(self.govtrack_metadata(), True)
+		return govtrack.getBillTitle(self.govtrack_metadata(), "short")
 	def get_absolute_url(self):
 		return self.url()
 
@@ -74,9 +74,11 @@ class Bill(models.Model):
 	def displaynumber(self):
 		return govtrack.getBillNumber(self.govtrack_metadata())
 	def title(self):
-		return govtrack.getBillTitle(self.govtrack_metadata(), True)
+		return govtrack.getBillTitle(self.govtrack_metadata(), "short")
 	def officialtitle(self):
-		return govtrack.getBillTitle(self.govtrack_metadata(), False)
+		return govtrack.getBillTitle(self.govtrack_metadata(), "official")
+	def populartitle(self):
+		return govtrack.getBillTitle(self.govtrack_metadata(), "popular")
 	def status(self):
 		return govtrack.getBillStatus(self.govtrack_metadata())
 	def status_advanced(self):
@@ -174,6 +176,12 @@ def getbillsfromhash(bills):
 		code = bill["billtype"] + str(bill["congressnumber"]) + "-" + str(bill["billnumber"])
 		if code in objs:
 			ret.append(objs[code])
+		else:
+			b = Bill()
+			b.congressnumber = bill["congressnumber"]
+			b.billtype = bill["billtype"]
+			b.billnumber = bill["billnumber"]
+			ret.append(b)
 
 	return ret
 

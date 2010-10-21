@@ -56,7 +56,7 @@ $(function() {
 				{% for bill in hotbills %}
 					<div id="hotbill_{{forloop.counter0}}" style="float: left; width: 510px;">
 					<a class="action" href="{{bill.url}}">Action</a>
-					<h3><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></h3>
+					<h3><a href="{{bill.url}}">{{bill.populartitle|truncatewords:10}}</a></h3>
 					{% if bill.sponsor %}
 						<p>
 						<span>Sponsor:</span> <a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
