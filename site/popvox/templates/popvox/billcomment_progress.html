@@ -1,6 +1,6 @@
 	
 	<div class="col_3">
-		<ul class="tab_tabs">
+		<ul class="progress_tabs">
 			<li class="finished">Support / Oppose</li>
 			<li {% if billcomment_progress_step == "start" %}class="active"{% else %}class="finished"{% endif %}>Message To Congress</li>
 			<li {% if billcomment_progress_step == "preview" %}class="active"{% else %}{% if billcomment_progress_step == "address" or billcomment_progress_step == "share" %}class="finished"{% endif %}{% endif %}>Preview / Registration</li>

@@ -1086,14 +1086,14 @@ h3#reporttitle {
 		
 
 
-.tab_tabs {
+.progress_tabs {
 	position: absolute;
 	left: 20px;
 	top: 25px;
 	}
 
 .tab_tab li a,
-.tab_tabs li {
+.progress_tabs li {
 	height: 22px;
 	width: 227px;
 	display: block;
@@ -1103,9 +1103,10 @@ h3#reporttitle {
 	margin-bottom: 3px;
 	text-transform: uppercase;
 	font: normal 12px/16px helvetica, san-serif;
+	cursor: default;
 	}
 	
-	.tab_tabs li a {
+	.progress_tabs li a {
 		color: #404045;
 		font: normal 12px/16px helvetica, san-serif;
 		}
@@ -1117,17 +1118,17 @@ h3#reporttitle {
 			text-decoration: none;
 			background-position: left top;
 			border: none;
+			cursor: pointer;
 			} 
 
-	.tab_tabs li.finished {
+	.progress_tabs li.finished {
 		background: url(b_tab.png) left -45px no-repeat;
 		color: #b0aea3;
 		}
 
 
-	.tab_tabs li.active {
+	.progress_tabs li.active {
 		background-position: left top;
-		cursor: pointer;
 		border: none;
 		color: #fff;
 		margin-right: 30px;
