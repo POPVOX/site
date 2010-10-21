@@ -1673,51 +1673,58 @@ ul#issuearealist {
 		margin-top: 50px;
 		}
 		
+		
 	.hm_ads {
-		margin: 7px 0 20px;
-		background: url(hm_ad_staff.jpg) center top no-repeat;
-		}
+		width: 940px;
+		overflow: hidden;
+	}
 
 	.hm_ad_mid {
-		background: url(hm_ad_mid.jpg) center top no-repeat;
-		width: 461px;
-		height: 357px;
-		margin: 0 auto;
-		padding-top: 37px;
+		width: 4700px;
+		height: 275px;
+		margin: 0;
+		overflow: hidden;
 		}
-		
-		.hm_ad_mid h2 {
-			background: url(h2_popvox_for.png) center top no-repeat;
-			height: 23px;
-			text-indent: -9999em;
-			}
 	
-		.hm_ad_mid h3 {
-			height: 58px;
-			margin-bottom: 20px;
-			text-indent: -9999em;
-			}
-			
-			.hm_ad_mid h3.user_action {
-               background: url(h3_user_action.png) center top no-repeat;
-               }
-						  
-			.hm_ad_mid h3.user_individual {
-				background: url(h3_user_individual.png) center top no-repeat;
-				}
+	.hm_ad_div {
+		width: 940px;
+		float: left;
+		text-align: justify;
+	}
+		
+	.hm_ads .bigsmall {
+		margin: 40px 180px 20px;
+		font: normal 40px/50px 'BebasNeueRegular', helvetica, arial, sans-serif;
+		letter-spacing: 1px;
+	}
+	.hm_ads small {
+		font: normal 26px 'BebasNeueRegular', helvetica, arial, sans-serif;
+		color: #666;
+	}
+	.hm_ads .text p {
+		text-align: justify;
+		margin: 0 180px 1em 180px;
+		font: 14px/18px verdana, georgia, serif;
+	}
+	
+	.hm_ads h3 {
+		height: 58px;
+		margin-top: 30px;
+		margin-bottom: 20px;
+		text-indent: -9999em;
+	}
 
-			.hm_ad_mid h3.user_org {
-				background: url(h3_user_org.png) center top no-repeat;
-				}
-
-			.hm_ad_mid h3.user_cong_staff {
-				background: url(h3_user_cong_staff.png) center top no-repeat;
-				}
-
-			.hm_ad_mid h3.user_media {
-				background: url(h3_user_media.png) center top no-repeat;
-				}
-				
+	.hm_ads h3.user_individual {
+		background: url(h3_user_individual.png) center top no-repeat;
+	}
+	
+	.hm_ads h3.user_org {
+		background: url(h3_user_org.png) center top no-repeat;
+	}
+		
+	.hm_ads h3.user_cong_staff {
+		background: url(h3_user_cong_staff.png) center top no-repeat;
+	}
 				
 		#subscribe_email {
 			background: url(bg_signup_input.png) left top no-repeat;
@@ -1768,22 +1775,13 @@ ul#issuearealist {
 			display: none;
 			}
 		
-		.user_text {
-			height: 170px;
-			}
-			
-		.user_text p {
-			font: normal italic 13px/18px georgia, serif;
-			color: #e8e5df;
-			padding: 0px 35px 10px;
-			}
-		
 		a.b_get_started {
 			background: url(b_get_started.png) center top no-repeat;
 			text-indent: -9999em;
 			display: block;
 			height: 22px;
 			border: none;
+			margin-top: 25px;
 			}
 			
 /**/		#hack a.b_get_started {
@@ -1809,9 +1807,9 @@ ul#issuearealist {
 			
 		ul#user_type {
 			height: 24px;
-			margin-top: 15px;
-			padding: 2px 0 0 38px;
-			background: url(bg_user_type.png) center top no-repeat;
+			margin: 0 0 15px 274px;
+			padding: 2px 0 0 3px;
+			background: url(bg_user_type.png) left top no-repeat;
 			
 			}
 		
@@ -1822,7 +1820,7 @@ ul#issuearealist {
 			
 			ul#user_type li a {
 				border: none;
-				color: #757575;
+				color: #EEE;
 				display: block;
 				font-size: 12px;
 				text-align: center;
@@ -1830,9 +1828,12 @@ ul#issuearealist {
 				line-height: 16px;
 				}
 				
-				ul#user_type li a.active,
+				ul#user_type li a.active {
+					color: #e83;
+					font-weight: bold;
+					} 
 				ul#user_type li a:hover {
-					color: #cc6a11;		
+					color: #e83;
 					} 
 				
 			ul#user_type li a.arrow_l {

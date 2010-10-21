@@ -8,24 +8,23 @@
 {% block head %}
 <script>
 var slider_index = 0;
-function slide(direction, new_index) {
-	var divs = [ "overview", "individuals", "organizations", "legstaff", "media" ];
+var auto_advance = true;
+function slide(direction, new_index, isauto) {
+	if (isauto && !auto_advance) return;
+	if (isauto) direction = 1;
+	else auto_advance  = false;
 	var last_slider_index = slider_index;
-	if (direction) {
+	if (direction != null) {
 		slider_index += direction;
 		if (slider_index == -1) slider_index = 3;
 		if (slider_index == 4) slider_index = 0;
 	} else if (new_index != null) {
 		slider_index = new_index;
 	}
-	//$('#slider').animate( {"margin-left": (-slider_index*$('#landing_slider_individuals').width())} );
-	//if (last_slider_index != slider_index) $('#slider_tab_' + last_slider_index).animate( {"background-color": "#999" } );
-	//$('#slider_tab_' + slider_index).animate( {"background-color": "#555"} );
-	$('#landing_slider_' + divs[last_slider_index]).hide();
-	$('#landing_slider_' + divs[slider_index]).show();
-	$('#landing_button_' + divs[last_slider_index]).removeClass("active");
-	$('#landing_button_' + divs[slider_index]).addClass("active");
-	$('#landing_slider_' + divs[slider_index] + ' .b_get_started').animate({"opacity": 0}, 0, null, function () { $(this).delay(500).animate({"opacity": 100}); });
+	$('.hm_ad_mid').animate( {"margin-left": (-slider_index*$('.hm_ad_div').width())}, 1000);
+	$('#landing_button_' + last_slider_index).removeClass('active');
+	$('#landing_button_' + slider_index).addClass('active');
+	setTimeout("slide(null, null, 1)", 6000);
 	return false; // important to cancel click;
 }
 $(function() {
@@ -49,60 +48,61 @@ function subscribe(validate) {
 {% block content %}
 <div class="hm_ads">
 	<div class="hm_ad_mid">
-		<h2>POPVOX is for</h2>
-		<div id="landing_slider_overview">
-			<h3 class="user_action">Individuals</h3>
-			<div class="user_text">
-				<p>POPVOX is different from political discussion sites. It is a place for action &mdash; and designed by people who understand Congress to deliver your message in the way Congress needs it. POPVOX provides a real-time metric of public sentiment on specific bills.</p>
-				<p>Much of the technology that simplifies contacting Congress has made it more difficult for Congress to get a read on what is being said. POPVOX cuts through the noise.</p>
-				<p>Interested in knowning more? <a href="/about">Read on</a> or subscribe for updates:</p>
+		<div class="hm_ad_div">
+			<div class="bigsmall">POPVOX <small>is an</small> open forum <small>for expressing</small> your opinion <small>in a way that</small> Congress can hear it.</div>
+		
+			<div class="text">
+				<p>Much of the technology that simplifies contacting Congress has made it more difficult for Congress to get a read on what is being said.</p>
+				<p>POPVOX is different from political discussion sites. It is a place for action &mdash; and was designed by a team who understands Congress.</p>
+				<!--<p>Interested in knowning more? <a href="/about">Read on</a> or subscribe for updates:</p>
 				<p id="subscribe">
 					<input id="subscribe_email"/>
 					<input id="subscribe_button" type="button" value="Subscribe" onclick="subscribe(false)"/>
 				</p>
-				<div id="subscribe_status"></div> <!--style="position: absolute; margin-left: 2em; background-color:black; padding: 3px; color: white"-->
+				<div id="subscribe_status"></div>-->
 			</div>
 			<p id="hack"><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
 		</div>
-		<div id="landing_slider_individuals" style="display: none">
+		<div class="hm_ad_div">
 			<h3 class="user_individual">Individuals</h3>
-			<div class="user_text">
-				<p>POPVOX gets our message to Congress and makes sure our input counts by maintaining a public tally of public comments on pending bills. POPVOX also connects individuals with the advocacy groups and trade associations that can amplify our voices in the policy-making process.</p>
+			<div class="text">
+				<p>POPVOX gets our message to Congress and makes sure our input counts by maintaining a public tally of comments on pending bills before Congress.</p>
+				<p>POPVOX also connects individuals with the advocacy groups and trade associations that can amplify our voices in the policy-making process.</p>
 			</div>
 			<p><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
 		</div>
-		<div id="landing_slider_organizations" style="display: none">
+		<div class="hm_ad_div">
 			<h3 class="user_org">Organizations</h3>
-			<div class="user_text">
+			<div class="text">
 				<p>Your top priority is to present your positions to Congress and influence policy-making. POPVOX puts your legislative agenda before Congressional staff, helps you keep on top of pending bills, and demonstrates verified grassroots support in a Congressional district. </p>
 			</div>
 			<p><a class="b_get_started btn_c" href="/accounts/register/orgstaff">Let&rsquo;s Get Started</a></p>
 		</div>
-		<div id="landing_slider_legstaff" style="display: none">
+		<div class="hm_ad_div">
 			<h3 class="user_cong_staff">Congressional Staff</h3>
-			<div class="user_text">
-				<p>As a staffer, you analyze enormous quantities of information from constituents, advocacy organizations and experts to advise your boss. Thousands vie for your attention as millions of constituent emails, letters and calls flood your office.</p>
-				<p>POPVOX provides staffers with the information you need to do your job: real-time bill specific reports with verified summaries of constituent and organizational support &mdash; and a searchable listing of advocacy groups by issue area.</p>
+			<div class="text">
+				<p>As a staffer, you analyze enormous quantities of information to advise your boss. Thousands vie for your attention though constituent letters and calls.</p>
+				<p>POPVOX provides real-time bill-specific reports with verified summaries of constituent and organizational support &mdash; and a searchable listing of advocacy group endorsements by issue area.</p>
 			</div>
 			<p><a class="b_get_started btn_c" href="/accounts/register/legstaff">Let&rsquo;s Get Started</a></p>
 		</div>
-		<div id="landing_slider_media" style="display: none">
+		<div class="hm_ad_div">
 			<h3 class="user_media">The Media</h3>
 			<div class="user_text">
 				<p>Coming soon, POPVOX will provide newsrooms &mdash; from small-town newspapers to political blogs &mdash; with Congressional district- and issue-specific analysis and contacts for man-on-the-street reporting.</p>
 			</div>
 			<p><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
 		</div>
-		<ul id="user_type">					
-			<li><a class="arrow_l btn" href="#" onclick="return slide(-1)">left</a></li>
-			<li><a id="landing_button_overview" class="active" href="#" onclick="return slide(null, 0)">Overview</a></li>
-			<li><a id="landing_button_individuals" href="#" onclick="return slide(null, 1)">Individuals</a></li>
-			<li><a id="landing_button_organizations"  href="#" onclick="return slide(null, 2)">Organizations</a></li>
-			<li><a id="landing_button_legstaff"  href="#" onclick="return slide(null, 3)">Congress</a></li>
-			{% comment %}<li><a id="landing_button_media"  href="#" onclick="return slide(null, 4)">Media</a></li> {% endcomment %}
-			<li><a class="arrow_r btn" href="#" onclick="return slide(1)">right</a></li>
-		</ul>
 	</div>
+	<ul id="user_type">					
+		<li><a class="arrow_l btn" href="#" onclick="return slide(-1)">left</a></li>
+		<li><a id="landing_button_0" class="active" href="#" onclick="return slide(null, 0)">Overview</a></li>
+		<li><a id="landing_button_1" href="#" onclick="return slide(null, 1)">Individuals</a></li>
+		<li><a id="landing_button_2"  href="#" onclick="return slide(null, 2)">Organizations</a></li>
+		<li><a id="landing_button_3"  href="#" onclick="return slide(null, 3)">Congress</a></li>
+		{% comment %}<li><a id="landing_button_4"  href="#" onclick="return slide(null, 4)">Media</a></li> {% endcomment %}
+		<li><a class="arrow_r btn" href="#" onclick="return slide(1)">right</a></li>
+	</ul>
 </div>
 
 <div class="clear"> </div>
