@@ -232,8 +232,8 @@ def bill_comments(bill, plusminus, **filterargs):
 		return ret
 	
 	cc = bill.usercomments.filter(position=plusminus, **filter_null_args(filterargs))
-	if len(cc) > 0:
-		return cc, False
+	#if len(cc) > 0:
+	return cc, False
 	
 	# Make up comments for testing.
 	import random
@@ -276,8 +276,8 @@ def bill_statistics(bill, shortdescription, longdescription, **filterargs):
 		return None
 		
 	# Don't display statistics when there's very little data.
-	#if pro+con < 10:
-	#	return None
+	if pro+con < 10:
+		return None
 	
 	# Get a time-series.
 	firstcommentdate = None

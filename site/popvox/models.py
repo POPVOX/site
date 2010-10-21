@@ -575,6 +575,8 @@ class PostalAddress(models.Model):
 			raise ValueError("Please enter your address.")
 		if self.city.strip() == "":
 			raise ValueError("Please enter your city.")
+		if self.state.strip() == "":
+			raise ValueError("Please select your state.")
 		if self.state not in govtrack.stateabbrs:
 			raise ValueError("Invalid state abbreviation.")
 		if self.zipcode.strip() == "":

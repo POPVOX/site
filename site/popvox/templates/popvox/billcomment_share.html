@@ -59,8 +59,8 @@ function share(method) {
 		
 		<div class="hr"> </div>
 
+		{% if stats %}
 		<div class="col_4">
-			{% if stats %}
 			<h3>What Others Think</h3>
 			<div>
 				<a href="{{bill.url}}/report">
@@ -83,31 +83,30 @@ function share(method) {
 				</div>
 			</div>
 		</div>
-			{% endif %}
-		<div class="col_4_7 col_last">
+		{% endif %}
+		<div class="{% if stats %}col_4_7 col_last{% endif %}">
 			<h3 class="clear">What You Wrote</h3>
 			<div class="message_preview">{{comment.message|wraplines:"p"}}</div>
 		</div>
 		
+		<div class="hr"> </div>
 {% else %}
 	<h1>Share Comment</h1>
 	
-	<div class="col_4 col_top float_right">
+	<div class="col_3 col_top">
 		<h4 class="clear">{{comment.user.username}} from {{comment.address.city}}, {{comment.address.state}} wrote {{comment.updated|date2}}:</h4>
-		<div style="margin-top: 1em">{{comment.message|wraplines:"p"}}</div>
+		<div style="margin: 1em 1em 1em 0;">{{comment.message|wraplines:"p"}}</div>
 	</div>
 
 	<div class="col_9 col_top col_last">
 {% endif %}
-		<div class="hr"> </div>
-		
 		<h3 class="no_rule">Personalized Message to Recipients</h3>
 		<textarea id="share_message" class="c5">{% if method == "post" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}</textarea>
 		<script>$(function() { $('#share_message').input_autosize(); });</script>
 		
 		<h3 class="no_rule">Email Your Friends</h3>
 		<textarea id="share_email_field" class="c5"></textarea>
-		<p class="tip">We&rsquo;ll send your message in an email to these recipients. Separate multiple email addresses with commas or newlines. The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
+		<p class="tip">The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
 		<div>
 			<input id="share_email_button" type="button" class="submit btn" value="Share Via Email" onclick="share('email')"/>
 			<span id="share_email_status" class="error"></span>
@@ -115,15 +114,16 @@ function share(method) {
 		<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
 		<div class="hr"> </div>
 
+		<div class="col_4">
 		<h3 class="no_rule">Post to Facebook</h3>
-		<div style="float: left; margin-right: 1em">
-			<img src="{{"facebook"|provider_logo:32}}"/> 
-		</div>
 		{% if not facebook %}
 			<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin:</p>
-			<p><a href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/share">
+			<p><a href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if mode == "share" %}{{comment.id}}/{% endif %}share">
 			<img src="/media/icons/sm/facebook-login.png"/></a></p>
 		{% else %}
+			<div style="float: left; margin-right: 1em">
+				<img src="{{"facebook"|provider_logo:32}}"/> 
+			</div>
 			{% if comment.fb_linkid %}
 				<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
 			{% endif %}
@@ -133,15 +133,13 @@ function share(method) {
 			</a></p>
 			<p id="share_facebook_status"></p>
 		{% endif %}
-		<div class="hr"> </div>
+		</div>
 
+		<div class="col_4 col_last">
 		<h3 class="no_rule">Send a Tweet</h3>
 		{% if not twitter %}
-			<div style="float: left; margin-right: 1em">
-				<img src="{{"twitter"|provider_logo:32}}"/> 
-			</div>
 			<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button begin:</p>
-			<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/share"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
+			<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "share" %}{{comment.id}}/{% endif %}share"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
 		{% else %}
 			<div style="float: left; margin-right: 1em"><a href="#" onclick="return share('tweet')"> 
 				<img src="{{"twitter"|provider_logo:32}}"/> 
@@ -153,8 +151,9 @@ function share(method) {
 				<p id="share_twitter_status"></p>
 			{% endif %}
 		{% endif %}
+		</div>
 	</div>
 	
-	</div>
+</div>
 {% endblock %}
 

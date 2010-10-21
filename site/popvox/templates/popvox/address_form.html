@@ -29,6 +29,7 @@
 
 <label for="useraddress_state">State</label>
 <select class="c2" id="useraddress_state" name="useraddress_state">
+	<option value="">(select)</option>
 	{% for k,v in useraddress_states %}
 	<option value="{{k}}" {% if useraddress.state == k or useraddress.state == v %}selected{% endif %}>{{v}}</option>
 	{% endfor %}
@@ -43,14 +44,15 @@
 
 <script>
 function useraddress_get_district() {
-	$('#useraddress_congressionaldistrict').text("Checking...");
+	$('#useraddress_congressionaldistrict_label').text("");
+	$('#useraddress_congressionaldistrict').text("");
+	
+	if ($('#useraddress_zipcode').val() == "") { return; }
+
 	var address = $('#useraddress_address1').val() + "\n" + $('#useraddress_address2').val() + "\n" + $('#useraddress_city').val() + ", " + $('#useraddress_state').val() + " " + $('#useraddress_zipcode').val();
 	
-	if (address.replace("\n", "") == "") {
-		$('#useraddress_congressionaldistrict_label').text("");
-		return;
-	}
-	
+	$('#useraddress_congressionaldistrict_label').text("Checking...");
+
 	ajax("{% url congressional_district.views.district_lookup %}",
 		{
 			address: address,
@@ -70,5 +72,6 @@ function useraddress_get_district() {
 			}
 		});
 };
-$('#useraddress_address1, #useraddress_address2, #useraddress_city, #useraddress_state, #useraddress_zipcode').keyup_delayed(useraddress_get_district);
+$('#useraddress_address1, #useraddress_address2, #useraddress_city, #useraddress_zipcode').keyup_delayed(useraddress_get_district);
+$('#useraddress_address1, #useraddress_address2, #useraddress_city, #useraddress_zipcode').blur(useraddress_get_district);
 </script>
