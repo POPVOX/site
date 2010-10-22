@@ -923,7 +923,7 @@ Go to %s to have your voice be heard!
 			token = tok["oauth_token"], token_secret = tok["oauth_token_secret"])
 		
 		# TODO: we might want to set in_reply_to_status_id in the call to something interesting, like if this comment's referrer is a user and the user commented on the same bill, and tweeted, then that tweet_id.
-		ret = twitter.UpdateStatus(tweet)
+		ret = twitter.UpdateStatus(tweet.encode('utf-8'))
 		if type(ret) != dict:
 			return { "status": "fail", "msg": unicode(ret) }
 		if "error" in ret:
