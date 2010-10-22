@@ -141,7 +141,7 @@
 					<li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Find Bills</a></li>
 				{% endif %}
 				{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
-					<li class="{%block nav_citzen_class_home%}{%endblock%}"><a href="/">Home</a></li>
+					<li class="{%block nav_citzen_class_home%}{%endblock%}"><a href="/home">Home</a></li>
 					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
 				{% endif %}
