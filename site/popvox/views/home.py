@@ -220,7 +220,7 @@ def home(request):
 	else:
 		return render_to_response('popvox/homefeed.html',
 			{ 
-			"suggestions": compute_prompts(request)[0:5]
+			"suggestions": compute_prompts(request)[0:4]
 			    },
 			context_instance=RequestContext(request))
 

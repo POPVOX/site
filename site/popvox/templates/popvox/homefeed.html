@@ -49,8 +49,13 @@ function phone_number_twilio_callback() {
 				{% endif %}
 			
 				<p>
+					{% if sug.position == "+" %}Support{% endif %}{% if sug.position == "-" %}Oppose{% endif %} 
 					<a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a>
 				</p>
+				{% if sug.users > 1 %}<p>{{sug.users}} other users who took the same action as you {% if sug.position == "+" %}support{% else %}oppose{% endif %} this bill.</p>{% endif %}
+				{% for b,p in sug.sources %}
+					<p>(Recommended because you {% if p == "+" %}supported{% else %}opposed{% endif %} <a href="{{b.url}}">{{b.title|truncatewords:6}}</a>.)</p>
+				{% endfor %}
 				
 				{% if forloop.last %}
 				<p><a href="/home/suggestions">More suggestions and explanation...</a></p>
