@@ -34,12 +34,14 @@ background: #e8e5df url(bg_pg2.gif) left top repeat-x;
 }
 
 body.grid {
-	background: url("http://www.sodiumhalogen.com/_images/grid.png") repeat-y scroll center top;
+	background: #e8e5df url("http://www.sodiumhalogen.com/_images/grid.png") repeat-y scroll center top;
 	}
 
 body.land {
 	background: #e8e5df url("bg_pg.jpg") repeat-x center top;
-/*	background: #e8e5df url("nav.gif") no-repeat center top; */
+/*	background: #e8e5df url("nav.gif") no-repeat center top;
+	background: url(hm_bg.gif) center top no-repeat;
+ */
 	}
 	
 #wrap{
@@ -1254,6 +1256,27 @@ h1.h1_smaller {
 		float: left;
 		}
 		
+	.b_register_org {
+		width: 178px;
+		height: 22px;
+		background: url(b_register_org.png) left top no-repeat;
+		display: block;
+		text-indent: -9999em;
+		margin-left: 27px;
+		border: none;
+		}
+		
+	.b_register_con {
+		width: 206px;
+		height: 22px;
+		background: url(b_register_con.png) left top no-repeat;
+		display: block;
+		text-indent: -9999em;
+		margin-left: 11px;
+		border: none;
+		}
+
+		
 	.b_edit_profile {
 		width: 95px;
 		height: 22px;
@@ -1744,36 +1767,97 @@ ul#issuearealist {
 	.hm_ads {
 		width: 940px;
 		overflow: hidden;
-	}
+		}
 
 	.hm_ad_mid {
 		width: 4700px;
-		height: 275px;
-		margin: 0;
+		height: 420px;
+		margin: 0 0 0 0;
 		overflow: hidden;
+		background: url(hm_ad_1000.gif) -110px top no-repeat;
 		}
+		
+		.hm_ad_mid h1 {
+			text-indent: -9999em;
+			height: 200px;
+			}
+
+		.hm_ad_mid ul {
+			text-indent: -9999em;
+			height: 118px;
+			}
+					
+		.b_find_a_bill {
+			width: 185px;
+			height: 47px;
+			background: url(b_find_bill.png) left top no-repeat;
+			display: block;
+			text-indent: -9999em;
+			margin-left: 415px;
+			border: none;
+			}
 	
 	.hm_ad_div {
 		width: 940px;
 		float: left;
 		text-align: justify;
-	}
+		}
 		
-	.hm_ads .bigsmall {
-		margin: 40px 180px 20px;
-		font: normal 40px/50px 'BebasNeueRegular', helvetica, arial, sans-serif;
-		letter-spacing: 1px;
-	}
-	.hm_ads small {
-		font: normal 26px 'BebasNeueRegular', helvetica, arial, sans-serif;
-		color: #666;
-	}
-	.hm_ads .text p {
-		text-align: justify;
-		margin: 0 180px 1em 180px;
-		font: 14px/18px verdana, georgia, serif;
-	}
-	
+	.hm_btm_cols {
+		width: 940px;
+		height: 376px;
+		margin-bottom: 20px;
+		padding-left: 22px;
+		background: url(hm_btm_cols.jpg) left top no-repeat;
+		}
+		
+		.hm_col {
+			float: left;
+			width: 230px;
+			margin: 21px 27px 24px 0;
+			padding: 25px;
+			}	
+			
+			.hm_col_wrap {
+				height: 260px;
+				}
+			
+				
+			
+		.hm_col h3 {	
+			width: 235px;
+			height: 52px;
+			text-indent: -9999em;
+			}
+			
+			.hm_col h4 {
+				color: #fff;
+				font-size: 12px;
+				text-transform: uppercase;
+				}
+		
+		h3#for_org {
+			background: url(h3_for_org.png) left top no-repeat;
+			}	
+
+		h3#for_congress {
+			background: url(h3_for_congress.png) left top no-repeat;
+			}	
+			
+		h3#news_feed {
+			background: url(h3_news_feed.png) left top no-repeat;
+			}		
+				
+		.hm_col p {
+			color: #fff;
+			font-size: 14px;
+			margin-bottom: 14px;
+			}	
+		
+		
+		
+		
+		
 	.hm_ads h3 {
 		height: 58px;
 		margin-top: 30px;
@@ -2202,6 +2286,10 @@ ul#issuearealist {
 		margin-bottom: 20px;
 		}
 		
+		.about h3 {
+			
+			}
+		
 	.block.follow_us {
 		padding-top: 20px;
 		text-align: left;
@@ -2215,6 +2303,10 @@ ul#issuearealist {
 			margin: 10px 0;
 			}
 		
+			.about h2 {
+				margin-top: 5px;
+				}
+				
 			.follow_us h2 {
 				width: 124px;
 				float: left;

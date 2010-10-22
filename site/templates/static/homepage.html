@@ -6,6 +6,7 @@
 {% block bodyattributes %}class="land"{% endblock %}
 {% block navattributes %}id="head_r"{% endblock %}
 {% block head %}
+<!-- 
 <script>
 var slider_index = 0;
 var auto_advance = true;
@@ -41,6 +42,7 @@ function subscribe(validate) {
 		   "statussuccess": (validate ? null : "Thanks!")} );
 }
 </script>
+ -->
 {% endblock %}
 {% block head_r_content %}
 <h1 id="landing">Your Voice. Verified. Quantified. Amplified</h1>
@@ -49,63 +51,47 @@ function subscribe(validate) {
 <div class="hm_ads">
 	<div class="hm_ad_mid">
 		<div class="hm_ad_div">
-			<div class="bigsmall"><small>This is an</small> open forum <small>for expressing</small> your opinion <small>in a way that</small> Congress can hear it.</div>
-		
-			<div class="text">
-				<p>Much of the technology that simplifies contacting Congress has made it more difficult for Congress to get a read on what is being said.</p>
-				<p>POPVOX is different from political discussion sites. It is a place for action &mdash; and was designed by a team who understands Congress.</p>
-				<!--<p>Interested in knowning more? <a href="/about">Read on</a> or subscribe for updates:</p>
-				<p id="subscribe">
-					<input id="subscribe_email"/>
-					<input id="subscribe_button" type="button" value="Subscribe" onclick="subscribe(false)"/>
-				</p>
-				<div id="subscribe_status"></div>-->
-			</div>
-			<p id="hack"><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
-		</div>
-		<div class="hm_ad_div">
-			<h3 class="user_individual">Individuals</h3>
-			<div class="text">
-				<p>POPVOX gets our message to Congress and makes sure our input counts by maintaining a public tally of comments on pending bills before Congress.</p>
-				<p>POPVOX also connects individuals with the advocacy groups and trade associations that can amplify our voices in the policy-making process.</p>
-			</div>
-			<p><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
-		</div>
-		<div class="hm_ad_div">
-			<h3 class="user_org">Organizations</h3>
-			<div class="text">
-				<p>Your top priority is to present your positions to Congress and influence policy-making. POPVOX puts your legislative agenda before Congressional staff, helps you keep on top of pending bills, and demonstrates verified grassroots support in a Congressional district. </p>
-			</div>
-			<p><a class="b_get_started btn_c" href="/accounts/register/orgstaff">Let&rsquo;s Get Started</a></p>
-		</div>
-		<div class="hm_ad_div">
-			<h3 class="user_cong_staff">Congressional Staff</h3>
-			<div class="text">
-				<p>As a staffer, you analyze enormous quantities of information to advise your boss. Thousands vie for your attention though constituent letters and calls.</p>
-				<p>POPVOX provides real-time bill-specific reports with verified summaries of constituent and organizational support &mdash; and a searchable listing of advocacy group endorsements by issue area.</p>
-			</div>
-			<p><a class="b_get_started btn_c" href="/accounts/register/legstaff">Let&rsquo;s Get Started</a></p>
-		</div>
-		<div class="hm_ad_div">
-			<h3 class="user_media">The Media</h3>
-			<div class="user_text">
-				<p>Coming soon, POPVOX will provide newsrooms &mdash; from small-town newspapers to political blogs &mdash; with Congressional district- and issue-specific analysis and contacts for man-on-the-street reporting.</p>
-			</div>
-			<p><a class="b_get_started btn_c" href="/bills">Let&rsquo;s Get Started</a></p>
+			<h1>Your Message in the Language of Congress</h1>
+			<ul>
+				<li class="one">Find a bill your care about.</li>
+				<li class="two">Choose to Support or Oppose it.</li>
+				<li class="three">Share your opinion with Congress &amp; the world.</li>
+			</ul>
+			<p><a class="b_find_a_bill btn" href="/bills">Find A Bill</a></p>
+
 		</div>
 	</div>
-	<ul id="user_type">					
-		<li><a class="arrow_l btn" href="#" onclick="return slide(-1)">left</a></li>
-		<li><a id="landing_button_0" class="active" href="#" onclick="return slide(null, 0)">Overview</a></li>
-		<li><a id="landing_button_1" href="#" onclick="return slide(null, 1)">Individuals</a></li>
-		<li><a id="landing_button_2"  href="#" onclick="return slide(null, 2)">Organizations</a></li>
-		<li><a id="landing_button_3"  href="#" onclick="return slide(null, 3)">Congress</a></li>
-		{% comment %}<li><a id="landing_button_4"  href="#" onclick="return slide(null, 4)">Media</a></li> {% endcomment %}
-		<li><a class="arrow_r btn" href="#" onclick="return slide(1)">right</a></li>
-	</ul>
 </div>
-
 <div class="clear"> </div>
+
+<div class="hm_btm_cols">
+	<div class="hm_col hm_col_1">
+		<div class="hm_col_wrap">
+			<h3 id="for_org">For Organizations</h3>
+			<p>Demonstrate verified grassroots support by Congressional district.</p>
+			<p>Advance your legislative agenda by getting information to Congressional staff.</p>
+			<p>Track progress of pending bills.</p>
+		</div>
+		<p><a class="b_register_org btn" href="#">Register Now</a></p>
+	</div>
+	
+	<div class="hm_col hm_col_2">
+		<div class="hm_col_wrap">
+			<h3 id="for_congress">For Congress</h3>
+			<p>Search Advocacy Directory for relevant organizations and contacts.</p>
+			<p>Analyze constituent sentiment by bill and district.</p>
+			<p>Find endorsing and opposing organizations with position summaries.</p>
+		</div>
+		<p><a class="b_register_con btn" href="#">Register Now</a></p>
+	</div>
+	
+	<div class="hm_col hm_col_3">
+		<h3 id="news_feed">News Feed</h3>
+		<h4>Oct 22, 2010</h4>
+		<p>We've taken the bubble wrap off of POPVOX. Use the Feedback tab on the left to send us any comments. <a href="#">link</a></p>
+	</div>
+
+</div>
 
 <div class="content">
 	<div class="col_9 rule">
@@ -120,9 +106,15 @@ function subscribe(validate) {
 			</div>
 			<div class="clear"> </div>
 		</div>
+
+
+
+
+
 		{% endcomment %}
 		
 		<div class="block about">
+			<h2>About POPVOX</h2>
 			<p>POPVOX is currently in a closed beta stage, which means we are testing the site with an invited audience. If you would like to test drive the future of communicating with Congress, <a href="mailto:info@popvox.com">write us</a>.</p>
 			<p>For more about the site, see <a href="/about">About POPVOX</a>.</p>
 	
@@ -139,7 +131,6 @@ function subscribe(validate) {
 				<!--<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fapps%2Fapplication.php%3Fid%3D150910028257528&amp;layout=box_count&amp;show_faces=true&amp;width=60&amp;action=like&amp;colorscheme=light&amp;height=65" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:60px; height:65px;" allowTransparency="true"></iframe>-->
 				<!--<li class="linked_in"></li>-->
 			</ul>
-			<div class="hr_rule"> </div>
 		</div>
 	</div><!-- e: col_3 -->
 	<div class="clear"> </div>
