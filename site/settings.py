@@ -23,7 +23,12 @@ else:
 
 APP_NICE_SHORT_NAME = "POPVOX"
 EMAIL_SUBJECT_PREFIX = "[POPVOX] "
-SERVER_EMAIL = "info@popvox.com"
+SERVER_EMAIL = "POPVOX <no.reply@popvox.com>"
+EMAIL_HOST = "occams.info" # because our EC2 IP was formerly used for spam
+EMAIL_HOST_USER = "popvox"
+EMAIL_HOST_PASSWORD = "qsg;5TtC"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'team@popvox.com') ]
 

@@ -21,7 +21,7 @@ from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, o
 from emailverification.utils import send_email_verification
 from utils import formatDateTime
 
-from settings import TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
+from settings import SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
 
 popular_bills = None
 issue_areas = None
@@ -831,6 +831,16 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 			"facebook": facebook,
 		}, context_instance=RequestContext(request))
 
+def send_mail2(subject, message, from_email, recipient_list, fail_silently=False):
+	from django.core.mail import EmailMessage
+	msg = EmailMessage(
+		subject = subject,
+		body = message,
+		from_email = SERVER_EMAIL,
+		to = recipient_list,
+		headers = {"From": from_email})
+	msg.send(fail_silently=fail_silently)
+
 @json_response
 def billshare_share(request):
 	try:
@@ -847,13 +857,14 @@ def billshare_share(request):
 	url = surlrec.url()
 	
 	if request.POST["method"] == "email":
-		emails = re.split("[\s,]+", request.POST["emails"])
-		
 		# validate and clean the email addresses
 		from django.forms import EmailField
-		for i in range(len(emails)):
+		emails = []
+		for em in re.split("[\s,]+", request.POST["emails"]):
+			if em.strip() == "":
+				continue
 			try:
-				emails[i] = EmailField().clean(emails[i])
+				emails.append( EmailField().clean(em) )
 			except:
 				return { "status": "fail", "msg": "Email address(es) don't look right." }
 		
@@ -861,10 +872,9 @@ def billshare_share(request):
 			return { "status": "fail", "msg": "You can only share your message with 10 recipients at a time." }
 		
 		# and send...
-		from django.core.mail import send_mail
 		for em in emails:
 			if request.user == comment.user:
-				send_mail(
+				send_mail2(
 					subject = request.user.username + " wants you to " + support_oppose + " " + bill.displaynumber() + " at POPVOX",
 					message = """Hi!
 		
@@ -882,7 +892,7 @@ Go to %s to have your voice be heard!
 					recipient_list = [em],
 					fail_silently = True)
 			else:
-				send_mail(
+				send_mail2(
 					subject = request.user.username + " suggests " + comment.user.username + "'s comment on " + bill.displaynumber() + " at POPVOX",
 					message = """Hi!
 				
