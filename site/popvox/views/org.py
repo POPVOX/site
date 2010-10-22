@@ -138,7 +138,7 @@ def org_update_fields(request, field, value, validate_only):
 			from urllib import urlopen, quote_plus
 			from xml.dom import minidom
 			try:
-				t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(value)))
+				t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(value.encode('utf-8'))))
 				value = t.getElementsByTagName('screen_name')[0].firstChild.data
 				if not validate_only and value != org.twittername:
 					org.twittername = value

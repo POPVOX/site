@@ -420,7 +420,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			try:
 				referral_comment = request.session["shorturl"].owner.comments.get(bill=bill)
 				welcome_tabname = referral_comment.user.username + "'s Comment"
-				welcome = referral_comment.user.username + " has shared with you a comment they left on " + bill.displaynumber() + "."
+				welcome = referral_comment.user.username + " has shared with you a comment " + referral_comment.address.heshe() + " left on " + bill.displaynumber() + ". You can find the comment below."
 			except:
 				pass
 		elif isinstance(request.session["shorturl"].owner, Org):
@@ -439,11 +439,11 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		welcome_tabname = referral_comment.user.username + "'s Comment"
 		if isinstance(request.session["shorturl"].owner, User):
 			if request.session["shorturl"].owner == referral_comment.user:
-				welcome = referral_comment.user.username + " has shared with you a comment they left on " + bill.displaynumber() + "."
+				welcome = referral_comment.user.username + " has shared with you a comment " + referral_comment.address.heshe() + " left on " + bill.displaynumber() + ". You can find the comment below."
 			else:
-				welcome = request.session["shorturl"].owner.username + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + "."
+				welcome = request.session["shorturl"].owner.username + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
 		elif isinstance(request.session["shorturl"].owner, Org):
-			welcome = request.session["shorturl"].owner.name + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + "."
+			welcome = request.session["shorturl"].owner.name + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
 	
 	elif commentid != None:
 		referral_comment = UserComment.objects.get(id=int(commentid))
@@ -587,7 +587,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			}, context_instance=RequestContext(request))
 	
 	elif "submitmode" in request.POST and request.POST["submitmode"] == "Preview >":
-		# The user clicks preview to get a preview page, or they are returning after login.
+		# The user clicks preview to get a preview page.
 		
 		# TODO: Validate that a message has been provided and that messages are
 		# not too long or too short.
@@ -931,10 +931,10 @@ Go to %s to have your voice be heard!
 			urllib.urlencode({
 				"access_token": fb.auth_token["access_token"],
 				"link": url,
-				"name": bill.title(),
+				"name": bill.title().encode('utf-8'),
 				"caption": "Voice your opinion on this bill at POPVOX.com",
-				"description": bill.officialtitle(),
-				"message": request.POST["message"]
+				"description": bill.officialtitle().encode('utf-8'),
+				"message": request.POST["message"].encode('utf-8')
 				}))
 		if ret.getcode() != 200:
 			return { "status": "success", "msg": "Post failed." }

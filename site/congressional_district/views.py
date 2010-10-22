@@ -49,7 +49,7 @@ def district_lookup(request):
 		
 		# Use the Google API to geocode. Note that we have to display the
 		# result on a map to satisfy TOS and it is rate limited to 2,500 per day.
-		data = minidom.parse(urlopen("http://maps.googleapis.com/maps/api/geocode/xml?address=" + quote_plus(addr) + "&region=us&sensor=false"))
+		data = minidom.parse(urlopen("http://maps.googleapis.com/maps/api/geocode/xml?address=" + quote_plus(addr.encode('utf-8')) + "&region=us&sensor=false"))
 		if data.getElementsByTagName("status")[0].firstChild.data == "ZERO_RESULTS":
 			return { "status": "fail", "msg": "Sorry I couldn't find your congressional district." }
 		elif data.getElementsByTagName("status")[0].firstChild.data == "OVER_QUERY_LIMIT":

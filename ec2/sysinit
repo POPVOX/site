@@ -8,9 +8,11 @@
 # Security Group: Web+SSH
 # Associate Elastic IP: 75.101.150.60
 # Attach EBS vol-6c010f05 on /dev/sdf
+#
+#  The IP address has to be in the DNS...
+#  The IP address has to be in occams's postfix mynetworks list to we can avoid auth to mail.
 
 # mysql root password: qsg;5TtC
-# postfix should be configured as an Internet server
 
 # Basic system setup
 ssh-keygen -q -t rsa -b 2048 -N "" -f .ssh/id_rsa
@@ -21,7 +23,7 @@ sudo apt-get upgrade -y
 
 sudo tasksel install lamp-server
 
-sudo apt-get install -y postfix git-core subversion mercurial libapache2-mod-wsgi python-flup python-beautifulsoup memcached python-memcache python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging rdiff-backup
+sudo apt-get install -y git-core subversion mercurial libapache2-mod-wsgi python-flup python-beautifulsoup memcached python-memcache python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging rdiff-backup
 
 # Custom packages
 DJANGO=python-django_1.2.3-1ubuntu0.1_all.deb

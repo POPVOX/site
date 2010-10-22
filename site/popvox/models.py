@@ -321,7 +321,7 @@ class Org(models.Model):
 			try: # ignore network errors, etc.
 				from urllib import urlopen, quote_plus
 				from xml.dom import minidom
-				t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(self.twittername)))
+				t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(self.twittername.encode('utf-8'))))
 				count = int(t.getElementsByTagName('followers_count')[0].firstChild.data)
 				updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, count)
 			except Exception, e:
@@ -594,6 +594,14 @@ class PostalAddress(models.Model):
 
 	def equals(self, other):
 		return self.nameprefix == other.nameprefix and self.firstname == other.firstname and self.lastname == other.lastname and self.namesuffix == other.namesuffix and self.address1 == other.address1 and self.address2 == other.address2 and self.city == other.city and self.state == other.state and self.zipcode == other.zipcode and self.congressionaldistrict == other.congressionaldistrict
+		
+	def heshe(self):
+		if self.nameprefix in ('Mr.',):
+			return "he"
+		elif self.nameprefix in ('Mrs.', 'Ms.', 'Sister'):
+			return "she"
+		else:
+			return "he or she"
 
 class UserComment(models.Model):
 	"""A comment by a user on a bill."""

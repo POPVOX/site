@@ -103,7 +103,7 @@ def external_return(request, login_associate, provider):
 		# authorization.
 		request.goal = { "goal": "oauth-fail" }
 		messages.error(request, "There was an error logging in.")
-		return HttpResponseRedirect(reverse('django.contrib.auth.views.login'))
+		return HttpResponseRedirect(reverse(loginform))
 		
 	uid = providers.providers[provider]["profile_uid"](profile)
 	
@@ -180,7 +180,7 @@ def external_return(request, login_associate, provider):
 			if not rr.user.is_active:
 				# Can't log in an inactive user.
 				messages.error(request, "Your account is disabled.")
-				return HttpResponseRedirect(reverse('django.contrib.auth.views.login'))
+				return HttpResponseRedirect(reverse(loginform))
 				
 			if request.user.is_authenticated():
 				# The auth record points to a different user, so log the user out and
