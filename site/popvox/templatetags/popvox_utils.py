@@ -78,7 +78,7 @@ def more(parser, token):
 			self.blockid = blockid
 			self.nodelist = nodelist
 		def render(self, context):
-			return "<div id='" + self.blockid + "' style='display: none'>" \
+			return "<div id='" + self.blockid + "' style='display: none; clear: both'>" \
 				+ self.nodelist.render(context) \
 				+ "</div>" \
 				+ """<script>$(function(){ """ \
