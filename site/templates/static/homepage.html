@@ -123,6 +123,17 @@ function subscribe(validate) {
 		{% endcomment %}
 		
 		<div class="block about">
+			{% for entry in news %}
+				<h4>{{ entry.date|date:"M j, Y" }}</h4>
+				<p><a href="{{entry.link}}">{{ entry.title|safe }}</a>. {{ entry.content|striptags|truncatewords:7}}</p>
+				
+				{% if forloop.first %}
+					<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
+					<a href="http://twitter.com/share?url={{entry.link}}&text=RT%20@popvox:%20{{entry.title|striptags|truncatewords:10|urlencode}}&related=popvox" class="twitter-share-button">Tweet</a>
+				{% endif %}
+					
+			{% endfor %}
+			
 			<h2>About POPVOX</h2>
 			<p>POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive. Designed by <a href="/about/team">people who understand Congress</a>, POPVOX is different from other political sites. It is not a discussion forum. It is a place for action. For more about the site, see <a href="/about">About POPVOX</a> or <a href="/about/howitworks">How It Works</a>.</p>
 		</div>
