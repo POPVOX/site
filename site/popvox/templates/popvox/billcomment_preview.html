@@ -30,10 +30,13 @@
 		<div class="clear"> </div>
 
 		<h3>Preview Your Comment</h3>
+		<div class="hr"> </div>
 		
 		<div class="message_preview">
-		<h5>{% if position == "+" %}Support{% endif %}{% if position == "-" %}Oppose{% endif %} {{bill.displaynumber}}</h5>
-		{{message|wraplines:"p"}}</div>
+			<h5>{% if position == "+" %}Support{% endif %}{% if position == "-" %}Oppose{% endif %} {{bill.displaynumber}}</h5>
+			{{message|wraplines:"p"}}
+		</div>
+		<div class="hr"> </div>
 	
 		{% if not user.is_authenticated %}
 		<p class="pad_btm">
