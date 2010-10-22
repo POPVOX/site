@@ -485,9 +485,9 @@ p {
 /* bill list */
 
 .hot_bills {
-	background: url(bg_bill_hot.png) left top no-repeat;
+	background: url(bg_bill_hot.png) left no-repeat;
 	height: 190px;
-	width: 720px;
+	width: 700px;
 	margin-bottom: 15px;
 	}
 	
@@ -540,7 +540,7 @@ p {
 		.b_arrow_r {
 			float: right;
 			background: url(btn_arrow_r.png) left top no-repeat;
-			margin-right: 25px;
+			margin-right: 5px;
 			}
 		
 

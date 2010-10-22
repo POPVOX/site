@@ -16,12 +16,12 @@ function slide(direction, isauto) {
 	if (direction) slider_index += direction;
 	if (slider_index == -1) slider_index = {{hotbills|length}}-1;
 	if (slider_index == {{hotbills|length}}) slider_index = 0;
-	$('#hotbills_container').animate( {"margin-left": -510*slider_index}, "slow"  );
+	$('#hotbills_container').animate( {"margin-left": -$('.hot_col_r').width()*slider_index}, "slow"  );
 	if (auto_advance) setTimeout("slide(null, 1)", 4000);
 	return false; // important to cancel click
 }
 $(function() {
-	$('#hotbills_container').width(510 * {{hotbills|length}});
+	$('#hotbills_container').width($('.hot_col_r').width() * {{hotbills|length}});
 	slide();
 
 	{% if user.is_anonymous %}
@@ -80,10 +80,10 @@ $(function() {
 			<a class="b_arrow_l btn" href="#" onclick="return slide(-1)"> </a>
 			<a class="b_arrow_r btn" href="#" onclick="return slide(1)"> </a>
 			
-			<div class="hot_col_r" style="overflow: hidden; width: 510px">
-			<div id="hotbills_container" style="width: 510px">
+			<div class="hot_col_r" style="overflow: hidden; width: 490px; height: 170px">
+			<div id="hotbills_container" style="width: 490px">
 				{% for bill in hotbills %}
-					<div id="hotbill_{{forloop.counter0}}" style="float: left; width: 510px;">
+					<div id="hotbill_{{forloop.counter0}}" style="float: left; width: 490px;">
 					<a class="action" href="{{bill.url}}">Action</a>
 					<h3><a href="{{bill.url}}">{{bill.populartitle|truncatewords:10}}</a></h3>
 					{% if bill.sponsor %}
