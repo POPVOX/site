@@ -11,19 +11,23 @@ from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 import re
 from xml.dom import minidom
 import urllib
+from datetime import datetime, timedelta
 
 from popvox.models import *
 
 def staticpage(request, page):
+	varbls = { }
+
 	if page == "":
 		page = "homepage"
-		if request.user.is_authenticated() and request.user.get_profile() != None:
-			return HttpResponseRedirect("/home")
+		varbls["news"] = get_news()
+		#if request.user.is_authenticated():
+		#	return HttpResponseRedirect("/home")
 			
 	page = page.replace("/", "_") # map URL structure to static files
 			
 	try:
-		return direct_to_template(request, template="static/%s.html" % page)
+		return render_to_response("static/%s.html" % page, varbls, context_instance=RequestContext(request))
 	except TemplateDoesNotExist:
 		raise Http404()
 
@@ -40,4 +44,18 @@ def subscribe_to_mail_list(request):
 	u.email = email
 	u.save()
 	return { "status": "success" }
+
+
+_news_items = None
+_news_updated = None
+def get_news():
+	global _news_items
+	global _news_updated
+	# Load the blog RSS feed for items tagged frontpage.
+	if _news_items == None or datetime.now() - _news_updated > timedelta(minutes=60):
+		import feedparser
+		feed = feedparser.parse("http://www.popvox.com/blog/atom")
+		_news_items = [{"link":entry.link, "title":entry.title, "date":datetime(*entry.updated_parsed[0:6]), "content":entry.content[0].value} for entry in feed["entries"][0:4]]
+		_news_updated = datetime.now()
+	return _news_items
 

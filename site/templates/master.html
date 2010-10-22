@@ -106,8 +106,8 @@
 		
 		<div {% block navattributes %}id="content_head_r"{% endblock %}>
 			<ul id="nav"> 
+				{% block navbarlinks %}{% endblock %}
 				{% if user.is_authenticated %}
-					<li><a href="/accounts/profile">{{ user.username }}</a></li>
 					<li><a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a></li>
 				{% else %}
 					<li><a href="/accounts/login" onclick="document.location = '/accounts/login' + login_redirect; return false;">Login</a></li>

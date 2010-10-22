@@ -5,6 +5,7 @@
 {% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
 {% block bodyattributes %}class="land"{% endblock %}
 {% block navattributes %}id="head_r"{% endblock %}
+{% block navbarlinks %}{% if user.is_authenticated %}<li><a href="/home">{{ user.username }}</a></li>{% endif %}{% endblock %}
 {% block head %}
 <!-- 
 <script>
@@ -85,10 +86,18 @@ function subscribe(validate) {
 		<p><a class="b_register_con btn" href="#">Register Now</a></p>
 	</div>
 	
-	<div class="hm_col hm_col_3">
+	<div class="hm_col hm_col_3" style="height: 282px; overflow: hidden">
 		<h3 id="news_feed">News Feed</h3>
-		<h4>Oct 22, 2010</h4>
-		<p>We've taken the bubble wrap off of POPVOX. Use the Feedback tab on the left to send us any comments. <a href="#">link</a></p>
+		{% for entry in news %}
+			<h4>{{ entry.date|date:"M j, Y" }}</h4>
+			<p><a href="{{entry.link}}">{{ entry.title|safe }}</a>. {{ entry.content|striptags|truncatewords:7}}</p>
+			{% comment %}
+			{% if forloop.first %}
+				<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
+				<a href="http://twitter.com/share?url={{entry.link}}&text=RT%20@popvox:%20{{entry.title|striptags|truncatewords:10|urlencode}}&related=popvox" class="twitter-share-button">Tweet</a>
+			{% endif %}
+			{% endcomment %}
+		{% endfor %}
 	</div>
 
 </div>
@@ -115,10 +124,9 @@ function subscribe(validate) {
 		
 		<div class="block about">
 			<h2>About POPVOX</h2>
-			<p>POPVOX is currently in a closed beta stage, which means we are testing the site with an invited audience. If you would like to test drive the future of communicating with Congress, <a href="mailto:info@popvox.com">write us</a>.</p>
-			<p>For more about the site, see <a href="/about">About POPVOX</a>.</p>
-	
+			<p>POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive. Designed by <a href="/about/team">people who understand Congress</a>, POPVOX is different from other political sites. It is not a discussion forum. It is a place for action. For more about the site, see <a href="/about">About POPVOX</a> or <a href="/about/howitworks">How It Works</a>.</p>
 		</div>
+	</div>
 			
 	</div><!-- e: col_9 -->
 
@@ -135,62 +143,5 @@ function subscribe(validate) {
 	</div><!-- e: col_3 -->
 	<div class="clear"> </div>
 </div>
-
-{% comment %}
-	<script>
-	function do_login() {
-		if ($('#login_username').hasClass("default") == "user name") $('#login_username').val("");
-		if ($('#login_password').hasClass("default") == "password") $('#login_password').val("");
-		ajax("{% url registration.views.ajax_login %}",
-			{ username: $('#login_username').val(), password: $('#login_password').val() },
-			{ statusfield: "login_error",
-			   success: function() { document.location = "/home"; } }
-		);
-	}
-	</script>
-
-	<div class="col_3 col_top last">
-		<div class="block login">	
-			<h2>Login</h2>
-			
-			<div style="float: left">
-				<a href="{% url registration.views.external_start "google" %}">
-					<img src="{{ "google"|provider_logo:32 }}" title="{{ "google"|provider_name }}"/>
-				</a>
-			</div>
-			<div style="float: left">
-				<a href="{% url registration.views.external_start "facebook" %}">
-					<img src="{{ "facebook"|provider_logo:32 }}" title="{{ "facebook"|provider_name }}"/>
-				</a>
-			</div>
-			<div style="float: left">
-				<a href="{% url registration.views.external_start "twitter" %}">
-					<img src="{{ "twitter"|provider_logo:32 }}" title="{{ "twitter"|provider_name }}"/>
-				</a>
-			</div>
-			<div style="float: left; width: 90px; margin-left: .5em">
-			</div>
-			
-			<div style="clear: both; margin: 32px"></div>
-			
-			<input id="login_username" type="text" class="search"/>
-			<div id="login_error_username" class="error"></div>
-			<input id="login_password" type="text" class="search" />
-			<div id="login_error_password" class="error"></div>
-			<input class="submit" type="button" value="Log In" onclick="do_login()"/><br />
-			<div id="login_error" class="error"></div>
-			<div class="forgot">
-				<!--<a href="#">Forgot your username?</a><br />-->
-				<a href="{% url registration.views.resetpassword %}">Forgot your password?</a>
-			</div>
-			<script>$('#login_username').input_default("user name")</script>
-			<script>$('#login_password').input_default("password")</script>
-								
-			<h2>Need to Register?</h2>
-			<a href="/accounts/register">Let's get started!</a>
-			
-		</div>
-	</div><!-- e: col_3 -->
-{% endcomment %}
 
 {% endblock %}
