@@ -135,9 +135,6 @@ function share(method) {
 			<p><a href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if mode == "share" %}{{comment.id}}/{% endif %}share">
 			<img src="/media/icons/sm/facebook-login.png"/></a></p>
 		{% else %}
-			<div style="float: left; margin-right: 1em">
-				<img src="{{"facebook"|provider_logo:32}}"/> 
-			</div>
 			{% if comment.fb_linkid %}
 				<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
 			{% endif %}
@@ -155,13 +152,13 @@ function share(method) {
 			<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button begin:</p>
 			<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "share" %}{{comment.id}}/{% endif %}share"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
 		{% else %}
-			<div style="float: left; margin-right: 1em"><a href="#" onclick="return share('tweet')"> 
-				<img src="{{"twitter"|provider_logo:32}}"/> 
-			</a></div>
 			{% if comment.tweet_id %}
 				<p>You have already tweeted about this bill, but if you go strongly about the issue please go over to Twitter and <a href="http://twitter.com/?status=%20{{bill.hashtag|urlencode}}">tweet some more</a>.</p>
 			{% else %}
-				<p>Click the Twitter icon to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
+				<p>Click the Twitter share button to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
+				<p><a href="#" onclick="return share('twitter')"> 
+					<img src="/media/icons/sm/twitter-share.png"/> 
+				</a></p>
 				<p id="share_twitter_status"></p>
 			{% endif %}
 		{% endif %}

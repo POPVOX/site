@@ -27,5 +27,5 @@ class AuthRecord(models.Model):
 		unique_together = (("provider", "uid"),)
 		ordering = ['provider', 'user__username']
 	def __unicode__(self):
-		return self.provider + " -> " + self.user.username
+		return self.provider + " " + self.uid[0:10] + " -> " + self.user.username
 
