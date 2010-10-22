@@ -282,7 +282,7 @@ function showtab(tab) {
 			<div id="orgs{{position}}" {% if welcome_tabname or forloop.counter == 2 %}style="display: none"{% endif %} class="tab_panel">
 	
 				<h3>{% if position == "support" %}Endorsing{% else %}Opposing{% endif %} Organizations</h3>
-				{% if not orgset %}<p>POPVOX does not know about any organizations {% if position == "support" %}endorsing{% else %}opposing{% endif %} this bill.</p>{% endif %}
+				{% if not orgset %}<p>No organization has {% if position == "support" %}endorsed{% else %}opposed{% endif %} this bill yet on POPVOX.</p>{% endif %}
 				{% for org in orgset %}
 				<div>
 					<h5><a href="{{org.url}}">{{org.name}}</a></h5>

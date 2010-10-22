@@ -592,6 +592,22 @@ p {
 		float: left;
 		}
 		
+	.content .search_orange p.help {
+		clear: left;
+		display: block;
+		float: none;
+		margin-left: 100px;
+		width: auto;
+		height: auto;
+		font-size: 12px;
+		line-height: 12px;
+		}
+	.content .search_orange a {
+		font-weight: bold;
+		color: white;
+		text-decoration: underline;
+	}
+		
 	.content .search_orange p span {
 		padding-top: 10px;
 		display: block;
@@ -3031,3 +3047,13 @@ table.form_fields td {
 	cursor: pointer;
 }
 
+.howitworks p {
+	line-height: 140%;
+	margin-bottom: 1em;
+}
+.howitworks h2 {
+	font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	margin: 1.25em 0 .5em;
+	border-bottom: 1px solid #AAA;
+	color: #555;
+}

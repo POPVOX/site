@@ -74,9 +74,11 @@ function showlist(elem, issueslug) {
 							<a href="#" onclick="return showlist(this, '{{issue.object.slug|escapejs}}')">{{ issue.object.name }}</a>
 						  <ul>
 						   {% for issue2 in issue.subissues %}
+						   	{% if issue2.orgs.all %}
 							  <li>
 								<a href="#" onclick="return showlist(this, '{{issue2.slug|escapejs}}')">{{ issue2.name }}</a>
 							  </li>
+							 {% endif %}
 						   {% endfor %}
 						  </ul>
 						</li>

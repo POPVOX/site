@@ -9,7 +9,7 @@ admin.autodiscover()
 import settings
 
 urlpatterns = patterns('',
-	(r'^(|about|about/team|about/principles|legal|advertising|press|jobs|blog_template)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
+	(r'^(|about|about/team|about/principles|about/howitworks|legal|advertising|press|jobs|blog_template)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	

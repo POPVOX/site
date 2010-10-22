@@ -77,6 +77,10 @@ function submit_registration() {
 	
 	<div class="form" style="clear: both">
 		<div class="col_9 rule">
+			{% if mode != "" %}
+			<h3>About You</h3>
+			{% endif %}
+		
 			{% if mode == "" %}
 			<label for="username">screen name</label>
 			<input type="text" class="c3" id="username"/><br />
@@ -114,6 +118,7 @@ function submit_registration() {
 		
 		{% if mode == "legstaff" %}
 		<div class="col_9 rule">
+			<h3>About Your Position</h3>
 			
 			<label for="member">member</label>
 			<select id="member" class="c5">
@@ -153,6 +158,8 @@ function submit_registration() {
 			
 		{% if mode == "orgstaff" %}
 		<div class="col_9 rule">
+			<h3>About Your Organization</h3>
+			
 			<label for="orgname">organization</label>
 			<input type="text" id="orgname" class="c5"/>
 			<div id="errorlabel_orgname" class="error"></div>
