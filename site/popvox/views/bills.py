@@ -643,12 +643,6 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			}, context_instance=RequestContext(request))
 
 	elif request.POST["submitmode"] == "Submit Comment >" or request.POST["submitmode"] == "Clear Comment >":
-		# Clear the session state set in the preview.
-		try:
-			del request.session[pending_comment_session_key]
-		except:
-			pass
-		
 		if position == "0":
 			# Clear the user's comment on this bill.
 			request.goal = { "goal": "comment-submit" }
@@ -740,6 +734,14 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		comment.address = address_record
 		comment.save()
 			
+		# Clear the session state set in the preview. Don't clear until the end
+		# because if the user is redirected back to ../finish we need the session
+		# state to get the position.
+		try:
+			del request.session[pending_comment_session_key]
+		except:
+			pass
+		
 		return HttpResponseRedirect(bill.url() + "/comment/share")
 			
 	elif request.POST["submitmode"] == "Create Account >":

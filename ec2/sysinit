@@ -10,7 +10,7 @@
 # Attach EBS vol-6c010f05 on /dev/sdf
 
 # mysql root password: qsg;5TtC
-# postfix should be configured as an Internet server, and the IP address should be in the SPF record.
+# postfix should be configured as an Internet server
 
 # Basic system setup
 ssh-keygen -q -t rsa -b 2048 -N "" -f .ssh/id_rsa
@@ -35,14 +35,13 @@ sudo mount /dev/sdf /mnt/persistent
 
 # Users
 sudo useradd -m --shell /bin/bash www
-sudo su www -c "cd; /mnt/persistent/ec2_inituser.sh"
+sudo su www -c "cd; /mnt/persistent/ec2_inituser"
 
-# Apache
-sudo a2dissite default
-sudo a2enmod proxy proxy_http
-sudo sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
-sudo ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
-sudo /etc/init.d/apache2 restart
+sudo useradd -m --shell /bin/bash josh
+sudo su josh -c "cd; /mnt/persistent/ec2_inituser"
+
+sudo useradd -m --shell /bin/bash william
+sudo su william -c "cd; /mnt/persistent/ec2_inituser"
 
 # Mysql
 sudo service mysql stop
@@ -50,6 +49,13 @@ rm -rf /var/lib/mysql/
 mkdir /var/lib/mysql
 mount --bind /mnt/persistent/mysql/ /var/lib/mysql
 sudo service mysql start
+
+# Apache
+sudo a2dissite default
+sudo a2enmod proxy proxy_http # we use this to pass the blog through to occams
+sudo sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
+sudo ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
+sudo /etc/init.d/apache2 restart
 
 # Startup scripts. What do I do with these?
 git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/ 

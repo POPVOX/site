@@ -8,7 +8,13 @@
 
 	<h1>Bill Search</h1>
 	
-	{% include "popvox/billsearch_form.html" %}
+	<div class="block bill_search search_orange">
+		<div class="search_box">
+			<p><strong>Bill Number or Keywords</p> 
+			{% include "popvox/billsearch_form.html" %}
+			<p class="help">Don&rsquo;t know what to search for? Use the <a href="/orgs">Advocacy Directory</a> to find legislation tracked by organizations you support.</p>
+		</div>
+	</div>
 	
 	{% if not bills %}
 	<p>Sorry, no bills matched your search.</p>
@@ -22,7 +28,7 @@
 	<p>The search function had an internal error.</p>
 	{% endif %}
 	
-	<ul>
+	<ul class="bullets">
 	{% for bill in bills %}
 		<li>
 				<a href="{{ bill.url }}">{{ bill.title }}</a>
