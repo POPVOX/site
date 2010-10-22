@@ -106,9 +106,13 @@ jQuery.fn.inline_edit = function(callback) {
 			textarea.focus();
 		});
 		textarea.blur(function() {
+			inline.height(textarea.height());
 			editor.hide();
 			inline.fadeIn();
-			callback(textarea.val(), inline);
+			callback(textarea.val(), inline,
+				function() {
+					inline.height('auto');
+				});
 		});
 	});
 };

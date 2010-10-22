@@ -11,7 +11,7 @@ function delpos(camslug, camid, id) {
 		}
 	);
 }
-function setposcomment(camslug, camid, posid, comment) {
+function setposcomment(camslug, camid, posid, comment, field, next) {
 	ajax(
 		"/ajax/orgs/cam/updatefield",
 		{ org:"{{org.slug|escapejs}}", cam:camslug, name: "billposition-comment-" + posid, value: comment},
@@ -21,6 +21,7 @@ function setposcomment(camslug, camid, posid, comment) {
 			success: function(res) {
 				$("#campos_" + camid + "_" + posid + "_comment").show();
 				$("#campos_" + camid + "_" + posid + "_comment").html(res.html);
+				if (next) next();
 			}
 		}
 	);

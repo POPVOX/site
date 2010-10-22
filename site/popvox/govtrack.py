@@ -409,11 +409,11 @@ def getChamberOfNextVote(metadata):
 	status = metadata.getElementsByTagName('state')[0].firstChild.data
 	if status in ("INTRODUCED", "REFERRED", "REPORTED", "PROVKILL:VETO"):
 		return metadata.documentElement.attributes["type"].value[0] # in originating chamber
-	elif status in ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE"):
+	elif status in ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROVKILL:CLOTUREFAILED"):
 		return "s"
-	elif status in ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE"):
+	elif status in ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE", "PROVKILL:SUSPENSIONFAILED"):
 		return "h"
-	elif status in ("PROVKILL:SUSPENSIONFAILED", "PROVKILL:CLOTUREFAILED", "PROVKILL:PINGPONGFAIL"):
+	elif status in ("PROVKILL:PINGPONGFAIL", ): # don't know!
 		return metadata.documentElement.attributes["type"].value[0]
 	return None
 

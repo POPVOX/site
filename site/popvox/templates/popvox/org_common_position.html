@@ -12,7 +12,7 @@
 			{% endif %}
 		{% endwith %}
 		
-		<div id="campos_{{cam.id}}_{{position.id}}_comment" class="comment">{% if position.comment %}{{position.comment|wraplines:"p"}}{% else %}{% if admin %}<em>No comment.</em>{% endif %}{% endif %}</div>
+		<div id="campos_{{cam.id}}_{{position.id}}_comment" class="comment" {% if admin %}title="Click to Edit"{% endif %}>{% if position.comment %}{{position.comment|wraplines:"p"}}{% else %}{% if admin %}<em>No comment.</em>{% endif %}{% endif %}</div>
 		
 		{% if admin %}
 		<div id="campos_{{cam.id}}_{{position.id}}_comment_editor" style="display: none">
@@ -20,8 +20,8 @@
 		</div>
 		<script>
 			$('#campos_{{cam.id}}_{{position.id}}_comment').inline_edit(
-				function(value) {
-					setposcomment('{{cam.slug|escapejs}}', {{cam.id}}, {{position.id}}, value);
+				function(value, field, callback) {
+					setposcomment('{{cam.slug|escapejs}}', {{cam.id}}, {{position.id}}, value, field, callback);
 				} );
 			$('#campos_{{cam.id}}_{{position.id}}_comment_textarea').input_autosize();
 		</script>
