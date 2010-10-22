@@ -868,13 +868,14 @@ def billshare_share(request):
 		
 %s
 
-I just left this comment in %s bill %s:
+I %s bill %s:
+(%s)
 
 %s
 
 Go to %s to have your voice be heard!
 
-%s""" % (request.POST["message"], support_oppose2, bill.title(), comment.message, url, request.user.username),
+%s""" % (request.POST["message"], support_oppose, bill.title(), url, comment.message, url, request.user.username),
 					from_email = '"' + request.user.username + '" <' + request.user.email + ">",
 					recipient_list = [em],
 					fail_silently = True)
