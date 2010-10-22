@@ -91,6 +91,8 @@ class Bill(models.Model):
 		return govtrack.billFinalStatus(self.govtrack_metadata()) == None
 	def getDeadReason(self):
 		return govtrack.billFinalStatus(self.govtrack_metadata())
+	def getChamberOfNextVote(self):
+		return govtrack.getChamberOfNextVote(self.govtrack_metadata())
 		
 	def campaign_positions(self):
 		return [p for p in self.orgcampaignposition_set.all() if p.campaign.visible]

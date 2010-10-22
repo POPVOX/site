@@ -405,6 +405,18 @@ def billFinalStatus(metadata):
 		return "died"
 	return None
 
+def getChamberOfNextVote(metadata):
+	status = metadata.getElementsByTagName('state')[0].firstChild.data
+	if status in ("INTRODUCED", "REFERRED", "REPORTED", "PROVKILL:VETO"):
+		return metadata.documentElement.attributes["type"].value[0] # in originating chamber
+	elif status in ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE"):
+		return "s"
+	elif status in ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE"):
+		return "h"
+	elif status in ("PROVKILL:SUSPENSIONFAILED", "PROVKILL:CLOTUREFAILED", "PROVKILL:PINGPONGFAIL"):
+		return metadata.documentElement.attributes["type"].value[0]
+	return None
+
 def getCommitteeList():
 	global committees
 	if committees != None:

@@ -21,12 +21,35 @@ function slide(direction, isauto) {
 	return false; // important to cancel click
 }
 $(function() {
-		$('#hotbills_container').width(510 * {{hotbills|length}});
-		slide();
+	$('#hotbills_container').width(510 * {{hotbills|length}});
+	slide();
+
+	{% if user.is_anonymous %}
+	 $.colorbox({
+		transition: "none",
+		inline: true,
+		href:'#welcome',
+		opacity: .8,
+	 });
+	 {% endif %}
 });
 </script>
 {% endblock %}
 {% block content %}
+
+{% if user.is_anonymous %}
+<div style="display: none">
+	<div id="welcome" class="colorbox" style="width: 450px">
+		<h1>Welcome to POPVOX</h1>
+		<p>Individuals take action on POPVOX by writing messages in support of or opposition to bills before Congress.</p>
+		<p style="text-align: center; font-size: 16px"><strong>Find a Bill that You Have an Opinion About</strong></p>
+		{% comment %}<p>If you have an issue in mind that is important to you, you can find a bill that’s related to the issue which you can support or oppose. A simple way to find relevant legislation is to search our Advocacy Directory for an organization that you support.</p>{% endcomment %}
+		<p>Browse the “hot” legislation on this page for a bill you recognize from the news, or to search all bills in Congress using keywords. But you may need to do some research to find out what each bill is about before commenting on it.</p>
+		<p><a class="b_get_started btn_c" href="#" onclick="$.colorbox.close(); return false;">Let&rsquo;s Get Started</a></p>
+	</div>
+</div>
+{% endif %}
+
 <div class="content">
 	
 	<div class="col_9 col_top">
@@ -93,7 +116,7 @@ $(function() {
 		
 		<div class="block bills rule col_12">
 			
-			<h3 class="no_rule">Most Searched</h3>
+			<h3 class="no_rule">Hot Bills</h3>
 		
 				{% for billrec in popular_bills %}
 					<div class="col_6 {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %} {% if forloop.counter|divisibleby:"2" %}col_last{% endif %}">

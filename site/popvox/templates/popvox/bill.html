@@ -38,7 +38,11 @@ function showtab(tab) {
 	<div class="clear col_9 col_top">
 		<div class="block bill_overview_user">
 			<h3 class="no_rule">{{ bill.title }}</h3>
-			{% if bill.officialtitle %}<p><strong>Summary: </strong>{{ bill.officialtitle }}</p>{% endif %}
+			{% if bill.officialtitle %}
+			<p><strong>Summary: </strong>{{ bill.officialtitle }} (<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More</a>)</p>
+			{% else %}
+			<p>(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Information at GovTrack</a>)</p>
+			{% endif %}
 			
 			{% if not bill.isAlive %}
 			<p>This bill {{bill.getDeadReason}}. {% if canvote %}You can no longer write a comment about this bill.{% endif %}</p>
@@ -273,7 +277,6 @@ function showtab(tab) {
 				{% else %}
 					{{bill.status}}
 				{% endif %}
-				(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More</a>)
 			</div>
 			<div class="clear"> </div>
 		</div>

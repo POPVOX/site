@@ -360,10 +360,12 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		# based on the user's most recent comment's congressional district.
 		district = request.user.userprofile.most_recent_comment_district()
 		if district != None:
-			if bill.billtype[0] == "s":
-				mocs = getMembersOfCongressForDistrict(district, moctype="sen")
-			else:
-				mocs = getMembersOfCongressForDistrict(district, moctype="rep")
+			ch = bill.getChamberOfNextVote()
+			if ch != None:
+				if ch == "s":
+					mocs = getMembersOfCongressForDistrict(district, moctype="sen")
+				else:
+					mocs = getMembersOfCongressForDistrict(district, moctype="rep")
 			
 	# Get the orgs who support or oppose the bill, and the relevant campaigns
 	# within the orgs.
