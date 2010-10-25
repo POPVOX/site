@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 
 from models import *
 
-from settings import SITE_ROOT_URL, EMAILVERIFICATION_FROMADDR
+import settings
 
 def send_email_verification(email, searchkey, action):
 	r = Record()
@@ -15,9 +15,13 @@ def send_email_verification(email, searchkey, action):
 	emailsubject = action.email_subject()
 	emailbody = action.email_body()
 	
-	emailbody = emailbody.replace("<URL>", SITE_ROOT_URL + reverse("emailverification.views.processcode", args=[r.code]))
+	emailbody = emailbody.replace("<URL>", getattr(settings, 'SITE_ROOT_URL', 'http://www.example.com') + reverse("emailverification.views.processcode", args=[r.code]))
 
-	send_mail(emailsubject, emailbody, EMAILVERIFICATION_FROMADDR, [email], fail_silently=False)
+	send_mail(emailsubject, emailbody,
+		getattr(settings, 'EMAILVERIFICATION_FROMADDR',
+			getattr(settings, 'SERVER_EMAIL',
+				'no.reply@example.com')),
+		[email], fail_silently=False)
 	
 	r.save()
 

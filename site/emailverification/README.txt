@@ -9,7 +9,8 @@ and then with the email address confirmed some action is taken.
 This can be used for user account registration, changing email
 addresses on accounts, etc. Compared to django-registration,
 this module *doesn't create* the User object until the email
-address is verified.
+address is verified (this is a framework for verifying the address
+before *you* create the User object).
 
 CONFIGURATION
 
@@ -19,9 +20,12 @@ settings.py:
 	
 	Add:
 		SITE_ROOT_URL = "http://www.example.org" # no trailing slash!
-		EMAILVERIFICATION_FROMADDR = "address@yourdomain.com"
-	which will be the From address on emails sent to users with the verification
-	code.
+		SERVER_EMAIL = "MySite <noreply@example.org>"
+		   (the address from which the verification codes are sent)
+		
+		SERVER_EMAIL is used by several other aspects of Django so you can
+		override the address for this project with the EMAILVERIFICATION_FROMADDR
+		setting.
 
 Add a record to your URLConf like this
 :
@@ -52,8 +56,7 @@ It will also contain the Python code to be executed as a "callback" once
 the user clicks the verification link. The class should have fields for data
 stored with the instance, plus a get_response method that takes two
 arguments (besides self): the HttpRequest and the emailverification.Record
-object that has just been verified (and will be deleted as soon as this call
-completes successfully). Here's an example:
+object that has just been verified. Here's an example:
 
 ===================
 from django.contrib.auth.models import User
