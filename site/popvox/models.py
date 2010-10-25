@@ -564,7 +564,7 @@ class PostalAddress(models.Model):
 	SUFFIXES = 	('', 'Jr.', 'Sr.', 'I', 'II', 'III')
 	
 	def __unicode__(self):
-		return unicode(self.user) + ": " + self.firstname +  " " + self.lastname + "\n" + self.address1 + "\n" + self.address2 + "\n" + self.city + ", " + self.state + " " + self.zipcode
+		return unicode(self.user) + ": " + self.firstname +  " " + self.lastname + "\n" + self.address1 + "\n" + self.address2 + "\n" + self.city + ", " + self.state + " " + self.zipcode + " (CD" + str(self.congressionaldistrict) + ")"
 	
 	def load_from_form(self, request):
 		self.nameprefix = request.POST["useraddress_prefix"]
