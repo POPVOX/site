@@ -68,7 +68,7 @@ urlpatterns = patterns('',
 	(r'^ajax/phone_number_twilio/', include('phone_number_twilio.urls')),
 	(r'^emailverif/', include('emailverification.urls')),
 	(r'^registration/', include('registration.urls')),
-	(r'^w/', include('shorturl.urls')),
+	(r'^shorturl/', include('shorturl.urls')),
 	(r'^trafficanalysis/', include('trafficanalysis.urls')),
 	(r'^feedback/', include('feedback.urls')),
 )

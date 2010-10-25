@@ -15,7 +15,8 @@ def redirect(request, code):
 		raise Http404("'%s' doesn't have a get_absolute_url() method." % str(rec.target))
 		
 	rec.increment_hits()
-	request.session["shorturl"] = rec
+	if hasattr(request, "session"):
+		request.session["shorturl"] = rec
 		
 	return HttpResponsePermanentRedirect(url)
 

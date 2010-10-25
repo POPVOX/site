@@ -13,11 +13,10 @@ if not DEBUG:
 	# a problem since we filter redirects to this path to make sure we aren't
 	# redirecting just anywhere.
 	SITE_ROOT_URL = "http://www.popvox.com"
-	SITE_SHORT_ROOT_URL = "http://popvox.com"
+	SITE_SHORT_ROOT_URL = "http://pvox.co"
 	DATADIR = os.path.dirname(__file__) + "/data/"
 else:
 	SITE_ROOT_URL = "http://localhost:8000"
-	SITE_SHORT_ROOT_URL = SITE_ROOT_URL
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 	DATADIR = "/home/tauberer/data/popvox/"
 

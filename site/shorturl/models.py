@@ -3,26 +3,33 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 
-from settings import SITE_SHORT_ROOT_URL
+import settings
 
 import base64
 import pickle
 import random
 
-CODE_LENGTH = 6
+CODE_LENGTH = getattr(settings, "SHORTURL_LENGTH", 6)
 
 class RecordManager(models.Manager):
-	def parseargs(self, kwargs):
+	def parseargs(self, kwargs, makeownernone=False):
 		newargs = {}
 		for k, v in kwargs.items():
 			if k == "target":
 				newargs["target_content_type"] = ContentType.objects.get_for_model(v)
 				newargs["target_object_id"] = v.id
 			elif k == "owner":
-				newargs["owner_content_type"] = ContentType.objects.get_for_model(v)
-				newargs["owner_object_id"] = v.id
+				if v == None:
+					newargs["owner_content_type"] = None
+					newargs["owner_object_id"] = None
+				else:
+					newargs["owner_content_type"] = ContentType.objects.get_for_model(v)
+					newargs["owner_object_id"] = v.id
 			else:
 				newargs[k] = v
+		if not "owner" in kwargs and makeownernone:
+			newargs["owner_content_type"] = None
+			newargs["owner_object_id"] = None
 		return newargs
 		
 	def get(self, **kwargs):
@@ -30,7 +37,7 @@ class RecordManager(models.Manager):
 	def filter(self, **kwargs):
 		return super(RecordManager, self).filter(**self.parseargs(kwargs))
 	def get_or_create(self, **kwargs):
-		return super(RecordManager, self).get_or_create(**self.parseargs(kwargs))
+		return super(RecordManager, self).get_or_create(**self.parseargs(kwargs, makeownernone=True))
 
 class Record(models.Model):
 	code = models.CharField(max_length=CODE_LENGTH, db_index=True)
@@ -57,9 +64,10 @@ class Record(models.Model):
 		unique_together = ["target_content_type", "target_object_id", "owner_content_type", "owner_object_id"]
 	
 	def __unicode__(self):
-		ret = unicode(self.target)
+		ret = unicode(self.target_content_type) + u" (" + unicode(self.target) + u")"
 		if self.owner != None:
-			ret += u" (" + unicode(self.owner) + u")"
+			ret += u" <= " + unicode(self.owner_content_type) + u" (" + unicode(self.owner) + u")"
+		#ret += u" (" + self.url() + u")"
 		return ret
 		
 	def save(self, *args, **kwargs):
@@ -90,7 +98,9 @@ class Record(models.Model):
 		self.save()
 
 	def url(self):
-		return SITE_SHORT_ROOT_URL + self.get_absolute_url()
+		if hasattr(settings, 'SITE_SHORT_ROOT_URL'):
+			return getattr(settings, 'SITE_SHORT_ROOT_URL') + "/" + self.code
+		return getattr(settings, 'SITE_ROOT_URL') + self.get_absolute_url()
 		
 	def get_absolute_url(self):
 		return reverse("shorturl.views.redirect", args=[self.code])
