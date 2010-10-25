@@ -1,0 +1,49 @@
+{% extends "master.html" %}
+{% block title %}Contact POPVOX{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}{% endblock %}
+{% block head %}
+	<script src="/media/feedback/jquery.form.js"></script>
+	<script>
+	$(function() {
+	   $('#contactformfeedback').ajaxForm({
+		   'beforeSubmit':function(){
+			  $('#contactformfeedback').find('button').attr('disabled', '1');
+			  return true;
+		   },
+		   'success':function() {
+			   $('#contactformfeedback').find('button').attr('disabled', '');
+			   $('#contactformfeedback').find('textarea').val('');
+			   $('.thanks').fadeIn().delay(2000).fadeOut();
+		   }
+	    });
+	});
+	</script>
+{% endblock %}
+{% block content %}
+
+<div class="content">
+	<div class="col_9 col_top">
+	
+		<h1>Contacting Us</h1>
+		
+	    <p style="margin-bottom: 1em">We would be happy to consider any feedback you have. You can email us at <a href="mailto:info@popvox.com">info@popvox.com</a> or just fill out this form:</p>
+	    
+	    <form id="contactformfeedback" class="form feedback" action="{% url feedback.views.handle_ajax %}" method="POST" style="margin: 0">
+		   <label for="email">email (optional)</label>
+			  <input name="email" value="{{user.email}}"/>
+			   <div class="email error"> </div>
+		   <label for="subject">subject (optional)</label>
+			  <input name="subject"/>
+			   <div class="subject error"> </div>
+		   <label for="text">message</label>
+			  <textarea name="text" rows="8"></textarea>
+			  <div class="text error"> </div>
+		   <div class="buttons">
+			  <button class="submit">Send</button>
+		   </div>
+	    </form>
+	    <div class="thanks hiding">Thank you for your feedback!</div>
+	</div>
+</div>
+{% endblock %}
