@@ -119,7 +119,10 @@ function validate_form() {
 		
 		<p id="submitstatus" style="font-weight: bold"/>
 		
-		<p><input class="b_preview btn" id="submitcomment" type="submit" name="submitmode" value="Preview >"/></p>
+		<p>
+			<input class="b_back btn" type="button" value="Cancel" onclick="if ($('#message').hasClass('default') || confirm('Are you sure you want to cancel and discard your comment?')) document.location = '{{bill.url|escapejs}}';"/>
+			<input class="b_preview btn" id="submitcomment" type="submit" name="submitmode" value="Preview >"/>
+		</p>
 	{% endif %}
 	
 	</form>

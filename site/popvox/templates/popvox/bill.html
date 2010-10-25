@@ -190,22 +190,23 @@ function showtab(tab) {
 	</div>
 	
 	{% comment %} START OF PIE CHART {% endcomment %}
-	{% if stats.overall.total > 0 %}
 	<div class="col_3 col_top col_last">
 		<h3 class="no_rule">What POPVOX Users Say</h3>
+		{% bill_statistics bill as stats %}
+		{% if stats %}
 		<div class="chart_info">
 			<div style="float: left; width: 95px; margin-right: 15px">
 				<a href="{{bill.url}}/report">
 					<div id="chart-container" style="width: 95px; height: 95px"></div>
-					<script>bill_chart('chart-container', {{stats.overall.pro_pct}}, {{stats.overall.con_pct}});</script>
+					<script>bill_chart('chart-container', {{stats.pro_pct}}, {{stats.con_pct}});</script>
 				</a>
 			</div>
 			 <div style="float: left; width: 110px">
 				<p class="chart_stats">
-					<span class="chart_title">{{ stats.overall.longdescription}}:</span><br />
-					<span class="bg_support">{{ stats.overall.pro_pct }}% Support</span><br />
-					<span class="bg_oppose">{{ stats.overall.con_pct }}% Oppose </span><br />
-					<span class="users">({{stats.overall.total}} user{{stats.overall.total|pluralize}})</span>
+					<span class="chart_title">{{ stats.longdescription}}:</span><br />
+					<span class="bg_support">{{ stats.pro_pct }}% Support</span><br />
+					<span class="bg_oppose">{{ stats.con_pct }}% Oppose </span><br />
+					<span class="users">({{stats.total}} user{{stats.total|pluralize}})</span>
 				</p>
 				{% comment %}
 				 <p class="view_report">
@@ -213,9 +214,11 @@ function showtab(tab) {
 				</p>
 				{% endcomment %}
 			</div>
-		</div>	
+		</div>
+		{% else %}
+			<p>Not many people have left a comment on this bill yet. For details, see the <a href="{{bill.url}}/report">legislative report for {{bill.displaynumber}}</a>.</p>
+		{% endif %}
 	</div>
-	{% endif %}
 	{% comment %} END OF PIE CHART {% endcomment %}
 	
 	<div class="clear"></div>
