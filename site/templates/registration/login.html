@@ -19,7 +19,13 @@
 					{% endwith %}
 					
 					<div class="clear"></div>
-					<div style="clear: both; width: 190px; font-size: 85%; line-height: 110%; margin-top: 1em">Not for legislative and advocacy organization staff.</div>
+					<div style="clear: both; width: 190px; font-size: 85%; line-height: 110%; margin-top: 1em">
+						<p>Not for legislative and advocacy organization staff. See:</p>
+						<ul class="bullets">
+							<li><a href="/accounts/register/legstaff">Registration for Legislative Staff</a></li>
+							<li><a href="/accounts/register/orgstaff">Register Your Organization</a></li>
+						</ul>
+					</div>
 				</div>
 			
 				<p style="padding-bottom: 1em; border-bottom: 1px dotted #AAA; width: 375px"><span style="font: bold 12px helvetica, arial, sans-serif; text-transform: uppercase;">Don&rsquo;t have an account?</span> If you have a Google, Facebook, or Twitter account, click the appropriate icon on the right. Otherwise, <a href="/accounts/register{% if next %}?next={{next|urlencode}}{% endif %}" style="font-weight: bold">register an account</a>.</p>
