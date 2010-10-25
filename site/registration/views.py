@@ -30,7 +30,7 @@ def loginform(request):
 		try:
 			password = forms.CharField().clean(request.POST["password"])
 		except forms.ValidationError, e:
-			print e
+			#print e
 			pass
 	
 		if email != None and password != None:
@@ -67,9 +67,12 @@ class EmailPasswordLoginBackend(ModelBackend):
 	supports_anonymous_user = False
 
 	def authenticate(self, email = None, password = None):
-		user = User.objects.get(email=email)
-		if user.check_password(password):
-			return user
+		try:
+			user = User.objects.get(email=email)
+			if user.check_password(password):
+				return user
+		except:
+			pass
 		return None
 
 def validate_next(next):
