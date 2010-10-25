@@ -415,6 +415,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		# Referral to this bill. If the link owner left a comment on the bill,
 		# then we can use that comment as the basis of the welcome
 		# message.
+		request.session["comment-referrer"] = (bill, request.session["shorturl"])
 		if isinstance(request.session["shorturl"].owner, User):
 			welcome = request.session["shorturl"].owner.username + " has shared with you a link to this bill that you might want to weigh in on."
 			try:
@@ -431,10 +432,12 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 				welcome = "Hello! " + request.session["shorturl"].owner.name + " wants you to " + ("support" if referral_orgposition.position == "+" else "oppose") + " " + bill.displaynumber() + ".  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			except:
 				pass
+		del request.session["shorturl"]
 
 	elif "shorturl" in request.session and isinstance(request.session["shorturl"].target, UserComment) and request.session["shorturl"].target.bill == bill:
 		# Referral to a comment on this bill. The owner might or might not have
 		# written the comment.
+		request.session["comment-referrer"] = (bill, request.session["shorturl"])
 		referral_comment = request.session["shorturl"].target
 		welcome_tabname = referral_comment.user.username + "'s Comment"
 		if isinstance(request.session["shorturl"].owner, User):
@@ -444,6 +447,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 				welcome = request.session["shorturl"].owner.username + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
 		elif isinstance(request.session["shorturl"].owner, Org):
 			welcome = request.session["shorturl"].owner.name + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
+		del request.session["shorturl"]
 	
 	elif commentid != None:
 		referral_comment = UserComment.objects.get(id=int(commentid))
@@ -712,11 +716,12 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			comment.bill = bill
 			comment.position = position
 			
-			# If the user came by a short URL to *this* bill, store the owner of
+			# If the user came by a short URL to this bill, store the owner of
 			# the short URL as the referrer on the comment.
-			if "shorturl" in request.session and (request.session["shorturl"].target == bill or (hasattr(request.session["shorturl"].target, "bill") and request.session["shorturl"].target.bill == bill)) and request.session["shorturl"].owner != None:
-				comment.referrer = request.session["shorturl"].owner
-				request.session["shorturl"].increment_completions()
+			request.session["comment-referrer"]
+			if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill:
+				comment.referrer = request.session["comment-referrer"][1].owner
+				request.session["comment-referrer"][1].increment_completions()
 			
 		comment.message = message
 
@@ -929,8 +934,9 @@ Go to %s to have your voice be heard!
 		if "error" in ret:
 			return { "status": "fail", "msg": ret["error"] }
 		
-		comment.tweet_id = ret["id"]
-		comment.save()
+		if request.user == comment.user:
+			comment.tweet_id = ret["id"]
+			comment.save()
 		
 		return { "status": "success", "msg": "Tweet sent: " + tweet }
 
@@ -950,8 +956,9 @@ Go to %s to have your voice be heard!
 			return { "status": "success", "msg": "Post failed." }
 		ret = json.loads(ret.read())
 		
-		comment.fb_linkid = ret["id"]
-		comment.save()
+		if request.user == comment.user:
+			comment.fb_linkid = ret["id"]
+			comment.save()
 
 		return { "status": "success", "msg": "A link has been posted on your Wall." }
 
@@ -998,8 +1005,9 @@ def billreport(request, congressnumber, billtype, billnumber):
 def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	bill = getbill(congressnumber, billtype, billnumber)
 	
-	state = request.REQUEST["state"] if "state" in request.REQUEST else ""
-	district = int(request.REQUEST["district"]) if request.REQUEST["district"] != "" else None
+	state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
+	
+	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
 	
 	pro_comments, pro_is_random = bill_comments(bill, "+", address__state=state, address__congressionaldistrict=district)
 	con_comments, con_is_random = bill_comments(bill, "-", address__state=state, address__congressionaldistrict=district)
@@ -1007,7 +1015,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	comments = list(pro_comments) + list(con_comments)
 	comments.sort(key = lambda x : x.updated, reverse=True)
 		
-	if state == "":
+	if state == None:
 		reporttitle = "Legislative Report for POPVOX Nation"
 	elif district == None or district == 0:
 		reporttitle = "Legislative Report for " +  govtrack.statenames[state]
@@ -1015,7 +1023,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 		reporttitle = "District Report for " + state + "-" + str(district)
 	
 	reportsubtitle = ""
-	if state != "":
+	if state != None:
 		reportsubtitle = \
 			"Represented by " \
 			+ re.sub(r"\[[^\]]*\]", "", 
@@ -1035,7 +1043,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 			[ {
 				"user":c.user.username,
 				"msg": c.message,
-				"location": c.address.city + ("" if state != "" else ", " + c.address.state),
+				"location": c.address.city + ("" if state != None else ", " + c.address.state),
 				"date": formatDateTime(c.updated),
 				"pos": c.position,
 				"share": c.get_absolute_url() + "/share",
@@ -1044,13 +1052,15 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation"),
 			"state": bill_statistics(bill,
 				state,
-				govtrack.statenames[state] if state != "" else None,
-				address__state=state if state != "" else None),
+				govtrack.statenames[state],
+				address__state=state)
+					if state != None else None,
 			"district": bill_statistics(bill,
 				state + "-" + str(district),
 				state + "-" + str(district),
-				address__state=state if state != "" else None,
-				address__congressionaldistrict=district if district not in (None, 0) else None)
+				address__state=state,
+				address__congressionaldistrict=district)
+					if state != None and district not in (None, 0) else None
 		}
 	}
 

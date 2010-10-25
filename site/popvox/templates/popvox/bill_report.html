@@ -95,7 +95,7 @@
 					elem.appendTo($('#shortmessages'));
 				}
 				if (res.shortmessages.length == 0)
-					$('#shortmessages').append($("<p>No tweets were found.</p>"));
+				$('#shortmessages').append($("<p>No tweets were found" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
 				
 				$('#longmessages').html("");
 				for (var i = 0; i < res.longmessages.length; i++) {
@@ -109,7 +109,7 @@
 					elem.appendTo($('#longmessages'));
 				}
 				if (res.longmessages.length == 0)
-					$('#longmessages').append($("<p>No comments have been left.</p>"));
+					$('#longmessages').append($("<p>No comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
 				{% endif %}
 				
 				function escapeHTML(text) {
