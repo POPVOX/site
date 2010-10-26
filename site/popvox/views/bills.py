@@ -718,7 +718,6 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			
 			# If the user came by a short URL to this bill, store the owner of
 			# the short URL as the referrer on the comment.
-			request.session["comment-referrer"]
 			if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill:
 				comment.referrer = request.session["comment-referrer"][1].owner
 				request.session["comment-referrer"][1].increment_completions()

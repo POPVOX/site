@@ -166,10 +166,11 @@ function share(method) {
 		{% endif %}
 		</div>
 		
+		{% if mode == "post" %}
 		<div class="hr"> </div>
-		
 		<input class="btn b_finished" type="button" class="submit" value="Finished >" onclick="document.location = '/home/suggestions'"/>
 		<div class="clear"> </div>
+		{% endif %}
 		
 	</div>
 	<div class="clear"> </div>

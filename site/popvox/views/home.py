@@ -74,12 +74,14 @@ def get_legstaff_district_bills(user):
 	# number of comments in the district based on the rate of comments nationally.
 	# This should be fairly robust.
 	for d in bills:
-		d["count"] = d["count"] \
-			- len(localaddresses) * float(bill_statistics(d["bill"], None, None)["total"]) / float(len(nationaladdresses))
+		stats = bill_statistics(d["bill"], None, None)
+		if stats != None:
+			d["count"] = d["count"] \
+				- len(localaddresses) * float(stats["total"]) / float(len(nationaladdresses))
 	bills.sort(key = lambda x : -x["count"])
 	
 	for d in bills:
-		d["stats"] = bill_statistics(d["bill"], None, None,  address__state=f["state"], address__congressionaldistrict=f["congressionaldistrict"] if "congressionaldistrict" in f else None)
+		d["stats"] = bill_statistics(d["bill"], None, None, address__state=f["state"], address__congressionaldistrict=f["congressionaldistrict"] if "congressionaldistrict" in f else None)
 		
 	return bills
 	
