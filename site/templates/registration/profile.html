@@ -2,9 +2,6 @@
 {% block title %}Your Account{% endblock%}
 {% block disable_login_redirect %}{% endblock %}
 {% block head %}
-		<script src="/media/js/jquery.colorbox-min.js"></script>
-		<link rel="stylesheet" href="/media/css/colorbox/colorbox.css" type="text/css" />
-		
 		<script>
 		function updateprofile(validate) {
 			ajaxform("/ajax/accounts/profile/updatefields",
@@ -118,7 +115,7 @@
 	</script>
 	
 	{% for orgrole in user.orgroles.all %}
-	<p>Please enter your contact information at <a href="{{orgrole.org.url}}">{{orgrole.org.name}}</a> which will be shared with congressional staff only.</p>
+	<p>Please enter your contact information at <a href="{{orgrole.org.url}}">{{orgrole.org.name}}</a>:</p>
 	<label for="orgrole_{{orgrole.org.slug}}_title">Job Title</label>
 	<input id="orgrole_{{orgrole.org.slug}}_title" type="text" value="{{orgrole.title}}"/>
 	<div id="errorlabel_orgrole_{{orgrole.org.slug}}_title" class="error"></div>
