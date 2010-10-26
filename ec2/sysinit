@@ -38,6 +38,7 @@ sudo mount /dev/sdf /mnt/persistent
 # Users
 sudo useradd -m --shell /bin/bash www
 sudo su www -c "cd; /mnt/persistent/ec2_inituser"
+crontab /home/www/sources/scripts/crontab
 
 sudo useradd -m --shell /bin/bash josh
 sudo su josh -c "cd; /mnt/persistent/ec2_inituser"

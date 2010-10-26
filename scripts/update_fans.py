@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys, os
-sys.path.insert(0, "..")
+sys.path.insert(0, ".")
 
 os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
 
@@ -20,6 +20,5 @@ for org in Org.objects.filter(visible=True):
 	if settings.DEBUG and org.twittername == None and org.facebookurl == None:
 		continue
 		
-	print org.name
 	org.sync_external_members()
 

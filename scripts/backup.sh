@@ -1,9 +1,6 @@
-mkdir -p ../backup
+# To be run from /mnt/persistent.
 
-export PYTHON_PATH=../www_popvox_com
-python $PYTHON_PATH/manage.py dumpdata --indent=2 auth popvox registration phone_number_twilio > ../backup/database.json
+mysqldump popvox -u root "-pqsg;5TtC" > backup/last/database.sql
 
-mysqldump popvox -u popvox -p`cat ../db_passwd` > ../backup/database.sql
-
-rdiff-backup ../backup ../backup.trace
+rdiff-backup backup/last backup/rdiff
 
