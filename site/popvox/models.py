@@ -625,7 +625,7 @@ class UserComment(models.Model):
 	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed'), (COMMENT_APPROVED, 'Approved'), (COMMENT_REJECTED, 'Rejected')], default=COMMENT_NOT_REVIEWED)
 	
 	tweet_id = models.BigIntegerField(blank=True, null=True)
-	fb_linkid = models.CharField(max_length=32)
+	fb_linkid = models.CharField(max_length=32, blank=True, null=True)
 
 	referrer_content_type = models.ForeignKey(ContentType, blank=True, null=True, db_index=True, related_name="commentsrefferedby")
 	referrer_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
