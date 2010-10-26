@@ -290,6 +290,7 @@
 			</div>
 		</div>
 
+	{% if user.userprofile.is_leg_staff or user.userprofile.is_org_admin %}
 	<div class="col_6 col_last rule btm_10"> 
 		<div class="cosponsor"> 
 			<h3>Co-Sponsors</h3> 
@@ -321,6 +322,7 @@
 			{% endfor %}
 		</div>
 	</div>
+	{% endif %}
 	
 	</div><!-- e: section --> 
 
