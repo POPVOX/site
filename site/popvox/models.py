@@ -641,3 +641,5 @@ class UserComment(models.Model):
 	def get_absolute_url(self):
 		return self.bill.url() + "/comment/" + str(self.id)
 
+	def url(self):
+		return self.get_absolute_url()

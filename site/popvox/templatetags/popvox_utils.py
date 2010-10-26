@@ -12,6 +12,10 @@ import popvox.govtrack
 
 register = template.Library()
 
+@register.filter
+def pythontype(value):
+	return ((type(value).__module__  + ".") if type(value).__module__ != None else "") + type(value).__name__
+
 @register.filter(name="range")
 @stringfilter
 def getrange(value):

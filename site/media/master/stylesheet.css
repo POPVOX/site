@@ -888,6 +888,15 @@ h3#reporttitle {
 			font-weight: normal;
 			margin-left: 10px;
 			}
+			.content h4 span.nospace {
+				margin-left: 0;
+				}
+			.content h4 span.normal {
+				font-family: inherit;
+				font-style: inherit;
+				font-weight: inherit;
+				margin-left: 0;
+				}
 			
 		.content .point_people h4 {
 			text-transform: none;
@@ -3149,3 +3158,4 @@ table.form_fields td {
 	border-bottom: 1px solid #AAA;
 	color: #555;
 }
+

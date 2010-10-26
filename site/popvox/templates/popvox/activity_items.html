@@ -1,0 +1,59 @@
+{% load popvox_utils %}
+
+{% for item in items %}
+
+	{% if item|pythontype == 'popvox.models.UserComment' %}
+		<p class="date">{{item.updated|date2}}</p>
+		<p>
+			{{item.user.username}} from {{item.address.city}}, {{item.address.state}} wrote a comment
+			{% if item.position == "+" %}in support of{% endif %}{% if item.position == "-" %}in opposition to{% endif %}
+			<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
+			[<a href="{{item.url}}/share">share</a>]
+		</p>
+		<div style="margin-left: 2em">
+			{{item.message|wraplines:"p"|truncatewords_html:50}}
+		</div>
+	{% endif %}
+	
+	{% if item|pythontype == 'popvox.models.Org' %}
+		<p class="date">{{item.updated|date2}}</p>
+		<p>
+			<a href="{{item.url}}">{{item.name}}</a>
+			{% if item.updated == item.created %}
+			created their profile on POPVOX.
+			{% else %}
+			updated their profile.
+			{% endif %}
+		</p>
+	{% endif %}
+
+	{% if item|pythontype == 'popvox.models.OrgCampaign' %}
+		<p class="date">{{item.updated|date2}}</p>
+		<p>
+			<a href="{{item.org.url}}">{{item.org.name}}</a>
+			{% if item.updated == item.created %}added{% else %}	updated{% endif %}
+			their campaign <a href="{{item.url}}">{{item.name}}</a>.
+		</p>
+	{% endif %}
+
+	{% if item|pythontype == 'popvox.models.OrgCampaignPosition' %}
+		<p class="date">{{item.updated|date2}}</p>
+		<p>
+			<a href="{{item.campaign.org.url}}">{{item.campaign.org.name}}</a>
+			{% if item.updated == item.created %}added{% else %}	updated{% endif %}
+			their position
+			{% if item.position == "+" %}endorsing{% endif %}{% if item.position == "-" %}opposing{% endif %}
+			<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
+			{% if not item.campaign.default %}For more see their campaign <a href="{{item.campaign.url}}">{{item.campaign.name}}</a>.{% endif %}
+			{% if item.comment %}They wrote:{% endif %}
+		</p>
+		{% if item.comment %}
+			<div style="margin-left: 2em">
+				{{item.comment|wraplines:"p"|truncatewords_html:50}}
+			</div>
+		{% endif %}
+	{% endif %}
+	
+	<div class="hr"> </div>
+	
+{% endfor %}

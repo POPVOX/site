@@ -1,0 +1,124 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}POPVOX Report -- {{ bill.title }}{% endblock%}
+{%block nav_orgadmin_class_reports%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
+{% endblock %}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block content %}
+	<script>
+	var report_state = "{{default_state}}";
+	var report_district = "{{default_district}}";
+	
+	var stateapp = Array();
+	{% for stateabbr, statename, stateapp in stateabbrs %}stateapp['{{stateabbr}}']={{stateapp}};{% endfor %}
+	
+	function update(initial) {
+		// Update district dropdown list options and make sure that
+		// report_district is a valid value for the current state.
+		if (initial) $('#options_state').val(report_state);
+		if (initial) $('#options_district').val(report_district);
+		$('#options_district').html("");
+		if (report_state == "") {
+			report_district = 0;
+			$('#options_district').hide();
+		} else if (stateapp[report_state] == 1) {
+			$('#options_district').
+				append($("<option></option>").
+					attr("value", 0).
+					text("At Large"));
+			report_district = 0;
+			$('#options_district').hide();
+		} else {
+			$('#options_district').show();
+			if (report_district == 0)
+				report_district = "";
+			if (report_district > stateapp[report_state])
+				report_district = 1;
+			$('#options_district').
+				append($("<option></option>").
+					attr("value", "").
+					attr("selected", report_district == 0).
+					text("Whole State"));
+			for (var i = 1; i <= stateapp[report_state]; i++) {
+				$('#options_district').
+					append($("<option></option>").
+						attr("value", i).
+						attr("selected", i == report_district).
+						text("District " + i)); 
+			}
+		}
+		
+		if (!initial) {
+			var hashstate = Object();
+			if (report_state) hashstate.state = report_state;
+				else hashstate.q = 0; // if we give an empty hash, browser scrolls to the top
+			if (report_district) hashstate.district = report_district;
+			window.location = "#" + $.param(hashstate);
+		}
+		
+		// Post report info and then update.
+		$('#loadingstatus').text("Loading...");
+		$.ajax({
+			type:"POST",
+			url: "/ajax/activity",
+			data: {
+				state: report_state,
+				district: report_district,
+			},
+			complete: function(res, status) {
+				$('#loadingstatus').text("");
+				
+				if (status != "success") {
+					$('#shortmessages').text("Error loading report.");
+					return;
+				}
+				
+				$('#activity').html(res.responseText);
+			}
+		});
+	}
+
+	$(function() {
+		$(window).bind( "hashchange", function(e) {
+			var hashargs = $.deparam.fragment();
+			if (hashargs.state) report_state = hashargs.state;
+			if (hashargs.district) report_district = hashargs.district;
+			update(true);
+		});
+		$(window).trigger( "hashchange" );
+	});
+
+	</script>
+	
+<div class="content">
+	
+	<div class="col_9 col_top">
+		<h1>Recent POPVOX Activity</h1>
+
+		<div class="search_box">
+			<p>
+				Change Report: 
+				<select id="options_state" size="1" onchange="report_state = this.value; update()">
+					<option value="">POPVOX Nation</option>
+					{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+				</select>
+				<select id="options_district" size="1" onchange="report_district = this.value; update()">
+				</select>
+				<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
+			</p>
+		</div>
+ 
+		<div id="activity" style="padding-top: 1em"> 
+		</div> 
+
+	</div> <!-- col_9 -->
+
+	{% include "ads/rightbar.html" %}
+</div><!-- e: content -->
+
+{% endblock %}
+

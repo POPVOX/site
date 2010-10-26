@@ -18,7 +18,7 @@ if not DEBUG:
 else:
 	SITE_ROOT_URL = "http://localhost:8000"
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-	DATADIR = "/home/tauberer/data/popvox/"
+	DATADIR = "/home/tauberer/data/popvox/data/"
 
 APP_NICE_SHORT_NAME = "POPVOX"
 EMAIL_SUBJECT_PREFIX = "[POPVOX] "

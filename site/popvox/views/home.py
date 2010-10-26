@@ -13,8 +13,9 @@ from xml.dom import minidom
 import urllib
 
 from popvox.models import *
-from popvox.views.bills import bill_statistics
+from popvox.views.bills import bill_statistics, get_default_statistics_context
 import popvox.govtrack
+from utils import formatDateTime
 
 def get_legstaff_tracked_bills(user):
 	# Sort by bill type (hr, s, hres, etc.) first so that we can SQL query over a larger
@@ -251,4 +252,39 @@ def reports(request):
 			context_instance=RequestContext(request))
 	else:
 		raise Http404()
+
+def activity(request):
+	default_state, default_district = get_default_statistics_context(request.user)
+		
+	return render_to_response('popvox/activity.html', {
+			"default_state": default_state if default_state != None else "",
+			"default_district": default_district if default_district != None else "",
+			"stateabbrs": 
+				[ (abbr, govtrack.statenames[abbr], govtrack.stateapportionment[abbr]) for abbr in govtrack.stateabbrs],
+		}, context_instance=RequestContext(request))
+	
+def activity_getinfo(request):
+	state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
+	
+	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
+	
+	filters = { }
+	if state != None:
+		filters["address__state"] = state
+		if district != None:
+			filters["address__congressionaldistrict"] = district
+	
+	items = []
+	items.extend( UserComment.objects.filter(**filters).order_by('-updated')[0:30] )
+	
+	if state == None and district == None:
+		items.extend( Org.objects.filter(visible=True).order_by('-updated')[0:30] )
+		items.extend( OrgCampaign.objects.filter(visible=True,default=False, org__visible=True).order_by('-updated')[0:30] )
+		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True).order_by('-updated')[0:30] )
+		
+		items.sort(key = lambda x : x.updated, reverse=True)
+		items = items[0:30]
+
+	return render_to_response('popvox/activity_items.html', { "items": items })
+
 
