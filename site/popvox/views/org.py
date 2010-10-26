@@ -22,8 +22,7 @@ from popvox.views.bills import getissueareas
 from settings import SITE_ROOT_URL, EMAILVERIFICATION_FROMADDR
 
 def orgs(request):
-	orgs = Org.objects.filter(visible=True)
-	return render_to_response('popvox/org_list.html', {'orgs': orgs, 'issueareas': getissueareas()}, context_instance=RequestContext(request))
+	return render_to_response('popvox/org_list.html', {'issueareas': getissueareas()}, context_instance=RequestContext(request))
 
 def org(request, orgslug):
 	org = get_object_or_404(Org, slug=orgslug)

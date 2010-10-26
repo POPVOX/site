@@ -34,6 +34,7 @@ function showlist(elem, issueslug) {
 						an.setAttribute("class", "notcreatedbyus");
 				}
 				$(window).scrollTop($('#orglist_title').offset().top - 30);
+				$('#orgnote').show();
 			}
 		}
 		);
@@ -66,36 +67,24 @@ function showlist(elem, issueslug) {
 			</div>
 			
 			<div class="block orgs rule">
+				<h2>Browse by Issue Area</h2>
+			
 				<div class="col_50">
-					<h2>Issue Areas:</h2>
+					
 					<ul class="issue_list">
 					   {% for issue in issueareas %}
 						  <li>
 							<a href="#" onclick="return showlist(this, '{{issue.object.slug|escapejs}}')">{{ issue.object.name }}</a>
-						  <ul>
-						   {% for issue2 in issue.subissues %}
-						   	{% if issue2.orgs.all %}
-							  <li>
-								<a href="#" onclick="return showlist(this, '{{issue2.slug|escapejs}}')">{{ issue2.name }}</a>
-							  </li>
-							 {% endif %}
-						   {% endfor %}
-						  </ul>
 						</li>
 					   {% endfor %}
 					  </ul>
 				</div>
 				
 				<div class="col_50 col_last">
-					<h2 id="orglist_title">All Organizations:</h2>
-					<p>(Entries in bold indicate information reported by the organization itself.)</p>
+					<h4 id="orglist_title"></h4>
+					<p id="orgnote" class="pad_top" style="display: none">(Entries in bold indicate information reported by the organization itself.)</p>
 					<div id="orglist_status"></div>
-					<ul id="orglist_list" class="org_all">
-					   {% for org in orgs %}
-						  <li>
-							<a href="{{ org.url }}" {% if not org.createdbyus %}class="notcreatedbyus"{% endif %}>{{ org.name }}</a>
-						  </li>
-					   {% endfor %}
+					<ul id="orglist_list" class="bullets">
 					 </ul>
 				</div>
 			</div>
