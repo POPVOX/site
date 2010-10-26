@@ -75,7 +75,7 @@ def district_lookup(request):
 		for row in rows:
 			poly = pickle.loads(base64.b64decode(row[2]))
 			if point_in_poly(float(lng), float(lat), poly):
-				return { "status": "success", "method": "coordinate" if not fromaddress else "address", "state": row[0], "district": row[1] }
+				return { "status": "success", "method": "coordinate" if not fromaddress else "address", "state": row[0], "district": row[1], "lat": lat, "lng": lng }
 		
 	return { "status": "fail", "msg": "Sorry I couldn't find your congressional district." }
 

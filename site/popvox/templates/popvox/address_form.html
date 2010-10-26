@@ -62,6 +62,7 @@ function useraddress_get_district() {
 			failure: function(res) {
 				$('#useraddress_congressionaldistrict_label').text(res.msg);
 				$('#useraddress_congressionaldistrict').val("");
+				geocode_result(null);
 			},
 			success: function(res) {
 				if (res.district > 0)
@@ -69,6 +70,7 @@ function useraddress_get_district() {
 				else
 					$('#useraddress_congressionaldistrict_label').text("At-Large District");
 				$('#useraddress_congressionaldistrict').val(res.district);
+				geocode_result(res);
 			}
 		});
 };
