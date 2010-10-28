@@ -42,7 +42,7 @@ def report(request):
 		
 			categories.append( line.strip().replace("|", "\n") )
 		
-		maxdays = int(request.POST["maxdaysbetweenreq"])
+		maxmins = int(request.POST["maxminsbetweenreq"])
 		
 	def docount(pe, attr, counts):
 		v = getattr(pe, attr, None)
@@ -77,7 +77,7 @@ def report(request):
 				if last_time != None:
 					td = pe.time - last_time
 					ts =  (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-					if ts/(60*60*24) > maxdays:
+					if ts/float(60) > maxmins:
 						path_indexes = [0 for p in paths]
 				last_time = pe.time
 			
@@ -117,10 +117,10 @@ def report(request):
 		counts_sorted[attr] = counts_sorted[attr][0:50]
 		
 	return render_to_response("trafficanalysis/reportpage.html", {
-			"path": request.POST["path"] if "path" in request.POST else "/home\n/about\n",
+			"path": request.POST["path"] if "path" in request.POST else "/\n/bills\n",
 			"categories": categories,
 			"report": report,
-			"maxdaysbetweenreq": request.POST["maxdaysbetweenreq"] if "maxdaysbetweenreq" in request.POST else "1",
+			"maxminsbetweenreq": request.POST["maxminsbetweenreq"] if "maxminsbetweenreq" in request.POST else "6",
 			"yaxis": "Sessions",
 			"counts": counts_sorted
 		})
