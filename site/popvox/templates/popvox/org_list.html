@@ -71,7 +71,7 @@ function showlist(elem, issueslug) {
 			
 				<div class="col_50">
 					
-					<ul class="issue_list">
+					<ul class="org_all">
 					   {% for issue in issueareas %}
 						  <li>
 							<a href="#" onclick="return showlist(this, '{{issue.object.slug|escapejs}}')">{{ issue.object.name }}</a>
