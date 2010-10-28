@@ -445,6 +445,7 @@ def getCommittee(id):
 	return { "name": "Unknown" }
 	
 def loadfeed(monitors):
+	return None
 	try:
 		feed = feedparser.parse("http://www.govtrack.us/users/events-atom.xpd?" + urlencode({ "monitors": ",".join(monitors), "days": "28", "hint": "no"}))
 		return feed
