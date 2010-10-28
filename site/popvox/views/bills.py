@@ -75,7 +75,8 @@ def get_popular_bills():
 			except:
 				# Ignore invalid data from the API, skip this bill.
 				pass
-			
+	
+	# This is our lame duck list October 2010.
 	popular_bills = [
 		{"congressnumber": 111, "billtype": 'h', "billnumber": 3458},
 		{"congressnumber": 111, "billtype": 'h', "billnumber": 5175},
@@ -84,9 +85,21 @@ def get_popular_bills():
 		{"congressnumber": 111, "billtype": 'h', "billnumber": 12},
 		{"congressnumber": 111, "billtype": 's', "billnumber": 510},
 		]
-			
+	
 	# convert the hash objects to Bill objects
 	popular_bills = getbillsfromhash(popular_bills)
+	
+	# Additionally choose bills with the most number of comments.
+	# TODO: Is this SQL fast enough? Well, it's not run often.
+	from django.db.models import Count
+	for b in Bill.objects.annotate(Count('usercomments')).order_by('-usercomments__count')[0:12]:
+		if b.usercomments__count == 0:
+			break
+		if not b in popular_bills:
+			popular_bills.append(b)
+			if len(popular_bills) > 12:
+				break
+	
 	return popular_bills
 
 def bills(request):
