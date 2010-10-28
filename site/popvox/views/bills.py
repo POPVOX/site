@@ -17,7 +17,7 @@ import json
 
 from popvox.models import *
 from registration.helpers import captcha_html, validate_captcha
-from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, open_govtrack_file
+from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, open_govtrack_file, statenames
 from emailverification.utils import send_email_verification
 from utils import formatDateTime
 
@@ -1059,6 +1059,14 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 					)
 				)
 			
+	from django.contrib.humanize.templatetags.humanize import ordinal
+	def location(c):
+		if district != None:
+			return None
+		if state != None:
+			return "Congressional District " + str(c.congressionaldistrict)
+		return statenames[c.state] + "'s " + ordinal(c.congressionaldistrict) + " District"
+			
 	return {
 		"reporttitle": reporttitle,
 		"reportsubtitle": reportsubtitle,
@@ -1068,7 +1076,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 			[ {
 				"user":c.user.username,
 				"msg": c.message,
-				"location": c.address.city + ("" if state != None else ", " + c.address.state),
+				"location": location(c.address),
 				"date": formatDateTime(c.updated),
 				"pos": c.position,
 				"share": c.get_absolute_url() + "/share",

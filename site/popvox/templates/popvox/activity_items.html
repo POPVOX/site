@@ -5,7 +5,7 @@
 	{% if item|pythontype == 'popvox.models.UserComment' %}
 		<p class="date">{{item.updated|date2}}</p>
 		<p>
-			{{item.user.username}} from {{item.address.city}}, {{item.address.state}} wrote a comment
+			{{item.user.username}} from {{item.address.state}} wrote a comment
 			{% if item.position == "+" %}in support of{% endif %}{% if item.position == "-" %}in opposition to{% endif %}
 			<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
 			[<a href="{{item.url}}/share">share</a>]

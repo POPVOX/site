@@ -101,8 +101,11 @@
 				for (var i = 0; i < res.longmessages.length; i++) {
 					var elem = $('#comment_template div.comment').clone();
 					elem.find("h4 span.username").text(res.longmessages[i].user)
-					elem.find("h4 span.location").text("in " + res.longmessages[i].location)
-					elem.find("h4 span.date").text(", " + res.longmessages[i].date);
+					if (res.longmessages[i].location)
+						elem.find("h4 span.location").text("in " + res.longmessages[i].location + ", ")
+					else
+						elem.find("h4 span.location").text("")
+					elem.find("h4 span.date").text(res.longmessages[i].date);
 					elem.find("h4 span.share a").attr("href", res.longmessages[i].share);
 					elem.find("p").text(res.longmessages[i].msg)
 					elem.find(".endorse_oppose_image").addClass((res.longmessages[i].pos == "+") ? "endorse" : "oppose")
