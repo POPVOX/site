@@ -1804,6 +1804,16 @@ ul#issuearealist {
 			height: 118px;
 			}
 					
+		.b_get_started {
+			width: 185px;
+			height: 47px;
+			background: url(b_get_started.png) left top no-repeat;
+			display: block;
+			text-indent: -9999em;
+			margin-left: 415px;
+			border: none;
+			}
+			
 		.b_find_a_bill {
 			width: 185px;
 			height: 47px;
@@ -1943,7 +1953,7 @@ ul#issuearealist {
 			display: none;
 			}
 		
-		a.b_get_started {
+/*		a.b_get_started {
 			background: url(b_get_started.png) center top no-repeat;
 			text-indent: -9999em;
 			display: block;
@@ -1952,11 +1962,11 @@ ul#issuearealist {
 			margin-top: 25px;
 			}
 			
-/**/		#hack a.b_get_started {
+		#hack a.b_get_started {
 				height: 22px;
 				background: none;
 				}
-
+*/
 			
 		.btn {
 			text-indent: -9999em;
