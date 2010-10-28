@@ -363,7 +363,7 @@ def create_new_campaign(org):
 @login_required
 @json_response
 def org_support_oppose(request):
-	if request.POST == None or not "org" in request.POST or not "bill" in request.POST or not "position" in request.POST or request.POST["position"] not in ("+", "-"):
+	if request.POST == None or not "org" in request.POST or not "bill" in request.POST or not "position" in request.POST or request.POST["position"] not in ("+", "-", "0"):
 		raise Exception("Bad request: Missing/invalid field.")
 	
 	org = get_object_or_404(Org, slug=request.POST["org"])

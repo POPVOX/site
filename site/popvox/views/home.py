@@ -102,7 +102,7 @@ def compute_prompts(request):
 		for p in OrgCampaignPosition.objects.filter(bill=c.bill, position=c.position):
 			# Now find all bills endorsed/opposed by that org, except for the original
 			# bill since there's no need to recommend something the user already did.
-			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org).exclude(bill=c.bill):
+			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org).exclude(bill=c.bill).exclude(position="0"):
 				if not q.bill.isAlive():
 					continue
 					

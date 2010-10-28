@@ -119,6 +119,8 @@ def bills(request):
 		bmap[bill.govtrack_code()] = b
 	for cam in cams:
 		for pos in cam.positions.all().select_related(): # note recursive SQL which goes from OrgCampaignPosition to Bill
+			if pos.position == "0": # not showing neutral positions in hot bills list
+				continue
 			if not pos.bill.govtrack_code() in bmap:
 				continue
 			b = bmap[pos.bill.govtrack_code()]
@@ -355,10 +357,11 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		if len(user_org) == 0: # TODO down the road
 			user_org = None
 		else:
+			posdescr = {"+": "endorsed", "-": "opposed", "0": "listed neutral with a statement" }
 			user_org = user_org[0].org
 			for cam in user_org.orgcampaign_set.all():
 				for p in cam.positions.filter(bill = bill):
-					existing_org_positions.append({"cam": cam, "position": "endorsed" if p.position == "+" else "opposed", "comment": p.comment})
+					existing_org_positions.append({"cam": cam, "position": posdescr[p.position], "comment": p.comment})
 		
 	user_position = None
 	mocs = []
@@ -382,7 +385,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			
 	# Get the orgs who support or oppose the bill, and the relevant campaigns
 	# within the orgs.
-	orgs = { "+": {}, "-": {} }
+	orgs = { "+": {}, "-": {}, "0": { } }
 	for p in bill.campaign_positions():
 		cam = p.campaign
 		if not cam.org.slug in orgs[p.position]:
@@ -410,6 +413,10 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		return orgs
 	orgs["+"] = sort_orgs(orgs["+"].values())
 	orgs["-"] = sort_orgs(orgs["-"].values())
+	orgs["0"] = sort_orgs(orgs["0"].values())
+	orgs = { "support": orgs["+"], "oppose": orgs["-"], "neutral": orgs["0"] }
+	if len(orgs["neutral"]) == 0:
+		del orgs["neutral"] # jist don't list at all
 	
 	# Welcome message?
 	welcome = None
@@ -442,7 +449,8 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			try:
 				welcome_tabname = "Organization's Position"
 				referral_orgposition = OrgCampaignPosition.objects.filter(campaign__org=request.session["shorturl"].owner, bill=bill)[0]
-				welcome = "Hello! " + request.session["shorturl"].owner.name + " wants you to " + ("support" if referral_orgposition.position == "+" else "oppose") + " " + bill.displaynumber() + ".  Learn more about the issue and let POPVOX amplify your voice to Congress."
+				if referral_orgposition.position in ("+", "-"):
+					welcome = "Hello! " + request.session["shorturl"].owner.name + " wants you to " + ("support" if referral_orgposition.position == "+" else "oppose") + " " + bill.displaynumber() + ".  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			except:
 				pass
 		del request.session["shorturl"]
@@ -481,7 +489,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 				"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation"),
 			},
 			
-			"orgs": { "support": orgs["+"], "oppose": orgs["-"] },
+			"orgs": orgs,
 			
 			"welcome": welcome,
 			"welcome_tabname": welcome_tabname,
@@ -999,7 +1007,12 @@ def billreport(request, congressnumber, billtype, billnumber):
 	orgs_support = []
 	orgs_oppose = []
 	for pos in bill.campaign_positions():
-		lst = orgs_support if pos.position == "+" else orgs_oppose
+		if pos.position == "+":
+			lst = orgs_support
+		elif pos.position == "-":
+			lst = orgs_oppose
+		else:
+			continue # not listing neutral positions
 		if not pos.campaign.org in lst:
 			lst.append(pos.campaign.org)
 		

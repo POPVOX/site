@@ -427,7 +427,7 @@ p {
 					
 /* bill status */
 #bill_endorse_oppose_holder {
-	margin: .5em 0 30px 50px;
+	margin: .5em 0 10px 50px;
 	}
 	
 #billsearch_endorse_oppose {
@@ -1009,19 +1009,28 @@ h3#reporttitle {
 		padding: 0 0 0 45px;
 		}
 		
+	.content div.neutral {
+		display: block;
+		margin-bottom: 15px;
+		padding: 0 0 0 45px;
+		}
+		
 		.content div.endorse a,
-		.content div.oppose a {
+		.content div.oppose a,
+		.content div.neutral a {
 			font-weight: bold;
 			color: #606060;
 			}
 			
 			.content div.endorse a:hover,
-			.content div.oppose a:hover {
+			.content div.oppose a:hover,
+			.content div.neutral a:hover{
 				color: #cc6a11;
 				}
 		
 		.content div.endorse div.comment,
-		.content div.oppose div.comment {
+		.content div.oppose div.comment,
+		.content div.neutral div.comment{
 			margin-top: .5em;
 			}
 			

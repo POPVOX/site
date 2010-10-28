@@ -69,8 +69,16 @@ function showtab(tab) {
 					height: "380px",
 					width: "600px",
 					onComplete: function() {
-						$('#bill_endorse_oppose_descr').text((position == "+") ? "endorse" : "oppose");
-						$('#bill_endorse_oppose_descr2').text((position == "+") ? "Endorse" : "Oppose");
+						if (position == "+") {
+							$('#bill_endorse_oppose_descr').text("endorse");
+							$('#bill_endorse_oppose_descr2').text("Endorse");
+						} else if (position == "-") {
+							$('#bill_endorse_oppose_descr').text("oppose");
+							$('#bill_endorse_oppose_descr2').text("Oppose");
+						} else if (position == "0") {
+							$('#bill_endorse_oppose_descr').text("leave a neutral statement");
+							$('#bill_endorse_oppose_descr2').text("Leave Statement on");
+						}
 					}
 				});
 				return false;
@@ -107,6 +115,8 @@ function showtab(tab) {
 					<input id="billsearch_endorse_oppose_submit_endorse" class="submit" type="button" value="Endorse" onclick="endorse_oppose_1('+')"/>
 					<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="endorse_oppose_1('-')"/>
 				</div>
+				
+				<p><small>Or leave a <a href="#" onclick="return endorse_oppose_1('0')">neutral statement</a>.</small></p>
 	
 				{% if existing_org_positions %}
 				<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.cam.default %} in <a href="{{pp.cam.url}}">{{pp.cam.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
@@ -228,8 +238,11 @@ function showtab(tab) {
 			{% if welcome_tabname %}
 			<li id="welcome_tab" class="active"><a href="#" onclick="return showtab('welcome')">{{welcome_tabname}}</a></li>
 			{% endif %}
-			<li id="orgssupport_tab" {% if not welcome_tabname %}class="active"{% endif %}><a href="#" onclick="return showtab('orgssupport')">Organizations Endorsing</a></li>
-			<li id="orgsoppose_tab"><a href="#" onclick="return showtab('orgsoppose')">Organizations Opposing</a></li>
+			
+			{% for position, orgset in orgs.items %}
+			<li id="orgs{{position}}_tab" {% if not welcome_tabname and forloop.counter == 1 %}class="active"{% endif %}><a href="#" onclick="return showtab('orgs{{position}}')">{% if position == "support" %}Organizations Endorsing{% endif %}{% if position == "oppose" %}Organizations Opposing{% endif %}{% if position == "neutral" %}Other Statements{% endif %}</a></li>
+			{% endfor %}
+
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
 		</ul>
 	</div>
@@ -247,7 +260,7 @@ function showtab(tab) {
 			
 			{% if referral_orgposition %}
 				<h3 class="no_rule">{{ referral_orgposition.campaign.org.name }}</h3>
-				<p>This organization {% if referral_orgposition.position == "+" %}endorses{% else %}opposes{% endif %} this bill. {% if referral_orgposition.comment %}They had this to say about the bill:{% endif %}</p>
+				<p>This organization {% if referral_orgposition.position == "+" %}endorses{% endif %}{% if referral_orgposition.position == "-" %}opposes{% endif %}{% if referral_orgposition.position == "0" %}posted a neutral statement about{% endif %} this bill. {% if referral_orgposition.comment %}They had this to say about the bill:{% endif %}</p>
 				
 				{{ referral_orgposition.comment|wraplines:"p" }}
 				
@@ -285,9 +298,13 @@ function showtab(tab) {
 		</div>
 	    
 		{% for position, orgset in orgs.items %}
-			<div id="orgs{{position}}" {% if welcome_tabname or forloop.counter == 2 %}style="display: none"{% endif %} class="tab_panel">
+			<div id="orgs{{position}}" {% if welcome_tabname or forloop.counter >= 2 %}style="display: none"{% endif %} class="tab_panel">
 	
-				<h3>{% if position == "support" %}Endorsing{% else %}Opposing{% endif %} Organizations</h3>
+				<h3>
+					{% if position == "support" %}Endorsing Organizations{% endif %}
+					{% if position == "oppose" %}Opposing Organizations{% endif %}
+					{% if position == "neutral" %}Other Statements{% endif %}
+					</h3>
 				{% if not orgset %}<p>No organization has {% if position == "support" %}endorsed{% else %}opposed{% endif %} this bill yet on POPVOX.</p>{% endif %}
 				{% for org in orgset %}
 				<div>

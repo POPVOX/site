@@ -30,8 +30,8 @@
 				{% endif %}
 			
 				{% for pos in cam.positions.all %}
-					<div class="{% if pos.position == '+' %}endorse{% endif %}{% if pos.position == '-' %}oppose{% endif %}">
-						<h4><a href="{{pos.bill.url}}">{{pos.bill.title|truncatewords:10}}</a> <span>({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %})</span></h4>
+					<div class="{% if pos.position == '+' %}endorse{% endif %}{% if pos.position == '-' %}oppose{% endif %}{% if pos.position == '0' %}neutral{% endif %}">
+						<h4><a href="{{pos.bill.url}}">{{pos.bill.title|truncatewords:10}}</a> <span>({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '0' %}Neutral{% endif %})</span></h4>
 						
 						{% bill_statistics pos.bill as stats %}
 						{% if stats %}

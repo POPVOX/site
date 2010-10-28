@@ -42,7 +42,7 @@
 			<a href="{{item.campaign.org.url}}">{{item.campaign.org.name}}</a>
 			{% if item.updated == item.created %}added{% else %}	updated{% endif %}
 			their position
-			{% if item.position == "+" %}endorsing{% endif %}{% if item.position == "-" %}opposing{% endif %}
+			{% if item.position == "+" %}endorsing{% endif %}{% if item.position == "-" %}opposing{% endif %}{% if item.position == "0" %}on{% endif %}
 			<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
 			{% if not item.campaign.default %}For more see their campaign <a href="{{item.campaign.url}}">{{item.campaign.name}}</a>.{% endif %}
 			{% if item.comment %}They wrote:{% endif %}

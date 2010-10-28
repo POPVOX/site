@@ -410,7 +410,7 @@ class OrgExternalMemberCount(models.Model):
 
 class OrgCampaignPosition(models.Model):
 	"""A position on a bill within an OrgCampaign."""
-	POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose') ]
+	POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
 	campaign = models.ForeignKey(OrgCampaign, related_name="positions")
 	bill = models.ForeignKey(Bill)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)

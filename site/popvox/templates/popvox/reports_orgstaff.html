@@ -31,7 +31,7 @@
 					{% bill_statistics pos.bill as stats %}
 						<h4>
 							<a href="{{pos.bill.url}}/report">{{pos.bill.title|truncatewords:10}}</a>
-							<span> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %})</span>
+							<span> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '-' %}Neutral{% endif %})</span>
 						</h4>
 						
 						{% if stats %}
