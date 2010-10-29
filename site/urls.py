@@ -26,8 +26,7 @@ urlpatterns = patterns('',
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)$', "popvox.views.bills.bill"),
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment/share$', "popvox.views.bills.billshare"), # Google Analytics goal
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment(/clear|/support|/oppose|/finish)?$', "popvox.views.bills.billcomment"),# Google Analytics funnel page
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment/(\d+)$', "popvox.views.bills.bill"),
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment/(\d+)/share$', "popvox.views.bills.billshare"),
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment/(\d+)$', "popvox.views.bills.billshare"),
 	(r'^ajax/bills/share$', "popvox.views.bills.billshare_share"),
 	
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/report$', "popvox.views.bills.billreport"),

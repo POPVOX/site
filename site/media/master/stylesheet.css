@@ -229,11 +229,6 @@ p {
 	font: normal 13px/18px helvetica, arial, sans-serif;
 	}
 
-
-
-
-
-
 #page{
 	position: relative;
 	padding: 10px 20px;
@@ -958,6 +953,10 @@ h3#reporttitle {
 			margin-top: 10px;
 			}
 		
+	.small p {
+		font: normal 13px/14px helvetica, arial, sans-serif;
+	}
+	
 	.content ul.support_oppose li {
 		font-size: 14px;
 		line-height: 18px;

@@ -87,7 +87,7 @@ def external_start(request, login_associate, provider):
 		return HttpResponseNotFound()
 
 	if login_associate == "associate" and not request.user.is_authenticated():
-		return HttpResponseNotFound() # maybe a 403 is better
+		login_associate = "login"
 
 	if "next" in request.GET:
 		validate_next(request.GET["next"]) # raises exception on error

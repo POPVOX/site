@@ -819,7 +819,6 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	else:
 		raise Http404()
 
-@login_required
 def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	bill = getbill(congressnumber, billtype, billnumber)
 	
@@ -1079,7 +1078,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 				"location": location(c.address),
 				"date": formatDateTime(c.updated),
 				"pos": c.position,
-				"share": c.get_absolute_url() + "/share",
+				"share": c.url(),
 				} for c in comments ],
 		"stats": {
 			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation"),

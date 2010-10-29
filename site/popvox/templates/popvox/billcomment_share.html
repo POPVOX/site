@@ -108,18 +108,35 @@ function share(method) {
 		
 		<div class="hr"> </div>
 {% else %}
-	<h1>Share Comment</h1>
+	<h1>{{comment.user.username}}&rsquo;s Comment</h1>
 	
-	<div class="col_3 col_top">
+	<div class="clear col_9 col_top">
+		<div class="block">
+			<h3 class="no_rule">{{ bill.title }}</h3>
+			<p>
+				{% if bill.officialtitle %}
+				<strong>Bill Summary: </strong>{{ bill.officialtitle }}
+				{% endif %}
+				<strong>Your Voice: </strong>Tell Congress <a href="{{bill.url}}">how to vote</a> on this bill.
+			</p>
+		</div>
+	</div>
+		
+	<div class="col_6 col_top">
 		<h4 class="clear">{{comment.user.username}} from {{comment.address.state}}'s {{comment.address.congressionaldistrict|ordinal}} district wrote {{comment.updated|date2}}:</h4>
 		<div style="margin: 1em 1em 1em 0;">{{comment.message|wraplines:"p"}}</div>
+		<p><strong>Feel the same way? Want to rebut? <a href="{{bill.url}}">Write a comment on this bill</a>.</strong></p>
 	</div>
 
-	<div class="col_9 col_top col_last">
+	<div class="col_6 col_top col_last">
+		<h2 class="pad_btm">Share This Comment</h2>
+
 {% endif %}
 		<h3 class="no_rule">Personalized Message to Recipients</h3>
 		<textarea id="share_message" class="c5">{% if mode == "post" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}</textarea>
 		<script>$(function() { $('#share_message').input_autosize(); });</script>
+		
+		{% if user.is_authenticated %}
 		
 		<h3 class="no_rule">Email Your Friends</h3>
 		<textarea id="share_email_field" class="c5"></textarea>
@@ -130,15 +147,17 @@ function share(method) {
 		</div>
 		<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
 		<div class="hr"> </div>
+		
+		{% endif %}
 
-		<div class="col_4">
+		<div class="col_3 small">
 		<h3 class="no_rule">Post to Facebook</h3>
 		{% if not facebook %}
 			<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin:</p>
-			<p><a href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if mode == "share" %}{{comment.id}}/{% endif %}share">
+			<p><a href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if mode == "share" %}{{comment.id}}{% else %}share{% endif %}">
 			<img src="/media/icons/sm/facebook-login.png"/></a></p>
 		{% else %}
-			{% if comment.fb_linkid %}
+			{% if user == comment.user and comment.fb_linkid %}
 				<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
 			{% endif %}
 			<p>Click the Facebook Share icon to post your message on your Wall (in the account {{facebook.profile.screen_name}}):</p>
@@ -149,13 +168,13 @@ function share(method) {
 		{% endif %}
 		</div>
 
-		<div class="col_4 col_last">
+		<div class="col_3 col_last small">
 		<h3 class="no_rule">Send a Tweet</h3>
 		{% if not twitter %}
-			<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button begin:</p>
-			<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "share" %}{{comment.id}}/{% endif %}share"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
+			<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button to begin:</p>
+			<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "share" %}{{comment.id}}{% else %}share{% endif %}"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
 		{% else %}
-			{% if comment.tweet_id %}
+			{% if user == comment.user and comment.tweet_id %}
 				<p>You have already tweeted about this bill, but if you go strongly about the issue please go over to Twitter and <a href="http://twitter.com/?status=%20{{bill.hashtag|urlencode}}">tweet some more</a>.</p>
 			{% else %}
 				<p>Click the Twitter share button to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
@@ -166,6 +185,11 @@ function share(method) {
 			{% endif %}
 		{% endif %}
 		</div>
+		
+		{% if not user.is_authenticated %}
+			<div class="hr"> </div>
+			<p>You&rsquo;ll have to <a href="/accounts/login?next={{bill.url}}/comment/{{comment.id}}">log in</a> first to share this comment by email.</p>
+		{% endif %}
 		
 		{% if mode == "post" %}
 		<div class="hr"> </div>
