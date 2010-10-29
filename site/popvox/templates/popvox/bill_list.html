@@ -116,8 +116,10 @@ $(function() {
 		
 		<div class="block bills rule col_12">
 			
-			<h3 class="no_rule">Hot Bills</h3>
-		
+			<h3 class="no_rule h3_hot_bill">Hot Bills</h3>
+			<h3 class="no_rule h3_trending_bill">Trending Bills</h3>
+			<div class="clear"> </div>
+					
 				{% for billrec in popular_bills %}
 					<div class="col_6 {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %} {% if forloop.counter|divisibleby:"2" %}col_last{% endif %}">
 						{% with billrec.bill as bill %}

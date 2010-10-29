@@ -483,7 +483,7 @@ p {
 	background: url(bg_bill_hot.png) left no-repeat;
 	height: 190px;
 	width: 700px;
-	margin-bottom: 15px;
+	margin: 15px 0;
 	}
 	
 	.hot_col_l {
@@ -501,6 +501,12 @@ p {
 		color: #CC6A11;
 		display: block;
 		}
+		
+	.content h3.h3_hot_bill {
+		float: left;
+		width: 480px;
+		}
+
 		
 	.action {
 		width: 72px;
@@ -1149,7 +1155,7 @@ h3#reporttitle {
 .tab_tab li a,
 .progress_tabs li {
 	height: 22px;
-	width: 227px;
+	width: 211px;
 	display: block;
 	color: #a7a599;
 	background: url(b_tab.png) left bottom no-repeat;
@@ -3053,6 +3059,7 @@ ul.org_all .notcreatedbyus {
 	.legal {
 		float: right;
 		text-align: right;
+		margin-top: -3px;
 		}
 		
 		#footer .legal a {
