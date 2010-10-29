@@ -107,11 +107,11 @@ function validate_form() {
 		</div>
 
 		<div class="form mar_top">
-			<textarea class="c5 h4" id="message" name="message" wrap="virtual">{% if message %}{{message}}{% endif %}</textarea>
+			<textarea class="c5 h4" id="message" name="message" wrap="virtual">{% if message %}{{message}}{% else %}I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title }} because . . .{% endif %}</textarea>
 			<div id="messageerror"></div>
 			<script>
 			{% if not message %}
-			$('#message').input_default("I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title|escapejs }} because . . .");
+			$('#message').input_default();
 			{% endif %}
 			$('#message').keyup(function() { validate('message'); });
 			</script>
