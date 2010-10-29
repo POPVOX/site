@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /post
+Disallow: /ajax
+Disallow: /accounts
+Disallow: /registration
+Disallow: /shorturl
+Disallow: /feedback

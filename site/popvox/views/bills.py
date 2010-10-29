@@ -546,7 +546,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	# Clear out the session state for a pending comment (set e.g. if
 	# user has to go away to do oauth login) if the pending comment
 	# is for a different bill, or if this request is not in the finish state.
-	if pending_comment_session_key in request.session and request.session[pending_comment_session_key]["bill"] != bill.url():
+	if pending_comment_session_key in request.session and (not "bill" in request.session[pending_comment_session_key] or request.session[pending_comment_session_key]["bill"] != bill.url()):
 		del request.session[pending_comment_session_key]
 	
 	# the user chooses the position on the main bill page and it gets
