@@ -1,6 +1,7 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
 {% load registration_providers %}
+{% load humanize %}
 {% block title %}Share Your Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block head %}
@@ -110,7 +111,7 @@ function share(method) {
 	<h1>Share Comment</h1>
 	
 	<div class="col_3 col_top">
-		<h4 class="clear">{{comment.user.username}} from {{comment.address.city}}, {{comment.address.state}} wrote {{comment.updated|date2}}:</h4>
+		<h4 class="clear">{{comment.user.username}} from {{comment.address.state}}'s {{comment.address.congressionaldistrict|ordinal}} district wrote {{comment.updated|date2}}:</h4>
 		<div style="margin: 1em 1em 1em 0;">{{comment.message|wraplines:"p"}}</div>
 	</div>
 
