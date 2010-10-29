@@ -572,6 +572,10 @@ p {
 	width: 460px;
 	}
 	
+	.search_orange .search_box.search_wide {
+		width: 700px;
+		} 
+	
 	.content .search_orange p {
 		float: left;
 		width: 150px;
@@ -604,18 +608,33 @@ p {
 		font-size: 12px;
 		line-height: 12px;
 		}
+		
 	.content .search_orange a {
 		font-weight: bold;
 		color: white;
 		text-decoration: underline;
-	}
+		}
 		
 	.content .search_orange p span {
 		padding-top: 10px;
 		display: block;
 		font: normal 12px/20px helvetica, san-serif;
 		}
+		
+		.search_orange .search_box.search_wide {
+			width: 700px;
+			} 
 
+			.search_orange .search_box.search_wide p {
+				width: 140px;
+				}
+				
+			.search_orange .search_box.search_wide p.help {
+				margin-left: 140px;
+				font-family: Georgia;
+				font-style: italic;
+				width: 540px;
+				}
 	
 	.bills .action {
 		margin: 0 0 0 15px;
@@ -1008,7 +1027,7 @@ h3#reporttitle {
 		margin-bottom: 15px;
 		padding: 0 0 0 45px;
 		}
-		
+
 	.content div.neutral {
 		display: block;
 		margin-bottom: 15px;
@@ -1024,13 +1043,13 @@ h3#reporttitle {
 			
 			.content div.endorse a:hover,
 			.content div.oppose a:hover,
-			.content div.neutral a:hover{
+			.content div.neutral a:hover {
 				color: #cc6a11;
 				}
 		
 		.content div.endorse div.comment,
 		.content div.oppose div.comment,
-		.content div.neutral div.comment{
+		.content div.neutral div.comment {
 			margin-top: .5em;
 			}
 			
@@ -1174,7 +1193,7 @@ h3#reporttitle {
 
 .tab_pane {
 	border: 3px solid #D4D1CA;
-	width: 683px;
+	width: 663px;
 	margin: 15px 0px 15px 231px;
 	padding: 20px;
 	min-height: 200px;
@@ -1804,10 +1823,10 @@ ul#issuearealist {
 			height: 118px;
 			}
 					
-		.b_get_started {
+		.b_get_started_l {
 			width: 185px;
 			height: 47px;
-			background: url(b_get_started.png) left top no-repeat;
+			background: url(b_get_started_l.png) left top no-repeat;
 			display: block;
 			text-indent: -9999em;
 			margin-left: 415px;
@@ -1953,7 +1972,7 @@ ul#issuearealist {
 			display: none;
 			}
 		
-/*		a.b_get_started {
+/**/	a.b_get_started {
 			background: url(b_get_started.png) center top no-repeat;
 			text-indent: -9999em;
 			display: block;
@@ -1966,7 +1985,7 @@ ul#issuearealist {
 				height: 22px;
 				background: none;
 				}
-*/
+
 			
 		.btn {
 			text-indent: -9999em;
