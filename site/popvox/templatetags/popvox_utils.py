@@ -1,6 +1,7 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
+from django.utils import simplejson
 
 import cgi
 import re
@@ -72,6 +73,10 @@ def split_at(items, count):
 @register.filter
 def date2(date):
 	return popvox.views.utils.formatDateTime(date)
+	
+@register.filter
+def json(data):
+	return mark_safe(simplejson.dumps(data))
 
 @register.tag
 def more(parser, token):
