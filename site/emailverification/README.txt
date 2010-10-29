@@ -18,10 +18,15 @@ settings.py:
 
 	Add "emailverification" to your Django Apps list.
 	
-	Add:
+	Optionally set:
 		SITE_ROOT_URL = "http://www.example.org" # no trailing slash!
+		
+		    The default will be "http://%s" % Site.objects.get_current().domain.
+		
 		SERVER_EMAIL = "MySite <noreply@example.org>"
-		   (the address from which the verification codes are sent)
+
+		    The address from which the verification codes are sent
+		    The default is root@localhost.
 		
 		SERVER_EMAIL is used by several other aspects of Django so you can
 		override the address for this project with the EMAILVERIFICATION_FROMADDR

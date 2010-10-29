@@ -1,0 +1,121 @@
+/*
+                      _                                      
+ _| _ _. _  _  __ |_.(_. _   _ _  _ . _  _ _ _. _  _   |_    
+(_|(-_)|(_)| )    |_|| |(_  (-| )(_)|| )(-(-| || )(_)  |_)\/ 
+        _/                       _/               _/      /  
+ ____            _ _                 _   _       _                        
+/ ___|  ___   __| (_)_   _ _ __ ___ | | | | __ _| | ___   __ _  ___ _ __  
+\___ \ / _ \ / _` | | | | | '_ ` _ \| |_| |/ _` | |/ _ \ / _` |/ _ \ '_ \ 
+ ___) | (_) | (_| | | |_| | | | | | |  _  | (_| | | (_) | (_| |  __/ | | |
+|____/ \___/ \__,_|_|\__,_|_| |_| |_|_| |_|\__,_|_|\___/ \__, |\___|_| |_|.com
+                                                         |___/           
+*/
+
+body {
+	background: url(../images/bg_pg.png) center top repeat-x;
+	color: #75747c;
+	font-family: helvetica, arial, sans-serif;
+	}
+	
+	strong {
+		font-weight: bold;
+		}
+	
+#wrap {
+	margin: 0px 50px;
+	text-align: left;
+	}
+
+h1 {
+	display: block;
+	font: normal 40px/50px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	text-transform: uppercase;
+	height: 85px;
+	margin-top: 50px;
+	}
+
+h2 {
+	display: block;
+	font: normal 60px/65px helvetica, arial, sans-serif;
+	color: #404045;
+	}
+	
+p.cite {
+	font: normal 40px/45px helvetica, arial, sans-serif;
+	color: #404045;
+	}	
+
+p.yes {
+	display: block;
+	font: normal 40px/50px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	text-transform: uppercase;
+	height: 45px;
+	margin: 50px 0;
+	}	
+	
+
+	
+.btn {
+	text-indent: -9999em;
+	}
+			
+	.btn:hover {
+		background-position: left bottom;
+		border: none;
+		} 
+
+
+.b_write_law {
+	background: url(../images/b_write_law.png) left top no-repeat;
+	text-indent: -9999em;
+	display: block;
+	height: 47px;
+	border: none;
+	}
+	
+.b_refresh {
+	background: url(../images/b_refresh.png) left top no-repeat;
+	text-indent: -9999em;
+	display: block;
+	height: 47px;
+	border: none;
+	}
+	
+.b_speak_up {
+	background: url(../images/b_speak_up.png) left top no-repeat;
+	text-indent: -9999em;
+	display: block;
+	width: 173px;
+	height: 47px;
+	border: none;
+	float: left;
+	}
+
+
+.speak {
+	float: left;
+	width: 400px;
+	}
+	
+	.speak p {
+		float: left;
+		width: 150px;
+		font-weight: bold;
+		font-size: 14px;
+		margin-top: 10px;
+		}
+
+.footer {
+	
+	}
+			
+	.footer ul {
+		width: 500px;
+		float: left;
+		}		
+			
+	.footer ul li {
+		width: 80px;
+		float: left;
+		}			
+			

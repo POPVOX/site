@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
+from django.contrib.sites.models import Site
 
 from models import *
 
@@ -15,7 +16,9 @@ def send_email_verification(email, searchkey, action):
 	emailsubject = action.email_subject()
 	emailbody = action.email_body()
 	
-	emailbody = emailbody.replace("<URL>", getattr(settings, 'SITE_ROOT_URL', 'http://www.example.com') + reverse("emailverification.views.processcode", args=[r.code]))
+	emailbody = emailbody.replace("<URL>",
+			getattr(settings, 'SITE_ROOT_URL', "http://%s" % Site.objects.get_current().domain)
+				+ reverse("emailverification.views.processcode", args=[r.code]))
 
 	send_mail(emailsubject, emailbody,
 		getattr(settings, 'EMAILVERIFICATION_FROMADDR',
