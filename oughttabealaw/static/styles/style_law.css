@@ -11,6 +11,10 @@
                                                          |___/           
 */
 
+html, body {
+	height: 95%;
+	}
+
 body {
 	background: url(../images/bg_pg.png) center top repeat-x;
 	color: #75747c;
@@ -22,15 +26,24 @@ body {
 		}
 	
 #wrap {
-	margin: 0px 50px;
 	text-align: left;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0 50px -60px; /* the bottom margin is the negative value of the footer's height */
 	}
+	
+.footer, .push {
+	height: 60px; /* .push must be the same height as .footer */
+	float: right;
+	}
+
 
 h1 {
 	display: block;
 	font: normal 40px/50px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	text-transform: uppercase;
-	height: 85px;
+	height: 50px;
 	margin-top: 50px;
 	}
 
@@ -43,6 +56,7 @@ h2 {
 p.cite {
 	font: normal 40px/45px helvetica, arial, sans-serif;
 	color: #404045;
+	margin: 10px 0 50px;
 	}	
 
 p.yes {
@@ -93,8 +107,7 @@ p.yes {
 
 
 .speak {
-	float: left;
-	width: 400px;
+	width: 350px;
 	}
 	
 	.speak p {
@@ -105,16 +118,14 @@ p.yes {
 		margin-top: 10px;
 		}
 
-.footer {
-	
-	}
+
 			
-	.footer ul {
+	 ul.buttons {
 		width: 500px;
 		float: left;
 		}		
 			
-	.footer ul li {
+	ul.buttons li {
 		width: 80px;
 		float: left;
 		}			

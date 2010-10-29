@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 
-	<title>There Oughtta Be a Law (Oughttabealaw.com)</title>
+	<title>There Oughtta Be a Law</title>
 	
 	<!--
 	                      _                                      
@@ -22,7 +22,8 @@
 	
 	<link rel="stylesheet" href="static/styles/reset.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="static/styles/style_law.css" type="text/css" media="screen" />
-	
+	<link rel="stylesheet" href="static/fonts/stylesheet.css" type="text/css" charset="utf-8">
+
 </head>
 	<!--[if lt IE 7 ]> <body class="ie6"> <![endif]-->
 	<!--[if IE 7 ]>    <body class="ie7"> <![endif]-->
@@ -32,34 +33,36 @@
 	<!--[if !IE]><!--> <body>         <!--<![endif]-->
 
 <div id="wrap">
-		
 
 	<h1>There Oughtta Be A Law...</h1>
 	<h2>{{law.text}}</h2>	
 	{% if law.author %}
 		<p class="cite">– {{ law.author }}</p>
 	{% endif %}
-	
+<!-- 
 	<p class="yes">Yes my friend, there Oughtta.</p>	
-
-	<div class="footer">
-		<ul>
-			<li><a class="btn b_write_law" href="#">write your own law</a></li>
-			<li><a class="btn b_refresh" href="#">refresh</a></li>
-		</ul>
-		
-		<div class="speak">
-			<p>Want to really impact how laws are made?</p>
-			<a class="btn b_speak_up" href="#">speak up on POPVOX.com</a>
-		</div><!-- e: speak -->
-		<div class="clear"> </div>
-
-	</div><!-- e: footer -->
-
+-->
+	<ul class="buttons">
+		<li><a class="btn b_refresh" href="#">refresh</a></li>
+		<li><a class="btn b_write_law" href="#">write your own law</a></li>
+	</ul>
+	
 </div><!-- e: wrap -->
+<div class="push"></div>
+
+
+<div class="footer">
+
+	<div class="speak">
+		<p>Want to really impact how laws are made?</p>
+		<a class="btn b_speak_up" href="#">speak up on POPVOX.com</a>
+	</div><!-- e: speak -->
+	<div class="clear"> </div>
+
+</div><!-- e: footer -->
 
 <!-- goog analytics here yo! -->
 
+
 </body>
 </html>
-
