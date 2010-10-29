@@ -42,7 +42,8 @@ def loginform(request):
 						try:
 							validate_next(request.POST["next"]) # raises exception on error
 							return HttpResponseRedirect(request.POST["next"])
-						except:
+						except Exception, e:
+							print e
 							pass # fall through
 					return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 				else:
@@ -54,6 +55,7 @@ def loginform(request):
 		"errors": errors,
 		"email": "" if not "email" in request.POST else request.POST["email"],
 		"password": "" if not "password" in request.POST else request.POST["password"],
+		"next": "" if not "next" in request.REQUEST else request.REQUEST["next"],
 		},
 		context_instance=RequestContext(request))
 
