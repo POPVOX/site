@@ -47,15 +47,17 @@ h1 {
 	margin-top: 50px;
 	}
 
-h2 {
+h2, #text {
 	display: block;
 	font: normal 60px/65px helvetica, arial, sans-serif;
 	color: #404045;
-	}
-	
-p.cite {
-	font: normal 40px/45px helvetica, arial, sans-serif;
+}
+
+p.cite, #author, #tags {
+	font: normal 36px/45px helvetica, arial, sans-serif;
 	color: #404045;
+}
+p.cite {
 	margin: 10px 0 50px;
 	}
 p.yes {
@@ -120,11 +122,31 @@ p.yes {
 			
 	 ul.buttons {
 		width: 500px;
-		float: left;
+		height: 60px;
 		}		
 			
 	ul.buttons li {
 		width: 80px;
 		float: left;
 		}			
-			
+		
+		
+#userlaw {
+}
+		
+#text {
+	width: 900px;
+	border: 1px solid #CCC;
+	margin-bottom: 30px;
+	}
+
+#text.default, #author.default, #tags.default {
+	color: #AAA;
+}
+input {
+	float: left
+}
+.small {
+	float: left;
+	color: #777;
+}
