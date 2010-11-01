@@ -88,6 +88,8 @@ def get_popular_bills():
 	
 	# convert the hash objects to Bill objects
 	popular_bills = getbillsfromhash(popular_bills)
+	for b in popular_bills:
+		b.popular_bills_type = "active"
 	
 	# Additionally choose bills with the most number of comments.
 	# TODO: Is this SQL fast enough? Well, it's not run often.
@@ -96,6 +98,7 @@ def get_popular_bills():
 		if b.usercomments__count == 0:
 			break
 		if not b in popular_bills:
+			b.popular_bills_type = "trending"
 			popular_bills.append(b)
 			if len(popular_bills) > 12:
 				break
@@ -181,7 +184,8 @@ def bills(request):
 				b["pos"] = c[0].position
 	
 	return render_to_response('popvox/bill_list.html', {
-		'popular_bills': popular_bills2,
+		'popular_bills_groups': [[b for b in popular_bills2 if b["bill"].popular_bills_type=="active"],
+			[b for b in popular_bills2 if b["bill"].popular_bills_type=="trending"]],
 		'hotbills': popular_bills[0:5], 
 		}, context_instance=RequestContext(request))
 	
