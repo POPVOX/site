@@ -218,15 +218,13 @@ function showtab(tab) {
 					<span class="bg_oppose">{{ stats.con_pct }}% Oppose </span><br />
 					<span class="users">({{stats.total}} user{{stats.total|pluralize}})</span>
 				</p>
-				{% comment %}
 				 <p class="view_report">
-					<span><a href="{{bill.url}}/report">View Report</a></span>
+					<span><a href="{{bill.url}}/report">View Report &amp; Comments</a></span>
 				</p>
-				{% endcomment %}
 			</div>
 		</div>
 		{% else %}
-			<p>Not many people have left a comment on this bill yet. For details, see the <a href="{{bill.url}}/report">legislative report for {{bill.displaynumber}}</a>.</p>
+			<p>Not many people have left a comment on this bill yet. See the <a href="{{bill.url}}/report">legislative report for {{bill.displaynumber}}</a> for any comments left so far.</p>
 		{% endif %}
 	</div>
 	{% comment %} END OF PIE CHART {% endcomment %}
