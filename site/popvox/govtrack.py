@@ -7,6 +7,7 @@ from django.core.cache import cache
 from urllib import urlopen, urlencode
 from xml.dom import minidom
 from datetime import datetime
+import re
 import feedparser
 
 stateabbrs = ["AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "MP", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV", "WI", "WY"]
@@ -200,6 +201,12 @@ def getBillTitle(metadata, titletype):
 	if title == None:
 		title = "No Title"
 	
+	# replace apostrophes/quotes with curly ones
+	title = re.sub(r"(\S)(''|\")", r"\1" + u"\N{RIGHT DOUBLE QUOTATION MARK}", title)
+	title = re.sub(r"(\S)'", r"\1" + u"\N{RIGHT SINGLE QUOTATION MARK}", title)
+	title = re.sub(r"(''|\")", r"\1" + u"\N{LEFT DOUBLE QUOTATION MARK}", title)
+	title = re.sub(r"'", r"\1" + u"\N{LEFT SINGLE QUOTATION MARK}", title)
+		
 	if titletype == "official":
 		return title
 		
