@@ -126,7 +126,7 @@ def getBillMetadata(bill):
 def getBillSponsor(metadata):
 	loadpeople()
 	sp = metadata.getElementsByTagName("sponsor")
-	if len(sp) == 0:
+	if len(sp) == 0 or sp[0].getAttribute("id") == "":
 		return None # some bills have no sponsor!
 	id = int(sp[0].getAttribute("id"))
 	if not id in people:
