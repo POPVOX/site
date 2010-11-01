@@ -771,6 +771,9 @@ h3#reporttitle {
 			padding-left: 60px;
 			background: url(bg_quote.gif) left top no-repeat;
 			margin-bottom: 10px;
+			min-height: 30px;
+			height: auto !important;
+			height: 30px;
 			}
 			
 			.tweets p .username {
