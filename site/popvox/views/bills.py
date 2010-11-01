@@ -530,7 +530,7 @@ POPVOX"""
 		
 		# Redirect to the comment form to continue.
 		request.goal = { "goal": "comment-register-registered" }
-		return HttpResponseRedirect(self.bill.url() + "/comment" + self.position)
+		return HttpResponseRedirect(Bill.objects.get(id=self.bill).url() + "/comment" + self.position)
 
 @csrf_protect
 def billcomment(request, congressnumber, billtype, billnumber, position):
@@ -695,7 +695,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			if address_record_fixed == None:
 				address_record = PostalAddress()
 				address_record.user = request.user
-				address_record.load_from_form(request) # throws ValueError
+				address_record.load_from_form(request) # throws ValueError, KeyError
 				
 			# We don't display a captcha when we are editing an existing comment.
 			if len(request.user.comments.filter(bill = bill)) == 0:
@@ -711,7 +711,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"useraddress_suffixes": PostalAddress.SUFFIXES,
 				"useraddress_states": govtrack.statelist,
 				"captcha": captcha_html(getattr(e, "recaptcha_error", None)) if request.user.is_anonymous() or len(request.user.comments.filter(bill = bill)) == 0 else "",
-				"error": validation_error_message(e)
+				"error": validation_error_message(e) # accepts ValidationError, KeyError, ValueError
 				}, context_instance=RequestContext(request))
 		
 			
@@ -803,7 +803,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			axn.registrationinfo.email = email
 			axn.registrationinfo.username = username
 			axn.registrationinfo.password = password
-			axn.bill = bill	
+			axn.bill = bill.id
 			axn.position = position_original
 			axn.comment_session_state = {
 				"bill": bill.url(),

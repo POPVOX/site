@@ -12,9 +12,10 @@ from settings import DEBUG
 # Utility functions.
 
 def validation_error_message(validationerror):
-	# Turns a ValidationException or a ValueError into a string.
-	if type(validationerror) == ValueError:
+	# Turns a ValidationException or a ValueError, KeyError into a string.
+	if type(validationerror) in (ValueError, KeyError):
 		return unicode(validationerror)
+
 	from django.utils.encoding import force_unicode
 	#m = e.messages.as_text()
 	m = u'; '.join([force_unicode(g) for g in validationerror.messages])
