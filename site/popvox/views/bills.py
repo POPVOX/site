@@ -655,10 +655,12 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		if "submitmode" in request.POST:
 			# User was already logged in and is just clicking to continue.
 			message = request.POST["message"]
+			request.goal = { "goal": "comment-previewed" }
 		else:
 			# User is returning from a login. Get the message info from the saved session.
 			message = request.session[pending_comment_session_key]["message"]
-		
+			request.goal = { "goal": "comment-login-return" }
+			
 		return render_to_response('popvox/billcomment_address.html', {
 				'bill': bill,
 				"position": position,
