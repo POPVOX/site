@@ -42,8 +42,7 @@ var w = document.body.clientWidth * .9,
  
 var vis = new pv.Panel()
     .width(w)
-    .height(h)
-    .bottom(-80);
+    .height(h);
 
 var partition = vis.add(pv.Layout.Partition.Fill)
     .nodes(graphdata)
@@ -57,7 +56,7 @@ partition.node.add(pv.Wedge)
     .strokeStyle("#fff")
     .lineWidth(.5)
     .cursor(function(d) d.nodeValue.path ? "pointer" : null)
-    .event("click", function(d) { if (d.nodeValue.path) self.location = "?path=" + escape(d.nodeValue.path) })
+    .event("click", function(d) { if (d.nodeValue.path) self.location = "?path=" + escape(d.nodeValue.path) + '&start-date=' + escape(document.opts['start-date'].value) + '&depth=' + escape(document.opts['depth'].value) })
     
 partition.label.add(pv.Label)
 	.text(function(d) d.nodeValue.label )

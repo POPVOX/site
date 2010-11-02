@@ -88,7 +88,7 @@ def report_sunburst(request, data_startdate):
 		# depth, but that makes sense since we don't parse beyond that
 		# depth anyway. At the core of the image, say with a max_depth
 		# of 10, then we allow divisions up to 1/1.35^10 = 5%.
-		if max_depth >= 8:
+		if max_depth >= 10:
 			prune_factor = 1/(1.35**(max_depth-depth))
 		else:
 			prune_factor = .02*1.35**depth

@@ -655,11 +655,11 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		if "submitmode" in request.POST:
 			# User was already logged in and is just clicking to continue.
 			message = request.POST["message"]
-			request.goal = { "goal": "comment-previewed" }
 		else:
 			# User is returning from a login. Get the message info from the saved session.
 			message = request.session[pending_comment_session_key]["message"]
-			request.goal = { "goal": "comment-login-return" }
+
+		request.goal = { "goal": "comment-addressform" }
 			
 		return render_to_response('popvox/billcomment_address.html', {
 				'bill': bill,
@@ -676,15 +676,13 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	elif request.POST["submitmode"] == "Submit Comment >" or request.POST["submitmode"] == "Clear Comment >":
 		if position == "0":
 			# Clear the user's comment on this bill.
-			request.goal = { "goal": "comment-submit" }
+			request.goal = { "goal": "comment-clear" }
 			request.user.comments.filter(bill = bill).delete()
 			return HttpResponseRedirect("/home")
 		
 		request.goal = { "goal": "comment-submit-error" }
 		
 		message = request.POST["message"].strip()
-		if message == "":
-			message = None
 		
 		# Validation.
 		
@@ -707,6 +705,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			if len(request.user.comments.filter(bill = bill)) == 0:
 				validate_captcha(request) # throws ValidationException and sets recaptcha_error attribute on the exception object
 		except Exception, e:
+			request.goal = { "goal": "comment-address-error" }
 			return render_to_response('popvox/billcomment_address.html', {
 				'bill': bill,
 				"position": position,
