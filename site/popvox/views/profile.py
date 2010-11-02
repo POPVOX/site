@@ -352,6 +352,10 @@ def register_validation(request):
 	
 	if request.POST["mode"] == "":
 		username = validate_username(request.POST["username"], fielderrors = status)
+		
+		if legstaffemailcheck(email):
+			status["email"] = "Congressional staff should register in the Congressional Staffer section. Click the Congressional Staffer button at the top of the page."
+		
 	else:
 		# for leg staff and org staff, we'll use the email address for the username
 		# too, since we never actually use it for anything but Django needs it.
