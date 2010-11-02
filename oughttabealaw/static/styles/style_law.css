@@ -51,15 +51,17 @@ h2, #text {
 	display: block;
 	font: normal 60px/65px helvetica, arial, sans-serif;
 	color: #404045;
-}
+	}
 
 p.cite, #author, #tags {
 	font: normal 36px/45px helvetica, arial, sans-serif;
 	color: #404045;
-}
+	}
+	
 p.cite {
 	margin: 10px 0 50px;
 	}
+	
 p.yes {
 	display: block;
 	font: normal 40px/50px 'BebasNeueRegular', helvetica, arial, sans-serif;
@@ -111,8 +113,8 @@ p.yes {
 	background: url(../images/b_cancel.png) left top no-repeat;
 	text-indent: -9999em;
 	display: block;
-	margin: 17px 0 0 150px;
-	width: 86px;
+	margin: 8px 0 30px 160px;
+	width: 100px;
 	height: 29px;
 	border: none;
 	}
@@ -167,13 +169,19 @@ p.yes {
 input {
 	float: left;
 	margin-bottom: 15px;
+	padding: 3px;
 	border: 1px solid #CCCCCC;
 	}
 	
 small {
+	background:url(../images/bg_hint.png) no-repeat scroll left top;
+	color: #FFFFFF;
 	float: left;
-	color: #777;
-	margin: .7em 1em;
+	font-size: 13px;
+	width: 140px;
+	height: 25px;
+	margin: 0.7em 1em;
+	padding: 5px 0 3px 20px;
 	}
 	
 	
