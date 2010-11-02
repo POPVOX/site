@@ -134,7 +134,8 @@ POPVOX
 
 Your organization has been approved for listing on POPVOX. You
 can now publish your organization to our advocacy directory by
-following this link to your organization profile:
+following this link to your organization profile.  You may have to
+copy and paste the link into your web browser.
 
 """ + SITE_ROOT_URL + self.org.url() + """/_edit
 
@@ -192,7 +193,7 @@ class RegisterUserAction:
 		
 	def email_body(self):
 		return """Thanks for coming to POPVOX. To finish creating your account
-just follow this link:
+just follow this link. You may have to copy and paste it into your web browser.
 
 <URL>
 
