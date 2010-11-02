@@ -64,6 +64,8 @@ urlpatterns = patterns('',
 	(r'^ajax/accounts/register$', 'popvox.views.profile.register_validation'),
 	(r'^ajax/accounts/profile/updatefields$', 'popvox.views.profile.account_profile_update'),
 	(r'^ajax/accounts/profile/updatefield$', 'popvox.views.profile.account_profile_update2'),
+	
+	(r'^widgets/js/bill.js$', 'popvox.views.widgets.bill_js'),
 
 	(r'^ajax/district-lookup$', 'congressional_district.views.district_lookup'),
 	
