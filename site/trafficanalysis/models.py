@@ -16,8 +16,8 @@ class Session(models.Model):
 	"""A user session whose path through the website we are tracking."""
 	
 	# the starting and ending time (last seen time) of the session
-	start = models.DateTimeField(auto_now_add=True)
-	end = models.DateTimeField(auto_now=True)
+	start = models.DateTimeField(auto_now_add=True, db_index=True)
+	end = models.DateTimeField(auto_now=True, db_index=True)
 	
 	# The user associated with the session, if any, so we can resume
 	# a previous session.
