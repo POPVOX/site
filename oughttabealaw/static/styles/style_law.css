@@ -95,7 +95,17 @@ p.yes {
 	height: 47px;
 	border: none;
 	}
-	
+
+.b_submit {
+	background: url(../images/b_submit.png) left top no-repeat;
+	text-indent: -9999em;
+	display: block;
+	height: 47px;
+	width: 140px;
+	margin-right: 20px;
+	border: none;
+	}
+		
 .b_speak_up {
 	background: url(../images/b_speak_up.png) left top no-repeat;
 	text-indent: -9999em;
@@ -118,7 +128,6 @@ p.yes {
 		font-size: 14px;
 		margin-top: 10px;
 		}
-
 			
 	 ul.buttons {
 		width: 500px;
@@ -142,11 +151,18 @@ p.yes {
 
 #text.default, #author.default, #tags.default {
 	color: #AAA;
-}
+	}
+	
 input {
-	float: left
-}
-.small {
+	float: left;
+	margin-bottom: 15px;
+	border: 1px solid #CCCCCC;
+	}
+	
+small {
 	float: left;
 	color: #777;
-}
+	margin: .7em 1em;
+	}
+	
+	
