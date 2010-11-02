@@ -16,6 +16,10 @@
 			<p style="margin: 1em; padding: 1em; border: 1px solid black">By: {{law.author}}</p>
 		{% endif %}
 		
+		{% if law.tags %}
+			<p style="margin: 1em; padding: 1em; border: 1px solid black">Tags: {% for tag in law.tags.all%}{{tag}} {% endfor %}</p>
+		{% endif %}
+
 		<form method="post" action="/approve">
 			{% csrf_token %}
 			<input type="hidden" name="id" value="{{law.id}}">

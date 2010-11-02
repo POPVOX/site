@@ -22,8 +22,8 @@ def main(request):
 	return render_to_response('index.html', {'law': law})
 
 def post(request):
-	#if "text" not in request.POST:
-	#	return HttpResponse("ERROR", mimetype="text/plain")
+	if "text" not in request.REQUEST:
+		return HttpResponse("ERROR", mimetype="text/plain")
 	
 	law = Law()
 	law.text = request.REQUEST["text"]

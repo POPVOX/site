@@ -28,8 +28,33 @@
 	<script src="static/scripts/ajaxforms.js"></script>
 	
 	<script>
-	function submit() {
+	function submitlaw() {
+		var text = $('#text').val();
+		var author = $('#author').hasClass("default") ? null : $('#author').val();
+		var tags = $('#tags').hasClass("default") ? null : $('#tags').val();
+		
 		$('#text').val('');
+		$('#author').val(''); $('#author').blur();
+		$('#tags').val(''); $('#tags').blur();
+		$('#randomlaw, .buttons').fadeIn();
+		$('#userlaw').hide();
+		
+		if (text == "") return;
+		
+		$("#submitstatus").show();
+		$("#submitstatus").text("Your law has been entered into the queue.");
+		$("#submitstatus").delay(5000).fadeOut();
+
+		$.ajax({
+		   type: "POST",
+		   url: "/post",
+		   data: { "text": text, "author": author, "tags": tags },
+		   error: function( ) { $("#submitstatus").text("Error."); $("#submitstatus").show(); },
+		   success: function(msg){
+			   if (msg != "OK")
+				   $("#submitstatus").text(msg); $("#submitstatus").show();
+		   }
+		 });
 	}
 	</script>
 
@@ -60,11 +85,11 @@
 		<small>tags are optional</small>
 		<div class="clear"></div>
 			
-		<input value="make it law" class="b_submit btn" onclick="ValidateForm();return false;" type="button">
-		<a class="btn b_cancel" href="#" onclick="window.location.reload(); return false">cancel</a>
+		<input value="make it law" class="b_submit btn" onclick="submitlaw()" type="button">
+		<a class="btn b_cancel" href="#" onclick="$('#randomlaw, .buttons').fadeIn(); $('#userlaw').hide(); return false;">cancel</a>
 
 		<script>
-		$('#text').keydown_enter(submit);
+		$('#text').keydown_enter(submitlaw);
 		$('#author').input_default('name');
 		$('#tags').input_default('dc activisim tourist');
 		</script>
@@ -76,8 +101,10 @@
 -->
 	<ul class="buttons">
 		<li><a class="btn b_refresh" href="#" onclick="window.location.reload(); return false">refresh</a></li>
-		<li><a class="btn b_write_law" href="#" onclick="$('#randomlaw').hide(); $('#userlaw').fadeIn(); $('#userlaw textarea').focus(); return false;">write your own law</a></li>
+		<li><a class="btn b_write_law" href="#" onclick="$('#randomlaw, .buttons').hide(); $('#userlaw').fadeIn(); $('#userlaw textarea').focus(); return false;">write your own law</a></li>
 	</ul>
+
+	<p id="submitstatus" style="display: none">test</p>
 	
 </div><!-- e: wrap -->
 <div class="push"></div>

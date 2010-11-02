@@ -177,3 +177,8 @@ small {
 	}
 	
 	
+#submitstatus {
+	margin-top: 40px;
+	font: normal 30px helvetica, arial, sans-serif;
+	color: #999;
+}
