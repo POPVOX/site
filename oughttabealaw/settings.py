@@ -118,4 +118,5 @@ ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'team@popvox.com') ]
 if DEBUG:
 	SITE_ROOT_URL = "http://localhost:8000"
-
+else:
+	SITE_ROOT_URL = "http://oughttabealaw.com"
