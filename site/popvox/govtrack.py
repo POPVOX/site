@@ -203,9 +203,9 @@ def getBillTitle(metadata, titletype):
 	
 	# replace apostrophes/quotes with curly ones
 	title = re.sub(r"(\S)(''|\")", r"\1" + u"\N{RIGHT DOUBLE QUOTATION MARK}", title)
-	title = re.sub(r"(\S)'", r"\1" + u"\N{RIGHT SINGLE QUOTATION MARK}", title)
+	title = re.sub(r"(\S)'", u"\N{RIGHT SINGLE QUOTATION MARK}", title)
 	title = re.sub(r"(''|\")", r"\1" + u"\N{LEFT DOUBLE QUOTATION MARK}", title)
-	title = re.sub(r"'", r"\1" + u"\N{LEFT SINGLE QUOTATION MARK}", title)
+	title = re.sub(r"'", u"\N{LEFT SINGLE QUOTATION MARK}", title)
 		
 	if titletype == "official":
 		return title
