@@ -43,7 +43,7 @@ def loginform(request):
 							validate_next(request.POST["next"]) # raises exception on error
 							return HttpResponseRedirect(request.POST["next"])
 						except Exception, e:
-							print e
+							#print e
 							pass # fall through
 					return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 				else:
