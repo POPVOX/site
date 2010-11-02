@@ -86,94 +86,93 @@ def get_legstaff_district_bills(user):
 		
 	return bills
 	
-def compute_prompts(request):
-	# Compute prompts for action for users.
+def compute_prompts(user):
+	# Compute prompts for action for users. We want to remain agnostic about
+	# what action the user should take, although we probably could predict it,
+	# but we suspect users will find that inappropriate.
 	
-	# Each suggestion is of the form:
-	#   recommended bill, recommended position because you had position on bill
+	# To compute the prompts we will look at the actions the user took, find
+	# similar actions by other users and orgs, and then tally up the bills that
+	# those other things had taken action on. The sugs array is a dict from
+	# recommended bill ids to a dict from recommendation reasons to counts.
 	
 	sugs = { }
+	bill_org = { }
 	
-	# Every comment leads to a suggestion for a different bill+position pair:
-	for c in request.user.comments.all():
-		bid = c.position + str(c.bill.id)
+	for c in user.comments.all():
+		bills = []
 		
 		# Find all orgs that had the same position.
 		for p in OrgCampaignPosition.objects.filter(bill=c.bill, position=c.position):
+			efc = p.campaign.org.estimated_fan_count()
+			
 			# Now find all bills endorsed/opposed by that org, except for the original
 			# bill since there's no need to recommend something the user already did.
 			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org).exclude(bill=c.bill).exclude(position="0"):
-				if not q.bill.isAlive():
-					continue
-					
-				# Don't make a recommendation on something the user already took
-				# action on.
-				if request.user.comments.filter(bill=q.bill).exists():
-					continue
+				bills.append(q.bill)
 				
-				# Create a record for the recommended bill.
-				qbid = q.position + str(q.bill.id)
-				if not qbid in sugs:
-					sugs[qbid] = { "bill": q.bill, "position": q.position, "sources": [], "orgs": [], "users": 0  }
-					
-				# Mark what bill the user took a position on was a source for this recommendation.
-				if not (c.bill, c.position) in sugs[qbid]["sources"]:
-					sugs[qbid]["sources"].append( (c.bill, c.position) )
+				# find the org with the largest user base that has a statement on this bill to
+				# represent the bill. Give preference to any org that has written a short message
+				# about the bill.
+				orec = (q.campaign, efc, None if q.comment == None or q.comment.strip() == "" else q.comment, q.position)
+				if not q.bill.id in bill_org or bill_org[q.bill.id][1] < orec[1] or (bill_org[q.bill.id][2] == None and orec[2] != None):
+					bill_org[q.bill.id] = orec
 				
-				# Record what the org has to say about this, only once for an org.
-				# The benefit of scanning orgs here is that we're likely to hit an
-				# org the user knows because they took an action on a bill
-				# the org cares about.
-				for op in sugs[qbid]["orgs"]:
-					if op.campaign.org == q.campaign.org:
-						break # i.e. we already have the position of this org
-				else: # didn't see this org
-					sugs[qbid]["orgs"].append(q)
-	
-		# Find all users that had the same position.
-		for d in UserComment.objects.filter(bill=c.bill, position=c.position).exclude(id=c.id):
-			# Now find all of the other positions this user took...
+		# Find all other users that had the same position.
+		for d in UserComment.objects.filter(bill=c.bill, position=c.position).exclude(user=user):
+			# Now find all of the other positions this other user took...
 			for q in d.user.comments.all().exclude(bill=c.bill):
+				bills.append(q.bill)
+				
+		for bill in bills:
+			if not bill.id in sugs:
+				billsug = { "bill": bill, "count": 0, "bill_sources": {} }
+				sugs[bill.id] = billsug
+				
 				if not q.bill.isAlive():
+					billsug["skip"] = True
 					continue
-					
-				# Don't make a recommendation on something the user already took
-				# action on.
-				if request.user.comments.filter(bill=q.bill).exists():
+				if user.comments.filter(bill=bill).exists():
+					billsug["skip"] = True
+					continue
+			else:
+				billsug = sugs[bill.id]
+				if "skip" in billsug:
 					continue
 				
-				# Create a record for the recommended bill.
-				qbid = q.position + str(q.bill.id)
-				if not qbid in sugs:
-					sugs[qbid] = { "bill": q.bill, "position": q.position, "sources": [], "orgs": [], "users": 0 }
-					
-				# Mark what bill the user took a position on was a source for this recommendation.
-				if not (c.bill, c.position) in sugs[qbid]["sources"]:
-					sugs[qbid]["sources"].append( (c.bill, c.position) )
+			billsug["count"] += 1
 				
-				# Increment the number of users recommending this bill.
-				sugs[qbid]["users"] += 1
-		
+			if not c.bill.id in billsug["bill_sources"]:
+				billsug["bill_sources"][c.bill.id] = { "bill": c.bill, "position": c.position, "count": 0 }
+			billsug["bill_sources"][c.bill.id]["count"] += 1
+	
 	# Add the popular bills to the list of suggestions if they are not already
-	# suggested. The weird thing here compared to what is above is that
-	# we can't suggest a position. Also the bills might not be in the database
-	# so they don't have an id.
+	# suggested.
 	from bills import get_popular_bills
 	for bill in get_popular_bills():
-		if "+" + str(bill.id) in sugs or "-" + str(bill.id) in sugs:
+		if bill.id in sugs:
 			continue
-		if bill.id != None and request.user.comments.filter(bill=bill).exists():
+		if bill.id != None and user.comments.filter(bill=bill).exists():
 			continue
-		sugs[bill.govtrack_code()] = { "bill": bill, "users": -1 } # -1 is a flag for the HTML and also to sort them below the other bills
+		sugs[bill.govtrack_code()] = { "bill": bill, "count": -1, "bill_sources": {} } # -1 is a flag for the HTML and also to sort them below the other bills
 	
 	sugs = list(sugs.values())
 	
 	# sort suggestions by the number of users recommending the bill first,
 	# and then by the total comments left on each bill
 	
-	sugs.sort(key = lambda x : (-x["users"], -x["bill"].usercomments.count()))
+	sugs.sort(key = lambda x : (-x["count"], -x["bill"].usercomments.count()))
 	
-	return sugs[0:10] # max number of suggestions to return
+	sugs = sugs[0:10] # max number of suggestions to return
+	
+	for s in sugs:
+		if s["bill"].id in bill_org:
+			s["org_sources"] = [ { "campaign": bill_org[s["bill"].id][0], "comment": bill_org[s["bill"].id][2], "position": bill_org[s["bill"].id][3] } ]
+		s["bill_sources"] = list(s["bill_sources"].values())
+		s["bill_sources"].sort(key = lambda x : -x["count"])
+		s["bill_sources"] = s["bill_sources"][0:1]
+	
+	return sugs
 
 @login_required
 def home(request):
@@ -223,7 +222,7 @@ def home(request):
 	else:
 		return render_to_response('popvox/homefeed.html',
 			{ 
-			"suggestions": compute_prompts(request)[0:4]
+			"suggestions": compute_prompts(request.user)[0:4]
 			    },
 			context_instance=RequestContext(request))
 
@@ -238,7 +237,7 @@ def home_suggestions(request):
 
 	return render_to_response('popvox/home_suggestions.html',
 		{ 
-		"suggestions": compute_prompts(request)
+		"suggestions": compute_prompts(request.user)
 		    },
 		context_instance=RequestContext(request))
 

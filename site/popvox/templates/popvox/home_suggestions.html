@@ -18,27 +18,26 @@
 		{% endif %}
 	
 		<div>
-			<div class="col_6">
+			<div class="col_5">
 				<a class="action" href="{{sug.bill.url}}">Action</a>
-				<h4><a href="{{sug.bill.url}}">{% if sug.position == "+" %}Support{% endif %}{% if sug.position == "-" %}Oppose{% endif %} {{sug.bill.title|truncatewords:10}}</a></h4>
-				{% if sug.users > 1 %}<p>{{sug.users}} other users who took the same action as you {% if sug.position == "+" %}support{% else %}oppose{% endif %} this bill.</p>{% endif %}
-				{% if sug.users == -1 %}<p>This bill has been selected as being likely to be brought up for debate in Congress.</p>{% endif %}
-				{% for op in sug.orgs %}
-					<p><a href="{% if op.campaign.default %}{{op.campaign.org.url}}{% else %}{{op.campaign.url}}{% endif %}">{{ op.campaign.org.name }}</a> {% if op.position == "+" %}endorsed{% else %}opposes{% endif %} this bill. {% if op.comment %}They wrote:{% endif %}</p>
+				<h4><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h4>
+				{% if sug.count == -1 %}<p>This bill has been selected as being likely to be brought up for debate in Congress.</p>{% endif %}
+				{% for op in sug.org_sources %}
+					<p><a href="{% if op.campaign.default %}{{op.campaign.org.url}}{% else %}{{op.campaign.url}}{% endif %}">{{ op.campaign.org.name }}</a> {% if op.position == "+" %}endorses{% else %}opposes{% endif %} this bill. {% if op.comment %}They wrote:{% endif %}</p>
 					{% if op.comment %}
 						<div class="message_preview">
 							{{op.comment|wraplines:"p"}}
 						</div>
 					{% endif %}
 				{% endfor %}
-				{% for b,p in sug.sources %}
-					<p>(Recommended because you {% if p == "+" %}supported{% else %}opposed{% endif %} <a href="{{b.url}}">{{b.title|truncatewords:6}}</a>.)</p>
+				{% for sbs in sug.bill_sources %}
+					<p>Recommended because you {% if sbs.position == "+" %}supported{% else %}opposed{% endif %} <a href="{{sbs.bill.url}}">{{sbs.bill.title|truncatewords:6}}</a>.</p>
 				{% endfor %}
 			</div>
 			
 			{% bill_statistics sug.bill as stats %}
 			{% if stats %}
-			<div class="col_3 col_last">
+			<div class="col_4 col_last">
 				<h5>What Others Think</h5>
 				<a href="{{sug.bill.url}}/report">
 					<div id="chart-container--{{sug.bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>

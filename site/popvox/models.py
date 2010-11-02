@@ -338,6 +338,8 @@ class Org(models.Model):
 			return OrgExternalMemberCount.objects.get(org=self, source=OrgExternalMemberCount.TWITTER_FOLLOWERS).count
 		except:
 			return 0
+	def estimated_fan_count(self):
+		return self.facebook_fan_count() + self.twitter_follower_count()
  
 class OrgContact(models.Model):
 	"""A contact record for an Org displayed to legislative staff."""
