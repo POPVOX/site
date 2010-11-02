@@ -30,8 +30,8 @@
 	<script>
 	function submitlaw() {
 		var text = $('#text').val();
-		var author = $('#author').hasClass("default") ? null : $('#author').val();
-		var tags = $('#tags').hasClass("default") ? null : $('#tags').val();
+		var author = $('#author').hasClass("default") ? "" : $('#author').val();
+		var tags = $('#tags').hasClass("default") ? "" : $('#tags').val();
 		
 		$('#text').val('');
 		$('#author').val(''); $('#author').blur();
@@ -42,9 +42,9 @@
 		if (text == "") return;
 		
 		$("#submitstatus").show();
-		$("#submitstatus").text("Your law has been entered into the queue.");
+		$("#submitstatus").text("Glad you got that off your chest?");
 		$("#submitstatus").delay(5000).fadeOut();
-
+		
 		$.ajax({
 		   type: "POST",
 		   url: "/post",
@@ -56,6 +56,19 @@
 		   }
 		 });
 	}
+	</script>
+
+	<script type="text/javascript">
+	
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-18126194-2']);
+	  _gaq.push(['_trackPageview']);
+	
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
 	</script>
 
 </head>
@@ -111,10 +124,15 @@
 
 
 <div class="footer">
+	<a href="http://www.twitter.com/oughttabealaw"><img src="http://twitter-badges.s3.amazonaws.com/follow_me-a.png" alt="Follow oughttabealaw on Twitter"/></a>
 
+	<a href="http://twitter.com/share" class="twitter-share-button" data-text="{{law.text}}" data-url="http://www.oughttabealaw.com" data-count="horizontal" data-via="oughttabealaw" data-related="popvox:Oughttabealaw.com is brought to you by POPVOX.com">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+
+	<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.oughttabealaw.com&amp;layout=standard&amp;show_faces=true&amp;width=450&amp;action=like&amp;colorscheme=light&amp;height=80" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe>
+	
 	<div class="speak">
 		<p>Want to really impact how laws are made?</p>
-		<a class="btn b_speak_up" href="#">speak up on POPVOX.com</a>
+		<a class="btn b_speak_up" href="http://www.popvox.com">speak up on POPVOX.com</a>
 	</div><!-- e: speak -->
 	<div class="clear"> </div>
 
