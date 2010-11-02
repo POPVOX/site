@@ -123,15 +123,35 @@ def external_return(request, login_associate, provider):
 		
 		# If we are doing an association to an existing account, take care of it
 		# now and redirect.
+		user = None
 		if login_associate == "associate" and request.user.is_authenticated():
+			user = request.user
+			request.goal = { "goal": "oauth-associate" }
+			
+		# If the profile provides a trusted email address which is tied to a
+		# registered account here, then we can log them in and create
+		# a new AuthRecord.
+		elif "trust_email" in providers.providers[provider] and providers.providers[provider]["trust_email"] and "email" in profile:
+			try:
+				user = User.objects.get(email = profile["email"])
+				request.goal = { "goal": "oauth-login" }
+			except:
+				pass
+			
+		if user != None:
 			rec = AuthRecord()
 			rec.provider = provider
 			rec.uid = uid
-			rec.user = request.user
+			rec.user = user
 			rec.auth_token = auth_token
 			rec.profile = profile
 			rec.save()
-			request.goal = { "goal": "oauth-associate" }
+			
+			if user != request.user: # new AuthRecord for existing account
+				logout(request)
+				user = authenticate(user_object = user)
+				login(request, user)
+			
 			return HttpResponseRedirect(next)
 			
 		# Otherwise log the user out so we can do a new user registration.
@@ -169,7 +189,7 @@ def external_return(request, login_associate, provider):
 			# But if it's associated with a different active user, we can't change
 			# the association.
 			else:
-				messages.info(request, "Your " +  providers.providers[provider]["displayname"] + " account is already connected to a different account here. It cannot be connected to another account.")
+				messages.info(request, "Your " +  providers.providers[provider]["displayname"] + " account is already connected to a different account here. It cannot be connected to a second account.")
 				
 		# We already have made this association.
 		else:
