@@ -7,12 +7,12 @@
 	<body>
 
 <script>
-function load_funnel() {
+function reload_page() {
 	document.location = '?path-start=' + escape(document.opts['path-start'].value) + '&start-date=' + escape(document.opts['start-date'].value) + '&depth=' + escape(document.opts['depth'].value)
 }
 </script>
 <form name="opts">
-	<select name="path-start" size="1" onchange="load_funnel()">
+	<select name="path-start" size="1" onchange="reload_page()">
 		<option value="">(select start of goal path)</option>
 		{% for node in nodenamelist %}
 			<option {% if pathstart == node %}selected='1'{% endif %}>{{node}}</option>
@@ -22,7 +22,7 @@ function load_funnel() {
 	<input name="start-date" value="{{startdate}}"/>
 	<span style="padding-left: 2em">Depth: </span>
 	<input name="depth" value="{{depth}}" size="3" maxlength="2"/>
-	<input type="button" value="Update" onclick="load_funnel()">
+	<input type="button" value="Update" onclick="reload_page()">
 </form>
 	
 <script type="text/javascript+protovis"> 

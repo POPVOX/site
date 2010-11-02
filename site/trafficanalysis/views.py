@@ -9,6 +9,7 @@ from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, 
 import math
 import re
 import datetime
+import random
 
 from models import Session
 
@@ -22,9 +23,8 @@ def getnodename(pe):
 
 	return nodename
 
-def report_sunburst(request, data_startdate):	
+def report_sunburst(request, data_startdate, max_depth):	
 	starting_view = request.GET.get('path-start', "")
-	max_depth = int(request.GET.get('depth', "4"))
 
 	all_nodes = { }
 
@@ -135,15 +135,14 @@ def report_sunburst(request, data_startdate):
 	return render_to_response("trafficanalysis/sunburst.html", {
 		'pathstart': starting_view,
 		'startdate': data_startdate.strftime("%Y-%m-%d"),
-		'depth': max_depth,
 		'nodenamelist': nodenamelist,
+		'depth': max_depth,
 		"graph": nodes,
 		})
 				
-def report_path(request, data_startdate):
-	# Compute the funnel on a day-by-day basis.
+def report_funnel(request, data_startdate, max_depth, path):
+	# Compute the funnel on a day-by-day basis for the given path.
 	
-	path = simplejson.loads(request.GET["path"])
 	timeseries = { }
 	
 	def getts(pe):
@@ -213,11 +212,105 @@ def report_path(request, data_startdate):
 		]
 	
 	return render_to_response("trafficanalysis/funnel.html", {
+		'startdate': data_startdate.strftime("%Y-%m-%d"),
+		'path': simplejson.dumps(path),
+		"depth": max_depth,
+		"mode": "funnel",
 		"data": data,
 		"x": [x[0].strftime("%Y-%m-%d") for x in timeseries],
 		"xmax": len(timeseries)-1
 		})
+
+def report_goal(request, data_startdate, max_depth, path):
+	# Compute the goal completion rates from the start of the
+	# path to the end, via any path, recording all of the different
+	# paths taken.
 	
+	timeseries = { }
+	
+	def getts(pe):
+		date = pe.time.date()
+		if not date in timeseries:
+			ts = { "_TOTAL_": 0, "_GOALS_": 0 }
+			timeseries[date] = ts
+			return ts
+		else:
+			return timeseries[date]
+			
+	for session in Session.objects.filter(end__gte = data_startdate):
+		trace = None
+		for pe in session.get_path():
+			if pe.time < data_startdate:
+				continue
+			nodename = getnodename(pe)
+			if nodename == None:
+				continue
+				
+			if nodename == path[0]:
+				# Start of path or reset path in the middle.
+				counts = getts(pe)
+				counts["_TOTAL_"] += 1
+				trace = []
+			elif trace != None:
+				if nodename == path[-1]:
+					# Reached end of path.
+					trace = "->".join(trace)
+					if trace == "":
+						trace = "(direct)"
+					if not trace in counts:
+						counts[trace] = 1
+					else:
+						counts[trace] += 1
+					counts["_GOALS_"] += 1
+					trace = None
+				else:
+					if len(trace) < max_depth:
+						trace.append(nodename)
+					elif len(trace) == max_depth:
+						trace.append("...")
+	
+	dates = list(timeseries.keys())
+	dates.sort()
+	
+	# Transpose and normalize the timeseries.
+	data = { }
+	for date in timeseries:
+		for p in timeseries[date]:
+			if p in ("_TOTAL_", "_GOALS_") or p in data:
+				continue
+			data[p] = [{
+				"series": p,
+				"showserieslabel": False,
+				"x": d,
+				"y": 0.0 if not p in timeseries[dates[d]] else float(timeseries[dates[d]][p]) / float(timeseries[dates[d]]["_TOTAL_"]),
+					} for d in xrange(len(dates))]
+	data = data.values()
+			
+	ymax = 0.0
+	for d in timeseries.values():
+		t = float(d["_GOALS_"])/float(d["_TOTAL_"])
+		if t > ymax:
+			ymax = t
+	
+	for series in data:
+		series[ random.choice( [x for x in range(len(dates)) if series[x]["y"] > 0]) ] \
+			["showserieslabel"] = True
+		
+	
+	return render_to_response("trafficanalysis/completions.html", {
+		'startdate': data_startdate.strftime("%Y-%m-%d"),
+		'path': simplejson.dumps(path),
+		"depth": max_depth,
+		"mode": "goal",
+		"data": data,
+		"x": [x.strftime("%Y-%m-%d") for x in dates],
+		"xmax": len(dates)-1,
+		"ymax": ymax,
+		"start": path[0],
+		"end": path[-1]
+		})
+
+
 @login_required
 def report(request):
 	if not request.user.is_superuser:
@@ -228,8 +321,16 @@ def report(request):
 	else:
 		data_startdate = datetime.datetime.strptime(request.GET["start-date"], "%Y-%m-%d")
 	
+	max_depth = int(request.GET.get('depth', "4"))
+
 	if not "path" in request.GET:
-		return report_sunburst(request, data_startdate)
+		return report_sunburst(request, data_startdate, max_depth)
 		
-	return report_path(request, data_startdate)
+	path = simplejson.loads(request.GET["path"])
+	mode = request.GET.get("mode", "goal")
+	
+	if mode == "funnel":
+		return report_funnel(request, data_startdate, max_depth, path)
+	elif mode == "goal":
+		return report_goal(request, data_startdate, max_depth, path)
 
