@@ -369,6 +369,13 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		
 	user_position = None
 	mocs = []
+	mocs2 = "Members of Congress"
+	ch = bill.getChamberOfNextVote()
+	if ch == "s":
+		mocs2 = "senators"
+	else:
+		mocs2 = "representative"
+
 	if request.user.is_authenticated():
 		# Get the user's current position on the bill.
 		# In principle by the data model, a user might take multiple positions
@@ -380,7 +387,6 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		# based on the user's most recent comment's congressional district.
 		district = request.user.userprofile.most_recent_comment_district()
 		if district != None:
-			ch = bill.getChamberOfNextVote()
 			if ch != None:
 				if ch == "s":
 					mocs = getMembersOfCongressForDistrict(district, moctype="sen")
@@ -488,6 +494,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			
 			"user_position": user_position,
 			"mocs": mocs,
+			"mocs2": mocs2,
 			
 			"stats": {
 				"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation"),
