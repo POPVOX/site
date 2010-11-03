@@ -116,6 +116,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'team@popvox.com') ]
+SEND_BROKEN_LINK_EMAILS = False
 if DEBUG:
 	SITE_ROOT_URL = "http://localhost:8000"
 else:
