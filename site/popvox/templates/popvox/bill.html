@@ -161,7 +161,7 @@ function showtab(tab) {
 				{% if not mocs %}
 					{% if nextchamber == "s" %}How should your senators vote?{% endif %}
 					{% if nextchamber == "h" %}How should your representative vote?{% endif %}
-					{% if nextchamber != "s" or nextchambers != "h" %}How should your Members of Congress vote?{% endif %}
+					{% if nextchamber != "s" and nextchambers != "h" %}How should your Members of Congress vote?{% endif %}
 				{% endif %}
 				
 				{% if mocs %}
