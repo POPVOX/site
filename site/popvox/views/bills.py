@@ -369,12 +369,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		
 	user_position = None
 	mocs = []
-	mocs2 = "Members of Congress"
 	ch = bill.getChamberOfNextVote()
-	if ch == "s":
-		mocs2 = "senators"
-	else:
-		mocs2 = "representative"
 
 	if request.user.is_authenticated():
 		# Get the user's current position on the bill.
@@ -494,7 +489,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			
 			"user_position": user_position,
 			"mocs": mocs,
-			"mocs2": mocs2,
+			"nextchamber": ch,
 			
 			"stats": {
 				"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation"),
