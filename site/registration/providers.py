@@ -181,6 +181,9 @@ except:
 
 ########################################
 
+class UserCancelledAuthentication(Exception):
+	pass
+
 def openid2_get_redirect(request, provider, callback):
 	xrds = urllib.urlopen(providers[provider]["xrds"])
 	if xrds.getcode() != 200:
@@ -261,6 +264,11 @@ def oauth1_get_redirect(request, provider, callback):
 	
 def oauth1_finish_authentication(request, provider, original_callback):
 	"""Finishes the authentication for OAuth1. Raises an Exception if the authentication had an error, or otherwise returns a tuple (provider, profile) where provider is the provider id (e.g. "twitter") that started the authentication and profile is a dict returned by the provider that has profile information about the user."""
+	if "oauth_problem" in request.GET:
+		if request.GET["oauth_problem"] in ("permission_denied", "user_refused"):
+			raise UserCancelledAuthentication()
+		raise Exception("OAuth1 Failed: "  + request.GET["oauth_problem"])
+
 	provider = request.session['oauth_request_token']['provider']
 	client = create_oauth1_client(provider, request.session['oauth_request_token'], request.GET["oauth_verifier"])
 	

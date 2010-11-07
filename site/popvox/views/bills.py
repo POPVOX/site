@@ -546,7 +546,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	
 	# Clear out the session state for a pending comment (set e.g. if
 	# user has to go away to do oauth login) if the pending comment
-	# is for a different bill, or if this request is not in the finish state.
+	# is for a different bill, or if the bill is not set (old cookie).
 	if pending_comment_session_key in request.session and (not "bill" in request.session[pending_comment_session_key] or request.session[pending_comment_session_key]["bill"] != bill.url()):
 		del request.session[pending_comment_session_key]
 	
@@ -612,12 +612,16 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"message": message,
 			}, context_instance=RequestContext(request))
 	
-	elif "submitmode" in request.POST and request.POST["submitmode"] == "Preview >":
+	elif ("submitmode" in request.POST and request.POST["submitmode"] == "Preview >") or (not "submitmode" in request.POST and position_original == "/finish" and not request.user.is_authenticated()):
 		# The user clicks preview to get a preview page.
+		# Or the user returns from a failed login.
 		
-		# TODO: Validate that a message has been provided and that messages are
-		# not too long or too short.
-		message = request.POST["message"]
+		if "submitmode" in request.POST:
+			# TODO: Validate that a message has been provided and that messages are
+			# not too long or too short.
+			message = request.POST["message"]
+		else:
+			message = request.session[pending_comment_session_key]["message"]
 		
 		# If the user has to log in (via oauth etc), they will get redirected away, so
 		# we will put the comment into a session variable which we handle when
@@ -772,9 +776,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		return HttpResponseRedirect(bill.url() + "/comment/share")
 			
 	elif request.POST["submitmode"] == "Create Account >":
-		# The user is creating an account. If the user succeeds, we
-		# display the same page again under the Preview mode so the
-		# user can enter their address.
+		# The user is creating an account.
 			
 		from registration.helpers import validate_username, validate_password, validate_email
 		from profile import RegisterUserAction

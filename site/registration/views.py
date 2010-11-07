@@ -105,12 +105,17 @@ def external_return(request, login_associate, provider):
 			providers.methods[providers.providers[provider]["method"]] \
 			["finish_authentication"] \
 			(request, provider, SITE_ROOT_URL + reverse(external_return, args=[login_associate, provider]))
-	except:
+	except providers.UserCancelledAuthentication:
+		request.goal = { "goal": "oauth-cancel" }
+		return HttpResponseRedirect(request.session["oauth_finish_next"] if "oauth_finish_next" in request.session else reverse(loginform))
+	except Exception, e:
 		# Error might indicate a protocol error or else the user denied the
 		# authorization.
+		import sys
+		sys.stderr.write("oauth-fail: " + str(e) + "\n");
 		request.goal = { "goal": "oauth-fail" }
 		messages.error(request, "There was an error logging in.")
-		return HttpResponseRedirect(reverse(loginform))
+		return HttpResponseRedirect(request.session["oauth_finish_next"] if "oauth_finish_next" in request.session else reverse(loginform))
 		
 	uid = providers.providers[provider]["profile_uid"](profile)
 	
