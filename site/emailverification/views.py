@@ -12,25 +12,16 @@ def processcode(request, code):
 	try:
 		rec = Record.objects.get(code=code)
 	except:
-		return render_to_response('emailverification/badcode.html',  context_instance=RequestContext(request))
+		return render_to_response('emailverification/badcode.html', { "code": code }, context_instance=RequestContext(request))
 
 	if rec.is_expired():
 		return render_to_response('emailverification/expired.html',  context_instance=RequestContext(request))
 
-	try:
-		axn = rec.get_action()
+	axn = rec.get_action()
 		
-		ret = axn.get_response(request, rec)
+	ret = axn.get_response(request, rec)
 		
-		rec.set_action(axn)
-		rec.save()
+	rec.set_action(axn)
+	rec.save()
 		
-		return ret
-	except Exception, e:
-		if DEBUG:
-			print e
-		else:
-			import sys
-			sys.stderr.write(unicode(e) + "\n")
-		return render_to_response('emailverification/badcode.html',  context_instance=RequestContext(request))
-
+	return ret

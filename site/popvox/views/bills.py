@@ -505,7 +505,6 @@ pending_comment_session_key = "popvox.views.bills.billcomment__pendingcomment"
 class DelayedCommentAction:
 	registrationinfo = None # a RegisterUserAction object
 	bill = None
-	position = None
 	comment_session_state = None
 	
 	def email_subject(self):
@@ -531,7 +530,7 @@ POPVOX"""
 		
 		# Redirect to the comment form to continue.
 		request.goal = { "goal": "comment-register-registered" }
-		return HttpResponseRedirect(Bill.objects.get(id=self.bill).url() + "/comment" + self.position)
+		return HttpResponseRedirect(Bill.objects.get(id=self.bill).url() + "/comment/finish")
 
 @csrf_protect
 def billcomment(request, congressnumber, billtype, billnumber, position):
@@ -802,13 +801,18 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		else:
 			# If no errors, begin the email verification process which will
 			# delay the comment.
+
+			# We need the bill's id but it may not be saved to
+			# the db yet.
+			if bill.id == None:
+				bill.save()
+
 			axn = DelayedCommentAction()
 			axn.registrationinfo = RegisterUserAction()
 			axn.registrationinfo.email = email
 			axn.registrationinfo.username = username
 			axn.registrationinfo.password = password
 			axn.bill = bill.id
-			axn.position = position_original
 			axn.comment_session_state = {
 				"bill": bill.url(),
 				"position": position,
