@@ -84,6 +84,7 @@ def get_popular_bills():
 		{"congressnumber": 111, "billtype": 's', "billnumber": 2827},
 		{"congressnumber": 111, "billtype": 's', "billnumber": 3772},
 		{"congressnumber": 111, "billtype": 's', "billnumber": 510},
+		{"congressnumber": 111, "billtype": 'h', "billnumber": 915},
 		]
 	
 	# convert the hash objects to Bill objects

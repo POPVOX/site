@@ -312,10 +312,10 @@ function showtab(tab) {
 				<div>
 					<h5><a href="{{org.url}}">{{org.name}}</a></h5>
 					{% if org.comment %}
-						{{org.comment|wraplines:"p"|truncatewords_html:50}}
+						{{org.comment|wraplines:"p"}}
 					{% endif %}
 					{% for cam in org.campaigns %}
-						<p><a href="{{cam.url}}">{{cam.name}}</a>: {{ cam.description|truncatewords:10 }}</p>
+						<p>More Info: <a href="{{cam.url}}">{{cam.name}}</a></p>
 					{% endfor %}
 				</div>
 				
