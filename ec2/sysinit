@@ -32,8 +32,8 @@ sudo dpkg -i $DJANGO
 rm $DJANGO
 
 # Persistent storage disk
-sudo mkdir /mnt/persistent
-sudo mount /dev/sdf /mnt/persistent
+echo "/dev/sdg        /mnt/persistent auto" >> /etc/fstab
+mount -a
 
 # Users
 sudo useradd -m --shell /bin/bash www
@@ -50,7 +50,9 @@ sudo su william -c "cd; /mnt/persistent/ec2_inituser"
 sudo service mysql stop
 rm -rf /var/lib/mysql/
 mkdir /var/lib/mysql
-mount --bind /mnt/persistent/mysql/ /var/lib/mysql
+#mount --bind /mnt/persistent/mysql/ /var/lib/mysql
+echo "/mnt/persistent/mysql/  /var/lib/mysql  none bind" >> /etc/fstab
+mount -a
 sudo service mysql start
 
 # Apache
