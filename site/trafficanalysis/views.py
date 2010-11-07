@@ -21,6 +21,9 @@ def getnodename(pe):
 	if hasattr(pe, "goal"):
 		nodename = getattr(pe, "goal")
 
+	if nodename.startswith("registration."):
+		nodename = "registration.*"
+
 	return nodename
 
 def report_sunburst(request, data_startdate, max_depth):	
@@ -68,10 +71,15 @@ def report_sunburst(request, data_startdate, max_depth):
 				continue
 			
 			if not nodename in node:
+				label = nodename.split(".")[-1]
+				module = ".".join(pe.view.split(".")[0:-1])
+				if label == "*":
+					label = nodename
+
 				node[nodename] = {
 					"_VISITS_": 0,
-					"_LABEL_":  getattr(pe, "goal", pe.view.split(".")[-1]),
-					"_MODULE_": ".".join(pe.view.split(".")[0:-1]),
+					"_LABEL_":  label,
+					"_MODULE_": module,
 					"_PATH_": ancestors + [nodename]
 					}
 			
@@ -198,11 +206,12 @@ def report_funnel(request, data_startdate, max_depth, path):
 	timeseries.sort(key = lambda x : x[0])
 	
 	# Transpose the timeseries and reverse series order so it is by stack.
-	# Also add series labels to the part on the series with the max value.
+	# Also add series labels to the part on the series with the max value,
+	# and multiply by 100 to give a %.
 	data = [
 		[
 			{ "x": date,
-			   "y": timeseries[date][2][len(timeseries[0][2])-stack-1],
+			   "y": 100.0*timeseries[date][2][len(timeseries[0][2])-stack-1],
 			   "series": path[len(timeseries[0][2])-stack-1],
 			   "showserieslabel": timeseries[date][2][len(timeseries[0][2])-stack-1] == max([timeseries[d][2][len(timeseries[0][2])-stack-1] for d in xrange(1, len(timeseries))])
 			   }
@@ -250,20 +259,19 @@ def report_goal(request, data_startdate, max_depth, path):
 				# Start of path or reset path in the middle.
 				counts = getts(pe)
 				counts["_TOTAL_"] += 1
-				trace = []
+				trace = [nodename]
 			elif trace != None:
 				if nodename == path[-1]:
+					trace.append(nodename)
 					# Reached end of path.
-					trace = "->".join(trace)
-					if trace == "":
-						trace = "(direct)"
+					trace = tuple(trace)
 					if not trace in counts:
 						counts[trace] = 1
 					else:
 						counts[trace] += 1
 					counts["_GOALS_"] += 1
 					trace = None
-				else:
+				elif nodename != trace[-1]: # don't repeat steps so we can collapse some data
 					if len(trace) < max_depth:
 						trace.append(nodename)
 					elif len(trace) == max_depth:
@@ -279,16 +287,16 @@ def report_goal(request, data_startdate, max_depth, path):
 			if p in ("_TOTAL_", "_GOALS_") or p in data:
 				continue
 			data[p] = [{
-				"series": p,
+				"series": "->".join(p),
 				"showserieslabel": False,
 				"x": d,
-				"y": 0.0 if not p in timeseries[dates[d]] else float(timeseries[dates[d]][p]) / float(timeseries[dates[d]]["_TOTAL_"]),
+				"y": 0.0 if not p in timeseries[dates[d]] else 100.0 * float(timeseries[dates[d]][p]) / float(timeseries[dates[d]]["_TOTAL_"]),
 					} for d in xrange(len(dates))]
 	data = data.values()
 			
 	ymax = 0.0
 	for d in timeseries.values():
-		t = float(d["_GOALS_"])/float(d["_TOTAL_"])
+		t = 100.0 * float(d["_GOALS_"])/float(d["_TOTAL_"])
 		if t > ymax:
 			ymax = t
 	

@@ -32,7 +32,7 @@ var xlabels = {{x|json}};
 var w = document.body.clientWidth * .85,
     h = document.body.clientHeight * .75,
     x = pv.Scale.linear(0, {{xmax}}).range(0, w),
-    y = pv.Scale.linear(0, 1).range(0, h);
+    y = pv.Scale.linear(0, 100).range(0, h);
  
 /* The root panel. */
 var vis = new pv.Panel()
@@ -50,7 +50,7 @@ vis.add(pv.Rule)
     .left(x)
     .bottom(-5)
     .height(5)
-  .anchor("bottom").add(pv.Label)
+    .anchor("bottom").add(pv.Label)
     .text(function(d) xlabels[d]);
  
 /* The stack layout. */
@@ -76,8 +76,13 @@ vis.add(pv.Rule)
     .data(y.ticks(3))
     .bottom(y)
     .strokeStyle(function(d) d ? "rgba(128,128,128,.2)" : "#000")
-  .anchor("left").add(pv.Label)
+    .anchor("left").add(pv.Label)
     .text(y.tickFormat);
+
+vis.add(pv.Label)
+    .left(-40)
+    .top(h/2)
+    .text("%");
  
 vis.render();
 
