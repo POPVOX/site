@@ -2,7 +2,7 @@
 {% load popvox_utils %}
 {% load registration_providers %}
 {% load humanize %}
-{% block title %}Share Your Comment on {{ bill.title }}{% endblock%}
+{% block title %}{{comment.user.username}}&rsquo;s Comment on {{ bill.title|truncatewords:10 }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
@@ -11,10 +11,12 @@
 {% endblock %}
 {% block content %}
 <div class="content">
+	{% if referrer %}
 	<div class="col_9 referred">
 		<h1>The Voice of the people. The Language of Congress.</h1>
 		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 	</div>
+	{% endif %}
 	
 	<div class="col_3 col_last">
 	</div>
@@ -23,15 +25,15 @@
 
 	<div class="col_6 col_top">
 		<div class="block referred_quote_opposed">
-			<p class="commenter">{{comment.user.username}} <!--from {{comment.address.state}}'s {{comment.address.congressionaldistrict|ordinal}} district-->commented on {{comment.updated|date2}}:</p>
+			<p class="commenter">{{comment.user.username}} <!--from {{comment.address.state}}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district-->commented on {{comment.updated|date2}}:</p>
 
-			<h4>HR 4646: Oppose</h4>
+			<h4>{{bill.displaynumber}}: {% if comment.position == '+' %}Support{% else %}Oppose{% endif %}</h4>
 			{{comment.message|wraplines:"p"}}
 		</div>
 		
 		<div class="block bills_referred">
 			<div class="bill">
-				<h4 class="no_rule"><a class="orange" href="#">{{ bill.title }}</a></h4>
+				<h4 class="no_rule"><a class="orange" href="{{bill.url}}">{{ bill.title }}</a></h4>
 				<p>
 					{% if bill.officialtitle %}
 					<strong>Summary: </strong>{{ bill.officialtitle }}
