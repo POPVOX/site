@@ -855,8 +855,8 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	except:
 		pass
 	
-	return render_to_response('popvox/billcomment_share.html', {
-			"mode": "post" if commentid == None else "share",
+	return render_to_response(
+			'popvox/billcomment_share.html' if commentid == None else 'popvox/billcomment_view.html', {
 			'bill': bill,
 			"comment": comment,
 			"twitter": twitter,
