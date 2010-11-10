@@ -155,52 +155,14 @@ function showtab(tab) {
 		{% if canvote and bill.isAlive %}
 		<div class="col_3 col_top">
 			<h3 class="no_rule">What do you think</h3>
-			<p>
-				{% if nextchamber == "s" %}The next vote on this bill will occur in the Senate. {% endif %}
-				{% if nextchamber == "h" %}The next vote on this bill will occur in the House of Representatives. {% endif %}
-				{% if not mocs %}
-					{% if nextchamber == "s" %}How should your senators vote?{% endif %}
-					{% if nextchamber == "h" %}How should your representative vote?{% endif %}
-					{% if nextchamber != "s" and nextchamber != "h" %}How should your Members of Congress vote?{% endif %}
-				{% endif %}
-				
-				{% if mocs %}
-					How should
-						{% for moc in mocs %}
-							{% if not forloop.first %} and {% endif %}
-							{{ moc.name }}
-						{% endfor %}
-					vote?
-				{% endif %}
-			</p>
+			{% include "popvox/bill_howshouldtheyvote.html" %}
 		</div>
-		{% if not user_position %}
-			<div id="bill_endorse_oppose_holder_user">
-				<input id="billsearch_endorse_oppose_submit_support" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
-				<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="window.location = '{{bill.url|escapejs}}/comment/oppose'"/>
-			</div>
-		{% else %}
-			<div id="bill_endorse_oppose_holder_user">
-			{% if user_position.position == "+" %}
-				<input id="billsearch_endorse_oppose_submit_support" class="submit nohover" type="button" value="Support"/>
-			{% else %}
-				<input id="billsearch_endorse_oppose_submit_oppose" class="submit nohover" type="button" value="Oppose"/>
-			{% endif %}
-				<p>
-					You submitted a comment on this bill {{user_position.updated|date2}}. You wrote:
-				</p>
-				<p>&ldquo;{{user_position.message|truncatewords:30}}&rdquo;</p>
-				<div>
-					<p>
-						<a href="{{bill.url}}/comment">edit comment</a> |
-						<a href="{{bill.url}}/comment/clear">remove comment</a> |
-						<a href="{{bill.url}}/comment/share">share comment</a>
-					</p>
-				</div>
-			</div>
+		<div id="bill_endorse_oppose_holder_user">
+			{% include "popvox/bill_uservote.html" %}
+		</div>
 		{% endif %}
-		{% endif %}
-		{% comment %} END OF USER VOTE {% endcomment %}
+	{% comment %} END OF USER VOTE {% endcomment %}
+
 	</div>
 	
 	{% comment %} START OF PIE CHART {% endcomment %}

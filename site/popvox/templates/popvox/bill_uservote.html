@@ -1,0 +1,23 @@
+{% load popvox_utils %}
+
+	{% if not user_position %}
+		<input id="billsearch_endorse_oppose_submit_support" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
+		<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="window.location = '{{bill.url|escapejs}}/comment/oppose'"/>
+	{% else %}
+		{% if user_position.position == "+" %}
+			<input id="billsearch_endorse_oppose_submit_support" class="submit nohover" type="button" value="Support"/>
+		{% else %}
+			<input id="billsearch_endorse_oppose_submit_oppose" class="submit nohover" type="button" value="Oppose"/>
+		{% endif %}
+		<p>
+			You submitted a comment on this bill {{user_position.updated|date2}}. You wrote:
+		</p>
+		<p>&ldquo;{{user_position.message|truncatewords:30}}&rdquo;</p>
+		<div>
+			<p>
+				<a href="{{bill.url}}/comment">edit comment</a> |
+				<a href="{{bill.url}}/comment/clear">remove comment</a> |
+				<a href="{{bill.url}}/comment/share">share comment</a>
+			</p>
+		</div>
+	{% endif %}

@@ -46,10 +46,8 @@
 	<div class="col_6 col_top col_last">
 		<div id="bill_endorse_oppose_holder_user">
 			<h3 class="no_rule orange">What Do You Think?</h3>
-			<p>Should <strong>your Member of Congress</strong> endorse or oppose this bill?</p>
-			<input id="billsearch_endorse_oppose_submit_support" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
-			<span>OR</span>
-			<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="window.location = '{{bill.url|escapejs}}/comment/oppose'"/>
+			{% include "popvox/bill_howshouldtheyvote.html" %}
+			{% include "popvox/bill_uservote.html" %}
 		</div>
 		<div class="hr"> </div>
 

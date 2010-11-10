@@ -1,0 +1,27 @@
+{% load popvox_utils %}
+{% load registration_providers %}
+{% load humanize %}
+<script>
+var working = false;
+function share(method) {
+	if (method == "email" && $('#share_email_field').hasClass("default")) {
+		alert("Enter some email addresses.");
+		return;
+	};
+	working = true;
+	ajax("/ajax/bills/share",
+		{ "bill": {{bill.id}}, "comment": {{comment.id}}, "message": $('#share_message').val(), "method": method, "emails": $('#share_email_field').val() },
+		{ "savebutton": "share_" + method + "_button",
+		   "statusfield": "share_" + method + "_status",
+		   "success": function() {
+			   working = false;
+			   if (method == "email") { $('#share_email_field').val(''); $('#share_email_field').blur(); }
+			   $("#share_" + method + "_status").delay(1000).fadeOut();
+		   },
+		   "failure": function() {
+			   working = false;
+		   },
+		});
+	return false;
+}
+</script>

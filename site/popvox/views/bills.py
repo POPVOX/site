@@ -830,8 +830,14 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	bill = getbill(congressnumber, billtype, billnumber)
 	
+	user_position = None
 	if commentid != None:
 		comment = UserComment.objects.get(id=int(commentid))
+		if request.user.is_authenticated():
+			try:
+				user_position = request.user.comments.get(bill=bill)
+			except:
+				pass
 	else:
 		# Get the user's comment.
 		if not request.user.is_authenticated():
@@ -861,6 +867,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 			"comment": comment,
 			"twitter": twitter,
 			"facebook": facebook,
+			"user_position": user_position
 		}, context_instance=RequestContext(request))
 
 def send_mail2(subject, message, from_email, recipient_list, fail_silently=False):

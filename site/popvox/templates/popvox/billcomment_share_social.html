@@ -1,0 +1,83 @@
+{% load popvox_utils %}
+{% load registration_providers %}
+{% load humanize %}
+	
+	<h3 class="no_rule orange">Share This Comment</h3>
+	<ul class="social_share_btns">
+		<li><a class="btn social_facebook" href="#">facebook</a></li>
+		<li><a class="btn social_twitter" href="#">twitter</a></li>
+		<li><a class="btn active b_social_email" href="#">email</a></li>
+	</ul>
+	<div class="clear"> </div>
+	
+	<h4>Via Email</h3>
+	<div class="form">
+		<textarea id="share_email_field" class="c6"></textarea>
+		<div>
+			<input id="share_email_button" type="button" class="submit btn" value="Share Via Email" onclick="share('email')"/>
+			<span id="share_email_status" class="error"></span>
+		</div>
+		<p class="tip_inline">The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
+		<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
+	</div>
+	
+	<h3 class="no_rule">Personalized Message to Recipients</h3>
+	<textarea id="share_message" class="c5">{% if mode == "mine" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}</textarea>
+	<script>$(function() { $('#share_message').input_autosize(); });</script>
+	
+	{% if user.is_authenticated %}
+	
+	<h3 class="no_rule">Email Your Friends</h3>
+	<textarea id="share_email_field" class="c5"></textarea>
+	<p class="tip">The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
+	<div>
+		<input id="share_email_button" type="button" class="submit btn" value="Share Via Email" onclick="share('email')"/>
+		<span id="share_email_status" class="error"></span>
+	</div>
+	<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
+	<div class="hr"> </div>
+	
+	{% endif %}
+
+	<div class="col_3 small">
+	<h3 class="no_rule">Post to Facebook</h3>
+	{% if not facebook %}
+		<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin:</p>
+		<p><a href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}">
+		<img src="/media/icons/sm/facebook-login.png"/></a></p>
+	{% else %}
+		{% if user == comment.user and comment.fb_linkid %}
+			<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
+		{% endif %}
+		<p>Click the Facebook Share icon to post your message on your Wall (in the account {{facebook.profile.screen_name}}):</p>
+		<p><a href="#" onclick="return share('facebook')"> 
+			<img src="/media/icons/sm/facebook-share.png"/> 
+		</a></p>
+		<p id="share_facebook_status"></p>
+	{% endif %}
+	</div>
+
+	<div class="col_3 col_last small">
+	<h3 class="no_rule">Send a Tweet</h3>
+	{% if not twitter %}
+		<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button to begin:</p>
+		<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
+	{% else %}
+		{% if user == comment.user and comment.tweet_id %}
+			<p>You have already tweeted about this bill, but if you go strongly about the issue please go over to Twitter and <a href="http://twitter.com/?status=%20{{bill.hashtag|urlencode}}">tweet some more</a>.</p>
+		{% else %}
+			<p>Click the Twitter share button to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
+			<p><a href="#" onclick="return share('twitter')"> 
+				<img src="/media/icons/sm/twitter-share.png"/> 
+			</a></p>
+			<p id="share_twitter_status"></p>
+		{% endif %}
+	{% endif %}
+	</div>
+
+	{% if not user.is_authenticated %}
+		<div class="hr"> </div>
+		<p>You&rsquo;ll have to <a href="/accounts/login?next={{bill.url}}/comment/{{comment.id}}">log in</a> first to share this comment by email.</p>
+	{% endif %}
+	
+
