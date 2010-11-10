@@ -121,3 +121,6 @@ if DEBUG:
 	SITE_ROOT_URL = "http://localhost:8000"
 else:
 	SITE_ROOT_URL = "http://oughttabealaw.com"
+
+SEND_BROKEN_LINK_EMAILS = False
+

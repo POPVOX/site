@@ -42,8 +42,8 @@
 		if (text == "") return;
 		
 		$("#submitstatus").show();
-		$("#submitstatus").text("Glad you got that off your chest?");
-		$("#submitstatus").delay(5000).fadeOut();
+		$("#submitstatus").text("Glad you got that off your chest? Wish you could impact how laws are really made? Visit POPVOX.com");
+		$("#submitstatus").delay(10000).fadeOut();
 		
 		$.ajax({
 		   type: "POST",
@@ -80,60 +80,64 @@
 	<!--[if !IE]><!--> <body>         <!--<![endif]-->
 
 <div id="wrap">
-	<h1>There Oughtta Be A Law...</h1>
-	<div id="randomlaw">
-		<h2>{{law.text}}</h2>	
-		{% if law.author %}
-			<p class="cite">– {{ law.author }}</p>
-		{% endif %}
-	</div>
-	<div id="userlaw" style="display: none">
-		<textarea id="text"></textarea>
-		
-		<input id="author"/>
-		<small>name is optional</small>
-		<div class="clear"></div>
-		
-		<input id="tags"/>
-		<small>tags are optional</small>
-		<div class="clear"></div>
+	<div id="main">
+		<h1>There Oughtta Be A Law...</h1>
+		<div id="randomlaw">
+			<h2><a href="#" onclick="window.location.reload(); return false">{{law.text}}</a></h2>	
+			{% if law.author %}
+				<p class="cite">– {{ law.author }}</p>
+			{% endif %}
+		</div>
+		<div id="userlaw" style="display: none">
+			<textarea id="text"></textarea>
 			
-		<input value="make it law" class="b_submit btn" onclick="submitlaw()" type="button">
-		<a class="btn b_cancel" href="#" onclick="$('#randomlaw, .buttons').fadeIn(); $('#userlaw').hide(); return false;">cancel</a>
-
-		<script>
-		$('#text').keydown_enter(submitlaw);
-		$('#author').input_default('name');
-		$('#tags').input_default('dc activisim tourist');
-		</script>
-	</div>
-
+			<input id="author"/>
+			<small>name is optional</small>
+			<div class="clear"></div>
+			
+			<input id="tags"/>
+			<small>tags are optional</small>
+			<div class="clear"></div>
+				
+			<input value="make it law" class="b_submit btn" onclick="submitlaw()" type="button">
+			<a class="btn b_cancel" href="#" onclick="$('#randomlaw, .buttons').fadeIn(); $('#userlaw').hide(); return false;">cancel</a>
 	
-<!-- 
-	<p class="yes">Yes my friend, there Oughtta.</p>	
--->
-	<ul class="buttons">
-		<li><a class="btn b_refresh" href="#" onclick="window.location.reload(); return false">refresh</a></li>
-		<li><a class="btn b_write_law" href="#" onclick="$('#randomlaw, .buttons').hide(); $('#userlaw').fadeIn(); $('#userlaw textarea').focus(); return false;">write your own law</a></li>
-	</ul>
-
-	<p id="submitstatus" style="display: none">test</p>
+			<script>
+			$('#text').keydown_enter(submitlaw);
+			$('#author').input_default('name');
+			$('#tags').input_default('dc activisim tourist');
+			</script>
+		</div>
 	
+		
+	<!-- 
+		<p class="yes">Yes my friend, there Oughtta.</p>	
+	-->
+		<ul class="buttons">
+			<li><a class="btn b_refresh" href="#" onclick="window.location.reload(); return false">refresh</a></li>
+			<li><a class="btn b_write_law" href="#" onclick="$('#randomlaw, .buttons').hide(); $('#userlaw').fadeIn(); $('#userlaw textarea').focus(); return false;">write your own law</a></li>
+		</ul>
+	
+		<p id="submitstatus" style="display: none">test</p>
+		
+	</div><!-- e: main -->
 </div><!-- e: wrap -->
-<div class="push"></div>
+
 
 
 <div class="footer">
-	<a href="http://www.twitter.com/oughttabealaw"><img src="http://twitter-badges.s3.amazonaws.com/follow_me-a.png" alt="Follow oughttabealaw on Twitter"/></a>
-
-	<a href="http://twitter.com/share" class="twitter-share-button" data-text="{{law.text}}" data-url="http://www.oughttabealaw.com" data-count="horizontal" data-via="oughttabealaw" data-related="popvox:Oughttabealaw.com is brought to you by POPVOX.com">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
-
-	<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.oughttabealaw.com&amp;layout=standard&amp;show_faces=true&amp;width=450&amp;action=like&amp;colorscheme=light&amp;height=80" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe>
-	
 	<div class="speak">
 		<p>Want to really impact how laws are made?</p>
 		<a class="btn b_speak_up" href="http://www.popvox.com">speak up on POPVOX.com</a>
 	</div><!-- e: speak -->
+
+	<div id="twitter">
+		<a id="twitter_follow" href="http://www.twitter.com/oughttabealaw"><img src="http://twitter-badges.s3.amazonaws.com/follow_me-a.png" alt="Follow oughttabealaw on Twitter"/></a>
+		<a id="twitter_share" href="http://twitter.com/share" class="twitter-share-button" data-text="{{law.text}}" data-url="http://www.oughttabealaw.com" data-count="horizontal" data-via="oughttabealaw" data-related="popvox:Oughttabealaw.com is brought to you by POPVOX.com">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+	</div>
+	
+	<iframe id="fb" src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.oughttabealaw.com&amp;layout=standard&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" allowTransparency="true"></iframe>
+	
 	<div class="clear"> </div>
 
 </div><!-- e: footer -->
