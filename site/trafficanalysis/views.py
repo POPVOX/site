@@ -44,7 +44,7 @@ def report_sunburst(request, data_startdate, max_depth):
 	for session in Session.objects.filter(end__gte = data_startdate):
 		depth = None
 		for pe in list(session.get_path()) + [None]:
-			if pe != None and pe.time < data_startdate:
+			if pe != None and pe.time.date() < data_startdate:
 				continue
 			
 			nodename = getnodename(pe)
@@ -150,7 +150,7 @@ def report_sunburst(request, data_startdate, max_depth):
 		"graph": nodes,
 		})
 				
-def report_funnel(request, data_startdate, max_depth, path):
+def report_funnel(request, data_startdate, data_enddate, max_depth, path):
 	# Compute the funnel on a day-by-day basis for the given path.
 	
 	timeseries = { }
@@ -158,16 +158,16 @@ def report_funnel(request, data_startdate, max_depth, path):
 	def getts(pe):
 		date = pe.time.date()
 		if not date in timeseries:
-			ts = [0 for x in path]
-			timeseries[date] = ts
+			ts = [0 for x in xrange(len(path)+1)]
+			timeseries[date] = (date, ts)
 			return ts
 		else:
-			return timeseries[date]
+			return timeseries[date][1]
 
-	for session in Session.objects.filter(end__gte = data_startdate):
+	for session in Session.objects.filter(end__gte = data_startdate, start__lt = data_enddate):
 		path_index = 0
 		for pe in session.get_path():
-			if pe.time < data_startdate:
+			if pe.time.date() < data_startdate or pe.time.date() >= data_enddate:
 				continue
 			nodename = getnodename(pe)
 			if nodename == None:
@@ -186,6 +186,10 @@ def report_funnel(request, data_startdate, max_depth, path):
 				# If we reached the end of the path, reset.
 				if path_index == len(path):
 					path_index = 0
+
+			elif path_index > 0 and nodename == path[path_index-1]:
+				# On a reload or repeat of goal name, just ignore.
+				pass
 					
 			elif nodename == path[0]:
 				# If it didn't match, allow the path to pick up from the
@@ -197,13 +201,8 @@ def report_funnel(request, data_startdate, max_depth, path):
 			else:
 				# Otherwise if it doesn't match, reset to the beginning.
 				path_index = 0
-		
-	# Normalize the timeseries into a tuple giving the total hits to the
-	# starting request in the path (by day, of course) and the sizes
-	# of the stacks which is for each item its value minus the value
-	# to its right, divided by the first value.
-	for k, v in timeseries.items():
-		timeseries[k] = (k, v[0], [float(v[i]-(v + [0])[i+1])/float(v[0]) for i in xrange(len(v))])
+
+	# collapse the time series into a sorted list
 	timeseries = list(timeseries.values())
 	timeseries.sort(key = lambda x : x[0])
 	
@@ -213,13 +212,13 @@ def report_funnel(request, data_startdate, max_depth, path):
 	data = [
 		[
 			{ "x": date,
-			   "y": 100.0*timeseries[date][2][len(timeseries[0][2])-stack-1],
-			   "series": path[len(timeseries[0][2])-stack-1],
-			   "showserieslabel": timeseries[date][2][len(timeseries[0][2])-stack-1] == max([timeseries[d][2][len(timeseries[0][2])-stack-1] for d in xrange(1, len(timeseries))])
+			   "y": 100.0*(timeseries[date][1][stack] - timeseries[date][1][stack+1])/timeseries[date][1][0],
+			   "series": path[stack],
+			   "showserieslabel": timeseries[date][1][stack] == max([timeseries[d][1][stack] for d in xrange(1, len(timeseries))])
 			   }
 			for date in xrange(len(timeseries))
 		]
-		for stack in xrange(len(timeseries[0][2]))
+		for stack in xrange(len(timeseries[0][1])-2, -1, -1)
 		]
 	
 	return render_to_response("trafficanalysis/funnel.html", {
@@ -232,7 +231,7 @@ def report_funnel(request, data_startdate, max_depth, path):
 		"xmax": len(timeseries)-1
 		})
 
-def report_goal(request, data_startdate, max_depth, path):
+def report_goal(request, data_startdate, data_enddate, max_depth, path):
 	# Compute the goal completion rates from the start of the
 	# path to the end, via any path, recording all of the different
 	# paths taken.
@@ -248,10 +247,10 @@ def report_goal(request, data_startdate, max_depth, path):
 		else:
 			return timeseries[date]
 			
-	for session in Session.objects.filter(end__gte = data_startdate):
+	for session in Session.objects.filter(end__gte = data_startdate, start__lt = data_enddate):
 		trace = None
 		for pe in session.get_path():
-			if pe.time < data_startdate:
+			if pe.time.date() < data_startdate or pe.time.date() >= data_enddate:
 				continue
 			nodename = getnodename(pe)
 			if nodename == None:
@@ -327,9 +326,9 @@ def report(request):
 		return HttpResponseForbidden()
 
 	if not "start-date" in request.GET:
-		data_startdate = datetime.datetime.now() - datetime.timedelta(30)
+		data_startdate = (datetime.datetime.now() - datetime.timedelta(30)).date()
 	else:
-		data_startdate = datetime.datetime.strptime(request.GET["start-date"], "%Y-%m-%d")
+		data_startdate = datetime.datetime.strptime(request.GET["start-date"], "%Y-%m-%d").date()
 	
 	max_depth = int(request.GET.get('depth', "4"))
 
@@ -338,9 +337,11 @@ def report(request):
 		
 	path = simplejson.loads(request.GET["path"])
 	mode = request.GET.get("mode", "goal")
+
+	data_enddate = datetime.datetime.now().date()
 	
 	if mode == "funnel":
-		return report_funnel(request, data_startdate, max_depth, path)
+		return report_funnel(request, data_startdate, data_enddate, max_depth, path)
 	elif mode == "goal":
-		return report_goal(request, data_startdate, max_depth, path)
+		return report_goal(request, data_startdate, data_enddate, max_depth, path)
 

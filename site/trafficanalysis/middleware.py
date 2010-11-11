@@ -11,6 +11,10 @@ class TrafficAnalysisMiddleware:
 		if request.is_ajax() and (getattr(request, "goal", None) == None and getattr(response, "goal", None) == None):
 			return response
 
+		# If the goal has been set explicitly to none, don't record.
+		if (hasattr(request, "goal") and getattr(request, "goal", None) == None) or (hasattr(response, "goal") and getattr(response, "goal", None) == None):
+			return response
+
 		# Don't record static content.
 		if response["Content-Type"] in ("application/javascript", 'text/css', 'image/gif', 'image/png', 'image/jpeg', 'application/octet-stream'):
 			return response

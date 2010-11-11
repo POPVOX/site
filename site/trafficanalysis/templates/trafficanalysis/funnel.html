@@ -73,9 +73,9 @@ vis.add(pv.Panel)
     
 /* Y-axis and ticks. */
 vis.add(pv.Rule)
-    .data(y.ticks(3))
+    .data(y.ticks())
     .bottom(y)
-    .strokeStyle(function(d) d ? "rgba(128,128,128,.2)" : "#000")
+    .strokeStyle(function(d) d ? "rgba(128,128,128,.5)" : "#000")
     .anchor("left").add(pv.Label)
     .text(y.tickFormat);
 
