@@ -14,6 +14,9 @@ import random
 from models import Session
 
 def getnodename(pe):
+	if pe == None:
+		return "(exit)"
+
 	if pe.view == None:
 		return None
 		
@@ -40,8 +43,8 @@ def report_sunburst(request, data_startdate, max_depth):
 				}
 	for session in Session.objects.filter(end__gte = data_startdate):
 		depth = None
-		for pe in session.get_path():
-			if pe.time < data_startdate:
+		for pe in list(session.get_path()) + [None]:
+			if pe != None and pe.time < data_startdate:
 				continue
 			
 			nodename = getnodename(pe)
@@ -53,9 +56,8 @@ def report_sunburst(request, data_startdate, max_depth):
 			all_nodes[nodename] += 1
 			
 			# Start the path search at a trigger view and proceed until
-			# a certain depth. Note that whenever we hit the trigger, we
-			# start over.
-			if nodename == starting_view or starting_view == '':
+			# a certain depth.
+			if depth == None and (nodename == starting_view or starting_view == ''):
 				depth = 0
 				node = graph
 				ancestors = []
@@ -72,7 +74,7 @@ def report_sunburst(request, data_startdate, max_depth):
 			
 			if not nodename in node:
 				label = nodename.split(".")[-1]
-				module = ".".join(pe.view.split(".")[0:-1])
+				module = ".".join(pe.view.split(".")[0:-1]) if pe != None else ""
 				if label == "*":
 					label = nodename
 
