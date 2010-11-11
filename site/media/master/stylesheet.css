@@ -995,7 +995,11 @@ h3#reporttitle {
 	.section_head {
 		}
 		
-	.content .campaigns h4, .content .campaigns .campaign_description {
+	.content .campaigns h4 {
+		font: 22px/22px BebasNeueRegular, helvetica, arial, sans-serif;
+		margin-left: 45px;
+		}
+	.content .campaigns .campaign_description  {
 		margin-left: 45px;
 		}
 	.content .campaigns h4 {
