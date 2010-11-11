@@ -61,6 +61,7 @@ class Record(models.Model):
 	###
 	
 	class Meta:
+		ordering = ["-hits", "created"]
 		unique_together = ["target_content_type", "target_object_id", "owner_content_type", "owner_object_id"]
 	
 	def __unicode__(self):

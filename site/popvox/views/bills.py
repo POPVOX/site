@@ -875,13 +875,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	if "shorturl" in request.session and request.session["shorturl"].target == comment:
 		surl = request.session["shorturl"]
 		request.session["comment-referrer"] = (bill, surl)
-		if isinstance(surl.owner, User):
-			if surl.owner == comment.user:
-				welcome = comment.user.username + " has shared with you this comment " + comment.address.heshe() + " left on " + bill.displaynumber() + "."
-			else:
-				welcome = "You have been shared this comment that user " + comment.user.username + " left on " + bill.displaynumber() + "."
-		elif isinstance(surl.owner, Org):
-			welcome = surl.owner.name + " has shared with you a comment that user " + comment.user.username + " left on " + bill.displaynumber() + "."
+		welcome = comment.user.username + " is using POPVOX to send their message to Congress. He or she left this comment on " + bill.displaynumber() + "."
 		del request.session["shorturl"] # so that we don't indefinitely display the message
 		
 	return render_to_response(
