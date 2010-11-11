@@ -176,7 +176,7 @@
 			<input type="button" class="submit" id="submitbutton" value="Save Your Changes" onclick="updateprofile(false)" disabled="1"/>
 			<p id="errorlabel" class="error"/>
 			<script>
-			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').keyup(function() { $('#submitbutton').attr("disabled", ''); });
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').textchange(function() { $('#submitbutton').attr("disabled", ''); });
 			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').keyup_delayed(function() { updateprofile(true) });
 			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').input_default();
 			</script>

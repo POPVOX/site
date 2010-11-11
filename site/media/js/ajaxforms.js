@@ -94,6 +94,14 @@ jQuery.fn.keydown_enter = function(callback) {
   });
 }
 
+jQuery.fn.textchange = function(callback) {
+  return this.each(function(){
+	jQuery(this).keyup(callback);
+	jQuery(this).bind("paste", callback);
+	jQuery(this).bind("cut", callback);
+  });
+}
+
 jQuery.fn.inline_edit = function(callback) {
 	return this.each(function(){
 		var inline = jQuery(this);
