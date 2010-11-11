@@ -6,7 +6,9 @@
 	<ul class="social_share_btns">
 		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')">facebook</a></li>
 		<li><a class="btn social_twitter" href="#" onclick="return share_tab('twitter')">twitter</a></li>
+		{% if user.is_authenticated %}
 		<li><a class="btn active b_social_email" href="#" onclick="return share_tab('email')">email</a></li>
+		{% endif %}
 	</ul>
 	<div class="clear"> </div>
 	
