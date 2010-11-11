@@ -148,7 +148,8 @@ def external_return(request, login_associate, provider):
 			rec.save()
 			
 			if user != request.user: # new AuthRecord for existing account
-				logout(request)
+				if request.user.is_authenticated(): # avoid clearing session state
+					logout(request)
 				user = authenticate(user_object = user)
 				login(request, user)
 			
@@ -162,6 +163,7 @@ def external_return(request, login_associate, provider):
 		# to let the user choose a username and if the login provider does not
 		# provide a trusted email address, then we have to ask for an email address
 		# and check it. We'll store what we know in the session state for now.
+		# Don't set a goal here since we'll set the registration goal when it's complete.
 		request.session["registration_credentials"] = (provider, auth_token, profile, uid, next)
 		return HttpResponseRedirect(reverse(external_finish))
 	
