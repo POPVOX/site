@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django import forms
 from django.core.urlresolvers import reverse
+from django.views.decorators.cache import cache_page
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
 
@@ -45,8 +46,8 @@ def getissueareas():
 	issue_areas = issues
 	return issues
 
+@cache_page(60 * 60 * 24) # one day
 def issuearea_chooser_list(request):
-	# TODO: Cache.
 	return render_to_response('popvox/issueareachooser_list.html', {'issues': getissueareas()}, context_instance=RequestContext(request))	
 
 def get_popular_bills():
