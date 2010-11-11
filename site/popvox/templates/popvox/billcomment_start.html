@@ -96,7 +96,7 @@ function validate_form() {
 	
 
 	{% if position != "0" %}
-		<p>Explain why your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.displaynumber}}. Your comment will be shared with others on POPVOX{% if user.username %} who will see your name as &ldquo;{{user.username}}&rdquo;{% endif %}.</p>
+		<p>Before we register your voice you <strong>must explain why</strong> your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.displaynumber}}. Your comment will be shared with others on POPVOX{% if user.username %} who will see your name as &ldquo;{{user.username}}&rdquo;{% endif %}.</p>
 		
 		<p>During the testing phase of POPVOX we are not yet sending comments to Members of Congress, but they will be able to find your message here.</p>
 		

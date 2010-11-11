@@ -7,6 +7,9 @@ from popvox.models import *
 from settings import SITE_ROOT_URL
 
 def bill_js(request):
+	# Don't record in traffic stats.
+	request.goal = None
+
 	try:
 		bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
 	except:

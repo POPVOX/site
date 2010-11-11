@@ -36,12 +36,14 @@
 			<h5>{% if position == "+" %}Support{% endif %}{% if position == "-" %}Oppose{% endif %} {{bill.displaynumber}}</h5>
 			{{message|wraplines:"p"}}
 		</div>
-		<div class="hr"> </div>
 	
 		{% if not user.is_authenticated %}
+		<p class="pad_btm">You are not done until you register or sign in.</p>
 		<p class="pad_btm">
 			<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
 		</p>
+		{% else %}
+		<p class="">You are not done just yet. Click Next to locate your congressional district.</p>
 		{% endif %}
 	{% else %}
 		<h1>Submit Your comment</h1>
