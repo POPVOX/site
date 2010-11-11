@@ -3,7 +3,7 @@ export DONT_CREATE_USERPROFILES=1
 
 cd ../site
 
-ssh www@popvox.com "cd sources/site; python manage.py dumpdata --settings=settings --indent=2 auth registration popvox trafficanalysis" > database.json
+ssh www@popvox.com "cd sources/site; python manage.py dumpdata --settings=settings --indent=2 auth registration popvox" > database.json
 
 rm database.sqlite
 python manage.py syncdb --noinput --settings=settings

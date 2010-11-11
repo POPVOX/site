@@ -24,4 +24,30 @@ function share(method) {
 		});
 	return false;
 }
+function share_tab(method) {
+	$('#sharetab_email').hide();
+	$('#sharetab_facebook').hide();
+	$('#sharetab_twitter').hide();
+	
+	if (method == "email" {% if twitter %}|| method == "twitter"{% endif %} {% if facebook %}|| method == "facebook"{% endif %})
+		$('#sharetab_message').fadeIn();
+	else
+		$('#sharetab_message').hide();
+	
+	if (method == "email")
+		$('#sharetab_message h3').text("Personalized Message To Recipients");
+	if (method == "facebook")
+		$('#sharetab_message h3').text("Wall Post");
+	if (method == "twitter")
+		$('#sharetab_message h3').text("Tweet");
+	$('#sharetab_' + method).fadeIn();
+	return false;
+}
+if (window.location.hash == "#twitter" || window.location.hash == "#facebook") {
+	$(function() {
+		share_tab(window.location.hash.substring(1));
+		$(window).scrollTop($('.social_share_btns').offset().top - 150);
+	});
+}
 </script>
+

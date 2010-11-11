@@ -430,13 +430,6 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 	referral_comment = None
 	referral_orgposition = None
 	
-	# for testing
-	#from shorturl.models import Record
-	#r = Record()
-	#r.target = bill
-	#r.owner = Org.objects.get(slug="demo")
-	#request.session["shorturl"] = r
-	
 	if "shorturl" in request.session and request.session["shorturl"].target == bill:
 		# Referral to this bill. If the link owner left a comment on the bill,
 		# then we can use that comment as the basis of the welcome
@@ -471,7 +464,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			if request.session["shorturl"].owner == referral_comment.user:
 				welcome = referral_comment.user.username + " has shared with you a comment " + referral_comment.address.heshe() + " left on " + bill.displaynumber() + ". You can find the comment below."
 			else:
-				welcome = request.session["shorturl"].owner.username + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
+				welcome = "You have been shared a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
 		elif isinstance(request.session["shorturl"].owner, Org):
 			welcome = request.session["shorturl"].owner.name + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
 		del request.session["shorturl"]
@@ -830,6 +823,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	bill = getbill(congressnumber, billtype, billnumber)
 	
+	# Get the user's comment.
 	user_position = None
 	if commentid != None:
 		comment = UserComment.objects.get(id=int(commentid))
@@ -839,7 +833,6 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 			except:
 				pass
 	else:
-		# Get the user's comment.
 		if not request.user.is_authenticated():
 			return HttpResponseRedirect(bill.url())
 		comment = request.user.comments.filter(bill = bill)
@@ -861,13 +854,29 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	except:
 		pass
 	
+	# Referral?
+	
+	welcome = None
+	if "shorturl" in request.session and request.session["shorturl"].target == comment:
+		surl = request.session["shorturl"]
+		request.session["comment-referrer"] = (bill, surl)
+		if isinstance(surl.owner, User):
+			if surl.owner == comment.user:
+				welcome = comment.user.username + " has shared with you this comment " + comment.address.heshe() + " left on " + bill.displaynumber() + "."
+			else:
+				welcome = "You have been shared this comment that user " + comment.user.username + " left on " + bill.displaynumber() + "."
+		elif isinstance(surl.owner, Org):
+			welcome = surl.owner.name + " has shared with you a comment that user " + comment.user.username + " left on " + bill.displaynumber() + "."
+		del request.session["shorturl"] # so that we don't indefinitely display the message
+		
 	return render_to_response(
 			'popvox/billcomment_share.html' if commentid == None else 'popvox/billcomment_view.html', {
 			'bill': bill,
 			"comment": comment,
 			"twitter": twitter,
 			"facebook": facebook,
-			"user_position": user_position
+			"user_position": user_position,
+			"welcome": welcome
 		}, context_instance=RequestContext(request))
 
 def send_mail2(subject, message, from_email, recipient_list, fail_silently=False):
