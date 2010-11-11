@@ -24,7 +24,7 @@ from utils import formatDateTime
 
 from settings import SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
 
-popular_bills = None
+popular_bills_cache = None
 issue_areas = None
 
 def getissueareas():
@@ -50,10 +50,10 @@ def issuearea_chooser_list(request):
 	return render_to_response('popvox/issueareachooser_list.html', {'issues': getissueareas()}, context_instance=RequestContext(request))	
 
 def get_popular_bills():
-	global popular_bills
+	global popular_bills_cache
 
-	if popular_bills != None:
-		return popular_bills
+	if popular_bills_cache != None and (datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
+		return popular_bills_cache[1]
 		
 	# Get popular bills from GovTrack.
 	if False:
@@ -104,6 +104,8 @@ def get_popular_bills():
 			popular_bills.append(b)
 			if len(popular_bills) > 12:
 				break
+	
+	popular_bills_cache = (datetime.now(), popular_bills)
 	
 	return popular_bills
 
