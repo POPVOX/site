@@ -260,6 +260,9 @@ def activity(request):
 			"default_district": default_district if default_district != None else "",
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr], govtrack.stateapportionment[abbr]) for abbr in govtrack.stateabbrs],
+			"count_users": User.objects.all().count(),
+			"count_comments": UserComment.objects.all().count(),
+			"count_orgs": Org.objects.filter(createdbyus=False).count(),
 		}, context_instance=RequestContext(request))
 	
 def activity_getinfo(request):
