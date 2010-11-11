@@ -299,6 +299,14 @@ def oauth2_get_redirect(request, provider, callback):
 	
 def oauth2_finish_authentication(request, provider, original_callback):
 	"""Finishes the authentication for OAuth2. Raises an Exception if the authentication had an error, or otherwise returns a tuple (provider, access_tok, profile) where provider is the provider id (e.g. "twitter") that started the authentication and profile is a dict returned by the provider that has profile information about the user."""
+
+	if "error_reason" in request.GET:
+		if request.GET["error_reason"] == "user_denied":
+			raise UserCancelledAuthentication()
+		if "error_description" in request.GET:
+			raise Exception("OAuth2 Failed: "  + request.GET["error_description"])
+		else:
+			raise Exception("OAuth2 Failed: "  + request.GET["error_reason"])
 	
 	url = providers[provider]["access_token_url"] + "?" + urllib.urlencode({
 			"client_id": providers[provider]["clientid"],
