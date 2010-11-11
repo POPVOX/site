@@ -12,7 +12,7 @@
 	
 	<div id="sharetab_message" style="display: none">
 		<h3 class="no_rule">Personalized Message to Recipients</h3>
-		<textarea id="share_message" class="c5">{% if mode == "mine" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}</textarea>
+		<textarea id="share_message" class="c5">{% if not message %}{% if mode == "mine" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}{% else %}{{message}}{% endif %}</textarea>
 		<script>$(function() { $('#share_message').input_autosize(); });</script>
 	</div>
 
@@ -51,14 +51,13 @@
 		<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
 	{% else %}
 		{% if user == comment.user and comment.tweet_id %}
-			<p>You have already tweeted about this bill, but if you go strongly about the issue please go over to Twitter and <a href="http://twitter.com/?status=%20{{bill.hashtag|urlencode}}">tweet some more</a>.</p>
-		{% else %}
+			<p>You have already tweeted about this bill but you can tweet again.</p>
+		{% endif %}
 			<p>Click the Twitter share button to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
 			<p><a href="#" onclick="return share('twitter')"> 
 				<img src="/media/icons/sm/twitter-share.png"/> 
 			</a></p>
 			<p id="share_twitter_status"></p>
-		{% endif %}
 	{% endif %}
 	</div>
 

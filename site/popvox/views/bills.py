@@ -14,6 +14,7 @@ from xml.dom import minidom
 import urllib
 import datetime
 import json
+import urllib2
 
 from popvox.models import *
 from registration.helpers import captcha_html, validate_captcha
@@ -840,6 +841,14 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 			return HttpResponseRedirect(bill.url())
 		comment = comment[0]
 
+	# Default message text from saved session state.
+	message = None
+	try:
+		message = request.session["billshare_share.message"]
+		del request.session["billshare_share.message"]
+	except:
+		pass
+
 	# What social auth is available?
 	
 	twitter = None
@@ -873,6 +882,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 			'popvox/billcomment_share.html' if commentid == None else 'popvox/billcomment_view.html', {
 			'bill': bill,
 			"comment": comment,
+			"message": message,
 			"twitter": twitter,
 			"facebook": facebook,
 			"user_position": user_position,
@@ -972,6 +982,9 @@ Go to %s to have your voice be heard!
 		
 		# TODO: we might want to set in_reply_to_status_id in the call to something interesting, like if this comment's referrer is a user and the user commented on the same bill, and tweeted, then that tweet_id.
 		ret = twitter.UpdateStatus(tweet.encode('utf-8'))
+		if type(ret) == urllib2.HTTPError and ret.code == 401:
+			request.session["billshare_share.message"] = request.POST["message"]
+			return { "status": "fail", "error": "not-authorized" }
 		if type(ret) != dict:
 			return { "status": "fail", "msg": unicode(ret) }
 		if "error" in ret:
