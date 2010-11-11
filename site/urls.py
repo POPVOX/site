@@ -48,6 +48,7 @@ urlpatterns = patterns('',
 	(r'^ajax/orgs/add_staff_contact$', 'popvox.views.org.org_add_staff_contact'),
 	(r'^ajax/orgs/cam/updatefield$', 'popvox.views.org.orgcampaign_updatefield'),
 	(r'^ajax/orgs/cam/updatefields$', 'popvox.views.org.orgcampaign_updatefields'),
+	(r'^ajax/orgs/getbillshorturl$', 'popvox.views.org.getbillshorturl'),
 	(r'^post/org_support_oppose$', "popvox.views.org.org_support_oppose"),
 	
 	(r'^accounts/login$', 'registration.views.loginform'),

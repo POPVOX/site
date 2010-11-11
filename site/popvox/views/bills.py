@@ -456,21 +456,12 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 					welcome = "Hello! " + request.session["shorturl"].owner.name + " wants you to " + ("support" if referral_orgposition.position == "+" else "oppose") + " " + bill.displaynumber() + ".  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			except:
 				pass
-		del request.session["shorturl"]
-
-	elif "shorturl" in request.session and isinstance(request.session["shorturl"].target, UserComment) and request.session["shorturl"].target.bill == bill:
-		# Referral to a comment on this bill. The owner might or might not have
-		# written the comment.
-		request.session["comment-referrer"] = (bill, request.session["shorturl"])
-		referral_comment = request.session["shorturl"].target
-		welcome_tabname = referral_comment.user.username + "'s Comment"
-		if isinstance(request.session["shorturl"].owner, User):
-			if request.session["shorturl"].owner == referral_comment.user:
-				welcome = referral_comment.user.username + " has shared with you a comment " + referral_comment.address.heshe() + " left on " + bill.displaynumber() + ". You can find the comment below."
-			else:
-				welcome = "You have been shared a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
-		elif isinstance(request.session["shorturl"].owner, Org):
-			welcome = request.session["shorturl"].owner.name + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
+			
+			# If an org admin follows their own link, let them see it from the
+			# user's perspective.
+			if user_org == request.session["shorturl"].owner:
+				user_org = None
+				
 		del request.session["shorturl"]
 	
 	elif commentid != None:

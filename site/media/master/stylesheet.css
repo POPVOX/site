@@ -3336,3 +3336,7 @@ table.form_fields td {
 	color: #555;
 }
 
+tt {
+	font-family: mono;
+	font-weight: bold;
+}

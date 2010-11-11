@@ -20,6 +20,20 @@ function showtab(tab) {
 	$('#' + tab).fadeIn();
 	return false; // cancel click
 }
+{% if user_org %}
+function getshorturl() {
+	ajax(
+		"/ajax/orgs/getbillshorturl",
+		{ org: "{{user_org.slug|escapejs}}", bill: {{bill.id}}},
+		{
+			success: function(res) {
+				$('#getshorturl').html("Use this special tracking URL <tt>" + res.url + "</tt> to send your membership to this page. We will later be providing analytics on your campaign.");
+			},
+		}
+	);
+	return false;
+}
+{% endif %}
 </script>
 {% endblock %}
 {% block content %}
@@ -49,8 +63,6 @@ function showtab(tab) {
 			{% endif %}
 		</div>
 		
-		<div class="hr"> </div>
-	
 	{% comment %} START FOR ORG STAFF {% endcomment %}
 	{% if user_org %}
 		<div class="col_6">
@@ -148,11 +160,25 @@ function showtab(tab) {
 			</div> <!-- bill_endorse_oppose -->
 		
 		</div> <!-- col_6 -->
+		
+		<div class="col_3 col_last">
+			<h3 class="stroke">Drive Your Membership to Take Action</h3>
+			{% if not existing_org_positions %}
+				<p>POPVOX provides organizations with customized action pages to drive membership to take action. Start by endorsing or opposing this bill.</p>
+			{% else %}
+				<ul class="bullets">
+					<li id="getshorturl"><a href="#" onclick="return getshorturl()">Get a Tracking URL</a></li>
+					<li>Create a customized action page for list building</li>
+				</ul>
+			{% endif %}
+		</div> <!-- col_3 -->
 	{% endif %}
 	{% comment %} END FOR ORG STAFF {% endcomment %}
 	
 	{% comment %} START OF USER VOTE {% endcomment %}
 		{% if canvote and bill.isAlive %}
+		<div class="hr"> </div>
+	
 		<div class="col_3 col_top">
 			<h3 class="no_rule">What do you think</h3>
 			{% include "popvox/bill_howshouldtheyvote.html" %}
