@@ -21,18 +21,7 @@ function showtab(tab) {
 	return false; // cancel click
 }
 {% if user_org %}
-function getshorturl() {
-	ajax(
-		"/ajax/orgs/getbillshorturl",
-		{ org: "{{user_org.slug|escapejs}}", bill: {{bill.id}}},
-		{
-			success: function(res) {
-				$('#getshorturl').html("Use this special tracking URL <tt>" + res.url + "</tt> to send your membership to this page. We will later be providing analytics on your campaign.");
-			},
-		}
-	);
-	return false;
-}
+{% include "popvox/org_billaction.js" %}
 {% endif %}
 </script>
 {% endblock %}
@@ -131,14 +120,14 @@ function getshorturl() {
 				<p><small>Or leave a <a href="#" onclick="return endorse_oppose_1('0')">neutral statement</a>.</small></p>
 	
 				{% if existing_org_positions %}
-				<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.cam.default %} in <a href="{{pp.cam.url}}">{{pp.cam.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
+				<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.campaign.default %} in <a href="{{pp.campaign.url}}">{{pp.campaign.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
 				{% endif %}
 		
 				<div style="display: none">
 					<div id="bill_endorse_oppose_colorbox" class="colorbox" style="width: 500px">
 					<h1><span id="bill_endorse_oppose_descr2"></span> {{ bill.displaynumber }}?</h1>
 					<p>You are about to <span id="bill_endorse_oppose_descr"></span> {{ bill.displaynumber }} in {{user_org.name}}&rsquo;s legislative agenda.</p>
-					<p>Please provide a short explanation for your position.</p>
+					<p>Please provide a short explanation for your position in the form of a bill summary.</p>
 					<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%">{% for p in existing_org_positions %}{% if forloop.first %}{{p.comment}}{% endif %}{% endfor %}</textarea>
 					<div>
 						<input type="checkbox" id="bill_endorse_oppose_forcam" onclick="if ($('#bill_endorse_oppose_forcam')[0].checked) $('#bill_endorse_oppose_cam').attr('disabled', ''); else $('#bill_endorse_oppose_cam').attr('disabled', '1');" {% if lastviewedcampaign %}checked="1"{% endif %}/>
@@ -166,10 +155,11 @@ function getshorturl() {
 			{% if not existing_org_positions %}
 				<p>POPVOX provides organizations with customized action pages to drive membership to take action. Start by endorsing or opposing this bill.</p>
 			{% else %}
-				<ul class="bullets">
-					<li id="getshorturl"><a href="#" onclick="return getshorturl()">Get a Tracking URL</a></li>
-					<li>Create a customized action page for list building</li>
-				</ul>
+				{% for position in existing_org_positions %}
+					{% if forloop.first %}
+						{% include "popvox/org_billaction.html" %}
+					{% endif %}
+				{% endfor %}
 			{% endif %}
 		</div> <!-- col_3 -->
 	{% endif %}

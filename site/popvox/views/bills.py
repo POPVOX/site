@@ -370,7 +370,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			user_org = user_org[0].org
 			for cam in user_org.orgcampaign_set.all():
 				for p in cam.positions.filter(bill = bill):
-					existing_org_positions.append({"cam": cam, "position": posdescr[p.position], "comment": p.comment})
+					existing_org_positions.append({"campaign": cam, "position": posdescr[p.position], "comment": p.comment, "id": p.id})
 		
 	user_position = None
 	mocs = []
