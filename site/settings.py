@@ -152,7 +152,7 @@ INSTALLED_APPS = (
     'feedback',
     'picklefield',
     'jquery',
-    'congressional_district',
+    'writeyourrep',
     'phone_number_twilio',
     'emailverification',
     'shorturl',

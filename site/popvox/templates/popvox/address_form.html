@@ -53,7 +53,7 @@ function useraddress_get_district() {
 	
 	$('#useraddress_congressionaldistrict_label').text("Checking...");
 
-	ajax("{% url congressional_district.views.district_lookup %}",
+	ajax("{% url writeyourrep.district_lookup.district_lookup %}",
 		{
 			address: address,
 			zipcode: $('#useraddress_zipcode').val()

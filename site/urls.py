@@ -69,7 +69,7 @@ urlpatterns = patterns('',
 	
 	(r'^widgets/js/bill.js$', 'popvox.views.widgets.bill_js'),
 
-	(r'^ajax/district-lookup$', 'congressional_district.views.district_lookup'),
+	(r'^ajax/district-lookup$', 'writeyourrep.district_lookup.district_lookup'),
 	
 	(r'^ajax/phone_number_twilio/', include('phone_number_twilio.urls')),
 	(r'^emailverif/', include('emailverification.urls')),
