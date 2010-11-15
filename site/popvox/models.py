@@ -416,7 +416,9 @@ class OrgCampaignPosition(models.Model):
 	campaign = models.ForeignKey(OrgCampaign, related_name="positions")
 	bill = models.ForeignKey(Bill)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
-	comment = models.TextField(max_length=600, blank=True, null=True)
+	comment = models.TextField(blank=True, null=True)
+	action_headline = models.CharField(max_length=128, blank=True)
+	action_body = tinymce_models.HTMLField(blank=True) #models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	class Meta:
@@ -445,6 +447,7 @@ class UserProfile(models.Model):
 	district = models.IntegerField(blank=True, null=True) # None if not set, 0 for at-large, otherwise cong. district number
 
 	allow_mass_mails = models.BooleanField(default=True)
+	registration_followup_sent = models.BooleanField(default=False)
 	
 	issues = models.ManyToManyField(IssueArea, blank=True)
 	

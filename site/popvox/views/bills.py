@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django import forms
 from django.core.urlresolvers import reverse
+from django.views.decorators.cache import cache_page
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
 
@@ -24,7 +25,7 @@ from utils import formatDateTime
 
 from settings import SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
 
-popular_bills = None
+popular_bills_cache = None
 issue_areas = None
 
 def getissueareas():
@@ -45,15 +46,15 @@ def getissueareas():
 	issue_areas = issues
 	return issues
 
+@cache_page(60 * 60 * 24) # one day
 def issuearea_chooser_list(request):
-	# TODO: Cache.
 	return render_to_response('popvox/issueareachooser_list.html', {'issues': getissueareas()}, context_instance=RequestContext(request))	
 
 def get_popular_bills():
-	global popular_bills
+	global popular_bills_cache
 
-	if popular_bills != None:
-		return popular_bills
+	if popular_bills_cache != None and (datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
+		return popular_bills_cache[1]
 		
 	# Get popular bills from GovTrack.
 	if False:
@@ -104,6 +105,8 @@ def get_popular_bills():
 			popular_bills.append(b)
 			if len(popular_bills) > 12:
 				break
+	
+	popular_bills_cache = (datetime.now(), popular_bills)
 	
 	return popular_bills
 
@@ -367,7 +370,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			user_org = user_org[0].org
 			for cam in user_org.orgcampaign_set.all():
 				for p in cam.positions.filter(bill = bill):
-					existing_org_positions.append({"cam": cam, "position": posdescr[p.position], "comment": p.comment})
+					existing_org_positions.append({"campaign": cam, "position": posdescr[p.position], "comment": p.comment, "id": p.id})
 		
 	user_position = None
 	mocs = []
@@ -453,21 +456,12 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 					welcome = "Hello! " + request.session["shorturl"].owner.name + " wants you to " + ("support" if referral_orgposition.position == "+" else "oppose") + " " + bill.displaynumber() + ".  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			except:
 				pass
-		del request.session["shorturl"]
-
-	elif "shorturl" in request.session and isinstance(request.session["shorturl"].target, UserComment) and request.session["shorturl"].target.bill == bill:
-		# Referral to a comment on this bill. The owner might or might not have
-		# written the comment.
-		request.session["comment-referrer"] = (bill, request.session["shorturl"])
-		referral_comment = request.session["shorturl"].target
-		welcome_tabname = referral_comment.user.username + "'s Comment"
-		if isinstance(request.session["shorturl"].owner, User):
-			if request.session["shorturl"].owner == referral_comment.user:
-				welcome = referral_comment.user.username + " has shared with you a comment " + referral_comment.address.heshe() + " left on " + bill.displaynumber() + ". You can find the comment below."
-			else:
-				welcome = "You have been shared a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
-		elif isinstance(request.session["shorturl"].owner, Org):
-			welcome = request.session["shorturl"].owner.name + " has shared with you a comment that user " + referral_comment.user.username + " left on " + bill.displaynumber() + ". You can find the comment below."
+			
+			# If an org admin follows their own link, let them see it from the
+			# user's perspective.
+			if user_org == request.session["shorturl"].owner:
+				user_org = None
+				
 		del request.session["shorturl"]
 	
 	elif commentid != None:
@@ -875,13 +869,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	if "shorturl" in request.session and request.session["shorturl"].target == comment:
 		surl = request.session["shorturl"]
 		request.session["comment-referrer"] = (bill, surl)
-		if isinstance(surl.owner, User):
-			if surl.owner == comment.user:
-				welcome = comment.user.username + " has shared with you this comment " + comment.address.heshe() + " left on " + bill.displaynumber() + "."
-			else:
-				welcome = "You have been shared this comment that user " + comment.user.username + " left on " + bill.displaynumber() + "."
-		elif isinstance(surl.owner, Org):
-			welcome = surl.owner.name + " has shared with you a comment that user " + comment.user.username + " left on " + bill.displaynumber() + "."
+		welcome = comment.user.username + " is using POPVOX to send their message to Congress. He or she left this comment on " + bill.displaynumber() + "."
 		del request.session["shorturl"] # so that we don't indefinitely display the message
 		
 	return render_to_response(

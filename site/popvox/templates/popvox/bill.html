@@ -20,6 +20,9 @@ function showtab(tab) {
 	$('#' + tab).fadeIn();
 	return false; // cancel click
 }
+{% if user_org %}
+{% include "popvox/org_billaction.js" %}
+{% endif %}
 </script>
 {% endblock %}
 {% block content %}
@@ -49,8 +52,6 @@ function showtab(tab) {
 			{% endif %}
 		</div>
 		
-		<div class="hr"> </div>
-	
 	{% comment %} START FOR ORG STAFF {% endcomment %}
 	{% if user_org %}
 		<div class="col_6">
@@ -119,14 +120,14 @@ function showtab(tab) {
 				<p><small>Or leave a <a href="#" onclick="return endorse_oppose_1('0')">neutral statement</a>.</small></p>
 	
 				{% if existing_org_positions %}
-				<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.cam.default %} in <a href="{{pp.cam.url}}">{{pp.cam.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
+				<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.campaign.default %} in <a href="{{pp.campaign.url}}">{{pp.campaign.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
 				{% endif %}
 		
 				<div style="display: none">
 					<div id="bill_endorse_oppose_colorbox" class="colorbox" style="width: 500px">
 					<h1><span id="bill_endorse_oppose_descr2"></span> {{ bill.displaynumber }}?</h1>
 					<p>You are about to <span id="bill_endorse_oppose_descr"></span> {{ bill.displaynumber }} in {{user_org.name}}&rsquo;s legislative agenda.</p>
-					<p>Please provide a short explanation for your position.</p>
+					<p>Please provide a short explanation for your position in the form of a bill summary.</p>
 					<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%">{% for p in existing_org_positions %}{% if forloop.first %}{{p.comment}}{% endif %}{% endfor %}</textarea>
 					<div>
 						<input type="checkbox" id="bill_endorse_oppose_forcam" onclick="if ($('#bill_endorse_oppose_forcam')[0].checked) $('#bill_endorse_oppose_cam').attr('disabled', ''); else $('#bill_endorse_oppose_cam').attr('disabled', '1');" {% if lastviewedcampaign %}checked="1"{% endif %}/>
@@ -148,11 +149,26 @@ function showtab(tab) {
 			</div> <!-- bill_endorse_oppose -->
 		
 		</div> <!-- col_6 -->
+		
+		<div class="col_3 col_last">
+			<h3 class="stroke">Drive Your Membership to Take Action</h3>
+			{% if not existing_org_positions %}
+				<p>POPVOX provides organizations with customized action pages to drive membership to take action. Start by endorsing or opposing this bill.</p>
+			{% else %}
+				{% for position in existing_org_positions %}
+					{% if forloop.first %}
+						{% include "popvox/org_billaction.html" %}
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		</div> <!-- col_3 -->
 	{% endif %}
 	{% comment %} END FOR ORG STAFF {% endcomment %}
 	
 	{% comment %} START OF USER VOTE {% endcomment %}
 		{% if canvote and bill.isAlive %}
+		<div class="hr"> </div>
+	
 		<div class="col_3 col_top">
 			<h3 class="no_rule">What do you think</h3>
 			{% include "popvox/bill_howshouldtheyvote.html" %}

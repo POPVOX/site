@@ -5,6 +5,11 @@
 {% block title %}{{comment.user.username}}&rsquo;s Comment on {{ bill.title|truncatewords:10 }}{% endblock%}
 {% block description %}{{comment.message|truncatewords:40}}{% endblock %}
 {%block nav_citzen_class_bills%}active{%endblock%}
+{% block adunits %}
+	{% if welcome %}
+		{% include "ads/rightbar_single_head.html" %}
+	{% endif %}
+{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -17,15 +22,13 @@
 		<h1>The Voice of the people. The Language of Congress.</h1>
 		<p>{{welcome}}</p>
 	</div>
+	{% include "ads/rightbar_single.html" %}	
 	{% endif %}
-	
-	<div class="col_3 col_last">
-	</div>
 	
 	<div class="col_12 rule clear"> </div>
 
 	<div class="col_6 col_top">
-		<div class="block referred_quote_opposed">
+		<div class="block referred_quote_{% if comment.position == '+' %}endorse{% else %}opposed{% endif %}">
 			<p class="commenter">{{comment.user.username}} <!--from {{comment.address.state}}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district-->commented {{comment.updated|date2}}:</p>
 
 			<h4>{{bill.displaynumber}}: {% if comment.position == '+' %}Support{% else %}Oppose{% endif %}</h4>

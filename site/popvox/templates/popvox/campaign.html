@@ -10,6 +10,11 @@
 	{% with cam.org as org %}
 		{% include "popvox/org_common_scripts.html" %}
 	{% endwith %}
+	{% if admin %}
+		<script>
+			{% include "popvox/org_billaction.js" %}
+		</script>
+	{% endif %}
 {% endblock %}
 {% block content %}
 <div class="content"> 

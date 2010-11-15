@@ -25,6 +25,10 @@
 				} );
 			$('#campos_{{cam.id}}_{{position.id}}_comment_textarea').input_autosize();
 		</script>
+		
+		{% with position.bill as bill %}
+			{% include "popvox/org_billaction.html" %}
+		{% endwith %}
 		{% endif %}
 	</div>
 </div>

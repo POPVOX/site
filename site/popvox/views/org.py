@@ -562,3 +562,27 @@ def set_last_campaign_viewed(request, cam):
 	# Otherwise, set it.
 	request.session["popvox_lastviewedcampaign"] = cam.id
 
+@json_response
+def getbillshorturl(request):
+	pos = get_object_or_404(OrgCampaignPosition, id=request.POST["billposid"])
+	
+	org = pos.campaign.org
+	if not org.is_admin(request.user) :
+		return HttpResponseForbidden("Not authorized.")
+	
+	import shorturl
+	surl, created = shorturl.models.Record.objects.get_or_create(owner=pos.campaign, target=pos.bill)
+	
+	return { "status": "success", "url": surl.url(), "new": created }
+
+def action(request, orgslug, billposid):
+	org = get_object_or_404(Org, slug=orgslug)
+	billpos = get_object_or_404(OrgCampaignPosition, id=billposid, campaign__org = org)
+
+	set_last_campaign_viewed(request, billpos.campaign)
+	
+	return render_to_response('popvox/org_action.html', {
+		'position': billpos,
+		'admin': org.is_admin(request.user)
+		}, context_instance=RequestContext(request))
+

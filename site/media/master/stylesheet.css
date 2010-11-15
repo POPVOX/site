@@ -995,7 +995,11 @@ h3#reporttitle {
 	.section_head {
 		}
 		
-	.content .campaigns h4, .content .campaigns .campaign_description {
+	.content .campaigns h4 {
+		font: 22px/22px BebasNeueRegular, helvetica, arial, sans-serif;
+		margin-left: 45px;
+		}
+	.content .campaigns .campaign_description  {
 		margin-left: 45px;
 		}
 	.content .campaigns h4 {
@@ -2638,6 +2642,14 @@ ul.social_share_btns li {
 	width: 140px;
 	padding: 0px 0px 0 0; 
 	}
+	.form label.checkbox {
+		display: block;
+		float: left;
+		clear: none;
+		margin-bottom: 0 0 20px 0;
+		text-align: left;
+		width: 400px;
+	}
 	
 .col_3 .form label {
 	width: 80px;
@@ -2658,6 +2670,12 @@ input.default, textarea.default {
 	margin-bottom: 12px;
 	padding: 3px 5px;
 	width: 448px;
+	}
+	.form input[type='checkbox'] {
+		float: left;
+		margin: 5px 5px 5px 0;
+		height: inherit;
+		width: inherit;
 	}
 	
 .col_3 .form input, .col_3 .form textarea, .col_3 .form file, .col_3 .form .field {
@@ -3360,3 +3378,7 @@ table.form_fields td {
 	color: #555;
 }
 
+tt {
+	font-family: mono;
+	font-weight: bold;
+}
