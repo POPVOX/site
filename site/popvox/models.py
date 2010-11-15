@@ -447,6 +447,7 @@ class UserProfile(models.Model):
 	district = models.IntegerField(blank=True, null=True) # None if not set, 0 for at-large, otherwise cong. district number
 
 	allow_mass_mails = models.BooleanField(default=True)
+	registration_followup_sent = models.BooleanField(default=False)
 	
 	issues = models.ManyToManyField(IssueArea, blank=True)
 	

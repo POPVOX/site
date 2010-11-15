@@ -9,6 +9,7 @@
 				{
 					"username": "#username",
 					"email": "#email",
+					"allow_mass_mails": "#allow_mass_mails",
 					{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
 					"fullname": "#fullname",
 					{% endif %}
@@ -72,6 +73,10 @@
 	<div id="errorlabel_email" class="error"></div>
 	<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
 	
+	<label> </label>
+	<input id="allow_mass_mails" type="checkbox" {% if user.userprofile.allow_mass_mails %}checked="1"{% endif %}/>
+	<label class="checkbox" for="allow_mass_mails">Allow POPVOX to send you occasional updates about the service and requests for feedback on how we&rsquo;re doing.</label>
+ 	
 	{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
 	<label for="fullname">Full Name</label>
 	<input id="fullname" type="text" value="{% if user.userprofile.fullname %}{{user.userprofile.fullname}}{% endif %}"/>
@@ -127,7 +132,7 @@
 	{% endfor %}
 	
 	<input type="button" class="submit" id="submitbutton" value="Save" onclick="updateprofile(false)"/>
-	<p id="errorlabel" class="error"/>
+	<p id="errorlabel" class="error clear"/>
 	<div class="hr"></div>
 	
 	{% if user.userprofile.is_leg_staff %}
@@ -141,11 +146,12 @@
 	<ul class="bullets">
 		<li><a href="#" onclick="return showIssueAreaChooser(issuearea_list);">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a></li>
 	</ul>
-	{% endif %}
 	
 	{% include "popvox/issueareachooser.html" %}	
 	
 	<div class="hr"></div>
+	{% endif %}
+	
 	{% include "registration/profile_singlesignon.html" %}
 	
 	</div>
