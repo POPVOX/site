@@ -254,6 +254,9 @@ def reports(request):
 
 def activity(request):
 	default_state, default_district = get_default_statistics_context(request.user)
+	
+	import phone_number_twilio
+	pntv = phone_number_twilio.models.PhoneNumber.objects.filter(verified=True).count()
 		
 	return render_to_response('popvox/activity.html', {
 			"default_state": default_state if default_state != None else "",
@@ -261,6 +264,7 @@ def activity(request):
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr], govtrack.stateapportionment[abbr]) for abbr in govtrack.stateabbrs],
 			"count_users": User.objects.all().count(),
+			"count_users_verified": pntv,
 			"count_comments": UserComment.objects.all().count(),
 			"count_orgs": Org.objects.filter(createdbyus=False).count(),
 		}, context_instance=RequestContext(request))
