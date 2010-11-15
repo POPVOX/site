@@ -2533,9 +2533,16 @@ ul#issuearealist {
 	min-height: 160px;
 	height: auto !important;
 	height: 160px;
+	width: 414px;
+	}
+	
+.referred_quote_endorse p,
+.referred_quote_opposed p {
+	font: italic bold 16px/22px georgia, serif;
 	}
 		
-	.commenter {
+	.referred_quote_endorse p.commenter,
+	.referred_quote_opposed p.commenter {
 		font: italic normal 12px/18px georgia, serif;
 		padding: 20px 0 0 60px;
 		}
@@ -2576,7 +2583,7 @@ ul.social_share_btns li {
 		text-indent: -9999em;
 		display: block;
 		width: 50px;
-		height: 32px;
+		height: 31px;
 		border: none;
 		margin-bottom: 20px;
 		}
@@ -2593,6 +2600,23 @@ ul.social_share_btns li {
 		background: url(b_social_email.png) left top no-repeat;
 		}
 		
+	.b_login_facebook,
+	.b_login_twitter {
+		text-indent: -9999em;
+		display: block;
+		width: 130px;
+		height: 22px;
+		border: none;
+		margin-bottom: 20px;
+		}
+		
+		.b_login_facebook {
+			background: url(b_login_facebook.png) left top no-repeat;
+			}
+
+		.b_login_twitter {
+			background: url(b_login_twitter.png) left top no-repeat;
+			}
 		
 		
 

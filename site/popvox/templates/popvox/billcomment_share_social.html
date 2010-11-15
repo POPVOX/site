@@ -6,57 +6,55 @@
 	<ul class="social_share_btns">
 		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')">facebook</a></li>
 		<li><a class="btn social_twitter" href="#" onclick="return share_tab('twitter')">twitter</a></li>
-		<li><a class="btn active b_social_email" href="#" onclick="return share_tab('email')">email</a></li>
+		<li><a class="btn b_social_email" href="#" onclick="return share_tab('email')">email</a></li>
 	</ul>
 	<div class="clear"> </div>
 	
-	<div id="sharetab_message" style="display: none">
+	<div id="sharetab_message form" style="display: none">
 		<h3 class="no_rule">Personalized Message to Recipients</h3>
 		<textarea id="share_message" class="c5">{% if not message %}{% if mode == "mine" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}{% else %}{{message}}{% endif %}</textarea>
 		<script>$(function() { $('#share_message').input_autosize(); });</script>
 	</div>
 
 	<div id="sharetab_email" style="display: none">
-	<div class="form">
-		<textarea id="share_email_field" class="c6"></textarea>
-		<div>
-			<input id="share_email_button" type="button" class="submit btn" value="Share Via Email" onclick="share('email')"/>
-			<span id="share_email_status" class="error"></span>
+		<p><strong>Via Email</strong></p>
+		<div class="form">
+			<textarea id="share_email_field" class="c6"></textarea>
+			<div>
+				<input id="share_email_button" type="button" class="submit btn" value="Share Via Email" onclick="share('email')"/>
+				<span id="share_email_status" class="error"></span>
+			</div>
+			<p class="tip_inline">The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
+			<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
 		</div>
-		<p class="tip_inline">The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
-		<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
-	</div>
 	</div>
 	
 	<div id="sharetab_facebook" style="display: none">
+		<p><strong>Via Facebook</strong></p>
 	{% if not facebook %}
 		<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin:</p>
-		<p><a href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}{{"#facebook"|urlencode}}">
-		<img src="/media/icons/sm/facebook-login.png"/></a></p>
+		<p><a class="b_login_facebook btn" href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}{{"#facebook"|urlencode}}">login to facebook</a></p>
 	{% else %}
 		{% if user == comment.user and comment.fb_linkid %}
 			<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
 		{% endif %}
 		<p>Click the Facebook Share icon to post your message on your Wall (in the account {{facebook.profile.screen_name}}):</p>
-		<p><a href="#" onclick="return share('facebook')"> 
-			<img src="/media/icons/sm/facebook-share.png"/> 
-		</a></p>
+		<p><a class="b_login_facebook btn" href="#" onclick="return share('facebook')">login to facebook</a></p>
 		<p id="share_facebook_status"></p>
 	{% endif %}
 	</div>
 
 	<div id="sharetab_twitter" style="display: none">
+		<p><strong>Via Twitter</strong></p>
 	{% if not twitter %}
 		<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button to begin:</p>
-		<p><a href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}"><img src="/media/icons/sm/twitter-login.png"/></a></p> 
+		<p><a class="b_login_twitter btn" href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}">login to twitter</a></p> 
 	{% else %}
 		{% if user == comment.user and comment.tweet_id %}
 			<p>You have already tweeted about this bill but you can tweet again.</p>
 		{% endif %}
 			<p>Click the Twitter share button to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
-			<p><a href="#" onclick="return share('twitter')"> 
-				<img src="/media/icons/sm/twitter-share.png"/> 
-			</a></p>
+			<p><a class="b_login_twitter btn" href="#" onclick="return share('twitter')">login to twitter</a></p>
 			<p id="share_twitter_status"></p>
 	{% endif %}
 	</div>
