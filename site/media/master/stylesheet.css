@@ -954,7 +954,7 @@ h3#reporttitle {
 			
 	.content p {
 		font-size: 14px;
-		line-height: 18px;
+		line-height: 22px;
 		margin-bottom: .5em;
 		}
 		
@@ -1200,10 +1200,14 @@ h3#reporttitle {
 		font: normal 12px/16px helvetica, san-serif;
 		}
 		
+		.tab_tab li a {
+			color: #CC6A11;
+			}
+			
 		.tab_tab li:hover a,
 		.tab_tab li.active a {
 			color: #fff;
-			margin-right: 30px;
+			padding-right: 30px;
 			text-decoration: none;
 			background-position: left top;
 			border: none;
@@ -2371,21 +2375,44 @@ ul#issuearealist {
 		.about h3 {
 			
 			}
+			
+		.block.signup #signup_form input.signup_input {
+			font: normal 12px/18px helvetica, arial, sans-serif;
+			margin-bottom: 12px;
+			padding: 3px 5px;
+			border: none;
+			width: 208px;
+			height: 23px;
+			color: #75747c;
+			border: 1px solid #BFC4C8;
+			}
+			
+		.block.signup #signup_form label {
+			width: 160px;
+			display: block;
+			padding-top: 6px;
+			float: left;
+			}
+			
+			.block.signup #signup_form #subscribe_button {
+				float: left;
+				display: block;
+				}
 		
 	.block.follow_us {
 		padding-top: 20px;
 		text-align: left;
-		height: 100px;
+		height: 60px;
 		}
 		
-		.follow_us h2, .hot h2, .about h2 {
+		.follow_us h2, .hot h2, .about h2, .signup h2 {
 			font: normal 28px/28px 'BebasNeueRegular', helvetica, arial, sans-serif;
 			letter-spacing: .02em;
 			text-transform: uppercase;
 			margin: 10px 0;
 			}
 		
-			.about h2 {
+			.about h2, .signup h2 {
 				margin-top: 5px;
 				}
 				
@@ -2449,7 +2476,7 @@ ul#issuearealist {
 				background: url(b_retweet.gif) left top no-repeat;
 				border: none;
 				}	
-				
+
 
 	.absolute_hack {
 		position: absolute;
@@ -2791,6 +2818,8 @@ input.default, textarea.default {
 	margin-right: 0px;
 	}
 	
+
+		
 .captcha {
 	padding-left: 160px;
 	}
@@ -3203,6 +3232,88 @@ ul.org_all {
 ul.org_all .notcreatedbyus {
 	font-weight: bold;
 }
+
+
+
+/*  org custom landing page  */
+
+.org_custom h1 {
+	color: #CC6A11;
+	}
+	
+.org_custom h1 span {
+	width: 220px;
+	height: 30px;
+	float: right;
+	display: block;
+	font: bold 12px/18px helvetica, arial, sans-serif;
+	margin: auto 0;
+	color: #404045;
+	}
+
+.custom_msg {
+	height: 280px;
+	border-bottom: 1px solid #D4D1CA;
+	}
+
+.content .col_6 .custom_msg h3 {
+	font: bold 14px/22px helvetica, arial, sans-serif;
+	color: #404045;
+	text-transform: none;
+	}
+		
+.org_custom .float_right {
+	margin-top: 5px;
+	}
+	
+.content .stroke_box {
+	border: 1px solid #D4D1CA;
+	float: left;
+	margin: 20px 0 30px;
+	padding: 10px 20px 20px;
+	width: 414px;
+	height: 260px;
+	}
+	
+.content.org_custom h4 {
+	margin-top: 0;
+	}
+
+.form.form_org input.c3 {
+	width: 183px;
+	margin-right: 20px;
+	}
+	
+	.form.form_org input.c3.last {
+		margin-right: 0;
+		}
+
+.form .radio {
+	float: left;
+	width: 200px;
+	margin-right: 20px;
+	}
+
+.form_org .radio input {
+	width: 20px;
+	float: left;
+	margin: 0 10px 0 0;
+	}	
+		
+.content .form_org .radio p {
+	width: 160px;
+	float: left;
+	margin: 0 10px 0 0;
+	font-size: 12px;
+	line-height: 18px;
+	}
+	
+
+
+.form_org #billsearch_endorse_oppose_submit_support {
+	float: left;
+	}
+
 			
 #footer{
 	position: relative;
