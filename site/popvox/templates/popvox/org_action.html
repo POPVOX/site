@@ -1,5 +1,6 @@
 {% extends "master.html" %}
-{% block title %}Org Customized Action Page{% endblock%}
+{% load popvox_utils %}
+{% block title %}{{position.action_headline}} - {{position.campaign.org.name}}{% endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 {% endblock %}
@@ -7,55 +8,45 @@
 	<div class="content org_custom">
 
 		<div class="col_12">
-			<h1 class="rule_btm">We&rsquo;ve Waited Long Enough <span>A message from the Association of Flight Attendants</span></h1>
+			<h1 class="rule_btm">{{position.action_headline}} <span>A message from {{position.campaign.org.name}}</span></h1>
 		</div>
 		
 		<div class="col_6">
 			<div class="block custom_msg">
 				<img class="float_right" src="http://william.popvox.com/media/master/_dummy_org_upload.jpg" alt="dummy" width="" height="" />
-				<h3 class="no_rule">Ensure Safe Skies. Reauthorize.</h3>
-				<p>The Association of Flight Attendants &ndash; CWA, representing 55,000 members at 23 airlines urges Congress to complete action on the FAA Reauthorization Bill and pass this bill.The current FAA reauthorization expired in September 2007. Since that time the FAA has been funded by a series of extensions.We appreciate the difficulty of this task and understand that there have been difficult compromises made by both sides, but it is clearly time to move forward and pass this bill.</p>
+				{{ position.action_body|safe }}
 			</div>
 			
 			<div class="bill">
 				
-				<h4><a href="{{billrec.bill.url}}">Bill Name</a></h4>
+				<h4><a href="{{position.bill.url}}">{{position.bill.title|truncatewords:30}}</a></h4>
 				<p><strong>Sponsor:</strong>
-					<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
+					<a href="http://www.govtrack.us/congress/person.xpd?id={{position.bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ position.bill.sponsor.name }}</a>
 				</p>
 				
-				{% comment %}
 				<p><strong>Status:</strong>
-				<em>
-				{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-					{{bill.status_advanced}}
-				{% else %}
-					{{bill.status}}
-				{% endif %}
-				</em></p>
-				{% endcomment %}
+				<em>{{position.bill.status}}</em>
+				</p>
 				
-				{% if bill.officialtitle %}<p class="bill_detail">{{ bill.officialtitle|truncatewords:18 }}</p>{% endif %}
+				{% if position.bill.officialtitle %}<p class="bill_detail">{{ position.bill.officialtitle|truncatewords:18 }}</p>{% endif %}
 				
-				{% for org in billrec.orgs %}
 				<div class="bill_endorseoppose">
 					<p>
-						{% if org.position == "+" %}Endorsed{% endif %}
-						{% if org.position == "-" %}Opposed{% endif %}
+						{% if position.position == "+" %}Endorsed{% endif %}
+						{% if position.position == "-" %}Opposed{% endif %}
 						by
-						<a href="{{org.url}}">{{org.name}}</a>
+						<a href="{{position.campaign.org.url}}">{{position.campaign.org.name}}</a>
 					</p>
-					{% for cam in org.campaigns %}
-						<p style="margin-left: 1.5em"><a href="{{cam.url}}">{{cam.name}}</a>{% if cam.description %}: {{ cam.description|truncatewords:50 }}{% endif %}</p>
-					{% endfor %}
+					{% if position.comment %}
+						{{position.comment|wraplines:"p"}}
+					{% endif %}
 				</div>
-				{% endfor %}
 			</div>
 		</div>
 
 		<div class="col_6 col_last stroke_box">
-			<h3 class="no_rule orange">Please Support HR 1212</h3>
-			<h4>Help ORG NAME by telling Congress to support this bill.</h4>
+			<h3 class="no_rule orange">Please Support {{position.bill.displaynumber}}</h3>
+			<h4>Help {{position.campaign.org.name}} by telling Congress to {% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %} this bill.</h4>
 			<form class="form form_org" action="#" method="post" name="contact"><br />
 			
 				<input id="name_first" class="c3" type="text" value="first name">
@@ -63,11 +54,11 @@
 				<input id="email" class="c3" type="text" value="email">
 				<input id="zip" class="c2 last" type="text" value="zip"><br />
 				<div class="radio">
-			        <input type="radio" name="share_with_org" />
-			        <p>Share with the Association of Flight Attendants?</p>
+			        <input id="share_with_org" type="checkbox" name="share_with_org" checked="1"/>
+			        <p><label for="share_with_org">Share my info with {{position.campaign.org.name}}?</label></p>
 				</div>
 				
-				<input value="Contact Us" id="billsearch_endorse_oppose_submit_support" onclick="ValidateForm();return false;" type="button">
+				<input id="billsearch_endorse_oppose_submit_{% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %}" onclick="ValidateForm();return false;" type="button">
 			</form>
 			
 		</div>

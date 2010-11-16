@@ -580,6 +580,11 @@ def action(request, orgslug, billposid):
 	billpos = get_object_or_404(OrgCampaignPosition, id=billposid, campaign__org = org)
 
 	set_last_campaign_viewed(request, billpos.campaign)
+
+	if billpos.action_headline == None or billpos.action_headline.strip() == "":
+		billpos.action_headline = "Edit Your Headline"
+	if billpos.action_body == None or billpos.action_body.strip() == "":
+		billpos.action_body = "<p><strong>Take Action</strong></p><p>Edit your message to tell your members why they should take action.</p>"
 	
 	return render_to_response('popvox/org_action.html', {
 		'position': billpos,
