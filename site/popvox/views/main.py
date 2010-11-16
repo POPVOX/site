@@ -33,8 +33,13 @@ def staticpage(request, page):
 
 @json_response
 def subscribe_to_mail_list(request):
+	email = request.POST["email"]
+
 	from django import forms
-	email = forms.EmailField(required=False).clean(request.POST["email"]) # raises ValidationException on error
+	if not request.POST["validate"] == "validate":
+		# dont raise silly errors on an on-line validation
+		email = forms.EmailField(required=False).clean(email) # raises ValidationException on error
+	
 	u = MailListUser.objects.filter(email=email)
 	if len(u) > 0:
 		return { "status": "fail", "msg": "You are already on our list, but thanks!" }

@@ -1963,28 +1963,6 @@ ul#issuearealist {
 		background: url(h3_user_cong_staff.png) center top no-repeat;
 	}
 				
-		#subscribe_email {
-			background: url(bg_signup_input.png) left top no-repeat;
-			border: none;
-			padding: 0 0 0 10px;
-			width: 165px;
-			height: 23px;
-			color: #75747c;
-			}
-			
-		#subscribe {
-			text-align: center;
-			}	
-				
-		#subscribe_email {
-			background: url(bg_signup_input.png) left top no-repeat;
-			border: none;
-			padding: 0 0 0 10px;
-			width: 165px;
-			height: 23px;
-			color: #75747c;
-			}
-			
 		#subscribe_button {
 			background: url(b_sign_up.png) left top no-repeat;
 			border: none;
@@ -2003,12 +1981,8 @@ ul#issuearealist {
 			background: #CF6800;
 			color: #FFFFFF;
 			font-size: 11px;
-			position: absolute;
-			left: 372px;
-			top: 362px;
 			padding: 5px;
 			text-align: center;
-			width: 160px;
 			display: none;
 			}
 		

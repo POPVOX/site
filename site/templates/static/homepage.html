@@ -8,8 +8,8 @@
 {% block navbarlinks %}{% if user.is_authenticated %}<li><a href="/home">{{ user.username }}</a></li>{% endif %}{% endblock %}
 {% block disable_login_redirect %}{% endblock %}
 {% block head %}
-<!-- 
 <script>
+{% comment %}
 var slider_index = 0;
 var auto_advance = true;
 function slide(direction, new_index, isauto) {
@@ -35,16 +35,17 @@ $(function() {
 	$('#subscribe_email').input_default("email address");
 	$('#subscribe_email').keyup_delayed(function () { subscribe(true); });
 });
+{% endcomment %}
 function subscribe(validate) {
-	if ($('#subscribe_email').hasClass("default")) return;
+	if ($('#subscribe_email').hasClass("default")) return false;
 	ajaxform("post/home/subscribe",
 		{ "validate": (validate ? "validate" : "submit"), },
 		{ "email": "#subscribe_email" },
 		{ "statusfield": "subscribe_status",
 		   "statussuccess": (validate ? null : "Thanks!")} );
+	return false;
 }
 </script>
- -->
 {% endblock %}
 {% block head_r_content %}
 <h1 id="landing">Your Voice. Verified. Quantified. Amplified</h1>
@@ -131,10 +132,16 @@ function subscribe(validate) {
 			<p>Want updates on what is new with POPVOX?</p>
 			<form id="signup_form" action="#" method="post" name="signup"><br />
 			
-				<input class="signup_input" value="email" name="email" size="25" maxlength="40" type="text"><br />
-				<label for="email"></label>
+				<input id="subscribe_email" class="signup_input" name="email" size="25" maxlength="40" type="text"><br />
 				
-				<input value="join" id="subscribe_button" onclick="ValidateForm();return false;" type="button">
+				<p id="subscribe_status" class="error"></p>
+				
+				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button">
+				<script>
+				$('.subscribe_email').input_default("email");
+				$('.signup_input').keyup(function() { subscribe(true); return true; });
+				$('.signup_input').keydown_enter(function() { return subscribe(false); });
+				</script>
 			</form>
 		</div>		
 	</div><!-- e: col_3 -->
