@@ -21,11 +21,11 @@
 #cboxOverlay{background:#fff;}
 
 #colorBox{}
-    #cboxTopLeft{width:27px; height:27px; background:url(images/border1.png) 1px -2px no-repeat;}
-    #cboxTopCenter{height:27px; background:url(images/border1.png) 0 -50px repeat-x;}
+    #cboxTopLeft{width:27px; height:27px; background:url(images/border1.png) 0px -2px no-repeat;}
+    #cboxTopCenter{height:27px; background:url(images/border1.png) 0 -52px repeat-x;}
     #cboxTopRight{width:27px; height:27px; background:url(images/border1.png) -27px -2px no-repeat;}
     #cboxBottomLeft{width:27px; height:27px; background:url(images/border1.png) 0 -27px no-repeat;}
-    #cboxBottomCenter{height:27px; background:url(images/border1.png) 0 -75px repeat-x;}
+    #cboxBottomCenter{height:27px; background:url(images/border1.png) 0 -77px repeat-x;}
     #cboxBottomRight{width:27px; height:27px; background:url(images/border1.png) -27px -27px no-repeat;}
     #cboxMiddleLeft{width:27px; background:url(images/border2.png) 0 0 repeat-y;}
     #cboxMiddleRight{width:27px; background:url(images/border2.png) -27px 0 repeat-y;}
