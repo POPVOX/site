@@ -12,7 +12,7 @@
 	</ul>
 	<div class="clear"> </div>
 	
-	<div id="sharetab_message form" style="display: none">
+	<div id="sharetab_message" class="form" style="display: none">
 		<h3 class="no_rule">Personalized Message to Recipients</h3>
 		<textarea id="share_message" class="c5">{% if not message %}{% if mode == "mine" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}{% else %}{{message}}{% endif %}</textarea>
 		<script>$(function() { $('#share_message').input_autosize(); });</script>
