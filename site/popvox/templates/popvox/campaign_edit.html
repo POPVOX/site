@@ -3,10 +3,6 @@
 {% load humanize %}
 {% block title %}Edit: {{ cam.org.name }} - {{ cam.name }}{% endblock %}
 {%block nav_orgadmin_class_profile%}active{%endblock%}
-{% block breadcrumbs %}
-<li><a href="{{cam.org.url}}">{{cam.org.name|truncatewords:4}}</a></li>
-<li><a href="{{cam.url}}" class="active">{{ cam.name|truncatewords:4 }}</a></li>
-{% endblock %}
 {% block head %}
 	{% with cam.org as org %}
 		{% include "popvox/org_common_scripts.html" %}
@@ -113,7 +109,12 @@
 				
 			<label for="message">Detailed Description</label>
 			<textarea id="message" name="message">{{cam.message}}</textarea>
-			<script>tinyMCE.execCommand("mceAddControl", true, "message");</script>
+			<script>
+			$(function() {
+				tinyMCE.execCommand("mceAddControl", true, "message");
+				tinyMCE.get("message").on_save = updatecampaign; // this is executing twice??
+			});
+			</script>
 			
 			<div class="hr"></div>
 

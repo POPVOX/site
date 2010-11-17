@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_protect
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, ajaxmultifieldupdate
 
@@ -575,19 +576,37 @@ def getbillshorturl(request):
 	
 	return { "status": "success", "url": surl.url(), "new": created }
 
+def action_defs(billpos):
+	if billpos.action_headline == None or billpos.action_headline.strip() == "":
+		billpos.action_headline = "Edit Headline"
+	if billpos.action_body == None or billpos.action_body.strip() == "":
+		billpos.action_body = "<p><strong>Take Action</strong></p><p>Edit message to tell your members why they should take action.</p>"
+
+@csrf_protect
 def action(request, orgslug, billposid):
 	org = get_object_or_404(Org, slug=orgslug)
 	billpos = get_object_or_404(OrgCampaignPosition, id=billposid, campaign__org = org)
 
 	set_last_campaign_viewed(request, billpos.campaign)
 
-	if billpos.action_headline == None or billpos.action_headline.strip() == "":
-		billpos.action_headline = "Edit Your Headline"
-	if billpos.action_body == None or billpos.action_body.strip() == "":
-		billpos.action_body = "<p><strong>Take Action</strong></p><p>Edit your message to tell your members why they should take action.</p>"
+	action_defs(billpos)
 	
 	return render_to_response('popvox/org_action.html', {
 		'position': billpos,
 		'admin': org.is_admin(request.user)
 		}, context_instance=RequestContext(request))
+
+@json_response
+def orgcampaignpositionactionupdate(request):
+	billpos = get_object_or_404(OrgCampaignPosition, id=request.POST["id"])
+	if not billpos.campaign.org.is_admin(request.user) :
+		return HttpResponseForbidden("Not authorized.")
+
+	billpos.action_headline = request.POST["action_headline"]
+	billpos.action_body = sanitize_html(request.POST["action_body"])
+	billpos.save()
+	
+	action_defs(billpos)
+	
+	return {"status": "success", "action_headline": billpos.action_headline, "action_body": billpos.action_body }
 

@@ -70,6 +70,13 @@ jQuery.fn.input_default = function(value) {
   });
 };
 
+function clear_default_fields(form) {
+	for (var i = 0; i < form.elements.length; i++) {
+		if ($(form.elements[i]).hasClass('default'))
+			$(form.elements[i]).val('');
+	}
+}
+
 // This provides a delayed keyup event that fires once
 // even if there are multiple keyup events between the
 // first and the time the event handler is called.
@@ -102,26 +109,66 @@ jQuery.fn.textchange = function(callback) {
   });
 }
 
-jQuery.fn.inline_edit = function(callback) {
+jQuery.fn.inline_edit = function(callback, createeditor) {
 	return this.each(function(){
 		var inline = jQuery(this);
+		
+		if (createeditor) {
+			$('<div id="' + this.getAttribute("id") + '_editor" style="display: none">'
+				+ ((createeditor == 'textarea' || createeditor == 'tinymce')
+					? '<textarea '
+					: '<input type="text" ' )
+				+ 'id="' + this.getAttribute("id") + '_textarea"/>'
+				+ '</div>').insertAfter(inline);
+				
+			$("#" + this.getAttribute("id") + "_textarea").css('width', inline.css('width'));
+			$("#" + this.getAttribute("id") + "_textarea").css('font', "inherit");
+				
+			if (createeditor == "textarea") {
+				$("#" + this.getAttribute("id") + "_textarea").input_autosize();
+			} else if (createeditor == "tinymce") {
+				tinyMCE.execCommand("mceAddControl", true, this.getAttribute("id") + "_textarea");
+			}
+		}
+		
 		var editor = $("#" + this.getAttribute("id") + "_editor");
 		var textarea = $("#" + this.getAttribute("id") + "_textarea");
+
+		blur = function() {
+			inline.height(textarea.height());
+			editor.hide();
+			inline.fadeIn();
+			
+			if (createeditor == "input")
+				inline.text(textarea.val());
+			else if (createeditor == "tinymce")
+				inline.html(textarea.val());
+			
+			if (callback)
+				callback(textarea.val(), inline,
+					function() {
+						inline.height('auto');
+					});
+		};
+		
 		inline.addClass("inlineedit");
 		inline.click(function() {
 			inline.hide();
 			editor.show();
 			textarea.focus();
+			if (createeditor == "input") {
+				textarea.val(inline.text());
+			} else if (createeditor == "textarea") {
+				// textareas are normally used when there is some external HTMLizing going on
+			} else if (createeditor == "tinymce") {
+				var mce = tinyMCE.getInstanceById(this.getAttribute("id") + "_textarea");
+				mce.setContent(inline.html());
+				mce.on_save = function() { blur(); }
+			}
 		});
-		textarea.blur(function() {
-			inline.height(textarea.height());
-			editor.hide();
-			inline.fadeIn();
-			callback(textarea.val(), inline,
-				function() {
-					inline.height('auto');
-				});
-		});
+		
+		if (createeditor != "tinymce")
+			textarea.blur(blur);
 	});
 };
 

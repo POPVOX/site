@@ -3,18 +3,55 @@
 {% block title %}{{position.action_headline}} - {{position.campaign.org.name}}{% endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
+<script>
+{% if admin %}
+function update() {
+	ajax(
+		"/ajax/orgs/updateaction",
+		{
+			id: {{position.id}},
+			action_headline: $("#action_headline_textarea").val(),
+			action_body: tinyMCE.get('action_body_textarea').getContent(),
+		},
+		{
+			success: function(res) {
+				$("#action_headline").text(res.action_headline);
+				$("#action_body").html(res.action_body);
+			}
+		}
+	);
+}
+{% endif %}
+function validate(form) {
+	if ($('#share_with_org').attr('checked')) {
+		if ($('#name_first').hasClass('default') || $('#name_last').hasClass('default') || $('#email').hasClass('default') || $('#zip').hasClass('default')) {
+			alert("All fields are required.");
+			return false;
+		}
+	}
+	clear_default_fields(form);
+	return true;
+}
+</script>
 {% endblock %}
 {% block content %}
 	<div class="content org_custom">
 
 		<div class="col_12">
-			<h1 class="rule_btm">{{position.action_headline}} <span>A message from {{position.campaign.org.name}}</span></h1>
+			<h1 class="rule_btm"><span id="action_headline">{{position.action_headline}}</span> <span class="info">A message from {{position.campaign.org.name}}</span></h1>
+			{% if admin %}<script>$('#action_headline').inline_edit(update, 'input');</script>{% endif %}
 		</div>
 		
 		<div class="col_6">
 			<div class="block custom_msg">
+				{% comment %}
 				<img class="float_right" src="http://william.popvox.com/media/master/_dummy_org_upload.jpg" alt="dummy" width="" height="" />
-				{{ position.action_body|safe }}
+				{% endcomment %}
+				
+				<div id="action_body">
+					{{ position.action_body|safe }}
+				</div>
+				{% if admin %}<script>$('#action_body').inline_edit(update, 'tinymce');</script>{% endif %}
 			</div>
 			
 			<div class="bill">
@@ -45,22 +82,34 @@
 		</div>
 
 		<div class="col_6 col_last stroke_box">
-			<h3 class="no_rule orange">Please Support {{position.bill.displaynumber}}</h3>
-			<h4>Help {{position.campaign.org.name}} by telling Congress to {% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %} this bill.</h4>
-			<form class="form form_org" action="#" method="post" name="contact"><br />
-			
-				<input id="name_first" class="c3" type="text" value="first name">
-				<input id="name_last" class="c3 last" type="text" value="last name"><br />
-				<input id="email" class="c3" type="text" value="email">
-				<input id="zip" class="c2 last" type="text" value="zip"><br />
+			{% if not position.bill.isAlive %}
+				<p>This bill {{position.bill.getDeadReason}}. You can no longer write a comment about this bill.</p>
+			{% else %}
+		
+			<h3 class="no_rule orange">Please {% if position.position == "+" %}Support{% endif %}{% if position.position == "-" %}Oppose{% endif %} {{position.bill.displaynumber}}</h3>
+			<form class="form form_org" action="{{position.bill.url}}/comment/{% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %}" method="POST" onsubmit="return validate(this);"><br />
+			{% csrf_token %}
+				<input type="hidden" name="orgcampaignposition" value="{{position.id}}"/>
+				<input id="name_first" name="name_first" class="c3" type="text">
+				<input id="name_last" name="name_last" class="c3 last" type="text"><br />
+				<input id="email" name="email" class="c3" type="text">
+				<input id="zip" name="zip" class="c2 last" type="text"><br />
 				<div class="radio">
 			        <input id="share_with_org" type="checkbox" name="share_with_org" checked="1"/>
 			        <p><label for="share_with_org">Share my info with {{position.campaign.org.name}}?</label></p>
 				</div>
+				<script>
+					$('#name_first').input_default("first name");
+					$('#name_last').input_default("last name");
+					$('#email').input_default("email address");
+					$('#zip').input_default("zip code");
+				</script>
 				
-				<input id="billsearch_endorse_oppose_submit_{% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %}" onclick="ValidateForm();return false;" type="button">
+				<input id="billsearch_endorse_oppose_submit_{% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %}" type="submit">
 			</form>
 			
+			{% endif %}
+		
 		</div>
 		
 <!--

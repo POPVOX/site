@@ -426,7 +426,14 @@ class OrgCampaignPosition(models.Model):
 		unique_together = (("campaign", "bill"),)
 	def __unicode__(self):
 		return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position
-			
+
+class OrgCampaignPositionActionRecord(models.Model):
+	ocp = models.ForeignKey(OrgCampaignPosition, related_name="actionrecords")
+	firstname = models.CharField(max_length=64)
+	lastname = models.CharField(max_length=64)
+	zipcode = models.CharField(max_length=16)
+	email = models.EmailField()
+
 class UserProfile(models.Model):
 	"""A user profile extends the basic user model provided by Django."""
 	

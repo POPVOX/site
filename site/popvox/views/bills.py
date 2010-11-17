@@ -438,7 +438,7 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		# Referral to this bill. If the link owner left a comment on the bill,
 		# then we can use that comment as the basis of the welcome
 		# message.
-		request.session["comment-referrer"] = (bill, request.session["shorturl"])
+		request.session["comment-referrer"] = (bill, request.session["shorturl"].owner, request.session["shorturl"])
 		if isinstance(request.session["shorturl"].owner, User):
 			welcome = request.session["shorturl"].owner.username + " has shared with you a link to this bill that you might want to weigh in on."
 			try:
@@ -598,6 +598,24 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		# If we have a saved session, load the saved message.
 		if pending_comment_session_key in request.session:
 			message = request.session[pending_comment_session_key]["message"]
+			
+		# If we're coming from a customized org action page...
+		if "orgcampaignposition" in request.POST:
+			billpos = get_object_or_404(OrgCampaignPosition, id=request.POST["orgcampaignposition"])
+			request.session["comment-referrer"] = (bill, billpos.campaign, None)
+			request.session["comment-default-address"] = (request.POST["name_first"], request.POST["name_last"], request.POST["zip"], request.POST["email"])
+			if "share_with_org" in request.POST:
+				rec = OrgCampaignPositionActionRecord()
+				rec.ocp = billpos
+				rec.firstname = request.POST["name_first"]
+				rec.lastname = request.POST["name_last"]
+				rec.zipcode = request.POST["zip"]
+				rec.email = request.POST["email"]
+				try:
+					rec.save()
+				except Exception, e:
+					# Hmm.
+					pass
 	
 		return render_to_response('popvox/billcomment_start.html', {
 				'bill': bill,
@@ -633,6 +651,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				'bill': bill,
 				"position": position,
 				"message": message,
+				"email": request.session["comment-default-address"][3] if "comment-default-address" in request.session else "",
 				"singlesignon_next": reverse(billcomment, args=[congressnumber, billtype, billnumber, "/finish"])
 			}, context_instance=RequestContext(request))
 		
@@ -654,6 +673,15 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			message = request.session[pending_comment_session_key]["message"]
 
 		request.goal = { "goal": "comment-addressform" }
+		
+		if address_record == None and "comment-default-address" in request.session:
+			import writeyourrep.district_lookup
+			address_record = PostalAddress()
+			address_record.firstname = request.session["comment-default-address"][0]
+			address_record.lastname = request.session["comment-default-address"][1]
+			address_record.zipcode = request.session["comment-default-address"][2]
+			address_record.state = writeyourrep.district_lookup.get_state_for_zipcode(address_record.zipcode)
+			del request.session["comment-default-address"]
 			
 		return render_to_response('popvox/billcomment_address.html', {
 				'bill': bill,
@@ -738,9 +766,11 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			
 			# If the user came by a short URL to this bill, store the owner of
 			# the short URL as the referrer on the comment.
-			if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill:
-				comment.referrer = request.session["comment-referrer"][1].owner
-				request.session["comment-referrer"][1].increment_completions()
+			if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill and len(request.session["comment-referrer"]) == 3:
+				comment.referrer = request.session["comment-referrer"][1]
+				if request.session["comment-referrer"][2] != None:
+					request.session["comment-referrer"][2].increment_completions()
+				del request.session["comment-referrer"]
 			
 		comment.message = message
 
@@ -868,7 +898,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	welcome = None
 	if "shorturl" in request.session and request.session["shorturl"].target == comment:
 		surl = request.session["shorturl"]
-		request.session["comment-referrer"] = (bill, surl)
+		request.session["comment-referrer"] = (bill, surl.owner, surl)
 		welcome = comment.user.username + " is using POPVOX to send their message to Congress. He or she left this comment on " + bill.displaynumber() + "."
 		del request.session["shorturl"] # so that we don't indefinitely display the message
 		

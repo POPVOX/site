@@ -96,3 +96,29 @@ def point_in_poly(x, y, poly):
         p1x, p1y = p2x, p2y
     return inside
 
+def get_state_for_zipcode(zipcode):
+	if zipcode == None:
+		return None
+		
+	zipcode = "".join([ d for d in zipcode if d.isdigit() ])
+	if len(zipcode) not in (5, 9):
+		return None
+		
+	cursor = connection.cursor()
+	
+	# Get the first record that is lexicographically equal to or preceding the supplied zipcode
+	# which is a prefix of the zipcode.
+	cursor.execute("SELECT state, district, zip9 FROM zipcodes WHERE zip9 <= %s ORDER BY zip9 DESC LIMIT 1", [zipcode])
+	rows = cursor.fetchall()
+	if len(rows) == 1 and rows[0][2] == zipcode[0:len(rows[0][2])]:
+		return rows[0][0]
+
+	# Get the first record that is lexicographically after the supplied zipcode which this
+	# zipcode is a prefix of.
+	cursor.execute("SELECT state, district, zip9 FROM zipcodes WHERE zip9 > %s ORDER BY zip9  LIMIT 1", [zipcode])
+	rows = cursor.fetchall()
+	if len(rows) == 1 and rows[0][2][0:len(zipcode)] == zipcode:
+		return rows[0][0]
+
+	return None
+

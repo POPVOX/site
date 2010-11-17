@@ -139,7 +139,7 @@ function subscribe(validate) {
 				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button">
 				<script>
 				$('.subscribe_email').input_default("email");
-				$('.signup_input').keyup(function() { subscribe(true); return true; });
+				$('.signup_input').textchange(function() { subscribe(true); return true; });
 				$('.signup_input').keydown_enter(function() { return subscribe(false); });
 				</script>
 			</form>
