@@ -693,7 +693,7 @@ p {
 		
 		.content .bills p.bill_detail {
 			font: italic normal 12px/14px georgia, serif;
-			margin-top: 10px;
+			margin: 10px 0 10px;
 			}
 
 
@@ -1021,9 +1021,21 @@ h3#reporttitle {
 		background: url(bg_endorsed_bubl.png) left top no-repeat;
 		}
 		
+		.endorse_icon {
+			background: url(bg_icon_heart.png) left top no-repeat;
+			margin-left: -25px;
+			padding-left: 25px;
+			}
+		
 	.oppose {
 		background: url(bg_opposed_bubl.png) left top no-repeat;
 		}
+
+		.oppose_icon {
+			background: url(bg_icon_no.png) left top no-repeat;
+			margin-left: -25px;
+			padding-left: 25px;
+			}
 
 	.share {
 		
@@ -2652,6 +2664,10 @@ ul.social_share_btns li {
 		width: 400px;
 	}
 	
+	.form.form_org label {
+		text-align: left;
+		}
+	
 .col_3 .form label {
 	width: 80px;
 }
@@ -2662,7 +2678,7 @@ ul.social_share_btns li {
 	
 
 input.default, textarea.default {
-	color: #666;
+	color: #333;
 	}
 	
 .form input, .form textarea, .form file, .form .field {
@@ -3081,7 +3097,7 @@ ul.staff, .small {
 	.search {
 		background: #fff;
 		border: 1px solid #999;
-		color: #999;
+		color: #333;
 		font-size: 11px;
 		font-weight: bold;
 		height: 24px;
@@ -3226,8 +3242,7 @@ ul.org_all .notcreatedbyus {
 	}
 
 .custom_msg {
-	height: 280px;
-	border-bottom: 1px solid #D4D1CA;
+	height: 276px;
 	}
 
 .content .col_6 .custom_msg h3 {

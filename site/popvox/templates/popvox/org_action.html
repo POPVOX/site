@@ -54,32 +54,35 @@ function validate(form) {
 				{% if admin %}<script>$('#action_body').inline_edit(update, 'tinymce');</script>{% endif %}
 			</div>
 			
-			<div class="bill">
-				
-				<h4><a href="{{position.bill.url}}">{{position.bill.title|truncatewords:30}}</a></h4>
-				<p><strong>Sponsor:</strong>
-					<a href="http://www.govtrack.us/congress/person.xpd?id={{position.bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ position.bill.sponsor.name }}</a>
-				</p>
-				
-				<p><strong>Status:</strong>
-				<em>{{position.bill.status}}</em>
-				</p>
-				
-				{% if position.bill.officialtitle %}<p class="bill_detail">{{ position.bill.officialtitle|truncatewords:18 }}</p>{% endif %}
-				
-				<div class="bill_endorseoppose">
-					<p>
-						{% if position.position == "+" %}Endorsed{% endif %}
-						{% if position.position == "-" %}Opposed{% endif %}
-						by
-						<a href="{{position.campaign.org.url}}">{{position.campaign.org.name}}</a>
+			<div class="bills">
+				<div class="bill">
+					
+					<h4><a class="orange" href="{{position.bill.url}}">{{position.bill.title|truncatewords:30}}</a></h4>
+					<p><strong>Sponsor:</strong>
+						<a href="http://www.govtrack.us/congress/person.xpd?id={{position.bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ position.bill.sponsor.name }}</a>
 					</p>
-					{% if position.comment %}
-						{{position.comment|wraplines:"p"}}
-					{% endif %}
+					
+					<p><strong>Status:</strong>
+					<em>{{position.bill.status}}</em>
+					</p>
+					
+					{% if position.bill.officialtitle %}<p class="bill_detail">{{ position.bill.officialtitle|truncatewords:18 }}</p>{% endif %}
+					
+					<div class="bill_endorseoppose">
+						<p class="{% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %}_icon">
+							<strong>
+							{% if position.position == "+" %}Endorsed{% endif %}
+							{% if position.position == "-" %}Opposed{% endif %}
+							by</strong>
+							<a href="{{position.campaign.org.url}}">{{position.campaign.org.name}}</a>
+						</p>
+						{% if position.comment %}
+							{{position.comment|wraplines:"p"}}
+						{% endif %}
+					</div> 
 				</div>
-			</div>
-		</div>
+			</div><!-- e: bill -->
+		</div><!-- e: bills -->
 
 		<div class="col_6 col_last stroke_box">
 			{% if not position.bill.isAlive %}
