@@ -230,14 +230,6 @@ function showtab(tab) {
 	<div class="tab_pane">
 		{% if welcome_tabname %}
 		<div id="welcome" class="tab_panel">
-			{% if referral_comment %}
-				<h3 class="no_rule">{{ referral_comment.user.username }} Wrote:</h3>
-				
-				{{ referral_comment.message|wraplines:"p" }}
-				
-				<p>({{referral_comment.updated|date2}})</p>
-			{% endif %}
-			
 			{% if referral_orgposition %}
 				<h3 class="no_rule">{{ referral_orgposition.campaign.org.name }}</h3>
 				<p>This organization {% if referral_orgposition.position == "+" %}endorses{% endif %}{% if referral_orgposition.position == "-" %}opposes{% endif %}{% if referral_orgposition.position == "0" %}posted a neutral statement about{% endif %} this bill. {% if referral_orgposition.comment %}They had this to say about the bill:{% endif %}</p>

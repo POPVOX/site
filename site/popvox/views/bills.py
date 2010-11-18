@@ -354,7 +354,7 @@ def bill_statistics(bill, shortdescription, longdescription, **filterargs):
 	return {"shortdescription": shortdescription, "longdescription": longdescription, "total": pro+con, "pro":pro, "con":con, "pro_pct": 100*pro/(pro+con), "con_pct": 100*con/(pro+con), "timeseries": time_series}
 	
 @csrf_protect
-def bill(request, congressnumber, billtype, billnumber, commentid=None):
+def bill(request, congressnumber, billtype, billnumber):
 	bill = getbill(congressnumber, billtype, billnumber)
 	
 	# Get the organization that the user is an admin of, if any, so he can
@@ -431,7 +431,6 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 	# Welcome message?
 	welcome = None
 	welcome_tabname = None
-	referral_comment = None
 	referral_orgposition = None
 	
 	if "shorturl" in request.session and request.session["shorturl"].target == bill:
@@ -441,12 +440,6 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 		request.session["comment-referrer"] = (bill, request.session["shorturl"].owner, request.session["shorturl"])
 		if isinstance(request.session["shorturl"].owner, User):
 			welcome = request.session["shorturl"].owner.username + " has shared with you a link to this bill that you might want to weigh in on."
-			try:
-				referral_comment = request.session["shorturl"].owner.comments.get(bill=bill)
-				welcome_tabname = referral_comment.user.username + "'s Comment"
-				welcome = referral_comment.user.username + " has shared with you a comment " + referral_comment.address.heshe() + " left on " + bill.displaynumber() + ". You can find the comment below."
-			except:
-				pass
 		elif isinstance(request.session["shorturl"].owner, Org):
 			welcome = "Hello! " + request.session["shorturl"].owner.name + " wants to tell you about " + bill.displaynumber() + " on POPVOX.  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			try:
@@ -464,10 +457,6 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 				
 		del request.session["shorturl"]
 	
-	elif commentid != None:
-		referral_comment = UserComment.objects.get(id=int(commentid))
-		welcome_tabname = referral_comment.user.username + "'s Comment"
-		
 	return render_to_response('popvox/bill.html', {
 			'bill': bill,
 			"canvote": (request.user.is_anonymous() or (not request.user.userprofile.is_leg_staff() and not request.user.userprofile.is_org_admin())),
@@ -488,7 +477,6 @@ def bill(request, congressnumber, billtype, billnumber, commentid=None):
 			
 			"welcome": welcome,
 			"welcome_tabname": welcome_tabname,
-			"referral_comment": referral_comment,
 			"referral_orgposition": referral_orgposition,
 			
 		}, context_instance=RequestContext(request))

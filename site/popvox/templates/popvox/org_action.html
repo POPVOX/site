@@ -89,7 +89,7 @@ function validate(form) {
 				<p>This bill {{position.bill.getDeadReason}}. You can no longer write a comment about this bill.</p>
 			{% else %}
 		
-			<h3 class="no_rule orange">Please {% if position.position == "+" %}Support{% endif %}{% if position.position == "-" %}Oppose{% endif %} {{position.bill.displaynumber}}</h3>
+			<h3 class="no_rule orange">{% if position.position == "+" %}Support{% endif %}{% if position.position == "-" %}Oppose{% endif %} {{position.bill.displaynumber}}</h3>
 			<form class="form form_org" action="{{position.bill.url}}/comment/{% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %}" method="POST" onsubmit="return validate(this);"><br />
 			{% csrf_token %}
 				<input type="hidden" name="orgcampaignposition" value="{{position.id}}"/>
