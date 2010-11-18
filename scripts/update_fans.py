@@ -1,10 +1,5 @@
 #!/usr/bin/python
 
-import sys, os
-sys.path.insert(0, ".")
-
-os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
-
 import settings
 from popvox.models import Org
 

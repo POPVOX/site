@@ -25,11 +25,11 @@ Sincerely,
 
 Rachna and the POPVOX Team
 _____
-Rachna Choudhry
-Chief Marketing Officer
-POPVOX
-<rachna@popvox.com>
-<http://www.popvox.com>
+Rachna Choudhry  
+Chief Marketing Officer  
+POPVOX  
+<rachna@popvox.com>  
+<http://www.popvox.com>  
 
 _____
 To opt out of future emails from us use your account settings page: <http://www.popvox.com/accounts/profile>.
@@ -38,6 +38,7 @@ To opt out of future emails from us use your account settings page: <http://www.
 email_body_html = markdown.markdown(email_body, output_format='html4')
 
 for userprof in UserProfile.objects.filter(
+#	user__email = "tauberer@gmail.com",
 	allow_mass_mails=True,
 	registration_followup_sent=False,
 	user__date_joined__gt = datetime.datetime.now() - datetime.timedelta(days=30),

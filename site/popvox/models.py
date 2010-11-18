@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import django.db.models.signals
-from django.core.mail import mail_managers
+from django.core.mail import send_mail
 from django.core.cache import cache
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
@@ -511,7 +511,7 @@ def user_saved_callback(sender, instance, created, **kwargs):
 		p.user = instance
 		p.save()
 
-		mail_managers('New account: ' + instance.username, 'New account created: ' + instance.username + " (" + instance.email + ")", fail_silently=True)
+		send_mail('New account: ' + instance.username, 'New account created: ' + instance.username + " (" + instance.email + ")", "info@popvox.com", ["marci@popvox.com", "rachna@popvox.com"], fail_silently=True)
 if not "DONT_CREATE_USERPROFILES" in os.environ:
 	# When we're loading from a fixture, we get the UserProfile record later so we cannot
 	# create it now or we get a duplicate value for index error.
