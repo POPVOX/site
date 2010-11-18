@@ -32,6 +32,8 @@ def validate_username(value, skip_if_this_user=None, for_login=False, fielderror
 		value = forms.CharField(min_length=4 if not for_login else None, error_messages = {'min_length': "The username is too short. Usernames must be at least four characters."}).clean(value) # raises ValidationException
 		if " " in value:
 			raise forms.ValidationError("Usernames cannot contain spaces.")
+		if "@" in value:
+			raise forms.ValidationError("Usernames cannot contain the @-sign.")
 			
 		if not for_login:
 			users = User.objects.filter(username = value)
@@ -51,7 +53,7 @@ def validate_password(value, fielderrors=None):
 	try:
 		value = forms.CharField(min_length=5, error_messages = {'min_length': "The password is too short. It must be at least five characters."}).clean(value)
 		if " " in value:
-			return forms.ValidationError("Passwords cannot contain spaces.")	
+			raise forms.ValidationError("Passwords cannot contain spaces.")	
 		return value
 	except forms.ValidationError, e:
 		if fielderrors == None:
