@@ -39,7 +39,7 @@ function validate(form) {
 
 		<div class="col_12">
 			<h1 class="rule_btm"><span id="action_headline">{{position.action_headline}}</span> <span class="info">A message from {{position.campaign.org.name}}</span></h1>
-			{% if admin %}<div class="b_edit b_edit_h1"></div><script>$('#action_headline').inline_edit(update, 'input');</script>{% endif %}
+			{% if admin %}<div class="b_edit b_edit_h1" onclick="$('#action_headline').click()"></div><script>$('#action_headline').inline_edit(update, 'input');</script>{% endif %}
 		</div>
 		
 		<div class="col_6">
@@ -51,7 +51,7 @@ function validate(form) {
 				<div id="action_body">
 					{{ position.action_body|safe }}
 				</div>
-				{% if admin %}<div class="b_edit b_edit_msg"></div><script>$('#action_body').inline_edit(update, 'tinymce');</script>{% endif %}
+				{% if admin %}<div class="b_edit b_edit_msg" onclick="$('#action_body').click()"></div><script>$('#action_body').inline_edit(update, 'tinymce');</script>{% endif %}
 			</div>
 			
 			<div class="bills">

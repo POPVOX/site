@@ -138,6 +138,7 @@ jQuery.fn.inline_edit = function(callback, createeditor) {
 			inline.height(textarea.height());
 			editor.hide();
 			inline.fadeIn();
+			inline.removeClass("inlineedit_active");
 			
 			if (createeditor == "input")
 				inline.text(textarea.val());
@@ -153,6 +154,9 @@ jQuery.fn.inline_edit = function(callback, createeditor) {
 		
 		inline.addClass("inlineedit");
 		inline.click(function() {
+			if (inline.hasClass("inlineedit_active"))
+				return;
+			inline.addClass("inlineedit_active");
 			inline.hide();
 			editor.show();
 			textarea.focus();

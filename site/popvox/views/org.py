@@ -578,9 +578,9 @@ def getbillshorturl(request):
 
 def action_defs(billpos):
 	if billpos.action_headline == None or billpos.action_headline.strip() == "":
-		billpos.action_headline = "Edit Headline"
+		billpos.action_headline = "Edit This Headline - Click Here"
 	if billpos.action_body == None or billpos.action_body.strip() == "":
-		billpos.action_body = "<p><strong>Take Action</strong></p><p>Edit message to tell your members why they should take action.</p>"
+		billpos.action_body = "<p><strong>Take Action</strong></p><p>Edit message &mdash; click here to edit the text.</p> <p>Use this space to tell your members why they should take action.</p>"
 
 @csrf_protect
 def action(request, orgslug, billposid):
