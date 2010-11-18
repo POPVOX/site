@@ -173,6 +173,8 @@ jQuery.fn.inline_edit = function(callback, createeditor) {
 		
 		if (createeditor != "tinymce")
 			textarea.blur(blur);
+		if (createeditor == "input")
+			textarea.keydown_enter(blur);
 	});
 };
 

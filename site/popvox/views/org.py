@@ -8,6 +8,7 @@ from django import forms
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_protect
+from django.utils.html import strip_tags
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, ajaxmultifieldupdate
 
@@ -579,7 +580,7 @@ def getbillshorturl(request):
 def action_defs(billpos):
 	if billpos.action_headline == None or billpos.action_headline.strip() == "":
 		billpos.action_headline = "Edit This Headline - Click Here"
-	if billpos.action_body == None or billpos.action_body.strip() == "":
+	if billpos.action_body == None or strip_tags(billpos.action_body).strip() == "":
 		billpos.action_body = "<p><strong>Take Action</strong></p><p>Edit message &mdash; click here to edit the text.</p> <p>Use this space to tell your members why they should take action.</p>"
 
 @csrf_protect
