@@ -2877,6 +2877,33 @@ ul.staff, .small {
 			background: url(b_remove.png) left top no-repeat;
 			}
 	
+		.b_edit {
+			background: url(b_edit.png) left top no-repeat;
+			text-indent: -9999em;
+			display: block;
+			width: 25px;
+			height: 25px;
+			border: none;
+			}
+			
+			.b_edit_h1 {
+				position: absolute;
+				left: -10px;
+				top: 20px;
+				}
+
+			.b_edit_msg {
+				position: absolute;
+				left: -10px;
+				top: 93px;
+				}
+				
+			.b_edit_title {
+				position: absolute;
+				left: 515px;
+				top: 75px;
+				}
+		
 					
 	.col_50 {
 		width: 47%;
