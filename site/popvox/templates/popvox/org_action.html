@@ -130,6 +130,11 @@ function validate(form) {
 			
 			{% endif %}
 		
+			{% if admin %}
+				<p class="whattodonext">
+					{{num}} user{{num|pluralize}} filled out this form so far. Download data in <a href="{{position.get_absolute_url}}/_download/csv">CSV</a> format.
+				</p>
+			{% endif %}
 		</div>
 		
     </div>

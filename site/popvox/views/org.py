@@ -604,11 +604,14 @@ def action(request, orgslug, billposid):
 		if "shorturl" in request.session and request.session["shorturl"] == surl:
 			admin = False
 			del request.session["shorturl"]
+			
+		num = OrgCampaignPositionActionRecord.objects.filter(ocp=billpos).count()
 	
 	return render_to_response('popvox/org_action.html', {
 		'position': billpos,
 		'admin': admin,
 		"shorturl": url,
+		"num": num,
 		}, context_instance=RequestContext(request))
 
 @json_response
@@ -626,4 +629,22 @@ def orgcampaignpositionactionupdate(request):
 	action_defs(billpos)
 	
 	return {"status": "success", "action_headline": billpos.action_headline, "action_body": billpos.action_body }
+
+def action_download(request, orgslug, billposid):
+	org = get_object_or_404(Org, slug=orgslug)
+	billpos = get_object_or_404(OrgCampaignPosition, id=billposid, campaign__org = org)
+	
+	if not org.is_admin(request.user):
+		return HttpResponseForbidden("You do not have permission to view this page.")
+
+	import csv
+	response = HttpResponse(mimetype='text/csv')
+	response['Content-Disposition'] = 'attachment; filename=userdata.csv'
+	
+	writer = csv.writer(response)
+	writer.writerow(['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode'])
+	for rec in OrgCampaignPositionActionRecord.objects.filter(ocp=billpos):
+		writer.writerow([rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode])
+	
+	return response
 
