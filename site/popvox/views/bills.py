@@ -1126,8 +1126,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 		"reporttitle": reporttitle,
 		"reportsubtitle": reportsubtitle,
 	
-		"shortmessages": [],
-		"longmessages":
+		"comments":
 			[ {
 				"user":c.user.username,
 				"msg": c.message,
