@@ -3269,7 +3269,7 @@ ul.org_all .notcreatedbyus {
 	}
 
 .custom_msg {
-	height: 276px;
+	min-height: 276px;
 	}
 
 .content .col_6 .custom_msg h3 {
@@ -3288,7 +3288,6 @@ ul.org_all .notcreatedbyus {
 	margin: 20px 0 30px;
 	padding: 10px 20px 20px;
 	width: 414px;
-	height: 260px;
 	}
 	
 .content.org_custom h4 {

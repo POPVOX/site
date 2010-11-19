@@ -417,8 +417,8 @@ class OrgCampaignPosition(models.Model):
 	bill = models.ForeignKey(Bill)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
 	comment = models.TextField(blank=True, null=True)
-	action_headline = models.CharField(max_length=128, blank=True)
-	action_body = tinymce_models.HTMLField(blank=True) #models.TextField()
+	action_headline = models.CharField(max_length=128, blank=True, null=True)
+	action_body = tinymce_models.HTMLField(blank=True, null=True) #models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	class Meta:
@@ -426,6 +426,8 @@ class OrgCampaignPosition(models.Model):
 		unique_together = (("campaign", "bill"),)
 	def __unicode__(self):
 		return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position
+	def get_absolute_url(self):
+		return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
 
 class OrgCampaignPositionActionRecord(models.Model):
 	# This is used for org-customized landing pages

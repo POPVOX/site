@@ -12,7 +12,7 @@ def redirect(request, code):
 	try:
 		url = rec.target.get_absolute_url()
 	except AttributeError:
-		raise Http404("'%s' doesn't have a get_absolute_url() method." % str(rec.target))
+		raise Http404("'%s' (type %s) doesn't have a get_absolute_url() method." % (str(rec.target), str(type(rec.target))))
 		
 	rec.increment_hits()
 	if hasattr(request, "session"):
