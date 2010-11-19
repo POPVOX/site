@@ -319,36 +319,31 @@ def bill_statistics(bill, shortdescription, longdescription, **filterargs):
 	if pro+con < 10:
 		return None
 	
-	# Get a time-series.
-	firstcommentdate = None
-	lastcommentdate = None
-	for c in list(pro_comments) + list(con_comments):
-		if firstcommentdate == None or c.updated < firstcommentdate:
-			firstcommentdate = c.updated
-		if lastcommentdate == None or c.updated > lastcommentdate:
-			lastcommentdate = c.updated
+	# Get a time-series. Get the time bounds --- use the national data for the
+	# time bounds so that if we display multiple charts together they line up.
+	firstcommentdate = bill.usercomments.order_by('created')[0].created
+	lastcommentdate = bill.usercomments.order_by('-updated')[0].updated
 	
 	# Compute a bin size (i.e. number of days per point) that approximates
 	# ten comments per day, but with a minimum size of one day.
-	binsize = 1.0
+	binsize = 1
 	if firstcommentdate < lastcommentdate:
-		binsize = (lastcommentdate - firstcommentdate).days / float(len(pro_comments)+len(con_comments)) * 10.0
-	if binsize < 1.0:
-		binsize = 1.0
+		binsize = int((lastcommentdate - firstcommentdate).days / float(len(pro_comments)+len(con_comments)) * 10.0)
+	if binsize < 1:
+		binsize = 1
 	
 	# Bin the observations.
 	bins = { }
 	for c in list(pro_comments) + list(con_comments):
-		days = round((c.updated - firstcommentdate).days / binsize) * binsize
+		days = int(round((c.updated - firstcommentdate).days / binsize) * binsize)
 		if not days in bins:
 			bins[days] = { "+": 0, "-": 0 }
 		bins[days][c.position] += 1
-	bin_keys = list(bins.keys())
-	bin_keys.sort()
+	ndays = (lastcommentdate - firstcommentdate).days
 	time_series = {
-		"xaxis": [(firstcommentdate + timedelta(x)).strftime("%x") for x in bin_keys],
-		"pro": [bins[x]["+"] for x in bin_keys],
-		"con": [bins[x]["-"] for x in bin_keys]
+		"xaxis": [(firstcommentdate + timedelta(x)).strftime("%x") for x in xrange(0, ndays)],
+		"pro": [sum([bins[y]["+"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
+		"con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
 		}
 
 	return {"shortdescription": shortdescription, "longdescription": longdescription, "total": pro+con, "pro":pro, "con":con, "pro_pct": 100*pro/(pro+con), "con_pct": 100*con/(pro+con), "timeseries": time_series}
