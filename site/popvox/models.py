@@ -428,11 +428,17 @@ class OrgCampaignPosition(models.Model):
 		return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position
 
 class OrgCampaignPositionActionRecord(models.Model):
+	# This is used for org-customized landing pages
+	# for bills when the user accepts to send their
+	# info back to the org.
 	ocp = models.ForeignKey(OrgCampaignPosition, related_name="actionrecords")
 	firstname = models.CharField(max_length=64)
 	lastname = models.CharField(max_length=64)
 	zipcode = models.CharField(max_length=16)
 	email = models.EmailField()
+	created = models.DateTimeField(auto_now_add=True)
+	class Meta:
+		ordering = ['created']
 
 class UserProfile(models.Model):
 	"""A user profile extends the basic user model provided by Django."""
