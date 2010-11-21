@@ -96,8 +96,9 @@ def external_start(request, login_associate, provider):
 		request.session["oauth_finish_next"] = request.GET["next"]
 		
 	callback = SITE_ROOT_URL + reverse(external_return, args=[login_associate, provider])
-	
-	return HttpResponseRedirect( providers.methods[providers.providers[provider]["method"]]["get_redirect"](request, provider, callback))
+
+	scope = request.GET.get("scope", None)
+	return HttpResponseRedirect( providers.methods[providers.providers[provider]["method"]]["get_redirect"](request, provider, callback, scope))
 		
 def external_return(request, login_associate, provider):
 	try:
@@ -200,9 +201,10 @@ def external_return(request, login_associate, provider):
 			else:
 				messages.info(request, "Your " +  providers.providers[provider]["displayname"] + " account is already connected to a different account here. It cannot be connected to a second account.")
 				
-		# We already have made this association.
-		else:
-			messages.info(request, "You already are connected to a " +  providers.providers[provider]["displayname"] + " account. To connect to a different account, you may need to log out from the " +  providers.providers[provider]["displayname"] + " website first.")
+		## We already have made this association.
+		### BUT WE MIGHT BE ADDING SCOPE.
+		#else:
+		#	messages.info(request, "You already are connected to a " +  providers.providers[provider]["displayname"] + " account. To connect to a different account, you may need to log out from the " +  providers.providers[provider]["displayname"] + " website first.")
 		
 	# We are logging the user in.
 	else:

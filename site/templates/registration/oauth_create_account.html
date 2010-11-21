@@ -19,7 +19,7 @@
 			<small>Your screen name is how you are known publicly on POPVOX when you leave a public comment on legislation. Screen names must be at least five characters and cannot contain spaces.</small>
 			
 			{% if email %}
-			<p>We are also collecting your email address {{email}} from {{provider|provider_name}} which will only be used to send you notifications about your account. It will not be shown publicly or shared with third parties.</p>
+			<p>We are also collecting your email address <tt>{{email}}</tt> from {{provider|provider_name}} which will only be used to send you notifications about your account. It will not be shown publicly or shared with third parties.</p>
 			<input type="hidden" name="email" value="{{email}}"/>
 			{% else %}
 			<label for="email">Email Address</label>

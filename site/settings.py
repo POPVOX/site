@@ -198,5 +198,5 @@ LINKEDIN_API_KEY = "KdiWIOZyqU_z34KzN6io1yLpJ19MqLn65LGQl4vVmvH8e0wBzMCRLxPlIFEt
 LINKEDIN_SECRET_KEY = "OrfNdzdEkbp_ysto9C8pceeTnR-DquFThUskQJNyT6gNqIQR-auZVwdrAR_fTWN0"
 FACEBOOK_APP_ID = "150910028257528"
 FACEBOOK_APP_SECRET = "736f9da5e1218854f9fb638336ad7c17"
-FACEBOOK_AUTH_SCOPE = "email,offline_access,publish_stream,user_location"
+FACEBOOK_AUTH_SCOPE = "email" #,offline_access,publish_stream,user_location"
 

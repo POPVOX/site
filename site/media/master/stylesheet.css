@@ -2634,6 +2634,24 @@ ul.social_share_btns li {
 		.b_login_twitter {
 			background: url(b_login_twitter.png) left top no-repeat;
 			}
+
+	.b_share_facebook,
+	.b_share_twitter {
+		text-indent: -9999em;
+		display: block;
+		width: 68px;
+		height: 27px;
+		border: none;
+		margin-bottom: 20px;
+		}
+		
+		.b_share_facebook {
+			background: url(../icons/sm/facebook-share.png) left top no-repeat;
+			}
+
+		.b_share_twitter {
+			background: url(../icons/sm/twitter-share.png) left top no-repeat;
+			}
 		
 		
 

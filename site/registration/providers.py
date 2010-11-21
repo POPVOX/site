@@ -184,7 +184,7 @@ except:
 class UserCancelledAuthentication(Exception):
 	pass
 
-def openid2_get_redirect(request, provider, callback):
+def openid2_get_redirect(request, provider, callback, scope):
 	xrds = urllib.urlopen(providers[provider]["xrds"])
 	if xrds.getcode() != 200:
 		raise Exception("OpenID Failed: Invalid response from " + providers[provider]["displayname"] + " on obtaining a XRDS information: " + xrds.read())
@@ -238,7 +238,7 @@ def create_oauth1_client(provider, access_token, verifier = None):
 # The next two functions are based on:
 # http://github.com/simplegeo/python-oauth2#readme
 
-def oauth1_get_redirect(request, provider, callback):
+def oauth1_get_redirect(request, provider, callback, scope):
 	"""Gets the URL for the redirect that begins the OAuth 1 authentication process."""
 	consumer = oauth.Consumer(providers[provider]["oauth_token"], providers[provider]["oauth_token_secret"])
 	client = oauth.Client(consumer)
@@ -246,6 +246,11 @@ def oauth1_get_redirect(request, provider, callback):
 	body = { "oauth_callback": callback }
 	if "additional_request_parameters" in providers[provider]:
 		body.update(providers[provider]["additional_request_parameters"])
+		if scope != None:
+			if "scope" in body:
+				body["scope"] += "," + scope
+			else:
+				body["scope"] = scope
 
 	resp, content = client.request(providers[provider]["request_token_url"], "POST", body= urllib.urlencode(body))
 	
@@ -284,17 +289,22 @@ def oauth1_finish_authentication(request, provider, original_callback):
 
 # The next two functions are based on Facebook's documentation.
 
-def oauth2_get_redirect(request, provider, callback):
+def oauth2_get_redirect(request, provider, callback, scope):
 	"""Gets the URL for the redirect that begins the OAuth 2 authentication process."""
 	
-	d = {
+	body = {
 			"client_id": providers[provider]["clientid"],
 			"redirect_uri": callback,
 		}
 	if "additional_request_parameters" in providers[provider]:
-		d.update(providers[provider]["additional_request_parameters"])
+		body.update(providers[provider]["additional_request_parameters"])
+		if scope != None:
+			if "scope" in body:
+				body["scope"] += "," + scope
+			else:
+				body["scope"] = scope
 	
-	url = providers[provider]["authenticate_url"] + "?" + urllib.urlencode(d)
+	url = providers[provider]["authenticate_url"] + "?" + urllib.urlencode(body)
 	return url
 	
 def oauth2_finish_authentication(request, provider, original_callback):

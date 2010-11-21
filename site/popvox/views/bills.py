@@ -1020,6 +1020,9 @@ Go to %s to have your voice be heard!
 				"description": bill.officialtitle().encode('utf-8'),
 				"message": request.POST["message"].encode('utf-8')
 				}))
+		if ret.getcode() == 403:
+			request.session["billshare_share.message"] = request.POST["message"]
+			return { "status": "fail", "error": "not-authorized", "scope": "publish_stream" }
 		if ret.getcode() != 200:
 			return { "status": "success", "msg": "Post failed." }
 		ret = json.loads(ret.read())

@@ -41,7 +41,7 @@
 			<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
 		{% endif %}
 		<p>Click the Facebook Share icon to post your message on your Wall (in the account {{facebook.profile.screen_name}}):</p>
-		<p><a class="b_login_facebook btn" href="#" onclick="return share('facebook')">login to facebook</a></p>
+		<p><a class="b_share_facebook btn" href="#" onclick="return share('facebook')">share with facebook</a></p>
 		<p id="share_facebook_status"></p>
 	{% endif %}
 	</div>
@@ -56,7 +56,7 @@
 			<p>You have already tweeted about this bill but you can tweet again.</p>
 		{% endif %}
 			<p>Click the Twitter share button to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
-			<p><a class="b_login_twitter btn" href="#" onclick="return share('twitter')">login to twitter</a></p>
+			<p><a class="b_share_twitter btn" href="#" onclick="return share('twitter')">share with twitter</a></p>
 			<p id="share_twitter_status"></p>
 	{% endif %}
 	</div>
