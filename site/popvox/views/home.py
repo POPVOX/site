@@ -28,6 +28,7 @@ def get_legstaff_suggested_bills(user):
 			congressnumber=popvox.govtrack.CURRENT_CONGRESS,
 			**kwargs) \
 			.exclude(antitrackedby=prof) \
+			.order_by("billtype", "billnumber") \
 			.select_related("topterm")
 	
 	if user.legstaffrole.member != None:
@@ -45,7 +46,16 @@ def get_legstaff_suggested_bills(user):
 			pass
 		if cx != None:
 			name = popvox.govtrack.getCommittee(user.legstaffrole.committee)["name"]
-			shortname = re.sub("(House|Senate) Committee on (the )?", r"\1 ", name)
+
+			shortname = re.sub("(House|Senate|Joint|United States Senate) (Select |Permanent Select |Special |Caucus )?Committee on (the )?", r"\1 ", name)
+			if len(shortname) > 24:
+				def filterword(word):
+					if word == "Senate" or word == "House":
+						return word + " "
+					if word == "and":
+						return ""
+					return word[0]
+				shortname = "".join( [filterword(w) for w in shortname.split()]  )
 			
 			suggestions.append({
 				"name": "Referred to the " + name,

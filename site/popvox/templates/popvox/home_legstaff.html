@@ -31,6 +31,7 @@
 
 	<h1>Dashboard</h1>
 
+	<div class="col_3">
 	<ul class="tab_tab">
 		<li class="active" id="trackedbillstab"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#trackedbills').fadeIn(); $('#trackedbillstab').addClass('active')">Tracked Legislation</a></li>
 		
@@ -44,6 +45,7 @@
 			<li id="suggestionstab{{forloop.counter0}}"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#suggestions{{forloop.counter0}}').fadeIn(); $('#suggestionstab{{forloop.counter0}}').addClass('active')">{{group.shortname}} ({{group.count}})</a></li>
 		{% endfor %}
 	</ul>
+	</div>
 	
 	<div class="tab_pane">
 		<div id="trackedbills" class="tab_panel">

@@ -487,11 +487,9 @@ def account_profile_update(request, field, value, validate_only):
 		
 	elif field == "member":
 		# TODO: Validate
-		value = int(value)
+		value = int(value) if value != "" else None
 		if validate_only:
 			return { "status": "success" }
-		if value == "":
-			value = None
 		role = request.user.legstaffrole
 		role.member = value
 		role.save()
