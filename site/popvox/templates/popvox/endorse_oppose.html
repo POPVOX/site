@@ -5,7 +5,7 @@ function billsearch_q_submit() {
 	
 	if ($('#billsearch_q').hasClass('default')) return false; // don't do anything if default text
 	var v = $('#billsearch_q').val();
-	v = v.replace(" ", "").replace(".", "")
+	v = v.replace(/\s/g, "").replace(/\./g, "")
 	if (v == "") return false; // don't do anything if blank
 	var billnumberre = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
 	var match = billnumberre.exec(v);

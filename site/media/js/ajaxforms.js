@@ -121,24 +121,32 @@ jQuery.fn.inline_edit = function(callback, createeditor) {
 				+ 'id="' + this.getAttribute("id") + '_textarea"/>'
 				+ '</div>').insertAfter(inline);
 				
-			$("#" + this.getAttribute("id") + "_textarea").css('width', inline.css('width'));
-			$("#" + this.getAttribute("id") + "_textarea").css('font', "inherit");
+			var textarea = $("#" + this.getAttribute("id") + "_textarea");
+			textarea.css('font-size', "inherit");
 				
-			if (createeditor == "textarea") {
-				$("#" + this.getAttribute("id") + "_textarea").input_autosize();
+			if (createeditor == "input") {
+				textarea.css('width', "100%");
+				textarea.val(inline.text());
+			} else if (createeditor == "textarea") {
+				textarea.css('width', inline.css('width'));
+				textarea.input_autosize();
+				// textareas are normally used when there is some external HTMLizing going on
 			} else if (createeditor == "tinymce") {
+				textarea.css('width', inline.css('width'));
 				tinyMCE.execCommand("mceAddControl", true, this.getAttribute("id") + "_textarea");
 			}
 		}
 		
 		var editor = $("#" + this.getAttribute("id") + "_editor");
 		var textarea = $("#" + this.getAttribute("id") + "_textarea");
+		var editbtn = $("#" + this.getAttribute("id") + "_editbtn");
 
 		blur = function() {
 			inline.height(textarea.height());
 			editor.hide();
 			inline.fadeIn();
 			inline.removeClass("inlineedit_active");
+			editbtn.fadeIn();
 			
 			if (createeditor == "input")
 				inline.text(textarea.val());
@@ -160,6 +168,7 @@ jQuery.fn.inline_edit = function(callback, createeditor) {
 			inline.hide();
 			editor.show();
 			textarea.focus();
+			editbtn.fadeOut();
 			if (createeditor == "input") {
 				textarea.val(inline.text());
 			} else if (createeditor == "textarea") {

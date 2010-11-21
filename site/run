@@ -1,1 +1,1 @@
-DEBUG=1 PYTHONPATH=. python manage.py runserver --settings=settings
+DEBUG=1 ./manage runserver --settings=settings

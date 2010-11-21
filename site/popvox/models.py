@@ -35,6 +35,18 @@ class IssueArea(models.Model):
 
 	def orgs(self):
 		return self.org_set.filter(visible=True)
+		
+class MemberOfCongress(models.Model):
+	"""A Member of Congress or former member."""
+	# The primary key is the GovTrack ID.
+	def __unicode__(self):
+		return unicode(self.id) + u" " + self.name()
+	def name(self):
+		return govtrack.getMemberOfCongress(self.id)["name"]
+
+class CongressionalCommittee(models.Model):
+	"""A congressional committee or subcommittee."""
+	code = models.CharField(max_length=8)
 
 class Bill(models.Model):
 	"""A bill in Congress."""
@@ -43,6 +55,9 @@ class Bill(models.Model):
 	congressnumber = models.IntegerField()
 	billtype = models.CharField(max_length=2, choices=BILL_TYPE_CHOICES)
 	billnumber = models.IntegerField()
+	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills")
+	committees = models.ManyToManyField(CongressionalCommittee, related_name="bills")
+	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills")
 	issues = models.ManyToManyField(IssueArea, related_name="bills")
 	class Meta:
 			ordering = ['congressnumber', 'billtype', 'billnumber']
@@ -83,8 +98,6 @@ class Bill(models.Model):
 		return govtrack.getBillStatus(self.govtrack_metadata())
 	def status_advanced(self):
 		return govtrack.getBillStatusAdvanced(self.govtrack_metadata())
-	def sponsor(self):
-		return govtrack.getBillSponsor(self.govtrack_metadata())
 	def cosponsors(self):
 		return govtrack.getBillCosponsors(self.govtrack_metadata())
 	def isAlive(self):
@@ -417,8 +430,8 @@ class OrgCampaignPosition(models.Model):
 	bill = models.ForeignKey(Bill)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
 	comment = models.TextField(blank=True, null=True)
-	action_headline = models.CharField(max_length=128, blank=True)
-	action_body = tinymce_models.HTMLField(blank=True) #models.TextField()
+	action_headline = models.CharField(max_length=128, blank=True, null=True)
+	action_body = tinymce_models.HTMLField(blank=True, null=True) #models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	class Meta:
@@ -426,6 +439,8 @@ class OrgCampaignPosition(models.Model):
 		unique_together = (("campaign", "bill"),)
 	def __unicode__(self):
 		return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position
+	def get_absolute_url(self):
+		return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
 
 class OrgCampaignPositionActionRecord(models.Model):
 	# This is used for org-customized landing pages
@@ -463,6 +478,8 @@ class UserProfile(models.Model):
 	registration_followup_sent = models.BooleanField(default=False)
 	
 	issues = models.ManyToManyField(IssueArea, blank=True)
+	tracked_bills = models.ManyToManyField(Bill, blank=True, related_name="trackedby")
+	antitracked_bills = models.ManyToManyField(Bill, blank=True, related_name="antitrackedby")
 	
 	def __unicode__(self):
 		ret = self.user.username

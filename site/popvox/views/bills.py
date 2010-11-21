@@ -260,7 +260,7 @@ def billsearch_ajax(request):
 		"url": bill.url(),
 		"title": bill.title(),
 		"billstatus": bill.status_advanced(),
-		"sponsor": bill.sponsor(),
+		"sponsor": { "id": bill.sponsor.id, "name": bill.sponsor.name() } if bill.sponsor != None else None,
 		}
 	
 def bill_comments(bill, plusminus, **filterargs):
@@ -271,85 +271,53 @@ def bill_comments(bill, plusminus, **filterargs):
 				ret[k] = v
 		return ret
 	
-	cc = bill.usercomments.filter(position=plusminus, **filter_null_args(filterargs))
-	#if len(cc) > 0:
-	return cc, False
-	
-	# Make up comments for testing.
-	import random
-	lorem = []
-	last_time = datetime.now()
-	for i in xrange(random.randint(15, 40)):
-		c = UserComment()
-		c.user = User()
-		c.user.username = "testuser"
-		c.bill = bill
-		c.position = plusminus
-		c.message = plusminus + "Ut wisi enim ad minim veniam quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat duis autem vel eum iriure dolor.\n\nIn hendrerit in vulputate velit esse molestie consequat.\n\nVel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi"
-		c.created = last_time - timedelta(seconds=random.randint(0, 2*60*60)*24)
-		last_time = c.created
-		c.updated = c.created 
-		c.status = UserComment.COMMENT_NOT_REVIEWED
-		c.address = PostalAddress()
-		c.address.city = "Sioux City"
-		c.address.state = "XX"
-		lorem.append(c)
-	return lorem, True
+	return bill.usercomments.filter(position=plusminus, **filter_null_args(filterargs))
 
-def bill_statistics(bill, shortdescription, longdescription, **filterargs):
+def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
 	# If any of the filters is None, meaning it is based on demographic info
 	# that the user has not set, return None for the whole statistic group.
 	for key in filterargs:
 		if filterargs[key] == None:
 			return None
 	
-	pro_comments, pro_is_random = bill_comments(bill, "+", **filterargs)
-	con_comments, con_is_random = bill_comments(bill, "-", **filterargs)
+	pro_comments = bill_comments(bill, "+", **filterargs)
+	con_comments = bill_comments(bill, "-", **filterargs)
 	
-	if pro_is_random or con_is_random:
-		shortdescription += " (Simulated)"
-		longdescription += " (Simulated)"
-	
-	pro = len(pro_comments)
-	con = len(con_comments)
-	if pro+con == 0:
-		return None
+	pro = pro_comments.count()
+	con = con_comments.count()
 		
 	# Don't display statistics when there's very little data.
 	if pro+con < 10:
 		return None
 	
-	# Get a time-series.
-	firstcommentdate = None
-	lastcommentdate = None
-	for c in list(pro_comments) + list(con_comments):
-		if firstcommentdate == None or c.updated < firstcommentdate:
-			firstcommentdate = c.updated
-		if lastcommentdate == None or c.updated > lastcommentdate:
-			lastcommentdate = c.updated
-	
-	# Compute a bin size (i.e. number of days per point) that approximates
-	# ten comments per day, but with a minimum size of one day.
-	binsize = 1.0
-	if firstcommentdate < lastcommentdate:
-		binsize = (lastcommentdate - firstcommentdate).days / float(len(pro_comments)+len(con_comments)) * 10.0
-	if binsize < 1.0:
-		binsize = 1.0
-	
-	# Bin the observations.
-	bins = { }
-	for c in list(pro_comments) + list(con_comments):
-		days = round((c.updated - firstcommentdate).days / binsize) * binsize
-		if not days in bins:
-			bins[days] = { "+": 0, "-": 0 }
-		bins[days][c.position] += 1
-	bin_keys = list(bins.keys())
-	bin_keys.sort()
-	time_series = {
-		"xaxis": [(firstcommentdate + timedelta(x)).strftime("%x") for x in bin_keys],
-		"pro": [bins[x]["+"] for x in bin_keys],
-		"con": [bins[x]["-"] for x in bin_keys]
-		}
+	time_series = None
+	if want_timeseries:
+		# Get a time-series. Get the time bounds --- use the national data for the
+		# time bounds so that if we display multiple charts together they line up.
+		firstcommentdate = bill.usercomments.order_by('created')[0].created
+		lastcommentdate = bill.usercomments.order_by('-updated')[0].updated
+		
+		# Compute a bin size (i.e. number of days per point) that approximates
+		# ten comments per day, but with a minimum size of one day.
+		binsize = 1
+		if firstcommentdate < lastcommentdate:
+			binsize = int((lastcommentdate - firstcommentdate).days / float(len(pro_comments)+len(con_comments)) * 10.0)
+		if binsize < 1:
+			binsize = 1
+		
+		# Bin the observations.
+		bins = { }
+		for c in list(pro_comments) + list(con_comments):
+			days = int(round((c.updated - firstcommentdate).days / binsize) * binsize)
+			if not days in bins:
+				bins[days] = { "+": 0, "-": 0 }
+			bins[days][c.position] += 1
+		ndays = (lastcommentdate - firstcommentdate).days
+		time_series = {
+			"xaxis": [(firstcommentdate + timedelta(x)).strftime("%x") for x in xrange(0, ndays)],
+			"pro": [sum([bins[y]["+"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
+			"con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
+			}
 
 	return {"shortdescription": shortdescription, "longdescription": longdescription, "total": pro+con, "pro":pro, "con":con, "pro_pct": 100*pro/(pro+con), "con_pct": 100*con/(pro+con), "timeseries": time_series}
 	
@@ -1097,8 +1065,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
 	
-	pro_comments, pro_is_random = bill_comments(bill, "+", address__state=state, address__congressionaldistrict=district)
-	con_comments, con_is_random = bill_comments(bill, "-", address__state=state, address__congressionaldistrict=district)
+	pro_comments = bill_comments(bill, "+", address__state=state, address__congressionaldistrict=district)
+	con_comments = bill_comments(bill, "-", address__state=state, address__congressionaldistrict=district)
 	
 	comments = list(pro_comments) + list(con_comments)
 	comments.sort(key = lambda x : x.updated, reverse=True)
@@ -1134,8 +1102,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 		"reporttitle": reporttitle,
 		"reportsubtitle": reportsubtitle,
 	
-		"shortmessages": [],
-		"longmessages":
+		"comments":
 			[ {
 				"user":c.user.username,
 				"msg": c.message,
@@ -1145,15 +1112,17 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 				"share": c.url(),
 				} for c in comments ],
 		"stats": {
-			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation"),
+			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True),
 			"state": bill_statistics(bill,
 				state,
 				govtrack.statenames[state],
+				want_timeseries=True,
 				address__state=state)
 					if state != None else None,
 			"district": bill_statistics(bill,
 				state + "-" + str(district),
 				state + "-" + str(district),
+				want_timeseries=True,
 				address__state=state,
 				address__congressionaldistrict=district)
 					if state != None and district not in (None, 0) else None

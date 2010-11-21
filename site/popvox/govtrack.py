@@ -97,22 +97,6 @@ def getMembersOfCongressForDistrict(district, moctype="all"):
 		ret.append( people[congresspeople[district]] )
 	return ret
 
-def getSponsoredBills(id):
-	# TODO: Cache
-	xml = minidom.parse(urlopen("http://www.govtrack.us/congress/person_api.xpd?session=" + str(CURRENT_CONGRESS) + "&id=" + str(id)))
-	ret = []
-	for node1 in xml.getElementsByTagName("SponsoredBills"):
-		for node in node1.getElementsByTagName("Bill"):
-			ret.append( {
-				"congressnumber": CURRENT_CONGRESS,
-				"billtype": node.getAttribute("Type"),
-				"billnumber": int(node.getAttribute("Number")),
-				"displaynumber": node.getElementsByTagName("Number")[0].firstChild.data,
-				"title": node.getElementsByTagName("Title")[0].firstChild.data,
-				"officialtitle": node.getElementsByTagName("OfficialTitle")[0].firstChild.data}
-				)
-	return ret
-
 def getBillMetadata(bill):
 	id = str(bill.congressnumber) + ":" + bill.billtype + ":" + str(bill.billnumber)
 	data = cache.get("govtrack_bill_" + id)
@@ -123,16 +107,6 @@ def getBillMetadata(bill):
 		cache.set("govtrack_bill_" + id, data.toxml("utf-8"), 60*60*6) # 6 hours
 		return data
 	
-def getBillSponsor(metadata):
-	loadpeople()
-	sp = metadata.getElementsByTagName("sponsor")
-	if len(sp) == 0 or sp[0].getAttribute("id") == "":
-		return None # some bills have no sponsor!
-	id = int(sp[0].getAttribute("id"))
-	if not id in people:
-		return None
-	return people[id]
-
 def getBillCosponsors(metadata):
 	loadpeople()
 	ret = []
@@ -423,7 +397,7 @@ def getChamberOfNextVote(metadata):
 	elif status in ("PROVKILL:PINGPONGFAIL", ): # don't know!
 		return metadata.documentElement.attributes["type"].value[0]
 	return None
-
+	
 def getCommitteeList():
 	global committees
 	if committees != None:
@@ -434,11 +408,14 @@ def getCommitteeList():
 		return committees
 
 	committees = [ ]
-	xml = minidom.parse(open_govtrack_file("us/committees.xml"))
+	xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/committees.xml"))
 	for node in xml.getElementsByTagName("committee"):
 		if node.getAttribute("obsolete") == "1":
 			continue
-		committees.append( { "id": node.getAttribute("code"), "name": node.getAttribute("displayname") } )
+		c = { "id": node.getAttribute("code"), "name": node.getAttribute("displayname"), "members": [] }
+		for n in node.getElementsByTagName("member"):
+			c["members"].append(int(n.getAttribute("id")))
+		committees.append(c)
 	committees.sort(key = lambda x : x["name"].replace("the ", ""))
 	
 	cache.set('govtrack_committees', committees, 60*60*24) # cache one day

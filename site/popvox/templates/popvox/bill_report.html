@@ -85,33 +85,37 @@
 				$('#reportsubtitle').text(res.reportsubtitle);
 				
 				{% if not user.is_anonymous %}
-				$('#shortmessages').html("");
-				for (var i = 0; i < res.shortmessages.length; i++) {
-					var elem = $('#tweet_template div.tweet').clone();
-					elem.find("p span.username").text(res.shortmessages[i].user);
-					elem.find("p span.message").text(res.shortmessages[i].msg);
-					elem.find("p span.date").text(res.shortmessages[i].date);
-					elem.appendTo($('#shortmessages'));
-				}
-				if (res.shortmessages.length == 0)
-				$('#shortmessages').append($("<p>No tweets were found" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
 				
-				$('#longmessages').html("");
-				for (var i = 0; i < res.longmessages.length; i++) {
+				c_pro = $('#comments_pro');
+				c_con = $('#comments_con');
+				
+				c_pro.html("");
+				c_con.html("");
+				
+				var n_pro = 0, n_con = 0;
+				for (var i = 0; i < res.comments.length; i++) {
+					c = res.comments[i];
+					
 					var elem = $('#comment_template div.comment').clone();
-					elem.find("h4 span.username").text(res.longmessages[i].user)
-					if (res.longmessages[i].location)
-						elem.find("h4 span.location").text("in " + res.longmessages[i].location + ", ")
+					
+					elem.find("h4 span.username").text(c.user)
+					if (c.location)
+						elem.find("h4 span.location").text("in " + c.location + ", ")
 					else
 						elem.find("h4 span.location").text("")
-					elem.find("h4 span.date").text(res.longmessages[i].date);
-					elem.find("h4 span.share a").attr("href", res.longmessages[i].share);
-					elem.find("p").text(res.longmessages[i].msg)
-					elem.find(".endorse_oppose_image").addClass((res.longmessages[i].pos == "+") ? "endorse" : "oppose")
-					elem.appendTo($('#longmessages'));
+					elem.find("h4 span.date").text(c.date);
+					elem.find("h4 span.share a").attr("href", c.share);
+					elem.find("p").text(c.msg)
+					elem.find(".endorse_oppose_image").addClass((c.pos == "+") ? "endorse" : "oppose")
+					elem.appendTo((c.pos == "+") ? c_pro : c_con);
+					
+					if (c.pos == "+") n_pro++; else n_con++;
 				}
-				if (res.longmessages.length == 0)
-					$('#longmessages').append($("<p>No comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
+				if (n_pro == 0)
+					c_pro.append($("<p>No supporting comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
+				if (n_con == 0)
+					c_con.append($("<p>No opposing comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
+				
 				{% endif %}
 				
 				function escapeHTML(text) {
@@ -144,15 +148,15 @@
 					buildchart(res.stats.overall, 2, true);
 				} else if (res.stats.state) {
 					if (report_district != "" && report_district != "0")
-						$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart for the Congressional district.");
+						$('#stats_overall_info').text("Not enough users from the Congressional district have commented on this bill to display a chart for district. Charts for the state and nation are displayed instead.");
 					buildchart(res.stats.state, 0);
 					buildchart(res.stats.overall, 1, true);
 					$('#chart2').hide();
 				} else if (res.stats.overall) {
 					if (report_district != "")
-						$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart for the Congressional district.");
+						$('#stats_overall_info').text("Not enough users from the state have commented on this bill to display a chart for the district or state. A chart for the nation is displayed instead.");
 					else if (report_state != "")
-						$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart for the state.");
+						$('#stats_overall_info').text("Not enough users from the state have commented on this bill to display a chart for the state. A chart for the nation is displayed instead.");
 					buildchart(res.stats.overall, 0, true);
 					$('#chart1').hide();
 					$('#chart2').hide();
@@ -215,7 +219,7 @@
 			{% if not user.is_anonymous %}
 			<div class="search_box">
 				<p>
-					Change Report: 
+					Select State: 
 					<select id="options_state" size="1" onchange="report_state = this.value; update()">
 						<option value="">POPVOX Nation</option>
 						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
@@ -250,7 +254,7 @@
 		<div class="col_6 rule"> 
 			<div>
 				<h3>Constituents Say</h3>
-				<div id="stats_overall_info" class="pad_btm"></div>
+				<div id="stats_overall_info" class="pad_btm" style="font-size: 12px"></div>
 				{% for index in "3"|range %}
 				<div id="chart{{index}}" class="clear" style="display: none; padding-bottom: 1em">
 					<div class="col_1">
@@ -266,6 +270,7 @@
 					</div>
 					<div class="col_3 col_last">
 						<div id="chart_time_{{index}}" style="height: 100px"></div>
+						<div style="margin-left: 20px; font-size: 9pt; color: #999">Cumulative Number of Individuals</div>
 					</div>
 				</div>
 				{% endfor %}
@@ -340,31 +345,26 @@
 	</div>
 	
 	{% if not user.is_anonymous %}
+	<div style="display: none" id="comment_template">
+		<div class="comment">
+			<h4><span class="username">UserUser</span> <span class="location">in City, State</span><span class="date">, Tuesday</span> <span class="share"><a href="">share</a></span></h4>
+			<div class="endorse_oppose_image"></div>
+			<p>Lorem ipsum etc etc</p>
+		</div>
+	</div>
+	
 	<div class="section clearfix"> 
-		<div class="col_8 rule"> 
+		<div class="col_6 rule"> 
 			<div class="comments"> 
-				<h3>Comments</h3>
-				<div id="longmessages">Loading...</div>
-				<div style="display: none" id="comment_template">
-					<div class="comment">
-						<h4><span class="username">UserUser</span> <span class="location">in City, State</span><span class="date">, Tuesday</span> <span class="share"><a href="">share</a></span></h4>
-						<div class="endorse_oppose_image"></div>
-						<p>Lorem ipsum etc etc</p>
-					</div>
-				</div>
+				<h3>Supporting Comments</h3>
+				<div id="comments_pro">Loading...</div>
 			</div> 
 		</div> 
-		<div class="col_4 col_last rule"> 
-			<div class="tweets"> 
-				<h3>Tweets</h3>
-				<p>Tweets are not verified from a Congressional district.</p>
-				<div id="shortmessages">Loading...</div>
-				<div style="display: none" id="tweet_template">
-					<div class="tweet">
-						<p><span class="username">UserUser</span> says: &ldquo;<span class="message">....</span>&rdquo; (<span class="date">...</span>)</p>
-					</div>
-				</div>
-			</div>
+		<div class="col_6 col_last rule"> 
+			<div class="comments"> 
+				<h3>Opposing Comments</h3>
+				<div id="comments_con">Loading...</div>
+			</div> 
 		</div> 
 	</div><!-- e: section -->
 	{% endif %}

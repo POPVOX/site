@@ -592,9 +592,26 @@ def action(request, orgslug, billposid):
 
 	action_defs(billpos)
 	
+	admin = org.is_admin(request.user)
+	url = None
+	if admin:
+		import shorturl
+		surl, created = shorturl.models.Record.objects.get_or_create(target=billpos)
+		url = surl.url()
+	
+		# If the admin is following his own link, make him not an admin for the
+		# moment so he can see how it looks to others.
+		if "shorturl" in request.session and request.session["shorturl"] == surl:
+			admin = False
+			del request.session["shorturl"]
+			
+		num = OrgCampaignPositionActionRecord.objects.filter(ocp=billpos).count()
+	
 	return render_to_response('popvox/org_action.html', {
 		'position': billpos,
-		'admin': org.is_admin(request.user)
+		'admin': admin,
+		"shorturl": url,
+		"num": num,
 		}, context_instance=RequestContext(request))
 
 @json_response
@@ -603,11 +620,31 @@ def orgcampaignpositionactionupdate(request):
 	if not billpos.campaign.org.is_admin(request.user) :
 		return HttpResponseForbidden("Not authorized.")
 
-	billpos.action_headline = request.POST["action_headline"]
-	billpos.action_body = sanitize_html(request.POST["action_body"])
+	if "action_headline" in request.POST:
+		billpos.action_headline = request.POST["action_headline"]
+	if "action_body" in request.POST:
+		billpos.action_body = sanitize_html(request.POST["action_body"])
 	billpos.save()
 	
 	action_defs(billpos)
 	
 	return {"status": "success", "action_headline": billpos.action_headline, "action_body": billpos.action_body }
+
+def action_download(request, orgslug, billposid):
+	org = get_object_or_404(Org, slug=orgslug)
+	billpos = get_object_or_404(OrgCampaignPosition, id=billposid, campaign__org = org)
+	
+	if not org.is_admin(request.user):
+		return HttpResponseForbidden("You do not have permission to view this page.")
+
+	import csv
+	response = HttpResponse(mimetype='text/csv')
+	response['Content-Disposition'] = 'attachment; filename=userdata.csv'
+	
+	writer = csv.writer(response)
+	writer.writerow(['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode'])
+	for rec in OrgCampaignPositionActionRecord.objects.filter(ocp=billpos):
+		writer.writerow([rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode])
+	
+	return response
 

@@ -5,27 +5,60 @@
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+	function addRemoveIssueArea(add_remove, id, statuslabelid, callback) {
+		ajax(
+			"/ajax/accounts/profile/updatefield",
+			{ name: "issue-" + add_remove, value: id},
+			{
+				success: function() {
+					callback(issuearea_list);
+					$('#issuearealist').html("");
+					for (var ix in issuearea_list) {
+						var n = $("<li></li>");
+						$(n).text(issuearea_list[ix][1]);
+						$('#issuearealist').append(n);
+					}
+				},
+			}
+		);
+	}
+	var issuearea_list = [{% for issue in user.userprofile.issues.all %}[{{issue.id}}, "{{issue.name|escapejs}}"],{% endfor %}];						
+</script>
 {% endblock %}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block content %}
-	<div class="content">
-	
+<div class="content">
+
 	<h1>Dashboard</h1>
+
+	<ul class="tab_tab">
+		<li class="active" id="trackedbillstab"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#trackedbills').fadeIn(); $('#trackedbillstab').addClass('active')">Tracked Legislation</a></li>
+		
+		{% if districtstr %}
+		<li id="districttab"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#district').fadeIn(); $('#districttab').addClass('active')">In Your {{districtstr}}</a></li>
+		{% endif %}
+		
+		<li id="suggestionstab"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#suggestions').fadeIn(); $('#suggestionstab').addClass('active')">Suggestions Settings</a></li>
+		
+		{% for group in suggestions %}
+			<li id="suggestionstab{{forloop.counter0}}"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#suggestions{{forloop.counter0}}').fadeIn(); $('#suggestionstab{{forloop.counter0}}').addClass('active')">{{group.shortname}} ({{group.count}})</a></li>
+		{% endfor %}
+	</ul>
 	
-	<div class="col_6 col_top">
-		<div class="block leg_agenda">
+	<div class="tab_pane">
+		<div id="trackedbills" class="tab_panel">
 			<h3>Tracked Legislation</h3>
 			
-			{% for billrec in tracked_bills %}
+			{% for bill in tracked_bills %}
 				<div style="clear: both">
-					<h4><a href="{{billrec.bill.url}}">{{billrec.bill.title|truncatewords:10}}</a> <span>({{billrec.source}})</span></h4>
+					<h4><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></h4>
 					
-					{% bill_statistics billrec.bill as stats %}
+					{% bill_statistics bill as stats %}
 					{% if stats %}
-						<a href="{{billrec.bill.url}}/report">
-							<div id="chart-container--{{billrec.bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
+						<a href="{{bill.url}}/report">
+							<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
 						</a>
-						<script>bill_chart("chart-container--{{billrec.bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
+						<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
 						
 						<div class="chart_info">
 							<div class="col_chart">
@@ -38,9 +71,9 @@
 							 </div>
 							 <div class="col_2 col_last">
 								 <p class="view_report">
-									<span><a href="{{billrec.bill.url}}/report">View Report</a></span>
+									<span><a href="{{bill.url}}/report">View Report</a></span>
 									<strong>Status:</strong><br />
-									<em>{{billrec.bill.status_advanced}}</em><br />
+									<em>{{bill.status_advanced}}</em><br />
 								</p>
 							</div>
 						</div>
@@ -50,27 +83,57 @@
 				</div>
 				<div class="hr"> </div>
 			{% empty %}
-				<p>You have no tracked legislation.</p>
+				<p>You have no tracked legislation. Check your suggestions or try changing your <a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#suggestions').fadeIn(); $('#suggestionstab').addClass('active')">suggestions settings</a>.</p>
 			{% endfor %}
-			<p>This feed includes legislation your boss is the primary sponsor of and legislation in your <a href="/accounts/profile">interest areas</a>.</p>
 		</div>
-	</div>	
 		
-	{% if districtstr %}
-	<div class="col_3 col_top">	
-		<div class="block your_feed">
-			<h3>In Your {{districtstr}}:</h3>
+		{% for group in suggestions %}
+			<div id="suggestions{{forloop.counter0}}" class="tab_panel" style="display: none">
+				<h2>{{group.name}}</h2>
+				{% for subgroup in group.subgroups %}
+					<h3>{{subgroup.name}}</h3>
+					{% for bill in subgroup.bills %}
+						<div>{{bill}}</div>
+					{% endfor %}
+				{% endfor %}
+			</div>
+		{% endfor %}
+		
+		<div id="suggestions" class="tab_panel" style="display: none">
+			<h2>Suggestions Settings</h2>
+			<p>Your tracked legsiatlion shows the status of bills you select. We&rsquo;ll come up with a list of suggestions for you to track based on your <a href="/accounts/profile">account settings</a> and will display those suggestions in tabs on the left.</p>
+			{% if suggestions|length == 0 %}<p>Right now you don&rsquo;t have any suggestions.</p>{% endif %}
 			
-			{% for item in district_bills %}
-				<div style="clear: both">
-					<h4><a href="{{item.bill.url}}">{{item.bill.title|truncatewords:10}}</a></h4>
-					
-					{% with item.stats as stats %}
+			<h3>Interest Areas</h3>
+			<p>Customize your suggestions by choosing interest areas from the list of Congressional Research Service Legislative Indexing Vocabulary:</p>
+			<ul id="issuearealist" class="bullets">
+				{% for ix in user.userprofile.issues.all %}
+					<li>{{ ix.name }}</li>
+				{% endfor %}
+			</ul>
+			<ul class="bullets">
+				<li><a href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { window.location.reload() });">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a></li>
+			</ul>
+			
+			{% include "popvox/issueareachooser.html" %}	
+			
+			<p>We will be adding more here in the future.</p>
+		</div>
+
+		{% if districtstr %}
+			<div id="district" class="tab_panel block your_feed" style="display: none">
+				<h3>In Your {{districtstr}}:</h3>
+				
+				{% for bill in district_bills %}
+					<div style="clear: both">
+						<h4><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></h4>
+						
+						{% bill_statistics bill as stats %}
 						<div class="col_chart">
-							<a href="{{item.bill.url}}/report">
-								<div id="chart-container-district--{{item.bill.id}}" class="img_chart" style="width: 60px; height: 60px"></div>
+							<a href="{{bill.url}}/report">
+								<div id="chart-container-district--{{bill.id}}" class="img_chart" style="width: 60px; height: 60px"></div>
 							</a>
-							<script>bill_chart("chart-container-district--{{item.bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
+							<script>bill_chart("chart-container-district--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
 						</div>
 						<div class="chart_info">
 							<p class="chart_stats">
@@ -80,25 +143,20 @@
 							</p>
 						 </div>
 						 <p class="view_report">
-							<span><a href="{{item.bill.url}}/report">View Report</a></span>
+							<span><a href="{{bill.url}}/report">View Report</a></span>
 							<br />
-							<em>{{item.bill.status_advanced}}</em><br />
+							<em>{{bill.status_advanced}}</em><br />
 						</p>
-					{% endwith %}
-				</div>
-				<div class="hr"> </div>
-			{% empty %}
-				<p>There are no bills with high comment activity in your {{districtstr|lower}}.</p>
-			{% endfor %}
-			
-		</div>
+					</div>
+					<div class="hr"> </div>
+				{% empty %}
+					<p>There are no bills with high comment activity in your {{districtstr|lower}}.</p>
+				{% endfor %}
 				
+			</div>
+		{% endif %}
 	</div>
-	{% endif %}
 
-    {% include "ads/rightbar.html" %}
-
-	
-	</div>
+</div>
 {% endblock %}
 

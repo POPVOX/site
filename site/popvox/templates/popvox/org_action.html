@@ -5,17 +5,29 @@
 {% block head %}
 <script>
 {% if admin %}
-function update() {
+function update_headline() {
 	ajax(
 		"/ajax/orgs/updateaction",
 		{
 			id: {{position.id}},
 			action_headline: $("#action_headline_textarea").val(),
-			action_body: tinyMCE.get('action_body_textarea').getContent(),
 		},
 		{
 			success: function(res) {
 				$("#action_headline").text(res.action_headline);
+			}
+		}
+	);
+}
+function update_body() {
+	ajax(
+		"/ajax/orgs/updateaction",
+		{
+			id: {{position.id}},
+			action_body: tinyMCE.get('action_body_textarea').getContent(),
+		},
+		{
+			success: function(res) {
 				$("#action_body").html(res.action_body);
 			}
 		}
@@ -36,10 +48,9 @@ function validate(form) {
 {% endblock %}
 {% block content %}
 	<div class="content org_custom">
-
 		<div class="col_12">
 			<h1 class="rule_btm"><span id="action_headline">{{position.action_headline}}</span> <span class="info">A message from {{position.campaign.org.name}}</span></h1>
-			{% if admin %}<div class="b_edit b_edit_h1" onclick="$('#action_headline').click()"></div><script>$('#action_headline').inline_edit(update, 'input');</script>{% endif %}
+			{% if admin %}<div class="b_edit b_edit_h1" id="action_headline_editbtn" onclick="$('#action_headline').click()"></div><script>$('#action_headline').inline_edit(update_headline, 'input');</script>{% endif %}
 		</div>
 		
 		<div class="col_6">
@@ -51,7 +62,13 @@ function validate(form) {
 				<div id="action_body">
 					{{ position.action_body|safe }}
 				</div>
-				{% if admin %}<div class="b_edit b_edit_msg" onclick="$('#action_body').click()"></div><script>$('#action_body').inline_edit(update, 'tinymce');</script>{% endif %}
+				{% if admin %}<div class="b_edit b_edit_msg" id="action_body_editbtn" onclick="$('#action_body').click()"></div><script>$('#action_body').inline_edit(update_body, 'tinymce');</script>{% endif %}
+				
+				{% if admin %}
+					<p class="whattodonext">
+						This is your custom action page for {{position.bill.title|truncatewords:20}}. Edit the headline and body text above to create a compelling message for your members. When you are done, send your members to this page to take action. (They won&rsquo;t see the edit buttons or this text!) You can copy the address of this page from your address bar or use: <tt>{{shorturl}}</tt>
+					</p>
+				{% endif %}
 			</div>
 			
 			<div class="bills">
@@ -113,6 +130,11 @@ function validate(form) {
 			
 			{% endif %}
 		
+			{% if admin %}
+				<p class="whattodonext">
+					{{num}} user{{num|pluralize}} filled out this form so far. Download data in <a href="{{position.get_absolute_url}}/_download/csv">CSV</a> format.
+				</p>
+			{% endif %}
 		</div>
 		
     </div>
