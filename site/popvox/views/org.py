@@ -594,6 +594,7 @@ def action(request, orgslug, billposid):
 	
 	admin = org.is_admin(request.user)
 	url = None
+	num = None
 	if admin:
 		import shorturl
 		surl, created = shorturl.models.Record.objects.get_or_create(target=billpos)
