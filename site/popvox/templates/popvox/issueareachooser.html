@@ -1,6 +1,10 @@
  <script>
  var issuearea_count;
- function showIssueAreaChooser(selectedissues) {
+ var issuearea_chooser_change_made;
+ var issuearea_chooser_finished_callback;
+ function showIssueAreaChooser(selectedissues, finished_callback) {
+     issuearea_chooser_finished_callback = finished_callback;
+	issuearea_chooser_change_made = false;
      $('#issueareachooser_allissueslist_container').height($(window).height() - 250);
      $.colorbox({
 		transition: "none",
@@ -55,6 +59,7 @@
 		 return;
 	 }
 	
+	issuearea_chooser_change_made = true;
 	addRemoveIssueArea("add", id, "issue_add_remove_status", function(issueareachooser_list) {
 		appendIssueArea(id);
 		if (issueareachooser_list)
@@ -63,6 +68,7 @@
  }
  
  function removeIssueArea_Chooser(id) {
+	issuearea_chooser_change_made = true;
 	addRemoveIssueArea("remove", id, "issue_add_remove_status", function(issueareachooser_list) {
 		$("#issueareachooser_selected_" + id).remove();
 		$("#issueareachooser_list_" + id).removeClass("active");
@@ -95,7 +101,7 @@
 		 </ul>
 		 <p id="issueareachooser_listnone" style="font-style: italic">No issue areas have been selected yet. Choose some issue areas from the list on the right by clicking on them.</p>
 		 <p id="issue_add_remove_status" style="display: none"></p>
-		 <p><input type="button" class="submit" value="Finished" onclick="$.colorbox.close()"/></p>
+		 <p><input type="button" class="submit" value="Finished" onclick="$.colorbox.close(); if (issuearea_chooser_finished_callback && issuearea_chooser_change_made) issuearea_chooser_finished_callback()"/></p>
 	</div>
 	<div class="col_50">
 		<h2>Available Issue Areas</h2>

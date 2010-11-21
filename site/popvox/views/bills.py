@@ -260,7 +260,7 @@ def billsearch_ajax(request):
 		"url": bill.url(),
 		"title": bill.title(),
 		"billstatus": bill.status_advanced(),
-		"sponsor": bill.sponsor(),
+		"sponsor": { "id": bill.sponsor.id, "name": bill.sponsor.name() } if bill.sponsor != None else None,
 		}
 	
 def bill_comments(bill, plusminus, **filterargs):

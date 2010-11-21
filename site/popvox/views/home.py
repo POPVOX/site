@@ -5,6 +5,7 @@ from django.views.generic.simple import direct_to_template
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django import forms
+from django.db.models import Count
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
@@ -17,34 +18,80 @@ from popvox.views.bills import bill_statistics, get_default_statistics_context
 import popvox.govtrack
 from utils import formatDateTime
 
-def get_legstaff_tracked_bills(user):
-	# Sort by bill type (hr, s, hres, etc.) first so that we can SQL query over a larger
-	# set of bill numbers.
-	billgroups = { }
-	billsource = { }
+def get_legstaff_suggested_bills(user):
+	prof = user.userprofile
 	
-	for ix in user.userprofile.issues.all():
-		for b in Bill.objects.filter(congressnumber=popvox.govtrack.CURRENT_CONGRESS, issues=ix):
-			if not b.billtype in billgroups:
-				billgroups[b.billtype] = []
-			billgroups[b.billtype].append(b.billnumber)
-			billsource[b.govtrack_code()] = "Issue area: " + ix.name
+	suggestions = [  ]
 	
-	# do this last so that it overrides the source
+	def select_bills(**kwargs):
+		return Bill.objects.filter(
+			congressnumber=popvox.govtrack.CURRENT_CONGRESS,
+			**kwargs) \
+			.exclude(antitrackedby=prof) \
+			.select_related("topterm")
+	
 	if user.legstaffrole.member != None:
-		spinfo = "Sponsored by " + popvox.govtrack.getMemberOfCongress(user.legstaffrole.member)["lastname"]
-		for b in popvox.govtrack.getSponsoredBills(user.legstaffrole.member): # only this session
-			if not b["billtype"] in billgroups:
-				billgroups[b["billtype"]] = []
-			billgroups[b["billtype"]].append(b["billnumber"])
-			billsource[b["billtype"] + str(b["congressnumber"]) + "-" + str(b["billnumber"])] = spinfo
+		suggestions.append({
+			"name": "Sponsored by " + popvox.govtrack.getMemberOfCongress(user.legstaffrole.member)["name"],
+			"shortname": popvox.govtrack.getMemberOfCongress(user.legstaffrole.member)["lastname"],
+			"bills": select_bills(sponsor = user.legstaffrole.member)
+			})
+
+	if user.legstaffrole.committee != None:
+		cx = None
+		try:
+			cx = CongressionalCommittee.objects.get(code=user.legstaffrole.committee)
+		except:
+			pass
+		if cx != None:
+			name = popvox.govtrack.getCommittee(user.legstaffrole.committee)["name"]
+			shortname = re.sub("(House|Senate) Committee on (the )?", r"\1 ", name)
+			
+			suggestions.append({
+				"name": "Referred to the " + name,
+				"shortname": shortname + " (Referral)",
+				"bills": select_bills(committees = cx)
+				})
+
+			suggestions.append({
+				"name": "Introduced by a Member of the " + name,
+				"shortname": shortname + " (Member)",
+				"bills": select_bills(sponsor__in = govtrack.getCommittee(user.legstaffrole.committee)["members"])
+				})
+
+	for ix in prof.issues.all():
+		suggestions.append({
+			"name": "Issue Area: " + ix.name,
+			"shortname": ix.name,
+			"bills": select_bills(issues=ix)
+			})
+
+	# Clear out any groups with no bills. We can call .count() if we just want
+	# a count, but since we are going to evaluate later it's better to evaluate
+	# it once here so the result is cached.
+	suggestions = [s for s in suggestions if len(s["bills"]) > 0]
 	
-	bills = [ ]
-	for bt in billgroups:
-		for bill in Bill.objects.filter(congressnumber=popvox.govtrack.CURRENT_CONGRESS, billtype=bt, billnumber__in=billgroups[bt]):
-			bills.append( { "bill": bill, "commentcount": len(bill.usercomments.all()), "source": billsource[bill.govtrack_code()] })
-	bills.sort(key = lambda x : -x["commentcount"])
-	return bills
+	# Group any of the suggestion groups that have too many bills in them.
+	myissues = [ix.name for ix in prof.issues.all()]
+	for s in suggestions:
+		s["count"] = s["bills"].count()
+		
+		if len(s["bills"]) <= 15:
+			s["subgroups"] = [ {"bills": s["bills"] } ]
+		else:
+			# This is the only part of this routine that actually iterates through the
+			# bills. We can report the categories and total counts of suggestions
+			# without this.
+			ixd = { }
+			for b in s["bills"]:
+				ix = b.topterm.name if b.topterm != None else "Other"
+				if not ix in ixd:
+					ixd[ix] = { "name": ix, "bills": [] }
+				ixd[ix]["bills"].append(b)
+			s["subgroups"] = ixd.values()
+			s["subgroups"].sort(key = lambda x : (x["name"] not in myissues, x["name"]))
+	
+	return suggestions
 
 def get_legstaff_district_bills(user):
 	if user.legstaffrole.member == None:
@@ -54,37 +101,43 @@ def get_legstaff_district_bills(user):
 	if not member["current"]:
 		return []
 	
-	# Count up the number of comments on bills in this state or district.
-	f = { "state": member["state"] }
+	# Create some filters for the district.
+	f1 = { "state": member["state"] }
 	if member["type"] == "rep":
-		f["congressionaldistrict"] = member["district"]
-	bills = { }
-	localaddresses = PostalAddress.objects.filter(**f)
-	nationaladdresses = PostalAddress.objects.all() # we don't ever fetch the whole thing
-	for addr in localaddresses:
-		for c in addr.usercomment_set.all():
-			if not c.bill.id in bills:
-				bills[c.bill.id] = { "bill": c.bill, "count": 0 }
-			bills[c.bill.id]["count"] += 1
+		f1["congressionaldistrict"] = member["district"]
 	
-	# Convert to array.	
-	bills = bills.values()
-	
-	# We don't want just the most comments in the district, but the bills that are
-	# most uniquely relevant to the district. So we subtract off the expected
-	# number of comments in the district based on the rate of comments nationally.
-	# This should be fairly robust.
-	for d in bills:
-		stats = bill_statistics(d["bill"], None, None)
-		if stats != None:
-			d["count"] = d["count"] \
-				- len(localaddresses) * float(stats["total"]) / float(len(nationaladdresses))
-	bills.sort(key = lambda x : -x["count"])
-	
-	for d in bills:
-		d["stats"] = bill_statistics(d["bill"], None, None, address__state=f["state"], address__congressionaldistrict=f["congressionaldistrict"] if "congressionaldistrict" in f else None)
+	f2 = { }
+	for k, v in f1.items():
+		f2["usercomments__address__" + k] = v
 		
-	return bills
+	# Get the approximate total number of users in the district which
+	# we will use to cut off aggregate results.
+	localusers = PostalAddress.objects.filter(
+		usercomment__updated__gt = datetime.now() - timedelta(days=365),
+		**f1).count()
+	
+	# Get the approximate total number of users in the nation.
+	globalusers = PostalAddress.objects.filter(usercomment__updated__gt = datetime.now() - timedelta(days=365)).count()
+	
+	# Now run an aggregate query to find the total number of comments
+	# by bill w/in this district, reporting only bills that at least 1% of the
+	# district has commented on.
+	localbills = Bill.objects.filter(**f2) \
+		.annotate(num_comments=Count("usercomments")) \
+		.filter(num_comments__gt = localusers / 100) \
+		.order_by("-num_comments")
+	
+	# Get the number of global comments on each of those bills.
+	globalcomments = { }
+	for bill in Bill.objects.filter(
+		id__in = [b.id for b in localbills]) \
+		.annotate(num_comments=Count("usercomments")):
+		globalcomments[bill.id] =  bill.num_comments
+	
+	# Now filter out the local bills that have less activity than the national mean.
+	localbills = [b for b in localbills if localusers/b.num_comments < globalusers/globalcomments[b.id]]
+	
+	return localbills
 	
 def compute_prompts(user):
 	# Compute prompts for action for users. We want to remain agnostic about
@@ -190,7 +243,8 @@ def home(request):
 						"" if member == None or not member["current"] else (
 							"State" if member["type"] == "sen" else "District"
 							),
-				"tracked_bills": get_legstaff_tracked_bills(request.user),
+				"tracked_bills": prof.tracked_bills.all(),
+				"suggestions": get_legstaff_suggested_bills(request.user),
 				"district_bills": get_legstaff_district_bills(request.user)
 			},
 			context_instance=RequestContext(request))

@@ -35,6 +35,18 @@ class IssueArea(models.Model):
 
 	def orgs(self):
 		return self.org_set.filter(visible=True)
+		
+class MemberOfCongress(models.Model):
+	"""A Member of Congress or former member."""
+	# The primary key is the GovTrack ID.
+	def __unicode__(self):
+		return unicode(self.id) + u" " + self.name()
+	def name(self):
+		return govtrack.getMemberOfCongress(self.id)["name"]
+
+class CongressionalCommittee(models.Model):
+	"""A congressional committee or subcommittee."""
+	code = models.CharField(max_length=8)
 
 class Bill(models.Model):
 	"""A bill in Congress."""
@@ -43,6 +55,9 @@ class Bill(models.Model):
 	congressnumber = models.IntegerField()
 	billtype = models.CharField(max_length=2, choices=BILL_TYPE_CHOICES)
 	billnumber = models.IntegerField()
+	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills")
+	committees = models.ManyToManyField(CongressionalCommittee, related_name="bills")
+	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills")
 	issues = models.ManyToManyField(IssueArea, related_name="bills")
 	class Meta:
 			ordering = ['congressnumber', 'billtype', 'billnumber']
@@ -83,8 +98,6 @@ class Bill(models.Model):
 		return govtrack.getBillStatus(self.govtrack_metadata())
 	def status_advanced(self):
 		return govtrack.getBillStatusAdvanced(self.govtrack_metadata())
-	def sponsor(self):
-		return govtrack.getBillSponsor(self.govtrack_metadata())
 	def cosponsors(self):
 		return govtrack.getBillCosponsors(self.govtrack_metadata())
 	def isAlive(self):
@@ -465,6 +478,8 @@ class UserProfile(models.Model):
 	registration_followup_sent = models.BooleanField(default=False)
 	
 	issues = models.ManyToManyField(IssueArea, blank=True)
+	tracked_bills = models.ManyToManyField(Bill, blank=True, related_name="trackedby")
+	antitracked_bills = models.ManyToManyField(Bill, blank=True, related_name="antitrackedby")
 	
 	def __unicode__(self):
 		ret = self.user.username
