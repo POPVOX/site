@@ -23,6 +23,19 @@ function showtab(tab) {
 {% if user_org %}
 {% include "popvox/org_billaction.js" %}
 {% endif %}
+function getshorturl() {
+	$('#getshorturl').html("<em>Loading...</em>");
+	ajax(
+		"/ajax/bills/getshorturl",
+		{ billid: {{bill.id}}},
+		{
+			success: function(res) {
+				$('#getshorturl').html("Use this special tracking URL <tt>" + res.url + "</tt> to share this bill with others.");
+			},
+		}
+	);
+	return false;
+}
 </script>
 {% endblock %}
 {% block content %}
@@ -172,6 +185,8 @@ function showtab(tab) {
 		<div class="col_3 col_top">
 			<h3 class="no_rule">What do you think</h3>
 			{% include "popvox/bill_howshouldtheyvote.html" %}
+			
+			<div><small id="getshorturl"><a href="#" onclick="return getshorturl()">Share this bill</a></small></div>
 		</div>
 		<div id="bill_endorse_oppose_holder_user">
 			{% include "popvox/bill_uservote.html" %}

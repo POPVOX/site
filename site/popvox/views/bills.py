@@ -1110,3 +1110,23 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 		}
 	}
 
+@json_response
+def getbillshorturl(request):
+	if "billposid" in request.POST:
+		pos = get_object_or_404(OrgCampaignPosition, id=request.POST["billposid"])
+		
+		org = pos.campaign.org
+		if not org.is_admin(request.user) :
+			return HttpResponseForbidden("Not authorized.")
+			
+		owner = pos.campaign
+		bill = pos.bill
+	else:
+		owner = request.user
+		bill = get_object_or_404(Bill, id=request.POST["billid"])
+	
+	import shorturl
+	surl, created = shorturl.models.Record.objects.get_or_create(owner=owner, target=bill)
+	
+	return { "status": "success", "url": surl.url(), "new": created }
+
