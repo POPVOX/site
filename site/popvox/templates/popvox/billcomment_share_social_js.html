@@ -9,6 +9,11 @@ function share(method, isauto) {
 		return;
 	};
 	working = true;
+	if (method != "email") {
+		$("#share_" + method + "_status").show();
+		$("#share_" + method + "_status").text('Posting...');
+		$('.b_share_' + method).fadeOut();
+	}
 	ajax("/ajax/bills/share",
 		{
 			"comment": {{comment.id}},
@@ -22,14 +27,16 @@ function share(method, isauto) {
 		   "success": function() {
 			   working = false;
 			   if (method == "email") { $('#share_email_field').val(''); $('#share_email_field').blur(); }
-			   $("#share_" + method + "_status").delay(6000).fadeOut();
+			   if (method == "email") $("#share_" + method + "_status").delay(6000).fadeOut();
 		   },
 		   "failure": function(res) {
 			   if (res.error == "not-authorized" && !isauto) {
 				   $("#share_" + method + "_status").hide();
 				   window.location = "/registration/ext/associate/start/" + method + "?next=" + window.location.pathname + "{{"#"|urlencode}}" + method + (!res.scope ? "" : "&scope=" + res.scope);
+			   } else {
+			   	$('.b_share_' + method).fadeIn();
+			   	working = false;
 			   }
-			   working = false;
 		   },
 		});
 	return false;
@@ -59,6 +66,7 @@ if (window.location.hash == "#twitter" || window.location.hash == "#facebook") {
 		share_tab(method);
 		$(window).scrollTop($('.social_share_btns').offset().top - 150);
 		{% if message %}share(method, true){% endif %}
+		window.location.hash = "";
 	});
 }
 </script>
