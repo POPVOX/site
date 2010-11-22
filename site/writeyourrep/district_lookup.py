@@ -7,10 +7,24 @@ from jquery.ajax import json_response, ajax_fieldupdate_request
 import pickle
 import base64
 from xml.dom import minidom
-from urllib import urlopen, quote_plus
+from urllib import urlopen, urlencode, quote_plus
+
+import settings
 
 @json_response
 def district_lookup(request):
+	simulate_response = getattr(settings, "DISTRICT_LOOKUP_SIMULATE_RESPONSE", None)
+	if simulate_response != None:
+		return simulate_response
+	
+	# If DISTRICT_LOOKUP_API is set, then pass off this request to
+	# the API at the given endpoint. The API is expected to be
+	# implemented by this module, so it takes the same arguments.
+	remoteapi = getattr(settings, "DISTRICT_LOOKUP_API", None)
+	if remoteapi != None:
+		import simplejson
+		return simplejson.loads(urlopen(remoteapi, urlencode(request.POST)).read())
+	
 	if "zipcode" in request.POST:
 		# take only the digits in the zipcode
 		zipcode = "".join([ d for d in request.POST["zipcode"] if d.isdigit() ])

@@ -200,3 +200,7 @@ FACEBOOK_APP_ID = "150910028257528"
 FACEBOOK_APP_SECRET = "736f9da5e1218854f9fb638336ad7c17"
 FACEBOOK_AUTH_SCOPE = "email" #,offline_access,publish_stream,user_location"
 
+if DEBUG:
+	DISTRICT_LOOKUP_API = "http://www.popvox.com/ajax/district-lookup"
+	#DISTRICT_LOOKUP_SIMULATE_RESPONSE = { "status": "success", "method": "zipcode", "state": "NY", "district": 2 }
+
