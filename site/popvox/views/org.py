@@ -391,8 +391,8 @@ def org_support_oppose(request):
 		cam = create_new_campaign(org)
 		newcam = True
 	
-	# Get a bill object. If it's not in the database, save it to the database.
-	bill = bill_from_url(request.POST["bill"], create=True)
+	# Get a bill object.
+	bill = bill_from_url(request.POST["bill"])
 	
 	# Delete any existing positions 
 	cam.positions.filter(bill = bill).delete()
@@ -407,11 +407,11 @@ def org_support_oppose(request):
 	p.save()
 
 	if cam.slug == "_default_":
-		message = p.bill.title() + " has been added to " + org.name + "'s legislative agenda."
+		message = p.bill.title + " has been added to " + org.name + "'s legislative agenda."
 	elif not newcam:
-		message = p.bill.title() + " has been added to " + cam.name + "."
+		message = p.bill.title + " has been added to " + cam.name + "."
 	else:
-		message = "A new campaign has been created for " + p.bill.title() + "."
+		message = "A new campaign has been created for " + p.bill.title + "."
 
 	# Send an email to all of the org's administrators.
 	send_mail("POPVOX: Legislative Agenda Changed: " + org.name,

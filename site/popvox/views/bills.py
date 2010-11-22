@@ -63,10 +63,7 @@ def get_popular_bills():
 		for billxml in popular_bills_xml.getElementsByTagName("bill"):
 			try:
 				m = re.match(r"([a-z]+)(\d+)-(\d+)", billxml.attributes["id"].value)
-				bill = Bill()
-				bill.congressnumber = int(m.group(2))
-				bill.billtype = m.group(1)
-				bill.billnumber = int(m.group(3))
+				bill = Bill.objects.get(congressnumber = int(m.group(2)), billtype = m.group(1), billnumber = int(m.group(3)))
 				if not bill.isAlive():
 					continue
 				
@@ -212,7 +209,7 @@ def billsearch(request):
 			status = "overflow"
 			break
 		try:
-			bill = Bill()
+			bill = Bill() # be careful with this object which isn't in the database
 			bill.congressnumber = int(billxml.getElementsByTagName("congress")[0].firstChild.data)
 			bill.billtype = billxml.getElementsByTagName("bill-type")[0].firstChild.data
 			bill.billnumber = int(billxml.getElementsByTagName("bill-number")[0].firstChild.data)
@@ -226,25 +223,16 @@ def billsearch(request):
 	return render_to_response('popvox/billsearch.html', {'bills': bills, "q": q, "status": status}, context_instance=RequestContext(request))
 
 def getbill(congressnumber, billtype, billnumber):
-	# If the user requests a bill that we don't have in our database, we will still display a page for it if it's
-	# actually a bill in Congress. It's just that no org has a position on it (yet).
 	if int(congressnumber) < 1 or int(congressnumber) > 1000: 
 		raise Http404("Invalid bill number. \"" + congressnumber + "\" is not valid.")
 	try:
 		billtype = [x[0] for x in Bill.BILL_TYPE_SLUGS if x[1] == billtype][0]
 	except:
 		raise Http404("Invalid bill number. \"" + billtype + "\" is not valid.")
-	bill = Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber)
-	if len(bill) == 0:
-		bill = Bill()
-		bill.congressnumber = int(congressnumber)
-		bill.billtype = billtype
-		bill.billnumber = int(billnumber)
-		if not bill.is_bill():
-			raise Http404("Bill does not exist.")
-	else:
-		bill = bill[0]
-	return bill
+	try:
+		return Bill.objects.get(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber)
+	except:
+		raise Http404("Invalid bill number. There is no bill by that number.")
 	
 @json_response
 def billsearch_ajax(request):
@@ -258,7 +246,7 @@ def billsearch_ajax(request):
 		"billtype": bill.billtype,
 		"billnumber": bill.billnumber,
 		"url": bill.url(),
-		"title": bill.title(),
+		"title": bill.title,
 		"billstatus": bill.status_advanced(),
 		"sponsor": { "id": bill.sponsor.id, "name": bill.sponsor.name() } if bill.sponsor != None else None,
 		}
@@ -711,8 +699,6 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				# If we see more than one, we'll update the first and delete the rest.
 				c.delete()
 		
-		bill.save() # make sure it is in the database
-		
 		# If we're not updating an existing comment record, then create a new one.
 		if comment == None:
 			comment = UserComment()
@@ -781,11 +767,6 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		else:
 			# If no errors, begin the email verification process which will
 			# delay the comment.
-
-			# We need the bill's id but it may not be saved to
-			# the db yet.
-			if bill.id == None:
-				bill.save()
 
 			axn = DelayedCommentAction()
 			axn.registrationinfo = RegisterUserAction()
@@ -925,7 +906,7 @@ I %s bill %s:
 
 Go to %s to have your voice be heard!
 
-%s""" % (request.POST["message"], support_oppose, bill.title(), url, comment.message, url, request.user.username),
+%s""" % (request.POST["message"], support_oppose, bill.title, url, comment.message, url, request.user.username),
 					from_email = '"' + request.user.username + '" <' + request.user.email + ">",
 					recipient_list = [em],
 					fail_silently = True)
@@ -942,7 +923,7 @@ I found this comment by %s in %s bill %s:
 
 Go to %s to have your voice be heard!
 
-%s""" % (request.POST["message"], comment.user.username, support_oppose2, bill.title(), comment.message, url, request.user.username),
+%s""" % (request.POST["message"], comment.user.username, support_oppose2, bill.title, comment.message, url, request.user.username),
 					from_email = '"' + request.user.username + '" <' + request.user.email + ">",
 					recipient_list = [em],
 					fail_silently = True)
@@ -983,7 +964,7 @@ Go to %s to have your voice be heard!
 			urllib.urlencode({
 				"access_token": fb.auth_token["access_token"],
 				"link": url,
-				"name": bill.title().encode('utf-8'),
+				"name": bill.title.encode('utf-8'),
 				"caption": "Voice your opinion on this bill at POPVOX.com",
 				"description": bill.officialtitle().encode('utf-8'),
 				"message": request.POST["message"].encode('utf-8')

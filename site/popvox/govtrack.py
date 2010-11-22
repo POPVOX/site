@@ -27,6 +27,8 @@ committees = None # list of committees, each committee a dict
 
 def open_govtrack_file(fn):
 	import settings
+	if settings.DEBUG:
+		print fn
 	return open(settings.DATADIR + "govtrack/" + fn)
 
 def loadpeople():
@@ -117,7 +119,7 @@ def getBillCosponsors(metadata):
 	ret.sort(key = lambda x : x["sortkey"])
 	return ret
 
-def getBillNumber(metadata):
+def getBillNumber(bill):
 	# Compute display form.
 	BILL_TYPE_DISPLAY = [ ('h', 'H.R.'), ('s', 'S.'), ('hr', 'H.Res.'), ('sr', 'S.Res.'), ('hc', 'H.Con.Res.'), ('sc', 'S.Con.Res.'), ('hj', 'H.J.Res.'), ('sj', 'S.J.Res.') ]
 	def ordinate(num):
@@ -130,12 +132,12 @@ def getBillNumber(metadata):
 		elif num % 10 == 3:
 			return "rd"
 		return "th"
-	ret = [x[1] for x in BILL_TYPE_DISPLAY if x[0]==metadata.documentElement.attributes["type"].value][0] + " " + str(metadata.documentElement.attributes["number"].value)
-	if int(metadata.documentElement.attributes["session"].value) != CURRENT_CONGRESS :
-		ret += " - " + metadata.documentElement.attributes["session"].value + ordinate(int(metadata.documentElement.attributes["session"].value)) + " Congress"
+	ret = [x[1] for x in BILL_TYPE_DISPLAY if x[0]==bill.billtype][0] + " " + str(bill.billnumber)
+	if bill.congressnumber != CURRENT_CONGRESS :
+		ret += " - " + str(bill.congressnumber) + ordinate(bill.congressnumber) + " Congress"
 	return ret
 
-def getBillTitle(metadata, titletype):
+def getBillTitle(bill, metadata, titletype):
 	# To compute the title, look for the last "as" attribute, and use popular title if exists, else short title, else official title.
 	def find_title(m, titletype):
 		elems = m.getElementsByTagName('title')
@@ -184,7 +186,7 @@ def getBillTitle(metadata, titletype):
 	if titletype == "official":
 		return title
 		
-	return getBillNumber(metadata) + ": " + title
+	return getBillNumber(bill) + ": " + title
 		
 def parse_govtrack_date(d):
 	try:
@@ -197,12 +199,12 @@ def parse_govtrack_date(d):
 		pass
 	return datetime.strptime(d, "%Y-%m-%d")
 		
-def getBillStatus(metadata) :
-	status = metadata.getElementsByTagName('state')[0].firstChild.data
-	date = parse_govtrack_date(metadata.getElementsByTagName('state')[0].getAttribute("datetime")).strftime("%B %d, %Y").replace(" 0", " ")
+def getBillStatus(bill) :
+	status = bill.current_status
+	date = bill.current_status_date.strftime("%B %d, %Y").replace(" 0", " ")
 	
 	# Some status messages depend on whether the bill is current:
-	if int(metadata.documentElement.attributes["session"].value) == CURRENT_CONGRESS:
+	if bill.congressnumber == CURRENT_CONGRESS:
 		if status == "INTRODUCED":
 			status = "This bill or resolution is in the first stage of the legislative process. It was introduced into Congress on %s. Most bills and resolutions are assigned to committees which consider them before they move to the House or Senate as a whole."
 		elif status == "REFERRED":
@@ -275,24 +277,23 @@ def getBillStatus(metadata) :
 	
 	return status % date
 
-def getBillStatusAdvanced(metadata) :
-	status = metadata.getElementsByTagName('state')[0].firstChild.data
-	
+def getBillStatusAdvanced(bill) :
+	status = bill.current_status
+	date = bill.current_status_date.strftime("%b %d, %Y").replace(" 0", " ")
+		
 	# Some status messages depend on whether the bill is current:
-	if int(metadata.documentElement.attributes["session"].value) == CURRENT_CONGRESS:
+	if bill.congressnumber == CURRENT_CONGRESS:
 		if status == "INTRODUCED":
 			status = "Introduced"
 		elif status == "REFERRED":
 			status = "Referred to Committee"
 			ctr = 0
-			for n in metadata.getElementsByTagName("committee"):
+			for n in bill.committees.all():
 				if status == "Referred to Committee":
 					status = "Referred to "
 				else:
 					status += ", "
-				status += n.getAttribute("name")
-				if n.getAttribute("subcommittee") != "":
-					status += ": " + n.getAttribute("subcommittee")
+				status += n.name()
 				ctr += 1
 				if ctr > 3:
 					status += "..."
@@ -366,13 +367,11 @@ def getBillStatusAdvanced(metadata) :
 	elif status == "ENACTED:VETO_OVERRIDE":
 		status = "Veto Overridden"
 	
-	date = parse_govtrack_date(metadata.getElementsByTagName('state')[0].getAttribute("datetime")).strftime("%b %d, %Y").replace(" 0", " ")
-	
 	return status + " (" + date + ")"
 	
-def billFinalStatus(metadata):
-	status = metadata.getElementsByTagName('state')[0].firstChild.data
-	date = parse_govtrack_date(metadata.getElementsByTagName('state')[0].getAttribute("datetime")).strftime("%B %d, %Y").replace(" 0", " ")
+def billFinalStatus(bill):
+	status = bill.current_status
+	date = bill.current_status_date.strftime("%B %d, %Y").replace(" 0", " ")
 	
 	if status in ("PASSED:SIMPLERES", "PASSED:CONSTAMEND", "PASSED:CONCURRENTRES"):
 		return "passed " + date
@@ -382,20 +381,20 @@ def billFinalStatus(metadata):
 		return "failed "  + date
 	elif status in ("VETOED:OVERRIDE_FAIL_ORIGINATING:HOUSE", "VETOED_OVERRIDE_FAIL_SECOND:HOUSE", "VETOED:OVERRIDE_FAIL_ORIGINATING:SENATE", "VETOED:OVERRIDE_FAIL_SECOND:SENATE", "VETOED:POCKET"):
 		return "was vetoed "  + date
-	elif int(metadata.documentElement.attributes["session"].value) != CURRENT_CONGRESS:
+	elif bill.congressnumber != CURRENT_CONGRESS:
 		return "died"
 	return None
 
-def getChamberOfNextVote(metadata):
-	status = metadata.getElementsByTagName('state')[0].firstChild.data
+def getChamberOfNextVote(bill):
+	status = bill.current_status
 	if status in ("INTRODUCED", "REFERRED", "REPORTED", "PROVKILL:VETO"):
-		return metadata.documentElement.attributes["type"].value[0] # in originating chamber
+		return bill.billtype[0] # in originating chamber
 	elif status in ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROVKILL:CLOTUREFAILED"):
 		return "s"
 	elif status in ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE", "PROVKILL:SUSPENSIONFAILED"):
 		return "h"
 	elif status in ("PROVKILL:PINGPONGFAIL", ): # don't know!
-		return metadata.documentElement.attributes["type"].value[0]
+		return bill.billtype[0]
 	return None
 	
 def getCommitteeList():

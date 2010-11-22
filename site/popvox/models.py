@@ -47,6 +47,10 @@ class MemberOfCongress(models.Model):
 class CongressionalCommittee(models.Model):
 	"""A congressional committee or subcommittee."""
 	code = models.CharField(max_length=8)
+	def __unicode__(self):
+		return code + u" " + self.name()
+	def name(self):
+		return govtrack.getCommittee(self.code)["name"]
 
 class Bill(models.Model):
 	"""A bill in Congress."""
@@ -59,6 +63,10 @@ class Bill(models.Model):
 	committees = models.ManyToManyField(CongressionalCommittee, related_name="bills")
 	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills")
 	issues = models.ManyToManyField(IssueArea, related_name="bills")
+	title = models.TextField()
+	current_status = models.TextField()
+	current_status_date = models.DateTimeField()
+	
 	class Meta:
 			ordering = ['congressnumber', 'billtype', 'billnumber']
 			unique_together = (("congressnumber", "billtype", "billnumber"),)
@@ -66,7 +74,7 @@ class Bill(models.Model):
 	_govtrack_metadata = None
 	
 	def __unicode__(self):
-		return govtrack.getBillTitle(self.govtrack_metadata(), "short")
+		return self.title
 	def get_absolute_url(self):
 		return self.url()
 
@@ -78,34 +86,31 @@ class Bill(models.Model):
 			self._govtrack_metadata = govtrack.getBillMetadata(self)
 		return self._govtrack_metadata
 		
-	def is_bill(self):
-		return self.govtrack_metadata().documentElement.tagName == "bill"
-
 	def govtrack_code(self):
 		return self.billtype + str(self.congressnumber) + "-" + str(self.billnumber)
 	def govtrack_link(self):
 		return "http://www.govtrack.us/congress/bill.xpd?bill=" + self.govtrack_code()
 		
 	def displaynumber(self):
-		return govtrack.getBillNumber(self.govtrack_metadata())
-	def title(self):
-		return govtrack.getBillTitle(self.govtrack_metadata(), "short")
+		return govtrack.getBillNumber(self)
+	def shorttitle(self):
+		return govtrack.getBillTitle(self, self.govtrack_metadata(), "short")
 	def officialtitle(self):
-		return govtrack.getBillTitle(self.govtrack_metadata(), "official")
+		return govtrack.getBillTitle(self, self.govtrack_metadata(), "official")
 	def populartitle(self):
-		return govtrack.getBillTitle(self.govtrack_metadata(), "popular")
+		return govtrack.getBillTitle(self, self.govtrack_metadata(), "popular")
 	def status(self):
-		return govtrack.getBillStatus(self.govtrack_metadata())
+		return govtrack.getBillStatus(self)
 	def status_advanced(self):
-		return govtrack.getBillStatusAdvanced(self.govtrack_metadata())
+		return govtrack.getBillStatusAdvanced(self)
 	def cosponsors(self):
 		return govtrack.getBillCosponsors(self.govtrack_metadata())
 	def isAlive(self):
-		return govtrack.billFinalStatus(self.govtrack_metadata()) == None
+		return govtrack.billFinalStatus(self) == None
 	def getDeadReason(self):
-		return govtrack.billFinalStatus(self.govtrack_metadata())
+		return govtrack.billFinalStatus(self)
 	def getChamberOfNextVote(self):
-		return govtrack.getChamberOfNextVote(self.govtrack_metadata())
+		return govtrack.getChamberOfNextVote(self)
 		
 	def campaign_positions(self):
 		return [p for p in self.orgcampaignposition_set.all() if p.campaign.visible]
@@ -133,7 +138,7 @@ class Bill(models.Model):
 			bs = "/" + str(self.congressnumber)
 		return "#usbill #" + bt + str(self.billnumber) + bs
 
-def bill_from_url(url, create=False):
+def bill_from_url(url):
 	fields = url.split("/")
 	if fields[0] != "":
 		raise Exception("Invalid bill id.")
@@ -150,13 +155,7 @@ def bill_from_url(url, create=False):
 		raise Exception("Invalid bill id.")
 	bill = Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber)
 	if len(bill) == 0:
-		bill = Bill()
-		bill.congressnumber = congressnumber
-		bill.billtype = billtype
-		bill.billnumber = billnumber
-		if create:
-			bill.save()
-		return bill
+		raise Exception("No bill with that number exists.")
 	else:
 		return bill[0]
 		
@@ -191,12 +190,6 @@ def getbillsfromhash(bills):
 		code = bill["billtype"] + str(bill["congressnumber"]) + "-" + str(bill["billnumber"])
 		if code in objs:
 			ret.append(objs[code])
-		else:
-			b = Bill()
-			b.congressnumber = bill["congressnumber"]
-			b.billtype = bill["billtype"]
-			b.billnumber = bill["billnumber"]
-			ret.append(b)
 
 	return ret
 

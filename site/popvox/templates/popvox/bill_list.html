@@ -89,7 +89,7 @@ $(function() {
 				{% for bill in hotbills %}
 					<div id="hotbill_{{forloop.counter0}}" style="float: left; width: 490px;">
 					<a class="action" href="{{bill.url}}">Action</a>
-					<h3><a href="{{bill.url}}">{{bill.populartitle|truncatewords:10}}</a></h3>
+					<h3><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></h3>
 					{% if bill.sponsor %}
 						<p>
 						<span>Sponsor:</span> <a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
@@ -99,9 +99,11 @@ $(function() {
 						<span class="status">Status:</span>
 						{{bill.status_advanced|truncatewords:8}}
 					</p>
+					{% comment %}
 					{% if bill.officialtitle %}
 						<p>{{ bill.officialtitle|truncatewords:20 }}</p>
 					{% endif %}
+					{% endcomment %}
 					</div>
 				{% endfor %}
 			</div>
@@ -151,7 +153,9 @@ $(function() {
 						</em></p>
 						{% endcomment %}
 						
+						{% comment %}
 						{% if bill.officialtitle %}<p class="bill_detail">{{ bill.officialtitle|truncatewords:18 }}</p>{% endif %}
+						{% endcomment %}
 						
 						{% for org in billrec.orgs %}
 						<div class="bill_endorseoppose">

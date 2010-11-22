@@ -7,7 +7,7 @@ import re
 import os
 
 from popvox.models import MemberOfCongress, CongressionalCommittee, Bill, IssueArea
-from govtrack import CURRENT_CONGRESS
+from govtrack import CURRENT_CONGRESS, getBillTitle, parse_govtrack_date
 
 from settings import DATADIR
 
@@ -32,6 +32,13 @@ for fn in glob(DATADIR + "govtrack/us/" + str(CURRENT_CONGRESS) + "/bills/*.xml"
 		# save before access to many-to-many field
 		bill.save()
 		
+	# Title.
+	bill.title = getBillTitle(bill, dom, "short")
+
+	# Status.
+	bill.current_status = 	dom.getElementsByTagName('state')[0].firstChild.data
+	bill.current_status_date = parse_govtrack_date(dom.getElementsByTagName('state')[0].getAttribute("datetime"))
+	
 	# Sponsor.
 	sponsor = dom.getElementsByTagName("sponsor")[0]
 	if sponsor.hasAttribute("id"):
