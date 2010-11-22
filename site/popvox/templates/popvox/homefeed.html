@@ -45,19 +45,22 @@ function phone_number_twilio_callback() {
 			{% for sug in suggestions %}
 				{% if forloop.first %}
 				<h3>Take Action</h3>
-				<p></p>
+				<p>Here are some suggestions for you:</p>
+				<ul class="bullets">
 				{% endif %}
 			
-				<p>
-					<a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a>
-				</p>
+				<li>
+					<div><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></div>
 				{% if sug.users > 1 %}<p>{{sug.users}} other users who took the same action as you {% if sug.position == "+" %}supported{% else %}opposed{% endif %} this bill.</p>{% endif %}
 				{% for b,p in sug.sources %}
 					<p>(Recommended because you {% if p == "+" %}supported{% else %}opposed{% endif %} <a href="{{b.url}}">{{b.title|truncatewords:6}}</a>.)</p>
 				{% endfor %}
+				</li>
 				
 				{% if forloop.last %}
-				<p><a href="/home/suggestions">More suggestions and explanation...</a></p>
+				<li><a href="/home/suggestions">More suggestions and explanation...</a></li>
+				<li><a href="/bills">Find a bill...</a></li>
+				</ul>
 				{% endif %}
 			{% endfor %}
 					
@@ -104,7 +107,7 @@ function phone_number_twilio_callback() {
 
 			<div id="verify_phone pad_btm">
 				<h4>Verify A Phone Number</h4>
-				<p>Verifying a phone number helps us ensure that users do not create multiple accounts to stuff the ballot.</p>
+				<p>Verifying a phone number helps us ensure that users do not create multiple accounts to stuff the ballot. This step is optional.</p>
 				<div class="clear"><a class="b_verify_phone btn" href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Verify Phone</a></div>
 				<div class="clear"> </div>
 			</div>

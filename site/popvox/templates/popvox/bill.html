@@ -213,17 +213,21 @@ function showtab(tab) {
 	
 	<div class="clear"></div>
 	
+	<script>var initial_tab;</script>
 	<div class="col_3">
 		<ul class="tab_tab">
 			{% if welcome_tabname %}
 			<li id="welcome_tab" class="active"><a href="#" onclick="return showtab('welcome')">{{welcome_tabname}}</a></li>
+			<script>if (!initial_tab) initial_tab = "welcome";</script>
 			{% endif %}
 			
 			{% for position, orgset in orgs.items %}
 			<li id="orgs{{position}}_tab" {% if not welcome_tabname and forloop.counter == 1 %}class="active"{% endif %}><a href="#" onclick="return showtab('orgs{{position}}')">{% if position == "support" %}Organizations Endorsing{% endif %}{% if position == "oppose" %}Organizations Opposing{% endif %}{% if position == "neutral" %}Other Statements{% endif %}</a></li>
+			<script>if (!initial_tab && {{orgset|length}}) initial_tab = "orgs{{position}}";</script>
 			{% endfor %}
 
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
+			<script>if (!initial_tab) initial_tab = "billstatus";</script>
 		</ul>
 	</div>
 	
@@ -302,6 +306,9 @@ function showtab(tab) {
 	
 			</div>
 		{% endfor %}
+		
+		<script>showtab(initial_tab)</script>
+		
 	</div>
 </div>
 {% endblock %}
