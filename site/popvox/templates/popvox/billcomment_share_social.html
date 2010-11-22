@@ -14,8 +14,33 @@
 	
 	<div id="sharetab_message" class="form" style="display: none">
 		<h3 class="no_rule">Personalized Message to Recipients</h3>
-		<textarea id="share_message" class="c5">{% if not message %}{% if mode == "mine" %}I&rsquo;m using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.{% else %}Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.{% endif %}{% else %}{{message}}{% endif %}</textarea>
-		<script>$(function() { $('#share_message').input_autosize(); });</script>
+		<textarea id="share_message" class="c5">{% if message %}{{message}}{% endif %}</textarea>
+		{% if comment.user == user %}
+		<div>
+			<input id="share_includecomment" type="checkbox" {% if includecomment %}checked="1"{% endif %} onchange="set_message()"/>
+			<label class="checkbox" for="share_includecomment">Include Your Comment in Your Message</label>
+		</div>
+		{% endif %}
+		<script>
+			function set_message(initial) {
+				if (!initial && !$('#share_message').hasClass('default')) return;
+				{% if not message %}
+					{% if comment.user == user %}
+						if ($('#share_includecomment').attr('checked'))
+							$('#share_message').val("I'm using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.");
+						else
+							$('#share_message').val("I'm using POPVOX.com to weigh in on {{comment.bill.displaynumber}}. Make sure your voice is heard too.");
+					{% else %}
+						$('#share_message').val("Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.");
+					{% endif %}
+				{% endif %}
+			}
+			$(function() {
+				$('#share_message').input_autosize();
+				set_message(true);
+				$('#share_message').input_default();
+			});
+		</script>
 	</div>
 
 	<div id="sharetab_email" style="display: none">
@@ -35,7 +60,7 @@
 		<p><strong>Via Facebook</strong></p>
 	{% if not facebook %}
 		<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin:</p>
-		<p><a class="b_login_facebook btn" href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}{{"#facebook"|urlencode}}">login to facebook</a></p>
+		<p><a class="b_login_facebook btn" href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#facebook"|urlencode}}">login to facebook</a></p>
 	{% else %}
 		{% if user == comment.user and comment.fb_linkid %}
 			<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
@@ -50,7 +75,7 @@
 		<p><strong>Via Twitter</strong></p>
 	{% if not twitter %}
 		<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button to begin:</p>
-		<p><a class="b_login_twitter btn" href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if mode == "other" %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}">login to twitter</a></p> 
+		<p><a class="b_login_twitter btn" href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}">login to twitter</a></p> 
 	{% else %}
 		{% if user == comment.user and comment.tweet_id %}
 			<p>You have already tweeted about this bill but you can tweet again.</p>

@@ -10,7 +10,13 @@ function share(method, isauto) {
 	};
 	working = true;
 	ajax("/ajax/bills/share",
-		{ "bill": {{bill.id}}, "comment": {{comment.id}}, "message": $('#share_message').val(), "method": method, "emails": $('#share_email_field').val() },
+		{
+			"comment": {{comment.id}},
+			"message": $('#share_message').val(),
+			"method": method,
+			"emails": $('#share_email_field').val(),
+			"includecomment": $('#share_includecomment').attr('checked') ? "1" : "0",
+		},
 		{ "savebutton": "share_" + method + "_button",
 		   "statusfield": "share_" + method + "_status",
 		   "success": function() {

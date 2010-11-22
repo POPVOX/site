@@ -810,9 +810,10 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 
 	# Default message text from saved session state.
 	message = None
+	includecomment = True
 	try:
-		message = request.session["billshare_share.message"]
-		del request.session["billshare_share.message"]
+		message, includecomment = request.session["billshare_share.state"]
+		del request.session["billshare_share.state"]
 	except:
 		pass
 
@@ -844,6 +845,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 			'bill': bill,
 			"comment": comment,
 			"message": message,
+			"includecomment": includecomment,
 			"twitter": twitter,
 			"facebook": facebook,
 			"user_position": user_position,
@@ -863,16 +865,28 @@ def send_mail2(subject, message, from_email, recipient_list, fail_silently=False
 @json_response
 def billshare_share(request):
 	try:
-		bill = Bill.objects.get(id=request.POST["bill"])
 		comment = UserComment.objects.get(id = int(request.POST["comment"]))
 	except:
 		return { "status": "fail", "msg": "Invalid call." }
+	
+	bill = comment.bill
+	
+	includecomment = True
+	if request.user == comment.user and request.POST["includecomment"] == "0":
+		includecomment = False
 		
 	support_oppose = "support" if comment.position == "+"  else "oppose"
 	support_oppose2 = "support of" if comment.position == "+"  else "opposition to"
+	if not includecomment:
+		support_oppose = "weigh in on"
+		
+	# Where does the link point to? If the user isn't including his own comment,
+	# then target the bill. Even though we reveal the username in the message
+	# so recipients could find the comment.
+	target = comment if includecomment else comment.bill
 		
 	import shorturl
-	surlrec, created = shorturl.models.Record.objects.get_or_create(owner=request.user, target=comment)
+	surlrec, created = shorturl.models.Record.objects.get_or_create(owner=request.user, target=target)
 	url = surlrec.url()
 	
 	if request.POST["method"] == "email":
@@ -899,25 +913,24 @@ def billshare_share(request):
 		
 %s
 
-I %s bill %s:
-(%s)
-
 %s
 
 Go to %s to have your voice be heard!
 
-%s""" % (request.POST["message"], support_oppose, bill.title, url, comment.message, url, request.user.username),
+%s""" % (request.POST["message"],
+		comment.message if includecomment else comment.bill.title,
+		url, request.user.username),
 					from_email = '"' + request.user.username + '" <' + request.user.email + ">",
 					recipient_list = [em],
 					fail_silently = True)
 			else:
 				send_mail2(
-					subject = request.user.username + " suggests " + comment.user.username + "'s comment on " + bill.displaynumber() + " at POPVOX",
+					subject = request.user.username + " sent you " + (comment.user.username+"'s" if request.user != comment.user else "his or her") + " comment on " + bill.displaynumber() + " at POPVOX",
 					message = """Hi!
 				
 %s
 
-I found this comment by %s in %s bill %s:
+Comment by %s in %s bill %s:
 
 %s
 
@@ -944,7 +957,7 @@ Go to %s to have your voice be heard!
 		# TODO: we might want to set in_reply_to_status_id in the call to something interesting, like if this comment's referrer is a user and the user commented on the same bill, and tweeted, then that tweet_id.
 		ret = twitter.UpdateStatus(tweet.encode('utf-8'))
 		if type(ret) == urllib2.HTTPError and ret.code == 401:
-			request.session["billshare_share.message"] = request.POST["message"]
+			request.session["billshare_share.state"] = request.POST["message"], includecomment
 			return { "status": "fail", "error": "not-authorized" }
 		if type(ret) != dict:
 			return { "status": "fail", "msg": unicode(ret) }
@@ -960,17 +973,29 @@ Go to %s to have your voice be heard!
 	elif request.POST["method"] == "facebook":
 		fb = request.user.singlesignon.get(provider="facebook")
 		
-		ret = urllib.urlopen("https://graph.facebook.com/" + str(fb.uid) + "/feed",
-			urllib.urlencode({
-				"access_token": fb.auth_token["access_token"],
-				"link": url,
-				"name": bill.title.encode('utf-8'),
-				"caption": "Voice your opinion on this bill at POPVOX.com",
-				"description": bill.officialtitle().encode('utf-8'),
-				"message": request.POST["message"].encode('utf-8')
-				}))
+		if request.user == comment.user:
+			ret = urllib.urlopen("https://graph.facebook.com/" + str(fb.uid) + "/feed",
+				urllib.urlencode({
+					"access_token": fb.auth_token["access_token"],
+					"link": url,
+					"name": bill.title.encode('utf-8'),
+					"caption": "Voice your opinion on this bill at POPVOX.com",
+					"description": comment.message if includecomment else bill.officialtitle().encode('utf-8'),
+					"message": request.POST["message"].encode('utf-8')
+					}))
+		else:
+			ret = urllib.urlopen("https://graph.facebook.com/" + str(fb.uid) + "/feed",
+				urllib.urlencode({
+					"access_token": fb.auth_token["access_token"],
+					"link": url,
+					"name": comment.user.username + "'s comment on " + bill.title.encode('utf-8'),
+					"caption": "Voice your opinion on this bill at POPVOX.com",
+					"description": comment.message,
+					"message": request.POST["message"].encode('utf-8'),
+					}))
+				
 		if ret.getcode() == 403:
-			request.session["billshare_share.message"] = request.POST["message"]
+			request.session["billshare_share.state"] = request.POST["message"], includecomment
 			return { "status": "fail", "error": "not-authorized", "scope": "publish_stream" }
 		if ret.getcode() != 200:
 			return { "status": "success", "msg": "Post failed." }
