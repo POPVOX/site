@@ -4,7 +4,7 @@ from glob import glob
 from datetime import datetime
 from xml.dom import minidom
 import re
-import os
+import os, os.path
 
 from popvox.models import MemberOfCongress, CongressionalCommittee, Bill, IssueArea
 from govtrack import CURRENT_CONGRESS, getBillTitle, parse_govtrack_date
@@ -13,30 +13,35 @@ from settings import DATADIR
 
 fre = re.compile(r"/govtrack/us/(\d+)/bills/([a-z]+)(\d+).xml")
 
-updatetime = os.stat(DATADIR + "govtrack_bill_metadata.stamp").st_mtime
+stampfile = DATADIR + "govtrack_bill_metadata.stamp"
+if os.path.exists(stampfile):
+	updatetime = os.stat(stampfile).st_mtime
+else:
+	updatetime = 0
 
 for fn in glob(DATADIR + "govtrack/us/" + str(CURRENT_CONGRESS) + "/bills/*.xml"):
 	m = fre.search(fn)
 	
 	if os.stat(fn).st_mtime < updatetime:
-		#continue
-		pass
+		continue
 	
 	billsession, billtype, billnumber = m.group(1), m.group(2), m.group(3)
 	
-	bill, isnew = Bill.objects.get_or_create(congressnumber=billsession, billtype=billtype, billnumber=billnumber)
+	try:
+		bill = Bill.objects.get(congressnumber=billsession, billtype=billtype, billnumber=billnumber)
+	except:
+		bill = Bill()
+		bill.congressnumber = int(billsession)
+		bill.billtype = billtype
+		bill.billnumber = int(billnumber)
 
 	dom = minidom.parse(fn)
-
-	if isnew:
-		# save before access to many-to-many field
-		bill.save()
 		
 	# Title.
 	bill.title = getBillTitle(bill, dom, "short")
 
 	# Status.
-	bill.current_status = 	dom.getElementsByTagName('state')[0].firstChild.data
+	bill.current_status = dom.getElementsByTagName('state')[0].firstChild.data
 	bill.current_status_date = parse_govtrack_date(dom.getElementsByTagName('state')[0].getAttribute("datetime"))
 	
 	# Sponsor.
@@ -46,6 +51,10 @@ for fn in glob(DATADIR + "govtrack/us/" + str(CURRENT_CONGRESS) + "/bills/*.xml"
 		bill.sponsor = moc
 	else:
 		bill.sponsor = None
+
+	# Save before access to many-to-many fields.
+	if bill.id == None:
+		bill.save()
 		
 	# Committees.
 	bill.committees.clear()
@@ -56,11 +65,8 @@ for fn in glob(DATADIR + "govtrack/us/" + str(CURRENT_CONGRESS) + "/bills/*.xml"
 		bill.committees.add(cc)
 	
 	# Issue areas.
-	
 	subjects = dom.getElementsByTagName("subjects")[0]
-	
 	bill.issues.clear()
-	
 	first = True
 	for term in subjects.getElementsByTagName("term"):
 		try:
@@ -78,5 +84,5 @@ for fn in glob(DATADIR + "govtrack/us/" + str(CURRENT_CONGRESS) + "/bills/*.xml"
 		
 	bill.save()
 
-os.utime(DATADIR + "govtrack_bill_metadata.stamp", None)
+os.utime(stampfile, None)
 
