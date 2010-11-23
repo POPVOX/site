@@ -221,9 +221,9 @@ def getBillStatus(bill) :
 			status = "This bill or resolution passed in the Senate and the House, but the House made changes and sent it back to the Senate on %s."
 		elif status == "PASS_BACK:SENATE":
 			status = "This bill or resolution has been passed in the House and the Senate, but the Senate made changes and sent it back to the House on %s."
-		elif status == "PROVKILL:SUSPENSIONFAILED" or status == "PROVKILL:CLOTUREFAILED" or status == "PROVKILL:PINGPONGFAIL":
+		elif status == "PROV_KILL:SUSPENSIONFAILED" or status == "PROV_KILL:CLOTUREFAILED" or status == "PROV_KILL:PINGPONGFAIL":
 			status = "This bill or resolution is provisionally dead due to a failed vote for cloture, under a fast-track vote called \"suspension\", or when resolving differences on %s."
-		elif status == "PROVKILL:VETO":
+		elif status == "PROV_KILL:VETO":
 			status = "This bill was vetoed by the President on %s. The bill is dead unless Congress can override it."
 		elif status == "OVERRIDE_PASS_OVER:HOUSE":
 			status = "After a presidential veto, the House succeeeded in an override on %s. It goes to the Senate next."
@@ -241,9 +241,9 @@ def getBillStatus(bill) :
 			status = "This bill was passed by Congress on %s but was not enacted before the end of its Congressional session."
 		elif status == "PASS_BACK:HOUSE" or status == "PASS_BACK:SENATE":
 			status = "This bill or resolution was introduced in a previous session of Congress and though it was passed by both chambers on %s it was passed in non-identical forms and the differences were never resolved."
-		elif status == "PROVKILL:SUSPENSIONFAILED" or status == "PROVKILL:CLOTUREFAILED" or status == "PROVKILL:PINGPONGFAIL":
+		elif status == "PROV_KILL:SUSPENSIONFAILED" or status == "PROV_KILL:CLOTUREFAILED" or status == "PROV_KILL:PINGPONGFAIL":
 			status = "This bill or resolution was introduced in a previous session of Congress but was killed due to a failed vote for cloture, under a fast-track vote called \"suspension\", or while resolving differences on %s."
-		elif status == "PROVKILL:VETO":
+		elif status == "PROV_KILL:VETO":
 			status = "This bill was vetoed by the President on %s and Congress did not attempt an override before the end of the Congressional session."
 		elif status == "OVERRIDE_PASS_OVER:HOUSE" or status == "OVERRIDE_PASS_OVER:SENATE":
 			status = "This bill was vetoed by the President and Congress did not finish an override begun on %s before the end of the Congressional session."
@@ -310,13 +310,13 @@ def getBillStatusAdvanced(bill) :
 			status = "Sent Back to Senate With Changes"
 		elif status == "PASS_BACK:SENATE":
 			status = "Sent Back to House with Changes"
-		elif status == "PROVKILL:SUSPENSIONFAILED":
+		elif status == "PROV_KILL:SUSPENSIONFAILED":
 			status = "Failed Under Suspension"
-		elif status == "PROVKILL:CLOTUREFAILED":
+		elif status == "PROV_KILL:CLOTUREFAILED":
 			status = "Failed Cloture"
-		elif status == "PROVKILL:PINGPONGFAIL":
+		elif status == "PROV_KILL:PINGPONGFAIL":
 			status = "Failed Resolving Differences"
-		elif status == "PROVKILL:VETO":
+		elif status == "PROV_KILL:VETO":
 			status = "Vetoed"
 		elif status == "OVERRIDE_PASS_OVER:HOUSE":
 			status = "Override Succeeded in House"
@@ -333,9 +333,9 @@ def getBillStatusAdvanced(bill) :
 			status = "This bill was passed by Congress but was not enacted before the end of its Congressional session."
 		elif status == "PASS_BACK:HOUSE" or status == "PASS_BACK:SENATE":
 			status = "This bill or resolution was introduced in a previous session of Congress and though it was passed by both chambers it was passed in non-identical forms and the differences were never resolved."
-		elif status == "PROVKILL:SUSPENSIONFAILED" or status == "PROVKILL:CLOTUREFAILED" or status == "PROVKILL:PINGPONGFAIL":
+		elif status == "PROV_KILL:SUSPENSIONFAILED" or status == "PROV_KILL:CLOTUREFAILED" or status == "PROV_KILL:PINGPONGFAIL":
 			status = "This bill or resolution was introduced in a previous session of Congress but was killed due to a failed vote for cloture, under a fast-track vote called \"suspension\", or while resolving differences."
-		elif status == "PROVKILL:VETO":
+		elif status == "PROV_KILL:VETO":
 			status = "This bill was vetoed by the President and Congress did not attempt an override before the end of the Congressional session."
 		elif status == "OVERRIDE_PASS_OVER:HOUSE" or status == "OVERRIDE_PASS_OVER:SENATE":
 			status = "This bill was vetoed by the President and Congress did not finish an override before the end of the Congressional session."
@@ -387,13 +387,13 @@ def billFinalStatus(bill):
 
 def getChamberOfNextVote(bill):
 	status = bill.current_status
-	if status in ("INTRODUCED", "REFERRED", "REPORTED", "PROVKILL:VETO"):
+	if status in ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO"):
 		return bill.billtype[0] # in originating chamber
-	elif status in ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROVKILL:CLOTUREFAILED"):
+	elif status in ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROV_KILL:CLOTUREFAILED"):
 		return "s"
-	elif status in ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE", "PROVKILL:SUSPENSIONFAILED"):
+	elif status in ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE", "PROV_KILL:SUSPENSIONFAILED"):
 		return "h"
-	elif status in ("PROVKILL:PINGPONGFAIL", ): # don't know!
+	elif status in ("PROV_KILL:PINGPONGFAIL", ): # don't know!
 		return bill.billtype[0]
 	return None
 	
