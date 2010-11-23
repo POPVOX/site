@@ -5,7 +5,7 @@ from django.core.urlresolvers import resolve
 from settings import SITE_ROOT_URL
 
 import base64
-import pickle
+import cPickle
 
 from datetime import datetime
 
@@ -34,15 +34,15 @@ class Session(models.Model):
 		if not "HTTP_USER_AGENT" in request.META:
 			return None
 		ua = uas_parser.parse(request.META["HTTP_USER_AGENT"])
-		self.ua = base64.b64encode(pickle.dumps(ua))
+		self.ua = base64.b64encode(cPickle.dumps(ua))
 		return ua
 	def get_ua(self):
-		return pickle.loads(base64.b64decode(self.ua))
+		return cPickle.loads(base64.b64decode(self.ua))
 			
 	def path_append(self, pe):
-		self.path += base64.b64encode(pickle.dumps(pe)) + "\n"
+		self.path += base64.b64encode(cPickle.dumps(pe)) + "\n"
 	def get_path(self):
-		return (pickle.loads(base64.b64decode(pe)) for pe in self.path.split("\n") if pe != "")
+		return (cPickle.loads(base64.b64decode(pe)) for pe in self.path.split("\n") if pe != "")
 	
 class PathEntry:
 	time = None

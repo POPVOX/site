@@ -64,7 +64,7 @@
 			</div>
 		</div>
 		{% endif %}
-		<div class="{% if stats %}col_4_7 col_last{% endif %}">
+		<div class="{% if stats %}col_4 col_last{% endif %}">
 			<h3 class="clear">What You Wrote</h3>
 			{% with comment.message|wraplines:"p"|truncatewords_html:25 as cmnt %}
 				<div class="message_preview">
