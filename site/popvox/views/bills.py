@@ -1147,7 +1147,10 @@ def getbillshorturl(request):
 		owner = pos.campaign
 		bill = pos.bill
 	else:
-		owner = request.user
+		if request.user.is_authenticated():
+			owner = request.user
+		else:
+			owner = None
 		bill = get_object_or_404(Bill, id=request.POST["billid"])
 	
 	import shorturl
