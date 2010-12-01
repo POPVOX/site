@@ -425,7 +425,7 @@ def getCommittee(id):
 	for c in getCommitteeList():
 		if c["id"] == id:
 			return c
-	return { "name": "Unknown" }
+	return { "id": id, "name": "Unknown", "members": [] }
 	
 def loadfeed(monitors):
 	return None
