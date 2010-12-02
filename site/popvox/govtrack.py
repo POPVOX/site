@@ -288,12 +288,12 @@ def getBillStatusAdvanced(bill) :
 		elif status == "REFERRED":
 			status = "Referred to Committee"
 			ctr = 0
-			for n in bill.committees.all():
+			for n in bill.committees_cached if hasattr(bill, "committees_cached") else bill.committees.all():
 				if status == "Referred to Committee":
 					status = "Referred to "
 				else:
 					status += ", "
-				status += n.name()
+				status += n.shortname()
 				ctr += 1
 				if ctr > 3:
 					status += "..."
@@ -405,13 +405,39 @@ def getCommitteeList():
 	committees = cache.get('govtrack_committees')
 	if committees != None:
 		return committees
+		
+	def getshortname(name):
+		abbrs = { "Agriculture": "Ag", "Appropriations": "Approps", "Small": "Sm", "Business": "Biz", "Science": "Sci", "Technology": "Tech", "Transportation": "Trans", "Infrastructure": "Infra" }
+		shortname = re.sub("(House|Senate|Joint|United States Senate) (Select |Permanent Select |Special |Caucus )?Committee on (the )?", r"\1 ", name)
+		if len(shortname) > 24:
+			def filterword(word):
+				if word == "Senate" or word == "House":
+					return word + " "
+				if word == "and":
+					return ""
+				if word in abbrs:
+					return abbrs[word]
+				return word[0]
+			shortname = "".join( [filterword(w) for w in shortname.split()]  )
+		return shortname
 
 	committees = [ ]
 	xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/committees.xml"))
-	for node in xml.getElementsByTagName("committee"):
-		if node.getAttribute("obsolete") == "1":
+	for node in xml.getElementsByTagName("committee") + xml.getElementsByTagName("subcommittee"):
+		if node.getAttribute("obsolete") == "1" or node.parentNode.getAttribute("obsolete") == "1":
 			continue
-		c = { "id": node.getAttribute("code"), "name": node.getAttribute("displayname"), "members": [] }
+		
+		if node.nodeName == "committee":
+			c = { "id": node.getAttribute("code"),
+			"name": node.getAttribute("displayname"),
+			"shortname": getshortname(node.getAttribute("displayname")),
+			"members": [] }
+		else:
+			c = { "id": node.parentNode.getAttribute("code") + "-" + node.getAttribute("code"), 
+			"name": node.parentNode.getAttribute("displayname") + ": " + node.getAttribute("displayname"),
+			"shortname": getshortname(node.parentNode.getAttribute("displayname")) + ": " + node.getAttribute("displayname"),
+			"members": [] }
+
 		for n in node.getElementsByTagName("member"):
 			c["members"].append(int(n.getAttribute("id")))
 		committees.append(c)
@@ -425,7 +451,7 @@ def getCommittee(id):
 	for c in getCommitteeList():
 		if c["id"] == id:
 			return c
-	return { "id": id, "name": "Unknown", "members": [] }
+	return { "id": id, "name": id, "shortname": id, "members": [] }
 	
 def loadfeed(monitors):
 	return None

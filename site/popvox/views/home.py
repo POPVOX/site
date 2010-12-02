@@ -18,6 +18,16 @@ from popvox.views.bills import bill_statistics, get_default_statistics_context
 import popvox.govtrack
 from utils import formatDateTime
 
+def annotate_track_status(profile, bills):
+	tracked_bills = profile.tracked_bills.all()
+	antitracked_bills = profile.antitracked_bills.all()
+	for b in bills:
+		if b in tracked_bills:
+			b.trackstatus = True
+		if b in antitracked_bills:
+			b.antitrackstatus = True
+	return bills
+
 def get_legstaff_suggested_bills(user):
 	prof = user.userprofile
 	
@@ -29,13 +39,21 @@ def get_legstaff_suggested_bills(user):
 			**kwargs) \
 			.exclude(antitrackedby=prof) \
 			.order_by("billtype", "billnumber") \
-			.select_related("topterm")
+			.select_related("sponsor", "topterm")
+			
+	boss = user.legstaffrole.member
+	if boss != None:
+		bossname = popvox.govtrack.getMemberOfCongress(boss)["name"]
+	else:
+		bossname = ""
 	
-	if user.legstaffrole.member != None:
+	if boss != None:
 		suggestions.append({
-			"name": "Sponsored by " + popvox.govtrack.getMemberOfCongress(user.legstaffrole.member)["name"],
-			"shortname": popvox.govtrack.getMemberOfCongress(user.legstaffrole.member)["lastname"],
-			"bills": select_bills(sponsor = user.legstaffrole.member)
+			"id": "sponsor",
+			"type": "sponsor",
+			"name": "Sponsored by " + bossname,
+			"shortname": popvox.govtrack.getMemberOfCongress(boss)["lastname"],
+			"bills": select_bills(sponsor = boss)
 			})
 
 	if user.legstaffrole.committee != None:
@@ -46,24 +64,19 @@ def get_legstaff_suggested_bills(user):
 			pass
 		if cx != None:
 			name = popvox.govtrack.getCommittee(user.legstaffrole.committee)["name"]
+			shortname = popvox.govtrack.getCommittee(user.legstaffrole.committee)["shortname"]
 
-			shortname = re.sub("(House|Senate|Joint|United States Senate) (Select |Permanent Select |Special |Caucus )?Committee on (the )?", r"\1 ", name)
-			if len(shortname) > 24:
-				def filterword(word):
-					if word == "Senate" or word == "House":
-						return word + " "
-					if word == "and":
-						return ""
-					return word[0]
-				shortname = "".join( [filterword(w) for w in shortname.split()]  )
-			
 			suggestions.append({
+				"id": "committeereferral",
+				"type": "committeereferral",
 				"name": "Referred to the " + name,
 				"shortname": shortname + " (Referral)",
 				"bills": select_bills(committees = cx)
 				})
 
 			suggestions.append({
+				"id": "committeemember",
+				"type": "committeemember",
 				"name": "Introduced by a Member of the " + name,
 				"shortname": shortname + " (Member)",
 				"bills": select_bills(sponsor__in = govtrack.getCommittee(user.legstaffrole.committee)["members"])
@@ -71,6 +84,9 @@ def get_legstaff_suggested_bills(user):
 
 	for ix in prof.issues.all():
 		suggestions.append({
+			"id": "issue_" + str(ix.id),
+			"type": "issue",
+			"issue": ix,
 			"name": "Issue Area: " + ix.name,
 			"shortname": ix.name,
 			"bills": select_bills(issues=ix)
@@ -80,26 +96,65 @@ def get_legstaff_suggested_bills(user):
 	# a count, but since we are going to evaluate later it's better to evaluate
 	# it once here so the result is cached.
 	suggestions = [s for s in suggestions if len(s["bills"]) > 0]
+
+	def concat(lists):
+		ret = []
+		for lst in lists:
+			ret.extend(lst)
+		return ret
+	all_bills = concat([s["bills"] for s in suggestions])
+
+	# Pre-fetch all of the committee assignments of all of the bills, in bulk.
+	if len(suggestions) > 0:
+		# Load the committee assignments and put into a hash.
+		committee_assignments = { }
+		for b in Bill.objects.raw("SELECT popvox_bill.id AS id, popvox_congressionalcommittee.id AS committee_id, popvox_congressionalcommittee.code AS committee_code FROM popvox_bill LEFT JOIN popvox_bill_committees ON popvox_bill.id=popvox_bill_committees.bill_id LEFT JOIN popvox_congressionalcommittee ON popvox_congressionalcommittee.id=popvox_bill_committees.congressionalcommittee_id WHERE popvox_bill.id IN (%s)" % ",".join([str(b.id) for b in all_bills])):
+			if not b.id in committee_assignments:
+				committee_assignments[b.id] = []
+			if b.committee_code == None: # ??
+				continue
+			c = CongressionalCommittee()
+			c.id = b.committee_id
+			c.code = b.committee_code
+			committee_assignments[b.id].append(c)
+			
+		# We can't replace the 'committees' field on each bill object with the list because
+		# access to the field seems to be protected (i.e. setattr overridden??) so we set
+		# a secondary field. In govtrack.py, we check for the presence of that field when
+		# getting committee assignments.
+		for b in all_bills:
+			b.committees_cached = committee_assignments[b.id]
+			
+	# Preset the tracked and antitracked status.
+	annotate_track_status(prof, all_bills)
 	
 	# Group any of the suggestion groups that have too many bills in them.
+	# This is the only part of this routine that actually iterates through the
+	# bills. We can report the categories and total counts of suggestions
+	# without this.
 	myissues = [ix.name for ix in prof.issues.all()]
+	counter = 0
 	for s in suggestions:
 		s["count"] = s["bills"].count()
 		
 		if len(s["bills"]) <= 15:
-			s["subgroups"] = [ {"bills": s["bills"] } ]
+			s["subgroups"] = [ {"bills": s["bills"], "id": counter } ]
+			counter += 1
 		else:
-			# This is the only part of this routine that actually iterates through the
-			# bills. We can report the categories and total counts of suggestions
-			# without this.
 			ixd = { }
 			for b in s["bills"]:
-				ix = b.topterm.name if b.topterm != None else "Other"
+				if s["type"] != "sponsor" and b.sponsor_id != None and b.sponsor_id == boss:
+					ix = "Sponsored by " + bossname
+				elif (s["type"] != "issue" or s["issue"].parent != None) and b.topterm != None:
+					ix = b.topterm.name
+				else:
+					ix = "Other"
 				if not ix in ixd:
-					ixd[ix] = { "name": ix, "bills": [] }
+					ixd[ix] = { "name": ix, "bills": [], "id": counter }
+					counter += 1
 				ixd[ix]["bills"].append(b)
 			s["subgroups"] = ixd.values()
-			s["subgroups"].sort(key = lambda x : (x["name"] not in myissues, x["name"]))
+			s["subgroups"].sort(key = lambda x : (x["name"] == "Other", x["name"] != "Sponsored by " + bossname, x["name"] not in myissues, x["name"]))
 	
 	return suggestions
 
@@ -253,7 +308,8 @@ def home(request):
 						"" if member == None or not member["current"] else (
 							"State" if member["type"] == "sen" else "District"
 							),
-				"tracked_bills": prof.tracked_bills.all(),
+				"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
+				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.all()),
 				"suggestions": get_legstaff_suggested_bills(request.user),
 				"district_bills": get_legstaff_district_bills(request.user)
 			},
@@ -337,6 +393,9 @@ def activity_getinfo(request):
 	state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
 	
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
+	
+	if "default_district" in request.POST:
+		state, district = get_default_statistics_context(request.user)
 	
 	filters = { }
 	if state != None:

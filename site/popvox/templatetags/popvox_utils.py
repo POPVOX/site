@@ -106,9 +106,11 @@ def bill_statistics(parser, token):
 	class BillStatisticsNode(template.Node):
 		bill = None
 		varname = None
-		def __init__(self, bill, varname):
+		options = None
+		def __init__(self, bill, varname, options):
 			self.bill = bill
 			self.varname = varname
+			self.options = options
 		def render(self, context):
 			# Get the statistics for a bill, for the default population segment for
 			# the user context.
@@ -122,6 +124,9 @@ def bill_statistics(parser, token):
 					default_state + "-" + str(default_district),
 					address__state=default_state,
 					address__congressionaldistrict=default_district)
+				if options == "local":
+					context[self.varname] = stats
+					return ""
 					
 			# If no district data, fall back to state data.
 			if stats == None and default_state != None:
@@ -129,6 +134,9 @@ def bill_statistics(parser, token):
 					default_state,
 					popvox.govtrack.statenames[default_state],
 					address__state=default_state)
+				if options == "local":
+					context[self.varname] = stats
+					return ""
 				
 			# If no state data, fall back to all data.
 			if stats == None:
@@ -140,7 +148,15 @@ def bill_statistics(parser, token):
 		
 			return ''
 			
-	tag_name, bill, _as_, varname = token.split_contents()
+	fields = token.split_contents()
+	
+	options = None
+	if len(fields) == 4:
+		tag_name, bill, _as_, varname = fields
+	elif len(fields) == 5:
+		tag_name, bill, _as_, varname, options = fields
+	else:
+		raise Exception("Wrong number of parameters to billstatistics")
 		
-	return BillStatisticsNode(template.Variable(bill), varname)
+	return BillStatisticsNode(template.Variable(bill), varname, options)
 

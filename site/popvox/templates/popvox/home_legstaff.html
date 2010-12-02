@@ -2,10 +2,34 @@
 {% load popvox_utils %}
 {% block title %}Home{% endblock%}
 {%block nav_legstaff_class_dashboard%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script>
+	function showtab(tab) {
+		if ($('#' + tab + '_tab').hasClass('active')) return;
+
+		if (tab == "tracked" && tracked_bills_changed) {
+			window.location = '/home';
+			return true;
+		} else if (tab == "hidden" && antitracked_bills_added) {
+			window.location = '/home#' + tab;
+			window.location.reload();
+			return true;
+		} else if (tab != "tracked" && tab != "hidden" && antitracked_bills_removed) {
+			window.location = '/home#' + tab;
+			window.location.reload();
+			return false;
+		}
+		
+		$('.tab_panel').hide();
+		$('.tab_tab li').removeClass('active');
+		$('#' + tab + "_panel").fadeIn();
+		$('#' + tab + '_tab').addClass('active')
+		return false; // cancel click
+	}
+
 	function addRemoveIssueArea(add_remove, id, statuslabelid, callback) {
 		ajax(
 			"/ajax/accounts/profile/updatefield",
@@ -24,31 +48,82 @@
 		);
 	}
 	var issuearea_list = [{% for issue in user.userprofile.issues.all %}[{{issue.id}}, "{{issue.name|escapejs}}"],{% endfor %}];						
+
+	var last_expando = null;
+	function expando(billid) {
+		if (last_expando)
+			$('#bill_' + last_expando + '_details').hide();
+		if (last_expando == billid) {
+			last_expando = null;
+			return false;
+		}
+		$('#bill_' + billid + '_details').fadeIn();
+		last_expando = billid;
+		return false; // cancel click
+	}
+	
+	{% if districtstr %}
+	function show_activity() {
+		$('#activityloadingstatus').text("Loading...");
+		$.ajax({
+			type:"POST",
+			url: "/ajax/activity",
+			data: {
+				default_district: 1,
+			},
+			complete: function(res, status) {
+				$('#activityloadingstatus').text("");
+				
+				if (status != "success") {
+					$('#activityloadingstatus').text("Error loading report.");
+					return;
+				}
+				
+				$('#activity').html(res.responseText);
+			}
+		});
+	}
+	$(show_activity);
+	{% endif %}
+	
+	{% include "popvox/track.js" %}
 </script>
 {% endblock %}
 {% block content %}
 <div class="content">
 
-	<h1>Dashboard</h1>
+	<h1>Home</h1>
 
 	<div class="col_3">
 	<ul class="tab_tab">
-		<li class="active" id="trackedbillstab"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#trackedbills').fadeIn(); $('#trackedbillstab').addClass('active')">Tracked Legislation</a></li>
+		{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
+		<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Tracked Legislation</a></li>
 		
 		{% if districtstr %}
-		<li id="districttab"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#district').fadeIn(); $('#districttab').addClass('active')">In Your {{districtstr}}</a></li>
+		<li id="districtbills_tab"><a href="#" onclick="return showtab('districtbills')">Hot In Your {{districtstr}}</a></li>
+
+		<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments In Your {{districtstr}}</a></li>
 		{% endif %}
-		
-		<li id="suggestionstab"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#suggestions').fadeIn(); $('#suggestionstab').addClass('active')">Suggestions Settings</a></li>
+
+		<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Suggestions Settings</a></li>
 		
 		{% for group in suggestions %}
-			<li id="suggestionstab{{forloop.counter0}}"><a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#suggestions{{forloop.counter0}}').fadeIn(); $('#suggestionstab{{forloop.counter0}}').addClass('active')">{{group.shortname}} ({{group.count}})</a></li>
+			<li id="{{group.id}}_tab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
 		{% endfor %}
+	
+		<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');">Bills You&rsquo;ve Hidden</a></li>
+		
+		<script>$(function() {
+			if (window.location.hash != "") {
+				showtab(window.location.hash.substring(1));
+				window.location.hash = "";
+			}
+		});</script>
 	</ul>
 	</div>
 	
-	<div class="tab_pane">
-		<div id="trackedbills" class="tab_panel">
+	<div class="tab_pane clear">
+		<div id="tracked_panel" class="tab_panel">
 			<h3>Tracked Legislation</h3>
 			
 			{% for bill in tracked_bills %}
@@ -85,23 +160,93 @@
 				</div>
 				<div class="hr"> </div>
 			{% empty %}
-				<p>You have no tracked legislation. Check your suggestions or try changing your <a href="#" onclick="$('.tab_panel').hide(); $('.tab_tab li').removeClass('active'); $('#suggestions').fadeIn(); $('#suggestionstab').addClass('active')">suggestions settings</a>.</p>
+				<p>You have no tracked legislation. Check your suggestions or try changing your <a href="#" onclick="return showtab('suggestions')">suggestions settings</a>.</p>
 			{% endfor %}
 		</div>
 		
 		{% for group in suggestions %}
-			<div id="suggestions{{forloop.counter0}}" class="tab_panel" style="display: none">
+			<div id="{{group.id}}_panel" class="tab_panel" style="display: none">
 				<h2>{{group.name}}</h2>
+
+				<table width="100%">
+				<tr>
+					<th colspan="2">Bill</th>
+					<th>Sponsor</th>
+					<th># Co</th>
+					<th>Status</th>
+					<th></th>
+				</tr>
+				
 				{% for subgroup in group.subgroups %}
-					<h3>{{subgroup.name}}</h3>
+					<tr>
+						<td colspan="5">
+							<h4>{{subgroup.name}}</h4>
+						</td>
+					</tr>
 					{% for bill in subgroup.bills %}
-						<div>{{bill}}</div>
+						<tr class="bill" billid="{{bill.id}}">
+							<td style="padding-right: 1em">
+								<nobr><a href="{{bill.url}}">
+									{{bill.displaynumber}}
+								</a></nobr>
+							</td>
+							<td style="padding-right: 1em";>
+								<div style="width: 200px; overflow: hidden; " title="{{bill.title}}">
+									<div style="width: 1000px; height: 1em;">
+										<a href="{{bill.url}}">
+											{{bill.title_no_number}}
+										</a>
+									</div>
+								</div>
+							</td>
+							<td style="padding-right: 1em;">
+								<div style="width: 75px; overflow: hidden;" title="{{bill.sponsor.name}}">
+									<div style="width: 1000px; height: 1em;">
+										{{bill.sponsor.lastname}}
+									</div>
+								</div>
+							</td>
+							<td style="padding-right: 1em">
+								{{bill.num_cosponsors}}
+							</td>
+							<td style="padding-right: 1em;">
+								<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
+									<div style="width: 1000px; height: 1em;">
+										<a href="#" onclick="return expando('{{subgroup.id}}_{{bill.id}}')">
+											{{bill.status_advanced}}
+										</a>
+									</div>
+								</div>
+							</td>
+							<td>
+								{% with "+" as tracktype %}
+								{% include "popvox/track.html" %}
+								{% endwith %}
+								
+								{% with "-" as tracktype %}
+								{% include "popvox/track.html" %}
+								{% endwith %}
+								
+								<div style="cursor: default; display: inline" onclick="expando('{{subgroup.id}}_{{bill.id}}')">E</div>
+							</td>
+						</tr>
+						<tr>
+							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="6" style="display: none">
+								{% for date, text in bill.latest_action_formatted %}
+									{% if date %}
+									<div>{{date}}: {{text}}</div>
+									{% endif %}
+								{% endfor %}
+							</td>
+						</tr>
 					{% endfor %}
 				{% endfor %}
+				</table>
 			</div>
+			
 		{% endfor %}
 		
-		<div id="suggestions" class="tab_panel" style="display: none">
+		<div id="suggestions_panel" class="tab_panel" style="display: none">
 			<h2>Suggestions Settings</h2>
 			<p>Your tracked legsiatlion shows the status of bills you select. We&rsquo;ll come up with a list of suggestions for you to track based on your <a href="/accounts/profile">account settings</a> and will display those suggestions in tabs on the left.</p>
 			{% if suggestions|length == 0 %}<p>Right now you don&rsquo;t have any suggestions.</p>{% endif %}
@@ -123,14 +268,15 @@
 		</div>
 
 		{% if districtstr %}
-			<div id="district" class="tab_panel block your_feed" style="display: none">
-				<h3>In Your {{districtstr}}:</h3>
+			<div id="districtbills_panel" class="tab_panel block your_feed" style="display: none">
+				<h3>Hot In Your {{districtstr}}:</h3>
 				
 				{% for bill in district_bills %}
-					<div style="clear: both">
+					<div>
 						<h4><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></h4>
 						
-						{% bill_statistics bill as stats %}
+						{% bill_statistics bill as stats local %}
+						{% if stats %}
 						<div class="col_chart">
 							<a href="{{bill.url}}/report">
 								<div id="chart-container-district--{{bill.id}}" class="img_chart" style="width: 60px; height: 60px"></div>
@@ -149,6 +295,7 @@
 							<br />
 							<em>{{bill.status_advanced}}</em><br />
 						</p>
+						{% endif %}
 					</div>
 					<div class="hr"> </div>
 				{% empty %}
@@ -156,9 +303,70 @@
 				{% endfor %}
 				
 			</div>
+			
+			<div id="districtcomments_panel" class="tab_panel block your_feed" style="display: none">
+				<h3>Recent Comments In Your {{districtstr}}:</h3>
+				
+				<div id="activityloadingstatus"></div>
+				
+				<div id="activity"></div>
+			</div>
 		{% endif %}
+		
+		<div id="hidden_panel" class="tab_panel" style="display: none">
+			<h2>Bills You&rsquo;ve Hidden</h2>
+
+			<table width="100%">
+			<tr>
+				<th colspan="2">Bill</th>
+				<th>Sponsor</th>
+				<th></th>
+			</tr>
+			
+			<tr>
+				<td colspan="5">
+					<h4>{{subgroup.name}}</h4>
+				</td>
+			</tr>
+			{% for bill in antitracked_bills %}
+				<tr>
+					<td style="padding-right: 1em">
+						<nobr><a href="{{bill.url}}">
+							{{bill.displaynumber}}
+						</a></nobr>
+					</td>
+					<td style="padding-right: 1em";>
+						<div style="width: 400px; overflow: hidden; " title="{{bill.title}}">
+							<div style="width: 1000px; height: 1em;">
+								<a href="{{bill.url}}">
+									{{bill.title_no_number}}
+								</a>
+							</div>
+						</div>
+					</td>
+					<td style="padding-right: 1em;">
+						<div style="width: 75px; overflow: hidden;" title="{{bill.sponsor.name}}">
+							<div style="width: 1000px; height: 1em;">
+								{{bill.sponsor.lastname}}
+							</div>
+						</div>
+					</td>
+					<td>
+						{% with "+" as tracktype %}
+						{% include "popvox/track.html" %}
+						{% endwith %}
+						
+						{% with "-" as tracktype %}
+						{% include "popvox/track.html" %}
+						{% endwith %}
+					</td>
+				</tr>
+			{% endfor %}
+			</table>
+		</div>
 	</div>
 
+	{% include "ads/rightbar.html" %}
 </div>
 {% endblock %}
 

@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django import forms
@@ -562,4 +562,28 @@ def switch_to_demo_account(request, acct):
 	login(request, user)
 	
 	return HttpResponseRedirect(request.META["HTTP_REFERER"])
+
+@json_response
+@login_required
+def trackbill(request):
+	if not "bill" in request.POST or not "track" in request.POST:
+		raise Http404()
+	bill = get_object_or_404(Bill, id=int(request.POST["bill"]))
+	
+	if request.POST["track"] == "+":
+		if bill not in request.user.userprofile.tracked_bills.all():
+			request.user.userprofile.tracked_bills.add(bill)
+			return { "status": "success", "value": "+" }
+		else:
+			request.user.userprofile.tracked_bills.remove(bill)
+			return { "status": "success", "value": "0" }
+	elif request.POST["track"] == "-":
+		if bill not in request.user.userprofile.antitracked_bills.all():
+			request.user.userprofile.antitracked_bills.add(bill)
+			return { "status": "success", "value": "-" }
+		else:
+			request.user.userprofile.antitracked_bills.remove(bill)
+			return { "status": "success", "value": "0" }
+
+	raise Http404()
 

@@ -43,14 +43,18 @@ class MemberOfCongress(models.Model):
 		return unicode(self.id) + u" " + self.name()
 	def name(self):
 		return govtrack.getMemberOfCongress(self.id)["name"]
+	def lastname(self):
+		return govtrack.getMemberOfCongress(self.id)["lastname"]
 
 class CongressionalCommittee(models.Model):
 	"""A congressional committee or subcommittee."""
 	code = models.CharField(max_length=8)
 	def __unicode__(self):
-		return code + u" " + self.name()
+		return self.code + u" " + self.name()
 	def name(self):
 		return govtrack.getCommittee(self.code)["name"]
+	def shortname(self):
+		return govtrack.getCommittee(self.code)["shortname"]
 
 class Bill(models.Model):
 	"""A bill in Congress."""
@@ -66,6 +70,8 @@ class Bill(models.Model):
 	title = models.TextField()
 	current_status = models.TextField()
 	current_status_date = models.DateTimeField()
+	num_cosponsors = models.IntegerField()
+	latest_action = models.TextField()
 	
 	class Meta:
 			ordering = ['congressnumber', 'billtype', 'billnumber']
@@ -74,7 +80,7 @@ class Bill(models.Model):
 	_govtrack_metadata = None
 	
 	def __unicode__(self):
-		return self.title
+		return self.title[0:30]
 	def get_absolute_url(self):
 		return self.url()
 
@@ -93,6 +99,8 @@ class Bill(models.Model):
 		
 	def displaynumber(self):
 		return govtrack.getBillNumber(self)
+	def title_no_number(self):
+		return self.title[self.title.index(":")+2:]
 	def shorttitle(self):
 		return govtrack.getBillTitle(self, self.govtrack_metadata(), "short")
 	def officialtitle(self):
@@ -111,6 +119,15 @@ class Bill(models.Model):
 		return govtrack.billFinalStatus(self)
 	def getChamberOfNextVote(self):
 		return govtrack.getChamberOfNextVote(self)
+		
+	def latest_action_formatted(self):
+		def parse_line(line):
+			from popvox.views.utils import formatDateTime
+			if line == "": return ""
+			date, text = line.split("\t")
+			return (formatDateTime(govtrack.parse_govtrack_date(date), withtime=False), text)
+			
+		return [parse_line(rec) for rec in self.latest_action.split("\n")]
 		
 	def campaign_positions(self):
 		return [p for p in self.orgcampaignposition_set.all() if p.campaign.visible]

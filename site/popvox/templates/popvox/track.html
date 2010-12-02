@@ -1,0 +1,35 @@
+<div onclick="track({{bill.id}}, '{{tracktype}}')"
+	{% if tracktype == "+" %}
+		{% if bill.trackstatus %}
+			title="Un-Track This Bill"
+		{% else %}
+			title="Track This Bill"
+		{% endif %}
+	{% endif %}
+	{% if tracktype == "-" %}
+		{% if bill.antitrackstatus %}
+			title="Add Back to Suggestions"
+		{% else %}
+			title="Hide From Suggestions"
+		{% endif %}
+	{% endif %}
+	class="bill{% if tracktype == "+" %}track{% else %}antitrack{% endif %}"
+	billid="{{bill.id}}"
+	style="cursor: default; display: inline"
+	>
+	{% if tracktype == "+" %}
+		{% if bill.trackstatus %}
+			U
+		{% else %}
+			T
+		{% endif %}
+	{% endif %}
+	{% if tracktype == "-" %}
+		{% if bill.antitrackstatus %}
+			S
+		{% else %}
+			H
+		{% endif %}
+	{% endif %}
+</div>
+

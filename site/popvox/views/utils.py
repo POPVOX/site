@@ -1,12 +1,21 @@
 from datetime import datetime, timedelta
 
-def formatDateTime(d):
+def formatDateTime(d, withtime=True):
 	if (datetime.now().date() == d.date()):
-		return d.strftime("Today at %I:%M %p")
+		if withtime:
+			return d.strftime("Today at %I:%M %p")
+		else:
+			return "Today"
 	elif ((datetime.now() - timedelta(.5)).date() == d.date()):
-		return d.strftime("Yesterday at %I:%M %p")
+		if withtime:
+			return d.strftime("Yesterday at %I:%M %p")
+		else:
+			return "Yesterday"
 	elif (datetime.now() - d).days < 7:
-		return d.strftime("%A at %I:%M %p")
+		if withtime:
+			return d.strftime("%A at %I:%M %p")
+		else:
+			return d.strftime("%A")
 	elif (datetime.now() - d).days < 120:
 		return d.strftime("%B %d")
 	else:
