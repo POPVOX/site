@@ -36,6 +36,7 @@ function getshorturl() {
 	);
 	return false;
 }
+{% include "popvox/track.js" %}
 </script>
 {% endblock %}
 {% block content %}
@@ -53,6 +54,11 @@ function getshorturl() {
 		
 	<div class="clear col_9 col_top">
 		<div class="block bill_overview_user">
+			<div style="float: left; margin-left: -34px">
+				{% with "+" as tracktype %}
+				{% include "popvox/track.html" %}
+				{% endwith %}
+			</div>
 			<h3 class="no_rule">{{ bill.title }}</h3>
 			{% if bill.officialtitle %}
 			<p><strong>Summary: </strong>{{ bill.officialtitle }} (<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More</a>)</p>

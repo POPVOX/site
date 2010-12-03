@@ -26,6 +26,7 @@ function track(billid, track) {
 						elems.removeClass("active");
 						elems.text("Track This Bill");
 						elems.attr("title", "Track This Bill");
+						$(".billbeingtracked[billid='" + billid + "']").fadeOut();
 					}
 				} else if (track == "-") {
 					if (ret.value == "-") {
@@ -40,6 +41,7 @@ function track(billid, track) {
 						elems.text("Hide From Suggestions");
 						elems.attr("title", "Hide From Suggestions");
 						$(".bill[billid='" + billid + "']").show();
+						$(".billhidden[billid='" + billid + "']").fadeOut();
 					}
 				}
 				

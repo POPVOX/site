@@ -318,6 +318,9 @@ def bill(request, congressnumber, billtype, billnumber):
 	user_org = None
 	existing_org_positions = []
 	if request.user.is_authenticated() and request.user.get_profile() != None:
+		import home
+		home.annotate_track_status(request.user.userprofile, [bill])
+	
 		user_org = request.user.orgroles.all()
 		if len(user_org) == 0: # TODO down the road
 			user_org = None
