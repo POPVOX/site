@@ -1299,18 +1299,20 @@ thead th {
 	font-weight: bold;
 	}
 		
-tr.bill.border td {
-	border-top: 1px dotted #666;
-	}
-
 tr.bill td {
 	padding: 2px 0;
+	border-bottom: 1px dotted #666;
 	}
 tr.bill:hover td {
 	background-color: #d9d6d2;
 	}
-tr.bill.active td, tr.billdetails.active td {
+tr.bill.active td {
 	background-color: #d8d6d0;
+	border: none;
+	}
+tr.billdetails.active td {
+	background-color: #d8d6d0;
+	border-bottom: 1px dotted #666;
 	}
 tr.bill.active:hover td {
 	background-color: #d8d6d0;

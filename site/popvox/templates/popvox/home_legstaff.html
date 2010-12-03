@@ -200,7 +200,7 @@
 						</td>
 					</tr>
 					{% for bill in subgroup.bills %}
-						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill {% if not forloop.first %}border{% endif %}" billid="{{bill.id}}" valign="top">
+						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill" billid="{{bill.id}}" valign="top">
 							<td style="padding-left: 5px; padding-right: 1em">
 								<nobr><a href="{{bill.url}}">
 									{{bill.displaynumber}}
@@ -341,7 +341,7 @@
 				</td>
 			</tr>
 			{% for bill in antitracked_bills %}
-				<tr class="bill {% if not forloop.first %}border{% endif %}">
+				<tr class="bill">
 					<td style="padding-left: 5px; padding-right: 1em">
 						<nobr><a href="{{bill.url}}">
 							{{bill.displaynumber}}
