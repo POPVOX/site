@@ -127,15 +127,8 @@
 </script>
 {% endblock %}
 {% block content %}
-	<div class="float_right">
-		{% include "ads/rightbar.html" %}
-	</div>
-
 <div class="content leg_staff">
 
-	<h1>Home</h1>
-	
-	
 	<div class="col_9">
 		<ul class="horz_tabs">
 			{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
@@ -456,8 +449,17 @@
 			{% endfor %}
 			</table>
 		</div>
+	
 	</div>
 
+	{% include "ads/rightbar.html" %}
+
+	<div class="col_3 col_last">
+		<div class="search_box">
+			<h4 style="margin-top: 0">Search Legislation</h4> 
+			{% include "popvox/billsearch_form.html" %}
+		</div>
+	</div>
 </div>
 {% endblock %}
 
