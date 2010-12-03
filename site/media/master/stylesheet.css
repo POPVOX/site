@@ -1264,21 +1264,21 @@ h3#reporttitle {
 
 .horz_tabs {
 	background: #434247;
-	height: 20px;
 	display: block;
-	padding: 12px 0 8px;
+	padding: 6px 0 8px;
 	font-size: 12px;
+	margin-bottom: 2em;
 	}
 	
 	.horz_tabs li {
 		float: left;
 		display: block;
+		margin: 4px 5px;
 		}
 		
 		.horz_tabs li a {
-			color: #fff;
-			margin: 1px 5px;
 			padding: 4px;
+			color: #fff;
 			}
 			
 			.horz_tabs li.active a {
@@ -1294,16 +1294,25 @@ h3#reporttitle {
 		text-decoration: none;
 		}
 
-thead {
+thead th {
 	text-transform: lowercase;
 	font-weight: bold;
 	}
 		
-tr.bill {
-	background: url(bg_dotted.gif) left 18px repeat-x;
-	height: 22px;
+tr.bill.border td {
+	border-top: 1px dotted #666;
 	}
 
+tr.bill td {
+	padding: 2px 0;
+	}
+tr.bill td a {
+	color: black;
+	}
+tr.bill td a:hover {
+	border: 0;
+	color: #D07B2E;
+	}
 
 .b_small {
 	width: 16px;
@@ -1312,40 +1321,51 @@ tr.bill {
 
 
 .billtrack {
+	float: left;
 	background:	url("b_plus.png") no-repeat scroll left top transparent;
 	display: block;
 	width: 20px;
-	height:	16px;
+	height:	12px;
 	margin:	0 4px 0 0;
 	padding: 2px;
 	text-indent: -9999em;
+	}
+
+.billtrack.active {
+	background:	url("b_check.png") no-repeat scroll left top transparent;
 	}
 	
 .billantitrack {
+	float: left;
 	background:	url("b_minus.png") no-repeat scroll left top transparent;
 	display: block;
 	width: 20px;
-	height:	16px;
+	height:	12px;
 	margin:	0 4px 0 0;
 	padding: 2px;
 	text-indent: -9999em;
 	}
+.billantitrack.active {
+	background:	url("b_plus.png") no-repeat scroll left top transparent;
+	}
 	
 .expand {
+	float: left;
 	background:	url("b_expand.png") no-repeat scroll left top transparent;
 	display: block;
 	width: 20px;
-	height:	16px;
+	height:	12px;
 	margin:	0 4px 0 0;
 	padding: 2px;
 	text-indent: -9999em;
 	}
 
 .contract {
+	float: left;
 	background:	url("b_contract.png") no-repeat scroll left top transparent;
 	display: block;
 	width: 20px;
-	height:	16px;
+	height:	12px;
 	margin:	0 4px 0 0;
 	padding: 2px;
 	text-indent: -9999em;

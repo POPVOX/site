@@ -13,22 +13,21 @@
 			title="Hide From Suggestions"
 		{% endif %}
 	{% endif %}
-	class="bill{% if tracktype == "+" %}track{% else %}antitrack{% endif %}"
+	class="bill{% if tracktype == "+" %}track{% if bill.trackstatus %} active{% endif %}{% else %}antitrack{% if bill.antitrackstatus %} active{% endif %}{% endif %}"
 	billid="{{bill.id}}"
-	style="cursor: default; display: inline"
 	>
 	{% if tracktype == "+" %}
 		{% if bill.trackstatus %}
-			U
+			Un-track This Bill
 		{% else %}
-			T
+			Track This Bill
 		{% endif %}
 	{% endif %}
 	{% if tracktype == "-" %}
 		{% if bill.antitrackstatus %}
-			S
+			Add Back to Suggestions
 		{% else %}
-			H
+			Hide From Suggestions
 		{% endif %}
 	{% endif %}
 </div>

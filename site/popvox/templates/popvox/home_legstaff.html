@@ -8,7 +8,7 @@
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script>
 	function showtab(tab) {
-		if ($('#' + tab + '_tab').hasClass('active')) return;
+		if ($('#' + tab + '_tab').hasClass('active')) return false;
 
 		if (tab == "tracked" && tracked_bills_changed) {
 			window.location = '/home';
@@ -24,7 +24,7 @@
 		}
 		
 		$('.tab_panel').hide();
-		$('.tab_tab li').removeClass('active');
+		$('.horz_tabs li').removeClass('active');
 		$('#' + tab + "_panel").fadeIn();
 		$('#' + tab + '_tab').addClass('active')
 		return false; // cancel click
@@ -51,13 +51,18 @@
 
 	var last_expando = null;
 	function expando(billid) {
-		if (last_expando)
+		if (last_expando) {
 			$('#bill_' + last_expando + '_details').hide();
+			$('#bill_' + last_expando + '_expando').removeClass("contract");
+			$('#bill_' + last_expando + '_expando').addClass("expand");
+		}
 		if (last_expando == billid) {
 			last_expando = null;
 			return false;
 		}
 		$('#bill_' + billid + '_details').fadeIn();
+		$('#bill_' + billid + '_expando').addClass("contract");
+		$('#bill_' + billid + '_expando').removeClass("expand");
 		last_expando = billid;
 		return false; // cancel click
 	}
@@ -118,6 +123,8 @@
 		
 			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');">Hidden</a></li>
 			
+			<div class="clear"> </div>
+			
 			<script>$(function() {
 				if (window.location.hash != "") {
 					showtab(window.location.hash.substring(1));
@@ -172,6 +179,7 @@
 				<h2>{{group.name}}</h2>
 
 				<table width="100%">
+				{% comment %}
 				<thead>
 					<tr>
 						<th colspan="2">Bill</th>
@@ -181,6 +189,7 @@
 						<th></th>
 					</tr>
 				</thead>
+				{% endcomment %}
 				
 				{% for subgroup in group.subgroups %}
 					<tr>
@@ -189,14 +198,14 @@
 						</td>
 					</tr>
 					{% for bill in subgroup.bills %}
-						<tr class="bill" billid="{{bill.id}}">
+						<tr class="bill {% if not forloop.first %}border{% endif %}" billid="{{bill.id}}">
 							<td style="padding-right: 1em">
 								<nobr><a href="{{bill.url}}">
 									{{bill.displaynumber}}
 								</a></nobr>
 							</td>
 							<td style="padding-right: 1em";>
-								<div style="width: 200px; overflow: hidden; " title="{{bill.title}}">
+								<div style="width: 190px; overflow: hidden; " title="{{bill.title}}">
 									<div style="width: 1000px; height: 1em;">
 										<a href="{{bill.url}}">
 											{{bill.title_no_number}}
@@ -211,7 +220,7 @@
 									</div>
 								</div>
 							</td>
-							<td style="padding-right: 1em">
+							<td style="padding-right: 1em" title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
 								{{bill.num_cosponsors}}
 							</td>
 							<td style="padding-right: 1em;">
@@ -232,11 +241,12 @@
 								{% include "popvox/track.html" %}
 								{% endwith %}
 								
-								<div class="expand" style="cursor: default; display: inline" onclick="expando('{{subgroup.id}}_{{bill.id}}')">E</div>
+								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')">E</div>
 							</td>
 						</tr>
 						<tr>
-							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="6" style="display: none">
+							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="6" style="display: none; padding: 1em">
+								<p>{{bill.status_advanced}}</p>
 								{% for date, text in bill.latest_action_formatted %}
 									{% if date %}
 									<div>{{date}}: {{text}}</div>
@@ -322,19 +332,14 @@
 			<h2>Bills You&rsquo;ve Hidden</h2>
 
 			<table width="100%">
-			<tr>
-				<th colspan="2">Bill</th>
-				<th>Sponsor</th>
-				<th></th>
-			</tr>
-			
+		
 			<tr>
 				<td colspan="5">
 					<h4>{{subgroup.name}}</h4>
 				</td>
 			</tr>
 			{% for bill in antitracked_bills %}
-				<tr>
+				<tr class="bill {% if not forloop.first %}border{% endif %}">
 					<td style="padding-right: 1em">
 						<nobr><a href="{{bill.url}}">
 							{{bill.displaynumber}}
