@@ -1306,8 +1306,17 @@ tr.bill.border td {
 tr.bill td {
 	padding: 2px 0;
 	}
+tr.bill:hover td {
+	background-color: #d9d6d2;
+	}
+tr.bill.active td, tr.billdetails.active td {
+	background-color: #d8d6d0;
+	}
+tr.bill.active:hover td {
+	background-color: #d8d6d0;
+	}
 tr.bill td a {
-	color: black;
+	color: #404045;
 	}
 tr.bill td a:hover {
 	border: 0;

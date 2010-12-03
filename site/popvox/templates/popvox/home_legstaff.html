@@ -54,6 +54,8 @@
 		if (last_expando) {
 			$('#bill_' + last_expando + '_details').hide();
 			$('#bill_' + last_expando + '_expando').removeClass("active");
+			$('#bill_' + last_expando + '_row1').removeClass("active");
+			$('#bill_' + last_expando + '_row2').removeClass("active");
 		}
 		if (last_expando == billid) {
 			last_expando = null;
@@ -61,6 +63,8 @@
 		}
 		$('#bill_' + billid + '_details').fadeIn();
 		$('#bill_' + billid + '_expando').addClass("active");
+		$('#bill_' + billid + '_row1').addClass("active");
+		$('#bill_' + billid + '_row2').addClass("active");
 		last_expando = billid;
 		return false; // cancel click
 	}
@@ -196,8 +200,8 @@
 						</td>
 					</tr>
 					{% for bill in subgroup.bills %}
-						<tr class="bill {% if not forloop.first %}border{% endif %}" billid="{{bill.id}}" valign="top">
-							<td style="padding-right: 1em">
+						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill {% if not forloop.first %}border{% endif %}" billid="{{bill.id}}" valign="top">
+							<td style="padding-left: 5px; padding-right: 1em">
 								<nobr><a href="{{bill.url}}">
 									{{bill.displaynumber}}
 								</a></nobr>
@@ -242,7 +246,7 @@
 								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')">Expand/Collapse</div>
 							</td>
 						</tr>
-						<tr>
+						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
 							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="6" style="display: none; padding: 1em">
 								<p>{{bill.status_advanced}}</p>
 								{% for date, text in bill.latest_action_formatted %}
@@ -338,7 +342,7 @@
 			</tr>
 			{% for bill in antitracked_bills %}
 				<tr class="bill {% if not forloop.first %}border{% endif %}">
-					<td style="padding-right: 1em">
+					<td style="padding-left: 5px; padding-right: 1em">
 						<nobr><a href="{{bill.url}}">
 							{{bill.displaynumber}}
 						</a></nobr>
