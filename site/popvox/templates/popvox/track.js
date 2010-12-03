@@ -42,6 +42,10 @@ function track(billid, track) {
 						$(".bill[billid='" + billid + "']").show();
 					}
 				}
+				
+				{% if leg_staff_home_tabs %}
+				update_tabs();
+				{% endif %}
 			},
 		}
 	);

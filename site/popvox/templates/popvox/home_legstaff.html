@@ -93,7 +93,31 @@
 	$(show_activity);
 	{% endif %}
 	
+	{% with "1" as leg_staff_home_tabs %}
 	{% include "popvox/track.js" %}
+	{% endwith %}
+	function update_tabs() {
+		ajax("ajax/home/legstaff/bill_categories", {}, {
+			success: function(ret) {
+				$('.suggestiontab').remove();
+				for (var tab in ret.tabs) {
+					var n = document.createElement('li');
+					n.setAttribute("id", ret.tabs[tab].id + "_tab");
+					n.setAttribute("class", "suggestiontab");
+						
+					var a = document.createElement('a');
+					n.appendChild(a);
+					a.setAttribute("href", "#");
+					a.setAttribute("onclick", "return showtab('" + ret.tabs[tab].id + "')");
+					
+					var t = document.createTextNode(ret.tabs[tab].shortname + " (" + ret.tabs[tab].count + ")");
+					a.appendChild(t);
+					
+					$('#hidden_tab').before(n);
+				}
+			}
+		});
+	}
 </script>
 {% endblock %}
 {% block content %}
@@ -120,7 +144,8 @@
 			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Suggest</a></li>
 			
 			{% for group in suggestions %}
-				<li id="{{group.id}}_tab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+				{% comment %}see update_tabs above{% endcomment %}
+				<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
 			{% endfor %}
 		
 			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');">Hidden</a></li>

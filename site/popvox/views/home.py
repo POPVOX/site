@@ -28,7 +28,7 @@ def annotate_track_status(profile, bills):
 			b.antitrackstatus = True
 	return bills
 
-def get_legstaff_suggested_bills(user):
+def get_legstaff_suggested_bills(user, counts_only=False):
 	prof = user.userprofile
 	
 	suggestions = [  ]
@@ -91,6 +91,12 @@ def get_legstaff_suggested_bills(user):
 			"shortname": ix.name,
 			"bills": select_bills(issues=ix)
 			})
+		
+	if counts_only:
+		return [
+				{ "id": s["id"], "shortname": s["shortname"], "count": s["bills"].count() }
+				for s in suggestions if s["bills"].count() > 0
+			]
 
 	# Clear out any groups with no bills. We can call .count() if we just want
 	# a count, but since we are going to evaluate later it's better to evaluate
@@ -345,6 +351,17 @@ def home(request):
 			"suggestions": compute_prompts(request.user)[0:4]
 			    },
 			context_instance=RequestContext(request))
+
+@login_required
+@json_response
+def legstaff_bill_categories(request):
+	prof = request.user.get_profile()
+	if prof == None or not prof.is_leg_staff():
+		return Http404()
+	return {
+		"status": "success",
+		"tabs": get_legstaff_suggested_bills(request.user, counts_only=True)
+		}
 
 @login_required
 def home_suggestions(request):
