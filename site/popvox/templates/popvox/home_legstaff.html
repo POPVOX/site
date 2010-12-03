@@ -117,7 +117,7 @@
 					var t = document.createTextNode(ret.tabs[tab].shortname + " (" + ret.tabs[tab].count + ")");
 					a.appendChild(t);
 					
-					$('#hidden_tab').before(n);
+					$('#suggestions_tab').before(n);
 				}
 				
 				if (curtab) $('#' + curtab).addClass("active");
@@ -132,7 +132,7 @@
 	<div class="col_9">
 		<ul class="horz_tabs">
 			{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
-			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Tracked</a></li>
+			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Pinned</a></li>
 			
 			{% if districtstr %}
 			<li id="districtbills_tab"><a href="#" onclick="return showtab('districtbills')">Hot <!--In Your {{districtstr}}--></a></li>
@@ -140,13 +140,13 @@
 			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments<!-- In Your {{districtstr}}--></a></li>
 			{% endif %}
 	
-			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Suggest</a></li>
-			
 			{% for group in suggestions %}
 				{% comment %}see update_tabs above{% endcomment %}
 				<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
 			{% endfor %}
 		
+			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Settings</a></li>
+			
 			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');">Hidden</a></li>
 			
 			<div class="clear"> </div>
@@ -160,7 +160,7 @@
 		</ul>
 
 		<div id="tracked_panel" class="tab_panel">
-			<h2>Tracked Legislation</h2>
+			<h2>Pinned Legislation</h2>
 			
 			<table width="100%">
 			{% for bill in tracked_bills %}
@@ -228,16 +228,16 @@
 			{% empty %}
 				<tr>
 					<td>
-						<p>You have no tracked legislation. Check your suggestions {% if suggestions %}below{% endif %} or try changing your <a href="#" onclick="return showtab('suggestions')">suggestions settings</a>.</p>
+						<p>You have no pinned legislation. Check your automatically tracked legislation {% if suggestions %}below{% endif %} or try changing your <a href="#" onclick="return showtab('suggestions')">tracking settings</a>.</p>
 						
 						{% if suggestions %}
-						<p>You have suggested legislation to track in the following categories:</p>
+						<p>You have automatically tracked legislation in the following categories:</p>
 						<ul class="bullets">
 							{% for group in suggestions %}
 								<li><a href="#" onclick="return showtab('{{group.id}}')">{{group.name}} ({{group.count}} bill{{group.count|pluralize}})</a></li>
 							{% endfor %}
 						</ul>
-						<p>Click the plus sign next to a bill on those pages to add it to this tracked legislation section.</p>
+						<p>Click the plus sign next to a bill on those pages to add it to this pinned legislation section.</p>
 						{% endif %}
 					</td>
 				</tr>
@@ -333,12 +333,12 @@
 		{% endfor %}
 		
 		<div id="suggestions_panel" class="tab_panel" style="display: none">
-			<h2>Suggestions Settings</h2>
-			<p>Your tracked legislation tab shows the status of bills you select. We&rsquo;ll come up with a list of suggestions for you to track based on your <a href="/accounts/profile">account settings</a> and will display those suggestions in tabs on the left.</p>
-			{% if suggestions|length == 0 %}<p>Right now you don&rsquo;t have any suggestions.</p>{% endif %}
+			<h2>Automatic Tracking Settings</h2>
+			<p>POPVOX automatically tracks legislation relevant to you based on your <a href="/accounts/profile">account settings</a> and the issue areas you choose that are relevant to your policy work.</p>
+			{% if suggestions|length == 0 %}<p>Right now you don&rsquo;t have any automatically tracked legislation.</p>{% endif %}
 			
 			<h3>Interest Areas</h3>
-			<p>Customize your suggestions by choosing interest areas from the list of Congressional Research Service Legislative Indexing Vocabulary:</p>
+			<p>Customize your automatically tracked legislation by choosing topic areas.</p>
 			<ul id="issuearealist" class="bullets">
 				{% for ix in user.userprofile.issues.all %}
 					<li>{{ ix.name }}</li>
@@ -403,7 +403,7 @@
 			<h2>Legislation You&rsquo;ve Hidden</h2>
 			
 			{% if antitracked_bills %}
-				<p>Below are the bills you&rsquo;ve removed from the legislation suggestion tabs.</p>
+				<p>Below are the bills you&rsquo;ve removed from your automatically tracked legislation tabs.</p>
 			{% endif %}
 
 			<table width="100%">
@@ -443,7 +443,7 @@
 			{% empty %}
 				<tr>
 					<td>
-						<p>Any legislation you hide from the other suggestions tabs will appear here so you can find it again. You have not hidden any suggestions yet.</p> 
+						<p>Any legislation you hide from automatic tracking tabs will appear here so you can find it again. You have not hidden any legislation yet.</p> 
 					</td>
 				</tr>
 			{% endfor %}

@@ -1,16 +1,16 @@
 <div onclick="track({{bill.id}}, '{{tracktype}}')"
 	{% if tracktype == "+" %}
 		{% if bill.trackstatus %}
-			title="Un-Track This Bill"
+			title="Un-Pin"
 		{% else %}
-			title="Track This Bill"
+			title="Pin"
 		{% endif %}
 	{% endif %}
 	{% if tracktype == "-" %}
 		{% if bill.antitrackstatus %}
-			title="Add Back to Suggestions"
+			title="Add Back to Automatic Tracking"
 		{% else %}
-			title="Hide From Suggestions"
+			title="Hide From Automatic Tracking"
 		{% endif %}
 	{% endif %}
 	class="bill{% if tracktype == "+" %}track{% if bill.trackstatus %} active{% endif %}{% else %}antitrack{% if bill.antitrackstatus %} active{% endif %}{% endif %}"
@@ -18,16 +18,16 @@
 	>
 	{% if tracktype == "+" %}
 		{% if bill.trackstatus %}
-			Un-track This Bill
+			Un-Pin
 		{% else %}
-			Track This Bill
+			Pin
 		{% endif %}
 	{% endif %}
 	{% if tracktype == "-" %}
 		{% if bill.antitrackstatus %}
-			Add Back to Suggestions
+			Add Back to Automatic Tracking
 		{% else %}
-			Hide From Suggestions
+			Hide From Automatic Tracking
 		{% endif %}
 	{% endif %}
 </div>
