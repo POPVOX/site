@@ -90,39 +90,42 @@
 </script>
 {% endblock %}
 {% block content %}
-<div class="content">
+	<div class="float_right">
+		{% include "ads/rightbar.html" %}
+	</div>
+
+<div class="content leg_staff">
 
 	<h1>Home</h1>
-
-	<div class="col_3">
-	<ul class="tab_tab">
-		{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
-		<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Tracked Legislation</a></li>
-		
-		{% if districtstr %}
-		<li id="districtbills_tab"><a href="#" onclick="return showtab('districtbills')">Hot In Your {{districtstr}}</a></li>
-
-		<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments In Your {{districtstr}}</a></li>
-		{% endif %}
-
-		<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Suggestions Settings</a></li>
-		
-		{% for group in suggestions %}
-			<li id="{{group.id}}_tab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
-		{% endfor %}
 	
-		<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');">Bills You&rsquo;ve Hidden</a></li>
-		
-		<script>$(function() {
-			if (window.location.hash != "") {
-				showtab(window.location.hash.substring(1));
-				window.location.hash = "";
-			}
-		});</script>
-	</ul>
-	</div>
 	
-	<div class="tab_pane clear">
+	<div class="col_9">
+		<ul class="horz_tabs">
+			{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
+			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Tracked</a></li>
+			
+			{% if districtstr %}
+			<li id="districtbills_tab"><a href="#" onclick="return showtab('districtbills')">Hot <!--In Your {{districtstr}}--></a></li>
+	
+			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments<!-- In Your {{districtstr}}--></a></li>
+			{% endif %}
+	
+			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Suggest</a></li>
+			
+			{% for group in suggestions %}
+				<li id="{{group.id}}_tab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+			{% endfor %}
+		
+			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');">Hidden</a></li>
+			
+			<script>$(function() {
+				if (window.location.hash != "") {
+					showtab(window.location.hash.substring(1));
+					window.location.hash = "";
+				}
+			});</script>
+		</ul>
+
 		<div id="tracked_panel" class="tab_panel">
 			<h3>Tracked Legislation</h3>
 			
@@ -169,13 +172,15 @@
 				<h2>{{group.name}}</h2>
 
 				<table width="100%">
-				<tr>
-					<th colspan="2">Bill</th>
-					<th>Sponsor</th>
-					<th># Co</th>
-					<th>Status</th>
-					<th></th>
-				</tr>
+				<thead>
+					<tr>
+						<th colspan="2">Bill</th>
+						<th>Sponsor</th>
+						<th># Co</th>
+						<th>Status</th>
+						<th></th>
+					</tr>
+				</thead>
 				
 				{% for subgroup in group.subgroups %}
 					<tr>
@@ -227,7 +232,7 @@
 								{% include "popvox/track.html" %}
 								{% endwith %}
 								
-								<div style="cursor: default; display: inline" onclick="expando('{{subgroup.id}}_{{bill.id}}')">E</div>
+								<div class="expand" style="cursor: default; display: inline" onclick="expando('{{subgroup.id}}_{{bill.id}}')">E</div>
 							</td>
 						</tr>
 						<tr>
@@ -366,7 +371,6 @@
 		</div>
 	</div>
 
-	{% include "ads/rightbar.html" %}
 </div>
 {% endblock %}
 

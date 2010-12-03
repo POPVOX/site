@@ -1255,6 +1255,112 @@ h3#reporttitle {
 		color: #606065;
 		}
 
+
+
+/* leg staff dashboard */
+.leg_staff {
+	background: url("_temp_legstaff_bg.jpg") 2px 60px no-repeat;
+	}
+
+.horz_tabs {
+	background: #434247;
+	height: 20px;
+	display: block;
+	padding: 12px 0 8px;
+	font-size: 12px;
+	}
+	
+	.horz_tabs li {
+		float: left;
+		display: block;
+		}
+		
+		.horz_tabs li a {
+			color: #fff;
+			margin: 1px 5px;
+			padding: 4px;
+			}
+			
+			.horz_tabs li.active a {
+				background: #e47816;
+				}
+
+.tracked_panel a {
+	color: #404045;
+	}
+	
+	.tracked_panel a:hover {
+		color: #CC6A11;
+		text-decoration: none;
+		}
+
+thead {
+	text-transform: lowercase;
+	font-weight: bold;
+	}
+		
+tr.bill {
+	background: url(bg_dotted.gif) left 18px repeat-x;
+	height: 22px;
+	}
+
+
+.b_small {
+	width: 16px;
+	height: 16px;
+	}
+
+
+.billtrack {
+	background:	url("b_plus.png") no-repeat scroll left top transparent;
+	display: block;
+	width: 20px;
+	height:	16px;
+	margin:	0 4px 0 0;
+	padding: 2px;
+	text-indent: -9999em;
+	}
+	
+.billantitrack {
+	background:	url("b_minus.png") no-repeat scroll left top transparent;
+	display: block;
+	width: 20px;
+	height:	16px;
+	margin:	0 4px 0 0;
+	padding: 2px;
+	text-indent: -9999em;
+	}
+	
+.expand {
+	background:	url("b_expand.png") no-repeat scroll left top transparent;
+	display: block;
+	width: 20px;
+	height:	16px;
+	margin:	0 4px 0 0;
+	padding: 2px;
+	text-indent: -9999em;
+	}
+
+.contract {
+	background:	url("b_contract.png") no-repeat scroll left top transparent;
+	display: block;
+	width: 20px;
+	height:	16px;
+	margin:	0 4px 0 0;
+	padding: 2px;
+	text-indent: -9999em;
+	}
+
+.billtrack:hover, .billantitrack:hover, .expand:hover {
+	cursor: pointer;
+	background-position: left bottom;
+	}
+
+
+
+
+
+
 h1.h1_smaller {
 	font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	}
