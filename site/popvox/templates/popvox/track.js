@@ -17,6 +17,11 @@ function track(billid, track) {
 						elems.addClass("active");
 						elems.text("Un-Track This Bill");
 						elems.attr("title", "Un-Track This Bill");
+						
+						$('#tracked_tab')
+							.animate({"background-color": "#E47816"})
+							.delay(3000)
+							.animate({"background-color": "#434247"});
 					} else {
 						elems.removeClass("active");
 						elems.text("Track This Bill");
@@ -28,7 +33,7 @@ function track(billid, track) {
 						elems.addClass("active");
 						elems.text("Add Back to Suggestions");
 						elems.attr("title", "Add Back to Suggestions");
-						$(".bill[billid='" + billid + "']").hide(); //fadeOut is nice but only seems to work for instances of the bill that are currently on the screen
+						$(".bill[billid='" + billid + "']").fadeOut(); //fadeOut is nice but only seems to work for instances of the bill that are currently on the screen. hide() takes care of all instances, but it is so hard to understand an instantaneously disappearing element.
 					} else {
 						antitracked_bills_removed = true;
 						elems.removeClass("active");

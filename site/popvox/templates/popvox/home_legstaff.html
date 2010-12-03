@@ -53,16 +53,14 @@
 	function expando(billid) {
 		if (last_expando) {
 			$('#bill_' + last_expando + '_details').hide();
-			$('#bill_' + last_expando + '_expando').removeClass("contract");
-			$('#bill_' + last_expando + '_expando').addClass("expand");
+			$('#bill_' + last_expando + '_expando').removeClass("active");
 		}
 		if (last_expando == billid) {
 			last_expando = null;
 			return false;
 		}
 		$('#bill_' + billid + '_details').fadeIn();
-		$('#bill_' + billid + '_expando').addClass("contract");
-		$('#bill_' + billid + '_expando').removeClass("expand");
+		$('#bill_' + billid + '_expando').addClass("active");
 		last_expando = billid;
 		return false; // cancel click
 	}
@@ -198,7 +196,7 @@
 						</td>
 					</tr>
 					{% for bill in subgroup.bills %}
-						<tr class="bill {% if not forloop.first %}border{% endif %}" billid="{{bill.id}}">
+						<tr class="bill {% if not forloop.first %}border{% endif %}" billid="{{bill.id}}" valign="top">
 							<td style="padding-right: 1em">
 								<nobr><a href="{{bill.url}}">
 									{{bill.displaynumber}}
@@ -206,7 +204,7 @@
 							</td>
 							<td style="padding-right: 1em";>
 								<div style="width: 190px; overflow: hidden; " title="{{bill.title}}">
-									<div style="width: 1000px; height: 1em;">
+									<div style="width: 1000px; height: 1.2em;">
 										<a href="{{bill.url}}">
 											{{bill.title_no_number}}
 										</a>
@@ -215,7 +213,7 @@
 							</td>
 							<td style="padding-right: 1em;">
 								<div style="width: 75px; overflow: hidden;" title="{{bill.sponsor.name}}">
-									<div style="width: 1000px; height: 1em;">
+									<div style="width: 1000px; height: 1.2em;">
 										{{bill.sponsor.lastname}}
 									</div>
 								</div>
@@ -225,7 +223,7 @@
 							</td>
 							<td style="padding-right: 1em;">
 								<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
-									<div style="width: 1000px; height: 1em;">
+									<div style="width: 1000px; height: 1.2em;">
 										<a href="#" onclick="return expando('{{subgroup.id}}_{{bill.id}}')">
 											{{bill.status_advanced}}
 										</a>
@@ -241,7 +239,7 @@
 								{% include "popvox/track.html" %}
 								{% endwith %}
 								
-								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')">E</div>
+								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')">Expand/Collapse</div>
 							</td>
 						</tr>
 						<tr>

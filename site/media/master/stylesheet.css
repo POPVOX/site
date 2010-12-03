@@ -1257,10 +1257,10 @@ h3#reporttitle {
 
 
 
-/* leg staff dashboard */
+/* leg staff dashboard
 .leg_staff {
 	background: url("_temp_legstaff_bg.jpg") 2px 60px no-repeat;
-	}
+	} */
 
 .horz_tabs {
 	background: #434247;
@@ -1322,53 +1322,43 @@ tr.bill td a:hover {
 
 .billtrack {
 	float: left;
-	background:	url("b_plus.png") no-repeat scroll left top transparent;
+	background:	url("b_plus.png") no-repeat scroll left bottom transparent;
 	display: block;
 	width: 20px;
-	height:	12px;
-	margin:	0 4px 0 0;
-	padding: 2px;
+	height:	16px;
+	margin:	2px 4px 0 0;
 	text-indent: -9999em;
 	}
 
 .billtrack.active {
-	background:	url("b_check.png") no-repeat scroll left top transparent;
+	background:	url("b_check.png") no-repeat scroll left bottom transparent;
 	}
 	
 .billantitrack {
 	float: left;
-	background:	url("b_minus.png") no-repeat scroll left top transparent;
+	background:	url("b_minus.png") no-repeat scroll left bottom transparent;
 	display: block;
 	width: 20px;
-	height:	12px;
-	margin:	0 4px 0 0;
-	padding: 2px;
+	height:	16px;
+	margin:	2px 4px 0 0;
 	text-indent: -9999em;
 	}
 .billantitrack.active {
-	background:	url("b_plus.png") no-repeat scroll left top transparent;
+	background:	url("b_plus.png") no-repeat scroll left bottom transparent;
 	}
 	
 .expand {
 	float: left;
-	background:	url("b_expand.png") no-repeat scroll left top transparent;
+	background:	url("b_expand.png") no-repeat scroll left bottom transparent;
 	display: block;
 	width: 20px;
-	height:	12px;
-	margin:	0 4px 0 0;
-	padding: 2px;
+	height:	16px;
+	margin:	2px 4px 0 0;
 	text-indent: -9999em;
 	}
 
-.contract {
-	float: left;
-	background:	url("b_contract.png") no-repeat scroll left top transparent;
-	display: block;
-	width: 20px;
-	height:	12px;
-	margin:	0 4px 0 0;
-	padding: 2px;
-	text-indent: -9999em;
+.expand.active {
+	background:	url("b_contract.png") no-repeat scroll left bottom transparent;
 	}
 
 .billtrack:hover, .billantitrack:hover, .expand:hover {
