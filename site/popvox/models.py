@@ -586,7 +586,7 @@ class UserLegStaffRole(models.Model):
 		if self.member != None:
 			ret.append( govtrack.getMemberOfCongress(self.member)["name"] )
 		if self.committee != None:
-			ret.append( govtrack.getCommittee(self.committee)["name"] )
+			ret.append( govtrack.getCommittee(self.committee)["shortname"] )
 		ret.append( self.position )
 		return ", ".join(ret)
 		

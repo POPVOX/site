@@ -180,7 +180,7 @@ body.land {
 				color: #e47816;
 				}
 				
-	#breadcrumbs {
+	#whoami {
 		width: 600px;
 		height: 20px;
 		display: block;
@@ -188,13 +188,13 @@ body.land {
 		text-align: right;
 		}
 		
-		#breadcrumbs p {
+		#whoami p {
 			font: italic normal 12px/12px georgia, serif;
 			position: relative;
 			margin: 0;	
 			}
 			
-		#breadcrumbs a {
+		#whoami a {
 			height: 12px;
 			font: bold 12px/12px helvetica, arial, sans-serif;
 			color: #404045;

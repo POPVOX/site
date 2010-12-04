@@ -132,7 +132,7 @@
 				{% comment %} On the homepage, this is replaced by Verified, Quantified, ... {% endcomment %}
 			<ul id="nav_2"> 
 				{% if user.userprofile.is_leg_staff %}
-					<li class="{%block nav_legstaff_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>
+					<li class="{%block nav_legstaff_class_dashboard%}{%endblock%}"><a href="/home">Dashboard</a></li>
 					<li class="last {%block nav_legstaff_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
 					<li class="last {%block nav_legstaff_class_bills%}{%endblock%}"><a href="/bills">Legislation</a></li>
 				{% endif %}
@@ -163,10 +163,14 @@
 			</ul>
 			{% endblock %}
 			{% if user.is_authenticated %}
-			<div id="breadcrumbs">
-				<p>Welcome, <a href="/accounts/profile">{% filter force_escape %}{% firstof user.userprofile.fullname user.username %}{% endfilter %}</a>
-				{% for orgrole in user.orgroles.all %} &mdash; <a href="{{ orgrole.org.url }}">{{ orgrole.org.name }}</a>{% endfor %}
-				{% if user.legstaffrole %} &mdash; {{ user.legstaffrole.as_string }}{% endif %}</p>
+			<div id="whoami">
+				<p>
+					{% filter truncatewords:13 %}
+					Welcome, <a href="/accounts/profile">{% filter force_escape %}{% firstof user.userprofile.fullname user.username %}{% endfilter %}</a>
+					{% for orgrole in user.orgroles.all %} &mdash; <a href="{{ orgrole.org.url }}">{{ orgrole.org.name }}</a>{% endfor %}
+					{% if user.legstaffrole %} &mdash; {{ user.legstaffrole.as_string }}{% endif %}
+					{% endfilter %}
+				</p>
 			</div>
 			{% endif %}
 		</div>
