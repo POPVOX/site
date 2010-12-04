@@ -15,8 +15,8 @@ function track(billid, track) {
 					tracked_bills_changed = true;
 					if (ret.value == "+") {
 						elems.addClass("active");
-						elems.text("Un-Pin");
-						elems.attr("title", "Un-Pin");
+						elems.text("Remove Bookmark");
+						elems.attr("title", "Remove Bookmark");
 						
 						$('#tracked_tab')
 							.animate({"background-color": "#E47816"})
@@ -24,8 +24,8 @@ function track(billid, track) {
 							.animate({"background-color": "#434247"});
 					} else {
 						elems.removeClass("active");
-						elems.text("Pin");
-						elems.attr("title", "Pin");
+						elems.text("Bookmark");
+						elems.attr("title", "Bookmark");
 						$(".billbeingtracked[billid='" + billid + "']").fadeOut();
 					}
 				} else if (track == "-") {

@@ -132,7 +132,7 @@
 	<div class="col_9">
 		<ul class="horz_tabs">
 			{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
-			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Pinned</a></li>
+			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Bookmarked</a></li>
 			
 			{% if districtstr %}
 			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments<!-- In Your {{districtstr}}--></a></li>
@@ -158,7 +158,7 @@
 		</ul>
 
 		<div id="tracked_panel" class="tab_panel">
-			<h2>Pinned Legislation</h2>
+			<h2>Bookmarked Legislation</h2>
 			
 			<table width="100%">
 			{% for bill in tracked_bills %}
@@ -224,7 +224,7 @@
 			{% empty %}
 				<tr>
 					<td>
-						<p>You have not pinned any legislation here.</p>
+						<p>You have not bookmarked any legislation here.</p>
 						
 						{% if suggestions %}
 						<p>You have automatically tracked legislation in the following categories:</p>
@@ -233,7 +233,7 @@
 								<li><a href="#" onclick="return showtab('{{group.id}}')">{{group.name}} ({{group.count}} bill{{group.count|pluralize}})</a></li>
 							{% endfor %}
 						</ul>
-						<p>Click the plus sign next to a bill on those pages to add it to this pinned legislation section.</p>
+						<p>Click the plus sign next to a bill on those pages to add it to this bookmarked legislation section.</p>
 						{% endif %}
 					</td>
 				</tr>

@@ -1,9 +1,9 @@
 <div onclick="track({{bill.id}}, '{{tracktype}}')"
 	{% if tracktype == "+" %}
 		{% if bill.trackstatus %}
-			title="Un-Pin"
+			title="Remove Bookmark"
 		{% else %}
-			title="Pin"
+			title="Bookmark"
 		{% endif %}
 	{% endif %}
 	{% if tracktype == "-" %}
@@ -18,9 +18,9 @@
 	>
 	{% if tracktype == "+" %}
 		{% if bill.trackstatus %}
-			Un-Pin
+			Remove Bookmark
 		{% else %}
-			Pin
+			Bookmark
 		{% endif %}
 	{% endif %}
 	{% if tracktype == "-" %}
