@@ -56,6 +56,7 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"bills": select_bills(sponsor = boss)
 			})
 
+	committeename = ""
 	if user.legstaffrole.committee != None:
 		cx = None
 		try:
@@ -64,7 +65,8 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			pass
 		if cx != None:
 			name = popvox.govtrack.getCommittee(user.legstaffrole.committee)["name"]
-			shortname = popvox.govtrack.getCommittee(user.legstaffrole.committee)["shortname"]
+			shortname = popvox.govtrack.getCommittee(user.legstaffrole.committee)["abbrevname"]
+			committeename = popvox.govtrack.getCommittee(user.legstaffrole.committee)["shortname"]
 
 			suggestions.append({
 				"id": "committeereferral",
@@ -153,6 +155,8 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 					ix = "Sponsored by " + bossname
 				elif (s["type"] != "issue" or s["issue"].parent != None) and b.topterm != None:
 					ix = b.topterm.name
+				elif s["type"] != "committeereferral" and len(b.committees_cached) > 0:
+					ix = b.committees_cached[0].shortname()
 				else:
 					ix = "Other"
 				if not ix in ixd:
@@ -160,7 +164,12 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 					counter += 1
 				ixd[ix]["bills"].append(b)
 			s["subgroups"] = ixd.values()
-			s["subgroups"].sort(key = lambda x : (x["name"] == "Other", x["name"] != "Sponsored by " + bossname, x["name"] not in myissues, x["name"]))
+			s["subgroups"].sort(key = lambda x : (
+				x["name"] == "Other",
+				x["name"] != "Sponsored by " + bossname,
+				x["name"] != committeename,
+				x["name"] not in myissues,
+				x["name"]))
 	
 	return suggestions
 

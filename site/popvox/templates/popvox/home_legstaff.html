@@ -208,8 +208,6 @@
 								 <div class="col_2 col_last">
 									 <p class="view_report">
 										<span><a href="{{bill.url}}/report">View Report</a></span>
-										<strong>Status:</strong><br />
-										<em>{{bill.status_advanced}}</em><br />
 									</p>
 								</div>
 							</div>
@@ -287,6 +285,7 @@
 							<td style="padding-right: 1em;">
 								<div style="width: 75px; overflow: hidden;" title="{{bill.sponsor.name}}">
 									<div style="width: 1000px; height: 1.2em;">
+										{{bill.sponsor.party}} | 
 										{{bill.sponsor.lastname}}
 									</div>
 								</div>
@@ -298,7 +297,7 @@
 								<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
 									<div style="width: 1000px; height: 1.2em;">
 										<a href="#" onclick="return expando('{{subgroup.id}}_{{bill.id}}')">
-											{{bill.status_advanced}}
+											{{bill.status_advanced_abbreviated}}
 										</a>
 									</div>
 								</div>

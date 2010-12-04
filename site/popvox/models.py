@@ -45,6 +45,8 @@ class MemberOfCongress(models.Model):
 		return govtrack.getMemberOfCongress(self.id)["name"]
 	def lastname(self):
 		return govtrack.getMemberOfCongress(self.id)["lastname"]
+	def party(self):
+		return govtrack.getMemberOfCongress(self.id)["party"]
 
 class CongressionalCommittee(models.Model):
 	"""A congressional committee or subcommittee."""
@@ -55,6 +57,8 @@ class CongressionalCommittee(models.Model):
 		return govtrack.getCommittee(self.code)["name"]
 	def shortname(self):
 		return govtrack.getCommittee(self.code)["shortname"]
+	def abbrevname(self):
+		return govtrack.getCommittee(self.code)["abbrevname"]
 
 class Bill(models.Model):
 	"""A bill in Congress."""
@@ -110,7 +114,9 @@ class Bill(models.Model):
 	def status(self):
 		return govtrack.getBillStatus(self)
 	def status_advanced(self):
-		return govtrack.getBillStatusAdvanced(self)
+		return govtrack.getBillStatusAdvanced(self, False)
+	def status_advanced_abbreviated(self):
+		return govtrack.getBillStatusAdvanced(self, True)
 	def cosponsors(self):
 		return govtrack.getBillCosponsors(self.govtrack_metadata())
 	def isAlive(self):
