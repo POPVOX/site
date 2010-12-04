@@ -1030,6 +1030,10 @@ def get_default_statistics_context(user):
 def billreport(request, congressnumber, billtype, billnumber):
 	bill = getbill(congressnumber, billtype, billnumber)
 
+	if not request.user.is_anonymous():
+		import home
+		home.annotate_track_status(request.user.userprofile, [bill])
+
 	default_state, default_district = get_default_statistics_context(request.user)
 					
 	orgs_support = []

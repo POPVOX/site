@@ -6,6 +6,9 @@
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
+<script>
+{% include "popvox/track.js" %}
+</script>
 {% endblock %}
 {% block adunits %}
 		GA_googleAddSlot("ca-pub-4482124597959107", "Legislative_Report_Leaderboard");
@@ -190,6 +193,11 @@
 			<h1>Bill Report</h1>
 
 			<div class="block">
+				<div style="float: left; margin-left: -29px; margin-top: -7px">
+					{% with "+" as tracktype %}
+					{% include "popvox/track.html" %}
+					{% endwith %}
+				</div>
 				<h2>{{ bill.title }}</h2> 
 				{% if bill.sponsor %}
 				<div id="sponsor">

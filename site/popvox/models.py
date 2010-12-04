@@ -247,6 +247,8 @@ class Org(models.Model):
 
 	def campaigns(self):
 		return self.orgcampaign_set.filter(visible=True).order_by("-default", "name")
+	def all_campaigns(self):
+		return self.orgcampaign_set.order_by("-default", "name")
 	def is_admin(self, user):
 		if user.is_anonymous():
 			return False

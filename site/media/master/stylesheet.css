@@ -276,9 +276,9 @@ p {
 		}
 		
 	.col_2 {
-		width: 200px;
+		width: 140px;
 		float: left;
-/**/	margin-left: 10px;
+		margin-right: 20px;
 		}
 				
 	.col_3 {
@@ -996,14 +996,14 @@ h3#reporttitle {
 		}
 		
 	.content .campaigns h4 {
-		font: 22px/22px BebasNeueRegular, helvetica, arial, sans-serif;
-		margin-left: 45px;
+		font: 20px/20px BebasNeueRegular, helvetica, arial, sans-serif;
+		margin-top: 1.5em;
+		}
+	.content .campaigns h4 span {
+		font: 14px/22px helvetica, arial, sans-serif;
 		}
 	.content .campaigns .campaign_description  {
 		margin-left: 45px;
-		}
-	.content .campaigns h4 {
-		margin-top: 1.5em;
 		}
 	.content .campaigns .campaign_description {
 		border-bottom: 1px solid #CCC;
@@ -1131,6 +1131,7 @@ h3#reporttitle {
 			padding-left: 0;
 			text-indent: 0;
 			font-size: 13px;
+			line-height: 120%;
 			}
 			
 		.content .campaigns p.view_report {
@@ -1726,7 +1727,6 @@ h1.h1_smaller {
 	
 .img_chart {
 	float: left;
-	margin-bottom: 10px;
 	width: 75px;
 	height: 75px;
 	}

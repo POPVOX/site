@@ -166,7 +166,7 @@
 					<td style="padding-right: 1em";>
 						<div style="width: 500px; overflow: hidden; " title="{{bill.title}}">
 							<div style="width: 1000px; height: 1em;">
-								<a href="{{bill.url}}">
+								<a href="{{bill.url}}/report">
 									{{bill.title}}
 								</a>
 							</div>
@@ -187,7 +187,7 @@
 				</tr>
 				<tr class="billbeingtracked" billid="{{bill.id}}">
 					<td colspan="3" style="padding: .5em">
-						{% bill_statistics bill as stats %}
+						{% bill_statistics bill as stats local %}
 						{% if stats %}
 							<a href="{{bill.url}}/report">
 								<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
@@ -210,7 +210,7 @@
 								</div>
 							</div>
 						{% else %}
-							<p>Not enough users have commented on this bill to display statistics.</p>
+							<p>Too few constituents {% if districtstr %}in your {{districtstr|lower}}{% endif %} have commented on this bill to display statistics.</p>
 						{% endif %}
 	
 						<p>{{bill.status_advanced}}</p>
@@ -267,14 +267,14 @@
 					{% for bill in subgroup.bills %}
 						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill" billid="{{bill.id}}" valign="top">
 							<td style="padding-left: 5px; padding-right: 1em">
-								<nobr><a href="{{bill.url}}">
+								<nobr><a href="{{bill.url}}/report">
 									{{bill.displaynumber}}
 								</a></nobr>
 							</td>
 							<td style="padding-right: 1em";>
 								<div style="width: 190px; overflow: hidden; " title="{{bill.title}}">
 									<div style="width: 1000px; height: 1.2em;">
-										<a href="{{bill.url}}">
+										<a href="{{bill.url}}/report">
 											{{bill.title_no_number}}
 										</a>
 									</div>
@@ -297,13 +297,16 @@
 								{% endif %}
 							</td>
 							<td style="padding-right: 1em;">
+								{% if group.id != "local" %}
 								<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
 									<div style="width: 1000px; height: 1.2em;">
 										<a href="#" onclick="return expando('{{subgroup.id}}_{{bill.id}}')">
 											{{bill.status_advanced_abbreviated}}
 										</a>
+										{% else %}
 									</div>
 								</div>
+								{% endif %}
 							</td>
 							<td class="flipcolor">
 								{% with "+" as tracktype %}
@@ -321,43 +324,45 @@
 						</tr>
 						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
 							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="6" style="{% if group.id != "local" %}display: none;{% else %}background-color: inherit;{% endif %} padding: 1em">
-								<p>{{bill.status_advanced}}</p>
+								<div style="width: 275px; float: right">
+									{% comment %}
+										only pre-load stats for this tab because otherwise we'll make too many db calls
+									{% endcomment %}
+									{% if group.id == "local" %}
+									{% bill_statistics bill as stats local %}
+									{% if stats %}
+										<div style="width: 90px; float: left">
+											<a href="{{bill.url}}/report">
+												<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
+											</a>
+											<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
+											 <p class="view_report clear" style="padding: 0">
+												<span><a href="{{bill.url}}/report">View Report</a></span>
+											</p>
+										</div>
+										
+										<div class="chart_info">
+											<div class="col_chart">
+												<p class="chart_stats">
+													<span class="chart_title">{{stats.longdescription}}:</span><br />
+													<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
+													<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
+													<span class="users">({{stats.total}} users)</span>
+												</p>
+											</div>
+										</div>
+									{% else %}
+										<p style="font-size: 12px; font-style: italic; font-family: georgia, serif; line-height: 120%">Too few constituents in your {{districtstr|lower}} have commented on this bill to display statistics.</p>
+									{% endif %}
+									{% endif %}
+								</div>
+								
+								<p>Status: {{bill.status_advanced}}</p>
 								{% for date, text in bill.latest_action_formatted %}
 									{% if date %}
 									<div>{{date}}: {{text}}</div>
 									{% endif %}
 								{% endfor %}
-
-								{% comment %}
-									only pre-load stats for this tab because otherwise we'll make too many db calls
-								{% endcomment %}
-								{% if group.id == "local" %}
-								{% bill_statistics bill as stats %}
-								{% if stats %}
-									<a href="{{bill.url}}/report">
-										<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-									</a>
-									<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
-									
-									<div class="chart_info">
-										<div class="col_chart">
-											<p class="chart_stats">
-												<span class="chart_title">{{stats.longdescription}}:</span><br />
-												<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-												<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-												<span class="users">({{stats.total}} users)</span>
-											</p>
-										 </div>
-										 <div class="col_2 col_last">
-											 <p class="view_report">
-												<span><a href="{{bill.url}}/report">View Report</a></span>
-											</p>
-										</div>
-									</div>
-								{% else %}
-									<p>Not enough users have commented on this bill to display statistics.</p>
-								{% endif %}
-								{% endif %}
 							</td>
 						</tr>
 					{% endfor %}
@@ -409,14 +414,14 @@
 			{% for bill in antitracked_bills %}
 				<tr class="bill billhidden" billid="{{bill.id}}">
 					<td style="padding-left: 5px; padding-right: 1em">
-						<nobr><a href="{{bill.url}}">
+						<nobr><a href="{{bill.url}}/report">
 							{{bill.displaynumber}}
 						</a></nobr>
 					</td>
 					<td style="padding-right: 1em";>
 						<div style="width: 400px; overflow: hidden; " title="{{bill.title}}">
 							<div style="width: 1000px; height: 1em;">
-								<a href="{{bill.url}}">
+								<a href="{{bill.url}}/report">
 									{{bill.title_no_number}}
 								</a>
 							</div>

@@ -17,7 +17,7 @@
 		<h1>Legislation for {{role.org.name}}</h1>
 	
 		<div class="block campaigns rule">
-		{% with role.org.orgcampaign_set.all as cams %}
+		{% with role.org.all_campaigns as cams %}
 		{% for cam in cams %}
 			<div class="block">
 			
@@ -31,7 +31,7 @@
 					{% bill_statistics pos.bill as stats %}
 						<h4>
 							<a href="{{pos.bill.url}}/report">{{pos.bill.title|truncatewords:10}}</a>
-							<span> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '-' %}Neutral{% endif %})</span>
+							<span> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '0' %}Neutral{% endif %})</span>
 						</h4>
 						
 						{% if stats %}
@@ -52,11 +52,13 @@
 							 </div>
 							 <div class="col_2 col_last">
 								 <p class="view_report"><strong>Status:</strong><br />
-									<em>{{pos.bill.status_advanced}}</em><br />
+									<em>{{pos.bill.status_advanced|truncatewords:13}}</em><br />
 									<span><a href="{{pos.bill.url}}/report">View Report</a></span>
 								</p>
 							</div>
 						</div>
+						{% else %}
+							<p style="font-size: 12px; font-style: italic; font-family: georgia, serif; line-height: 120%">Too few individuals have commented on this bill to display statistics.</p>						
 						{% endif %}
 				</div>
 				
