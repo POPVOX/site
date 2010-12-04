@@ -5,12 +5,22 @@
 	{% if item|pythontype == 'popvox.models.UserComment' %}
 		<p class="date">{{item.updated|date2}}</p>
 		<p>
-			{{item.user.username}} from {{item.address.state}} wrote a comment
-			{% if item.position == "+" %}in support of{% endif %}{% if item.position == "-" %}in opposition to{% endif %}
+			{{item.user.username}}
+			from
+			{% if can_see_user_details %}
+				{{item.address.city}},
+			{% endif %}
+			{{item.address.state}}
+			{% if item.position == "+" %}
+				supports
+			{% endif %}
+			{% if item.position == "-" %}
+				opposes
+			{% endif %}
 			<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
 			[<a href="{{item.url}}">share</a>]
 		</p>
-		<div style="margin-left: 2em">
+		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
 			{{item.message|wraplines:"p"|truncatewords_html:50}}
 		</div>
 	{% endif %}

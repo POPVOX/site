@@ -436,8 +436,15 @@ def activity_getinfo(request):
 	
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
 	
+	can_see_user_details = False
+	
 	if "default_district" in request.POST:
 		state, district = get_default_statistics_context(request.user)
+		if request.user.userprofile.is_leg_staff():
+			if request.user.legstaffrole.member != None:
+				member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
+				if member != None and member["current"]:
+					can_see_user_details = True
 	
 	filters = { }
 	if state != None:
@@ -456,6 +463,6 @@ def activity_getinfo(request):
 		items.sort(key = lambda x : x.updated, reverse=True)
 		items = items[0:30]
 
-	return render_to_response('popvox/activity_items.html', { "items": items })
+	return render_to_response('popvox/activity_items.html', { "items": items, "can_see_user_details": can_see_user_details })
 
 
