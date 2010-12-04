@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django import forms
 from django.db.models import Count
+from django.db.models.query import QuerySet
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
@@ -94,11 +95,27 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"bills": select_bills(issues=ix)
 			})
 		
+	localbills = get_legstaff_district_bills(user)
+	if len(localbills) > 0:
+		moc = popvox.govtrack.getMemberOfCongress(boss)
+		d = moc["state"] + ("" if moc["type"] == "sen" else str(moc["district"]))
+		suggestions.append({
+			"id": "local",
+			"type": "local",
+			"name": "Hot Bills In Your " + ("State" if moc["type"] == "sen" else "District") + ": " + d,
+			"shortname": "Hot in " + d,
+			"bills": localbills
+			})
+		
 	if counts_only:
-		return [
-				{ "id": s["id"], "shortname": s["shortname"], "count": s["bills"].count() }
-				for s in suggestions if s["bills"].count() > 0
-			]
+		def count(x):
+			if isinstance(x, QuerySet):
+				return x.count()
+			else:
+				return len(x)
+		for s in suggestions:
+			s["count"] = count(s["bills"])
+		return [{"id": s["id"], "shortname": s["shortname"], "count": s["count"] } for s in suggestions if s["count"] > 0]
 
 	# Clear out any groups with no bills. We can call .count() if we just want
 	# a count, but since we are going to evaluate later it's better to evaluate
@@ -143,9 +160,9 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 	myissues = [ix.name for ix in prof.issues.all()]
 	counter = 0
 	for s in suggestions:
-		s["count"] = s["bills"].count()
+		s["count"] = len(s["bills"])
 		
-		if len(s["bills"]) <= 15:
+		if s["count"] <= 15:
 			s["subgroups"] = [ {"bills": s["bills"], "id": counter } ]
 			counter += 1
 		else:
@@ -326,7 +343,6 @@ def home(request):
 				"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
 				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.all()),
 				"suggestions": get_legstaff_suggested_bills(request.user),
-				"district_bills": get_legstaff_district_bills(request.user)
 			},
 			context_instance=RequestContext(request))
 		

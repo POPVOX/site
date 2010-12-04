@@ -135,8 +135,6 @@
 			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Pinned</a></li>
 			
 			{% if districtstr %}
-			<li id="districtbills_tab"><a href="#" onclick="return showtab('districtbills')">Hot <!--In Your {{districtstr}}--></a></li>
-	
 			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments<!-- In Your {{districtstr}}--></a></li>
 			{% endif %}
 	
@@ -311,17 +309,50 @@
 								{% include "popvox/track.html" %}
 								{% endwith %}
 								
+								{% if group.id != "local" %}
 								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
+								{% endif %}
 							</td>
 						</tr>
 						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
-							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="6" style="display: none; padding: 1em">
+							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="6" style="{% if group.id != "local" %}display: none;{% else %}background-color: inherit;{% endif %} padding: 1em">
 								<p>{{bill.status_advanced}}</p>
 								{% for date, text in bill.latest_action_formatted %}
 									{% if date %}
 									<div>{{date}}: {{text}}</div>
 									{% endif %}
 								{% endfor %}
+
+								{% comment %}
+									only pre-load stats for this tab because otherwise we'll make too many db calls
+								{% endcomment %}
+								{% if group.id == "local" %}
+								{% bill_statistics bill as stats %}
+								{% if stats %}
+									<a href="{{bill.url}}/report">
+										<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
+									</a>
+									<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
+									
+									<div class="chart_info">
+										<div class="col_chart">
+											<p class="chart_stats">
+												<span class="chart_title">{{stats.longdescription}}:</span><br />
+												<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
+												<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
+												<span class="users">({{stats.total}} users)</span>
+											</p>
+										 </div>
+										 <div class="col_2 col_last">
+											 <p class="view_report">
+												<span><a href="{{bill.url}}/report">View Report</a></span>
+											</p>
+										</div>
+									</div>
+								{% else %}
+									<p>Not enough users have commented on this bill to display statistics.</p>
+								{% endif %}
+								{% endif %}
 							</td>
 						</tr>
 					{% endfor %}
@@ -353,42 +384,6 @@
 		</div>
 
 		{% if districtstr %}
-			<div id="districtbills_panel" class="tab_panel block your_feed" style="display: none">
-				<h3>Hot In Your {{districtstr}}:</h3>
-				
-				{% for bill in district_bills %}
-					<div>
-						<h4><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></h4>
-						
-						{% bill_statistics bill as stats local %}
-						{% if stats %}
-						<div class="col_chart">
-							<a href="{{bill.url}}/report">
-								<div id="chart-container-district--{{bill.id}}" class="img_chart" style="width: 60px; height: 60px"></div>
-							</a>
-							<script>bill_chart("chart-container-district--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
-						</div>
-						<div class="chart_info">
-							<p class="chart_stats">
-								<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-								<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-								<span class="users">({{stats.total}} constituents)</span>
-							</p>
-						 </div>
-						 <p class="view_report">
-							<span><a href="{{bill.url}}/report">View Report</a></span>
-							<br />
-							<em>{{bill.status_advanced}}</em><br />
-						</p>
-						{% endif %}
-					</div>
-					<div class="hr"> </div>
-				{% empty %}
-					<p>There is no legislation with high comment activity in your {{districtstr|lower}}.</p>
-				{% endfor %}
-				
-			</div>
-			
 			<div id="districtcomments_panel" class="tab_panel block your_feed" style="display: none">
 				<h3>Recent Comments In Your {{districtstr}}:</h3>
 				
