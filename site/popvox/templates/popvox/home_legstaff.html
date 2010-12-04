@@ -315,6 +315,7 @@
 								{% include "popvox/track.html" %}
 								{% endwith %}
 								
+								{% if group.id != "local" %}
 								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
 								{% endif %}
 							</td>
