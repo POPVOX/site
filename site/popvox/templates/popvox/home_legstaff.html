@@ -224,7 +224,7 @@
 			{% empty %}
 				<tr>
 					<td>
-						<p>You have no pinned legislation. Check your automatically tracked legislation {% if suggestions %}below{% endif %} or try changing your <a href="#" onclick="return showtab('suggestions')">tracking settings</a>.</p>
+						<p>You have not pinned any legislation here.</p>
 						
 						{% if suggestions %}
 						<p>You have automatically tracked legislation in the following categories:</p>
@@ -289,7 +289,7 @@
 								</div>
 							</td>
 							<td style="padding-right: 1em">
-								{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endif %}
+								{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endcomment %}
 								{% if bill.num_cosponsors %}
 								<div title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
 									{{bill.num_cosponsors}}
@@ -310,11 +310,11 @@
 								{% include "popvox/track.html" %}
 								{% endwith %}
 								
+								{% if group.id != "local" %}
 								{% with "-" as tracktype %}
 								{% include "popvox/track.html" %}
 								{% endwith %}
 								
-								{% if group.id != "local" %}
 								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
 								{% endif %}
 							</td>
