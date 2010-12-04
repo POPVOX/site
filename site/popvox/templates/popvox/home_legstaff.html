@@ -288,8 +288,13 @@
 									</div>
 								</div>
 							</td>
-							<td style="padding-right: 1em" title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
-								{{bill.num_cosponsors}}
+							<td style="padding-right: 1em">
+								{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endif %}
+								{% if bill.num_cosponsors %}
+								<div title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
+									{{bill.num_cosponsors}}
+								</div>
+								{% endif %}
 							</td>
 							<td style="padding-right: 1em;">
 								<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">

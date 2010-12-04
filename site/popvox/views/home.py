@@ -39,7 +39,7 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			congressnumber=popvox.govtrack.CURRENT_CONGRESS,
 			**kwargs) \
 			.exclude(antitrackedby=prof) \
-			.order_by("billtype", "billnumber") \
+			.order_by("-current_status_date") \
 			.select_related("sponsor", "topterm")
 			
 	boss = user.legstaffrole.member
