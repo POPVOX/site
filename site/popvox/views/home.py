@@ -91,7 +91,7 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"type": "issue",
 			"issue": ix,
 			"name": "Issue Area: " + ix.name,
-			"shortname": ix.name,
+			"shortname": ix.shortname if ix.shortname != None else ix.name,
 			"bills": select_bills(issues=ix)
 			})
 		

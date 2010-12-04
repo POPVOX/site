@@ -27,6 +27,7 @@ class IssueArea(models.Model):
 	"""An issue area."""
 	slug = models.SlugField(db_index=True, unique=True)
 	name = models.CharField(max_length=100)
+	shortname = models.CharField(max_length=16, blank=True, null=True)
 	parent = models.ForeignKey('self', blank=True, null=True, db_index=True, related_name = "subissues")
 	class Meta:
 			ordering = ['name']
