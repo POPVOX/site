@@ -1335,21 +1335,21 @@ tr.bill td a:hover {
 	float: left;
 	background:	url("b_plus.png") no-repeat scroll left top transparent;
 	display: block;
-	width: 20px;
+	width: 16px;
 	height:	16px;
 	margin:	2px 4px 0 0;
 	text-indent: -9999em;
 	}
 
 .billtrack.active {
-	background:	url("b_check.png") no-repeat scroll left top transparent;
+	background:	url("b_check.png") no-repeat scroll left bottom transparent;
 	}
 	
 .billantitrack {
 	float: left;
 	background:	url("b_minus.png") no-repeat scroll left top transparent;
 	display: block;
-	width: 20px;
+	width: 16px;
 	height:	16px;
 	margin:	2px 4px 0 0;
 	text-indent: -9999em;
@@ -1362,7 +1362,7 @@ tr.bill td a:hover {
 	float: left;
 	background:	url("b_expand.png") no-repeat scroll left top transparent;
 	display: block;
-	width: 20px;
+	width: 16px;
 	height:	16px;
 	margin:	2px 4px 0 0;
 	text-indent: -9999em;
@@ -1375,6 +1375,9 @@ tr.bill td a:hover {
 .billtrack:hover, .billantitrack:hover, .expand:hover {
 	cursor: pointer;
 	background-position: left bottom;
+	}
+.flipcolor {
+	width: 60px;
 	}
 .flipcolor .billtrack, .flipcolor .billantitrack, .flipcolor .expand {
 	cursor: pointer;
