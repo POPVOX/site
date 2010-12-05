@@ -1283,8 +1283,16 @@ h3#reporttitle {
 			
 			.horz_tabs li.active a {
 				background: #e47816;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+				-khtml-border-radius: 5px;
+				border-radius: 5px;
 				}
 
+.tab_panel, .content .tab_panel p {
+	font-size: 12px;
+	}
+	
 .tracked_panel a {
 	color: #404045;
 	}
@@ -1313,6 +1321,7 @@ tr.bill.active td {
 tr.billdetails.active td {
 	background-color: #d8d6d0;
 	border-bottom: 1px dotted #666;
+	border-top: 1px solid #E8E5DF;
 	}
 tr.bill.active:hover td {
 	background-color: #d8d6d0;
@@ -1333,7 +1342,7 @@ tr.bill td a:hover {
 
 .billtrack {
 	float: left;
-	background:	url("b_plus.png") no-repeat scroll left top transparent;
+	background:	url("b_bookmark.png") no-repeat scroll left top transparent;
 	display: block;
 	width: 16px;
 	height:	16px;
@@ -1355,7 +1364,7 @@ tr.bill td a:hover {
 	text-indent: -9999em;
 	}
 .billantitrack.active {
-	background:	url("b_plus.png") no-repeat scroll left top transparent;
+	background:	url("b_bookmark.png") no-repeat scroll left top transparent;
 	}
 	
 .expand {
