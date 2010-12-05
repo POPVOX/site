@@ -1,4 +1,4 @@
-    <form method="get" action="/bills/search">
+    <form method="get" action="/bills/search" onsubmit="return !$('#billsearch_q').hasClass('default')">
 		<input id="billsearch_q" type="text" class="search" name="q" value="{{q}}"/>
 		<input class="submit_search btn" type="submit" value="Search"/>
     </form>

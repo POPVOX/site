@@ -221,7 +221,10 @@ def billsearch(request):
 	bills = getbillsfromhash(bills)
 	home.annotate_track_status(request.user.userprofile, bills)
 	if len(bills) == 1:
-		return HttpResponseRedirect(bills[0].url())
+		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
+			return HttpResponseRedirect(bills[0].url() + "/report")
+		else:
+			return HttpResponseRedirect(bills[0].url())
 	return render_to_response('popvox/billsearch.html', {'bills': bills, "q": q, "status": status}, context_instance=RequestContext(request))
 
 def getbill(congressnumber, billtype, billnumber):
