@@ -209,15 +209,17 @@ def billsearch(request):
 			status = "overflow"
 			break
 		try:
-			bill = Bill() # be careful with this object which isn't in the database
-			bill.congressnumber = int(billxml.getElementsByTagName("congress")[0].firstChild.data)
-			bill.billtype = billxml.getElementsByTagName("bill-type")[0].firstChild.data
-			bill.billnumber = int(billxml.getElementsByTagName("bill-number")[0].firstChild.data)
-			bill.title = billxml.getElementsByTagName("title")[0].firstChild.data
-			bills.append(bill)
+			bills.append({
+				"congressnumber": int(billxml.getElementsByTagName("congress")[0].firstChild.data),
+				"billtype": billxml.getElementsByTagName("bill-type")[0].firstChild.data,
+				"billnumber": int(billxml.getElementsByTagName("bill-number")[0].firstChild.data)
+				})
 		except:
 			# Ignore invalid data from the API.
 			pass
+	import home
+	bills = getbillsfromhash(bills)
+	home.annotate_track_status(request.user.userprofile, bills)
 	if len(bills) == 1:
 		return HttpResponseRedirect(bills[0].url())
 	return render_to_response('popvox/billsearch.html', {'bills': bills, "q": q, "status": status}, context_instance=RequestContext(request))

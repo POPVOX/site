@@ -205,7 +205,7 @@ def getbillsfromhash(bills):
 	objs = { }
 	for congressnumber in groups:
 		for billtype in groups[congressnumber]:
-			for bill in Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber__in=groups[congressnumber][billtype]):
+			for bill in Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber__in=groups[congressnumber][billtype]).select_related('sponsor'):
 				objs[bill.govtrack_code()] = bill
 
 	# form the output array
