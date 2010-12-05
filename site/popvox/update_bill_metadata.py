@@ -87,7 +87,7 @@ for fn in glob(DATADIR + "govtrack/us/" + str(CURRENT_CONGRESS) + "/bills/*.xml"
 		
 	# Recent activity.
 	latest_actions = []
-	activity_start = datetime.now() - timedelta(days=700)
+	activity_start = datetime.now() - timedelta(days=7)
 	
 	# New cosponsors?
 	new_cosponsors_date = None # the last date of a new cosponsor
