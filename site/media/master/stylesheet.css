@@ -1412,7 +1412,7 @@ tr.bill td a:hover {
 	
 .billantitrack {
 	float: left;
-	background:	url("b_eye.png") no-repeat scroll left top transparent;
+	background:	url("b_minus.png") no-repeat scroll left top transparent;
 	display: block;
 	width: 16px;
 	height:	16px;
@@ -1420,7 +1420,7 @@ tr.bill td a:hover {
 	text-indent: -9999em;
 	}
 .billantitrack.active {
-	background:	url("b_bookmark.png") no-repeat scroll left top transparent;
+	background:	url("b_plus.png") no-repeat scroll left top transparent;
 	}
 	
 .expand {
