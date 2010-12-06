@@ -129,7 +129,7 @@
 {% block content %}
 <div class="content leg_staff">
 
-	<div class="col_9">
+	<div class="col_9 dash">
 		<ul class="horz_tabs">
 			{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
 			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Bookmarked</a></li>
@@ -137,16 +137,13 @@
 			{% if districtstr %}
 			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments<!-- In Your {{districtstr}}--></a></li>
 			{% endif %}
-	
-			{% for group in suggestions %}
-				{% comment %}see update_tabs above{% endcomment %}
-				<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
-			{% endfor %}
-		
+
+			<li id="issues"><a href="#" onclick="return showtab('issues');">Issues</a></li>
+
 			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Settings</a></li>
 			
 			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');">Hidden</a></li>
-			
+	
 			<div class="clear"> </div>
 			
 			<script>$(function() {
@@ -156,7 +153,15 @@
 				}
 			});</script>
 		</ul>
-
+		
+		<ul class="ul_tags">
+			{% for group in suggestions %}
+				{% comment %}see update_tabs above{% endcomment %}
+				<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+			{% endfor %}
+		</ul>
+		<div class="clear"> </div>
+		
 		<div id="tracked_panel" class="tab_panel">
 			<h2>Bookmarked Legislation</h2>
 			
@@ -165,16 +170,16 @@
 				<tr class="billbeingtracked" billid="{{bill.id}}">
 					<td style="padding-right: 1em";>
 						<div style="width: 500px; overflow: hidden; " title="{{bill.title}}">
-							<div style="width: 1000px; height: 1em;">
+							<h4>
 								<a href="{{bill.url}}/report">
 									{{bill.title}}
 								</a>
-							</div>
+							</h4>
 						</div>
 					</td>
 					<td style="padding-right: 1em;">
 						<div style="width: 75px; overflow: hidden;" title="{{bill.sponsor.name}}">
-							<div style="width: 1000px; height: 1em;">
+							<div style="height: 1em;">
 								({{bill.sponsor.lastname}})
 							</div>
 						</div>
@@ -185,7 +190,7 @@
 						{% endwith %}
 					</td>
 				</tr>
-				<tr class="billbeingtracked" billid="{{bill.id}}">
+				<tr class="billbeingtracked tracked_detail" billid="{{bill.id}}">
 					<td colspan="3" style="padding: .5em">
 						{% bill_statistics bill as stats local %}
 						{% if stats %}
@@ -210,7 +215,7 @@
 								</div>
 							</div>
 						{% else %}
-							<p>Too few constituents {% if districtstr %}in your {{districtstr|lower}}{% endif %} have commented on this bill to display statistics.</p>
+							<small>Too few constituents {% if districtstr %}in your {{districtstr|lower}}{% endif %} have commented on this bill to display statistics.</small>
 						{% endif %}
 	
 						<p>{{bill.status_advanced}}</p>

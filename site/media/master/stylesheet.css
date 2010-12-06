@@ -20,7 +20,7 @@ Author: william donnell and joshua tauberer
 */	
 
 
-			/* Global Layout */
+			/* ----Global Layout---- */
 
 
 body 
@@ -223,7 +223,7 @@ body.land {
 		}
 
 
-/* typography */
+/* ----typography---- */
 
 p {
 	font: normal 13px/18px helvetica, arial, sans-serif;
@@ -420,7 +420,7 @@ p {
 		padding-bottom: 15px;
 		}
 					
-/* bill status */
+/* ----bill status---- */
 #bill_endorse_oppose_holder {
 	margin: .5em 0 10px 50px;
 	}
@@ -477,7 +477,7 @@ p {
 	margin-left: 20px;
 }
 
-/* bill list */
+/* ----bill list---- */
 
 .hot_bills {
 	background: url(bg_bill_hot.png) left no-repeat;
@@ -697,7 +697,7 @@ p {
 
 
 
-/* legislative report classes */
+/* ----legislative report classes---- */
 .sponsor_status {
 	margin-top: 5px;
 	}
@@ -833,7 +833,7 @@ h3#reporttitle {
 		margin-bottom: 10px;
 		}
 
-/* org profile classes */
+/* ----org profile classes---- */
 
 	.content .col_6 {
 		border-top: none;
@@ -1144,7 +1144,7 @@ h3#reporttitle {
 			}
 
 
-/* new user bill */
+/* ----new user bill---- */
 .cookie-less {
 	background: #D3D0C9;
 	}
@@ -1257,17 +1257,18 @@ h3#reporttitle {
 
 
 
-/* leg staff dashboard
-.leg_staff {
-	background: url("_temp_legstaff_bg.jpg") 2px 60px no-repeat;
-	} */
+/* ----leg staff dashboard---- */		 
+.dash h2 {
+	border-top: 1px dotted #666666;
+	padding-top: 15px;
+	} 
 
 .horz_tabs {
 	background: #434247;
 	display: block;
 	padding: 6px 0 8px;
 	font-size: 12px;
-	margin-bottom: 2em;
+	margin-bottom: 1em;
 	}
 	
 	.horz_tabs li {
@@ -1281,13 +1282,37 @@ h3#reporttitle {
 			color: #fff;
 			}
 			
-			.horz_tabs li.active a {
+			.horz_tabs li.active a, .horz_tabs li a:hover {
 				background: #e47816;
 				-moz-border-radius: 5px;
 				-webkit-border-radius: 5px;
 				-khtml-border-radius: 5px;
 				border-radius: 5px;
 				}
+
+ul.ul_tags {
+	margin-bottom: 10px;
+	font-size: 12px;
+	margin-bottom: 2em;
+	}
+	
+.ul_tags li {
+	float: left;
+	display: block;
+	margin: 4px 10px 13px 0;
+	}
+	
+	.ul_tags li a {
+		padding: 4px;
+		background: #c7c4c1;
+		color: #454545;
+		}
+		
+		.ul_tags li.active a, .ul_tags li a:hover {
+			background: #e47816;
+			color: #fff;
+			}
+
 
 .tab_panel, .content .tab_panel p {
 	font-size: 12px;
@@ -1301,6 +1326,11 @@ h3#reporttitle {
 		color: #CC6A11;
 		text-decoration: none;
 		}
+
+.tracked_detail {
+	background: url(bg_hr.png) left bottom repeat-x;
+	}
+
 
 thead th {
 	text-transform: lowercase;
@@ -1392,6 +1422,11 @@ tr.bill td a:hover {
 	cursor: pointer;
 	background-position: left bottom;
 	}
+	
+	.billbeingtracked .flipcolor {
+		width: 20px;
+		}
+
 .flipcolor .billtrack:hover, .flipcolor .billantitrack:hover, .flipcolor .expand:hover {
 	cursor: pointer;
 	background-position: left top;
@@ -1667,7 +1702,7 @@ h1.h1_smaller {
 		}
 		
 
-/* share */
+/* ----share---- */
 .share_chart {
 	}
 	
@@ -1679,12 +1714,12 @@ h1.h1_smaller {
 	font: italic normal 14px georgia, serif;
 	}
 
-/* campaigns */
+/* ----campaigns---- */
 .userrichtextcontent p, li {
 	}		
 		
 		
-/* dashboard */
+/* ----dashboard---- */
 .content .col_6 .leg_agenda h3 {
 	padding: 20px 0 10px;
 	margin-top: 0;
@@ -1825,7 +1860,7 @@ p.b_edit a {
 	}
 	
 	
-/* legislation */
+/* ----legislation---- */
 .content ul.support_oppose li span {
 	margin-top: 5px;
 	font-size: .9em;
@@ -1932,7 +1967,7 @@ ul#issuearealist {
 	}
 	
 	
-/* user dashboard */
+/* ----user dashboard---- */
 
 
 
@@ -1940,7 +1975,7 @@ ul#issuearealist {
 
 
 		
-/* about */
+/* ----about---- */
 .team h2, .section_btm h2 {
 	font: normal 30px/20px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	letter-spacing: .02em;
@@ -1988,7 +2023,7 @@ ul#issuearealist {
 	}
 
 
-/* landing */
+/* ----landing---- */
 	
 	h1#landing{
 		background: url(your_voice_verified_quantified_amplified.gif) left top no-repeat;
@@ -2281,7 +2316,7 @@ ul#issuearealist {
 				width: 165px;
 				}
 
-/* login */	
+/* ----login---- */	
 		.login {
 			padding: 15px;
 			margin-bottom: 20px;
@@ -2668,7 +2703,7 @@ ul#issuearealist {
 				background-position: left bottom;
 				}
 				
-/* more social */
+/* ----more social---- */
 
 .referred {
 	background: #D3D0C9;
@@ -2802,7 +2837,7 @@ ul.social_share_btns li {
 		
 
 	
-/* edit page */
+/* ----edit page---- */
 
 .col_9.col_plus {
 	width: 700px;
@@ -2998,7 +3033,7 @@ ul.staff, .small {
 	}
 	
 	
-/* misc */
+/* ----misc---- */
 	a.btn.active {
 		background-position: left bottom;
 		}
@@ -3357,7 +3392,7 @@ ul.staff, .small {
 */
 
 
-/* orgs */
+/* ----orgs---- */
 .content .orgs h2 {
 	font: normal 30px/35px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	letter-spacing: .02em;
@@ -3416,7 +3451,7 @@ ul.org_all .notcreatedbyus {
 
 
 
-/*  org custom landing page  */
+/* ---- org custom landing page ---- */
 
 .org_custom h1 {
 	color: #CC6A11;
