@@ -573,6 +573,14 @@ p {
 	width: 460px;
 	}
 	
+	.col_3 .search_orange .search_box {
+		width: 220px;
+		}
+		
+		.col_3 .search_orange .search {
+			margin: 0 0 5px 15px;
+			}
+	
 	.search_orange .search_box.search_wide {
 		width: 700px;
 		} 
@@ -798,12 +806,19 @@ h3#reporttitle {
 			}
 			
 			.comments h4 .location, .comments h4 .date {
-				font: normal 14px/24px helvetica, san-serif;
+				font: normal 12px/24px helvetica, san-serif;
 				}
+				
+				.comments h4 .date {
+					background: #d4d1ca;
+					float: right;
+					padding: 0 4px;
+					}
 
 		.comments p {
 			font: italic normal 13px/18px georgia, serif;
 			margin-bottom: 15px;
+			padding-left: 45px;
 			}
 	
 	.legreport .search_box {
@@ -1011,7 +1026,7 @@ h3#reporttitle {
 		
 	.endorse_oppose_image {
 		float: left;
-		margin: 0 10px 0 0;
+		margin: 5px 10px 0 0;
 		width: 35px;
 		height: 32px;
 		}
@@ -1037,7 +1052,8 @@ h3#reporttitle {
 			}
 
 	.share {
-		
+		margin: -10px 0 15px 30px;
+		display: block;
 		}
 		
 	.share a {
@@ -1261,6 +1277,7 @@ h3#reporttitle {
 .dash h2 {
 	border-top: 1px dotted #666666;
 	padding-top: 15px;
+	margin-top: 10px;
 	} 
 
 .horz_tabs {
@@ -1268,7 +1285,7 @@ h3#reporttitle {
 	display: block;
 	padding: 6px 0 8px;
 	font-size: 12px;
-	margin-bottom: 1em;
+	margin-bottom: 4px;
 	}
 	
 	.horz_tabs li {
@@ -1299,7 +1316,7 @@ ul.ul_tags {
 .ul_tags li {
 	float: left;
 	display: block;
-	margin: 4px 10px 13px 0;
+	margin: 4px 4px 8px 0;
 	}
 	
 	.ul_tags li a {
@@ -1317,6 +1334,14 @@ ul.ul_tags {
 .tab_panel, .content .tab_panel p {
 	font-size: 12px;
 	}
+	
+	.tab_panel, .content .tab_panel p.date {
+		font-size: 11px;
+		}
+	
+	.tab_panel .endorse p {
+		font: italic normal 13px/18px georgia, serif;
+		}
 	
 .tracked_panel a {
 	color: #404045;
@@ -1340,6 +1365,7 @@ thead th {
 tr.bill td {
 	padding: 2px 0;
 	border-bottom: 1px dotted #666;
+	font-size: 12px;
 	}
 tr.bill:hover td {
 	background-color: #d9d6d2;
@@ -1386,7 +1412,7 @@ tr.bill td a:hover {
 	
 .billantitrack {
 	float: left;
-	background:	url("b_minus.png") no-repeat scroll left top transparent;
+	background:	url("b_eye.png") no-repeat scroll left top transparent;
 	display: block;
 	width: 16px;
 	height:	16px;
@@ -1415,24 +1441,37 @@ tr.bill td a:hover {
 	cursor: pointer;
 	background-position: left bottom;
 	}
-.flipcolor {
-	width: 60px;
+	
+.bill .flipcolor .billtrack, .bill .flipcolor .billantitrack, .bill .flipcolor .expand  {
+	background-position: left -100px;
 	}
-.flipcolor .billtrack, .flipcolor .billantitrack, .flipcolor .expand {
-	cursor: pointer;
-	background-position: left bottom;
-	}
+	
+	.bill:hover .flipcolor .billtrack, .bill:hover .flipcolor .billantitrack, .bill:hover .flipcolor .expand,
+	.active .flipcolor .billtrack, .active .flipcolor .billantitrack, .active .flipcolor .expand  {
+		background-position: left bottom;
+		}
+		
+	.flipcolor {
+		width: 60px;
+		}
+	.flipcolor .billtrack, .flipcolor .billantitrack, .flipcolor .expand {
+		cursor: pointer;
+		background-position: left bottom;
+		}
 	
 	.billbeingtracked .flipcolor {
 		width: 20px;
 		}
 
-.flipcolor .billtrack:hover, .flipcolor .billantitrack:hover, .flipcolor .expand:hover {
-	cursor: pointer;
-	background-position: left top;
+	.flipcolor .billtrack:hover, .flipcolor .billantitrack:hover, .flipcolor .expand:hover {
+		cursor: pointer;
+		background-position: left top;
+		}
+
+.content p span.username {
+	font-weight: bold;
+	font-size: 16px;
 	}
-
-
 
 
 
@@ -3643,8 +3682,10 @@ table.form_fields td {
 }
 .bullets li {
 	display: list-item;
-	list-style: square;
-	margin: 0 0 .5em 2em;
+	list-style: none;
+	background: url(bullet.png) left .4em no-repeat;
+	margin: 0 0 .5em 1em;
+	padding-left: 1em;
 	font: normal 13px/18px helvetica, arial, sans-serif;
 }
 

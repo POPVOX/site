@@ -132,15 +132,15 @@
 	<div class="col_9 dash">
 		<ul class="horz_tabs">
 			{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
-			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')">Bookmarked</a></li>
+			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')" title="bills you have bookmarked">Bookmarked</a></li>
 			
 			{% if districtstr %}
-			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments<!-- In Your {{districtstr}}--></a></li>
+			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')" title="recent comments from your district">Comments<!-- In Your {{districtstr}}--></a></li>
 			{% endif %}
 
-			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Settings</a></li>
+			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')" title="change settings of what is shown here">Settings</a></li>
 			
-			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');">Hidden</a></li>
+			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');" title="bills you have hidden">Hidden</a></li>
 	
 			<div class="clear"> </div>
 			
@@ -457,9 +457,11 @@
 	{% include "ads/rightbar.html" %}
 
 	<div class="col_3 col_last">
-		<div class="search_box">
-			<h4 style="margin-top: 0">Search Legislation</h4> 
-			{% include "popvox/billsearch_form.html" %}
+		<div class="search_orange">
+			<div class="search_box">
+				<p><strong>Bill Search</strong></p> 
+				{% include "popvox/billsearch_form.html" %}
+			</div>
 		</div>
 	</div>
 </div>

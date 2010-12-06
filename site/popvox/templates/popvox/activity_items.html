@@ -5,7 +5,7 @@
 	{% if item|pythontype == 'popvox.models.UserComment' %}
 		<p class="date">{{item.updated|date2}}</p>
 		<p>
-			{{item.user.username}}
+			<span class="username">{{item.user.username}}</span>
 			from
 			{% if can_see_user_details %}
 				{{item.address.city}},
