@@ -376,11 +376,9 @@
 		
 		<div id="suggestions_panel" class="tab_panel" style="display: none">
 			<h2>Automatic Tracking Settings</h2>
-			<p>POPVOX automatically tracks legislation relevant to you based on your <a href="/accounts/profile">account settings</a> and the issue areas you choose that are relevant to your policy work.</p>
+			<p>POPVOX automatically tracks legislation relevant to you based on your <a href="/accounts/profile">account settings</a> and the issue areas you choose that are relevant to your policy work:</p>
 			{% if suggestions|length == 0 %}<p>Right now you don&rsquo;t have any automatically tracked legislation.</p>{% endif %}
 			
-			<h3>Interest Areas</h3>
-			<p>Customize your automatically tracked legislation by choosing topic areas.</p>
 			<ul id="issuearealist" class="bullets">
 				{% for ix in user.userprofile.issues.all %}
 					<li>{{ ix.name }}</li>
@@ -391,13 +389,11 @@
 			</ul>
 			
 			{% include "popvox/issueareachooser.html" %}	
-			
-			<p>We will be adding more here in the future.</p>
 		</div>
 
 		{% if districtstr %}
 			<div id="districtcomments_panel" class="tab_panel block your_feed" style="display: none">
-				<h3>Recent Comments In Your {{districtstr}}:</h3>
+				<h2>Recent Comments In Your {{districtstr}}</h2>
 				
 				<div id="activityloadingstatus"></div>
 				

@@ -21,7 +21,7 @@
 			[<a href="{{item.url}}">share</a>]
 		</p>
 		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
-			{{item.message|wraplines:"p"|truncatewords_html:50}}
+			{{item.message|wraplines:"p"|truncatewords_html:150}}
 		</div>
 	{% endif %}
 	
