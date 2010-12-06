@@ -24,7 +24,7 @@
 		}
 		
 		$('.tab_panel').hide();
-		$('.horz_tabs li').removeClass('active');
+		$('.horz_tabs li, .ul_tags li').removeClass('active');
 		$('#' + tab + "_panel").fadeIn();
 		$('#' + tab + '_tab').addClass('active')
 		return false; // cancel click
@@ -117,7 +117,7 @@
 					var t = document.createTextNode(ret.tabs[tab].shortname + " (" + ret.tabs[tab].count + ")");
 					a.appendChild(t);
 					
-					$('#suggestions_tab').before(n);
+					$('.ul_tags').append(n);
 				}
 				
 				if (curtab) $('#' + curtab).addClass("active");
@@ -137,8 +137,6 @@
 			{% if districtstr %}
 			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')">Comments<!-- In Your {{districtstr}}--></a></li>
 			{% endif %}
-
-			<li id="issues"><a href="#" onclick="return showtab('issues');">Issues</a></li>
 
 			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')">Settings</a></li>
 			
