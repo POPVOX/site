@@ -440,9 +440,9 @@ def getCommitteeList():
 		
 		hs = ""
 		if node.getAttribute("type") == "house":
-			hs = "House "
+			hs = "H."
 		if node.getAttribute("type") == "senate":
-			hs = "Senate "
+			hs = "S."
 		
 		if node.nodeName == "committee":
 			c = { "id": node.getAttribute("code"),

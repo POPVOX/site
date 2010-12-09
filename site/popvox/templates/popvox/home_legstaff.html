@@ -10,6 +10,7 @@
 	function showtab(tab) {
 		if ($('#' + tab + '_tab').hasClass('active')) return false;
 
+		{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
 		if (tab == "tracked" && tracked_bills_changed) {
 			window.location = '/home';
 			return true;
@@ -96,7 +97,12 @@
 					$('#suggestions').append(n);
 				}
 				
-				if (curtab) $('#' + curtab).addClass("active");
+				if (curtab) {
+					if ($('#' + curtab)[0])
+						$('#' + curtab).addClass("active");
+					else
+						showtab("tracked");
+				}
 			}
 		});
 	}
@@ -107,13 +113,10 @@
 
 	<div class="col_9 dash">
 		<ul class="horz_tabs">
-			{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
-			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')" title="bills you have bookmarked">Bookmarked</a></li>
-			
 			<div id="suggestions">
 				{% for group in suggestions %}
 					{% comment %}see update_tabs above{% endcomment %}
-					<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+					<li id="{{group.id}}_tab" class="suggestiontab {% if forloop.first %}active{% endif %}"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
 				{% endfor %}
 			</div>
 			
@@ -133,94 +136,26 @@
 		
 		<div class="clear"> </div>
 		
-		<div id="tracked_panel" class="tab_panel">
-			<h2>Bookmarked Legislation</h2>
+		{% for group in suggestions %}
+			<div id="{{group.id}}_panel" class="tab_panel"  {% if not forloop.first %}style="display: none"{% endif %}>
+				<h2>{{group.name}}</h2>
 			
-			<table width="100%">
-			{% for bill in tracked_bills %}
-				<tr class="billbeingtracked" billid="{{bill.id}}">
-					<td style="padding-right: 1em";>
-						<div style="width: 500px; overflow: hidden; " title="{{bill.title}}">
-							<h4>
-								<a href="{{bill.url}}/report">
-									{{bill.title}}
-								</a>
-							</h4>
-						</div>
-					</td>
-					<td style="padding-right: 1em;">
-						<div style="width: 75px; overflow: hidden;" title="{{bill.sponsor.name}}">
-							<div style="height: 1em;">
-								({{bill.sponsor.lastname}})
-							</div>
-						</div>
-					</td>
-					<td class="flipcolor">
-						{% with "+" as tracktype %}
-						{% include "popvox/track.html" %}
-						{% endwith %}
-					</td>
-				</tr>
-				<tr class="billbeingtracked tracked_detail" billid="{{bill.id}}">
-					<td colspan="3" style="padding: .5em">
-						{% bill_statistics bill as stats local %}
-						{% if stats %}
-							<a href="{{bill.url}}/report">
-								<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-							</a>
-							<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
-							
-							<div class="chart_info">
-								<div class="col_chart">
-									<p class="chart_stats">
-										<span class="chart_title">{{stats.longdescription}}:</span><br />
-										<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-										<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-										<span class="users">({{stats.total}} users)</span>
-									</p>
-								 </div>
-								 <div class="col_2 col_last">
-									 <p class="view_report">
-										<span><a href="{{bill.url}}/report">View Report</a></span>
-									</p>
-								</div>
-							</div>
-						{% else %}
-							<small>Too few constituents {% if districtstr %}in your {{districtstr|lower}}{% endif %} have commented on this bill to display statistics.</small>
-						{% endif %}
-	
-						<p>{{bill.status_advanced}}</p>
-						{% for date, text in bill.latest_action_formatted %}
-							{% if date %}
-							<div>{{date}}: {{text}}</div>
+				{% if group.id == "tracked" and group.count == 0 %}
+					<p>You have not bookmarked any legislation here.</p>
+					
+					{% if suggestions|length > 1 %}
+					<p>You have automatically tracked legislation in the following categories:</p>
+					<ul class="bullets">
+						{% for group in suggestions %}
+							{% if group.id != "tracked" %}
+								<li><a href="#" onclick="return showtab('{{group.id}}')">{{group.name}} ({{group.count}} bill{{group.count|pluralize}})</a></li>
 							{% endif %}
 						{% endfor %}
-					</td>
-				</tr>
-			{% empty %}
-				<tr>
-					<td>
-						<p>You have not bookmarked any legislation here.</p>
-						
-						{% if suggestions %}
-						<p>You have automatically tracked legislation in the following categories:</p>
-						<ul class="bullets">
-							{% for group in suggestions %}
-								<li><a href="#" onclick="return showtab('{{group.id}}')">{{group.name}} ({{group.count}} bill{{group.count|pluralize}})</a></li>
-							{% endfor %}
-						</ul>
-						<p>Click the plus sign next to a bill on those pages to add it to this bookmarked legislation section.</p>
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-			</table>
-		</div>
-		
-		{% for group in suggestions %}
-			<div id="{{group.id}}_panel" class="tab_panel" style="display: none">
-				<h2>{{group.name}}</h2>
-
+					</ul>
+					<p>Click the bookmark icon next to a bill on those tabs to add it to this bookmarked legislation section.</p>
+					{% endif %}
+				{% endif %}
+				
 				<table width="100%">
 				{% comment %}
 				<thead>
@@ -236,7 +171,7 @@
 				
 				{% for subgroup in group.subgroups %}
 					<tr>
-						<td colspan="5">
+						<td colspan="7">
 							<h4>{{subgroup.name}}</h4>
 						</td>
 					</tr>
@@ -256,13 +191,15 @@
 									</div>
 								</div>
 							</td>
-							<td style="padding-right: 1em;">
-								<div style="width: 75px; overflow: hidden;" title="{{bill.sponsor.name}}">
+							<td style="padding-right: .25em;">
+								<div style="width: 65px; overflow: hidden;" title="{{bill.sponsor.name}}">
 									<div style="width: 1000px; height: 1.2em;">
-										{{bill.sponsor.party}} | 
 										{{bill.sponsor.lastname}}
 									</div>
 								</div>
+							</td>
+							<td style="padding-right: 1em;">
+								({{bill.sponsor.party}})
 							</td>
 							<td style="padding-right: 1em">
 								{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endcomment %}
@@ -273,7 +210,6 @@
 								{% endif %}
 							</td>
 							<td style="padding-right: 1em;">
-								{% if group.id != "local" %}
 								<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
 									<div style="width: 1000px; height: 1.2em;">
 										<a href="#" onclick="return expando('{{subgroup.id}}_{{bill.id}}')">
@@ -281,7 +217,6 @@
 										</a>
 									</div>
 								</div>
-								{% endif %}
 							</td>
 							<td class="flipcolor">
 								{% with "+" as tracktype %}
@@ -292,18 +227,15 @@
 								{% with "-" as tracktype %}
 								{% include "popvox/track.html" %}
 								{% endwith %}
+								{% endif %}
 								
 								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
-								{% endif %}
 							</td>
 						</tr>
 						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
-							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="6" style="{% if group.id != "local" %}display: none;{% else %}background-color: inherit;{% endif %} padding: 1em">
+							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="background-color: inherit; padding: 1em">
 								<div style="width: 275px; float: right">
 									{% comment %}
-										only pre-load stats for this tab because otherwise we'll make too many db calls
-									{% endcomment %}
-									{% if group.id == "local" %}
 									{% bill_statistics bill as stats local %}
 									{% if stats %}
 										<div style="width: 90px; float: left">
@@ -330,6 +262,7 @@
 										<small>Too few constituents in your {{districtstr|lower}} have commented on this bill to display statistics.</small>
 									{% endif %}
 									{% endif %}
+									{% endcomment %}
 								</div>
 								
 								<p>Status: {{bill.status_advanced}}</p>

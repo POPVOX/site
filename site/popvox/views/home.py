@@ -48,6 +48,14 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 	else:
 		bossname = ""
 	
+	suggestions.append({
+		"id": "tracked",
+		"type": "tracked",
+		"name": "Bookmarked Legislation",
+		"shortname": "Bookmarked",
+		"bills": prof.tracked_bills.all()
+		})
+	
 	if boss != None:
 		suggestions.append({
 			"id": "sponsor",
@@ -115,12 +123,12 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 				return len(x)
 		for s in suggestions:
 			s["count"] = count(s["bills"])
-		return [{"id": s["id"], "shortname": s["shortname"], "count": s["count"] } for s in suggestions if s["count"] > 0]
+		return [{"id": s["id"], "shortname": s["shortname"], "count": s["count"] } for s in suggestions if s["count"] > 0 or s["id"] == "tracked"]
 
 	# Clear out any groups with no bills. We can call .count() if we just want
 	# a count, but since we are going to evaluate later it's better to evaluate
 	# it once here so the result is cached.
-	suggestions = [s for s in suggestions if len(s["bills"]) > 0]
+	suggestions = [s for s in suggestions if len(s["bills"]) > 0 or s["id"] == "tracked"]
 
 	def concat(lists):
 		ret = []
@@ -340,7 +348,6 @@ def home(request):
 						"" if member == None or not member["current"] else (
 							"State" if member["type"] == "sen" else "District"
 							),
-				"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
 				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.all()),
 				"suggestions": get_legstaff_suggested_bills(request.user),
 			},
