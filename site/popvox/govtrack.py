@@ -101,6 +101,19 @@ def getMembersOfCongressForDistrict(district, moctype="all"):
 	if moctype in ("all", "rep") and district in congresspeople:
 		ret.append( people[congresspeople[district]] )
 	return ret
+	
+def getStateReps():
+	statereps = { }
+	for abbr in stateabbrs:
+		statereps[abbr] = []
+		if stateapportionment[abbr] == 1:
+			continue
+		for d in xrange(stateapportionment[abbr]):
+			try:
+				statereps[abbr].append( getMembersOfCongressForDistrict(abbr + str(d+1), "rep")[0]["lastname"] )
+			except:
+				statereps[abbr].append("vacant")
+	return statereps
 
 def getBillMetadata(bill):
 	id = str(bill.congressnumber) + ":" + bill.billtype + ":" + str(bill.billnumber)

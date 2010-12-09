@@ -424,7 +424,8 @@ def activity(request):
 			"default_state": default_state if default_state != None else "",
 			"default_district": default_district if default_district != None else "",
 			"stateabbrs": 
-				[ (abbr, govtrack.statenames[abbr], govtrack.stateapportionment[abbr]) for abbr in govtrack.stateabbrs],
+				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
+			"statereps": govtrack.getStateReps(),
 			"count_users": User.objects.all().count(),
 			"count_users_verified": pntv,
 			"count_comments": UserComment.objects.all().count(),

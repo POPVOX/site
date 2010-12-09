@@ -19,7 +19,7 @@ import urllib2
 
 from popvox.models import *
 from registration.helpers import captcha_html, validate_captcha
-from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, open_govtrack_file, statenames
+from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, open_govtrack_file, statenames, getStateReps
 from emailverification.utils import send_email_verification
 from utils import formatDateTime
 
@@ -1053,17 +1053,6 @@ def billreport(request, congressnumber, billtype, billnumber):
 		if not pos.campaign.org in lst:
 			lst.append(pos.campaign.org)
 		
-	statereps = { }
-	for abbr in govtrack.stateabbrs:
-		statereps[abbr] = []
-		if govtrack.stateapportionment[abbr] == 1:
-			continue
-		for d in xrange(govtrack.stateapportionment[abbr]):
-			try:
-				statereps[abbr].append( govtrack.getMembersOfCongressForDistrict(abbr + str(d+1), "rep")[0]["lastname"] )
-			except:
-				statereps[abbr].append("vacant")
-
 	return render_to_response('popvox/bill_report.html', {
 			'bill': bill,
 			"orgs_supporting": orgs_support,
@@ -1072,7 +1061,7 @@ def billreport(request, congressnumber, billtype, billnumber):
 			"default_district": default_district if default_district != None else "",
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
-			"statereps": statereps,
+			"statereps": getStateReps(),
 		}, context_instance=RequestContext(request))
 	
 @json_response
