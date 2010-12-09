@@ -132,9 +132,9 @@
 				{% comment %} On the homepage, this is replaced by Verified, Quantified, ... {% endcomment %}
 			<ul id="nav_2"> 
 				{% if user.userprofile.is_leg_staff %}
-					<li class="{%block nav_legstaff_class_dashboard%}{%endblock%}"><a href="/home">Dashboard</a></li>
+					<li class="{%block nav_legstaff_class_dashboard%}{%endblock%}"><a href="/home">Legislation</a></li>
+					<li class="{%block nav_legstaff_class_comments%}{%endblock%}"><a href="/activity">Comments</a></li>
 					<li class="last {%block nav_legstaff_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
-					<li class="last {%block nav_legstaff_class_bills%}{%endblock%}"><a href="/bills">Legislation</a></li>
 				{% endif %}
 				{% if user.userprofile.is_org_admin %}
 					<li class="{%block nav_orgadmin_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>

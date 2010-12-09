@@ -65,7 +65,7 @@ def loadpeople():
 				people[int(node.getAttribute("id"))]["current"] = True
 				people[int(node.getAttribute("id"))]["type"] = role.getAttribute("type")
 				people[int(node.getAttribute("id"))]["state"] = role.getAttribute("state")
-				people[int(node.getAttribute("id"))]["district"] = role.getAttribute("district")
+				people[int(node.getAttribute("id"))]["district"] = int(role.getAttribute("district")) if role.getAttribute("type") == "rep" else None
 			
 				if role.getAttribute("type") == "sen":
 					if not role.getAttribute("state") in senators:

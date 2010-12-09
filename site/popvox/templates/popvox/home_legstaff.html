@@ -69,30 +69,6 @@
 		return false; // cancel click
 	}
 	
-	{% if districtstr %}
-	function show_activity() {
-		$('#activityloadingstatus').text("Loading...");
-		$.ajax({
-			type:"POST",
-			url: "/ajax/activity",
-			data: {
-				default_district: 1,
-			},
-			complete: function(res, status) {
-				$('#activityloadingstatus').text("");
-				
-				if (status != "success") {
-					$('#activityloadingstatus').text("Error loading report.");
-					return;
-				}
-				
-				$('#activity').html(res.responseText);
-			}
-		});
-	}
-	$(show_activity);
-	{% endif %}
-	
 	{% with "1" as leg_staff_home_tabs %}
 	{% include "popvox/track.js" %}
 	{% endwith %}
@@ -117,7 +93,7 @@
 					var t = document.createTextNode(ret.tabs[tab].shortname + " (" + ret.tabs[tab].count + ")");
 					a.appendChild(t);
 					
-					$('.ul_tags').append(n);
+					$('#suggestions').append(n);
 				}
 				
 				if (curtab) $('#' + curtab).addClass("active");
@@ -134,10 +110,13 @@
 			{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
 			<li class="active" id="tracked_tab"><a href="/home" onclick="return showtab('tracked')" title="bills you have bookmarked">Bookmarked</a></li>
 			
-			{% if districtstr %}
-			<li id="districtcomments_tab"><a href="#" onclick="return showtab('districtcomments')" title="recent comments from your district">Comments<!-- In Your {{districtstr}}--></a></li>
-			{% endif %}
-
+			<div id="suggestions">
+				{% for group in suggestions %}
+					{% comment %}see update_tabs above{% endcomment %}
+					<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+				{% endfor %}
+			</div>
+			
 			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')" title="change settings of what is shown here">Settings</a></li>
 			
 			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');" title="bills you have hidden">Hidden</a></li>
@@ -152,12 +131,6 @@
 			});</script>
 		</ul>
 		
-		<ul class="ul_tags">
-			{% for group in suggestions %}
-				{% comment %}see update_tabs above{% endcomment %}
-				<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
-			{% endfor %}
-		</ul>
 		<div class="clear"> </div>
 		
 		<div id="tracked_panel" class="tab_panel">
@@ -389,16 +362,6 @@
 			
 			{% include "popvox/issueareachooser.html" %}	
 		</div>
-
-		{% if districtstr %}
-			<div id="districtcomments_panel" class="tab_panel block your_feed" style="display: none">
-				<h2>Recent Comments In Your {{districtstr}}</h2>
-				
-				<div id="activityloadingstatus"></div>
-				
-				<div id="activity"></div>
-			</div>
-		{% endif %}
 		
 		<div id="hidden_panel" class="tab_panel" style="display: none">
 			<h2>Legislation You&rsquo;ve Hidden</h2>

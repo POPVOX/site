@@ -437,13 +437,12 @@ def activity_getinfo(request):
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
 	
 	can_see_user_details = False
-	
-	if "default_district" in request.POST:
-		state, district = get_default_statistics_context(request.user)
-		if request.user.userprofile.is_leg_staff():
-			if request.user.legstaffrole.member != None:
-				member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
-				if member != None and member["current"]:
+	if request.user.userprofile.is_leg_staff():
+		if request.user.legstaffrole.member != None:
+			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
+			if member != None and member["current"]:
+				def_state, def_district = get_default_statistics_context(request.user)
+				if def_state == state and def_district == district:
 					can_see_user_details = True
 	
 	filters = { }
