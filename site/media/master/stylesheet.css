@@ -1278,7 +1278,13 @@ h3#reporttitle {
 	border-top: 1px dotted #666666;
 	padding-top: 15px;
 	margin-top: 10px;
-	} 
+	font: normal 30px/35px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	letter-spacing: .02em;
+	}
+	
+	.dash h4 a {
+		color: #CC6A11;
+		}
 
 .horz_tabs {
 	background: #434247;
@@ -1339,7 +1345,7 @@ ul.ul_tags {
 		font-size: 11px;
 		}
 	
-	.tab_panel .endorse p {
+	.tab_panel .endorse p, .tab_panel .oppose p  {
 		font: italic normal 13px/18px georgia, serif;
 		}
 	
@@ -1395,6 +1401,15 @@ tr.bill td a:hover {
 	height: 16px;
 	}
 
+.b_add_edit_issues {
+	display: block;
+	border: 0;
+	text-indent: -9999em;
+	width: 202px;
+	height: 47px;
+	margin-top: 10px;
+	background: url(b_add_edit_issues.png) left top no-repeat;
+	}
 
 .billtrack {
 	float: left;

@@ -354,7 +354,7 @@
 											</div>
 										</div>
 									{% else %}
-										<p style="font-size: 12px; font-style: italic; font-family: georgia, serif; line-height: 120%">Too few constituents in your {{districtstr|lower}} have commented on this bill to display statistics.</p>
+										<small>Too few constituents in your {{districtstr|lower}} have commented on this bill to display statistics.</small>
 									{% endif %}
 									{% endif %}
 								</div>
@@ -384,9 +384,8 @@
 					<li>{{ ix.name }}</li>
 				{% endfor %}
 			</ul>
-			<ul class="bullets">
-				<li><a href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { window.location.reload() });">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a></li>
-			</ul>
+			<a class="btn b_add_edit_issues" href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { window.location.reload() });">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a>
+			
 			
 			{% include "popvox/issueareachooser.html" %}	
 		</div>
