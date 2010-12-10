@@ -280,9 +280,9 @@ def org_update_logo_2(org, imagedata):
 	topleftcolor = imx.getpixel((0,0))
 	(w, h) = imx.size
 	if w > h*dims[0]/dims[1]:
-		dims2 = (dims[0], float(dims[0])*h/w)
+		dims2 = (dims[0], int(float(dims[0])*h/w))
 	elif h > w*dims[1]/dims[0]:
-		dims2 = (float(dims[1])*w/h, dims[1])
+		dims2 = (int(float(dims[1])*w/h), dims[1])
 	imx = imx.resize(dims2, Image.BICUBIC)
 
 	# Because we don't know the color of the padding, create a new

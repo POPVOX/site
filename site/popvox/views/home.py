@@ -53,7 +53,7 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 		"type": "tracked",
 		"name": "Bookmarked Legislation",
 		"shortname": "Bookmarked",
-		"bills": prof.tracked_bills.all()
+		"bills": prof.tracked_bills.all().select_related("sponsor", "topterm")
 		})
 	
 	if boss != None:
