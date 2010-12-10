@@ -15,9 +15,9 @@ Dear %s,
 
 On behalf of our team, I'd like to personally thank you for trying POPVOX.com.
 
-This week, Congress is returning to Washington, DC for what is called a "lame duck session," the last chance for Congress to pass legislation before it adjourns for the term. Our team is excited for this opportunity to take POPVOX for a test drive!  We hope you will return to share your opinion as bills are considered or introduced during this time.
+This month, Congress returned to Washington, DC for what is called a "lame duck session," the last chance for Congress to pass legislation before it adjourns for the term. Our team is excited for this opportunity to take POPVOX for a test drive! We hope you will return to share your opinion as bills are considered during this time.
 
-With this in mind, I'm asking for your help. Since we're working every day to make improvements and add new features to the site, could you answer some questions for us about your experience on POPVOX?  
+With this in mind, I'm asking for your help. Since we're working every day to make improvements and add new features to the site, could you answer some questions for us about your experience on POPVOX?
 
 We have set up a short survey at <http://www.surveymonkey.com/s/7SV8LC6>. Your opinions will help us improve the site and decide on next steps for POPVOX.  
 
