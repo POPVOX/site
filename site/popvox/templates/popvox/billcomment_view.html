@@ -25,7 +25,7 @@
 	{% include "ads/rightbar_single.html" %}	
 	{% endif %}
 	
-	<div class="col_12 rule clear"> </div>
+	<div class="col_12 {% if welcome %}rule{% endif %} clear"> </div>
 
 	<div class="col_6 col_top">
 		<div class="block referred_quote_{% if comment.position == '+' %}endorse{% else %}opposed{% endif %}">
@@ -48,12 +48,14 @@
 	</div>
 		
 	<div class="col_6 col_top col_last">
+		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
 		<div id="bill_endorse_oppose_holder_user" class="no_border">
 			<h3 class="no_rule orange">What Do You Think?</h3>
 			{% include "popvox/bill_howshouldtheyvote.html" %}
 			{% include "popvox/bill_uservote.html" %}
 		</div>
 		<div class="hr"> </div>
+		{% endif %}
 
 		{% include "popvox/billcomment_share_social.html" %}
 		

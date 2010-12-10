@@ -469,6 +469,9 @@ def activity_getinfo(request):
 		
 		items.sort(key = lambda x : x.updated, reverse=True)
 		items = items[0:30]
+		
+	annotate_track_status(request.user.userprofile,
+		[item.bill for item in items if type(item)==UserComment])
 
 	return render_to_response('popvox/activity_items.html', { "items": items, "can_see_user_details": can_see_user_details })
 
