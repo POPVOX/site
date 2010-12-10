@@ -118,6 +118,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'trafficanalysis.middleware.TrafficAnalysisMiddleware',
+    'popvox.middleware.IE6BlockMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
