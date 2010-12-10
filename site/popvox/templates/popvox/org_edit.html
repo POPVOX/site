@@ -4,8 +4,44 @@
 {% block title %}Edit Profile: {{ org.name }}{% endblock%}
 {%block nav_orgadmin_class_profile%}active{%endblock%}
 {% block head %}
-		<script src="/media/js/fileuploader.js"></script>
-		<link rel="stylesheet" href="/media/css/fileuploader.css" type="text/css" />
+		{% if request.ua.os_family == "iPhone OS" %}
+			<script src="/media/js/fileuploader.js"></script>
+			<link rel="stylesheet" href="/media/css/fileuploader.css" type="text/css" />
+			<script>
+			$(function() {
+				var uploader = new qq.FileUploader({
+				element: document.getElementById('file-uploader'),
+				action: '/ajax/orgs/updatelogo/{{org.slug}}',
+				allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+				onComplete: function(id, fileName, responseJSON) {
+					$('#profileimage').attr('src', responseJSON.url)
+					$('#file-uploader-container').hide();
+				},
+				});
+			});
+			</script>
+		{% else %}
+			<link href="/media/uploadify/uploadify.css" type="text/css" rel="stylesheet" />
+			<script type="text/javascript" src="/media/uploadify/swfobject.js"></script>
+			<script type="text/javascript" src="/media/uploadify/jquery.uploadify.v2.1.4.min.js"></script>
+			<script type="text/javascript">
+			$(document).ready(function() {
+			  $('#file-uploader').uploadify({
+			    uploader: '/media/uploadify/uploadify.swf',
+			    cancelImg: '/media/uploadify/cancel.png',
+			    script: '/ajax/orgs/updatelogo/{{org.slug}}',
+			    fileDesc: 'Images (*.jpg, *.jpeg, *.png, *.bmp, *.gif)',
+			    fileExt: '*.jpg;*.jpeg;*.png;*.bmp;*.gif',
+			    auto: true,
+			    scriptData: { session_key: "{{request.session.session_key}}" },
+			    onComplete: function(event, ID, fileObj, response, data) {
+				    $('#profileimage').attr('src', jQuery.parseJSON(response).url)
+				    $('#file-uploader-container').hide();
+			    },
+			  });
+			});
+			</script>
+		{% endif %}
 		
 		<script>
 		function updateslug(validate) {
@@ -81,25 +117,12 @@
 {% endblock %}
 {% block content %}
 <div class="content"> 
+
 	<div class="col_3 col_top profile_block">
-		
 		<center id="file-uploader-container" style="display: none;">
 			<div id="file-uploader"></div>
 		</center>
-		<script>
-		$(function() {
-			var uploader = new qq.FileUploader({
-			element: document.getElementById('file-uploader'),
-			action: '/ajax/orgs/updatelogo/{{org.slug}}',
-			allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-			onComplete: function(id, fileName, responseJSON) {
-				$('#profileimage').attr('src', responseJSON.url)
-				$('#file-uploader').hide();
-			},
-			});
-		});
-		</script>
-		
+
 		<div id="profileimagecontainer">
 			<div id="file-uploader-opener" style="display: none; position: absolute; color: white; background-color: black; padding: .25em; width: 220px; text-align: center; font-size: 90%; margin: 70px 0 0 0; padding: 5px 0 5px 0">
 				<a href="#" onclick="$('#file-uploader-container').fadeIn(); return false;" style="color: inherit">CHANGE PROFILE IMAGE</a>

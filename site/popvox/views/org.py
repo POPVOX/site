@@ -263,14 +263,21 @@ def org_update_logo(request, orgslug):
 	
 	# Get the image byte data.
 	datafile = None
-	for f in request.FILES:
+	for k, f in request.FILES.items():
 		datafile = f
 		break
 	else:
 		datafile = StringIO(request.raw_post_data)
 	
-	org_update_logo_2(org, datafile)
-	return { "success": True, "url": org.logo.url }
+	imgdata = org_update_logo_2(org, datafile)
+	
+	# In order to ensure the web browser updates the image when the URL
+	# doesn't change, append an ignored hash to the url.
+	import hashlib
+	m = hashlib.md5()
+	m.update(imgdata)
+	
+	return { "success": True, "url": org.logo.url + "?" + m.hexdigest() }
 	
 def org_update_logo_2(org, imagedata):
 	# Load the image and resize it to the right dimensions preserving aspect ratio.
@@ -281,7 +288,7 @@ def org_update_logo_2(org, imagedata):
 	(w, h) = imx.size
 	if w > h*dims[0]/dims[1]:
 		dims2 = (dims[0], int(float(dims[0])*h/w))
-	elif h > w*dims[1]/dims[0]:
+	else:
 		dims2 = (int(float(dims[1])*w/h), dims[1])
 	imx = imx.resize(dims2, Image.BICUBIC)
 
@@ -306,6 +313,8 @@ def org_update_logo_2(org, imagedata):
 		
 	from django.core.files import File
 	org.logo.save(str(org.id) + ".jpeg", File(buf))
+	
+	return buf.getvalue()
 
 @json_response
 def org_add_staff_contact(request):

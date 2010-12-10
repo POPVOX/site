@@ -1,6 +1,11 @@
 from models import *
 
 class TrafficAnalysisMiddleware:
+	def process_request(self, request):
+		if "HTTP_USER_AGENT" in request.META:
+			request.ua = uas_parser.parse(request.META["HTTP_USER_AGENT"])
+		return None
+	
 	def process_response(self, request, response):
 		# Can't do traffic analysis if there is no session state.
 		if getattr(request, "session", None) == None:
