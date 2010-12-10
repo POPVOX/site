@@ -445,7 +445,7 @@ def activity_getinfo(request):
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
 	
 	can_see_user_details = False
-	if request.user.userprofile.is_leg_staff():
+	if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 		if request.user.legstaffrole.member != None:
 			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
 			if member != None and member["current"]:
