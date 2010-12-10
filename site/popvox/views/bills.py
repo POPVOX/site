@@ -81,9 +81,9 @@ def get_popular_bills():
 		{"congressnumber": 111, "billtype": 'h', "billnumber": 5175},
 		{"congressnumber": 111, "billtype": 's', "billnumber": 3815},
 		{"congressnumber": 111, "billtype": 's', "billnumber": 2827},
-		{"congressnumber": 111, "billtype": 's', "billnumber": 3772},
 		{"congressnumber": 111, "billtype": 's', "billnumber": 510},
 		{"congressnumber": 111, "billtype": 'h', "billnumber": 915},
+		{"congressnumber": 111, "billtype": 's', "billnumber": 4004},
 		]
 	
 	# convert the hash objects to Bill objects
@@ -217,9 +217,12 @@ def billsearch(request):
 		except:
 			# Ignore invalid data from the API.
 			pass
-	import home
+
 	bills = getbillsfromhash(bills)
-	home.annotate_track_status(request.user.userprofile, bills)
+	if request.user.is_authenticated():
+		import home
+		home.annotate_track_status(request.user.userprofile, bills)
+
 	if len(bills) == 1:
 		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 			return HttpResponseRedirect(bills[0].url() + "/report")

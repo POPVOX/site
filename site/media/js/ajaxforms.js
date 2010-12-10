@@ -141,8 +141,9 @@ jQuery.fn.inline_edit = function(callback, createeditor) {
 		var textarea = $("#" + this.getAttribute("id") + "_textarea");
 		var editbtn = $("#" + this.getAttribute("id") + "_editbtn");
 
-		blur = function() {
-			inline.height(textarea.height());
+		var blurfunc = function() {
+			if (createeditor == "textarea")
+				inline.height(textarea.height());
 			editor.hide();
 			inline.fadeIn();
 			inline.removeClass("inlineedit_active");
@@ -176,14 +177,14 @@ jQuery.fn.inline_edit = function(callback, createeditor) {
 			} else if (createeditor == "tinymce") {
 				var mce = tinyMCE.getInstanceById(this.getAttribute("id") + "_textarea");
 				mce.setContent(inline.html());
-				mce.on_save = function() { blur(); }
+				mce.on_save = function() { blurfunc(); }
 			}
 		});
 		
 		if (createeditor != "tinymce")
-			textarea.blur(blur);
+			textarea.blur(blurfunc);
 		if (createeditor == "input")
-			textarea.keydown_enter(blur);
+			textarea.keydown_enter(blurfunc);
 	});
 };
 
