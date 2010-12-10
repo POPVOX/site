@@ -668,7 +668,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		if request.user.userprofile.is_leg_staff():
 			return HttpResponse("Legislative staff cannot post comments on legislation.")
 		if request.user.userprofile.is_org_admin():
-			return HttpResponse("Advocacy organization staff cannot post comments on legislation.")
+			return HttpResponse("Organization staff cannot post comments on legislation.")
 		
 		# More validation.
 		try:
