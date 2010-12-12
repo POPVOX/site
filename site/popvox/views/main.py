@@ -20,9 +20,9 @@ def staticpage(request, page):
 
 	if page == "":
 		page = "homepage"
+		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
+			return HttpResponseRedirect("/home")
 		varbls["news"] = get_news()
-		#if request.user.is_authenticated():
-		#	return HttpResponseRedirect("/home")
 			
 	page = page.replace("/", "_") # map URL structure to static files
 			

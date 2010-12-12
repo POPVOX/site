@@ -2,7 +2,7 @@
 {% block title %}
 	Create Account
 	{% if mode == "legstaff" %}: Congressional Legislative Staff{% endif %}
-	{% if mode == "orgstaff" %}: Advocacy Organization Staff{% endif %}
+	{% if mode == "orgstaff" %}: Organization Staff{% endif %}
 {% endblock%}
 {% block disable_login_redirect %}{% endblock %}
 {% block head %}
@@ -69,7 +69,7 @@ function submit_registration() {
 	{% endif %}
 
 	{% if mode == "orgstaff" %}
-		<h1>Create Account:<br /> <span>Advocacy Organization Staff</span></h1>
+		<h1>Create Account:<br /> <span>Organization Staff</span></h1>
 		<p class="hint">Add your organization to POPVOX to put your legislative agenda before Congressional staff. We are accepting only non-profit organizations at this time.</p>
 	{% endif %}
 

@@ -1,0 +1,58 @@
+{% load popvox_utils %}
+{% load humanize %}
+
+{% bill_statistics bill as stats %}
+{% if stats %}
+	<div style="width: 275px; float: right">
+		<div style="width: 90px; float: left">
+			<a href="{{bill.url}}/report">
+				<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
+			</a>
+			<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
+			 <p class="view_report clear" style="padding: 0">
+				<span><a href="{{bill.url}}/report">View Report</a></span>
+			</p>
+		</div>
+		
+		<div class="chart_info">
+			<div class="col_chart">
+				<p class="chart_stats">
+					<span class="chart_title">{{stats.longdescription}}:</span><br />
+					<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
+					<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
+					<span class="users">({{stats.total}} users)</span>
+				</p>
+			</div>
+		</div>
+	</div>
+{% else %}
+	{% comment %}
+	<small>Too few constituents in your {{districtstr|lower}} have commented on this bill to display statistics.</small>
+	{% endcomment %}
+{% endif %}
+								
+{% for item in items %}
+
+	{% if item|pythontype == 'popvox.models.UserComment' %}
+		<p class="date">{{item.updated|date2}}</p>
+		<p>
+			<span class="username">
+				{% if not can_see_user_details %}
+					{{item.user.username}}
+				{% else %}
+					{{item.address.firstname}} {{item.address.lastname}}
+				{% endif %}
+			</span>
+			from
+			{% if can_see_user_details %}
+				{{item.address.city}},
+			{% endif %}
+			{{item.address.state}}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district
+		</p>
+		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
+			{{item.message|truncatewords:25}}
+			<span>[<a href="{{item.url}}">more</a>]</span>
+		</div>
+	{% endif %}
+	
+{% endfor %}

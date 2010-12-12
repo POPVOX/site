@@ -51,30 +51,50 @@
 	var issuearea_list = [{% for issue in user.userprofile.issues.all %}[{{issue.id}}, "{{issue.name|escapejs}}"],{% endfor %}];						
 
 	var last_expando = null;
-	function expando(billid) {
+	function expando(billid, elemid) {
 		if (last_expando) {
 			$('#bill_' + last_expando + '_details').hide();
 			$('#bill_' + last_expando + '_expando').removeClass("active");
 			$('#bill_' + last_expando + '_row1').removeClass("active");
 			$('#bill_' + last_expando + '_row2').removeClass("active");
 		}
-		if (last_expando == billid) {
+		if (last_expando == elemid) {
 			last_expando = null;
 			return false;
 		}
-		$('#bill_' + billid + '_details').fadeIn();
-		$('#bill_' + billid + '_expando').addClass("active");
-		$('#bill_' + billid + '_row1').addClass("active");
-		$('#bill_' + billid + '_row2').addClass("active");
-		last_expando = billid;
+		
+		$('#bill_' + elemid + '_details').fadeIn();
+		$('#bill_' + elemid + '_expando').addClass("active");
+		$('#bill_' + elemid + '_row1').addClass("active");
+		$('#bill_' + elemid + '_row2').addClass("active");
+		
+		$.ajax({
+			type:"POST",
+			url: "/ajax/activity",
+			data: {
+				"default-locale": true,
+				"bill": billid,
+				"count": 3,
+			},
+			complete: function(res, status) {
+				$('#bill_' + elemid + '_details_dynamic').html(res.responseText);
+			}
+		});
+		
+		last_expando = elemid;
 		return false; // cancel click
 	}
 	
 	{% with "1" as leg_staff_home_tabs %}
 	{% include "popvox/track.js" %}
 	{% endwith %}
+	
 	function update_tabs() {
-		ajax("ajax/home/legstaff/bill_categories", {}, {
+		ajax("ajax/home/legstaff/bill_categories",
+			{
+				"filternextvotechamber": $('#filternextvotechamber').val(),
+			},
+			{
 			success: function(ret) {
 				var curtab = $('.suggestiontab.active')[0];
 				if (curtab) curtab = curtab.id;
@@ -177,7 +197,7 @@
 					</tr>
 					{% for bill in subgroup.bills %}
 						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill" billid="{{bill.id}}" valign="top">
-							<td style="padding-left: 5px; padding-right: 1em">
+							<td style="padding-left: 5px; padding-right: .5em">
 								<nobr><a href="{{bill.url}}/report">
 									{{bill.displaynumber}}
 								</a></nobr>
@@ -212,7 +232,7 @@
 							<td style="padding-right: 1em;">
 								<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
 									<div style="width: 1000px; height: 1.2em;">
-										<a href="#" onclick="return expando('{{subgroup.id}}_{{bill.id}}')">
+										<a href="#" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
 											{{bill.status_advanced_abbreviated}}
 										</a>
 									</div>
@@ -229,48 +249,19 @@
 								{% endwith %}
 								{% endif %}
 								
-								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando('{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
+								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
 							</td>
 						</tr>
 						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
-							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="background-color: inherit; padding: 1em">
-								<div style="width: 275px; float: right">
-									{% comment %}
-									{% bill_statistics bill as stats local %}
-									{% if stats %}
-										<div style="width: 90px; float: left">
-											<a href="{{bill.url}}/report">
-												<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-											</a>
-											<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
-											 <p class="view_report clear" style="padding: 0">
-												<span><a href="{{bill.url}}/report">View Report</a></span>
-											</p>
-										</div>
-										
-										<div class="chart_info">
-											<div class="col_chart">
-												<p class="chart_stats">
-													<span class="chart_title">{{stats.longdescription}}:</span><br />
-													<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-													<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-													<span class="users">({{stats.total}} users)</span>
-												</p>
-											</div>
-										</div>
-									{% else %}
-										<small>Too few constituents in your {{districtstr|lower}} have commented on this bill to display statistics.</small>
-									{% endif %}
-									{% endif %}
-									{% endcomment %}
-								</div>
-								
-								<p>Status: {{bill.status_advanced}}</p>
+							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="background-color: inherit; padding: 1em; display: none">
+								<p title="{{bill.status_advanced}}">Status: {{bill.status_advanced_abbreviated}}</p>
 								{% for date, text in bill.latest_action_formatted %}
 									{% if date %}
 									<div>{{date}}: {{text}}</div>
 									{% endif %}
 								{% endfor %}
+								
+								<div id="bill_{{subgroup.id}}_{{bill.id}}_details_dynamic"></div>
 							</td>
 						</tr>
 					{% endfor %}
@@ -282,6 +273,8 @@
 		
 		<div id="suggestions_panel" class="tab_panel" style="display: none">
 			<h2>Automatic Tracking Settings</h2>
+			
+			<h3>Issue Areas</h3>
 			<p>POPVOX automatically tracks legislation relevant to you based on your <a href="/accounts/profile">account settings</a> and the issue areas you choose that are relevant to your policy work:</p>
 			{% if suggestions|length == 0 %}<p>Right now you don&rsquo;t have any automatically tracked legislation.</p>{% endif %}
 			
@@ -290,10 +283,19 @@
 					<li>{{ ix.name }}</li>
 				{% endfor %}
 			</ul>
-			<a class="btn b_add_edit_issues" href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { window.location.reload() });">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a>
+			<a class="btn b_add_edit_issues" href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { antitracked_bills_removed = true; update_tabs(); });">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a>
 			
+			{% include "popvox/issueareachooser.html" %}
 			
-			{% include "popvox/issueareachooser.html" %}	
+			<h3>Filter Bills</h3>
+			
+			<p>You are also able to filter-out the bills that are not pending a floor vote in your chamber.</p>
+			
+			<p><select id="filternextvotechamber" onchange="antitracked_bills_removed = true; update_tabs();">
+				<option value="">Display All Bills</option>
+				<option value="s" {% if filternextvotechamber == "s" %}selected{% endif %}>Display Bills Pending Senate Action Only</option>
+				<option value="h" {% if filternextvotechamber == "h" %}selected{% endif %}>Display Bills Pending House Action Only</option>
+			</select></p>
 		</div>
 		
 		<div id="hidden_panel" class="tab_panel" style="display: none">

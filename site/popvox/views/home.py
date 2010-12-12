@@ -65,6 +65,18 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"bills": select_bills(sponsor = boss)
 			})
 
+	localbills = get_legstaff_district_bills(user)
+	if len(localbills) > 0:
+		moc = popvox.govtrack.getMemberOfCongress(boss)
+		d = moc["state"] + ("" if moc["type"] == "sen" else str(moc["district"]))
+		suggestions.append({
+			"id": "local",
+			"type": "local",
+			"name": "Hot Bills In Your " + ("State" if moc["type"] == "sen" else "District") + ": " + d,
+			"shortname": "Hot in " + d,
+			"bills": localbills
+			})
+		
 	committeename = ""
 	if user.legstaffrole.committee != None:
 		cx = None
@@ -103,17 +115,23 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"bills": select_bills(issues=ix)
 			})
 		
-	localbills = get_legstaff_district_bills(user)
-	if len(localbills) > 0:
-		moc = popvox.govtrack.getMemberOfCongress(boss)
-		d = moc["state"] + ("" if moc["type"] == "sen" else str(moc["district"]))
-		suggestions.append({
-			"id": "local",
-			"type": "local",
-			"name": "Hot Bills In Your " + ("State" if moc["type"] == "sen" else "District") + ": " + d,
-			"shortname": "Hot in " + d,
-			"bills": localbills
-			})
+	# If the user wants to filter out only bills relevant to a particular chamber, then
+	# we have to filter by status. Note that PROV_KILL:PINGPONGFAIL is included in
+	# both H and S bills because we don't know what chamber is next.
+	chamber_of_next_vote = prof.getopt("home_legstaff_filter_nextvote", None)
+	ext_filter = None
+	if chamber_of_next_vote == "h":
+		ext_filter = lambda q : \
+			q.filter(billtype__in = ('h', 'hr', 'hc', 'hj'), current_status__in = ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO")) |\
+			q.filter(current_status__in = ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE", "PROV_KILL:SUSPENSIONFAILED", "PROV_KILL:PINGPONGFAIL"))
+	elif chamber_of_next_vote == "s":
+		ext_filter = lambda q : \
+			q.filter(billtype__in = ('s', 'sr', 'sc', 'sj'), current_status__in = ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO")) |\
+			q.filter(current_status__in = ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROV_KILL:CLOTUREFAILED", "PROV_KILL:PINGPONGFAIL"))
+	if ext_filter != None:
+		for s in suggestions:
+			if s["type"] not in ("tracked", "sponsor") and isinstance(s["bills"], QuerySet):
+				s["bills"] = ext_filter(s["bills"])
 		
 	if counts_only:
 		def count(x):
@@ -348,8 +366,9 @@ def home(request):
 						"" if member == None or not member["current"] else (
 							"State" if member["type"] == "sen" else "District"
 							),
-				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.all()),
+				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.select_related()),
 				"suggestions": get_legstaff_suggested_bills(request.user),
+				"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
 			},
 			context_instance=RequestContext(request))
 		
@@ -390,6 +409,13 @@ def legstaff_bill_categories(request):
 	prof = request.user.get_profile()
 	if prof == None or not prof.is_leg_staff():
 		return Http404()
+		
+	if "filternextvotechamber" in request.POST and request.POST["filternextvotechamber"] in ("", "h", "s"):
+		val = request.POST["filternextvotechamber"]
+		if val == "":
+			val = None
+		request.user.userprofile.setopt("home_legstaff_filter_nextvote", val)
+		
 	return {
 		"status": "success",
 		"tabs": get_legstaff_suggested_bills(request.user, counts_only=True)
@@ -430,9 +456,12 @@ def activity(request):
 	return render_to_response('popvox/activity.html', {
 			"default_state": default_state if default_state != None else "",
 			"default_district": default_district if default_district != None else "",
+			
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
 			"statereps": govtrack.getStateReps(),
+			
+			# for admins only....
 			"count_users": User.objects.all().count(),
 			"count_users_verified": pntv,
 			"count_comments": UserComment.objects.all().count(),
@@ -440,17 +469,22 @@ def activity(request):
 		}, context_instance=RequestContext(request))
 	
 def activity_getinfo(request):
+	format = ""
+	
 	state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
 	
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
-	
+
+	if "default-locale" in request.REQUEST:
+		def_state, def_district = get_default_statistics_context(request.user)
+		state, district = def_state, def_district
+
 	can_see_user_details = False
 	if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 		if request.user.legstaffrole.member != None:
 			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
 			if member != None and member["current"]:
-				def_state, def_district = get_default_statistics_context(request.user)
-				if def_state == state and def_district == district:
+				if state == member["state"] and (member["type"] == "sen" or district == member["district"]):
 					can_see_user_details = True
 	
 	filters = { }
@@ -459,17 +493,36 @@ def activity_getinfo(request):
 		if district != None:
 			filters["address__congressionaldistrict"] = district
 	
-	items = []
-	items.extend( UserComment.objects.filter(**filters).order_by('-updated')[0:30] )
+	bill = None
+	if "bill" in request.REQUEST:
+		bill = Bill.objects.get(id = request.REQUEST["bill"])
+		filters["bill"] = bill
+		format = "_bill"
 	
-	if state == None and district == None:
+	q = UserComment.objects.filter(**filters).order_by('-updated')
+	if "count" in request.REQUEST:
+		q = q[0:int(request.REQUEST["count"])]
+	else:
+		q = q[0:30]
+	
+	items = []
+	items.extend(q)
+	
+	if state == None and district == None and format != "_bill":
 		items.extend( Org.objects.filter(visible=True).order_by('-updated')[0:30] )
 		items.extend( OrgCampaign.objects.filter(visible=True,default=False, org__visible=True).order_by('-updated')[0:30] )
 		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True).order_by('-updated')[0:30] )
 		
 		items.sort(key = lambda x : x.updated, reverse=True)
 		items = items[0:30]
+		
+	annotate_track_status(request.user.userprofile,
+		[item.bill for item in items if type(item)==UserComment])
 
-	return render_to_response('popvox/activity_items.html', { "items": items, "can_see_user_details": can_see_user_details })
+	return render_to_response('popvox/activity_items' + format + '.html', {
+		"items": items,
+		"can_see_user_details": can_see_user_details,
+		"bill": bill,
+		}, context_instance=RequestContext(request))
 
 

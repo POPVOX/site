@@ -1,4 +1,5 @@
 {% load popvox_utils %}
+{% load humanize %}
 
 {% for item in items %}
 
@@ -16,18 +17,32 @@
 			{% if can_see_user_details %}
 				{{item.address.city}},
 			{% endif %}
-			{{item.address.state}}
-			{% if item.position == "+" %}
-				supports
-			{% endif %}
-			{% if item.position == "-" %}
-				opposes
-			{% endif %}
-			<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
-			[<a href="{{item.url}}">share</a>]
+			{{item.address.state}}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district
 		</p>
 		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
+			<p>
+				<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
+				
+				&mdash;
+				{% if item.position == "+" %}
+					Support
+				{% endif %}
+				{% if item.position == "-" %}
+					Oppose
+				{% endif %}
+			</p>
 			{{item.message|wraplines:"p"|truncatewords_html:150}}
+			<p>
+				<div class="flipcolor">
+				{% with "+" as tracktype %}
+				{% with item.bill as bill %}
+				{% include "popvox/track.html" %}
+				{% endwith %}
+				{% endwith %}
+				</div>
+				
+				<span class="share"><a href="{{item.url}}">share</a></span>
+			</p>
 		</div>
 	{% endif %}
 	

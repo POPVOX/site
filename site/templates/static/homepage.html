@@ -60,7 +60,12 @@ function subscribe(validate) {
 				<li class="two">Choose to Support or Oppose it.</li>
 				<li class="three">Share your opinion with Congress &amp; the world.</li>
 			</ul>
-			<p><a class="b_get_started_l btn" href="/bills">Get Started</a></p>
+			
+			{% if user.is_anonymous %}
+				<p><a class="b_get_started_l btn" href="/bills">Get Started</a></p>
+			{% else %}
+				<p><a class="b_get_started_l btn" href="/home">Get Started</a></p>
+			{% endif %}
 
 		</div>
 	</div>
@@ -81,7 +86,7 @@ function subscribe(validate) {
 	<div class="hm_col hm_col_2">
 		<div class="hm_col_wrap">
 			<h3 id="for_congress">For Congress</h3>
-			<p>Search Advocacy Directory for relevant organizations and contacts.</p>
+			<p>Search Organization Directory for relevant organizations and contacts.</p>
 			<p>Analyze constituent sentiment by bill and district.</p>
 			<p>Find endorsing and opposing organizations with position summaries.</p>
 		</div>
