@@ -115,6 +115,24 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"bills": localbills
 			})
 		
+	# If the user wants to filter out only bills relevant to a particular chamber, then
+	# we have to filter by status. Note that PROV_KILL:PINGPONGFAIL is included in
+	# both H and S bills because we don't know what chamber is next.
+	chamber_of_next_vote = prof.getopt("home_legstaff_filter_nextvote", None)
+	ext_filter = None
+	if chamber_of_next_vote == "h":
+		ext_filter = lambda q : \
+			q.filter(billtype__in = ('h', 'hr', 'hc', 'hj'), current_status__in = ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO")) |\
+			q.filter(current_status__in = ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE", "PROV_KILL:SUSPENSIONFAILED", "PROV_KILL:PINGPONGFAIL"))
+	elif chamber_of_next_vote == "s":
+		ext_filter = lambda q : \
+			q.filter(billtype__in = ('s', 'sr', 'sc', 'sj'), current_status__in = ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO")) |\
+			q.filter(current_status__in = ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROV_KILL:CLOTUREFAILED", "PROV_KILL:PINGPONGFAIL"))
+	if ext_filter != None:
+		for s in suggestions:
+			if s["type"] not in ("tracked", "sponsor") and isinstance(s["bills"], QuerySet):
+				s["bills"] = ext_filter(s["bills"])
+		
 	if counts_only:
 		def count(x):
 			if isinstance(x, QuerySet):
@@ -350,6 +368,7 @@ def home(request):
 							),
 				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.all()),
 				"suggestions": get_legstaff_suggested_bills(request.user),
+				"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
 			},
 			context_instance=RequestContext(request))
 		
@@ -390,6 +409,13 @@ def legstaff_bill_categories(request):
 	prof = request.user.get_profile()
 	if prof == None or not prof.is_leg_staff():
 		return Http404()
+		
+	if "filternextvotechamber" in request.POST and request.POST["filternextvotechamber"] in ("", "h", "s"):
+		val = request.POST["filternextvotechamber"]
+		if val == "":
+			val = None
+		request.user.userprofile.setopt("home_legstaff_filter_nextvote", val)
+		
 	return {
 		"status": "success",
 		"tabs": get_legstaff_suggested_bills(request.user, counts_only=True)

@@ -73,8 +73,13 @@
 	{% with "1" as leg_staff_home_tabs %}
 	{% include "popvox/track.js" %}
 	{% endwith %}
+	
 	function update_tabs() {
-		ajax("ajax/home/legstaff/bill_categories", {}, {
+		ajax("ajax/home/legstaff/bill_categories",
+			{
+				"filternextvotechamber": $('#filternextvotechamber').val(),
+			},
+			{
 			success: function(ret) {
 				var curtab = $('.suggestiontab.active')[0];
 				if (curtab) curtab = curtab.id;
@@ -282,6 +287,8 @@
 		
 		<div id="suggestions_panel" class="tab_panel" style="display: none">
 			<h2>Automatic Tracking Settings</h2>
+			
+			<h3>Issue Areas</h3>
 			<p>POPVOX automatically tracks legislation relevant to you based on your <a href="/accounts/profile">account settings</a> and the issue areas you choose that are relevant to your policy work:</p>
 			{% if suggestions|length == 0 %}<p>Right now you don&rsquo;t have any automatically tracked legislation.</p>{% endif %}
 			
@@ -290,10 +297,19 @@
 					<li>{{ ix.name }}</li>
 				{% endfor %}
 			</ul>
-			<a class="btn b_add_edit_issues" href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { window.location.reload() });">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a>
+			<a class="btn b_add_edit_issues" href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { antitracked_bills_removed = true; update_tabs(); });">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a>
 			
+			{% include "popvox/issueareachooser.html" %}
 			
-			{% include "popvox/issueareachooser.html" %}	
+			<h3>Filter Bills</h3>
+			
+			<p>You are also able to filter-out the bills that are not pending a floor vote in your chamber.</p>
+			
+			<p><select id="filternextvotechamber" onchange="antitracked_bills_removed = true; update_tabs();">
+				<option value="">Display All Bills</option>
+				<option value="s" {% if filternextvotechamber == "s" %}selected{% endif %}>Display Bills Pending Senate Action Only</option>
+				<option value="h" {% if filternextvotechamber == "h" %}selected{% endif %}>Display Bills Pending House Action Only</option>
+			</select></p>
 		</div>
 		
 		<div id="hidden_panel" class="tab_panel" style="display: none">

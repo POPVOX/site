@@ -13,6 +13,7 @@ from xml.dom import minidom
 import re
 
 from tinymce import models as tinymce_models
+from picklefield import PickledObjectField
 
 import settings
 
@@ -500,6 +501,8 @@ class UserProfile(models.Model):
 	tracked_bills = models.ManyToManyField(Bill, blank=True, related_name="trackedby")
 	antitracked_bills = models.ManyToManyField(Bill, blank=True, related_name="antitrackedby")
 	
+	options = PickledObjectField(default={})
+	
 	def __unicode__(self):
 		ret = self.user.username
 		if self.fullname != None:
@@ -546,6 +549,23 @@ class UserProfile(models.Model):
 		except:
 			pass
 		return "; ".join([x.as_string() for x in legstaff + list(self.user.orgroles.all())])
+		
+	def getopt(self, key, default=None):
+		if type(self.options) == str: # not initialized
+			return default
+		if key in self.options:
+			return self.options[key]
+		else:
+			return default
+	def setopt(self, key, value, save=True):
+		if type(self.options) == str: # not initialized
+			self.options = { }
+		if value != None:
+			self.options[key] = value
+		elif key in self.options:
+			del self.options[key]
+		if save:
+			self.save()
 	
 def user_saved_callback(sender, instance, created, **kwargs):
 	if created:
