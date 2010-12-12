@@ -366,7 +366,7 @@ def home(request):
 						"" if member == None or not member["current"] else (
 							"State" if member["type"] == "sen" else "District"
 							),
-				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.all()),
+				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.select_related()),
 				"suggestions": get_legstaff_suggested_bills(request.user),
 				"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
 			},
@@ -456,9 +456,12 @@ def activity(request):
 	return render_to_response('popvox/activity.html', {
 			"default_state": default_state if default_state != None else "",
 			"default_district": default_district if default_district != None else "",
+			
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
 			"statereps": govtrack.getStateReps(),
+			
+			# for admins only....
 			"count_users": User.objects.all().count(),
 			"count_users_verified": pntv,
 			"count_comments": UserComment.objects.all().count(),
@@ -466,17 +469,22 @@ def activity(request):
 		}, context_instance=RequestContext(request))
 	
 def activity_getinfo(request):
+	format = ""
+	
 	state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
 	
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
-	
+
+	if "default-locale" in request.REQUEST:
+		def_state, def_district = get_default_statistics_context(request.user)
+		state, district = def_state, def_district
+
 	can_see_user_details = False
 	if request.user.userprofile.is_leg_staff():
 		if request.user.legstaffrole.member != None:
 			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
 			if member != None and member["current"]:
-				def_state, def_district = get_default_statistics_context(request.user)
-				if def_state == state and def_district == district:
+				if state == member["state"] and (member["type"] == "sen" or district == member["district"]):
 					can_see_user_details = True
 	
 	filters = { }
@@ -485,10 +493,22 @@ def activity_getinfo(request):
 		if district != None:
 			filters["address__congressionaldistrict"] = district
 	
-	items = []
-	items.extend( UserComment.objects.filter(**filters).order_by('-updated')[0:30] )
+	bill = None
+	if "bill" in request.REQUEST:
+		bill = Bill.objects.get(id = request.REQUEST["bill"])
+		filters["bill"] = bill
+		format = "_bill"
 	
-	if state == None and district == None:
+	q = UserComment.objects.filter(**filters).order_by('-updated')
+	if "count" in request.REQUEST:
+		q = q[0:int(request.REQUEST["count"])]
+	else:
+		q = q[0:30]
+	
+	items = []
+	items.extend(q)
+	
+	if state == None and district == None and format != "_bill":
 		items.extend( Org.objects.filter(visible=True).order_by('-updated')[0:30] )
 		items.extend( OrgCampaign.objects.filter(visible=True,default=False, org__visible=True).order_by('-updated')[0:30] )
 		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True).order_by('-updated')[0:30] )
@@ -499,6 +519,10 @@ def activity_getinfo(request):
 	annotate_track_status(request.user.userprofile,
 		[item.bill for item in items if type(item)==UserComment])
 
-	return render_to_response('popvox/activity_items.html', { "items": items, "can_see_user_details": can_see_user_details })
+	return render_to_response('popvox/activity_items' + format + '.html', {
+		"items": items,
+		"can_see_user_details": can_see_user_details,
+		"bill": bill,
+		}, context_instance=RequestContext(request))
 
 
