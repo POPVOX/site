@@ -166,7 +166,7 @@ def getBillTitle(bill, metadata, titletype):
 			return None
 		# Return first title with this "as".
 		for x in elems:
-			if x.attributes["type"].value == titletype and x.attributes["as"].value == ta:
+			if x.attributes["type"].value == titletype and x.attributes["as"].value == ta and x.firstChild != None:
 				return x.firstChild.data
 	
 	# Look for a popular or, failing that, a short title.
@@ -189,7 +189,8 @@ def getBillTitle(bill, metadata, titletype):
 		title = find_title(metadata, "official")
 	if title == None:
 		for x in metadata.getElementsByTagName('title'):
-			title = x.firstChild.data
+			if x.firstChild != None:
+				title = x.firstChild.data
 	if title == None:
 		title = "No Title"
 	
