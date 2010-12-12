@@ -65,6 +65,18 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"bills": select_bills(sponsor = boss)
 			})
 
+	localbills = get_legstaff_district_bills(user)
+	if len(localbills) > 0:
+		moc = popvox.govtrack.getMemberOfCongress(boss)
+		d = moc["state"] + ("" if moc["type"] == "sen" else str(moc["district"]))
+		suggestions.append({
+			"id": "local",
+			"type": "local",
+			"name": "Hot Bills In Your " + ("State" if moc["type"] == "sen" else "District") + ": " + d,
+			"shortname": "Hot in " + d,
+			"bills": localbills
+			})
+		
 	committeename = ""
 	if user.legstaffrole.committee != None:
 		cx = None
@@ -101,18 +113,6 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"name": "Issue Area: " + ix.name,
 			"shortname": ix.shortname if ix.shortname != None else ix.name,
 			"bills": select_bills(issues=ix)
-			})
-		
-	localbills = get_legstaff_district_bills(user)
-	if len(localbills) > 0:
-		moc = popvox.govtrack.getMemberOfCongress(boss)
-		d = moc["state"] + ("" if moc["type"] == "sen" else str(moc["district"]))
-		suggestions.append({
-			"id": "local",
-			"type": "local",
-			"name": "Hot Bills In Your " + ("State" if moc["type"] == "sen" else "District") + ": " + d,
-			"shortname": "Hot in " + d,
-			"bills": localbills
 			})
 		
 	# If the user wants to filter out only bills relevant to a particular chamber, then
