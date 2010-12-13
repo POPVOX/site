@@ -13,12 +13,14 @@ function showlist(elem, issueslug) {
 	if (last_issue_elem) $(last_issue_elem).removeClass('active');
 	$(elem).addClass('active');
 	last_issue_elem = elem;
+	$('#orglist_status').text("Loading...");
 	ajax(
 		'ajax/orgs/search',
 		{ "issue": issueslug, "format": "json" },
 		{
 			statusfield: "orglist_status",
 			success: function(ret) {
+				$('#orglistloading').hide();
 				var lst = $('#orglist_list');
 				lst.text('');
 				for (orgx in ret.orgs) {
@@ -33,7 +35,10 @@ function showlist(elem, issueslug) {
 					if (!org.createdbyus)
 						an.setAttribute("class", "notcreatedbyus");
 				}
-				$(window).scrollTop($('#orglist_title').offset().top - 30);
+				
+				max_scroll = $('#orglist_title').offset().top - 30;
+				if ($(window).scrollTop() > max_scroll) $(window).scrollTop(max_scroll);
+				
 				$('#orgnote').show();
 			}
 		}
@@ -74,17 +79,20 @@ function showlist(elem, issueslug) {
 					<ul class="org_all">
 					   {% for issue in issueareas %}
 						  <li>
-							<a href="#" onclick="return showlist(this, '{{issue.object.slug|escapejs}}')">{{ issue.object.name }}</a>
+							<a href="#" onclick="return showlist(this, '{{issue.slug|escapejs}}')">{{ issue.name }}</a>
 						</li>
 					   {% endfor %}
 					  </ul>
 				</div>
 				
 				<div class="col_50 col_last">
-					<h4 id="orglist_title"></h4>
+					<h4 id="orglist_title">Recently updated organizations:</h4>
 					<p id="orgnote" class="pad_top" style="display: none">(Entries in bold indicate information reported by the organization itself.)</p>
 					<div id="orglist_status"></div>
-					<ul id="orglist_list" class="bullets">
+					<ul id="orglist_list" class="org_all">
+						{% for org in recent %}
+							<li><a href="{{org.url}}">{{org.name}}</a></li>
+						{% endfor %}
 					 </ul>
 				</div>
 			</div>
