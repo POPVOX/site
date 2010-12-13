@@ -907,7 +907,7 @@ h3#reporttitle {
 			
 	.content h4 {
 		font: bold 14px/20px helvetica, arial, sans-serif;
-		margin-top: 10px;
+		margin: 10px 0;
 		}
 		
 		.content h4 a {
@@ -1769,7 +1769,7 @@ h1.h1_smaller {
 	}
 
 /* ----campaigns---- */
-.userrichtextcontent p, li {
+.userrichtextcontent p, .userrichtextcontent li {
 	}		
 		
 		
@@ -3456,14 +3456,13 @@ ul.staff, .small {
 
 
 	
-ul.issue_list {
+ul.issue_list, ul.org_all {
 	font-size: 14px;
 	line-height: 18px;
 	}		
 	
-	ul.issue_list li {
-		font-weight: bold;
-		margin-bottom: 10px;
+	ul.issue_list li, ul.org_all li {
+		margin-bottom: 5px;
 		}
 		
 		ul.issue_list li span {
@@ -3494,11 +3493,6 @@ ul.issue_list {
 			margin-bottom: 0;
 			}
 		
-ul.org_all {
-	font-size: 14px;
-	line-height: 18px;
-	}		
-
 ul.org_all .notcreatedbyus {
 	font-weight: bold;
 }
