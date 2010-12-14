@@ -3763,3 +3763,14 @@ tt {
 	font-family: mono;
 	font-weight: bold;
 }
+
+.tooltip {
+	display:none;
+	background:transparent url(/media/master/tooltip_bg.png);
+	font-size:12px;
+	height:70px;
+	width:160px;
+	padding:25px;
+	color:#fff;	
+}
+

@@ -169,6 +169,7 @@
 			},
 			complete: function(res, status) {
 				$('#' + curtab + '_panel').html(res.responseText);
+				refresh_tooltips();
 			}
 		});
 	}
@@ -179,6 +180,10 @@
 		$(elem).addClass('active');
 		update_tabs();
 		return false; // cancel click
+	}
+	
+	function refresh_tooltips() {
+		$("[title]").tooltip({opacity: .9, predelay: 200, xxxposition: "top right"});
 	}
 </script>
 {% endblock %}
