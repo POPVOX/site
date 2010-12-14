@@ -1373,6 +1373,9 @@ tr.bill td {
 	border-bottom: 1px dotted #666;
 	font-size: 12px;
 	}
+	tr.bill td.expando {
+		cursor: pointer;
+		}
 tr.bill:hover td {
 	background-color: #d9d6d2;
 	}

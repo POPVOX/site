@@ -55,7 +55,9 @@
 		</div>
 	{% endif %}
 	
-{% endfor %}
 
-<p>See the <a href="{{bill.url}}/report">full report</a> for all {{total_count}} comment{{total_count|pluralize}}.</p>
+	{% if forloop.last %}
+	<p>See the <a href="{{bill.url}}/report">full report</a> for all {{total_count}} comment{{total_count|pluralize}}.</p>
+	{% endif %}
+{% endfor %}
 
