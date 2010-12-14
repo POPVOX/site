@@ -537,7 +537,7 @@ def activity_getinfo(request):
 		filters["bill"] = bill
 		format = "_bill"
 		
-	q = UserComment.objects.filter(**filters).order_by('-updated')
+	q = UserComment.objects.filter(message__isnull=False, **filters).order_by('-updated')
 
 	total_count = None
 	if format == "_bill":

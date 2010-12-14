@@ -21,7 +21,7 @@
 	<input type="hidden" name="message" value="{{message}}"/>
 	<input type="hidden" name="district" value="{{district}}" id="districtfield"/>
 	
-	{% if not newaccount_error %}
+	{% if not newaccount_error and message %}
 		<div class="tip_inline mar_no">
 			 <p>Writing your comment is the hardest step but you&rsquo;re doing great.
 				Before we go on, read it over to make sure you are happy with it.
@@ -52,8 +52,7 @@
 		
 	{% if not user.is_authenticated %}
 	<div id="needsauth">
-		<div class="col_4_5">
-<!--			<h2>Sign-In or Sign-Up</h2> -->
+		<div class="col_4_5" style="margin-right: 30px">
 			
 			<h4>Sign Up</h4>
 			

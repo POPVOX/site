@@ -27,15 +27,14 @@ function geocode_result(res) {
 	
 	{% csrf_token %}
 	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
-	<input type="hidden" name="message" value="{{message}}"/>
-	<input type="hidden" name="district" value="{{district}}" id="districtfield"/>
+	<input type="hidden" name="message" value="{% if message %}{{message}}{% endif %}"/>
 	
 	<h1>You&rsquo;re Almost Done</h1>
 	
 		 <div class="tip_inline">
 			<p>Members of Congress take messages more seriously when you are willing to stand behind your message with a name and address. They also want to know whether or not you are one of their constituents. In order to maximize the effectiveness of your communication, we require that you provide your address.</p>
 		
-			<p>We may share your name and address with your Members of Congress.</p>
+			<p>We will share your name and address with your Members of Congress.</p>
 			<div class="hr"> </div>
 		</div>
 		<p class="error">{{ error }}</p>
@@ -60,7 +59,7 @@ function geocode_result(res) {
 		
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
 			<div class="float_right col_3" style="padding-top: 0">
-				<p class="tip" style="margin-top: 0">Provide the address where you intend to vote. A fake address or district may cause POPVOX to suspend your account.</p>
+				<p class="tip" style="margin-top: 0">Provide the address where you intend to vote. A fake address may cause POPVOX to suspend your account.</p>
 				
 				<div id="googlemap" style="display: none">
 					<p>We&rsquo;ve located you here:</p>
@@ -83,22 +82,10 @@ function geocode_result(res) {
 		
 			<p class="mar_top pad_btm">
 				<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
-				<input class="b_comment" id="submitcomment" type="submit" value="Comment >" onclick="return validate_address()"/>
+				<input class="b_comment" id="submitcomment" type="submit" value="Comment >"/>
 			</p>
 
 		</div>
-		
-		<script>
-		function validate_address() {
-			if ($('#useraddress_congressionaldistrict').val() == "") {
-				useraddress_get_district(); // refresh just in case, and then user can go again
-				alert("We couldn't find your congressional district. Please check your address or provide a 9-digit ZIP code.");
-				return false;
-			}
-			return true;
-		}
-		</script>
-
 	</form>
 	
 	<script>

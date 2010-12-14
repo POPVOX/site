@@ -630,8 +630,13 @@ class PostalAddress(models.Model):
 	address2 = models.CharField(max_length=128, blank=True)
 	city = models.CharField(max_length=64)
 	state = models.CharField(max_length=2)
-	zipcode = models.CharField(max_length=16)
+	zipcode = models.CharField(max_length=10)
 	congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
+	state_legis_upper = models.IntegerField()
+	state_legis_lower = models.IntegerField()
+	latitude = models.FloatField()
+	longitude = models.FloatField()
+	cdyne_return_code = models.IntegerField()
 	created = models.DateTimeField(auto_now_add=True)
 	
 	PREFIXES = 	('', 'Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Reverend', 'Sister', 'Pastor')
@@ -650,7 +655,6 @@ class PostalAddress(models.Model):
 		self.city = request.POST["useraddress_city"]
 		self.state = request.POST["useraddress_state"].upper()
 		self.zipcode = request.POST["useraddress_zipcode"]
-		self.congressionaldistrict = int(request.POST["useraddress_congressionaldistrict"])
 		if self.firstname.strip() == "":
 			raise ValueError("Please enter your first name.")
 		if self.lastname.strip() == "":
@@ -690,7 +694,7 @@ class UserComment(models.Model):
 	bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
 	
-	message = models.TextField()
+	message = models.TextField(blank=True, null=True)
 
 	address = models.ForeignKey(PostalAddress, db_index=True) # current address at time of writing
 
@@ -710,7 +714,7 @@ class UserComment(models.Model):
 			ordering = ["-updated"]
 			unique_together = (("user", "bill"),)
 	def __unicode__(self):
-		return self.user.username + " -- " + self.message
+		return self.user.username + " -- " + repr(self.message)
 
 	def get_absolute_url(self):
 		return self.bill.url() + "/comment/" + str(self.id)

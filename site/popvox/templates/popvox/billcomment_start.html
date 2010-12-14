@@ -79,9 +79,6 @@ function validate_form() {
 
 	<div class="tab_pane">
 
-	<form method="post" onsubmit="return validate_form()">
-	{% csrf_token %}
-
 	<h1 class="h1_smaller">
 	{% if position == "0" %}Comment on{% endif %}
 	{% if position == "+" %}I Support{% endif %}
@@ -91,15 +88,47 @@ function validate_form() {
 	{% if position == "0" %}
 		<p>You are about to clear your position on this bill.</p>
 
+		<form method="post">
+		{% csrf_token %}
 		<p><input id="submitcomment" type="submit" name="submitmode" value="Clear Comment >"/></p>
+		</form>
 	{% endif %}
 	
 
 	{% if position != "0" %}
-		<p>Before we register your voice you <strong>must explain why</strong> your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.displaynumber}}. Your comment will be shared with others on POPVOX{% if user.username %} who will see your name as &ldquo;{{user.username}}&rdquo;{% endif %}.</p>
+		<p>Do you want to write a personal message explaining how this bill affects you?</p>
+		<p>
+			<input id="writemessage0"  type="radio" name="writemessage" {% if not message %}checked="1"{% endif %} onclick="$('#message_container').hide(); $('#nomessage_container').fadeIn()"/>
+			<label for="writemessage0">No, I have nothing personal to add.</label>
+		</p>
+		<p style="margin-bottom: 2em">
+			<input id="writemessage1" type="radio" name="writemessage" {% if message %}checked="1"{% endif %} onclick="$('#message_container').fadeIn(); $('#nomessage_container').hide()"/>
+			<label for="writemessage1">Yes, I have a personal story.</label>
+		</p>
 		
-		<p>During the testing phase of POPVOX we are not yet sending comments to Members of Congress, but they will be able to find your message here.</p>
+		<div id="nomessage_container"  {% if message %}style="display: none"{% endif %}>
+		<form method="post">
+		{% csrf_token %}
+		<p>
+			<input class="b_back btn" type="button" value="Cancel" onclick="document.location = '{{bill.url|escapejs}}';"/>
+			{% if user.is_authenticated %}
+			<input class="b_next btn" type="submit" name="submitmode" value="Next >"/>
+			{% else %}
+			<input class="b_next btn" id="submitcomment" type="submit" name="submitmode" value="Preview >"/>
+			{% endif %}
+		</p>
+		</form>
+		</div>		
 		
+		<div id="message_container" {% if not message %}style="display: none"{% endif %}>
+	
+		<p>Explain why your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.displaynumber}}.
+		{% if user.is_authenticated %}Privacy Note: Your comment will be shared with others on POPVOX who will see your name as <strong>{{user.username}}</strong>, and with your Members of Congress who will see your full name and address.{% endif %}
+		</p>
+		
+		<form method="post" onsubmit="return validate_form()">
+		{% csrf_token %}
+
 		<div class="tip mar_top">
 			<h5>Letter Writing Tips</h5>
 			<p>Members of Congress pay attention to personal stories. If possible, tell them how this issue affects you or your community.</p>
@@ -123,9 +152,15 @@ function validate_form() {
 			<input class="b_back btn" type="button" value="Cancel" onclick="if ($('#message').hasClass('default') || confirm('Are you sure you want to cancel and discard your comment?')) document.location = '{{bill.url|escapejs}}';"/>
 			<input class="b_preview btn" id="submitcomment" type="submit" name="submitmode" value="Preview >"/>
 		</p>
-	{% endif %}
 	
-	</form>
+		<p>During the testing phase of POPVOX we are not yet sending comments to Members of Congress, but they will be able to find your message here.</p>
+		
+		</form>
+		
+		</div>
+		
+		
+	{% endif %}
 	
 	</div>
 </div>

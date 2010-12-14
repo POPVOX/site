@@ -15,7 +15,7 @@
 	<div id="sharetab_message" class="form" style="display: none">
 		<h3 class="no_rule">Personalized Message to Recipients</h3>
 		<textarea id="share_message" class="c5">{% if message %}{{message}}{% endif %}</textarea>
-		{% if comment.user == user %}
+		{% if comment.user == user and comment.message %}
 		<div>
 			<input id="share_includecomment" type="checkbox" {% if includecomment %}checked="1"{% endif %} onchange="set_message()"/>
 			<label class="checkbox" for="share_includecomment">Include Your Comment in Your Message</label>
@@ -42,6 +42,8 @@
 			});
 		</script>
 	</div>
+	
+	<div class="clear"> </div>
 
 	<div id="sharetab_email" style="display: none">
 		<p><strong>Via Email</strong></p>

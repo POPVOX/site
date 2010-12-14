@@ -206,3 +206,5 @@ if DEBUG:
 	DISTRICT_LOOKUP_API = "http://www.popvox.com/ajax/district-lookup"
 	#DISTRICT_LOOKUP_SIMULATE_RESPONSE = { "status": "success", "method": "zipcode", "state": "NY", "district": 2 }
 
+CDYNE_LICENSE_KEY = "b9033636-528a-444c-bfed-4cee41f8f84a"
+

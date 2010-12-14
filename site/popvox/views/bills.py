@@ -23,7 +23,7 @@ from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, o
 from emailverification.utils import send_email_verification
 from utils import formatDateTime
 
-from settings import SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
+from settings import DEBUG, SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
 
 popular_bills_cache = None
 issue_areas = None
@@ -538,7 +538,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				address_record_fixed = "You cannot change your address for two months after entering your address."
 	
 	if not "submitmode" in request.POST and position_original != "/finish":
-		message = ""
+		message = None
 
 		request.goal = { "goal": "comment-begin" }
 			
@@ -585,7 +585,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		if "submitmode" in request.POST:
 			# TODO: Validate that a message has been provided and that messages are
 			# not too long or too short.
-			message = request.POST["message"]
+			message = request.POST.get("message", None)
 		else:
 			message = request.session[pending_comment_session_key]["message"]
 		
@@ -622,7 +622,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	elif ("submitmode" in request.POST and request.POST["submitmode"] == "Next >") or (not "submitmode" in request.POST and position_original == "/finish"):
 		if "submitmode" in request.POST:
 			# User was already logged in and is just clicking to continue.
-			message = request.POST["message"]
+			message = request.POST.get("message", None)
 		else:
 			# User is returning from a login. Get the message info from the saved session.
 			message = request.session[pending_comment_session_key]["message"]
@@ -660,6 +660,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		request.goal = { "goal": "comment-submit-error" }
 		
 		message = request.POST["message"].strip()
+		if message == "":
+			message = None
 		
 		# Validation.
 		
@@ -679,8 +681,16 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				address_record.load_from_form(request) # throws ValueError, KeyError
 				
 			# We don't display a captcha when we are editing an existing comment.
-			if len(request.user.comments.filter(bill = bill)) == 0:
+			if len(request.user.comments.filter(bill = bill)) == 0 and not DEBUG:
 				validate_captcha(request) # throws ValidationException and sets recaptcha_error attribute on the exception object
+				
+			if address_record_fixed == None:
+				# Now do verification against CDYNE to get congressional district.
+				# Do this after the CAPTCHA to prevent any abuse.
+				from writeyourrep.addressnorm import verify_adddress
+				verify_adddress(address_record)
+				
+		
 		except Exception, e:
 			request.goal = { "goal": "comment-address-error" }
 			return render_to_response('popvox/billcomment_address.html', {
@@ -891,6 +901,9 @@ def billshare_share(request):
 	if not includecomment:
 		support_oppose = "weigh in on"
 		
+	if comment.message == None:
+		includecomment = False
+		
 	# Where does the link point to? If the user isn't including his own comment,
 	# then target the bill. Even though we reveal the username in the message
 	# so recipients could find the comment.
@@ -947,7 +960,7 @@ Comment by %s in %s bill %s:
 
 Go to %s to have your voice be heard!
 
-%s""" % (request.POST["message"], comment.user.username, support_oppose2, bill.title, comment.message, url, request.user.username),
+%s""" % (request.POST["message"], comment.user.username, support_oppose2, bill.title, repr(comment.message), url, request.user.username),
 					from_email = '"' + request.user.username + '" <' + request.user.email + ">",
 					recipient_list = [em],
 					fail_silently = True)
@@ -991,7 +1004,7 @@ Go to %s to have your voice be heard!
 					"link": url,
 					"name": bill.title.encode('utf-8'),
 					"caption": "Voice your opinion on this bill at POPVOX.com",
-					"description": comment.message if includecomment else bill.officialtitle().encode('utf-8'),
+					"description": comment.message.encode('utf-8') if includecomment else bill.officialtitle().encode('utf-8'),
 					"message": request.POST["message"].encode('utf-8')
 					}))
 		else:
@@ -999,9 +1012,9 @@ Go to %s to have your voice be heard!
 				urllib.urlencode({
 					"access_token": fb.auth_token["access_token"],
 					"link": url,
-					"name": comment.user.username + "'s comment on " + bill.title.encode('utf-8'),
+					"name": comment.user.username.encode('utf-8') + "'s comment on " + bill.title.encode('utf-8'),
 					"caption": "Voice your opinion on this bill at POPVOX.com",
-					"description": comment.message,
+					"description": comment.message.encode('utf-8') if comment.message != None else None,
 					"message": request.POST["message"].encode('utf-8'),
 					}))
 				
@@ -1075,8 +1088,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
 	
-	pro_comments = bill_comments(bill, "+", address__state=state, address__congressionaldistrict=district)
-	con_comments = bill_comments(bill, "-", address__state=state, address__congressionaldistrict=district)
+	pro_comments = bill_comments(bill, "+", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)
+	con_comments = bill_comments(bill, "-", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)
 	
 	comments = list(pro_comments) + list(con_comments)
 	comments.sort(key = lambda x : x.updated, reverse=True)

@@ -32,7 +32,11 @@
 			<p class="commenter">{{comment.user.username}} <!--from {{comment.address.state}}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district-->commented {{comment.updated|date2}}:</p>
 
 			<h4>{{bill.displaynumber}}: {% if comment.position == '+' %}Support{% else %}Oppose{% endif %}</h4>
-			{{comment.message|wraplines:"p"}}
+			{% if comment.message %}
+				{{comment.message|wraplines:"p"}}
+			{% else %}
+				<p>[No comment left.]</p>
+			{% endif %}
 		</div>
 		
 		<div class="block bills_referred">
