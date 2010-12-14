@@ -138,7 +138,8 @@
 						$('#suggestions_issues').append(n);
 					
 					if ($("#" + ret.tabs[tab].id + "_panel")[0]) {
-						$('.tab_panel').attr("erase_me", "");
+						$("#" + ret.tabs[tab].id + "_panel").attr("erase_me", "");
+						$("#" + ret.tabs[tab].id + "_panel").text("");
 					} else {
 						$('#panels').append('<div id="' + ret.tabs[tab].id + '_panel" type="' + ret.tabs[tab].type + '" class="tab_panel" style="display: none"></div>');
 						if (!newtab) newtab = ret.tabs[tab].id;
