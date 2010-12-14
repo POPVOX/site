@@ -47,7 +47,7 @@ function bill_timeseries(container, data, opts) {
 	 chart: {
 	    backgroundColor: "#e8e5df",
 	    renderTo: container,
-	    margin: [10,0,5,20],
+	    margin: [10,0,5,40],
 	    defaultSeriesType: 'line'
 	 },
     tooltip: {
@@ -61,6 +61,9 @@ function bill_timeseries(container, data, opts) {
 	 plotOptions: {
 		    line: {
 		       //enableMouseTracking: false,
+			  marker: {
+				  enabled: false,
+			  },
 			  stickyTracking: false,
 			  dataLabels: {
 				enabled: false,
