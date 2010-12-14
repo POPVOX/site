@@ -3,7 +3,7 @@
 
 {% bill_statistics bill as stats %}
 {% if stats %}
-	<div style="width: 275px; float: right">
+	<div style="width: 230px; margin-left: 3em; float: right">
 		<div style="width: 90px; float: left">
 			<a href="{{bill.url}}/report">
 				<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
@@ -56,3 +56,6 @@
 	{% endif %}
 	
 {% endfor %}
+
+<p>See the <a href="{{bill.url}}/report">full report</a> for all {{total_count}} comment{{total_count|pluralize}}.</p>
+

@@ -1792,9 +1792,9 @@ h1.h1_smaller {
 		}
 
 .col_chart {
-	width: 140px;
+	width: 120px;
 	float: left;
-	margin: 0 17px 20px 20px;
+	margin: 0 0 20px 20px;
 	padding-top: 0px;
 	}
 .col_3 .col_chart {

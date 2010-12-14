@@ -516,8 +516,13 @@ def activity_getinfo(request):
 		bill = Bill.objects.get(id = request.REQUEST["bill"])
 		filters["bill"] = bill
 		format = "_bill"
-	
+		
 	q = UserComment.objects.filter(**filters).order_by('-updated')
+
+	total_count = None
+	if format == "_bill":
+		total_count = q.count()
+	
 	if "count" in request.REQUEST:
 		q = q[0:int(request.REQUEST["count"])]
 	else:
@@ -541,6 +546,7 @@ def activity_getinfo(request):
 		"items": items,
 		"can_see_user_details": can_see_user_details,
 		"bill": bill,
+		"total_count": total_count,
 		}, context_instance=RequestContext(request))
 
 
