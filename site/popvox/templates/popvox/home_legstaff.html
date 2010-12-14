@@ -10,27 +10,31 @@
 	function showtab(tab) {
 		if ($('#' + tab + '_tab').hasClass('active')) return false;
 
-		{% comment %}If the set of tracked bills has changed, then reload the page when user clicks the tracked bills tab. We're dynamically updating the other suggestions tab so no need to reload those.{% endcomment %}
-		if (tab == "tracked" && tracked_bills_changed) {
-			window.location = '/home';
-			return true;
-		} else if (tab == "hidden" && antitracked_bills_added) {
-			window.location = '/home#' + tab;
-			window.location.reload();
-			return true;
-		} else if (tab != "tracked" && tab != "hidden" && antitracked_bills_removed) {
-			window.location = '/home#' + tab;
-			window.location.reload();
-			return false;
-		}
-		
 		$('.tab_panel').hide();
 		$('.horz_tabs li, .ul_tags li').removeClass('active');
 		$('#' + tab + "_panel").fadeIn();
 		$('#' + tab + '_tab').addClass('active')
+		
+		if (tab == "issues" || tab.substring(0, 6) == "issue_") {
+			$('#issues_tab').addClass('active')
+			$('#issue_tabs').fadeIn();
+		} else {
+			$('#issues_tab').removeClass('active')
+			$('#issue_tabs').hide();
+		}
+		
+		if (tab == "issues") {
+			var ix = $('.tab_panel[type=issue]')[0];
+			if (ix) return showtab(ix.id.substr(0, ix.id.length-6));
+		}
+		
+		if ($('#' + tab + "_panel").text() == "" && tab != "issues")
+			refresh_tab(tab);
+		
 		return false; // cancel click
 	}
 
+	
 	function addRemoveIssueArea(add_remove, id, statuslabelid, callback) {
 		ajax(
 			"/ajax/accounts/profile/updatefield",
@@ -48,7 +52,17 @@
 			}
 		);
 	}
-	var issuearea_list = [{% for issue in user.userprofile.issues.all %}[{{issue.id}}, "{{issue.name|escapejs}}"],{% endfor %}];						
+	var issuearea_list = [{% for issue in user.userprofile.issues.all %}[{{issue.id}}, "{{issue.name|escapejs}}"],{% endfor %}];
+	
+	function toggle_filter() {
+		if ($('#filter_tab').hasClass('active')) {
+			$('#settings_panel').fadeOut();
+			$('#filter_tab').removeClass('active');
+		} else {
+			$('#settings_panel').fadeIn();
+			$('#filter_tab').addClass('active');
+		}
+	}
 
 	var last_expando = null;
 	function expando(billid, elemid) {
@@ -90,15 +104,19 @@
 	{% endwith %}
 	
 	function update_tabs() {
-		ajax("ajax/home/legstaff/bill_categories",
+		ajax("/ajax/home/legstaff/bill_categories",
 			{
-				"filternextvotechamber": $('#filternextvotechamber').val(),
+				"filternextvotechamber": $('#filter_bills li.active')[0].getAttribute('value'),
 			},
 			{
 			success: function(ret) {
 				var curtab = $('.suggestiontab.active')[0];
-				if (curtab) curtab = curtab.id;
+				if (curtab) curtab = curtab.id.replace("_tab", "");
+				if (curtab == "issues") curtab = null;
 				
+				var newtab;
+				
+				$('.tab_panel').attr("erase_me", "1");
 				$('.suggestiontab').remove();
 				
 				for (var tab in ret.tabs) {
@@ -114,17 +132,53 @@
 					var t = document.createTextNode(ret.tabs[tab].shortname + " (" + ret.tabs[tab].count + ")");
 					a.appendChild(t);
 					
-					$('#suggestions').append(n);
+					if (ret.tabs[tab].type != "issue")
+						$('#suggestions_main').append(n);
+					else
+						$('#suggestions_issues').append(n);
+					
+					if ($("#" + ret.tabs[tab].id + "_panel")[0]) {
+						$('.tab_panel').attr("erase_me", "");
+					} else {
+						$('#panels').append('<div id="' + ret.tabs[tab].id + '_panel" type="' + ret.tabs[tab].type + '" class="tab_panel" style="display: none"></div>');
+						if (!newtab) newtab = ret.tabs[tab].id;
+					}
 				}
 				
-				if (curtab) {
-					if ($('#' + curtab)[0])
-						$('#' + curtab).addClass("active");
-					else
-						showtab("tracked");
+				$('.tab_panel[erase_me="1"]').remove();
+				
+				if (curtab && $('#' + curtab + "_tab")[0]) {
+					$('#' + curtab + "_tab").addClass('active');
+					$('#' + curtab + "_panel").show();
+					refresh_tab(curtab);
+				} else if (newtab) {
+					showtab(newtab);
+				} else {
+					showtab("tracked");
 				}
 			}
 		});
+	}
+	
+	function refresh_tab(curtab) {
+		$.ajax({
+			type:"POST",
+			url: "ajax/home/legstaff/bill_category_panel",
+			data: {
+				id: curtab
+			},
+			complete: function(res, status) {
+				$('#' + curtab + '_panel').html(res.responseText);
+			}
+		});
+	}
+	
+	function filter(elem) {
+		antitracked_bills_removed = true;
+		$('#filter_bills li').removeClass('active');
+		$(elem).addClass('active');
+		update_tabs();
+		return false; // cancel click
 	}
 </script>
 {% endblock %}
@@ -133,218 +187,62 @@
 
 	<div class="col_9 dash">
 		<ul class="horz_tabs">
-			<div id="suggestions">
+			<div id="suggestions_main">
 				{% for group in suggestions %}
-					{% comment %}see update_tabs above{% endcomment %}
-					<li id="{{group.id}}_tab" class="suggestiontab {% if forloop.first %}active{% endif %}"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+					{% if group.type != 'issue' %}
+						<li id="{{group.id}}_tab" class="suggestiontab {% if forloop.first %}active{% endif %}"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+					{% endif %}
 				{% endfor %}
 			</div>
 			
-			<li id="suggestions_tab"><a href="#" onclick="return showtab('suggestions')" title="change settings of what is shown here">Settings</a></li>
+			<li id="issues_tab"><a href="#" onclick="return showtab('issues');" title="issue areas">Issue Areas</a></li>
 			
-			<li id="hidden_tab"><a href="#" onclick="return showtab('hidden');" title="bills you have hidden">Hidden</a></li>
+			<li><a id="filter_tab" href="#" onclick="return toggle_filter();" title="Filter Settings">Settings</a></li>
 	
 			<div class="clear"> </div>
-			
-			<script>$(function() {
-				if (window.location.hash != "") {
-					showtab(window.location.hash.substring(1));
-					window.location.hash = "";
-				}
-			});</script>
 		</ul>
 		
 		<div class="clear"> </div>
-		
-		{% for group in suggestions %}
-			<div id="{{group.id}}_panel" class="tab_panel"  {% if not forloop.first %}style="display: none"{% endif %}>
-				<h2>{{group.name}}</h2>
-			
-				{% if group.id == "tracked" and group.count == 0 %}
-					<p>You have not bookmarked any legislation here.</p>
-					
-					{% if suggestions|length > 1 %}
-					<p>You have automatically tracked legislation in the following categories:</p>
-					<ul class="bullets">
-						{% for group in suggestions %}
-							{% if group.id != "tracked" %}
-								<li><a href="#" onclick="return showtab('{{group.id}}')">{{group.name}} ({{group.count}} bill{{group.count|pluralize}})</a></li>
-							{% endif %}
-						{% endfor %}
-					</ul>
-					<p>Click the bookmark icon next to a bill on those tabs to add it to this bookmarked legislation section.</p>
-					{% endif %}
-				{% endif %}
-				
-				<table width="100%" cellspacing="0" border="0">
-				{% comment %}
-				<thead>
-					<tr>
-						<th colspan="2">Bill</th>
-						<th>Sponsor</th>
-						<th># Co</th>
-						<th>Status</th>
-						<th></th>
-					</tr>
-				</thead>
-				{% endcomment %}
-				
-				{% for subgroup in group.subgroups %}
-					<tr>
-						<td colspan="7">
-							<h4>{{subgroup.name}}</h4>
-						</td>
-					</tr>
-					{% for bill in subgroup.bills %}
-						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill" billid="{{bill.id}}" valign="top">
-							<td style="padding-left: 5px; padding-right: .5em" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
-								<nobr>
-									{{bill.displaynumber}}
-								</nobr>
-							</td>
-							<td style="padding-right: 1em"; class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
-								<div style="width: 190px; overflow: hidden; " title="{{bill.title}}">
-									<div style="width: 1000px; height: 1.2em;">
-										{{bill.title_no_number}}
-									</div>
-								</div>
-							</td>
-							<td style="padding-right: .25em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
-								<div style="width: 65px; overflow: hidden;" title="{{bill.sponsor.name}}">
-									<div style="width: 1000px; height: 1.2em;">
-										{{bill.sponsor.lastname}}
-									</div>
-								</div>
-							</td>
-							<td style="padding-right: 1em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
-								({{bill.sponsor.party}})
-							</td>
-							<td style="padding-right: 1em" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
-								{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endcomment %}
-								{% if bill.num_cosponsors %}
-								<div title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
-									{{bill.num_cosponsors}}
-								</div>
-								{% endif %}
-							</td>
-							<td style="padding-right: 1em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
-								<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
-									<div style="width: 1000px; height: 1.2em;">
-										{{bill.status_advanced_abbreviated}}
-									</div>
-								</div>
-							</td>
-							<td class="flipcolor">
-								{% with "+" as tracktype %}
-								{% include "popvox/track.html" %}
-								{% endwith %}
-								
-								{% if group.id != "local" %}
-								{% with "-" as tracktype %}
-								{% include "popvox/track.html" %}
-								{% endwith %}
-								{% endif %}
-								
-								<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
-							</td>
-						</tr>
-						<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
-							<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="background-color: inherit; padding: 1em; display: none">
-								<p title="{{bill.status_advanced}}">Status: {{bill.status_advanced_abbreviated}}</p>
-								{% for date, text in bill.latest_action_formatted %}
-									{% if date %}
-									<div>{{date}}: {{text}}</div>
-									{% endif %}
-								{% endfor %}
-								
-								<div id="bill_{{subgroup.id}}_{{bill.id}}_details_dynamic"></div>
-							</td>
-						</tr>
-					{% endfor %}
-				{% endfor %}
-				</table>
-			</div>
-			
-		{% endfor %}
-		
-		<div id="suggestions_panel" class="tab_panel" style="display: none">
-			<h2>Automatic Tracking Settings</h2>
-			
-			<h3>Issue Areas</h3>
-			<p>POPVOX automatically tracks legislation relevant to you based on your <a href="/accounts/profile">account settings</a> and the issue areas you choose that are relevant to your policy work:</p>
-			{% if suggestions|length == 0 %}<p>Right now you don&rsquo;t have any automatically tracked legislation.</p>{% endif %}
-			
-			<ul id="issuearealist" class="bullets">
-				{% for ix in user.userprofile.issues.all %}
-					<li>{{ ix.name }}</li>
-				{% endfor %}
+
+		<div id="settings_panel" style="display: none">
+			<ul id="filter_bills">
+				<li value=""  {% if filternextvotechamber == "" %}class="active"{% endif %} onclick="return filter(this);">Display All Bills</li>
+				<li value="s"  {% if filternextvotechamber == "s" %}class="active"{% endif %} onclick="return filter(this)">Pending Senate Action</li>
+				<li value="h"  {% if filternextvotechamber == "h" %}class="active"{% endif %} onclick="return filter(this)">Pending House Action</li>
 			</ul>
-			<a class="btn b_add_edit_issues" href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { antitracked_bills_removed = true; update_tabs(); });">Add{% if user.userprofile.issues.all %}/Remove{% endif %} Issue Areas</a>
+			<p>(Does not apply to bookmarked, hidden, and hot-in-your-district bills.)</p>
+		</div>
+		
+		<div id="issue_tabs" style="display: none">
+			<p>POPVOX automatically tracks legislation relevant to you based on your <a href="/accounts/profile">account settings</a> and the issue areas you choose that are relevant to your policy work:</p>
+			
+			<ul class="ul_tags">
+				<div id="suggestions_issues">
+					{% for group in suggestions %}
+						{% if group.type == 'issue' %}
+							<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+						{% endif %}
+					{% endfor %}
+				</div>
+				
+				<li id="suggestions_tab"><a href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { antitracked_bills_removed = true; update_tabs(); });" title="Add/Remove Issue Areas">Add/Remove</a></li>
+				
+				<div class="clear"> </div>
+			</ul>
 			
 			{% include "popvox/issueareachooser.html" %}
-			
-			<h3>Filter Bills</h3>
-			
-			<p>You are also able to filter-out the bills that are not pending a floor vote in your chamber.</p>
-			
-			<p><select id="filternextvotechamber" onchange="antitracked_bills_removed = true; update_tabs();">
-				<option value="">Display All Bills</option>
-				<option value="s" {% if filternextvotechamber == "s" %}selected{% endif %}>Display Bills Pending Senate Action Only</option>
-				<option value="h" {% if filternextvotechamber == "h" %}selected{% endif %}>Display Bills Pending House Action Only</option>
-			</select></p>
 		</div>
 		
-		<div id="hidden_panel" class="tab_panel" style="display: none">
-			<h2>Legislation You&rsquo;ve Hidden</h2>
-			
-			{% if antitracked_bills %}
-				<p>Below are the bills you&rsquo;ve removed from your automatically tracked legislation tabs.</p>
-			{% endif %}
-
-			<table width="100%">
-			{% for bill in antitracked_bills %}
-				<tr class="bill billhidden" billid="{{bill.id}}">
-					<td style="padding-left: 5px; padding-right: 1em">
-						<nobr><a href="{{bill.url}}/report">
-							{{bill.displaynumber}}
-						</a></nobr>
-					</td>
-					<td style="padding-right: 1em";>
-						<div style="width: 400px; overflow: hidden; " title="{{bill.title}}">
-							<div style="width: 1000px; height: 1em;">
-								<a href="{{bill.url}}/report">
-									{{bill.title_no_number}}
-								</a>
-							</div>
-						</div>
-					</td>
-					<td style="padding-right: 1em;">
-						<div style="width: 75px; overflow: hidden;" title="{{bill.sponsor.name}}">
-							<div style="width: 1000px; height: 1em;">
-								{{bill.sponsor.lastname}}
-							</div>
-						</div>
-					</td>
-					<td class="flipcolor">
-						{% with "+" as tracktype %}
-						{% include "popvox/track.html" %}
-						{% endwith %}
-						
-						{% with "-" as tracktype %}
-						{% include "popvox/track.html" %}
-						{% endwith %}
-					</td>
-				</tr>
-			{% empty %}
-				<tr>
-					<td>
-						<p>Any legislation you hide from automatic tracking tabs will appear here so you can find it again. You have not hidden any legislation yet.</p> 
-					</td>
-				</tr>
-			{% endfor %}
-			</table>
+		<div class="clear"> </div>
+		
+		<div id="panels">
+		{% for group in suggestions %}
+			<div id="{{group.id}}_panel" type="{{group.type}}" class="tab_panel" {% if not forloop.first %}style="display: none"{% endif %}>
+				{% include "popvox/home_legstaff_panel.html" %}
+			</div>
+		{% endfor %}
 		</div>
-	
+
 	</div>
 
 	{% include "ads/rightbar.html" %}

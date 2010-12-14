@@ -1,0 +1,94 @@
+<h2>{{group.name}}</h2>
+
+{% if group.id == "tracked" and group.count == 0 %}
+	<p>You have not bookmarked any legislation here or you have filtered out all of your bookarked legislation in the filter settings.</p>
+{% endif %}
+
+<table width="100%" cellspacing="0" border="0">
+{% comment %}
+<thead>
+	<tr>
+		<th colspan="2">Bill</th>
+		<th>Sponsor</th>
+		<th># Co</th>
+		<th>Status</th>
+		<th></th>
+	</tr>
+</thead>
+{% endcomment %}
+
+{% for subgroup in group.subgroups %}
+	<tr>
+		<td colspan="7">
+			<h4>{{subgroup.name}}</h4>
+		</td>
+	</tr>
+	{% for bill in subgroup.bills %}
+		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill" billid="{{bill.id}}" valign="top">
+			<td style="padding-left: 5px; padding-right: .5em" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+				<nobr>
+					{{bill.displaynumber}}
+				</nobr>
+			</td>
+			<td style="padding-right: 1em"; class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+				<div style="width: 190px; overflow: hidden; " title="{{bill.title}}">
+					<div style="width: 1000px; height: 1.2em;">
+						{{bill.title_no_number}}
+					</div>
+				</div>
+			</td>
+			<td style="padding-right: .25em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+				<div style="width: 65px; overflow: hidden;" title="{{bill.sponsor.name}}">
+					<div style="width: 1000px; height: 1.2em;">
+						{{bill.sponsor.lastname}}
+					</div>
+				</div>
+			</td>
+			<td style="padding-right: 1em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+				({{bill.sponsor.party}})
+			</td>
+			<td style="padding-right: 1em" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+				{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endcomment %}
+				{% if bill.num_cosponsors %}
+				<div title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
+					{{bill.num_cosponsors}}
+				</div>
+				{% endif %}
+			</td>
+			<td style="padding-right: 1em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+				<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
+					<div style="width: 1000px; height: 1.2em;">
+						{{bill.status_advanced_abbreviated}}
+					</div>
+				</div>
+			</td>
+			<td class="flipcolor">
+				{% with "+" as tracktype %}
+				{% include "popvox/track.html" %}
+				{% endwith %}
+				
+				{% if group.id != "local" %}
+				{% with "-" as tracktype %}
+				{% include "popvox/track.html" %}
+				{% endwith %}
+				{% endif %}
+				
+				<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
+			</td>
+		</tr>
+		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
+			<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="background-color: inherit; padding: 1em; display: none">
+				<p title="{{bill.status_advanced}}">Status: {{bill.status_advanced_abbreviated}}</p>
+				{% for date, text in bill.latest_action_formatted %}
+					{% if date %}
+					<div>{{date}}: {{text}}</div>
+					{% endif %}
+				{% endfor %}
+				
+				<div id="bill_{{subgroup.id}}_{{bill.id}}_details_dynamic"></div>
+			</td>
+		</tr>
+	{% endfor %}
+{% endfor %}
+</table>
+

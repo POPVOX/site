@@ -29,7 +29,7 @@ def annotate_track_status(profile, bills):
 			b.antitrackstatus = True
 	return bills
 
-def get_legstaff_suggested_bills(user, counts_only=False):
+def get_legstaff_suggested_bills(user, counts_only=False, id=None):
 	prof = user.userprofile
 	
 	suggestions = [  ]
@@ -115,6 +115,19 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			"bills": select_bills(issues=ix)
 			})
 		
+	suggestions.append({
+		"id": "hidden",
+		"type": "hidden",
+		"name": "Legislation You Have Hidden",
+		"shortname": "Hidden",
+		"bills": prof.antitracked_bills.select_related("sponsor", "topterm")
+		})
+
+	# If id != None, then we're requesting just one group. We can do this now
+	# since the queries are lazy-loaded.
+	if id != None:
+		suggestions = [s for s in suggestions if s["id"] == id]
+
 	# If the user wants to filter out only bills relevant to a particular chamber, then
 	# we have to filter by status. Note that PROV_KILL:PINGPONGFAIL is included in
 	# both H and S bills because we don't know what chamber is next.
@@ -148,25 +161,7 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 			q.filter(current_status__in = ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROV_KILL:CLOTUREFAILED", "PROV_KILL:PINGPONGFAIL"))
 	if ext_filter != None:
 		for s in suggestions:
-			if s["type"] not in ("tracked", "sponsor") and isinstance(s["bills"], QuerySet):
-				s["bills"] = ext_filter(s["bills"])
-		
-	# If the user wants to filter out only bills relevant to a particular chamber, then
-	# we have to filter by status. Note that PROV_KILL:PINGPONGFAIL is included in
-	# both H and S bills because we don't know what chamber is next.
-	chamber_of_next_vote = prof.getopt("home_legstaff_filter_nextvote", None)
-	ext_filter = None
-	if chamber_of_next_vote == "h":
-		ext_filter = lambda q : \
-			q.filter(billtype__in = ('h', 'hr', 'hc', 'hj'), current_status__in = ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO")) |\
-			q.filter(current_status__in = ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE", "PROV_KILL:SUSPENSIONFAILED", "PROV_KILL:PINGPONGFAIL"))
-	elif chamber_of_next_vote == "s":
-		ext_filter = lambda q : \
-			q.filter(billtype__in = ('s', 'sr', 'sc', 'sj'), current_status__in = ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO")) |\
-			q.filter(current_status__in = ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROV_KILL:CLOTUREFAILED", "PROV_KILL:PINGPONGFAIL"))
-	if ext_filter != None:
-		for s in suggestions:
-			if s["type"] not in ("tracked", "sponsor") and isinstance(s["bills"], QuerySet):
+			if s["id"] not in ("tracked", "hidden") and isinstance(s["bills"], QuerySet):
 				s["bills"] = ext_filter(s["bills"])
 		
 	if counts_only:
@@ -177,7 +172,7 @@ def get_legstaff_suggested_bills(user, counts_only=False):
 				return len(x)
 		for s in suggestions:
 			s["count"] = count(s["bills"])
-		return [{"id": s["id"], "shortname": s["shortname"], "count": s["count"] } for s in suggestions if s["count"] > 0 or s["id"] == "tracked"]
+		return [{"id": s["id"], "type": s["type"], "shortname": s["shortname"], "count": s["count"] } for s in suggestions if s["count"] > 0 or s["id"] == "tracked"]
 
 	# Clear out any groups with no bills. We can call .count() if we just want
 	# a count, but since we are going to evaluate later it's better to evaluate
@@ -402,7 +397,6 @@ def home(request):
 						"" if member == None or not member["current"] else (
 							"State" if member["type"] == "sen" else "District"
 							),
-				"antitracked_bills": annotate_track_status(prof, prof.antitracked_bills.select_related()),
 				"suggestions": get_legstaff_suggested_bills(request.user),
 				"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
 			},
@@ -456,7 +450,15 @@ def legstaff_bill_categories(request):
 		"status": "success",
 		"tabs": get_legstaff_suggested_bills(request.user, counts_only=True)
 		}
-
+		
+@login_required
+def legstaff_bill_category_panel(request):
+	return render_to_response('popvox/home_legstaff_panel.html',
+		{
+			"group": get_legstaff_suggested_bills(request.user, id=request.POST["id"])[0],
+		},
+		context_instance=RequestContext(request))
+	
 @login_required
 def home_suggestions(request):
 	prof = request.user.get_profile()

@@ -1336,6 +1336,9 @@ ul.ul_tags {
 			color: #fff;
 			}
 
+#filter_bills li.active {
+	font-weight: bold;
+	}
 
 .tab_panel, .content .tab_panel p {
 	font-size: 12px;
