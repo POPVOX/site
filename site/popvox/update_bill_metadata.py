@@ -101,7 +101,7 @@ for fn in glob(DATADIR + "govtrack/us/" + str(CURRENT_CONGRESS) + "/bills/*.xml"
 				new_cosponsors_date = joined
 			new_cosponsors.append(getMemberOfCongress(int(cs.getAttribute("id")))["name"])
 	if len(new_cosponsors) > 0:
-		latest_actions.append( (new_cosponsors_date, str(len(new_cosponsors)) + " new cosponsors: " + ", ".join(new_cosponsors)) )
+		latest_actions.append( (new_cosponsors_date, str(len(new_cosponsors)) + " new cosponsor(s): " + ", ".join(new_cosponsors)) )
 	
 	# Finish recent activity.
 	bill.latest_action = "\n".join([d.strftime("%Y-%m-%d") + "\t" + t for (d,t) in latest_actions])

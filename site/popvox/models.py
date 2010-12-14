@@ -551,14 +551,14 @@ class UserProfile(models.Model):
 		return "; ".join([x.as_string() for x in legstaff + list(self.user.orgroles.all())])
 		
 	def getopt(self, key, default=None):
-		if type(self.options) == str: # not initialized
+		if self.options == None or type(self.options) == str: # not initialized (null or empty string)
 			return default
 		if key in self.options:
 			return self.options[key]
 		else:
 			return default
 	def setopt(self, key, value, save=True):
-		if type(self.options) == str: # not initialized
+		if self.options == None or type(self.options) == str: # not initialized (null or empty string)
 			self.options = { }
 		if value != None:
 			self.options[key] = value

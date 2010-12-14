@@ -72,9 +72,11 @@ def loadpeople():
 						senators[role.getAttribute("state")] = []
 					senators[role.getAttribute("state")].append(int(node.getAttribute("id")))
 					senators[role.getAttribute("state")].sort(key = lambda x : people[x]["sortkey"])
+					people[int(node.getAttribute("id"))]["sortkey"] += " (Senate)"
 				
 				if role.getAttribute("type") == "rep":
 					congresspeople[role.getAttribute("state")+role.getAttribute("district")] = int(node.getAttribute("id"))
+					people[int(node.getAttribute("id"))]["sortkey"] += " (House)"
 
 	people_list = [ ]
 	people_list.extend([p for p in people.values() if p["current"]])

@@ -124,7 +124,7 @@ function submit_registration() {
 			<select id="member" class="c5">
 				<option value="">(Select If Applicable)</option>
 				{% for c in mocs %}
-				<option value="{{c.id}}">{{c.name}}</option>
+				<option value="{{c.id}}">{{c.sortkey}}</option>
 				{% endfor %}
 			</select>
 			<div id="errorlabel_member" class="error"></div>
