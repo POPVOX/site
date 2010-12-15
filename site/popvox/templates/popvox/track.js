@@ -6,7 +6,7 @@ function track(billid, track) {
 		"/ajax/accounts/profile/trackbill",
 		{
 			bill: billid,
-			track: track,
+			track: track
 		},
 		{
 			success: function(ret) {
@@ -48,7 +48,7 @@ function track(billid, track) {
 				{% if leg_staff_home_tabs %}
 				update_tabs();
 				{% endif %}
-			},
+			}
 		}
 	);
 }

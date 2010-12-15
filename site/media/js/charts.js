@@ -4,7 +4,7 @@ function bill_chart(container, pro_pct, con_pct, opts) {
          chart: {
 		  backgroundColor: (!opts || !opts.bg) ? "#e8e5df" : opts.bg,
             renderTo: container,
-		  margin: [0,0,0,0],
+		  margin: [0,0,0,0]
          },
 	    tooltip: {
 		    enabled: false, //opts && opts.small,
@@ -62,11 +62,11 @@ function bill_timeseries(container, data, opts) {
 		    line: {
 		       //enableMouseTracking: false,
 			  marker: {
-				  enabled: false,
+				  enabled: false
 			  },
 			  stickyTracking: false,
 			  dataLabels: {
-				enabled: false,
+				enabled: false
 			  }
 		    }
 	    },

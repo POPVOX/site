@@ -16,7 +16,7 @@
 				onComplete: function(id, fileName, responseJSON) {
 					$('#profileimage').attr('src', responseJSON.url)
 					$('#file-uploader-container').hide();
-				},
+				}
 				});
 			});
 			</script>
@@ -37,7 +37,7 @@
 			    onComplete: function(event, ID, fileObj, response, data) {
 				    $('#profileimage').attr('src', jQuery.parseJSON(response).url)
 				    $('#file-uploader-container').hide();
-			    },
+			    }
 			  });
 			});
 			</script>
@@ -48,7 +48,7 @@
 			ajaxform("/ajax/orgs/updatefields",
 				{ "org": "{{org.slug|escapejs}}", "validate": (validate ? "validate" : "") },
 				{
-					"slug": "#slug",
+					"slug": "#slug"
 				},
 				{
 					statusfield: "slugerrorlabel",
@@ -107,7 +107,7 @@
 							$(n).text(issuearea_list[ix][1]);
 							$('#issuearealist').append(n);
 						}
-					},
+					}
 				}
 			);
 		}
@@ -289,7 +289,7 @@
 					name: $('#staffname').val(),
 					title: $('#stafftitle').val(),
 					email: $('#staffemail').val(),
-					phone: $('#staffphone').val(),
+					phone: $('#staffphone').val()
 				},
 				{
 					statusfield: "contactlist_add_remove_status",
@@ -299,7 +299,7 @@
 						appendContact(res.id, $('#staffname').val(), $('#stafftitle').val(), $('#staffemail').val(), $('#staffphone').val());
 						resetStaffContactFields();
 						$.colorbox.close();
-					},
+					}
 				}
 			);
 		 }
@@ -313,7 +313,7 @@
 					success: function() {
 						$("#contactlist" + id).remove();
 						$.colorbox.close();
-					},
+					}
 				}
 			);
 		}
@@ -403,7 +403,7 @@
 						success: function() {
 							currently_visible = !currently_visible;
 							updatevisibility_setcaptions();
-						},
+						}
 					}
 				);
 				return false;
@@ -444,7 +444,7 @@
 					success: function(res) {
 						appendAdmin(res.username, res.id, res.fullname);
 						$('#adminlistinput').val("");
-					},
+					}
 				}
 			);
 		 }
@@ -457,7 +457,7 @@
 					statusfail: "Could not remove profile administrator at this time.",
 					success: function() {
 						$("#adminlist" + id).remove();
-					},
+					}
 				}
 			);
 		}

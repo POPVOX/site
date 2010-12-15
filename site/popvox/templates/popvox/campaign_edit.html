@@ -13,7 +13,7 @@
 			ajaxform("/ajax/orgs/cam/updatefields",
 				{ "org": "{{cam.org.slug|escapejs}}", "cam": "{{cam.slug|escapejs}}", "validate": (validate ? "validate" : "") },
 				{
-					"slug": "#slug",
+					"slug": "#slug"
 				},
 				{
 					statusfield: "slugerrorlabel",
@@ -37,12 +37,12 @@
 					"name": "#name",
 					"description": "#description",
 					"website": "#website",
-					"message": function () { return tinyMCE.get('message').getContent() },
+					"message": function () { return tinyMCE.get('message').getContent() }
 				},
 				{
 					statusfield: "errorlabel",
 					savebutton: "submitbutton",
-					statussuccess: (validate ? null : "Saved."),
+					statussuccess: (validate ? null : "Saved.")
 				}
 				);
 		}
@@ -189,7 +189,7 @@
 					success: function() {
 						currently_visible = !currently_visible;
 						updatevisibility_setcaptions();
-					},
+					}
 				}
 			);
 		}

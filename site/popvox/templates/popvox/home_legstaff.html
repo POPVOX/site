@@ -48,7 +48,7 @@
 						$(n).text(issuearea_list[ix][1]);
 						$('#issuearealist').append(n);
 					}
-				},
+				}
 			}
 		);
 	}
@@ -88,7 +88,7 @@
 			data: {
 				"default-locale": true,
 				"bill": billid,
-				"count": 3,
+				"count": 3
 			},
 			complete: function(res, status) {
 				$('#bill_' + elemid + '_details_dynamic').html(res.responseText);
@@ -106,7 +106,7 @@
 	function update_tabs() {
 		ajax("/ajax/home/legstaff/bill_categories",
 			{
-				"filternextvotechamber": $('#filter_bills li.active')[0].getAttribute('value'),
+				"filternextvotechamber": $('#filter_bills li.active')[0].getAttribute('value')
 			},
 			{
 			success: function(ret) {

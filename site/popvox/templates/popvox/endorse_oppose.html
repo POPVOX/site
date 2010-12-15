@@ -17,7 +17,7 @@ function billsearch_q_submit() {
 	ajax("/ajax/bills/search",
 		{ "congressnumber": (congressnumber ? congressnumber : 0),
 		   "billtype": billtype,
-		   "billnumber": billnumber,
+		   "billnumber": billnumber
 		},
 		{
 			savebutton: "billsearch_button",

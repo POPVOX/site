@@ -39,7 +39,7 @@ $(function() {
 function subscribe(validate) {
 	if ($('#subscribe_email').hasClass("default")) return false;
 	ajaxform("post/home/subscribe",
-		{ "validate": (validate ? "validate" : "submit"), },
+		{ "validate": (validate ? "validate" : "submit") },
 		{ "email": "#subscribe_email" },
 		{ "statusfield": "subscribe_status",
 		   "statussuccess": (validate ? null : "Thanks!")} );
