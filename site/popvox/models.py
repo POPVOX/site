@@ -632,8 +632,8 @@ class PostalAddress(models.Model):
 	state = models.CharField(max_length=2)
 	zipcode = models.CharField(max_length=10)
 	congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
-	state_legis_upper = models.IntegerField()
-	state_legis_lower = models.IntegerField()
+	state_legis_upper = models.TextField()
+	state_legis_lower = models.TextField()
 	latitude = models.FloatField()
 	longitude = models.FloatField()
 	cdyne_return_code = models.IntegerField()
