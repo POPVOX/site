@@ -10,10 +10,10 @@
 function submit_registration() {
 	ajaxform("/ajax/accounts/register",
 		{ // general post data
+		   {% if next %}"next": "{{next|escapejs}}",{% endif %}
 		   "mode": "{{mode}}",
 		   "recaptcha_challenge_field": document.forms.captcha.recaptcha_challenge_field.value,
-		   "recaptcha_response_field": document.forms.captcha.recaptcha_response_field.value,
-		   {% if next %}"next": "{{next|escapejs}}",{% endif %}
+		   "recaptcha_response_field": document.forms.captcha.recaptcha_response_field.value
 		},
 		{ // fields
 		   {% if mode == "" %}
@@ -34,6 +34,7 @@ function submit_registration() {
 		   "orgwebsite": '#orgwebsite',
 		   "title": '#title',
 		   {% endif %}
+		   "": '' // no trailing comma
 		},
 		{
 			statusfield: "errorlabel",

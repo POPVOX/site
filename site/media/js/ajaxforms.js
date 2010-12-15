@@ -217,7 +217,9 @@ function ajaxform(url, postdata, fields, actions) {
 	//    for checkbox fields, pass 0 or 1.
 	
 	for (var field in fields) {
-		if (typeof fields[field] == "function") {
+		if (fields[field] == "") {
+			// ignore
+		} else if (typeof fields[field] == "function") {
 			v = fields[field]();
 			if (v == null) continue;
 		} else {
