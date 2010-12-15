@@ -18,6 +18,7 @@ class Command(BaseCommand):
 		
 		if len(args) == 0:
 			if options["date"] != None:
+				options["date"] = options["date"].replace("T", " ")
 				filter["start__lte"] = options["date"]
 				filter["end__gte"] = options["date"]
 		
