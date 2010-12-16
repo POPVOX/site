@@ -10,7 +10,7 @@ function update_headline() {
 		"/ajax/orgs/updateaction",
 		{
 			id: {{position.id}},
-			action_headline: $("#action_headline_textarea").val(),
+			action_headline: $("#action_headline_textarea").val()
 		},
 		{
 			success: function(res) {
@@ -24,7 +24,7 @@ function update_body() {
 		"/ajax/orgs/updateaction",
 		{
 			id: {{position.id}},
-			action_body: tinyMCE.get('action_body_textarea').getContent(),
+			action_body: tinyMCE.get('action_body_textarea').getContent()
 		},
 		{
 			success: function(res) {

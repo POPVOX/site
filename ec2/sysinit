@@ -21,7 +21,7 @@ ssh-keygen -q -t rsa -b 2048 -N "" -f .ssh/id_rsa
 sudo apt-get update
 sudo apt-get upgrade -y
 
-sudo tasksel install lamp-server
+sudo tasksel install lamp-server unzip
 
 sudo apt-get install -y git-core subversion mercurial libapache2-mod-wsgi python-flup python-beautifulsoup memcached python-memcache python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown rdiff-backup
 

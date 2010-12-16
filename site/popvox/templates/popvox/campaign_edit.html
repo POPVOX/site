@@ -110,10 +110,8 @@
 			<label for="message">Detailed Description</label>
 			<textarea id="message" name="message">{{cam.message}}</textarea>
 			<script>
-			$(function() {
-				tinyMCE.execCommand("mceAddControl", true, "message");
-				tinyMCE.get("message").on_save = updatecampaign; // this is executing twice??
-			});
+			tinyMCE.execCommand("mceAddControl", false, "message");
+			function message_on_save() { updatecampaign(); }
 			</script>
 			
 			<div class="hr"></div>

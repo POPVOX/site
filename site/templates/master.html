@@ -35,7 +35,7 @@
 	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
 	
-	<link href="/media/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	<link href="/media/css/jquery-ui.css" rel="stylesheet" type="text/css"/> <!-- autocomplete -->
 	<script type="text/javascript" src="/media/js/jquery-ui-1.8rc3.custom.min.js"></script>
 	
 	<link rel="stylesheet" href="/media/css/colorbox/colorbox.css" type="text/css" />
@@ -55,7 +55,10 @@
 		save_onsavecallback: "tinymce_save_callback"
 		});
 	function tinymce_save_callback() {
-		tinyMCE.activeEditor.on_save();
+		if (tinyMCE.activeEditor.on_save)
+			tinyMCE.activeEditor.on_save();
+		else
+			eval(tinyMCE.activeEditor.id + "_on_save()");
 		return false;
 	}
 	</script>
