@@ -1,3 +1,5 @@
+/* @override http://william.popvox.com/media/master/stylesheet.css */
+
 
 /*
 
@@ -1289,7 +1291,7 @@ h3#reporttitle {
 .horz_tabs {
 	background: #434247;
 	display: block;
-	padding: 6px 0 8px;
+	padding: 6px 0 4px;
 	font-size: 12px;
 	margin-bottom: 4px;
 	}
@@ -1312,11 +1314,91 @@ h3#reporttitle {
 				-khtml-border-radius: 5px;
 				border-radius: 5px;
 				}
+				
+		.horz_tabs li#issues_tab a {
+			border: 1px solid #75747c;
+			-moz-border-radius: 5px;
+			-webkit-border-radius: 5px;
+			-khtml-border-radius: 5px;
+			border-radius: 5px;
+			}
+			
+		#question_tab, #settings_tab {
+			float: right;
+			display: block;
+			margin: 0 0 2px 4px;
+			}
+			
+		#settings_tab a, .x a {
+			float: right;
+			font: 11px helvetica;
+			margin: 11px 10px 0;
+			text-transform: uppercase;
+			}
+			
+			#settings_tab a:hover {
+				border-bottom: none;
+				color: #fff;
+				}
+				
+			.x a {
+				font-weight: bold;
+				}
+				
+			.x a:hover {
+				border-bottom: none;
+				color: #474747;
+				}
+	
+		#suggestions_tab a, #question_tab a {
+			float: right;
+			font: 11px helvetica;
+			margin: 0px 0px 0;
+			text-transform: uppercase;
+			padding: 4px;
+			background: #717078;
+			color: #fff;
+			}
+			
+			#suggestions_tab a:hover, #question_tab a:hover {
+				background: #e47816;
+				color: #fff;
+				border-bottom: none;
+				}
+					
+		#filter_bills {
+			display: block;
+			padding: 4px 0 8px;
+			font-size: 12px;
+			font-weight: bold;
+			margin: 2px 0 4px;
+			background: #fff;
+			height: 16px;
+			}
+			
+			#filter_bills li {
+				float: left;
+				display: block;
+				margin: 4px 5px;
+				}
+				
+				#filter_bills li:hover {
+					color: #CC6A11;
+					cursor: pointer;
+					}
+				#filter_bills li.active {
+					color: #e47816;
+					}
+
+			#filter_bills li:hover.txt {
+				color: #404045;
+				cursor: inherit;
+				}
+
 
 ul.ul_tags {
 	margin-bottom: 10px;
 	font-size: 12px;
-	margin-bottom: 2em;
 	}
 	
 .ul_tags li {
@@ -1327,27 +1409,39 @@ ul.ul_tags {
 	
 	.ul_tags li a {
 		padding: 4px;
-		background: #c7c4c1;
-		color: #454545;
+		background: #717078;
+		color: #fff;
 		}
 		
 		.ul_tags li.active a, .ul_tags li a:hover {
 			background: #e47816;
 			color: #fff;
+			border-bottom: none;
 			}
-
-#filter_bills li.active {
-	font-weight: bold;
-	}
 
 .tab_panel, .content .tab_panel p {
 	font-size: 12px;
+	line-height: 16px;
 	}
 	
 	.tab_panel, .content .tab_panel p.date {
 		font-size: 11px;
 		}
+
+.content .tab_panel p.date {
+	background: #bcb7b1;
+	padding: 0 2px;
+	line-height: 18px;
+	}
 	
+	.content .tab_panel p span.username {
+		font-size: 12px;
+		}
+		
+		.content div.oppose, .content div.support {
+			font: italic normal 11px/16px georgia, serif;
+			}
+		
 	.tab_panel .endorse p, .tab_panel .oppose p  {
 		font: italic normal 13px/18px georgia, serif;
 		}
@@ -1373,7 +1467,7 @@ thead th {
 		
 tr.bill td {
 	padding: 2px 0;
-	border-bottom: 1px dotted #666;
+	background: url(bg_hr.png) left bottom repeat-x;
 	font-size: 12px;
 	}
 	tr.bill td.expando {
@@ -1387,13 +1481,15 @@ tr.bill.active td {
 	border: none;
 	}
 tr.billdetails.active td {
-	background-color: #d8d6d0;
+	background-color: #d9d6d2;
 	border-bottom: 1px dotted #666;
 	border-top: 1px solid #E8E5DF;
+	padding: 4px 0 0 	4px;
 	}
 tr.bill.active:hover td {
 	background-color: #d8d6d0;
 	}
+	
 tr.bill td a {
 	color: #404045;
 	}

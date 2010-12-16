@@ -191,6 +191,8 @@
 <div class="content leg_staff">
 
 	<div class="col_9 dash">
+		<div id="settings_tab"><a id="filter_tab" href="#" onclick="return toggle_filter();" title="Filter Settings">Filter</a></div>
+
 		<ul class="horz_tabs">
 			<div id="suggestions_main">
 				{% for group in suggestions %}
@@ -201,8 +203,6 @@
 			</div>
 			
 			<li id="issues_tab"><a href="#" onclick="return showtab('issues');" title="issue areas">Issue Areas</a></li>
-			
-			<li><a id="filter_tab" href="#" onclick="return toggle_filter();" title="Filter Settings">Settings</a></li>
 	
 			<div class="clear"> </div>
 		</ul>
@@ -210,17 +210,20 @@
 		<div class="clear"> </div>
 
 		<div id="settings_panel" style="display: none">
+			<div class="x"><a href="#" title="close filter" onclick="return toggle_filter()">X</a></div>
 			<ul id="filter_bills">
-				<li value=""  {% if filternextvotechamber == "" %}class="active"{% endif %} onclick="return filter(this);">Display All Bills</li>
+				<li class="txt" title="Does not apply to bookmarked, hidden, and hot-in-your-district bills.">FILTER BILLS:</li>
+				<li value=""  {% if filternextvotechamber == "" %}class="active"{% endif %} onclick="return filter(this);">All Bills</li>
 				<li value="s"  {% if filternextvotechamber == "s" %}class="active"{% endif %} onclick="return filter(this)">Pending Senate Action</li>
 				<li value="h"  {% if filternextvotechamber == "h" %}class="active"{% endif %} onclick="return filter(this)">Pending House Action</li>
 			</ul>
-			<p>(Does not apply to bookmarked, hidden, and hot-in-your-district bills.)</p>
 		</div>
 		
 		<div id="issue_tabs" style="display: none">
-			<p>POPVOX automatically tracks legislation relevant to you based on your <a href="/accounts/profile">account settings</a> and the issue areas you choose that are relevant to your policy work:</p>
 			
+			<div id="question_tab" title="POPVOX automatically tracks legislation relevant to you based on your account settings and the issue areas you choose that are relevant to your policy work:"><a href="#">?</a></div>
+			<div id="suggestions_tab"><a href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { antitracked_bills_removed = true; update_tabs(); });" title="Add/Remove Issue Areas">Add/Remove</a></div>
+
 			<ul class="ul_tags">
 				<div id="suggestions_issues">
 					{% for group in suggestions %}
@@ -230,7 +233,6 @@
 					{% endfor %}
 				</div>
 				
-				<li id="suggestions_tab"><a href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { antitracked_bills_removed = true; update_tabs(); });" title="Add/Remove Issue Areas">Add/Remove</a></li>
 				
 				<div class="clear"> </div>
 			</ul>

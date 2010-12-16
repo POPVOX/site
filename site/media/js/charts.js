@@ -2,7 +2,7 @@ function bill_chart(container, pro_pct, con_pct, opts) {
 	$(function() {
       new Highcharts.Chart({
          chart: {
-		  backgroundColor: "#e8e5df",
+		  backgroundColor: (!opts || !opts.bg) ? "#e8e5df" : opts.bg,
             renderTo: container,
 		  margin: [0,0,0,0],
          },

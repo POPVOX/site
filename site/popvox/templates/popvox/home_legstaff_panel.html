@@ -77,11 +77,12 @@
 			</td>
 		</tr>
 		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
-			<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="background-color: inherit; padding: 1em; display: none">
+			<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="display: none">
 				<p title="{{bill.status_advanced}}">Status: {{bill.status_advanced_abbreviated}}</p>
 				{% for date, text in bill.latest_action_formatted %}
 					{% if date %}
-					<div>{{date}}: {{text}}</div>
+					<p class="date">{{date}}</p>
+					<div>{{text}}</div>
 					{% endif %}
 				{% endfor %}
 				
