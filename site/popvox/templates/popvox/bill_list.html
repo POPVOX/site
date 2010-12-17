@@ -96,7 +96,7 @@ $(function() {
 					{% endif %}
 					<p>
 						<span class="status">Status:</span>
-						{{bill.status_advanced|truncatewords:8}}
+						{{bill.status_advanced|truncatewords:8}}  ({{bill.current_status_date|date2}})
 					</p>
 					{% comment %}
 					{% if bill.officialtitle %}
@@ -145,7 +145,7 @@ $(function() {
 						<p><strong>Status:</strong>
 						<em>
 						{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-							{{bill.status_advanced}}
+							{{bill.status_advanced}}  ({{bill.current_status_date|date2}})
 						{% else %}
 							{{bill.status}}
 						{% endif %}

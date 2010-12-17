@@ -209,7 +209,7 @@
 					<h4>Status:</h4>
 					<p>
 					{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-						{{bill.status_advanced}}
+						{{bill.status_advanced}} ({{bill.current_status_date|date2}})
 					{% else %}
 						{{bill.status}}
 					{% endif %}
