@@ -1,3 +1,5 @@
+{% load popvox_utils %}
+
 <h2>{{group.name}}</h2>
 
 {% if group.id == "tracked" and group.count == 0 %}
@@ -56,9 +58,9 @@
 				{% endif %}
 			</td>
 			<td style="padding-right: 1em;" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
-				<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
+				<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}} ({{bill.current_status_date|date2}})">
 					<div style="width: 1000px; height: 1.2em;">
-						{{bill.status_advanced_abbreviated}}
+						{{bill.status_advanced_abbreviated}} ({{bill.current_status_date|date2}})
 					</div>
 				</div>
 			</td>

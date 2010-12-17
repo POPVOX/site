@@ -1,4 +1,5 @@
 {% extends "master.html" %}
+{% load popvox_utils %}
 {% block title %}Bill Search{% endblock%}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
@@ -39,19 +40,6 @@
 	{% endif %}
 	
 	<table width="100%">
-	<thead>
-		<tr>
-			<th style="padding-left: 5px">Number</th>
-			<th>Title</th>
-			<th>Sponsor</th>
-			
-			{% if is_leg_staff %}
-			<th># Co</th>
-			<th>Status</th>
-			{% endif %}
-			<th></th>
-		</tr>
-	</thead>
 	{% for bill in bills %}
 		<tr class="bill">
 			<td style="padding-left: 5px; padding-right: 1em">
@@ -71,8 +59,8 @@
 			<td style="padding-right: 1em;">
 				<div style="width: 95px; overflow: hidden;" title="{{bill.sponsor.name}}">
 					<div style="width: 1000px; height: 1.2em;">
-						{% if is_leg_staff %}{{bill.sponsor.party}} |{% endif %} 
 						{{bill.sponsor.lastname}}
+						({{bill.sponsor.party}}) 
 					</div>
 				</div>
 			</td>
@@ -87,9 +75,9 @@
 				{% endif %}
 			</td>
 			<td style="padding-right: 1em;">
-				<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
+				<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}} ({{bill.current_status_date|date2}})">
 					<div style="width: 1000px; height: 1.2em;">
-						{{bill.status_advanced_abbreviated}}
+						{{bill.status_advanced_abbreviated}} ({{bill.current_status_date|date2}})
 					</div>
 				</div>
 			</td>

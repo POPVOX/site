@@ -298,7 +298,6 @@ def getBillStatus(bill) :
 
 def getBillStatusAdvanced(bill, abbreviated) :
 	status = bill.current_status
-	date = bill.current_status_date.strftime("%b %d, %Y").replace(" 0", " ")
 		
 	# Some status messages depend on whether the bill is current:
 	if bill.congressnumber == CURRENT_CONGRESS:
@@ -391,7 +390,7 @@ def getBillStatusAdvanced(bill, abbreviated) :
 	elif status == "ENACTED:VETO_OVERRIDE":
 		status = "Veto Overridden"
 	
-	return status + " (" + date + ")"
+	return status
 	
 def billFinalStatus(bill):
 	status = bill.current_status
