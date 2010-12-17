@@ -68,7 +68,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None):
 	localbills = get_legstaff_district_bills(user)
 	if len(localbills) > 0:
 		moc = popvox.govtrack.getMemberOfCongress(boss)
-		d = moc["state"] + ("" if moc["type"] == "sen" else str(moc["district"]))
+		d = moc["state"] + ("" if moc["type"] == "sen" else "-" + str(moc["district"]))
 		suggestions.append({
 			"id": "local",
 			"type": "local",

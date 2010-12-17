@@ -81,15 +81,13 @@
 		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
 			<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="display: none">
 					<div class="col_4_5">
-						<p class="date">Nov 20</p>
+						<p class="date">{{bill.current_status_date|date2}}</p>
 						<p title="{{bill.status_advanced}}"><strong>Status:</strong> {{bill.status_advanced_abbreviated}}</p>
 					</div>	
 					<div class="col_4_5 col_last">
 					{% for date, text in bill.latest_action_formatted %}
-						{% if date %}
 						<p class="date">{{date}}</p>
-						<div><p>{{text}}</p></div>
-						{% endif %}
+						<div><p>{{text|truncatewords:30}}</p></div>
 					{% endfor %}
 					</div>
 				<div class="hr_lite"> </div>
