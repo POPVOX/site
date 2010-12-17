@@ -1455,6 +1455,18 @@ ul.ul_tags {
 		text-decoration: none;
 		}
 
+
+			
+.tab_panel .col_4_5 {
+	width: 315px;
+	padding-top: 5px;
+	margin: 0 15px 20px 15px;
+	}
+	
+	.tab_panel p.pad_left {
+		padding-left: 42px;
+		}
+
 .tracked_detail {
 	background: url(bg_hr.png) left bottom repeat-x;
 	}
@@ -3352,21 +3364,28 @@ ul.staff, .small {
 		clear: both;
 		}
 		
-	.hr_rule {
-		width: 100%;
-		height: 4px;
-		margin: 10px 0;
-		background: url("bg_rule.gif") repeat-x left top;
-		clear: both;
-		}
-		
-	.hr2 {
-		width: 100%;
-		height: 1px;
-		margin: 10px 0;
-		border-bottom: 3px solid #757575; 
-		clear: both;
-		}
+		.hr_lite {
+			height: 2px;
+			margin: 0 10px 10px;
+			border-bottom:1px solid #E8E5DF;
+			clear: both;
+			}
+	
+		.hr_rule {
+			width: 100%;
+			height: 4px;
+			margin: 10px 0;
+			background: url("bg_rule.gif") repeat-x left top;
+			clear: both;
+			}
+			
+		.hr2 {
+			width: 100%;
+			height: 1px;
+			margin: 10px 0;
+			border-bottom: 3px solid #757575; 
+			clear: both;
+			}
 		
 	.no_border {
 		border: 0;

@@ -1,39 +1,10 @@
 {% load popvox_utils %}
 {% load humanize %}
 
-{% bill_statistics bill as stats %}
-{% if stats %}
-	<div style="width: 230px; margin-left: 3em; float: right">
-		<div style="width: 90px; float: left">
-			<a href="{{bill.url}}/report">
-				<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-			</a>
-			<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true, bg: "#d9d6d2" });</script>
-			 <p class="view_report clear" style="padding: 0">
-				<span><a href="{{bill.url}}/report">View Report</a></span>
-			</p>
-		</div>
-		
-		<div class="chart_info">
-			<div class="col_chart">
-				<p class="chart_stats">
-					<span class="chart_title">{{stats.longdescription}}:</span><br />
-					<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-					<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-					<span class="users">({{stats.total}} users)</span>
-				</p>
-			</div>
-		</div>
-	</div>
-{% else %}
-	{% comment %}
-	<small>Too few constituents in your {{districtstr|lower}} have commented on this bill to display statistics.</small>
-	{% endcomment %}
-{% endif %}
-								
 {% for item in items %}
 
 	{% if item|pythontype == 'popvox.models.UserComment' %}
+	<div class="col_4_5">	
 		<p class="date">{{item.updated|date2}}</p>
 		<p>
 			<span class="username">
@@ -57,7 +28,38 @@
 	
 
 	{% if forloop.last %}
-	<p>See the <a href="{{bill.url}}/report">full report</a> for all {{total_count}} comment{{total_count|pluralize}}.</p>
+	<p class="pad_left">See the <a href="{{bill.url}}/report">full report</a> for all {{total_count}} comment{{total_count|pluralize}}.</p>
 	{% endif %}
 {% endfor %}
+	</div>
+
+{% bill_statistics bill as stats %}
+{% if stats %}
+	<div class="col_4_5 col_last">
+		<div style="width: 90px; float: left">
+			<a href="{{bill.url}}/report">
+				<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
+			</a>
+			<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true, bg: "#d9d6d2" });</script>
+		</div>
+		
+		<div class="chart_info">
+			<div class="col_chart">
+				<p class="chart_stats">
+					<span class="chart_title">{{stats.longdescription}}:</span><br />
+					<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
+					<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
+					<span class="users">({{stats.total}} users)</span>
+				</p>
+			</div>
+		</div>
+	</div>
+{% else %}
+			 <p class="view_report clear" style="padding: 0">
+				<span><a href="{{bill.url}}/report">View Report</a></span>
+			</p>
+	{% comment %}
+	<small>Too few constituents in your {{districtstr|lower}} have commented on this bill to display statistics.</small>
+	{% endcomment %}
+{% endif %}
 

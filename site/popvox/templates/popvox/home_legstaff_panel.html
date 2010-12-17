@@ -78,13 +78,19 @@
 		</tr>
 		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
 			<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="display: none">
-				<p title="{{bill.status_advanced}}">Status: {{bill.status_advanced_abbreviated}}</p>
-				{% for date, text in bill.latest_action_formatted %}
-					{% if date %}
-					<p class="date">{{date}}</p>
-					<div>{{text}}</div>
-					{% endif %}
-				{% endfor %}
+					<div class="col_4_5">
+						<p class="date">Nov 20</p>
+						<p title="{{bill.status_advanced}}"><strong>Status:</strong> {{bill.status_advanced_abbreviated}}</p>
+					</div>	
+					<div class="col_4_5 col_last">
+					{% for date, text in bill.latest_action_formatted %}
+						{% if date %}
+						<p class="date">{{date}}</p>
+						<div><p>{{text}}</p></div>
+						{% endif %}
+					{% endfor %}
+					</div>
+				<div class="hr_lite"> </div>
 				
 				<div id="bill_{{subgroup.id}}_{{bill.id}}_details_dynamic"></div>
 			</td>

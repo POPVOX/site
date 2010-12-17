@@ -308,6 +308,8 @@ def getBillStatusAdvanced(bill, abbreviated) :
 			status = "Referred to Committee"
 			ctr = 0
 			for n in bill.committees_cached if hasattr(bill, "committees_cached") else bill.committees.all():
+				if ":" in n.name():
+					continue
 				if status == "Referred to Committee":
 					if not abbreviated:
 						status = "Referred to "
