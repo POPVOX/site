@@ -65,7 +65,7 @@
 	}
 
 	var last_expando = null;
-	function expando(billid, elemid) {
+	function expandbill(billid, elemid) {
 		if (last_expando) {
 			$('#bill_' + last_expando + '_details').hide();
 			$('#bill_' + last_expando + '_expando').removeClass("active");
@@ -184,7 +184,7 @@
 	}
 	
 	function refresh_tooltips() {
-		$("[title]").tooltip({opacity: .9, predelay: 200, xxxposition: "top right"});
+		//$("[title]").tooltip({opacity: .9, predelay: 200, xxxposition: "top right"});
 	}
 </script>
 {% endblock %}

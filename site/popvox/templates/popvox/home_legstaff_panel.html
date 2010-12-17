@@ -25,29 +25,29 @@
 	</tr>
 	{% for bill in subgroup.bills %}
 		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill" billid="{{bill.id}}" valign="top">
-			<td style="padding-left: 5px; padding-right: .5em" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-left: 5px; padding-right: .5em" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
 				<nobr>
 					{{bill.displaynumber}}
 				</nobr>
 			</td>
-			<td style="padding-right: 1em"; class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: 1em"; class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
 				<div style="width: 190px; overflow: hidden; " title="{{bill.title}}">
 					<div style="width: 1000px; height: 1.2em;">
 						{{bill.title_no_number}}
 					</div>
 				</div>
 			</td>
-			<td style="padding-right: .25em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: .25em;" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
 				<div style="width: 65px; overflow: hidden;" title="{{bill.sponsor.name}}">
 					<div style="width: 1000px; height: 1.2em;">
 						{{bill.sponsor.lastname}}
 					</div>
 				</div>
 			</td>
-			<td style="padding-right: 1em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: 1em;" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
 				({{bill.sponsor.party}})
 			</td>
-			<td style="padding-right: 1em" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: 1em" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
 				{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endcomment %}
 				{% if bill.num_cosponsors %}
 				<div title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
@@ -55,7 +55,7 @@
 				</div>
 				{% endif %}
 			</td>
-			<td style="padding-right: 1em;" class="expando" onclick="return expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: 1em;" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
 				<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}}">
 					<div style="width: 1000px; height: 1.2em;">
 						{{bill.status_advanced_abbreviated}}
@@ -73,7 +73,7 @@
 				{% endwith %}
 				{% endif %}
 				
-				<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expando({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
+				<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
 			</td>
 		</tr>
 		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
