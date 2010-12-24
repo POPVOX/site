@@ -1,9 +1,10 @@
 # TODO: Caching needs to be thread-safe?
 
-CURRENT_CONGRESS = 111
+CURRENT_CONGRESS = 112
 
 from django.core.cache import cache
 
+import os.path
 from urllib import urlopen, urlencode
 from xml.dom import minidom
 from datetime import datetime
@@ -40,14 +41,11 @@ def loadpeople():
 	if people != None:
 		return
 	
-	# TODO: We're only loading in current Members of Congress. Doing this for
-	# the whole historical people.xml takes way too long. We need to load that
-	# into the database if we're going to provide access to it.
-	
 	people = { }
 	senators = { }
 	congresspeople = { }
-	xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/people.xml"))
+	#xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/people.xml"))
+	xml = minidom.parse(open_govtrack_file("us/people.xml"))
 	for node in xml.getElementsByTagName("person"):
 		people[int(node.getAttribute("id"))] = {
 			"id": int(node.getAttribute("id")),
@@ -59,7 +57,10 @@ def loadpeople():
 				
 		for role in node.getElementsByTagName("role"):
 			# roles are in chronological order, so the last party sticks
-			people[int(node.getAttribute("id"))]["party"] = role.getAttribute("party")[0]
+			if role.getAttribute("party") != "":
+				people[int(node.getAttribute("id"))]["party"] = role.getAttribute("party")[0]
+			else:
+				people[int(node.getAttribute("id"))]["party"] = "?"
 			
 			if role.getAttribute("current") == "1":
 				people[int(node.getAttribute("id"))]["current"] = True
@@ -467,16 +468,17 @@ def getCommitteeList():
 	committees.sort(key = lambda x : x["name"].replace("the ", ""))
 	
 	# Load members from current congress...
-	xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/committees.xml"))
-	for node in xml.getElementsByTagName("committee") + xml.getElementsByTagName("subcommittee"):
-		if node.nodeName == "committee":
-			id = node.getAttribute("code")
-		else:
-			id = node.parentNode.getAttribute("code") + "-" + node.getAttribute("code")
-		if not id in cdict:
-			continue
-		for n in node.getElementsByTagName("member"):
-			cdict[id]["members"].append(int(n.getAttribute("id")))
+	if os.path.exists("us/" + str(CURRENT_CONGRESS) + "/committees.xml"):
+		xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/committees.xml"))
+		for node in xml.getElementsByTagName("committee") + xml.getElementsByTagName("subcommittee"):
+			if node.nodeName == "committee":
+				id = node.getAttribute("code")
+			else:
+				id = node.parentNode.getAttribute("code") + "-" + node.getAttribute("code")
+			if not id in cdict:
+				continue
+			for n in node.getElementsByTagName("member"):
+				cdict[id]["members"].append(int(n.getAttribute("id")))
 			
 	cache.set('govtrack_committees', committees, 60*60*24) # cache one day
 
