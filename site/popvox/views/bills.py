@@ -1020,11 +1020,13 @@ Go to %s to have your voice be heard!
 					"message": request.POST["message"].encode('utf-8'),
 					}))
 				
-		if ret.getcode() == 403:
+		if ret.getcode() in (400, 403):
 			request.session["billshare_share.state"] = request.POST["message"], includecomment
 			return { "status": "fail", "error": "not-authorized", "scope": "publish_stream" }
 		if ret.getcode() != 200:
-			return { "status": "success", "msg": "Post failed." }
+			import sys
+			sys.stderr.write("post failed> " + ret.read() + "\n")
+			return { "status": "success", "msg": "Post failed (" + str(ret.getcode()) + ")" }
 		ret = json.loads(ret.read())
 		
 		if request.user == comment.user:
