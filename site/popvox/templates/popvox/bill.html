@@ -37,6 +37,15 @@ function getshorturl() {
 	return false;
 }
 {% include "popvox/track.js" %}
+function subscribe(validate) {
+	if ($('#subscribe_email').hasClass("default") || $('#subscribe_email').val() == "") return false;
+	ajaxform("/post/home/subscribe",
+		{ "validate": (validate ? "validate" : "submit") },
+		{ "email": "#subscribe_email" },
+		{ "statusfield": "subscribe_status",
+		   "statussuccess": (validate ? null : "Thanks!")} );
+	return false;
+}
 </script>
 {% endblock %}
 {% block content %}
@@ -67,8 +76,25 @@ function getshorturl() {
 			{% endif %}
 			
 			{% if not bill.isAlive %}
-			<p>This bill {{bill.getDeadReason}}. {% if canvote %}You can no longer write a comment about this bill.{% endif %}</p>
+			<p><strong>This bill {{bill.getDeadReason}}. {% if canvote %}You can no longer write a comment about this bill.{% endif %}</strong>
+			Sign up for updates from POPVOX about action you can take in the future:
+			</p>
+			
+			<form id="signup_form" action="#" method="post" name="signup" style="margin-left: 2em">
+				<input id="subscribe_email" class="signup_input" name="email" size="25" maxlength="60" type="text">
+				
+				<input id="subscribe_button" onclick="return subscribe(false)" type="button">
+
+				<p id="subscribe_status" class="error"></p>
+				
+				<script>
+				$('#subscribe_email').input_default("enter your email address");
+				$('.signup_input').textchange(function() { subscribe(true); return true; });
+				$('.signup_input').keydown_enter(function() { return subscribe(false); });
+				</script>
+			</form>
 			{% endif %}
+			
 		</div>
 		
 	{% comment %} START FOR ORG STAFF {% endcomment %}
