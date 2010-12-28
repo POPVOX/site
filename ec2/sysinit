@@ -37,14 +37,14 @@ mount -a
 
 # Users
 sudo useradd -m --shell /bin/bash www
-sudo su www -c "cd; /mnt/persistent/ec2_inituser"
+sudo su www -c "cd; /mnt/persistent/ec2_inituser 443"
 crontab /home/www/sources/scripts/crontab
 
 sudo useradd -m --shell /bin/bash josh
-sudo su josh -c "cd; /mnt/persistent/ec2_inituser"
+sudo su josh -c "cd; /mnt/persistent/ec2_inituser 444"
 
 sudo useradd -m --shell /bin/bash william
-sudo su william -c "cd; /mnt/persistent/ec2_inituser"
+sudo su william -c "cd; /mnt/persistent/ec2_inituser 445"
 
 # Mysql
 sudo service mysql stop

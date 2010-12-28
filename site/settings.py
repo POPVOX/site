@@ -31,6 +31,7 @@ EMAIL_USE_TLS = True
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'team@popvox.com') ]
 
+SESSION_COOKIE_SECURE = True
 SEND_BROKEN_LINK_EMAILS = False
 
 if not DEBUG or "REMOTEDB" in os.environ:

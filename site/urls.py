@@ -82,12 +82,11 @@ urlpatterns = patterns('',
 	(r'^shorturl/', include('shorturl.urls')),
 	(r'^trafficanalysis/', include('trafficanalysis.urls')),
 	(r'^feedback/', include('feedback.urls')),
+
+	(r'^admin/', include(admin.site.urls)),
 )
 
-if settings.DEBUG:
-     urlpatterns += patterns('',
-		(r'^admin/', include(admin.site.urls)),
-	)
+# for running a site that handles the admin interface only
 if "ADMIN_SITE" in os.environ and os.environ["ADMIN_SITE"] == "1":
      urlpatterns = patterns('',
 		(r'', include(admin.site.urls)),

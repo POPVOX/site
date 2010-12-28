@@ -1,10 +1,12 @@
+export PORT=$1
+
 git clone /mnt/persistent/sources.git sources
 
 #########
 
 cd sources
 
-grep "^##" httpd.conf |sed "s/^##//"|sed "s/__USER__/$USER/g" > ../httpd.conf
+grep "^##" httpd.conf |sed "s/^##//"|sed "s/__USER__/$USER/g"|sed "s/443/$PORT/" > ../httpd.conf
 
 #########
 
