@@ -187,7 +187,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None):
 	all_bills = concat([s["bills"] for s in suggestions])
 
 	# Pre-fetch all of the committee assignments of all of the bills, in bulk.
-	if len(suggestions) > 0:
+	if len(all_bills) > 0:
 		# Load the committee assignments and put into a hash.
 		committee_assignments = { }
 		for b in Bill.objects.raw("SELECT popvox_bill.id AS id, popvox_congressionalcommittee.id AS committee_id, popvox_congressionalcommittee.code AS committee_code FROM popvox_bill LEFT JOIN popvox_bill_committees ON popvox_bill.id=popvox_bill_committees.bill_id LEFT JOIN popvox_congressionalcommittee ON popvox_congressionalcommittee.id=popvox_bill_committees.congressionalcommittee_id WHERE popvox_bill.id IN (%s)" % ",".join([str(b.id) for b in all_bills])):

@@ -15,7 +15,7 @@ Dear %s,
 
 On behalf of our team, I'd like to personally thank you for trying POPVOX.com.
 
-This month, Congress returned to Washington, DC for what is called a "lame duck session," the last chance for Congress to pass legislation before it adjourns for the term. Our team is excited for this opportunity to take POPVOX for a test drive! We hope you will return to share your opinion as bills are considered during this time.
+On January 5, the 112th Congress will begin its session with a clean legislative slate.  Many of the bills that have been discussed and debated on POPVOX and in the halls of Congress will be reintroduced and given a new bill number (which begins with HR or S).  We expect a flurry of activity.  In fact when the last session of Congress convened, over 400 bills were introduced on the first day!
 
 With this in mind, I'm asking for your help. Since we're working every day to make improvements and add new features to the site, could you answer some questions for us about your experience on POPVOX?
 
