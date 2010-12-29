@@ -249,7 +249,7 @@ p {
 			}
 			
 		.section h2 {
-			font: normal 25px/30px "LucidaGrande", helvetica, arial, sans-serif;
+			font: normal 25px/30px helvetica, arial, sans-serif;
 			}
 
 		.section h3 {
@@ -262,7 +262,7 @@ p {
 			}
 			
 		h4 {
-			font: normal 16px/20px "LucidaGrande", helvetica, arial, sans-serif;
+			font: normal 16px/20px helvetica, arial, sans-serif;
 			}
 		
 	.ad_top {
@@ -347,7 +347,6 @@ p {
 				margin-right: 0;
 				}
 				
-			
 			
 	.col_5 {
 		width: 380px;
@@ -478,6 +477,82 @@ p {
 	margin-top: 8px;
 	margin-left: 20px;
 }
+
+/* alert dead */
+
+	.alert_dead {
+		background: url(bg_dead.gif) left top no-repeat;
+		width: 940px;
+		height: 241px;
+		margin-bottom: 10px;
+		padding: 5px 20px;
+		color:  #fff;
+		}
+		
+		.alert_dead .col_6 {
+			width: 430px;
+			padding-right: 15px;
+			}
+			
+			.alert_dead .col_6.col_last {
+				width: 450px;
+				}
+				
+	.content .alert_dead h2 {
+		font-size: 20px;
+		line-height: 28px;
+		margin-bottom: 10px;
+		}
+		
+	.content .alert_dead p {
+		font: italic normal 14px/18px georgia;
+		margin-bottom: 20px;
+		}
+
+	.alert_dead li {
+		float: left;
+		margin-right: 20px;
+		}
+		
+	.alert_dead a {
+		color: #fff;
+		border-bottom: 1px solid #fff;
+		}
+		
+	.alert_dead label {
+		font-size: 14px;
+		display: block;
+		height: 15px;
+		}
+		
+	.alert_dead textarea {
+		width: 280px;
+		height: 60px;
+		border: none;
+		padding: 10px;
+		color: #75747c;
+		font-size: 13px;
+		margin: 10px 20px 10px 0;
+		float: left;
+		display: block;
+		}
+		
+	.alert_dead #submitbutton {
+		float: left;
+		display: block;
+		background: url(b_submit.png) left top no-repeat;
+		border: none;
+		text-indent: -9999em;
+		width: 114px;
+		height: 48px;
+		margin-top: 50px;
+		}
+		
+		.alert_dead #submitbutton:hover {
+			background-position: left bottom;
+			cursor: pointer;
+			}
+
 
 /* ----bill list---- */
 
@@ -747,7 +822,7 @@ h3#reporttitle {
 		}
 		
 	.legreport h2 {
-		font: bold 20px/24px "LucidaGrande", helvetica, arial, sans-serif;
+		font: bold 20px/24px helvetica, arial, sans-serif;
 		margin-bottom: 10px;
 		}
 		
@@ -868,11 +943,11 @@ h3#reporttitle {
 			}	
 	
 	.content h2 {
-		font: normal 25px/30px "LucidaGrande", helvetica, arial, sans-serif;
+		font: normal 25px/30px helvetica, arial, sans-serif;
 		}
 
 		.content h2.mission {
-			font: normal 14px/18px "LucidaGrande", helvetica, arial, sans-serif;
+			font: normal 14px/18px helvetica, arial, sans-serif;
 			}
 			
 			.content h2.mission strong {
@@ -905,6 +980,24 @@ h3#reporttitle {
 			letter-spacing: .02em;
 /*			border-bottom: 1px solid #c2bfb8; */
 			}
+			
+
+		.content .col_3.col_orange {
+			background: #c76925;
+			margin-top: 30px;
+			padding: 0 10px 10px;
+			width: 200px;
+			}
+			
+			.content .col_orange h3 {
+				color: #fff;
+				background: none;
+				margin: 0;
+				}
+
+			.content .col_orange a {
+				color: #fff;
+				}
 		
 			
 	.content h4 {
@@ -1329,7 +1422,7 @@ h3#reporttitle {
 			margin: 0 0 2px 4px;
 			}
 			
-		#settings_tab a, .x a {
+		#settings_tab a, #x a {
 			float: right;
 			font: 11px helvetica;
 			margin: 11px 10px 0;
@@ -1341,11 +1434,11 @@ h3#reporttitle {
 				color: #fff;
 				}
 				
-			.x a {
+			#x a {
 				font-weight: bold;
 				}
 				
-			.x a:hover {
+			#x a:hover {
 				border-bottom: none;
 				color: #474747;
 				}
@@ -1386,15 +1479,11 @@ h3#reporttitle {
 					color: #CC6A11;
 					cursor: pointer;
 					}
-				#filter_bills li.active {
-					color: #e47816;
-					}
 
 			#filter_bills li:hover.txt {
 				color: #404045;
 				cursor: inherit;
 				}
-
 
 ul.ul_tags {
 	margin-bottom: 10px;
@@ -1419,9 +1508,12 @@ ul.ul_tags {
 			border-bottom: none;
 			}
 
+#filter_bills li.active {
+	font-weight: bold;
+	}
+
 .tab_panel, .content .tab_panel p {
 	font-size: 12px;
-	line-height: 16px;
 	}
 	
 	.tab_panel, .content .tab_panel p.date {
@@ -1455,18 +1547,6 @@ ul.ul_tags {
 		text-decoration: none;
 		}
 
-
-			
-.tab_panel .col_4_5 {
-	width: 315px;
-	padding-top: 5px;
-	margin: 0 15px 20px 15px;
-	}
-	
-	.tab_panel p.pad_left {
-		padding-left: 42px;
-		}
-
 .tracked_detail {
 	background: url(bg_hr.png) left bottom repeat-x;
 	}
@@ -1496,7 +1576,6 @@ tr.billdetails.active td {
 	background-color: #d9d6d2;
 	border-bottom: 1px dotted #666;
 	border-top: 1px solid #E8E5DF;
-	padding: 4px 0 0 	4px;
 	}
 tr.bill.active:hover td {
 	background-color: #d8d6d0;
@@ -2144,6 +2223,11 @@ ul#issuearealist {
 
 		
 /* ----about---- */
+
+.about_team .float_right {
+	padding-top: 1em;
+	}
+
 .team h2, .section_btm h2 {
 	font: normal 30px/20px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	letter-spacing: .02em;
@@ -2151,44 +2235,44 @@ ul#issuearealist {
 	margin-bottom: 10px;
 	}
 	
-.col_6 .team_img {
-	float: left;
-	margin:  0 20px 60px 0;
-	}
-	
+.col_4_5 .team_img,
 .col_4 .team_img {
 	float: left;
-	margin:  0 20px 20px 0;
+	margin: 10px 20px 10px 0;
 	}
 	
-.team .col_6 h3 {
+.team .col_4_5 {
+	margin-right: 20px;
+	width: 330px;	
+	}
+	
+.team .col_4_5 h3,
+.team_2 .col_4 h3 {
 	font: normal 26px/20px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	letter-spacing: .02em;
-	height: 24px;
+	background: none;
+	margin: 15px 0 0;
+	padding: 0;
 	}
 	
-.team .col_6 h4 {
+.team .col_4_5 h4,
+.team_2 .col_4 h4 {
 	font: normal 16px/28px helvetica, arial, sans-serif;
+	margin: 0 0 10px;
 	}
 
-.team_2 .col_4 h3 {
-	font: normal 22px/20px 'BebasNeueRegular', helvetica, arial, sans-serif;
-	letter-spacing: .02em;
-	height: 20px;
-	}
-	
-.team_2 .col_4 h4 {
-	font: normal 14px/20px helvetica, arial, sans-serif;
+.team_2 .col_4.rule {
+	padding-top: 20px;
 	}
 	
 .section.team_2 p {
-	margin-left: 120px;
 	}
 	
 .section_btm {
 	border-top: 3px solid #757575;
 	padding-top: 10px;
 	}
+
 
 
 /* ----landing---- */
@@ -2707,6 +2791,16 @@ ul#issuearealist {
 		margin-bottom: 20px;
 		}
 		
+		.content h2.brackets {
+			background: url(bg_about_brackets.png) left top no-repeat;	
+			padding: 10px 45px;
+			color: #75747c;
+			font-size: 20px;
+			line-height: 26px;
+			margin-bottom: 10px;
+			height: 90px;
+			}
+		
 		.about h3 {
 			
 			}
@@ -3002,6 +3096,15 @@ ul.social_share_btns li {
 			background: url(../icons/sm/twitter-share.png) left top no-repeat;
 			}
 		
+	.b_read_more {
+		background: url(b_read_more.png) left top no-repeat;
+		text-indent: -9999em;
+		display: block;
+		width: 100px;
+		height: 22px;
+		border: none;
+		margin: 20px 0;
+		}
 		
 
 	
@@ -3202,6 +3305,18 @@ ul.staff, .small {
 	
 	
 /* ----misc---- */
+.about_bg {
+	background:url("_junk.jpg") no-repeat scroll -87px -127px transparent;
+	height:900px;
+	position:absolute;
+	width: 960px;
+	z-index:-1;
+	/* for IE */
+	filter:alpha(opacity=70);
+	/* CSS3 standard */
+	opacity:0.7;
+	}
+	
 	a.btn.active {
 		background-position: left bottom;
 		}
@@ -3338,7 +3453,6 @@ ul.staff, .small {
 		font-style: italic;
 		}
 	
-		
 	.float_left {
 		float: left;
 		}
@@ -3364,28 +3478,21 @@ ul.staff, .small {
 		clear: both;
 		}
 		
-		.hr_lite {
-			height: 2px;
-			margin: 0 10px 10px;
-			border-bottom:1px solid #E8E5DF;
-			clear: both;
-			}
-	
-		.hr_rule {
-			width: 100%;
-			height: 4px;
-			margin: 10px 0;
-			background: url("bg_rule.gif") repeat-x left top;
-			clear: both;
-			}
-			
-		.hr2 {
-			width: 100%;
-			height: 1px;
-			margin: 10px 0;
-			border-bottom: 3px solid #757575; 
-			clear: both;
-			}
+	.hr_rule {
+		width: 100%;
+		height: 4px;
+		margin: 10px 0;
+		background: url("bg_rule.gif") repeat-x left top;
+		clear: both;
+		}
+		
+	.hr2 {
+		width: 100%;
+		height: 1px;
+		margin: 10px 0;
+		border-bottom: 3px solid #757575; 
+		clear: both;
+		}
 		
 	.no_border {
 		border: 0;
@@ -3553,18 +3660,54 @@ ul.staff, .small {
 	.col_3 .search {
 		width: 145px;
 	}
-		
-/*	.submit {
-		background: url(btn_search.png) left top no-repeat;
-		height: 20px;
-		width: 60px;
-		border: none;
+
+/* about */	
+	.sub {
+		background: #dcd9d2;
+		padding: 20px;
+		margin-bottom: 30px;;
 		}
-	
-		.submit:hover {
-			background-position: left bottom;
+		
+		.sub h2 {
+			font: normal 30px/35px 'BebasNeueRegular', helvetica, arial, sans-serif;
+			letter-spacing: .02em;
+			color: #434247;
 			}
-*/
+			
+		.sub ul li a {
+			font-size: 14px;
+			line-height: 30px;
+			color: #75747c;
+			}
+			
+			.sub ul li a:hover {
+				color: #CC6A11;
+				border: none;
+				}
+
+			
+	.about_pg .col_4_5 {
+		width: 340px;
+		margin-right: 20px;
+		}
+		
+		.about_pg .col_4_5.col_last {
+			margin-right: 0;
+			}
+			
+	.content.about_pg h3 {
+		font-size: 32px;
+		padding-top: 25px;
+		}
+		
+	.team_img img {
+		margin: 0 0 15px 2px;
+		}
+		
+		.team_img img.first {
+			margin-left: 0;
+			}
+
 
 
 /* ----orgs---- */
@@ -3821,16 +3964,25 @@ table.form_fields td {
 
 .company_philosophy li {
 	display: list-item;
-	list-style: decimal;
-	margin: 0 5em 1.25em 2em;
+	list-style-position: outside;
+	margin: 0 20px 1.25em 0px;
+	padding-left: 50px;
 	font: normal 13px/18px helvetica, arial, sans-serif;
+	float: left;
+	width: 480px;
 }
 .company_philosophy li strong {
-	display: block;
 	font-weight: bold;
 	font-size: 110%;
 	margin-bottom: .33em;
 }
+
+li.ol_1 { background: url(bg_ol_1.png) left top no-repeat; }
+li.ol_2 { background: url(bg_ol_2.png) left top no-repeat; }
+li.ol_3 { background: url(bg_ol_3.png) left top no-repeat; }
+li.ol_4 { background: url(bg_ol_4.png) left top no-repeat; }
+li.ol_5 { background: url(bg_ol_5.png) left top no-repeat; }
+li.ol_6 { background: url(bg_ol_6.png) left top no-repeat; }
 
 .colorbox {
 	width: 900px;
@@ -3845,7 +3997,7 @@ table.form_fields td {
 	}
 	
 .colorbox h2 {
-	font: normal 18px/20px "LucidaGrande", helvetica, arial, sans-serif;
+	font: normal 18px/20px helvetica, arial, sans-serif;
 	}
 	
 .colorbox p, .colorbox #billsearch_endorse_oppose_sponsor, .colorbox billsearch_endorse_oppose_status {

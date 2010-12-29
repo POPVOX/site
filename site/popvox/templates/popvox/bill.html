@@ -59,7 +59,29 @@ function subscribe(validate) {
 		<div class="clear rule_12"> </div>
 	{% endif %}
 	
-	<h1 class="rule_btm">Bill Summary and Status</h1>
+	<h1>Bill Summary and Status</h1>
+	
+	<div class="alert_dead">
+		<div class="col_6">
+			<h2>HR 46464 was introduced in the 111th Congress, which has adjorned.</h2>
+			<h2>It has not yet been reintroduced.</h2>
+			<p>Strong support for reintroduction now will help the Members of Congress who sponsor the bill to quantify the energy around a particular bill and motivate them to introduce the bill soon.</p>
+			<ul>
+				<li><a href="#">Archived Commments</a></li>
+				<li><a href="#">Comments in Support of Reintroduction</a></li>
+			</ul>
+		</div>
+		<div class="col_6 col_last">
+			<h2>Help get HR 4646 reintroduced:</h2>
+			<form>
+				<label><input type="radio" name="support_re" /> I support re-introduction of this bill</label><br />
+				<label><input type="radio" name="notify" /> Notify me when this bill is reintroduced</label><br />
+				<textarea class="optional" name="message" maxlength="250" type="text">Optional comment: I would like this bill to be reintroduced because...</textarea>
+				<input value="Submit" id="submitbutton" type="button">
+			</form>
+		</div>
+	</div><!-- e: alert_dead -->
+
 		
 	<div class="clear col_9 col_top">
 		<div class="block bill_overview_user">
@@ -195,8 +217,8 @@ function subscribe(validate) {
 		
 		</div> <!-- col_6 -->
 		
-		<div class="col_3 col_last">
-			<h3 class="stroke">Drive Your Membership to Take Action</h3>
+		<div class="col_3 col_last col_orange">
+			<h3>Drive Your Membership to Take Action</h3>
 			{% if not existing_org_positions %}
 				<p>POPVOX provides organizations with customized action pages to drive membership to take action. Start by endorsing or opposing this bill.</p>
 			{% else %}
