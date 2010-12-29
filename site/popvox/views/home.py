@@ -575,4 +575,7 @@ def activity_getinfo(request):
 		"total_count": total_count,
 		}, context_instance=RequestContext(request))
 
+def calendar(request):
+	return render_to_response('popvox/legcalendar.html', {
+		}, context_instance=RequestContext(request))
 

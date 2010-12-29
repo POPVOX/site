@@ -151,6 +151,7 @@
 					<li class="{%block nav_legstaff_class_dashboard%}{%endblock%}"><a href="/home">Legislation</a></li>
 					<li class="{%block nav_legstaff_class_comments%}{%endblock%}"><a href="/activity">Comments</a></li>
 					<li class="last {%block nav_legstaff_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
+					<li class="last {%block nav_legstaff_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
 				{% endif %}
 				{% if user.userprofile.is_org_admin %}
 					<li class="{%block nav_orgadmin_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>
@@ -166,6 +167,7 @@
 					<li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/home/reports">Reports</a></li>
 					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Find Orgs</a></li>
 					<li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Find Bills</a></li>
+					<li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
 				{% endif %}
 				{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
 					{% if not user.is_authenticated %}

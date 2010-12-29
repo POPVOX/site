@@ -22,6 +22,8 @@ urlpatterns = patterns('',
 	(r'^activity$', 'popvox.views.home.activity'),
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),
 	
+	(r'^calendar$', 'popvox.views.home.calendar'),
+	
 	(r'^bills$', "popvox.views.bills.bills"),
 	(r'^orgs$', 'popvox.views.org.orgs'),
 	

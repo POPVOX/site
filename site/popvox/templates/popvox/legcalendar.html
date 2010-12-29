@@ -1,0 +1,42 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Legislative Calendar{% endblock%}
+{%block nav_orgadmin_class_calendar%}active{%endblock%}
+{%block nav_legstaff_class_calendar%}active{%endblock%}
+{% block content %}
+<div class="content">
+	
+	<div class="col_9 col_top">
+		<h1>Legislative Calendar</h1>
+		
+		{% if user.userprofile.is_leg_staff %}
+		<p style="margin-bottom: 1em">We&rsquo;ll be updating the legislative calendar here throughout the session. To submit official legislative events, please use our <a href="/about/contact">contact form</a>.</p>
+		{% endif %}
+		
+		<iframe src="https://www.google.com/calendar/embed?height=500&amp;showTitle=0&amp;showTz=0&amp;wkst=1&amp;bgcolor=%23E8E5DF&amp;src=g.popvox.com_a29i4neivhp0ocsrkcd6jf2n30%40group.calendar.google.com&amp;color=%23691426&amp;src=g.popvox.com_dn12o3dcj27brhi8hk4v1ov09o%40group.calendar.google.com&amp;color=%23182C57&amp;ctz=America%2FNew_York" style=" border:0" width="690" height="500" frameborder="0" scrolling="no"></iframe>
+
+		<div class="col_4_5">
+			<h3>Using In Microsoft Outlook 2007</h3>
+			<p>From <a href="http://office.microsoft.com/en-us/outlook-help/transfer-calendars-between-outlook-and-google-calendar-HA010167495.aspx#BM3">this Microsoft page</a>:
+			<ul class="bullets">
+			<li>Right-click either this <a href="http://www.google.com/calendar/ical/g.popvox.com_a29i4neivhp0ocsrkcd6jf2n30%40group.calendar.google.com/public/basic.ics">House</a> or <a href="http://www.google.com/calendar/ical/g.popvox.com_dn12o3dcj27brhi8hk4v1ov09o%40group.calendar.google.com/public/basic.ics">Senate</a>
+			link and choose Copy Shortcut, Copy Link Address, or Copy Link Location.</li>
+			<li>In Outlook, on the Tools menu, click Account Settings.</li>
+			<li>On the Internet Calendars tab, click New.</li>
+			<li>Paste the Internet Web address you copied by pressing CTRL+V.</li>
+			<li>Click Add.</li>
+			<li>In the Folder Name box, type the name of the calendar as you want it to appear in Outlook, and then click OK.</li>
+			</ul>
+		</div>
+		
+		<div class="col_4_5 col_last">
+			<h3>Using in Google Calendar</h3>
+			<p>Click the +Google Calendar button at the bottom of the calendar above.</p>
+		</div>
+	</div> <!-- col_9 -->
+
+	{% include "ads/rightbar.html" %}
+</div><!-- e: content -->
+
+{% endblock %}
+
