@@ -15,6 +15,7 @@ if not DEBUG:
 	SITE_ROOT_URL = "http://www.popvox.com"
 	SITE_SHORT_ROOT_URL = "http://pvox.co"
 	DATADIR = os.path.dirname(__file__) + "/data/"
+	SESSION_COOKIE_SECURE = True
 else:
 	SITE_ROOT_URL = "http://localhost:8000"
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -31,7 +32,6 @@ EMAIL_USE_TLS = True
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'team@popvox.com') ]
 
-SESSION_COOKIE_SECURE = True
 SEND_BROKEN_LINK_EMAILS = False
 
 if not DEBUG or "REMOTEDB" in os.environ:

@@ -120,6 +120,8 @@ class Bill(models.Model):
 		
 	def displaynumber(self):
 		return govtrack.getBillNumber(self)
+	def displaynumber_nosession(self):
+		return govtrack.getBillNumber(self, False)
 	def title_no_number(self):
 		return self.title[self.title.index(":")+2:]
 	def shorttitle(self):

@@ -138,7 +138,7 @@ def getBillCosponsors(metadata):
 	ret.sort(key = lambda x : x["sortkey"])
 	return ret
 
-def getBillNumber(bill):
+def getBillNumber(bill, prev_session=True):
 	# Compute display form.
 	BILL_TYPE_DISPLAY = [ ('h', 'H.R.'), ('s', 'S.'), ('hr', 'H.Res.'), ('sr', 'S.Res.'), ('hc', 'H.Con.Res.'), ('sc', 'S.Con.Res.'), ('hj', 'H.J.Res.'), ('sj', 'S.J.Res.') ]
 	def ordinate(num):
@@ -152,7 +152,7 @@ def getBillNumber(bill):
 			return "rd"
 		return "th"
 	ret = [x[1] for x in BILL_TYPE_DISPLAY if x[0]==bill.billtype][0] + " " + str(bill.billnumber)
-	if bill.congressnumber != CURRENT_CONGRESS :
+	if prev_session and bill.congressnumber != CURRENT_CONGRESS :
 		ret += " - " + str(bill.congressnumber) + ordinate(bill.congressnumber) + " Congress"
 	return ret
 
@@ -403,11 +403,15 @@ def billFinalStatus(bill):
 		return "was enacted " + date
 	elif status in ("FAIL:ORIGINATING:HOUSE", "FAIL:ORIGINATING:SENATE", "FAIL:SECOND:HOUSE", "FAIL:SECOND:SENATE"):
 		return "failed "  + date
-	elif status in ("VETOED:OVERRIDE_FAIL_ORIGINATING:HOUSE", "VETOED_OVERRIDE_FAIL_SECOND:HOUSE", "VETOED:OVERRIDE_FAIL_ORIGINATING:SENATE", "VETOED:OVERRIDE_FAIL_SECOND:SENATE", "VETOED:POCKET"):
+	elif status in ("VETOED:OVERRIDE_FAIL_ORIGINATING:HOUSE", "VETOED_OVERRIDE_FAIL_SECOND:HOUSE", "VETOED:OVERRIDE_FAIL_ORIGINATING:SENATE", "VETOED:OVERRIDE_FAIL_SECOND:SENATE"):
 		return "was vetoed "  + date
+	elif status == "VETOED:POCKET":
+		return "was pocket vetoed "  + date
 	elif bill.congressnumber != CURRENT_CONGRESS:
-		return "died"
-	return None
+		return "died" # this string is special!
+	elif status == "PASSED:BILL":
+		return "was passed by Congress " + date + " and is awaiting the signature of the President"
+	return None # bill is alive
 
 def getChamberOfNextVote(bill):
 	status = bill.current_status

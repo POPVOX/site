@@ -96,6 +96,10 @@ function validate_form() {
 	
 
 	{% if position != "0" %}
+		{% if bill.getDeadReason == "died" %}
+		<p>{{bill.displaynumber_nosession}} was introduced in a previous Congress. You are about to show your support for the reintroduction of this bill.</p>
+		{% endif %}
+	
 		<p>Do you want to write a personal message explaining how this bill affects you?</p>
 		<p>
 			<input id="writemessage0"  type="radio" name="writemessage" {% if not message %}checked="1"{% endif %} onclick="$('#message_container').hide(); $('#nomessage_container').fadeIn()"/>
