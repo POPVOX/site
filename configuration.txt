@@ -3,9 +3,6 @@ Security:
 	MySQL connections that permit remote hosts must require SSL.
 	phpMyAdmin should require SSL in the PHP config and in the Apache config.
 
-packages:
-	python-beautifulsoup memcached python-memcache python-feedparser python-recaptcha python-httplib2 rdiff-backup
-
 Django 1.2
 https://launchpad.net/ubuntu/maverick/i386/python-django/1.2.1-1
 

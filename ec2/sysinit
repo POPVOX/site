@@ -10,7 +10,6 @@
 # Attach EBS vol-6c010f05 on /dev/sdf
 #
 #  The IP address has to be in the DNS...
-#  The IP address has to be in occams's postfix mynetworks list to we can avoid auth to mail.
 
 # mysql root password: qsg;5TtC
 
@@ -23,7 +22,12 @@ sudo apt-get upgrade -y
 
 sudo tasksel install lamp-server unzip
 
-sudo apt-get install -y git-core subversion mercurial libapache2-mod-wsgi python-flup python-beautifulsoup memcached python-memcache python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown rdiff-backup
+sudo apt-get install -y \
+	rdiff-backup \
+	git-core subversion mercurial \
+	libapache2-mod-wsgi python-flup \
+	python-beautifulsoup python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown \
+	memcached python-memcache 
 
 # Custom packages
 DJANGO=python-django_1.2.3-1ubuntu0.1_all.deb
@@ -36,15 +40,18 @@ echo "/dev/sdg        /mnt/persistent auto" >> /etc/fstab
 mount -a
 
 # Users
+
+GIT_DIR=/mnt/persistent/sources.git git show master:ec2/inituser > inituser
+
 sudo useradd -m --shell /bin/bash www
-sudo su www -c "cd; /mnt/persistent/ec2_inituser 443"
+sudo su www -c "cd; sh /home/ubuntu/inituser 443"
 crontab /home/www/sources/scripts/crontab
 
 sudo useradd -m --shell /bin/bash josh
-sudo su josh -c "cd; /mnt/persistent/ec2_inituser 444"
+sudo su josh -c "cd; sh /home/ubuntu/inituser 444"
 
 sudo useradd -m --shell /bin/bash william
-sudo su william -c "cd; /mnt/persistent/ec2_inituser 445"
+sudo su william -c "cd; sh /home/ubuntu/inituser 555"
 
 # Mysql
 sudo service mysql stop
@@ -57,7 +64,7 @@ sudo service mysql start
 
 # Apache
 sudo a2dissite default
-sudo a2enmod proxy proxy_http # we use this to pass the blog through to occams
+sudo a2enmod proxy proxy_http ssl # we use proxy to pass the blog through to occams
 sudo sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
 sudo ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
 sudo /etc/init.d/apache2 restart
