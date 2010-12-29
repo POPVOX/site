@@ -3,39 +3,15 @@
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 
-from popvox.models import UserProfile
+from popvox.models import UserProfile, RawText
 
 import datetime
-import markdown
 
 email_subject = "POPVOX survey -- We need your feedback"
 email_from = "POPVOX <rachna@popvox.com>"
-email_body = """
-Dear %s,
-
-On behalf of our team, I'd like to personally thank you for trying POPVOX.com.
-
-On January 5, the 112th Congress will begin its session with a clean legislative slate.  Many of the bills that have been discussed and debated on POPVOX and in the halls of Congress will be reintroduced and given a new bill number (which begins with HR or S).  We expect a flurry of activity.  In fact when the last session of Congress convened, over 400 bills were introduced on the first day!
-
-With this in mind, I'm asking for your help. Since we're working every day to make improvements and add new features to the site, could you answer some questions for us about your experience on POPVOX?
-
-We have set up a short survey at <http://www.surveymonkey.com/s/7SV8LC6>. Your opinions will help us improve the site and decide on next steps for POPVOX.  
-
-Sincerely,
-
-Rachna and the POPVOX Team
-_____
-Rachna Choudhry  
-Chief Marketing Officer  
-POPVOX  
-<rachna@popvox.com>  
-<http://www.popvox.com>  
-
-_____
-To opt out of future emails from us use your account settings page: <http://www.popvox.com/accounts/profile>.
-"""
-
-email_body_html = markdown.markdown(email_body, output_format='html4')
+body_obj = RawText.objects.get(name="registration-userfollowup")
+email_body = body_obj.text
+email_body_html = body_obj.html()
 
 for userprof in UserProfile.objects.filter(
 #	user__email = "tauberer@gmail.com",

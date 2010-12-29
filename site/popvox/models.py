@@ -24,6 +24,21 @@ class MailListUser(models.Model):
 	def __unicode__(self):
 		return self.email
 
+class RawText(models.Model):
+	name = models.SlugField(db_index=True, unique=True)
+	format = models.IntegerField(choices=[(0, "Raw HTML"), (1, "Markdown")], default=0)
+	text = models.TextField(blank=True)
+	class Meta:
+		ordering = ['name']
+	def __unicode__(self):
+		return self.name
+	def html(self):
+		if self.format == 0:
+			return self.text
+		if self.format == 1:
+			import markdown
+			return markdown.markdown(self.text, output_format='html4')
+
 class IssueArea(models.Model):
 	"""An issue area."""
 	slug = models.SlugField(db_index=True, unique=True)
@@ -31,7 +46,7 @@ class IssueArea(models.Model):
 	shortname = models.CharField(max_length=16, blank=True, null=True)
 	parent = models.ForeignKey('self', blank=True, null=True, db_index=True, related_name = "subissues")
 	class Meta:
-			ordering = ['name']
+		ordering = ['name']
 	def __unicode__(self):
 		return self.name
 
@@ -253,7 +268,6 @@ class Org(models.Model):
 	def is_admin(self, user):
 		if user.is_anonymous():
 			return False
-		# TODO: Remove superuser or check if the superuser has SSL client credentials.
 		return user.is_superuser or len(UserOrgRole.objects.filter(user=user, org=self)) > 0
  
 	def set_default_slug(self):

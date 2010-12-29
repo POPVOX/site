@@ -44,3 +44,14 @@ admin.site.register(UserOrgRole, UserOrgRoleAdmin)
 admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
 admin.site.register(PostalAddress)
 
+class RawTextAdmin(admin.ModelAdmin):
+	actions = ['view_html']
+	def view_html(self, request, queryset):
+		from django.http import HttpResponse
+		r = HttpResponse()
+		for obj in queryset:
+			r.write(obj.html())
+		return r
+	view_html.short_description = "Preview"
+
+admin.site.register(RawText, RawTextAdmin)
