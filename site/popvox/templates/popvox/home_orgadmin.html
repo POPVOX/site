@@ -6,6 +6,9 @@
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+{% include "popvox/bookmarked_bills.js" %}
+</script>
 {% endblock %}
 {% block content %}
 <div class="content">
@@ -80,6 +83,7 @@
 		
 	<div class="col_3 col_top col_last">	
 		<div class="block your_feed">
+			{% comment %}
 			<h3>Your Feed:</h3>
 			
 			{% for item in feed.entries %}
@@ -94,10 +98,13 @@
 				<p class="tip">There are no recent events to show.</p>
 			{% endfor %}
 			<p>The feed is based on bills in your legislative agenda and subject areas chosen for your organization.</p>
-			
+			{% endcomment %}
 		</div>
 				
 	</div>
+	
+	{% include "popvox/bookmarked_bills.html" %}
+
 </div>
 
 {% include "ads/rightbar.html" %}

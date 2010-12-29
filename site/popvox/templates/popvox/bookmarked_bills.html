@@ -1,0 +1,59 @@
+{% load popvox_utils %}
+{% if tracked_bills %}
+	<h3 class="clear">Bookmarked Legislation</h3>
+	<table width="100%" cellspacing="0" border="0">
+	<thead>
+		<tr>
+			<th colspan="2">Bill</th>
+			<th colspan="2">Sponsor</th>
+			<th>Status</th>
+			<th></th>
+		</tr>
+	</thead>
+	{% for bill in tracked_bills %}
+		<tr id="bill_{{bill.id}}_row1" class="bill" billid="{{bill.id}}" valign="top">
+			<td style="padding-left: 5px; padding-right: .5em" class="expando" onclick="return expandbill({{bill.id}}, '{{bill.id}}')">
+				<nobr>
+					{{bill.displaynumber}}
+				</nobr>
+			</td>
+			<td style="padding-right: 1em"; class="expando" onclick="return expandbill({{bill.id}}, '{{bill.id}}')">
+				<div style="width: 190px; overflow: hidden; " title="{{bill.title}}">
+					<div style="width: 1000px; height: 1.2em;">
+						{{bill.title_no_number}}
+					</div>
+				</div>
+			</td>
+			<td style="padding-right: .25em;" class="expando" onclick="return expandbill({{bill.id}}, '{{bill.id}}')">
+				<div style="width: 65px; overflow: hidden;" title="{{bill.sponsor.name}}">
+					<div style="width: 1000px; height: 1.2em;">
+						{{bill.sponsor.lastname}}
+					</div>
+				</div>
+			</td>
+			<td style="padding-right: 1em;" class="expando" onclick="return expandbill({{bill.id}}, '{{bill.id}}')">
+				({{bill.sponsor.party}})
+			</td>
+			<td style="padding-right: 1em;" class="expando" onclick="return expandbill({{bill.id}}, '{{bill.id}}')">
+				<div style="width: 140px; overflow: hidden;" title="{{bill.status}} ({{bill.current_status_date|date2}})">
+					<div style="width: 1000px; height: 1.2em;">
+						{{bill.status_advanced}} ({{bill.current_status_date|date2}})
+					</div>
+				</div>
+			</td>
+			<td class="flipcolor" width="150">
+				{% with "+" as tracktype %}
+				{% include "popvox/track.html" %}
+				{% endwith %}
+				
+				<div id="bill_{{bill.id}}_expando" class="expand" onclick="expandbill({{bill.id}}, '{{bill.id}}')" title="More Info">Expand/Collapse</div>
+			</td>
+		</tr>
+		<tr id="bill_{{bill.id}}_row2" class="billdetails">
+			<td id="bill_{{bill.id}}_details" colspan="7" style="display: none">
+				<div id="bill_{{bill.id}}_details_dynamic"></div>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+{% endif %}	

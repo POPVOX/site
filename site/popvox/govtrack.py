@@ -138,22 +138,23 @@ def getBillCosponsors(metadata):
 	ret.sort(key = lambda x : x["sortkey"])
 	return ret
 
+def ordinate(num):
+	if num % 100 >= 11 and num % 100 <= 13:
+		return "th"
+	elif num % 10 == 1:
+		return "st"
+	elif num % 10 == 2:
+		return "nd"
+	elif num % 10 == 3:
+		return "rd"
+	return "th"
+
 def getBillNumber(bill, prev_session=True):
 	# Compute display form.
 	BILL_TYPE_DISPLAY = [ ('h', 'H.R.'), ('s', 'S.'), ('hr', 'H.Res.'), ('sr', 'S.Res.'), ('hc', 'H.Con.Res.'), ('sc', 'S.Con.Res.'), ('hj', 'H.J.Res.'), ('sj', 'S.J.Res.') ]
-	def ordinate(num):
-		if num % 100 >= 11 and num % 100 <= 13:
-			return "th"
-		elif num % 10 == 1:
-			return "st"
-		elif num % 10 == 2:
-			return "nd"
-		elif num % 10 == 3:
-			return "rd"
-		return "th"
 	ret = [x[1] for x in BILL_TYPE_DISPLAY if x[0]==bill.billtype][0] + " " + str(bill.billnumber)
 	if prev_session and bill.congressnumber != CURRENT_CONGRESS :
-		ret += " - " + str(bill.congressnumber) + ordinate(bill.congressnumber) + " Congress"
+		ret += " (" + str(bill.congressnumber) + ordinate(bill.congressnumber) + ")"
 	return ret
 
 def getBillTitle(bill, metadata, titletype):
@@ -324,12 +325,6 @@ def getBillStatusAdvanced(bill, abbreviated) :
 					break
 		elif status == "REPORTED":
 			status = "Reported by Committee"
-		elif status == "PASS_OVER:HOUSE":
-			status = "Passed House"
-		elif status == "PASS_OVER:SENATE":
-			status = "Passed Senate"
-		elif status == "PASSED:BILL":
-			status = "Engrossed (Passed House and Senate)"
 		elif status == "PASS_BACK:HOUSE":
 			status = "Sent Back to Senate With Changes"
 		elif status == "PASS_BACK:SENATE":
@@ -348,21 +343,13 @@ def getBillStatusAdvanced(bill, abbreviated) :
 			status = "Override Succeeded in Senate"
 	else: # Bill is not current.
 		if status == "INTRODUCED" or status == "REFERRED" or status == "REPORTED":
-			status = "This bill or resolution was introduced in a previous session of Congress but was not passed."
-		elif status == "PASS_OVER:HOUSE":
-			status = "This bill or resolution was introduced in a previous session of Congress and was passed by the House but was never passed by the Senate."
-		elif status == "PASS_OVER:SENATE":
-			status = "This bill or resolution was introduced in a previous session of Congress and was passed by the Senate but was never passed by the House."
-		elif status == "PASSED:BILL":
-			status = "This bill was passed by Congress but was not enacted before the end of its Congressional session."
+			status = "Died"
 		elif status == "PASS_BACK:HOUSE" or status == "PASS_BACK:SENATE":
-			status = "This bill or resolution was introduced in a previous session of Congress and though it was passed by both chambers it was passed in non-identical forms and the differences were never resolved."
+			status = "Differences Not Resolved"
 		elif status == "PROV_KILL:SUSPENSIONFAILED" or status == "PROV_KILL:CLOTUREFAILED" or status == "PROV_KILL:PINGPONGFAIL":
-			status = "This bill or resolution was introduced in a previous session of Congress but was killed due to a failed vote for cloture, under a fast-track vote called \"suspension\", or while resolving differences."
-		elif status == "PROV_KILL:VETO":
-			status = "This bill was vetoed by the President and Congress did not attempt an override before the end of the Congressional session."
-		elif status == "OVERRIDE_PASS_OVER:HOUSE" or status == "OVERRIDE_PASS_OVER:SENATE":
-			status = "This bill was vetoed by the President and Congress did not finish an override before the end of the Congressional session."
+			status = "Killed"
+		elif status == "PROV_KILL:VETO" or status == "OVERRIDE_PASS_OVER:HOUSE" or status == "OVERRIDE_PASS_OVER:SENATE":
+			status = "Vetoed"
 		
 	# Some status messages do not depend on whether the bill is current.
 	
@@ -380,6 +367,12 @@ def getBillStatusAdvanced(bill, abbreviated) :
 		status = "Failed in House"
 	elif status == "FAIL:SECOND:SENATE":
 		status = "Failed in Senate"
+	elif status == "PASS_OVER:HOUSE":
+		status = "Passed House"
+	elif status == "PASS_OVER:SENATE":
+		status = "Passed Senate"
+	elif status == "PASSED:BILL":
+		status = "Enrolled (Passed House and Senate)"
 	elif status == "VETOED:OVERRIDE_FAIL_ORIGINATING:HOUSE" or status == "VETOED_OVERRIDE_FAIL_SECOND:HOUSE":
 		status = "Veto Override Failed in House"
 	elif status == "VETOED:OVERRIDE_FAIL_ORIGINATING:SENATE" or status == "VETOED:OVERRIDE_FAIL_SECOND:SENATE":

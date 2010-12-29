@@ -225,7 +225,9 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None):
 		else:
 			ixd = { }
 			for b in s["bills"]:
-				if s["type"] != "sponsor" and b.sponsor_id != None and b.sponsor_id == boss:
+				if b.congressnumber != popvox.govtrack.CURRENT_CONGRESS:
+					ix = str(b.congressnumber) + popvox.govtrack.ordinate(b.congressnumber) +  " Congress"
+				elif s["type"] != "sponsor" and b.sponsor_id != None and b.sponsor_id == boss:
 					ix = "Sponsored by " + bossname
 				elif (s["type"] != "issue" or s["issue"].parent != None) and b.topterm != None:
 					ix = b.topterm.name
@@ -424,12 +426,15 @@ def home(request):
 		return render_to_response('popvox/home_orgadmin.html',
 			{
 			   'cams': cams,
-			   'feed': govtrack.loadfeed(feed) },
+			   'feed': govtrack.loadfeed(feed),
+			   "tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
+			   },
 			context_instance=RequestContext(request))
 	else:
 		return render_to_response('popvox/homefeed.html',
 			{ 
-			"suggestions": compute_prompts(request.user)[0:4]
+			"suggestions": compute_prompts(request.user)[0:4],
+			"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
 			    },
 			context_instance=RequestContext(request))
 
