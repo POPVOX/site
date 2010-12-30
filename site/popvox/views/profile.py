@@ -326,7 +326,7 @@ def register(request, regtype):
 	return render_to_response('registration/registration_form.html',
 		{
 			"mocs": govtrack.getMembersOfCongress(),
-			"committees": govtrack.getCommitteeList(),
+			"committees": [c for c in govtrack.getCommitteeList() if not "parent" in c],
 			"mode": regtype,
 			"captcha": captcha_html(),
 			"next": None if not "next" in request.GET else request.GET["next"] },

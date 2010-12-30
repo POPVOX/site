@@ -351,14 +351,20 @@ class Org(models.Model):
 			updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, None)
 		else: # add/update record
 			try: # ignore network errors, etc.
+				fbid = None
+				
 				import re
+				m = re.search(r"^http://www.facebook.com/([^/]+)$", self.facebookurl)
+				if m != None:
+					fbid = m.group(1)
 				m = re.search(r"/pages/[^/]+/(\d+)", self.facebookurl)
 				if m != None:
 					fbid = m.group(1)
+				if fbid != None:
 					from urllib import urlopen, quote_plus
 					import json
 					fbdata = json.load(urlopen("http://graph.facebook.com/" + fbid))
-					updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, int(fbdata["fan_count"])) # if no fan_count key, just skip by raising Exception, catching it, and passing on
+					updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, int(fbdata["likes"])) # if no likes key, just skip by raising Exception, catching it, and passing on
 			except Exception, e:
 				print e
 				pass
@@ -648,11 +654,11 @@ class PostalAddress(models.Model):
 	state = models.CharField(max_length=2)
 	zipcode = models.CharField(max_length=10)
 	congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
-	state_legis_upper = models.TextField()
-	state_legis_lower = models.TextField()
-	latitude = models.FloatField()
-	longitude = models.FloatField()
-	cdyne_return_code = models.IntegerField()
+	state_legis_upper = models.TextField(blank=True, null=True)
+	state_legis_lower = models.TextField(blank=True, null=True)
+	latitude = models.FloatField(blank=True, null=True)
+	longitude = models.FloatField(blank=True, null=True)
+	cdyne_return_code = models.IntegerField(blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
 	
 	PREFIXES = 	('', 'Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Reverend', 'Sister', 'Pastor')

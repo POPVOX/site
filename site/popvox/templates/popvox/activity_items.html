@@ -20,7 +20,7 @@
 			{{item.address.state}}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district
 		</p>
 		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
-			<p>
+			<div style="float: left; padding-right: 1.5em">
 				<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
 				
 				&mdash;
@@ -30,17 +30,19 @@
 				{% if item.position == "-" %}
 					Oppose
 				{% endif %}
-			</p>
-			{{item.message|wraplines:"p"|truncatewords_html:150}}
+			</div>
+			<div class="flipcolor" style="float: left; margin-top: -2px">
+			{% with "+" as tracktype %}
+			{% with item.bill as bill %}
+			{% include "popvox/track.html" %}
+			{% endwith %}
+			{% endwith %}
+			</div>
+			
+			<div class="clear">
+				{{item.message|wraplines:"p"|truncatewords_html:150}}
+			</div>
 			<p>
-				<div class="flipcolor">
-				{% with "+" as tracktype %}
-				{% with item.bill as bill %}
-				{% include "popvox/track.html" %}
-				{% endwith %}
-				{% endwith %}
-				</div>
-				
 				<span class="share"><a href="{{item.url}}">share</a></span>
 			</p>
 		</div>

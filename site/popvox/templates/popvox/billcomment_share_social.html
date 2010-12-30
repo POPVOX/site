@@ -2,7 +2,12 @@
 {% load registration_providers %}
 {% load humanize %}
 	
+	{% if comment.message %}
 	<h3 class="no_rule orange">Share This Comment</h3>
+	{% else %}
+	<h3 class="no_rule orange">Tell Others About This Bill</h3>
+	{% endif %}
+	
 	<ul class="social_share_btns">
 		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')">facebook</a></li>
 		<li><a class="btn social_twitter" href="#" onclick="return share_tab('twitter')">twitter</a></li>

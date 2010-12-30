@@ -1448,15 +1448,6 @@ h3#reporttitle {
 				color: #fff;
 				}
 				
-			#x a {
-				font-weight: bold;
-				}
-				
-			#x a:hover {
-				border-bottom: none;
-				color: #474747;
-				}
-	
 		#suggestions_tab a, #question_tab a {
 			float: right;
 			font: 11px helvetica;
@@ -1477,11 +1468,14 @@ h3#reporttitle {
 			display: block;
 			padding: 4px 0 8px;
 			font-size: 12px;
-			font-weight: bold;
 			margin: 2px 0 4px;
 			background: #fff;
 			height: 16px;
 			}
+			
+			#filter_bils li.txt {
+				font-weight: bold;
+				}
 			
 			#filter_bills li {
 				float: left;
@@ -1498,7 +1492,20 @@ h3#reporttitle {
 				color: #404045;
 				cursor: inherit;
 				}
-
+	
+				#settings_panel .x a {
+					font-weight: bold;
+					float: right;
+					font: 11px helvetica;
+					margin: 11px 10px 0;
+					text-transform: uppercase;
+					}
+					
+					#settings_panel .x a:hover {
+						border-bottom: none;
+						color: #474747;
+						}
+	
 ul.ul_tags {
 	margin-bottom: 10px;
 	font-size: 12px;
@@ -1544,7 +1551,7 @@ ul.ul_tags {
 		font-size: 12px;
 		}
 		
-		.content div.oppose, .content div.support {
+		.content .tabl_panel div.oppose, .content .tabl_panel div.support {
 			font: italic normal 11px/16px georgia, serif;
 			}
 		

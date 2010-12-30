@@ -1092,12 +1092,14 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
 	
-	pro_comments = bill_comments(bill, "+", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)
-	con_comments = bill_comments(bill, "-", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)
+	limit = 50
+	
+	pro_comments = bill_comments(bill, "+", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)[0:limit]
+	con_comments = bill_comments(bill, "-", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)[0:limit]
 	
 	comments = list(pro_comments) + list(con_comments)
 	comments.sort(key = lambda x : x.updated, reverse=True)
-		
+	
 	if state == None:
 		reporttitle = "Legislative Report for POPVOX Nation"
 	elif district == None or district == 0:

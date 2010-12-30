@@ -1,9 +1,9 @@
 {% load popvox_utils %}
 
-<h2>{{group.name}}</h2>
+<h2 style="border: 0">{{group.name}}</h2>
 
 {% if group.id == "tracked" and group.count == 0 %}
-	<p>You have not bookmarked any legislation here or you have filtered out all of your bookarked legislation in the filter settings.</p>
+	<p>You have not bookmarked any legislation. Bookmark legislation on POPVOX by clicking the bookmark icon. Bookmarked bills will be added here to your docket.</p>
 {% endif %}
 
 <table width="100%" cellspacing="0" border="0">

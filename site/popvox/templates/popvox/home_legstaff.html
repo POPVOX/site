@@ -24,8 +24,14 @@
 		}
 		
 		if (tab == "issues") {
+			$('#issues_no_bills').hide();
 			var ix = $('.tab_panel[type=issue]')[0];
-			if (ix) return showtab(ix.id.substr(0, ix.id.length-6));
+			if (ix)
+				return showtab(ix.id.substr(0, ix.id.length-6));
+			else if (issuearea_list.length == 0)
+				return show_add_remove_issues();
+			else
+				$('#issues_no_bills').show();
 		}
 		
 		if ($('#' + tab + "_panel").text() == "" && tab != "issues")
@@ -34,6 +40,10 @@
 		return false; // cancel click
 	}
 
+	function show_add_remove_issues() {
+		showIssueAreaChooser(issuearea_list, function () { antitracked_bills_removed = true; update_tabs(); });
+		return false;
+	}
 	
 	function addRemoveIssueArea(add_remove, id, statuslabelid, callback) {
 		ajax(
@@ -139,7 +149,8 @@
 					
 					if ($("#" + ret.tabs[tab].id + "_panel")[0]) {
 						$("#" + ret.tabs[tab].id + "_panel").attr("erase_me", "");
-						$("#" + ret.tabs[tab].id + "_panel").text("");
+						if (ret.tabs[tab].id != curtab)
+							$("#" + ret.tabs[tab].id + "_panel").text("");
 					} else {
 						$('#panels').append('<div id="' + ret.tabs[tab].id + '_panel" type="' + ret.tabs[tab].type + '" class="tab_panel" style="display: none"></div>');
 						if (!newtab) newtab = ret.tabs[tab].id;
@@ -186,6 +197,11 @@
 	function refresh_tooltips() {
 		//$("[title]").tooltip({opacity: .9, predelay: 200, xxxposition: "top right"});
 	}
+	
+	$(function() {
+		// show the first non-empty tab
+		showtab($('.tab_panel[panelid]')[0].getAttribute("panelid"));
+	});
 </script>
 {% endblock %}
 {% block content %}
@@ -223,7 +239,7 @@
 		<div id="issue_tabs" style="display: none">
 			
 			<div id="question_tab" title="POPVOX automatically tracks legislation relevant to you based on your account settings and the issue areas you choose that are relevant to your policy work:"><a href="#">?</a></div>
-			<div id="suggestions_tab"><a href="#" onclick="return showIssueAreaChooser(issuearea_list, function () { antitracked_bills_removed = true; update_tabs(); });" title="Add/Remove Issue Areas">Add/Remove</a></div>
+			<div id="suggestions_tab"><a href="#" onclick="return show_add_remove_issues()" title="Add/Remove Issue Areas">Add/Remove</a></div>
 
 			<ul class="ul_tags">
 				<div id="suggestions_issues">
@@ -234,9 +250,18 @@
 					{% endfor %}
 				</div>
 				
-				
 				<div class="clear"> </div>
 			</ul>
+			
+			<div id="issues_no_bills" style="display: none">
+				<p>There are no bills to show in the issue areas you have chosen. You have selected:</p>
+				<ul class="bullets">
+				{% for ix in user.userprofile.issues.all %}
+					<li>{{ix.name}}</li>
+				{% endfor %}
+				<li><a href="#" onclick="return show_add_remove_issues()" title="Add/Remove Issue Areas">Add Issue Areas</a></li>
+				</ul>
+			</div>
 			
 			{% include "popvox/issueareachooser.html" %}
 		</div>
@@ -245,7 +270,7 @@
 		
 		<div id="panels">
 		{% for group in suggestions %}
-			<div id="{{group.id}}_panel" type="{{group.type}}" class="tab_panel" {% if not forloop.first %}style="display: none"{% endif %}>
+			<div id="{{group.id}}_panel" type="{{group.type}}" class="tab_panel" {% if not forloop.first %}style="display: none"{% endif %} {% if group.count > 0 %} panelid="{{group.id}}"{% endif %}>
 				{% include "popvox/home_legstaff_panel.html" %}
 			</div>
 		{% endfor %}

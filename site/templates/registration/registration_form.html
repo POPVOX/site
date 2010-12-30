@@ -66,7 +66,7 @@ function submit_registration() {
 
 	{% if mode == "legstaff" %}
 		<h1>Create Account:<br /> <span>Congressional Staff</span></h1>
-		<p class="hint">Creating a POPVOX account with a <tt>mail.house.gov</tt> or <tt>senate.gov</tt> email address gives you access to additional information for legislative staff only.</p>
+		<p class="col_9 clear col_top">Staff accounts are for Congressional business and require a &ldquo;house.gov&rdquo; or &ldquo;senate.gov&rdquo; email address.  A staff account provides access to unique tools to help you do your job better. You may create a separate personal account for expressing your opinion on legislation.</p>
 	{% endif %}
 
 	{% if mode == "orgstaff" %}
@@ -96,7 +96,7 @@ function submit_registration() {
 			<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
 			{% endif %}
 			{% if mode == "legstaff" %}
-			<small>Enter a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> address. Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
+			<small>Enter a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> address. It will not be shown publicly or shared with third parties.</small>
 			{% endif %}
 			{% if mode == "orgstaff" %}
 			<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
@@ -150,11 +150,13 @@ function submit_registration() {
 				<option>Press Secretary</option>
 				<option>Other Communications Staff</option>
 				<option>System Administrator / IT</option>
+				<option>Intern</option>
 				<option>Senator / Congressman/woman</option>
 				<option>Other</option>
 			</select>
-			<div id="errorlabel_position" class="error"></div>
+			<div id="errorlabel_position" class="error"> </div>
 			
+			<small>We ask for this information to tailor your legislative docket to your state, district, or committee.</small>
 		</div>
 		{% endif %}
 			

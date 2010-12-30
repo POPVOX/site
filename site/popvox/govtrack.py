@@ -453,7 +453,8 @@ def getCommitteeList():
 			"abbrevname": hs + node.getAttribute("abbrev"),
 			"members": [] }
 		else:
-			c = { "id": node.parentNode.getAttribute("code") + "-" + node.getAttribute("code"), 
+			c = { "id": node.parentNode.getAttribute("code") + "-" + node.getAttribute("code"),
+			"parent": node.parentNode.getAttribute("code"),
 			"name": node.parentNode.getAttribute("displayname") + ": " + node.getAttribute("displayname"),
 			"shortname": getshortname(node.parentNode.getAttribute("displayname")) + ": " + node.getAttribute("displayname"),
 			"abbrevname": hs + node.parentNode.getAttribute("abbrev") + ": " + node.getAttribute("displayname"),

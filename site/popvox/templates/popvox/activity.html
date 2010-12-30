@@ -1,6 +1,6 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
-{% block title %}POPVOX Report -- {{ bill.title }}{% endblock%}
+{% block title %}POPVOX User Activity{% endblock%}
 {%block nav_orgadmin_class_reports%}active{%endblock%}
 {%block nav_legstaff_class_comments%}active{%endblock%}
 {% block head %}
@@ -114,6 +114,10 @@
 		{% else %}
 		
 			<h1>Recent Comments</h1>
+			
+			{% if user.userprofile.is_leg_staff %}
+			<p>Names and cities are shown for individuals commenting in your state (Senate personal staff) or district (House personal staff). Otherwise, only POPVOX screen names and congressional districts are shown for privacy reasons.</p>
+			{% endif %}
 		
 		{% endif %}
 
