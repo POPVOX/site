@@ -56,9 +56,9 @@ else:
 DEFAULT_FILE_STORAGE = 'storages.backends.s3.S3Storage'
 AWS_ACCESS_KEY_ID = 'AKIAJ5OQIIQPCIXZBPKQ'
 AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = "static.popvox.com" # VANITY calling format means this resoves via a CNAME to the real bucket subdomain, which is static.popvox.com.s3.amazonaws.com
-import S3
-AWS_CALLING_FORMAT = S3.CallingFormat.VANITY
+AWS_STORAGE_BUCKET_NAME = "static.popvox.com"
+AWS_S3_SECURE_URLS = True
+	# we can't use vanity calling format (i.e. static.popvox.com => static.popvox.com.s3.amazonaws.com) under HTTPS for obvious reasons
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
