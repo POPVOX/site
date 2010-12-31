@@ -25,6 +25,7 @@ class Target(models.Model):
 	of pages, or properties of the visitor."""
 	key = models.SlugField(db_index=True, unique=True)
 	name = models.CharField(max_length=128)
+	disclosure = models.CharField(max_length=32, blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	def __unicode__(self):
@@ -59,7 +60,7 @@ class Advertiser(models.Model):
 
 class Order(models.Model):
 	"""An Order is a group of banners with a starting and ending date, a bid price,
-	and a maximum cost per day."""
+	a maximum cost per day, and targetting criteria."""
 	advertiser = models.ForeignKey(Advertiser, db_index=True, related_name = "orders", help_text="The advertiser placing the order.")
 	notes = models.TextField(blank=True)
 	starttime = models.DateTimeField(null=True, blank=True, verbose_name="Start Date", help_text="The date the advertising will begin. Leave blank to start immediately.")
@@ -67,7 +68,7 @@ class Order(models.Model):
 	cpmbid = models.FloatField(null=True, blank=True, verbose_name="CPM Bid", help_text="The cost-per-thousand impressions bid price in dollars. If both the CPM bid and the CPC bid are used, the higher of the two is used.")
 	cpcbid = models.FloatField(null=True, blank=True, verbose_name="CPC Bid", help_text="The cost-per-click bid price in dollars. If both the CPM bid and the CPC bid are used, the higher of the two is used.")
 	maxcostperday = models.FloatField(default=0, verbose_name="Max Cost/Day", help_text="The maximum dollar amount the advertiser wants to spend on this order per day. This field is ignored for remnant advertisers.")
-	targetting = models.ManyToManyField(Target, blank=True, verbose_name="Targets", help_text="Criteria to target the advertisement to. All targets must match on each impression.")
+	targets = models.TextField(blank=True, help_text="Criteria to target the advertisement to. Separate target keys by spaces or new lines. One target must match on each line. Leave blank for run-of-site advertising.")
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	
@@ -81,9 +82,55 @@ class Order(models.Model):
 		return self.advertiser.name + " " + str(self.id)
 		
 	def save(self):
+		# Set the active flag based on the run dates.
 		now = datetime.now()
 		self.active = (self.starttime == None or self.starttime <= now) and (self.endtime == None or self.endtime >= now)
+		
+		# Reformat the targetting so that the target IDs are specified
+		# rather than strings.
+		targetting = "\n".join([
+				" ".join([
+						str(target) + "::" + Target.objects.get(id=target).key
+						for target in targetgroup
+					]) + "\n"
+				for targetgroup in self.targets_parsed()
+			])
+		if targetting.strip() == "":
+			self.targets = None
+		else:
+			self.targets = targetting
+		
 		super(Order, self).save()
+		
+	def targets_parsed(self):
+		# The targetting pattern of an order is essentially in conjunctive normal
+		# form. Return a list of lists of target IDs.
+		if self.targets == None or self.targets.strip() == "":
+			return []
+		ret = []
+		for line in self.targets.split("\n"):
+			if line.strip() == "":
+				continue
+			dis = []
+			ret.append(dis)
+			for target in line.split():
+				if "::" in target:
+					target_id, target_name = target.split("::")
+					dis.append(int(target_id))
+				else:
+					dis.append(Target.objects.get(key=target).id)
+		return ret
+	
+	def disclosure(self):
+		ret = set()
+		for targetgroup in self.targets_parsed():
+			for target in targetgroup:
+				t = Target.objects.get(id=target)
+				if t.disclosure != None and t.disclosure.strip() != "":
+					ret.add(t.disclosure)
+		ret = list(ret)
+		ret.sort()
+		return ", ".join(ret)
 	
 class Banner(models.Model):
 	"""A Banner is text or an image provided by an advertiser."""

@@ -10,8 +10,23 @@ def select_banner(adformat, targets):
 		.select_related("order") \
 		.order_by() # clear default ordering which loads up the Advertiser object
 		
+	target_ids = [t.id for t in targets]
+	
+	# Remove banners that do not match the targetting.
+	def matches_targets(banner):
+		for targetgroup in banner.order.targets_parsed():
+			for target in targetgroup:
+				if target in target_ids:
+					break # match
+			else:
+				# No target matched on this line, so the banner fails to match.
+				return False
+		return True
+		
+	banners = [b for b in banners if matches_targets(b)]
+	
 	# Sort the banners by their bids. For CPM orders, the CPM bid divided by 1000
-	# is its bid. CPC orders, the bid is the banner's recent CTR times its CPC bid. If
+	# is its bid. For CPC orders, the bid is the banner's recent CTR times its CPC bid. If
 	# both a CPM and CPC are specified, the higher of the two are taken.
 	def get_bid(banner):
 		bid = 0.0
@@ -57,18 +72,19 @@ def select_banner(adformat, targets):
 		d = imprs[len(imprs)-1].date
 		td = datetime.now() - datetime(d.year, d.month, d.day)
 		td = float(td.seconds)/float(24 * 3600) + float(td.days)
-		costperday = sum([im.cost() for im in imprs]) / td
+		totalcost = sum([im.cost() for im in imprs])
+		numimpressions = sum([im.impressions for im in imprs])
+		costperday = totalcost / td
 		
-		# Now we compare that to the rate limit. The closer to the rate limit we
-		# get, the more we penalize the bid. When the realized cost hits the
-		# rate limit, we allow no new impressions.
+		# When the recent realized cost hits the rate limit, we allow no new impressions.
 		if costperday >= banner.order.maxcostperday:
-			banner = None
+			banner = None # clear field and continue looking for a banner
 			
 		# Otherwise we randomly drop impressions with a probability proportional
-		# to how close we are to the rate limit.
+		# to how close we are to the rate limit. This should spread out the ad
+		# impressions.
 		elif random.uniform(0.0, 1.0) < costperday/banner.order.maxcostperday:
-			banner = None
+			banner = None # clear field and continue looking for a banner
 		
 		else:		
 			# If we got this far, accept the banner.

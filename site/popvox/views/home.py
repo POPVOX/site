@@ -401,6 +401,7 @@ def home(request):
 							),
 				"suggestions": get_legstaff_suggested_bills(request.user),
 				"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
+				"adserver-targets": ["leg_staff_home"],
 			},
 			context_instance=RequestContext(request))
 		
@@ -428,6 +429,7 @@ def home(request):
 			   'cams': cams,
 			   'feed': govtrack.loadfeed(feed),
 			   "tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
+			   "adserver-targets": ["org_home"],
 			   },
 			context_instance=RequestContext(request))
 	else:
@@ -435,6 +437,7 @@ def home(request):
 			{ 
 			"suggestions": compute_prompts(request.user)[0:4],
 			"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
+		     "adserver-targets": ["user_home"],
 			    },
 			context_instance=RequestContext(request))
 
