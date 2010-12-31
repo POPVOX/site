@@ -84,6 +84,7 @@ urlpatterns = patterns('',
 	(r'^shorturl/', include('shorturl.urls')),
 	(r'^trafficanalysis/', include('trafficanalysis.urls')),
 	(r'^feedback/', include('feedback.urls')),
+	(r'^adserver/', include('adserver.urls')),
 
 	(r'^admin/', include(admin.site.urls)),
 )

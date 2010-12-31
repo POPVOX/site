@@ -162,6 +162,7 @@ INSTALLED_APPS = (
     'registration',
     'trafficanalysis',
     'popvox',
+    'adserver',
 )
 
 TINYMCE_JS_URL = '/media/tiny_mce/tiny_mce.js'

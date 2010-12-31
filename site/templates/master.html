@@ -92,19 +92,6 @@
 	{% endblock %}
 
 	{% if not debug %}
-	<script type='text/javascript' src='http://partner.googleadservices.com/gampad/google_service.js'></script>
-	<script type='text/javascript'>
-		GS_googleAddAdSenseService("ca-pub-4482124597959107");
-		GS_googleEnableAllServices();
-	</script>
-	<script type='text/javascript'>
-		{% block adunits %}
-		{% endblock %}
-	</script>
-	<script type='text/javascript'>
-		GA_googleFetchAds();
-	</script>
-
 	<script type="text/javascript">
 	  var _gaq = _gaq || [];
 	  _gaq.push(['_setAccount', 'UA-18126194-1']);

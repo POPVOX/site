@@ -1,18 +1,14 @@
+{% load adserver_tags %}
 
 <div class="col_3 col_top col_last col_ad"> 
 	
 	<h4>Sponsor Ads</h4>
 	
 	{% if not debug %}
-	<!-- ca-pub-4482124597959107/Right_Side_1 -->
-	<script type='text/javascript'>
-	GA_googleFillSlot("Right_Side_1");
-	</script>
 	
-	<!-- ca-pub-4482124597959107/Right_Side_2 -->
-	<script type='text/javascript'>
-	GA_googleFillSlot("Right_Side_2");
-	</script>
+	{% show_ad std180x150 %}
+	{% show_ad std180x150 %}
+	
 	{% endif %}
 
 </div><!-- e: col_3 -->
