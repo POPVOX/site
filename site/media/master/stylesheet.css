@@ -548,20 +548,15 @@ p {
 		margin: -10px 0 20px 0;
 		}
 		
-		#b_reintroduce:hover, .alert_dead a.b_notify_me:hover  {
-			background-position: left bottom;
-			cursor: pointer;
-			}
-			
-	.alert_dead a.b_notify_me {
-		display: block;
+	.track_as_notify .billtrack {
 		background: url(b_notify_me.png) left top no-repeat;
-		border: none;
-		text-indent: -9999em;
-		width: 107px;
+		width: 123px;
 		height: 22px;
-		margin: -10px 0 0;
-		border: none;
+		}
+	.track_as_notify .billtrack.active {
+		background: url(b_notify_me_checked.png) left top no-repeat;
+		width: 123px;
+		height: 22px;
 		}
 
 	.mar_top_neg {
@@ -1858,16 +1853,18 @@ h1.h1_smaller {
 		float: left;
 		}
 		
-	.form input.b_login {
+	.b_login {
 		width: 81px;
 		height: 22px;
 		background: url(b_login.png);
 		display: block;
 		text-indent: -9999em;
-		margin: 5px 0 0 100px;
 		border: none;
-		float: left;
 		}
+		.form input.b_login {
+			float: left;
+			margin: 5px 0 0 100px;
+			}
 		
 			.form input.b_login:hover,
 			.form input.b_finished:hover {

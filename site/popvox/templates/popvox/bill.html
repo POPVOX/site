@@ -73,11 +73,13 @@ function getshorturl() {
 						
 					<p>Just want to be notified when this bill is reintroduced?</p>
 					{% if user.is_authenticated %}
+					<div class="track_as_notify">
 						{% with "+" as tracktype %}
 						{% include "popvox/track.html" %}
 						{% endwith %}
+					</div>
 					{% else %}
-						<p><a class="b_notify_me btn" href="/accounts/login?next={{bill.url}}">Join or Login</a></p>
+						<p><input type="button" class="b_login btn" onclick="window.location='/accounts/login?next={{bill.url}}'" value="Join or Login"/></p>
 					{% endif %}
 				</div>
 			</div><!-- e: alert_dead -->
