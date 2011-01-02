@@ -64,7 +64,7 @@ sudo service mysql start
 
 # Apache
 sudo a2dissite default
-sudo a2enmod proxy proxy_http ssl # we use proxy to pass the blog through to occams
+sudo a2enmod proxy proxy_http ssl expires # we use proxy to pass the blog through to occams
 sudo sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
 sudo ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
 sudo /etc/init.d/apache2 restart
