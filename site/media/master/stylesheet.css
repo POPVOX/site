@@ -500,6 +500,7 @@ p {
 				
 	.content .alert_dead h2 {
 		font-size: 20px;
+		font-weight: bold;
 		line-height: 28px;
 		margin-bottom: 10px;
 		}
@@ -537,22 +538,35 @@ p {
 		display: block;
 		}
 		
-	.alert_dead #submitbutton {
-		float: left;
+	#b_reintroduce {
 		display: block;
-		background: url(b_submit.png) left top no-repeat;
+		background: url(b_reintroduce.png) left top no-repeat;
 		border: none;
 		text-indent: -9999em;
-		width: 114px;
-		height: 48px;
-		margin-top: 50px;
+		width: 203px;
+		height: 47px;
+		margin: -10px 0 20px 0;
 		}
 		
-		.alert_dead #submitbutton:hover {
+		#b_reintroduce:hover, .alert_dead a.b_notify_me:hover  {
 			background-position: left bottom;
 			cursor: pointer;
 			}
+			
+	.alert_dead a.b_notify_me {
+		display: block;
+		background: url(b_notify_me.png) left top no-repeat;
+		border: none;
+		text-indent: -9999em;
+		width: 107px;
+		height: 22px;
+		margin: -10px 0 0;
+		border: none;
+		}
 
+	.mar_top_neg {
+		margin-top: -10px;
+		}
 
 /* ----bill list---- */
 
@@ -3510,6 +3524,8 @@ ul.staff, .small {
 	.pad_btm {
 		padding-bottom: 15px;
 		}
+		
+
 
 		.mar_top {
 			margin-top: 15px;
@@ -3612,6 +3628,10 @@ ul.staff, .small {
 		margin: 8px 10px 0 0;
 		padding: 0 5px;
 		width: 240px;/*275*/
+		}
+		
+	.shadow_up {
+		text-shadow: 0px -1px 1px #8c4607;
 		}
 		
 	small {

@@ -56,8 +56,8 @@ function getshorturl() {
 		{% if bill.getDeadReason == "died" %}
 			<div class="alert_dead">
 				<div class="col_6">
-					<h2>{{bill.displaynumber_nosession}} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjorned.</h2>
-					<h2>It has not yet been reintroduced.</h2>
+					<h2 class="shadow_up">{{bill.displaynumber_nosession}} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjorned.</h2>
+					<h2 class="shadow_up">It has not yet been reintroduced.</h2>
 					<p>You can increase the chances that the bill is revived in the new Congress by showing support for reintroduction.</p>
 					<ul>
 						<li><a href="{{bill.url}}/report">Archived Commments</a></li>
@@ -67,17 +67,17 @@ function getshorturl() {
 					</ul>
 				</div>
 				<div class="col_6 col_last">
-					<h2>Help get {{bill.displaynumber_nosession}} reintroduced:</h2>
-					<p>I support reintroduction of this bill:</p>
-					<input id="billsearch_endorse_oppose_submit_support" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
+					<h2 class="shadow_up">Help get {{bill.displaynumber_nosession}} reintroduced:</h2>
+					<p class="mar_top_neg">I support reintroduction of this bill.<br />You will be notified upon reintroduction.</p>
+					<input id="b_reintroduce" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
 						
-					<p>Notify me when this bill is reintroduced:</p>
+					<p>Just want to be notified when this bill is reintroduced?</p>
 					{% if user.is_authenticated %}
 						{% with "+" as tracktype %}
 						{% include "popvox/track.html" %}
 						{% endwith %}
 					{% else %}
-						<p><a href="/accounts/login?next={{bill.url}}">Join or Login</a></p>
+						<p><a class="b_notify_me btn" href="/accounts/login?next={{bill.url}}">Join or Login</a></p>
 					{% endif %}
 				</div>
 			</div><!-- e: alert_dead -->
