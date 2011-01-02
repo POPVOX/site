@@ -9,6 +9,9 @@ import cgi
 from adserver.models import *
 from adserver.adselection import select_banner
 
+from adserver.uasparser import UASparser  
+uas_parser = UASparser(update_interval = None)
+
 from datetime import date
 
 register = template.Library()
@@ -30,6 +33,13 @@ def show_ad(parser, token):
 				format = Format.objects.get(key=formatname)
 			except:
 				raise Exception("There is no ad format by the name of " + formatname)
+			
+			# Don't show ads when the user agent is a bot. Requires RequestContext.
+			if not "request" in context or not "HTTP_USER_AGENT" in context["request"].META:
+				return Template(format.fallbackhtml).render(context)
+			ua = uas_parser.parse(context["request"].META["HTTP_USER_AGENT"])
+			if ua == None or ua["typ"] == "Robot": # if we can't tell, or if we know it's a bot
+				return Template(format.fallbackhtml).render(context)
 			
 			# The remaining arguments are target contexts matched by this
 			# ad impression. The targets are either surrounded in double quotes
