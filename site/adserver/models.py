@@ -10,8 +10,8 @@ class Format(models.Model):
 	name = models.CharField(max_length=128, help_text="The display name of this ad format.")
 	html = models.TextField(verbose_name="HTML Code", help_text="Django template HTML for this ad format.")
 	fallbackhtml = models.TextField(verbose_name="Fallback HTML", help_text="Django template HTML to use when no banners are available.", blank=True)
-	imagewidth = models.IntegerField(blank=True, null=True, help_text="If this format is for an image ad, the required image width.")
-	imageheight = models.IntegerField(blank=True, null=True, help_text="If this format is for an image ad, the required image height.")
+	width = models.IntegerField(blank=True, null=True, help_text="If this format is for an image ad, the required image width.")
+	height = models.IntegerField(blank=True, null=True, help_text="If this format is for an image ad, the required image height.")
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	def __unicode__(self):
@@ -142,6 +142,7 @@ class Banner(models.Model):
 	textline1 = models.CharField(max_length=128, blank=True, null=True, verbose_name="Text Line 1", help_text="The first line of text for text-format ads or alternate text for image-format ads.")
 	textline2 = models.CharField(max_length=128, blank=True, null=True, verbose_name="Text Line 2", help_text="The second line of text for text-format ads.")
 	image = models.ImageField(upload_to="adserver/banners", blank=True, null=True, help_text="The image, for image-format ads.")
+	html = models.TextField(blank=True, null=True, verbose_name="Override HTML Code", help_text="Django template HTML for this banner to override the ad format's default template. If set, the image and text fields are ignored.")
 	targeturl = models.URLField(verbose_name="Target URL", help_text="The destination URL for the ad.")
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)

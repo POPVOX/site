@@ -93,8 +93,11 @@ def show_ad(parser, token):
 			
 			im.save()
 			
-			# Parse the template.
-			t = Template(format.html)
+			# Parse the template. If the banner has HTML override code, use that instead.
+			if b.html != None and b.html.strip() != "":
+				t = Template(b.html)
+			else:
+				t = Template(format.html)
 			
 			# Apply the template to the banner and return the code.
 			context.push()
