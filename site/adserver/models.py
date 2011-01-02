@@ -25,7 +25,7 @@ class Target(models.Model):
 	of pages, or properties of the visitor."""
 	key = models.SlugField(db_index=True, unique=True)
 	name = models.CharField(max_length=128)
-	disclosure = models.CharField(max_length=32, blank=True, null=True)
+	disclosure = models.CharField(max_length=32, blank=True, null=True, help_text="This field is a very short description of the type of information implicitly revealed about the user to the advertiser from the nature of the targetting. An example would be 'Age' or 'Location'.")
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	def __unicode__(self):
@@ -158,7 +158,7 @@ class Banner(models.Model):
 		# banners a chance at establishing their true CTR and at the same
 		# time not giving an advantage to long-running poor-CTR banners,
 		# we'll do an interpolation of sorts between the established CTR
-		# (or zero if none exists) and the maximum CTR (1.0) based on the
+		# (or zero if none exists) and a normal CTR (0.1%) based on the
 		# number of impressions generated so far. A normal CTR is about
 		# 0.1%, meaning it will take 1,000 impressions before we have a
 		# single expected click, or closer to 10,000 before we have an
@@ -175,9 +175,8 @@ class Banner(models.Model):
 
 		# Since there have been so few impressions, don't take it
 		# at face value. The closer to 0 impressions, the more we
-		# artificially inflate the CTR up to 0.01.
-		if ctr < 0.01:
-			ctr += (0.01-ctr) * (1.0 - float(impressions)/1000.0)
+		# artificially inflate/defalate the CTR toward to 0.01.
+		ctr += (0.01-ctr) * (1.0 - float(impressions)/10000.0)
 		return ctr, True
 
 	def setimage(self, imagedata, dims=None):
@@ -246,5 +245,5 @@ class ImpressionBlock(models.Model):
 		return str(self.banner) + " " + str(self.path) + " " + str(self.date)
 	
 	def cost(self):
-		return self.impressions*self.cpmcost/1000.0 + self.clicks*self.cpccost
+		return self.impressions*self.cpmcost/1000.0 + self.clickcost
 	
