@@ -3,6 +3,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
 from django.template import Context, Template, Variable
+from django.db.models import F
 
 import cgi
 
@@ -91,17 +92,18 @@ def show_ad(parser, token):
 				path = sp,
 				date = datetime.now().date,
 				)
+
+			# Atomically update the rest.
+			ImpressionBlock.objects.filter(id=im.id).update(
+				# update the amortized CPM on the impression object
+				cpmcost = (F('cpmcost')*F('impressions') + cpm) / (F('impressions') + 1),
 			
-			# update the amortized CPM on the impression object
-			im.cpmcost = (im.cpmcost*im.impressions + cpm) / (im.impressions + 1)
+				# update the next CPC cost
+				cpccost = cpc,
 			
-			# update the next CPC cost
-			im.cpccost = cpc
-			
-			# add an impression
-			im.impressions += 1
-			
-			im.save()
+				# add an impression
+				impressions = F('impressions') + 1
+				)
 			
 			# Parse the template. If the banner has HTML override code, use that instead.
 			if b.html != None and b.html.strip() != "":
