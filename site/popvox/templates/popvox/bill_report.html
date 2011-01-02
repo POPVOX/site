@@ -1,5 +1,6 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
+{% load adserver_tags %}
 {% block title %}POPVOX Report -- {{ bill.title }}{% endblock%}
 {%block nav_orgadmin_class_reports%}active{%endblock%}
 {% block head %}
@@ -9,10 +10,6 @@
 <script>
 {% include "popvox/track.js" %}
 </script>
-{% endblock %}
-{% block adunits %}
-		GA_googleAddSlot("ca-pub-4482124597959107", "Legislative_Report_Leaderboard");
-		GA_googleAddSlot("ca-pub-4482124597959107", "Legislative_Report_Top");
 {% endblock %}
 {% block content %}
 	<script>
@@ -249,10 +246,7 @@
 		
 		<div class="col_3 col_last col_ad"> 
 			<h4>Sponsor Ads</h4>
-			<!-- ca-pub-4482124597959107/Legislative_Report_Top -->
-			<script type='text/javascript'>
-			GA_googleFillSlot("Legislative_Report_Top");
-			</script>
+			{% show_ad std180x150 "legreport_slot1" %}
 		</div> 
 		<div class="clear"> </div>
 		
@@ -345,10 +339,7 @@
 
 	<div class="section clearfix stroke_top"> 
 		<div class="ad_btm"> 
-			<!-- ca-pub-4482124597959107/Legislative_Report_Leaderboard -->
-			<script type='text/javascript'>
-			GA_googleFillSlot("Legislative_Report_Leaderboard");
-			</script>
+			{% show_ad leaderboard "legreport_mid_leaderboard" %}
 		</div> 
 	</div>
 	

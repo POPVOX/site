@@ -429,7 +429,7 @@ def home(request):
 			   'cams': cams,
 			   'feed': govtrack.loadfeed(feed),
 			   "tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
-			   "adserver-targets": ["org_home"],
+			   "adserver-targets": ["org_admin_home"],
 			   },
 			context_instance=RequestContext(request))
 	else:

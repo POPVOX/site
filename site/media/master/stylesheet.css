@@ -4065,3 +4065,7 @@ tt {
 	color:#fff;	
 }
 
+.advertisement a {
+	text-decoration: none;
+	border: 0;
+}
