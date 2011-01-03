@@ -8,10 +8,41 @@
 				background: url('/media/gis/map_background.png') no-repeat;
 			}
 		</style>
+		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
+		<script>
+			function show(district, label, support, contention, x){
+				$('#infobox').show();
+
+				if (district.substr(2) == "0"){
+					$('#infobox img').hide();
+				} else {
+					$('#infobox img').show();
+					district2 = district.substr(0, 2) + (district.length == 3 ? "0" : "") + district.substr(2);
+					$('#infobox img').attr('src', 'https://s3.amazonaws.com/govtrackus/printabledistrictmaps/' + district2 + '_1200_context.png');
+				}
+				
+				$('#infobox div').text(label);
+				
+				$('#support').text(Math.round(support*100))
+				$('#activity').text(Math.round(contention*100))
+				
+				left = x + 50;
+				if (left + 210 > 720)
+					left = x - 210 - 50;
+				$('#infobox').animate({left: left});
+			}
+		</script>
 	</head>
 	<body>
+		<div id="infobox" style="display: none; position: absolute; top: 75px; width: 210px; border: 2px solid black; background-color: white; padding: 5px; z-index: 100">
+			<div style="text-align: center; font-weight: bold"> </div>
+			<img src="" width="200"/>
+			<p>Support: <span id="support"></span>%</p>
+			<p>Activity: <span id="activity"></span>%</p>
+		</div>
+	
 		{% for district, count in data %}
-			<a href="{{bill.url}}/report#{{count.href}}" target="_top" title="{{count.label}}">
+			<a href="{{bill.url}}/report#{{count.href}}" target="_top" title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.contention}}, {{count.coord.left}})" onmouseout="$('#infobox').hide()">
 				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px; width: 5px; height: 5px; background-color: {{count.color}}; border: 1px solid #aaa"> </div>
 			</a>
 		{% endfor %}

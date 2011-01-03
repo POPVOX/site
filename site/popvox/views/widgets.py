@@ -78,7 +78,10 @@ def commentmapus(request):
 		
 		count[district]["href"] = "state=" + district[0:2] + "&district=" + district[2:]
 		
-		count[district]["label"] = statenames[district[0:2]] + "'s " + district[2:] + ordinate(int(district[2:])) + " District"
+		if int(district[2:]) == 0:
+			count[district]["label"] = statenames[district[0:2]] + "'s At-Large District"
+		else:
+			count[district]["label"] = statenames[district[0:2]] + "'s " + district[2:] + ordinate(int(district[2:])) + " District"
 	
 	return render_to_response('popvox/widgets/commentsmapus.html', {
 		"bill": bill,
