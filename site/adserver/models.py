@@ -68,7 +68,7 @@ class Order(models.Model):
 	cpmbid = models.FloatField(null=True, blank=True, verbose_name="CPM Bid", help_text="The cost-per-thousand impressions bid price in dollars. If both the CPM bid and the CPC bid are used, the higher of the two is used.")
 	cpcbid = models.FloatField(null=True, blank=True, verbose_name="CPC Bid", help_text="The cost-per-click bid price in dollars. If both the CPM bid and the CPC bid are used, the higher of the two is used.")
 	maxcostperday = models.FloatField(default=0, verbose_name="Max Cost/Day", help_text="The maximum dollar amount the advertiser wants to spend on this order per day. This field is ignored for remnant advertisers.")
-	targets = models.TextField(blank=True, help_text="Criteria to target the advertisement to. Separate target keys by spaces or new lines. One target must match on each line. Leave blank for run-of-site advertising.")
+	targets = models.TextField(blank=True, null=True, help_text="Criteria to target the advertisement to. Separate target keys by spaces or new lines. One target must match on each line. Leave blank for run-of-site advertising.")
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	

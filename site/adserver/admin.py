@@ -16,5 +16,5 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(Banner, BannerAdmin)
 admin.site.register(Format)
 admin.site.register(Target)
-admin.site.register(ImpressionBlock)
+
 
