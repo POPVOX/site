@@ -18,11 +18,9 @@
 	
 	var statereps = {{statereps|json}};
 	
-	function update(initial) {
+	function update(hashchange) {
 		// Update district dropdown list options and make sure that
 		// report_district is a valid value for the current state.
-		if (initial) $('#options_state').val(report_state);
-		if (initial) $('#options_district').val(report_district);
 		$('#options_district').html("");
 		if (report_state == "") {
 			report_district = 0;
@@ -54,13 +52,24 @@
 			}
 		}
 		
-		if (!initial) {
+		if (!hashchange) {
 			var hashstate = Object();
 			if (report_state) hashstate.state = report_state;
 				else hashstate.q = 0; // if we give an empty hash, browser scrolls to the top
 			if (report_district) hashstate.district = report_district;
 			window.location = "#" + $.param(hashstate);
 		}
+	}
+	
+	function showdata() {
+		var hashargs = $.deparam.fragment();
+		if (hashargs.state) report_state = hashargs.state;
+		if (hashargs.district) report_district = hashargs.district;
+		
+		$('#options_state').val(report_state);
+		$('#options_district').val(report_district);
+		
+		update(true);
 		
 		// Post report info and then update.
 		$('#loadingstatus').text("Loading...");
@@ -168,13 +177,8 @@
 	}
 
 	$(function() {
-		$(window).bind( "hashchange", function(e) {
-			var hashargs = $.deparam.fragment();
-			if (hashargs.state) report_state = hashargs.state;
-			if (hashargs.district) report_district = hashargs.district;
-			update(true);
-		});
-		$(window).trigger( "hashchange" );
+		$(window).bind("hashchange", showdata);
+		update();
 	});
 
 	</script>
@@ -250,8 +254,8 @@
 		</div> 
 		<div class="clear"> </div>
 		
-	</div><!-- e: section --> 
-
+	</div><!-- e: section -->
+	
 	<div class="section clearfix"> 
 		<div class="col_6 rule"> 
 			<div>
@@ -343,6 +347,10 @@
 		</div> 
 	</div>
 	
+	<div class="section clearfix">
+		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}" width="720" height="522" border="0"></iframe>
+	</div>
+
 	{% if not user.is_anonymous %}
 	<div style="display: none" id="comment_template">
 		<div class="comment">
