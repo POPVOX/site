@@ -539,6 +539,11 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			if (datetime.now() - address_record.created).days < 60:
 				address_record_fixed = "You cannot change your address for two months after entering your address."
 	
+	# We will require a captcha for this comment if the user is creating many comments
+	# in a short period of time and if we are not editing an existing comment.
+	require_captcha = request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
+		and not request.user.comments.filter(bill = bill).exists()
+	
 	if not "submitmode" in request.POST and position_original != "/finish":
 		message = None
 
@@ -649,7 +654,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"useraddress_prefixes": PostalAddress.PREFIXES,
 				"useraddress_suffixes": PostalAddress.SUFFIXES,
 				"useraddress_states": govtrack.statelist,
-				"captcha": captcha_html() if request.user.is_anonymous() or len(request.user.comments.filter(bill = bill)) == 0 else "",
+				"captcha": captcha_html() if require_captcha else "",
 			}, context_instance=RequestContext(request))
 
 	elif request.POST["submitmode"] == "Submit Comment >" or request.POST["submitmode"] == "Clear Comment >":
@@ -682,8 +687,9 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				address_record.user = request.user
 				address_record.load_from_form(request) # throws ValueError, KeyError
 				
-			# We don't display a captcha when we are editing an existing comment.
-			if len(request.user.comments.filter(bill = bill)) == 0 and not DEBUG:
+			# We don't display a captcha when we are editing an existing comment
+			# or if the user has not left many comments yet.
+			if require_captcha and not DEBUG:
 				validate_captcha(request) # throws ValidationException and sets recaptcha_error attribute on the exception object
 				
 			if address_record_fixed == None:
