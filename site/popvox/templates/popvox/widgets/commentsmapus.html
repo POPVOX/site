@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<title>Comments Map - United States - {{bill}}</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				background: url('/media/gis/map_background.png') no-repeat;
+			}
+		</style>
+	</head>
+	<body>
+		{% for district, count in data %}
+			<a href="{{bill.url}}/report#{{count.href}}" target="_top" title="{{count.label}}">
+				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px; width: 5px; height: 5px; background-color: {{count.color}}; border: 1px solid #aaa"> </div>
+			</a>
+		{% endfor %}
+		
+		<div style="position: absolute; left: 400px; top: 400px; font-size: 8pt; width: 201px; font-family: sans-serif">
+			{% for item in legend %}
+				<div style="float: left; width: 80px">
+					<div style="float: left; width: 10px; height: 10px; background-color: {{item.color}}; border: 1px solid #aaa; margin: 1px 3px 0 0"> </div>
+					<div>{{item.label}}</div>
+				</div>
+			{% endfor %}
+		</div>
+		
+		<div style="position: absolute; left: 400px; top: 480px; font-size: 8pt; width: 201px; font-family: sans-serif">
+			Each square represents a Congressional District.
+		</div>
+	</body>
+</html>
+
