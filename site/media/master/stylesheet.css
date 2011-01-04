@@ -2294,7 +2294,87 @@ ul#issuearealist {
 
 
 /* ----landing---- */
+
+
+/* congress home */
+
+	.hm_congress .hm_slide_mid {
+		height: 420px;
+		margin: 0 0 0 0;
+		overflow: hidden;
+		background: url(hm_slide_congress.gif) -130px top no-repeat;
+		}
+		
 	
+	.hm_congress .hm_slide_mid h1 {
+		height: 180px;
+		}
+
+	.hm_congress .b_get_started_l {
+		width: 225px;
+		height: 47px;
+		background: url(b_lets_get_started.png) left top no-repeat;
+		display: block;
+		text-indent: -9999em;
+		margin-left: 37px;
+		border: none;
+		}
+
+	.hm_congress .hm_btm_cols {
+		background: url(bg_congress_btm.jpg) left top no-repeat;
+		}
+	
+	.hm_congress .hm_col {
+		padding: 25px 17px;
+		width: 244px;
+		}
+		
+	.hm_congress .hm_col h3 {
+		text-indent: 0;
+		text-align: center; 
+		font-size: 18px;
+		color: #fff;
+		height: 58px;
+		}
+		
+		.zoom {
+			display: block;
+			width: 248px;
+			height: 206px;
+			border: 2px solid #000;
+			}
+			
+			.zoom:hover {
+				border: 2px solid #CC6A11;
+				background-position: left bottom;
+				}
+				
+			.zoom span {
+				display: block;
+				width: 248px;
+				height: 206px;
+				background: url(b_zoom.png) left top no-repeat;
+				text-indent: -9999em;
+				}
+				
+				.zoom span:hover {
+					background-position: left bottom;
+					}
+
+		.zoom_screen_docket {
+			background: url(bg_zoom_docket.jpg) left top no-repeat;
+			}
+			
+		.zoom_screen_support {
+			background: url(bg_zoom_support.jpg) left top no-repeat;
+			}
+				
+		.zoom_screen_report {
+			background: url(bg_zoom_report.jpg) left top no-repeat;
+			}
+		
+
+/* user home */	
 	h1#landing{
 		background: url(your_voice_verified_quantified_amplified.gif) left top no-repeat;
 		text-indent: -9999em;
