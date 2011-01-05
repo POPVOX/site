@@ -211,7 +211,7 @@
 			<li><a href="/legal">Privacy and Terms</a></li>
 		</ul>
 		
-		{% if user.is_superuser or user.username == "demo_user" or user.username == "demo_org_staffer" or user.username == "demo_leg_staffer" %}
+		{% if user.is_staff or user.username == "demo_user" or user.username == "demo_org_staffer" or user.username == "demo_leg_staffer" %}
 		<ul>
 			<li><a href="/accounts/switchuser/demo_user">demo_user</a></li>
 			<li><a href="/accounts/switchuser/demo_leg_staffer">demo_leg_staffer</a></li>

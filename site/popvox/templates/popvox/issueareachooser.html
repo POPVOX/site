@@ -106,6 +106,9 @@
 	<div class="col_50">
 		<h2>Available Issue Areas</h2>
 		<p>Click on an issue area to add it to your selection. The issue areas are based on the Library of Congress&rsquo;s classification of legislation.</p>
+		{% if request.ua.os_family == "iPhone OS" %}
+		<p><strong>iPhone/iPad: Use two fingers to scroll this list!</strong></p>
+		{% endif %}
 		 <div id="issueareachooser_allissueslist_container" style="height: 350px; overflow: auto">
 			<ul id="issueareachooser_allissueslist" class="issueareachooser_allissueslist">
 			</ul>

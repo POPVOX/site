@@ -3697,10 +3697,13 @@ ul.staff, .small {
 			letter-spacing: .02em;
 			color: #434247;
 			}
+
+		.sub ul li {
+			margin: 1em 0 1em;
+			}
 			
 		.sub ul li a {
 			font-size: 14px;
-			line-height: 30px;
 			color: #75747c;
 			}
 			
