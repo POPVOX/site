@@ -2,11 +2,12 @@ from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
+from django.template import Context, Template, Variable
 
 import cgi
 import re
 
-from popvox.models import Bill
+from popvox.models import Bill, RawText
 import popvox.views.utils
 import popvox.views.bills
 import popvox.govtrack
@@ -159,4 +160,15 @@ def bill_statistics(parser, token):
 		raise Exception("Wrong number of parameters to billstatistics")
 		
 	return BillStatisticsNode(template.Variable(bill), varname, options)
+
+@register.simple_tag #takes_context=True)
+def rawtext(key):
+	t = Template(RawText.objects.get(name=key).html())
+	context = Context()
+	context.push()
+	try:
+		context.update({})
+		return t.render(context)
+	finally:
+		context.pop()
 

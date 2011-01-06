@@ -21,16 +21,15 @@
 		</p>
 		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
 			<div style="float: left; padding-right: 1.5em">
-				<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
-				
-				&mdash;
 				{% if item.position == "+" %}
-					Support
+					Supports
 				{% endif %}
 				{% if item.position == "-" %}
-					Oppose
+					Opposes
 				{% endif %}
+				<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
 			</div>
+			{% if not user.is_anonymous %}
 			<div class="flipcolor" style="float: left; margin-top: -2px">
 			{% with "+" as tracktype %}
 			{% with item.bill as bill %}
@@ -38,6 +37,7 @@
 			{% endwith %}
 			{% endwith %}
 			</div>
+			{% endif %}
 			
 			<div class="clear">
 				{{item.message|wraplines:"p"|truncatewords_html:150}}

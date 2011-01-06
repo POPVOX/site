@@ -4040,14 +4040,16 @@ table.form_fields td {
 }
 
 .userrichtextcontent ul {
-	margin-left: 2em;
-	margin-bottom: .5em;
+	margin: .75em 0 .75em 0;
 }
 
 .userrichtextcontent li {
 	display: list-item;
-	list-style: square;
-	margin-bottom: .25em;
+	list-style: none;
+	background: url(bullet.png) left .4em no-repeat;
+	margin: 0 0 .5em 1em;
+	padding-left: 1em;
+	font: normal 13px/18px helvetica, arial, sans-serif;
 }
 
 .messages {

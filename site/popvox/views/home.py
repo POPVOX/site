@@ -551,21 +551,21 @@ def activity_getinfo(request):
 	if format == "_bill":
 		total_count = q.count()
 	
+	count = 30
 	if "count" in request.REQUEST:
-		q = q[0:int(request.REQUEST["count"])]
-	else:
-		q = q[0:30]
+		count = int(request.REQUEST["count"])
+	q = q[0:count]
 	
 	items = []
 	items.extend(q)
 	
 	if state == None and district == None and format != "_bill":
-		items.extend( Org.objects.filter(visible=True).order_by('-updated')[0:30] )
-		items.extend( OrgCampaign.objects.filter(visible=True,default=False, org__visible=True).order_by('-updated')[0:30] )
-		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True).order_by('-updated')[0:30] )
+		items.extend( Org.objects.filter(visible=True).order_by('-updated')[0:count] )
+		items.extend( OrgCampaign.objects.filter(visible=True,default=False, org__visible=True).order_by('-updated')[0:count] )
+		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True).order_by('-updated')[0:count] )
 		
 		items.sort(key = lambda x : x.updated, reverse=True)
-		items = items[0:30]
+		items = items[0:count]
 		
 	if request.user.is_authenticated():
 		annotate_track_status(request.user.userprofile,

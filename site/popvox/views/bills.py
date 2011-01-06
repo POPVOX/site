@@ -56,51 +56,15 @@ def get_popular_bills():
 	if popular_bills_cache != None and (datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
 		return popular_bills_cache[1]
 		
-	# Get popular bills from GovTrack.
-	if False:
-		popular_bills = []
-		popular_bills_xml = minidom.parse(open_govtrack_file("misc/popularbills.xml"))
-		for billxml in popular_bills_xml.getElementsByTagName("bill"):
-			try:
-				m = re.match(r"([a-z]+)(\d+)-(\d+)", billxml.attributes["id"].value)
-				bill = Bill.objects.get(congressnumber = int(m.group(2)), billtype = m.group(1), billnumber = int(m.group(3)))
-				if not bill.isAlive():
-					continue
-				
-				popular_bills.append({"congressnumber": int(m.group(2)), "billtype": m.group(1), "billnumber": int(m.group(3))})
-				
-				if len(popular_bills) == 15:
-					break
-			except:
-				# Ignore invalid data from the API, skip this bill.
-				pass
-	
-	# This is our lame duck list October 2010.
-	popular_bills = [
-		{"congressnumber": 111, "billtype": 'h', "billnumber": 3458},
-		{"congressnumber": 111, "billtype": 'h', "billnumber": 5175},
-		{"congressnumber": 111, "billtype": 's', "billnumber": 3815},
-		{"congressnumber": 111, "billtype": 's', "billnumber": 2827},
-		{"congressnumber": 111, "billtype": 's', "billnumber": 510},
-		{"congressnumber": 111, "billtype": 'h', "billnumber": 6520},
-		{"congressnumber": 111, "billtype": 's', "billnumber": 4022},
-		{"congressnumber": 111, "billtype": 'h', "billnumber": 915},
-		{"congressnumber": 111, "billtype": 's', "billnumber": 4004},
-		]
-	
-	# convert the hash objects to Bill objects
-	popular_bills = getbillsfromhash(popular_bills)
-	for b in popular_bills:
-		b.popular_bills_type = "active"
-	
+	popular_bills = []
+
 	# Additionally choose bills with the most number of comments.
 	# TODO: Is this SQL fast enough? Well, it's not run often.
 	from django.db.models import Count
-	for b in Bill.objects.annotate(Count('usercomments')).order_by('-usercomments__count')[0:12]:
+	for b in Bill.objects.filter(congressnumber=CURRENT_CONGRESS).annotate(Count('usercomments')).order_by('-usercomments__count')[0:12]:
 		if b.usercomments__count == 0:
 			break
 		if not b in popular_bills:
-			b.popular_bills_type = "trending"
 			popular_bills.append(b)
 			if len(popular_bills) > 12:
 				break
@@ -188,9 +152,7 @@ def bills(request):
 				b["pos"] = c[0].position
 	
 	return render_to_response('popvox/bill_list.html', {
-		'popular_bills_groups': [[b for b in popular_bills2 if b["bill"].popular_bills_type=="active"],
-			[b for b in popular_bills2 if b["bill"].popular_bills_type=="trending"]],
-		'hotbills': popular_bills[0:5], 
+		'trending_bills': popular_bills2,
 		}, context_instance=RequestContext(request))
 	
 def billsearch(request):
