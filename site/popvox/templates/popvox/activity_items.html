@@ -19,32 +19,30 @@
 			{% endif %}
 			{{item.address.state}}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district
 		</p>
-		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
-			<div style="float: left; padding-right: 1.5em">
-				{% if item.position == "+" %}
-					Supports
+		<div class="comments">
+			<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
+				<div >
+					<h4>{% if item.position == "+" %}
+						Supports
+					{% endif %}
+					{% if item.position == "-" %}
+						Opposes
+					{% endif %}
+					<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.</h4>
+				</div>
+				{% if not user.is_anonymous %}
+				<div class="flipcolor flip_activity">
+				{% with "+" as tracktype %}
+				{% with item.bill as bill %}
+				{% include "popvox/track.html" %}
+				{% endwith %}
+				{% endwith %}
+				</div>
 				{% endif %}
-				{% if item.position == "-" %}
-					Opposes
-				{% endif %}
-				<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
-			</div>
-			{% if not user.is_anonymous %}
-			<div class="flipcolor" style="float: left; margin-top: -2px">
-			{% with "+" as tracktype %}
-			{% with item.bill as bill %}
-			{% include "popvox/track.html" %}
-			{% endwith %}
-			{% endwith %}
-			</div>
-			{% endif %}
-			
-			<div class="clear">
+				
 				{{item.message|wraplines:"p"|truncatewords_html:150}}
-			</div>
-			<p>
 				<span class="share"><a href="{{item.url}}">share</a></span>
-			</p>
+			</div>
 		</div>
 	{% endif %}
 	

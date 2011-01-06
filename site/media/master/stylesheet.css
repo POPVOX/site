@@ -901,11 +901,16 @@ h3#reporttitle {
 					padding: 0 4px;
 					}
 
-		.comments p {
+		.comments p, .content .bills .comments p {
 			font: italic normal 13px/18px georgia, serif;
 			margin-bottom: 15px;
 			padding-left: 45px;
 			}
+			
+			.content .bills .comments p {
+				padding-left: 0;
+				}
+			
 	
 	.legreport .search_box {
 		margin-bottom: 15px;
@@ -1155,10 +1160,16 @@ h3#reporttitle {
 			padding-left: 25px;
 			}
 
+	
+		
 	.share {
 		margin: 0px 0 15px 30px;
 		display: block;
 		}
+		
+		#activity .share {
+			margin: -10px 0 15px -10px;
+			}
 		
 	.share a {
 		font: italic normal 12px georgia, serif;
@@ -1183,6 +1194,7 @@ h3#reporttitle {
 		min-height: 35px;
 		height: auto !important;
 		height: 35px;
+		position: relative;
 		}
 
 	.content div.oppose {
@@ -1190,12 +1202,14 @@ h3#reporttitle {
 		display: block;
 		margin-bottom: 15px;
 		padding: 0 0 0 45px;
+		position: relative;
 		}
 
 	.content div.neutral {
 		display: block;
 		margin-bottom: 15px;
 		padding: 0 0 0 45px;
+		position: relative;
 		}
 		
 		.content div.endorse a,
@@ -1690,6 +1704,12 @@ tr.bill td a:hover {
 	.flipcolor .billtrack:hover, .flipcolor .billantitrack:hover, .flipcolor .expand:hover {
 		cursor: pointer;
 		background-position: left top;
+		}
+		
+	.flipcolor.flip_activity {
+		position: absolute;
+		left: 8px;
+		top: 33px;
 		}
 
 .content p span.username {
@@ -3764,6 +3784,13 @@ ul.staff, .small {
 	.col_3 .search {
 		width: 145px;
 	}
+	
+	
+/* conditional css */
+
+.userrichtextcontent h3 + ul {
+	margin: 0 0 .75em -10px;
+	}	
 
 /* about */	
 	.sub {
