@@ -63,7 +63,10 @@ class MemberOfCongress(models.Model):
 	def lastname(self):
 		return govtrack.getMemberOfCongress(self.id)["lastname"]
 	def party(self):
-		return govtrack.getMemberOfCongress(self.id)["party"]
+		if "party" in govtrack.getMemberOfCongress(self.id):
+			return govtrack.getMemberOfCongress(self.id)["party"]
+		else:
+			return "?"
 
 class CongressionalCommittee(models.Model):
 	"""A congressional committee or subcommittee."""

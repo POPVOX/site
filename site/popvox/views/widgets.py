@@ -30,14 +30,16 @@ def commentmapus(request):
 	
 	# TODO: put this in the database
 	count = { }
-	max_count = 0
 	comments = bill_comments(bill, "+") | bill_comments(bill, "-")
 	for comment in comments:
 		district = comment.address.state + str(comment.address.congressionaldistrict)
 		if not district in count:
 			count[district] = { "+": 0, "-": 0 } 
 		count[district][comment.position] += 1
-		max_count = max(max_count, count[district][comment.position])
+
+	max_count = 0.0
+	for district in count:
+		max_count = max(max_count, float(count[district]["+"] + count[district]["-"]))
 	
 	def chartcolor(sentiment, contention):
 		def colorhex(component):
@@ -59,16 +61,12 @@ def commentmapus(request):
 	yoffset = 192 # ??
 	
 	for district in count:
-		# make these relative
-		count[district]["+"] /= float(max_count)
-		count[district]["-"] /= float(max_count)
-		
 		# we'll compute a score on two dimensions (each from 0 to 1)
 		#    overall sentiment, the % of comments in support
 		#    contentiousness, the relative number of commets compared to districts nationally
 		
 		count[district]["sentiment"] = count[district]["+"]/(count[district]["+"] + count[district]["-"])
-		count[district]["contention"] = (count[district]["+"] + count[district]["-"]) / 2.0
+		count[district]["contention"] = (count[district]["+"] + count[district]["-"]) / max_count
 		
 		# then to compute a color, we'll map sentiment to hue and contention to
 		# saturation, on an HSV color span
