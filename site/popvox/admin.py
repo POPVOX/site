@@ -42,6 +42,7 @@ admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)
 admin.site.register(UserOrgRole, UserOrgRoleAdmin)
 admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
+admin.site.register(MemberPositionDocument)
 admin.site.register(PostalAddress)
 
 class RawTextAdmin(admin.ModelAdmin):

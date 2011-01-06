@@ -93,6 +93,12 @@
 				<div class="hr_lite"> </div>
 				
 				<div id="bill_{{subgroup.id}}_{{bill.id}}_details_dynamic"></div>
+				
+				{% if user.legstaffrole.member %}
+				<div>
+					<a href="{{bill.url}}/upload">Upload Position Document</a>
+				</div>
+				{% endif %}
 			</td>
 		</tr>
 	{% endfor %}

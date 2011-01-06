@@ -1,0 +1,114 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Upload Press Release, Remarks, or Dear Colleague{% endblock%}
+{%block nav_legstaff_class_dashboard%}active{%endblock%}
+{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block head %}
+<script>
+	var curtab = null;
+	function showtab(tab) {
+		$('.tab_tab li').removeClass('active');
+		$('#tab_' + tab).addClass('active');
+		curtab = tab;
+		
+		tinyMCE.execCommand("mceRemoveControl", false, "doctext");
+		$('#doctitle, #doctext, #doclink, #submitbutton').attr('disabled', 1);
+		
+		$.ajax({
+			type:"POST",
+			url: "/ajax/bills/getdoc",
+			data: {
+				"billid": {{bill.id}},
+				"member": {{user.legstaffrole.member}},
+				"doctype": curtab
+			},
+			complete: function(res, status) {
+				$('#doctitle, #doctext, #doclink, #submitbutton').attr('disabled', '');
+				tinyMCE.execCommand("mceAddControl", false, "doctext");
+				
+				res = eval("[" + res.responseText + "]")[0];
+				if (res.status == "doesnotexist") {
+					$('#doctitle').val('');
+					$('#doctext').val('');
+					$('#doclink').val('');
+				} else {
+					$('#doctitle').val(res.title);
+					$('#doctext').val(res.text);
+					$('#doclink').val(res.link);
+				}
+			}
+		});
+		return false;
+	}
+
+	function doctext_on_save() {
+		updateprofile(false);
+	}
+
+	function updateprofile(validate) {
+		ajaxform("/ajax/bills/upload",
+			{
+				"billid": {{bill.id}},
+				"doctype": curtab,
+				"validate": (validate ? "validate" : "")
+			},
+			{
+				"title": "#doctitle",
+				"text": "#doctext",
+				"link": "#doclink"
+			},
+			{
+				statusfield: "errorlabel",
+				savebutton: "submitbutton",
+				statussuccess: (validate ? null : "Saved."),
+				success: function() {
+				
+				}
+			}
+			);
+		return false;
+	}	
+</script>
+{% endblock %}
+{% block content %}
+<div class="content">
+
+	<h1>Upload Position Document on {{bill.displaynumber}}</h1>
+	
+	<p>Upload {{ user.legstaffrole.bossname }}&rsquo;s position on {{bill.title}}. Uploaded positions are made publicly available and reach POPVOX&rsquo;s citizen users
+	and organizations.</p>
+	
+	<p>You may upload one document of each type for this bill. Select the type of document you want to upload.</p>
+
+	<div class="col_3">
+		<ul class="tab_tab">
+			<li id="tab_pressrelease"><a href="#" onclick="return showtab('pressrelease')">Press Release</a></li>
+			<li id="tab_introstatement"><a href="#" onclick="return showtab('introstatement')">Introductory Statement</a></li>
+			<li id="tab_dearcolleague"><a href="#" onclick="return showtab('dearcolleague')">Dear Colleague</a></li>
+			<li id="tab_other"><a href="#" onclick="return showtab('other')">Other Document</a></li>
+		</ul>
+		<script>$(function() { showtab('pressrelease'); });</script>
+	</div>
+	
+	<div class="tab_pane">
+	
+		<form class="form" style="float: left" onsubmit="return updateprofile(false);">
+			<label for="doctitle">Document Title</label>
+			<input id="doctitle" type="text" class="c6"/>
+			
+			<label for="doctext">Document Body</label>
+			<textarea id="doctext" name="doctext" class="c6" rows="10"></textarea>
+			
+			<label for="doclink">Document Link</label>
+			<input id="doclink" type="text" class="c6"/>
+			<small>(Optionally provide a link to a PDF or HTML page that you host on your own website.)</small>
+			
+			<input id="submitbutton" type="submit" class="submit" value="Upload"/>
+			
+			<p class="error" id="errorlabel"> </p>
+		</form>
+		
+		<div class="clear"> </div>
+	</div>
+</div>
+{% endblock %}

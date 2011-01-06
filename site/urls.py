@@ -32,6 +32,9 @@ urlpatterns = patterns('',
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment(/clear|/support|/oppose|/finish)?$', "popvox.views.bills.billcomment"),# Google Analytics funnel page
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment/(\d+)$', "popvox.views.bills.billshare"),
 	(r'^ajax/bills/share$', "popvox.views.bills.billshare_share"),
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)/upload$', "popvox.views.bills.uploaddoc"),
+	(r'^ajax/bills/upload$', "popvox.views.bills.uploaddoc2"),
+	(r'^ajax/bills/getdoc$', "popvox.views.bills.getdoc"),
 	
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/report$', "popvox.views.bills.billreport"),
 	(r'^ajax/bills/us/(\d+)/([a-z]+)(\d+)/report/getinfo$', "popvox.views.bills.billreport_getinfo"),

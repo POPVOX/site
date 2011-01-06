@@ -633,6 +633,20 @@ class UserLegStaffRole(models.Model):
 			ret.append( govtrack.getCommittee(self.committee)["shortname"] )
 		ret.append( self.position )
 		return ", ".join(ret)
+	def bossname(self):
+		return govtrack.getMemberOfCongress(self.member)["name"] 
+		
+class MemberPositionDocument(models.Model):
+	member = models.IntegerField(blank=True, null=True, db_index=True)
+	bill = models.ForeignKey(Bill, related_name="memberpositions", db_index=True)
+	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (99, 'Other')])
+	title = models.CharField(max_length=128)
+	text = tinymce_models.HTMLField(blank=True) #models.TextField()
+	link = models.URLField(blank=True, null=True)
+	created = models.DateTimeField(auto_now_add=True)
+	updated = models.DateTimeField(auto_now=True)
+	def __unicode__(self):
+		return govtrack.getMemberOfCongress(self.member)["name"] + " - " + self.bill.title + " [" + str(self.doctype) + "]"
 		
 class PostalAddress(models.Model):
 	"""A postal address."""
