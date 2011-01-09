@@ -158,7 +158,7 @@ class Bill(models.Model):
 		return [parse_line(rec) for rec in self.latest_action.split("\n")]
 		
 	def campaign_positions(self):
-		return [p for p in self.orgcampaignposition_set.all() if p.campaign.visible]
+		return [p for p in self.orgcampaignposition_set.all() if p.campaign.visible and p.campaign.org.visible]
 	
 	def hashtag(self):
 		bt = ""

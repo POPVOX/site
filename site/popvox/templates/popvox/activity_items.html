@@ -17,7 +17,12 @@
 			{% if can_see_user_details %}
 				{{item.address.city}},
 			{% endif %}
-			{{item.address.state}}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district
+			{{item.address.state}}&rsquo;s
+			{% if item.address.congressionaldistrict > 0 %}
+				{{item.address.congressionaldistrict|ordinal}} district
+			{% else %}
+				at-large district
+			{% endif %}
 		</p>
 		<div class="comments">
 			<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>

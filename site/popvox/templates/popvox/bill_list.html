@@ -113,9 +113,11 @@ $(function() {
 								by
 								<a href="{{org.url}}">{{org.name}}</a>
 							</p>
+							{% comment %}
 							{% for cam in org.campaigns %}
 								<p style="margin-left: 1.5em"><a href="{{cam.url}}">{{cam.name}}</a>{% if cam.description %}: {{ cam.description|truncatewords:50 }}{% endif %}</p>
 							{% endfor %}
+							{% endcomment %}
 						</div>
 						{% endfor %}
 					</div>

@@ -77,7 +77,7 @@ def bills(request):
 	popular_bills = get_popular_bills()
 
 	# Get the campaigns that support or oppose any of the bills, in batch.
-	cams = OrgCampaign.objects.filter(positions__bill__in = popular_bills).select_related() # note recursive SQL which goes from OrgCampaign to Org
+	cams = OrgCampaign.objects.filter(positions__bill__in = popular_bills, visible=True, org__visible=True).select_related() # note recursive SQL which goes from OrgCampaign to Org
 	
 	# Annotate the list of popular bills with the org information.
 	popular_bills2 = [ ]
@@ -506,7 +506,9 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	
 	# We will require a captcha for this comment if the user is creating many comments
 	# in a short period of time and if we are not editing an existing comment.
-	require_captcha = request.user.is_anonymous() or request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
+	require_captcha = True
+	if not request.user.is_anonymous():
+		require_captcha = request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
 		and not request.user.comments.filter(bill = bill).exists()
 	
 	if not "submitmode" in request.POST and position_original != "/finish":
@@ -977,7 +979,7 @@ Go to %s to have your voice be heard!
 					"link": url,
 					"name": bill.title.encode('utf-8'),
 					"caption": "Voice your opinion on this bill at POPVOX.com",
-					"description": comment.message.encode('utf-8') if includecomment else bill.officialtitle().encode('utf-8'),
+					"description": comment.message.encode('utf-8') if includecomment else (bill.officialtitle().encode('utf-8') if bill.officialtitle() != None else None),
 					"message": request.POST["message"].encode('utf-8')
 					}))
 		else:
@@ -1096,8 +1098,10 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 			return None
 		if state != None:
 			return "Congressional District " + str(c.congressionaldistrict)
-		return statenames[c.state] + "'s " + ordinal(c.congressionaldistrict) + " District"
-			
+		if c.congressionaldistrict > 0:
+			return statenames[c.state] + "'s " + ordinal(c.congressionaldistrict) + " District"
+		return statenames[c.state] + " At Large"
+
 	return {
 		"reporttitle": reporttitle,
 		"reportsubtitle": reportsubtitle,
