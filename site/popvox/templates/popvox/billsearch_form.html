@@ -1,6 +1,13 @@
-    <form method="get" action="/bills/search" onsubmit="return !$('#billsearch_q').hasClass('default')">
+	{% comment %} similar code in endorse_oppose.html {% endcomment %}
+	<form method="get" action="/bills/search" onsubmit="return !$('#billsearch_q').hasClass('default')">
 		<input id="billsearch_q" type="text" class="search" name="q" value="{{q}}"/>
 		<input class="submit_search btn" type="submit" value="Search"/>
+		<div>
+			<select id="billsearch_congress" name="congressnumber">
+				<option value="">Current Legislation</option>
+				<option value="111" {% if congressnumber == "111" %}selected{% endif %}>111th Congress</option>
+			</select>
+		</div>
     </form>
     {% if not q %}<script>$('#billsearch_q').input_default("bill number or keywords");</script>{% endif %}
 

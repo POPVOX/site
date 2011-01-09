@@ -13,6 +13,8 @@ function billsearch_q_submit() {
 	var billtype = match[1];
 	var billnumber = match[2];
 	var congressnumber = match[4]; // possibly undefined, GovTrack style prev congress search
+	if (!congressnumber)
+		congressnumber = $('#billsearch_congress').val();
 	
 	ajax("/ajax/bills/search",
 		{ "congressnumber": (congressnumber ? congressnumber : 0),
@@ -81,6 +83,12 @@ function billsearch_endorse_oppose(pos) {
     <form method="get" action="/bills/search" onsubmit="return billsearch_q_submit()">
 		<input id="billsearch_q" type="text" class="search" name="q" value=""/>
 		<input id="billsearch_button" class="btn submit_search" type="submit" value="Search"/>
+		<div>
+			<select id="billsearch_congress" name="congressnumber">
+				<option value="">Current Legislation</option>
+				<option value="111">111th Congress</option>
+			</select>
+		</div>
 		<div id="billsearch_error" class="error"></div>
     </form>
     <script>$('#billsearch_q').input_default("search by bill number or keywords");</script>

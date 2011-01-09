@@ -159,11 +159,14 @@ def billsearch(request):
 	if not "q" in request.GET or request.GET["q"].strip() == "":
 		return HttpResponseRedirect("/bills")
 	q = request.GET["q"].strip()
+	congressnumber = ""
+	if "congressnumber" in request.GET:
+		congressnumber = "&session=" + request.GET["congressnumber"]
 	# TODO: Cache this?
 	bills = []
 	status = None
 	try:
-		search_response = minidom.parse(urlopen("http://www.govtrack.us/congress/billsearch_api.xpd?q=" + urllib.quote(q)))
+		search_response = minidom.parse(urlopen("http://www.govtrack.us/congress/billsearch_api.xpd?q=" + urllib.quote(q) + congressnumber))
 		search_response = search_response.getElementsByTagName("result")
 	except:
 		search_response = []
@@ -192,7 +195,7 @@ def billsearch(request):
 			return HttpResponseRedirect(bills[0].url() + "/report")
 		else:
 			return HttpResponseRedirect(bills[0].url())
-	return render_to_response('popvox/billsearch.html', {'bills': bills, "q": q, "status": status}, context_instance=RequestContext(request))
+	return render_to_response('popvox/billsearch.html', {'bills': bills, "q": q, "congressnumber": request.GET.get("congressnumber", ""), "status": status}, context_instance=RequestContext(request))
 
 def getbill(congressnumber, billtype, billnumber):
 	if int(congressnumber) < 1 or int(congressnumber) > 1000: 
