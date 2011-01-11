@@ -79,6 +79,16 @@ def date2(date):
 def json(data):
 	return mark_safe(simplejson.dumps(data))
 
+@register.filter
+def niceurl(data):
+	data = data.replace("http://", "")
+	data = data.replace("www.", "")
+	if data[-1] == "/":
+		data = data[:-1]
+	if len(data) > 30:
+		data = data[:14] + "..." + data[-14:]
+	return data
+
 @register.tag
 def more(parser, token):
 	class MoreNode(template.Node):

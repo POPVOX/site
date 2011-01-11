@@ -38,7 +38,7 @@
 		{% endif %}
 
 		{% if cam.website_or_orgsite %}
-		<p><a href="{{cam.website_or_orgsite}}">{{cam.website_or_orgsite}}</a></p>
+		<p><a href="{{cam.website_or_orgsite}}">{{cam.website_or_orgsite|niceurl}}</a></p>
 		{% endif %} 
 		
 		{% if cam.org.facebookurl %}

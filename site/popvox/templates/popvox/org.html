@@ -27,7 +27,7 @@
 		
 		<h3 class="info">Info</h3> 
 		{% if org.website %}
-		<p><a href="{{org.website}}">{{org.website}}</a></p>
+		<p><a href="{{org.website}}">{{org.website|niceurl}}</a></p>
 		{% endif %} 
 		
 		{% if org.facebookurl %}
