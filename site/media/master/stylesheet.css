@@ -1008,6 +1008,11 @@ h3#reporttitle {
 				background: none;
 				margin: 0;
 				}
+				
+				.content .col_orange p {
+					color: #fff;
+					line-height: 18px;
+					}
 
 			.content .col_orange a {
 				color: #fff;
@@ -1203,6 +1208,9 @@ h3#reporttitle {
 		margin-bottom: 15px;
 		padding: 0 0 0 45px;
 		position: relative;
+		min-height: 35px;
+		height: auto !important;
+		height: 35px;
 		}
 
 	.content div.neutral {
