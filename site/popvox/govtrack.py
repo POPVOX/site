@@ -428,6 +428,8 @@ def billFinalStatus(bill, died_key = None):
 	return None # bill is alive
 
 def getChamberOfNextVote(bill):
+	if bill.congressnumber != CURRENT_CONGRESS:
+		return None
 	status = bill.current_status
 	if status in ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO"):
 		return bill.billtype[0] # in originating chamber

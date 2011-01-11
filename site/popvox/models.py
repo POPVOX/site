@@ -20,6 +20,8 @@ import settings
 
 import govtrack
 
+from writeyourrep.models import DeliveryRecord
+
 class MailListUser(models.Model):
 	email = models.EmailField(db_index=True, unique=True)
 	def __unicode__(self):
@@ -751,6 +753,7 @@ class PostalAddress(models.Model):
 	city = models.CharField(max_length=64)
 	state = models.CharField(max_length=2)
 	zipcode = models.CharField(max_length=10)
+	phonenumber = models.CharField(max_length=18)
 	congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
 	state_legis_upper = models.TextField(blank=True, null=True)
 	state_legis_lower = models.TextField(blank=True, null=True)
@@ -775,6 +778,7 @@ class PostalAddress(models.Model):
 		self.city = request.POST["useraddress_city"]
 		self.state = request.POST["useraddress_state"].upper()
 		self.zipcode = request.POST["useraddress_zipcode"]
+		self.phonenumber = request.POST["useraddress_phonenumber"]
 		if self.firstname.strip() == "":
 			raise ValueError("Please enter your first name.")
 		if self.lastname.strip() == "":
@@ -789,9 +793,11 @@ class PostalAddress(models.Model):
 			raise ValueError("Invalid state abbreviation.")
 		if self.zipcode.strip() == "":
 			raise ValueError("Please enter your zipcode.")
+		if len("".join([ d for d in self.phonenumber if d in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9') ])) < 10:
+			raise ValueError("Please enter your phone number.")
 
 	def equals(self, other):
-		return self.nameprefix == other.nameprefix and self.firstname == other.firstname and self.lastname == other.lastname and self.namesuffix == other.namesuffix and self.address1 == other.address1 and self.address2 == other.address2 and self.city == other.city and self.state == other.state and self.zipcode == other.zipcode and self.congressionaldistrict == other.congressionaldistrict
+		return self.nameprefix == other.nameprefix and self.firstname == other.firstname and self.lastname == other.lastname and self.namesuffix == other.namesuffix and self.address1 == other.address1 and self.address2 == other.address2 and self.city == other.city and self.state == other.state and self.zipcode == other.zipcode and self.congressionaldistrict == other.congressionaldistrict and self.phonenumber == other.phonenumber
 		
 	def heshe(self):
 		if self.nameprefix in ('Mr.',):
@@ -842,6 +848,13 @@ class UserComment(models.Model):
 	referrer_content_type = models.ForeignKey(ContentType, blank=True, null=True, db_index=True, related_name="commentsrefferedby")
 	referrer_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
 	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
+	
+	# This holds all delivery attempts at this comment. some of the
+	# delivery attempts have been superceded by their re-send
+	# attempts. Also when we send letters to senators we may
+	# send it to both senators, so this records all delivery attempts
+	# for all of the individuals the message gets sent to.
+	delivery_attempts = models.ManyToManyField(DeliveryRecord, blank=True)
 	
 	class Meta:
 			verbose_name = "user comment"
