@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
 {% block title %}Docket{% endblock%}
-{%block nav_legstaff_class_dashboard%}active{%endblock%}
+{%block nav_legstaff_class_docket%}active{%endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
@@ -114,7 +114,7 @@
 	{% endwith %}
 	
 	function update_tabs() {
-		ajax("/ajax/home/legstaff/bill_categories",
+		ajax("/ajax/docket/bill_categories",
 			{
 				"filternextvotechamber": $('#filter_bills li.active')[0].getAttribute('value')
 			},
@@ -175,7 +175,7 @@
 	function refresh_tab(curtab) {
 		$.ajax({
 			type:"POST",
-			url: "ajax/home/legstaff/bill_category_panel",
+			url: "ajax/docket/bill_category_panel",
 			data: {
 				id: curtab
 			},

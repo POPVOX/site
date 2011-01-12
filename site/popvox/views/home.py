@@ -390,18 +390,8 @@ def home(request):
 		return Http404()
 		
 	if prof.is_leg_staff():
-		member = None
-		if request.user.legstaffrole.member != None:
-			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
-		return render_to_response('popvox/home_legstaff.html',
+		return render_to_response('popvox/home_legstaff_dashboard.html',
 			{
-				"districtstr":
-						"" if member == None or not member["current"] else (
-							"State" if member["type"] == "sen" else "District"
-							),
-				"suggestions": get_legstaff_suggested_bills(request.user),
-				"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
-				"adserver-targets": ["leg_staff_home"],
 			},
 			context_instance=RequestContext(request))
 		
@@ -440,6 +430,30 @@ def home(request):
 		     "adserver-targets": ["user_home"],
 			    },
 			context_instance=RequestContext(request))
+
+@login_required
+def docket(request):
+	prof = request.user.get_profile()
+	if prof == None:
+		return Http404()
+		
+	if not prof.is_leg_staff():
+		return Http404()
+
+	member = None
+	if request.user.legstaffrole.member != None:
+		member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
+	return render_to_response('popvox/home_legstaff.html',
+		{
+			"districtstr":
+					"" if member == None or not member["current"] else (
+						"State" if member["type"] == "sen" else "District"
+						),
+			"suggestions": get_legstaff_suggested_bills(request.user),
+			"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
+			"adserver-targets": ["leg_staff_home"],
+		},
+		context_instance=RequestContext(request))
 
 @login_required
 @json_response
