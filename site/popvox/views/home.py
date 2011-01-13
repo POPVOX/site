@@ -12,7 +12,6 @@ from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
 import re
 from xml.dom import minidom
-import urllib
 
 from popvox.models import *
 from popvox.views.bills import bill_statistics, get_default_statistics_context
@@ -29,7 +28,7 @@ def annotate_track_status(profile, bills):
 			b.antitrackstatus = True
 	return bills
 
-def get_legstaff_suggested_bills(user, counts_only=False, id=None):
+def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_hidden=True):
 	prof = user.userprofile
 	
 	suggestions = [  ]
@@ -66,7 +65,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None):
 			})
 
 	localbills = get_legstaff_district_bills(user)
-	if len(localbills) > 0:
+	if localbills != None and len(localbills) > 0:
 		moc = popvox.govtrack.getMemberOfCongress(boss)
 		d = moc["state"] + ("" if moc["type"] == "sen" else "-" + str(moc["district"]))
 		suggestions.append({
@@ -115,13 +114,14 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None):
 			"bills": select_bills(issues=ix)
 			})
 		
-	suggestions.append({
-		"id": "hidden",
-		"type": "hidden",
-		"name": "Legislation You Have Hidden",
-		"shortname": "Hidden",
-		"bills": prof.antitracked_bills.select_related("sponsor", "topterm")
-		})
+	if include_hidden:
+		suggestions.append({
+			"id": "hidden",
+			"type": "hidden",
+			"name": "Legislation You Have Hidden",
+			"shortname": "Hidden",
+			"bills": prof.antitracked_bills.select_related("sponsor", "topterm")
+			})
 
 	# If id != None, then we're requesting just one group. We can do this now
 	# since the queries are lazy-loaded.
@@ -259,8 +259,14 @@ def get_legstaff_district_bills(user):
 	
 	# Create some filters for the district.
 	f1 = { "state": member["state"] }
+	cache_key = "get_legstaff_district_bills#" + member["state"]
 	if member["type"] == "rep":
+		cache_key += "," + str(member["district"])
 		f1["congressionaldistrict"] = member["district"]
+	
+	localbills = cache.get(cache_key)
+	if localbills != None:
+		return localbills
 	
 	f2 = { }
 	for k, v in f1.items():
@@ -292,6 +298,8 @@ def get_legstaff_district_bills(user):
 	
 	# Now filter out the local bills that have less activity than the national mean.
 	localbills = [b for b in localbills if localusers/b.num_comments < globalusers/globalcomments[b.id]]
+	
+	cache.set(cache_key, localbills, 60*60*6) # six hours
 	
 	return localbills
 	
@@ -385,13 +393,16 @@ def compute_prompts(user):
 
 @login_required
 def home(request):
-	prof = request.user.get_profile()
+	user = request.user
+	prof = user.get_profile()
 	if prof == None:
 		return Http404()
 		
 	if prof.is_leg_staff():
 		return render_to_response('popvox/home_legstaff_dashboard.html',
 			{
+				"docket": get_legstaff_suggested_bills(request.user, counts_only=True, include_hidden=False),
+				"calendar": get_calendar_agenda(user)
 			},
 			context_instance=RequestContext(request))
 		
@@ -425,7 +436,7 @@ def home(request):
 	else:
 		return render_to_response('popvox/homefeed.html',
 			{ 
-			"suggestions": compute_prompts(request.user)[0:4],
+			"suggestions": compute_prompts(user)[0:4],
 			"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
 		     "adserver-targets": ["user_home"],
 			    },
@@ -596,3 +607,75 @@ def calendar(request):
 	return render_to_response('popvox/legcalendar.html', {
 		}, context_instance=RequestContext(request))
 
+def get_legstaff_district_bills(user):
+	if user.legstaffrole.member == None:
+		return []
+
+def get_calendar_agenda(user):
+	chamber = user.legstaffrole.chamber()
+	if chamber != None:
+		agenda = get_calendar_agenda2(chamber)
+	else:
+		agenda = get_calendar_agenda2("H", prefix="House")
+		agenda = get_calendar_agenda2("S", agenda=agenda, prefix="Senate")
+
+	agenda = [(date, date.strftime("%A"), date.strftime("%b %d").replace(" 0", " "), items) for date, items in agenda.items()]
+	agenda.sort(key = lambda x : x[0])
+	
+	return agenda
+
+def get_calendar_agenda2(chamber, agenda=None, prefix=None):
+	if chamber == "H":
+		url = "http://www.google.com/calendar/ical/g.popvox.com_a29i4neivhp0ocsrkcd6jf2n30%40group.calendar.google.com/public/basic.ics"
+	elif chamber == "S":
+		url = "http://www.google.com/calendar/ical/g.popvox.com_dn12o3dcj27brhi8hk4v1ov09o%40group.calendar.google.com/public/basic.ics"
+			
+	cal = cache.get(url)
+	if cal == None:
+		import urllib2
+		cal = urllib2.urlopen(url).read()
+		cache.set(url, cal, 60*60*3) # 3 hours
+
+	from datetime import datetime, date, timedelta
+	
+	# weird data bug from Google?
+	cal = cal.replace("CREATED:00001231T000000Z\r\n", "")
+	
+	from icalendar import Calendar, Event
+	cal = Calendar.from_string(cal)
+	
+	if agenda == None:
+		agenda = { }
+	
+	for component in cal.walk():
+		if "summary" in component:
+			descr = component["summary"]
+		elif "description" in component:
+			descr = component["description"]
+		else:
+			continue
+		if not "dtstart" in component or not "dtend" in component:
+			continue
+		dstart = component.decoded("dtstart")
+		dend = component.decoded("dtend")
+		
+		if prefix != None:
+			descr = prefix + ": " + descr
+		
+		# We're not interested in times right now...
+		
+		if isinstance(dstart, datetime): dstart = dstart.date()
+		if isinstance(dend, datetime): dend = dend.date()
+		
+		if dend < datetime.now().date():
+			continue
+		
+		while dstart < dend: # end date is exclusive
+			if dstart >= datetime.now().date() and dstart <= datetime.now().date()+timedelta(days=5):
+				if dstart not in agenda:
+					agenda[dstart] = []
+				agenda[dstart].append({"description": descr})
+			dstart = dstart + timedelta(days=1)
+		
+	return agenda
+	

@@ -200,7 +200,10 @@
 	
 	$(function() {
 		// show the first non-empty tab
-		showtab($('.tab_panel[panelid]')[0].getAttribute("panelid"));
+		if (window.location.hash == "" || window.location.hash == "#")
+			showtab($('.tab_panel[panelid]')[0].getAttribute("panelid"));
+		else
+			showtab(window.location.hash.substring(1));
 	});
 </script>
 {% endblock %}

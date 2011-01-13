@@ -11,5 +11,8 @@ git clone git://github.com/tauberer/django-feedback.git
 wget -O tinymce.zip "http://downloads.sourceforge.net/project/tinymce/TinyMCE/3.3.9.2/tinymce_3_3_9_2_jquery.zip?r=http%3A%2F%2Ftinymce.moxiecode.com%2Fdownload.php&ts=1292511357&use_mirror=superb-sea2"
 unzip tinymce.zip
 
+wget http://codespeak.net/icalendar/iCalendar-1.2.tgz
+tar -zxf iCalendar-1.2.tgz
+
 # for data prep only
 svn checkout http://primary-maps-2008.googlecode.com/svn/trunk/ primary-maps-2008

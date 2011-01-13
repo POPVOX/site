@@ -3,66 +3,62 @@
 {% block title %}Dashboard{% endblock%}
 {%block nav_legstaff_class_dashboard%}active{%endblock%}
 {% block head %}
+<script>
+$(function() {
+	$.ajax({
+		type:"POST",
+		url: "/ajax/activity",
+		data: {
+			count: 5,
+			"default-locale": 1
+		},
+		complete: function(res, status) {
+			$('#activity').html(res.responseText);
+		}
+	});
+});
+</script>
 {% endblock %}
 {% block content %}
 <div class="content leg_staff_dash">
 	<div class="col_9 col_top">
 		<h1>Dashboard</h1>
 		<div class="dash_docket">
-			<a href="#" class="btn b_view_docket">View Docket</a>
+			<a href="/docket" class="btn b_view_docket">View Docket</a>
 			<h3>Docket</h3>
 			<div class="hr"> </div>
 
-			<h4>Bookmarked: <a href="#">9 Bills</a></h4>
-			<p>Josh, please drop dynamic here.</p>
-			<div class="hr"> </div>
-
-			<h4>Hot in CA-13: <a href="#">5 Bills</a></h4>
-			<p>Josh, please drop dynamic here.</p>
-			<div class="hr"> </div>
-
-			<h4>Tracking: <a href="#">2 Issues</a></h4>
-			<h5><a href="#">Health</a></h5>
-			<p>Josh, please drop dynamic here.</p>
-
-			<h5><a href="#">International Affairs</a></h5>
-			<p>Josh, please drop dynamic here.</p>
+			{% for tab in docket %}
+				<h4>{{tab.shortname}}: <a href="/docket#{{tab.id}}">{{tab.count}} bill{{tab.count|pluralize}}</a></h4>
+				{% if not forloop.last %}<div class="hr"> </div>{% endif %}
+			{% endfor %}
 		</div>
 
 		<div class="dash_comments">
-			<a href="#" class="btn b_view_more">View More</a>
+			<a href="/activity" class="btn b_view_more">View More</a>
 			<h3>Comments</h3>
-			<p>Josh, please drop dynamic here.</p>
+			<div id="activity"> </div>
 		</div><!-- e: dash_comments -->
 	</div> <!-- e: col_9 -->
 	
 	
 	<div class="col_3 col_top col_last">
 		<div class="dash_calendar">
-			<a href="#" class="btn b_view_calendar">View Calendar</a>
+			<a href="/calendar" class="btn b_view_calendar">View Calendar</a>
 			<h3>Calendar</h3>
 			<div class="clear"> </div>
 			
-			<h4><span>Jan 7</span>Friday</h4>
-			<p>Senate in Session</p>
-			<p>Votes</p>
+			{% for pythondate, weekday, date, items in calendar %}
+				<h4><span>{{date}}</span>{{weekday}}</h4>
+				{% for item in items %}
+					<p>{{item.description}}</p>
+				{% endfor %}
+			{% endfor %}
 			
-			<h4><span>Jan 10</span>Monday</h4>
-			<p>Senate State Work Period</p>
-			<p>No Votes 8:00am</p>
-			
-			<h4><span>Jan 11</span>Tuesday</h4>
-			<p>Senate State Work Period</p>
-			<p>Votes</p>
-			
-			<h4><span>Jan 12</span>Wednesday</h4>
-			<p>Senate State Work Period</p>
-			<p>Votes</p>
-			
-			<h4><span>Jan 13</span>Thursday</h4>
-			<p>Senate State Work Period</p>
-			<p>Votes</p>
-			
+			<h4></h4>
+			<div class="userrichtextcontent">
+				{% rawtext "calendar_last_update" %}
+			</div>
 		</div><!-- e: dash_comments -->
 	
 	</div> <!-- e: col_3 -->	

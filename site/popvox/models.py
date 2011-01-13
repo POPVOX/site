@@ -637,7 +637,21 @@ class UserLegStaffRole(models.Model):
 		ret.append( self.position )
 		return ", ".join(ret)
 	def bossname(self):
-		return govtrack.getMemberOfCongress(self.member)["name"] 
+		return govtrack.getMemberOfCongress(self.member)["name"]
+	def chamber(self):
+		if self.member != None:
+			member = govtrack.getMemberOfCongress(self.member)
+			if not member["current"]:
+				return None
+			elif member["type"] == "rep":
+				return "H"
+			else:
+				return "S"
+		elif user.legstaffrole.committee != None:
+			chamber = user.legstaffrole.committee[0] # H, S, or J?
+			if chamber in ("H", "S"):
+				return chamber
+		return None
 		
 class MemberPositionDocument(models.Model):
 	member = models.IntegerField(blank=True, null=True, db_index=True)
