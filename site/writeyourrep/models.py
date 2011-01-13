@@ -15,7 +15,7 @@ class Endpoint(models.Model):
 	webform = models.CharField(max_length=256, blank=True, null=True)
 	webformresponse = models.CharField(max_length=256, blank=True, null=True)
 	
-	tested = models.BooleanField()
+	tested = models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return str(self.govtrackid) + " " + self.webform
@@ -24,6 +24,7 @@ class Endpoint(models.Model):
 		return "%s/admin/writeyourrep/endpoint/%s/" % (SITE_ROOT_URL, str(self.id))
 		
 class DeliveryRecord(models.Model):
+	FAILURE_NOFAILURE = -2
 	FAILURE_UNHANDLED_EXCEPTION = -1
 	FAILURE_HTTP_ERROR = 0
 	FAILURE_FORM_PARSE_FAILURE = 1
@@ -33,7 +34,7 @@ class DeliveryRecord(models.Model):
 	target = models.ForeignKey(Endpoint)
 	trace = models.TextField()
 	success = models.BooleanField()
-	failure_reason = models.IntegerField(choices=[(FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response")])
+	failure_reason = models.IntegerField(choices=[(FAILURE_NOFAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response")])
 	next_attempt = models.ForeignKey("DeliveryRecord", blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
 	

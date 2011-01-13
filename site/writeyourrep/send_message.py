@@ -432,7 +432,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	if di.webformresponse == None or di.webformresponse.strip() == "":
 		raise WebformParseException("Webform's webformresponse text is not set.")
-	
+		
 	webformurl, webformid = di.webform.split("#")
 	
 	deliveryrec.trace += webformurl + "\n"
@@ -498,7 +498,7 @@ def send_message_webform(di, msg, deliveryrec):
 				postdata[k] = postdata[k][0]
 		else:
 			# Must map postdata[k] onto one of the available options.
-			if type(postdata[k]) == str:
+			if isinstance(postdata[k], str) or isinstance(postdata[k], unicode):
 				postdata[k] = [postdata[k]]
 			alts = []
 			# For each value we have coming in from the message, also
@@ -515,7 +515,7 @@ def send_message_webform(di, msg, deliveryrec):
 					postdata[k] = q
 					break
 			else:
-				raise SelectOptionNotMappable("Can't map value %s for %s into available option from %s." % (postdata[k], k, field_options[k]), k, postdata[k], field_options[k])
+				raise SelectOptionNotMappable("Can't map value %s for %s into available option from %s." % (postdata[k], k, field_options[k]), k, postdata[k], field_options[k].keys())
 		
 	for k, v in field_default.items():
 		postdata[k] = v
@@ -528,8 +528,11 @@ def send_message_webform(di, msg, deliveryrec):
 		return
 			
 	# submit the data via POST and check the result.
+
+	deliveryrec.trace += formaction + "\n"
+	deliveryrec.trace += urllib.urlencode(postdata) + "\n"
 	ret = http.open(formaction, urllib.urlencode(postdata))
-	print formaction, ret.geturl(), ret.getcode()
+	deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n\n" 
 	ret, ret_code = ret.read(), ret.getcode()
 	
 	# If this form has a final stage where the user is supposed to verify
@@ -551,7 +554,10 @@ def send_message_webform(di, msg, deliveryrec):
 				postdata[field.getAttribute("name")] = field.getAttribute("value")
 				
 		# submit the data via POST and check the result.
+		deliveryrec.trace += formaction + "\n"
+		deliveryrec.trace += urllib.urlencode(postdata) + "\n"
 		ret = http.open(formaction, urllib.urlencode(postdata))
+		deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n\n" 
 		ret, ret_code = ret.read(), ret.getcode()
 	
 	if ret_code == 404:
@@ -580,12 +586,12 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 	# Check for delivery information.
 	
 	mm = getMemberOfCongress(govtrackrecipientid)
-	if not "current" in mm or not mm["type"] not in ('sen', 'rep'):
+	if "current" not in mm or mm["type"] not in ('sen', 'rep'):
 		raise Exception("Recipient is not currently in office as a senator or representative.")
 
 	# Get an endpoint record for this member of congress.
 	try:
-		moc = Endpoint.objects.get(govtrackid = govtrackrecipientid, method__gt = Endpoint.METHOD_NONE)
+		moc = Endpoint.objects.get(govtrackid = govtrackrecipientid)
 	except Endpoint.DoesNotExist:
 		# If we don't have an endpoint record and this is for a representative,
 		# then try using the House's Write Your Rep generic form. If it
@@ -595,6 +601,9 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 			moc.method = Endpoint.METHOD_HOUSE_WRITEREP
 		else:
 			raise
+		
+	if moc.method == Endpoint.METHOD_NONE:
+		return None
 		
 	#print mm["name"].encode('utf8'), msg.zipcode
 	#print moc.admin_url()
@@ -607,13 +616,11 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 	# Generate some additional fields.
 	msg.name = msg.firstname + " " + msg.lastname
 	msg.address_combined = msg.address1 + "; " + msg.address2
-	if len(split(msg.address.zipcode, "-")) != 2:
-		msg.zip5 = msg.address.zipcode
+	if len(msg.zipcode.split("-")) != 2:
+		msg.zip5 = msg.zipcode
 		msg.zip4 = ""
 	else:
-		msg.zip5, msg.zip4 = split(msg.address.zipcode, "-")
-
-	raise ValueException(str(msg))
+		msg.zip5, msg.zip4 = msg.zipcode.split("-")
 
 	# Begin the delivery attempt.
 	try:
@@ -622,32 +629,40 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 			try:
 				send_message_webform(moc, msg, deliveryrec)
 				deliveryrec.success = True
+				deliveryrec.failure_reason = DeliveryRecord.FAILURE_NOFAILURE
 			except SelectOptionNotMappable, e: # is a type of WebformParseException so must go first
 				deliveryrec.trace += str(e) + "\n"
 				deliveryrec.failure_reason = DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE
 				
 				sr = SynonymRequired()
-				sr.term1 = "\n".join(e.values)
-				sr.term2 = "\n".join(e.options)
+				sr.term1set = "\n".join(e.values)
+				sr.term2set = "\n".join(e.options)
 				sr.save()
 				
 			except WebformParseException, e:
 				deliveryrec.trace += str(e) + "\n"
 				deliveryrec.failure_reason = DeliveryRecord.FAILURE_FORM_PARSE_FAILURE
 				
-		#elif moc.method == Endpoint.METHOD_SMTP:
+		elif moc.method == Endpoint.METHOD_SMTP:
+			return None
 		
-		elif moc.method == Enpoint.METHOD_HOUSE_WRITEREP:
+		elif moc.method == Endpoint.METHOD_HOUSE_WRITEREP:
 			ret = http.open("https://writerep.house.gov/htbin/wrep_findrep", 
 				urllib.urlencode({ "state": msg.state + statenames[msg.state], "zip": msg.zip5, "zip4": msg.zip4 }))
 			if ret.getcode() != 200:
 				raise IOError("Problem loading House WYR form: " + str(ret.getcode()))
 			ret = ret.read()
 			if "Write Your Representative general error message" in ret or not "Continue to Text Entry Form" in ret:
-				raise Exception("Specified Member of Congress does not have a supported delivery mechanism. I tried House's WYR but it failed.")
+				# If this was a trial, mark this MoC as having no delivery method available
+				# so we don't keep trying it.
+				if moc.id == None:
+					moc.govtrackid = govtrackrecipientid
+					moc.method = Endpoint.METHOD_NONE
+					moc.save()
+					return None
 				
 			#### delete ###
-			raise Exception("WYR is not implemented.")
+			return None
 			############'
 			
 			# Attempt to submit the letter.
@@ -655,6 +670,8 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 			# If we got this far, House WYR supports this office.
 			moc.save()
 			
+			deliveryrec.success = True
+			deliveryrec.failure_reason = DeliveryRecord.FAILURE_NOFAILURE
 				
 		else:
 			raise Exception("Specified Member of Congress does not have an implemented delivery mechanism.")

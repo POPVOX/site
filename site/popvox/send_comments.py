@@ -9,7 +9,7 @@ from writeyourrep.send_message import Message, send_message
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
-for comment in UserComment.objects.filter(bill__congressnumber=CURRENT_CONGRESS).order_by('-created'):
+for comment in UserComment.objects.filter(message__isnull=False, bill__congressnumber=CURRENT_CONGRESS).order_by('created'):
 	# Who are we delivering to?
 	
 	ch = comment.bill.getChamberOfNextVote()
@@ -35,6 +35,8 @@ for comment in UserComment.objects.filter(bill__congressnumber=CURRENT_CONGRESS)
 		
 	if len(govtrackrecipientids) == 0:
 		continue
+		
+	print comment
 	
 	# Set up the message record.
 	
@@ -52,7 +54,7 @@ for comment in UserComment.objects.filter(bill__congressnumber=CURRENT_CONGRESS)
 	msg.phone = comment.address.phonenumber
 	msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
 	msg.message = comment.message + "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
-	msg.topicarea = "Other"
+	msg.topicarea = comment.bill.hashtag()
 	if comment.bill.topterm != None:
 		msg.topicarea = comment.bill.topterm.name
 	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","")
@@ -105,24 +107,19 @@ for comment in UserComment.objects.filter(bill__congressnumber=CURRENT_CONGRESS)
 		except DeliveryRecord.DoesNotExist:
 			pass
 		
-		try:
-			delivery_record = send_message(msg, govtrackrecipientid, last_delivery_attempt)
-			
-			# If we got this far, a delivery attempt was made although it
-			# may not have been successful. Whatever happened, record it
-			# so we know not to try again.
-			comment.delivery_attempts.add(delivery_record)
-			comment.save()
-			
-			# We probably also want to congratulate the user with an email!
-			# TODO
-			
-		except Exception, e:
-			# Exceptions occur when we have no way to deliver the message.
-			# There is nothing to record with the comment. Leaving the
-			# last delivery attempt as None signals that we should try it again
-			# at some point in the future.
-			print e
+		delivery_record = send_message(msg, govtrackrecipientid, last_delivery_attempt)
+		if delivery_record == None:
+			# no method
+			continue
+		
+		# If we got this far, a delivery attempt was made although it
+		# may not have been successful. Whatever happened, record it
+		# so we know not to try again.
+		comment.delivery_attempts.add(delivery_record)
 	
-	break
+		
+		# We probably also want to congratulate the user with an email!
+		# TODO
+	
+	
 	
