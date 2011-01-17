@@ -325,7 +325,7 @@ def compute_prompts(user):
 			
 			# Now find all bills endorsed/opposed by that org, except for the original
 			# bill since there's no need to recommend something the user already did.
-			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org).exclude(bill=c.bill).exclude(position="0"):
+			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org, bill__congressnumber=popvox.govtrack.CURRENT_CONGRESS).exclude(bill=c.bill).exclude(position="0"):
 				bills.append(q.bill)
 				
 				# find the org with the largest user base that has a statement on this bill to
@@ -338,7 +338,7 @@ def compute_prompts(user):
 		# Find all other users that had the same position.
 		for d in UserComment.objects.filter(bill=c.bill, position=c.position).exclude(user=user):
 			# Now find all of the other positions this other user took...
-			for q in d.user.comments.all().exclude(bill=c.bill):
+			for q in d.user.comments.filter(bill__congressnumber=popvox.govtrack.CURRENT_CONGRESS).exclude(bill=c.bill):
 				bills.append(q.bill)
 				
 		for bill in bills:
