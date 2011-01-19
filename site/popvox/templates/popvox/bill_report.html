@@ -93,8 +93,6 @@
 				$('#reporttitle').text(res.reporttitle);
 				$('#reportsubtitle').text(res.reportsubtitle);
 				
-				{% if not user.is_anonymous %}
-				
 				c_pro = $('#comments_pro');
 				c_con = $('#comments_con');
 				
@@ -124,8 +122,6 @@
 					c_pro.append($("<p>No supporting comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
 				if (n_con == 0)
 					c_con.append($("<p>No opposing comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
-				
-				{% endif %}
 				
 				function escapeHTML(text) {
 					var div = document.createElement('div');
@@ -225,7 +221,6 @@
 			<h3 id="reporttitle">Loading Legislative Report...</h3>
 			<h3 id="reportsubtitle"></h3>
 	    
-			{% if not user.is_anonymous %}
 			<div class="search_box">
 				<p>
 					Select State: 
@@ -238,13 +233,6 @@
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
 			</div>
-		{% else %}
-			<div class="search_box">
-				<p>
-					<a href="{% url registration.views.loginform %}?next={{bill.url}}/report">Log in</a> to view the full report including citizens&rsquo; comments and the ability to drill-down to Congressional districts.
-				</p>
-			</div>
-		{% endif %}
 		
 		</div>
 		
@@ -351,7 +339,6 @@
 		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}" width="720" height="522" border="0"></iframe>
 	</div>
 
-	{% if not user.is_anonymous %}
 	<div style="display: none" id="comment_template">
 		<div class="comment">
 			<h4><span class="username">UserUser</span> <span class="location">in City, State</span><span class="date">, Tuesday</span></h4>
@@ -375,7 +362,6 @@
 			</div> 
 		</div> 
 	</div><!-- e: section -->
-	{% endif %}
 
 {% endblock %}
 
