@@ -585,9 +585,9 @@ def activity_getinfo(request):
 	items.extend(q)
 	
 	if state == None and district == None and format != "_bill":
-		items.extend( Org.objects.filter(visible=True).order_by('-updated')[0:count] )
-		items.extend( OrgCampaign.objects.filter(visible=True,default=False, org__visible=True).order_by('-updated')[0:count] )
-		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True).order_by('-updated')[0:count] )
+		items.extend( Org.objects.filter(visible=True).exclude(slug="demo").order_by('-updated')[0:count] )
+		items.extend( OrgCampaign.objects.filter(visible=True,default=False, org__visible=True).exclude(org__slug="demo").order_by('-updated')[0:count] )
+		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True).exclude(campaign__org__slug="demo").order_by('-updated')[0:count] )
 		
 		items.sort(key = lambda x : x.updated, reverse=True)
 		items = items[0:count]
