@@ -2178,6 +2178,11 @@ p.b_edit a {
 		padding: 10px;
 		margin-top: 20px;
 		}
+		
+		.content .dash_comments .comments p {
+			padding-left: 5px;
+			padding-bottom: 10px;
+			}
 
 		.content.leg_staff_dash .col_3 h3,
 		.content.leg_staff_dash .col_9 h3 {
