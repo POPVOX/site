@@ -1,5 +1,7 @@
 from django.db import models
 
+import popvox.govtrack
+
 from settings import SITE_ROOT_URL
 
 class Endpoint(models.Model):
@@ -18,25 +20,32 @@ class Endpoint(models.Model):
 	tested = models.BooleanField(default=False)
 
 	def __unicode__(self):
-		return str(self.govtrackid) + " " + self.webform
+		return str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["sortkey"] + " " + self.get_method_display()
 
 	def admin_url(self):
 		return "%s/admin/writeyourrep/endpoint/%s/" % (SITE_ROOT_URL, str(self.id))
 		
 class DeliveryRecord(models.Model):
-	FAILURE_NOFAILURE = -2
-	FAILURE_UNHANDLED_EXCEPTION = -1
-	FAILURE_HTTP_ERROR = 0
-	FAILURE_FORM_PARSE_FAILURE = 1
-	FAILURE_SELECT_OPTION_NOT_MAPPABLE = 2
-	FAILURE_UNEXPECTED_RESPONSE = 10
+	FAILURE_NO_FAILURE = 0
+	FAILURE_UNHANDLED_EXCEPTION = 1
+	FAILURE_HTTP_ERROR = 2
+	FAILURE_FORM_PARSE_FAILURE = 3
+	FAILURE_SELECT_OPTION_NOT_MAPPABLE = 4
+	FAILURE_UNEXPECTED_RESPONSE = 5
+	FAILURE_NO_DELIVERY_METHOD = 6
 	
 	target = models.ForeignKey(Endpoint)
 	trace = models.TextField()
 	success = models.BooleanField()
-	failure_reason = models.IntegerField(choices=[(FAILURE_NOFAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response")])
+	failure_reason = models.IntegerField(choices=[(FAILURE_NO_FAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response"), (FAILURE_NO_DELIVERY_METHOD, "No Delivery Method Available")])
 	next_attempt = models.ForeignKey("DeliveryRecord", blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
+	
+	class Meta:
+		ordering = ['-created']
+	
+	def __unicode__(self):
+		return ("OK " if self.success else "FAIL ") + self.created.strftime("%x") + " " + unicode(self.get_failure_reason_display()) + " " + self.trace[0:30] + "..."
 	
 class Synonym(models.Model):
 	term1 = models.CharField(max_length=64, db_index=True)
@@ -44,9 +53,14 @@ class Synonym(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	class Meta:
 		unique_together = [('term1', 'term2')]
+		ordering = ('term1', 'term2')
+	def __unicode__(self):
+		return self.term1 + " => " + self.term2
 
 class SynonymRequired(models.Model):
-	term1set = models.TextField()
-	term2set = models.TextField()
+	term1set = models.TextField(verbose_name="Keyword in Comment")
+	term2set = models.TextField(verbose_name="Options in Webform")
 	created = models.DateTimeField(auto_now_add=True)
-
+	def __unicode__(self):
+		return self.term1set + " => " + self.term2set
+	

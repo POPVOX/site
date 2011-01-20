@@ -1,43 +1,38 @@
-# DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/send_comments.py
+# REMOTEDB=1 DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/send_comments.py
 
 from popvox.models import *
-from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict
+from popvox.govtrack import CURRENT_CONGRESS
 
-from writeyourrep.send_message import Message, send_message
+from writeyourrep.send_message import Message, send_message, Endpoint
 
 # it would be nice if we could skip comment records that we know we
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
-for comment in UserComment.objects.filter(message__isnull=False, bill__congressnumber=CURRENT_CONGRESS).order_by('created'):
+for comment in UserComment.objects.filter(message__isnull=False, bill__congressnumber=CURRENT_CONGRESS).order_by('created').select_related("bill"):
 	# Who are we delivering to?
-	
-	ch = comment.bill.getChamberOfNextVote()
-	if ch == None:
-		# it's too late to send a comment on this bill! we should alert the user!
+	govtrackrecipients = comment.get_recipients()
+	if not type(govtrackrecipients) == list:
 		continue
-		
-	govtrackrecipientids = []
-	d = comment.address.state + str(comment.address.congressionaldistrict)
-	if ch == "s":
-		# send to all of the senators for the state
-		govtrackrecipientids = getMembersOfCongressForDistrict(d, moctype="sen")
-		if len(govtrackrecipientids) == 0:
-			# state has no senators, fall back to representative
-			govtrackrecipientids = getMembersOfCongressForDistrict(d, moctype="rep")
-	else:
-		govtrackrecipientids = getMembersOfCongressForDistrict(d, moctype="rep")
-		
-	# Filter out delivery targets that we've already successfully delivered to.
+	
+	# Filter out delivery targets that we've already successfully delivered to
+	# or we know we have no available method of delivery for.
 	govtrackrecipientids = [
-		g["id"] for g in govtrackrecipientids
-		if not comment.delivery_attempts.filter(target__govtrackid = g["id"], success = True).exists() ]
+		g["id"] for g in govtrackrecipients
+		if not comment.delivery_attempts.filter(target__govtrackid = g["id"], success = True).exists() and not Endpoint.objects.filter(govtrackid = g["id"], method = Endpoint.METHOD_NONE).exists()]
 		
+	# TESTING...
+	# Filter out delivery targets that we've already attempted, except those
+	# that needed option mapping.
+	govtrackrecipientids = [
+		g for g in govtrackrecipientids
+		if not comment.delivery_attempts.filter(target__govtrackid = g).exclude(failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE).exists() ]
+	
 	if len(govtrackrecipientids) == 0:
 		continue
 		
 	print comment
-	
+
 	# Set up the message record.
 	
 	msg = Message()
@@ -108,18 +103,14 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 			pass
 		
 		delivery_record = send_message(msg, govtrackrecipientid, last_delivery_attempt)
-		if delivery_record == None:
-			# no method
-			continue
 		
 		# If we got this far, a delivery attempt was made although it
 		# may not have been successful. Whatever happened, record it
 		# so we know not to try again.
 		comment.delivery_attempts.add(delivery_record)
 	
-		
 		# We probably also want to congratulate the user with an email!
 		# TODO
 	
-	
-	
+	break
+

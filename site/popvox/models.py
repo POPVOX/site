@@ -914,6 +914,25 @@ class UserComment(models.Model):
 	def share_hits(self):
 		return self.shares().aggregate(models.Sum("hits"))["hits__sum"]
 
+	def get_recipients(self):
+		ch = self.bill.getChamberOfNextVote()
+		if ch == None:
+			return "The comment cannot be delivered because the bill is not pending a vote in Congress."
+			
+		d = self.address.state + str(self.address.congressionaldistrict)
+		
+		govtrackrecipients = []
+		if ch == "s":
+			# send to all of the senators for the state
+			govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="sen")
+			if len(govtrackrecipients) == 0:
+				# state has no senators, fall back to representative
+				govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
+		else:
+			govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
+			
+		return govtrackrecipients
+	
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people
 	# and committees that exist in Congress. Accessing these
@@ -923,3 +942,4 @@ if not "LOADING_DUMP_DATA" in os.environ:
 	# the M2M field.
 	MemberOfCongress.init_members()
 	CongressionalCommittee.init_committees()
+
