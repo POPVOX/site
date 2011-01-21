@@ -18,7 +18,7 @@
 	
 	{% csrf_token %}
 	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
-	<input type="hidden" name="message" value="{{message}}"/>
+	<input type="hidden" name="message" value="{% if message %}{{message}}{% endif %}"/>
 	<input type="hidden" name="district" value="{{district}}" id="districtfield"/>
 	
 	{% if not newaccount_error and message %}
@@ -46,7 +46,11 @@
 		<p class="">You are not done just yet. Click Next to locate your congressional district.</p>
 		{% endif %}
 	{% else %}
-		<h1>Submit Your comment</h1>
+		{% if message %}
+		<h1>Submit Your Comment</h1>
+		{% else %}
+		<h1>Register Your Position</h1>
+		{% endif %}
 	
 	{% endif %}
 		

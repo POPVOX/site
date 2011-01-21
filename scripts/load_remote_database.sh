@@ -4,7 +4,7 @@ export LOADING_DUMP_DATA=1
 cd ../site
 
 echo Serializing remote database...
-ssh josh@popvox.com "cd sources/site; ./manage dumpdata --indent=2 auth registration popvox adserver" > database.json
+ssh josh@popvox.com "cd sources/site; ./manage dumpdata --indent=2 auth registration popvox writeyourrep adserver" > database.json
 
 echo ""
 echo Initializing local database

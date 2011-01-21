@@ -3,16 +3,6 @@
 {% block title %}Preview Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block head %}
-<script>
-function geocode_result(res) {
-	if (!res || !res.lat) {
-		$('#googlemap').fadeOut();
-	} else {
-		$('#googlemap').fadeIn();
-		$('#googlemap img').attr('src', 'http://maps.google.com/maps/api/staticmap?center=' + res.lat + ',' + res.lng + '&zoom=14&size=220x180&maptype=roadmap&markers=color:blue|label:You|' + res.lat + ',' + res.lng + '&sensor=false') 
-	}
-}
-</script>
 {% endblock %}
 {% block content %}
 <div class="content">
@@ -45,6 +35,7 @@ function geocode_result(res) {
 				<div>{{useraddress.address1}}</div>
 				<div>{{useraddress.address2}}</div>
 				<div>{{useraddress.city}}, {{useraddress.state}} {{useraddress.zipcode}}</div>
+				<div>{{useraddress.phonenumber}}</div>
 				<div style="font-size: 80%">(Congressional District {{useraddress.state}}-{% if useraddress.congressionaldistrict == 0 %}At Large{% else %} {{useraddress.congressionaldistrict}}{% endif %})</div>
 				
 				{% if not useraddress_fixed %}
@@ -60,13 +51,6 @@ function geocode_result(res) {
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
 			<div class="float_right col_3" style="padding-top: 0">
 				<p class="tip" style="margin-top: 0">Provide the address where you intend to vote. A fake address may cause POPVOX to suspend your account.</p>
-				
-				<div id="googlemap" style="display: none">
-					<p>We&rsquo;ve located you here:</p>
-					<img style="border: 1px solid black"/>
-					<p class="" style="font-size: 80%">Not correct? In that case, please enter your 9-digit ZIP code which you can find on a recent bill.</p>
-				</div>
-				
 			</div>
 			
 			{% include "popvox/address_form.html" %}

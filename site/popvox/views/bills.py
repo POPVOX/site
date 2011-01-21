@@ -524,7 +524,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			else:
 				position = comments[0].position
 				address_record = comments[0].address
-				address_record_fixed = "(You cannot change the address on a comment you have already submitted.)"
+				if (address_record.phonenumber != None and address_record.phonenumber != ""):
+					address_record_fixed = "(You cannot change the address on a comment you have already submitted.)"
 		else:
 			return HttpResponseRedirect(bill.url())
 	else:
@@ -535,7 +536,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		addresses = request.user.postaladdress_set.order_by("-created")
 		if len(addresses) > 0:
 			address_record = addresses[0]
-			if (datetime.now() - address_record.created).days < 60:
+			if (datetime.now() - address_record.created).days < 60 and (address_record.phonenumber != None and address_record.phonenumber != ""):
 				address_record_fixed = "You cannot change your address for two months after entering your address."
 	
 	# We will require a captcha for this comment if the user is creating many comments

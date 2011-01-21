@@ -69,7 +69,7 @@ def validate_email(value, skip_if_this_user=None, for_login=False, fielderrors=N
 		if not for_login:
 			users = User.objects.filter(email = value)
 			if len(users) > 0 and users[0] != skip_if_this_user:
-				raise forms.ValidationError("If that's your email address, it looks like you're already registered. You can try logging in from the homepage instead.")
+				raise forms.ValidationError("If that's your email address, it looks like you're already registered. You can try logging in instead.")
 		return value
 	except forms.ValidationError, e:
 		if fielderrors == None:
