@@ -620,7 +620,7 @@ class UserOrgRole(models.Model):
 class UserLegStaffRole(models.Model):
 	user = models.OneToOneField(User, related_name="legstaffrole", db_index=True)
 	member = models.IntegerField(blank=True, null=True, db_index=True)
-	committee = models.CharField(max_length=6, blank=True, null=True, db_index=True,
+	committee = models.CharField(max_length=7, blank=True, null=True, db_index=True,
 		choices = [(x["id"], x["name"]) for x in govtrack.getCommitteeList()])
 	position = models.CharField(max_length=50)
 	class Meta:
@@ -647,10 +647,9 @@ class UserLegStaffRole(models.Model):
 				return "H"
 			else:
 				return "S"
-		elif user.legstaffrole.committee != None:
-			chamber = user.legstaffrole.committee[0] # H, S, or J?
-			if chamber in ("H", "S"):
-				return chamber
+		elif self.committee != None:
+			if self.committee[0] in ("H", "S"): # but not J
+				return self.committee[0]
 		return None
 		
 class MemberPositionDocument(models.Model):
