@@ -11,9 +11,7 @@
 	<ul class="social_share_btns">
 		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')">facebook</a></li>
 		<li><a class="btn social_twitter" href="#" onclick="return share_tab('twitter')">twitter</a></li>
-		{% if user.is_authenticated %}
 		<li><a class="btn b_social_email" href="#" onclick="return share_tab('email')">email</a></li>
-		{% endif %}
 	</ul>
 	<div class="clear"> </div>
 	
@@ -51,6 +49,7 @@
 	<div class="clear"> </div>
 
 	<div id="sharetab_email" style="display: none">
+		{% if user.is_authenticated %}
 		<p><strong>Via Email</strong></p>
 		<div class="form">
 			<textarea id="share_email_field" class="c6"></textarea>
@@ -61,6 +60,9 @@
 			<p class="tip_inline">The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
 			<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
 		</div>
+		{% else %}
+		<p>You&rsquo;ll have to <a href="/accounts/login?next={{bill.url}}/comment/{{comment.id}}">log in</a> first to share this comment by email.</p>
+		{% endif %}
 	</div>
 	
 	<div id="sharetab_facebook" style="display: none">
@@ -93,9 +95,5 @@
 	{% endif %}
 	</div>
 
-	{% if not user.is_authenticated %}
-		<div class="hr"> </div>
-		<p>You&rsquo;ll have to <a href="/accounts/login?next={{bill.url}}/comment/{{comment.id}}">log in</a> first to share this comment by email.</p>
-	{% endif %}
 	
 

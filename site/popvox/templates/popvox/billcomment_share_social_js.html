@@ -46,7 +46,7 @@ function share_tab(method) {
 	$('#sharetab_facebook').hide();
 	$('#sharetab_twitter').hide();
 	
-	if (method == "email" {% if twitter %}|| method == "twitter"{% endif %} {% if facebook %}|| method == "facebook"{% endif %})
+	if (0 {% if user.is_authenticated %}|| method == "email"{% endif %} {% if twitter %}|| method == "twitter"{% endif %} {% if facebook %}|| method == "facebook"{% endif %})
 		$('#sharetab_message').fadeIn();
 	else
 		$('#sharetab_message').hide();
