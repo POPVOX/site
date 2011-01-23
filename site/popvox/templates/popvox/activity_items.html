@@ -17,7 +17,7 @@
 			{% if can_see_user_details %}
 				{{item.address.city}},
 			{% endif %}
-			{{item.address.state}}&rsquo;s
+			{{item.address.statename}}&rsquo;s
 			{% if item.address.congressionaldistrict > 0 %}
 				{{item.address.congressionaldistrict|ordinal}} district
 			{% else %}

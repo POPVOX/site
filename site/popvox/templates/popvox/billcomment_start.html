@@ -83,7 +83,7 @@ function validate_form() {
 	{% if position == "0" %}Comment on{% endif %}
 	{% if position == "+" %}I Support{% endif %}
 	{% if position == "-" %}I Oppose{% endif %}
-	{{ bill.title }}</h1>
+	{{ bill.title|truncatewords:13 }}</h1>
     
 	{% if position == "0" %}
 		<p>You are about to clear your position on this bill.</p>
@@ -96,7 +96,7 @@ function validate_form() {
 	
 
 	{% if position != "0" %}
-		{% if bill.getDeadReason == "died" %}
+		{% if bill.died %}
 		<p>{{bill.displaynumber_nosession}} was introduced in a previous Congress. You are about to show your support for the reintroduction of this bill.</p>
 		{% endif %}
 	

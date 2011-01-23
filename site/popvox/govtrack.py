@@ -386,7 +386,7 @@ def getBillStatusAdvanced(bill, abbreviated) :
 	
 	return status
 	
-def billFinalStatus(bill):
+def billFinalStatus(bill, died_key = None):
 	status = bill.current_status
 	date = bill.current_status_date.strftime("%B %d, %Y").replace(" 0", " ")
 	
@@ -401,7 +401,10 @@ def billFinalStatus(bill):
 	elif status == "VETOED:POCKET":
 		return "was pocket vetoed "  + date
 	elif bill.congressnumber != CURRENT_CONGRESS:
-		return "died" # this string is special!
+		if died_key == None:
+			return "failed to be passed during the two-year Congress in which it was introduced"
+		else:
+			return died_key
 	elif status == "PASSED:BILL":
 		return "was passed by Congress " + date + " and is awaiting the signature of the President"
 	return None # bill is alive

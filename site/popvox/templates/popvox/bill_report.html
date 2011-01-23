@@ -62,10 +62,6 @@
 	}
 	
 	function showdata() {
-		var hashargs = $.deparam.fragment();
-		if (hashargs.state) report_state = hashargs.state;
-		if (hashargs.district) report_district = hashargs.district;
-		
 		$('#options_state').val(report_state);
 		$('#options_district').val(report_district);
 		
@@ -173,8 +169,20 @@
 	}
 
 	$(function() {
-		$(window).bind("hashchange", showdata);
+		$(window).bind("hashchange", function() {
+			var hashargs = $.deparam.fragment();
+			if (hashargs.state) report_state = hashargs.state;
+			if (hashargs.district) report_district = hashargs.district;
+			update(false);
+			showdata();
+		});
+
+		var hashargs = $.deparam.fragment();
+		if (hashargs.state) report_state = hashargs.state;
+		if (hashargs.district) report_district = hashargs.district;
+		
 		update();
+		showdata();
 	});
 
 	</script>
@@ -206,7 +214,7 @@
 					<h4>Status:</h4>
 					<p>
 					{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-						{{bill.status_advanced}} ({{bill.current_status_date|date2}})
+						{{bill.status_advanced}} {{bill.current_status_date|date2}}
 					{% else %}
 						{{bill.status}}
 					{% endif %}
@@ -342,7 +350,7 @@
 	<div style="display: none" id="comment_template">
 		<div class="comment">
 			<h4><span class="username">UserUser</span> <span class="location">in City, State</span><span class="date">, Tuesday</span></h4>
-			<div class="endorse_oppose_image"></div>
+			<div class="endorse_oppose_image"> </div>
 			<p>Lorem ipsum etc etc</p>
 			<span class="share" style="margin-top: -10px"><a href="">share</a></span>
 		</div>
@@ -363,5 +371,13 @@
 		</div> 
 	</div><!-- e: section -->
 
+	{% for c in bot_comments %}
+		<div class="comment">
+			<h4><span class="username">{{c.user.username}}</span> <span class="location">{{c.address.state}}</span><span class="date">, {{c.created}}</span></h4>
+			<p>{{c.message}}</p>
+		</div>
+	{% endfor %}
+	
+	</div>
 {% endblock %}
 

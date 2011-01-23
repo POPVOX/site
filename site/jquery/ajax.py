@@ -61,6 +61,7 @@ def json_response(f):
 				print e
 			else:
 				sys.stderr.write(unicode(e) + "\n")
+				raise
 			return HttpResponseServerError(simplejson.dumps({ "status": "generic-failure", "msg": unicode(e) }), mimetype="application/json")
 	return g
 	

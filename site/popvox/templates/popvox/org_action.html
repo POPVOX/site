@@ -104,7 +104,7 @@ function validate(form) {
 		</div><!-- e: bills -->
 
 		<div class="col_6 col_last stroke_box">
-			{% if not position.bill.isAlive and position.bill.getDeadReason != "died" %}
+			{% if not position.bill.isAlive and not position.bill.died %}
 				<p>This bill {{position.bill.getDeadReason}}. You can no longer write a comment about this bill.</p>
 			{% else %}
 		

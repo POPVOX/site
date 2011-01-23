@@ -108,9 +108,14 @@ class ApproveOrgCallback:
 		return "POPVOX: Approve New Org: " + self.org.name
 	
 	def email_body(self):
-		return """Hello!
+		return """Hi, team! Someone has registered a new organization which now awaits approval:
 
-""" + self.user.userprofile.fullname + """ <""" + self.user.email + """> (""" + self.user.username + """) has created a new organization named """ + self.org.name + """ <""" + str(self.org.website) + """>. The organization needs approval before the user can publish it. Approve the organization by following this link
+Organization: """ + self.org.name + """ <""" + str(self.org.website) + """>
+User: """ + self.user.userprofile.fullname + """ <""" + self.user.email + """> (""" + self.user.username + """)
+Type: """ + self.org.get_type_display() + """
+Members: """ + self.org.claimedmembership + """
+
+The organization needs approval before the user can publish it. Approve the organization by following this link
 
 <URL>
 
@@ -182,6 +187,8 @@ class RegisterUserAction:
 	orgname = None
 	orgwebsite = None
 	title = None
+	orgtype = None
+	orgclaimedmembership = None
 	
 	referralcode = None
 	referralcampaign = None
@@ -285,12 +292,14 @@ sorry for the inconvenience.)"""
 				org = Org()
 				org.name = self.orgname
 				org.website = self.orgwebsite
+				org.type = self.orgtype
+				org.claimedmembership = self.orgclaimedmembership
 				org.set_default_slug()
 				org.createdbyus = False
 				org.approved = False
 				org.save()
 				
-				role =  UserOrgRole()
+				role = UserOrgRole()
 				role.user = user
 				role.org = org
 				role.title = self.title
@@ -328,6 +337,8 @@ def register(request, regtype):
 			"mocs": govtrack.getMembersOfCongress(),
 			"committees": [c for c in govtrack.getCommitteeList() if not "parent" in c],
 			"mode": regtype,
+			"org_types": [t for t in Org.ORG_TYPES if t[0] != Org.ORG_TYPE_NOT_SET],
+			"org_cm": Org.ORG_CLAIMEDMEMBERSHIP_CHOICES[1:],
 			"captcha": captcha_html(),
 			"next": None if not "next" in request.GET else request.GET["next"] },
 		context_instance=RequestContext(request))
@@ -401,6 +412,9 @@ def register_validation(request):
 				status["orgwebsite"] = validation_error_message(e)
 		
 		axn.title = test_field_provided(request, "title", fielderrors=status)
+
+		axn.orgtype = test_field_provided(request, "orgtype", fielderrors=status)
+		axn.orgclaimedmembership = test_field_provided(request, "orgclaimedmembership", fielderrors=status)
 		
 	if len(status) != 0:
 		return { "status": "fail", "byfield": status }

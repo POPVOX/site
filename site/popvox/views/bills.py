@@ -1045,7 +1045,14 @@ def billreport(request, congressnumber, billtype, billnumber):
 			continue # not listing neutral positions
 		if not pos.campaign.org in lst:
 			lst.append(pos.campaign.org)
-		
+
+	bot_comments = []
+	if hasattr(request, "ua") and request.ua["typ"] in "Robot":
+		limit = 50
+		pro_comments = bill_comments(bill, "+").filter(message__isnull = False)[0:limit]
+		con_comments = bill_comments(bill, "-").filter(message__isnull = False)[0:limit]
+		bot_comments = list(pro_comments) + list(con_comments)
+
 	return render_to_response('popvox/bill_report.html', {
 			'bill': bill,
 			"orgs_supporting": orgs_support,
@@ -1055,6 +1062,7 @@ def billreport(request, congressnumber, billtype, billnumber):
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
 			"statereps": getStateReps(),
+			"bot_comments": bot_comments,
 		}, context_instance=RequestContext(request))
 	
 @json_response

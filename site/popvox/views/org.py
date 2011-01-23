@@ -73,6 +73,8 @@ def org_search(request):
 	elif "issue" in request.POST:
 		ix = IssueArea.objects.get(slug=request.REQUEST["issue"])
 		q = ix.orgs()
+	else:
+		return ret # googlebot
 	
 	ret = [ { "label": org.name, "slug": org.slug, "url": org.url(), "createdbyus": org.createdbyus } for org in q ]
 	
@@ -585,13 +587,17 @@ def action_defs(billpos):
 @csrf_protect
 def action(request, orgslug, billposid):
 	org = get_object_or_404(Org, slug=orgslug)
+	admin = org.is_admin(request.user)
+	
+	if not admin and not org.visible:
+		raise Http404()
+	
 	billpos = get_object_or_404(OrgCampaignPosition, id=billposid, campaign__org = org)
 
 	set_last_campaign_viewed(request, billpos.campaign)
 
 	action_defs(billpos)
 	
-	admin = org.is_admin(request.user)
 	url = None
 	num = None
 	if admin:

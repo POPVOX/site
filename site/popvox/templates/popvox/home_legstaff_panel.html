@@ -69,7 +69,7 @@
 				{% include "popvox/track.html" %}
 				{% endwith %}
 				
-				{% if group.id != "local" %}
+				{% if group.id != "local" and group.id != "tracked" %}
 				{% with "-" as tracktype %}
 				{% include "popvox/track.html" %}
 				{% endwith %}

@@ -33,6 +33,8 @@ function submit_registration() {
 		   "orgname": '#orgname',
 		   "orgwebsite": '#orgwebsite',
 		   "title": '#title',
+		   "orgtype": "#orgtype",
+		   "orgclaimedmembership": "#orgclaimedmembership",
 		   {% endif %}
 		   "": '' // no trailing comma
 		},
@@ -71,7 +73,8 @@ function submit_registration() {
 
 	{% if mode == "orgstaff" %}
 		<h1>Create Account:<br /> <span>Organization Staff</span></h1>
-		<p class="hint">Add your organization to POPVOX to put your issue expertise and agenda before Congressional staff. We are accepting only non-profit organizations at this time.</p>
+		<p class="col_9 clear col_top">Getting the attention of Congressional staff is key to moving your agenda &mdash; whether through lobby visits, phone calls or grassroots advocacy. POPVOX enables Congressional staff to reach the appropriate organizations, large and small, on particular issues through a keyword searchable <a href="/orgs">Organization Directory</a>, which includes organizations&rsquo; missions, issue agendas and points of contact (for staffers only).</p>
+		<p class="col_9 col_top">Organizations that are organized and operate not-for-profit and with a social, charitable, service, community-oriented, education, political or advocacy mission may register in the POPVOX Organization Directory at this point.  (POPVOX reserves the right to decline registration in particular instances, or to correct erroneous self-categorizations of registering organizations.)</p>
 	{% endif %}
 
 	<div class="clear"> </div>
@@ -85,13 +88,13 @@ function submit_registration() {
 			{% if mode == "" %}
 			<label for="username">screen name</label>
 			<input type="text" class="c3" id="username"/><br />
-			<div id="errorlabel_username" class="error"></div>
+			<div id="errorlabel_username" class="error"> </div>
 			<small>Your screen name is how you are known publicly on POPVOX when you leave a public comment on legislation. Screen names must be at least five characters and cannot contain spaces.</small>
 			{% endif %}
 			
 			<label for="email">email</label>
 			<input type="text" class="c4" id="email"/><br />
-			<div id="errorlabel_email" class="error"></div>
+			<div id="errorlabel_email" class="error"> </div>
 			{% if mode == "" %}
 			<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
 			{% endif %}
@@ -107,12 +110,12 @@ function submit_registration() {
 
 			<label for="password2">password again</label>
 			<input type="password" class="c3" id="password2"/><br />
-			<div id="errorlabel_password" class="error"></div>
+			<div id="errorlabel_password" class="error"> </div>
 			
 			{% if mode == "orgstaff" or mode == "legstaff" %}
 			<label for="fullname">full name</label>
 			<input type="text" id="fullname" class="c4"/>
-			<div id="errorlabel_fullname" class="error"></div>
+			<div id="errorlabel_fullname" class="error"> </div>
 			{% endif %}
 			
 		</div>
@@ -128,7 +131,7 @@ function submit_registration() {
 				<option value="{{c.id}}">{{c.sortkey}}</option>
 				{% endfor %}
 			</select>
-			<div id="errorlabel_member" class="error"></div>
+			<div id="errorlabel_member" class="error"> </div>
 			<small>Select the Member of Congress you work for. If you work directly for a congressional committee, leave this field as is.</small>
 			
 			<label for="committee">committee</label>
@@ -166,15 +169,36 @@ function submit_registration() {
 			
 			<label for="orgname">organization</label>
 			<input type="text" id="orgname" class="c5"/>
-			<div id="errorlabel_orgname" class="error"></div>
+			<div id="errorlabel_orgname" class="error"> </div>
+
+			<label for="orgtype">type</label>
+			<select id="orgtype" class="c5">
+				<option value="">(select what best describes your organization)</option>
+				{% for k, v in org_types %}
+				<option value="{{k}}">{{v}}</option>
+				{% endfor %}
+			</select>
+			<div id="errorlabel_orgtype" class="error"> </div>
+			<small>We are not accepting for-profit organizations at this time.
+			If your not-for-profit organization does not fit into one of these categories,
+			please <a href="/about/contact">contact us</a>.</small>
 			
 			<label for="orgwebsite">website</label>
 			<input type="text" id="orgwebsite" class="c5" value="http://"/>
-			<div id="errorlabel_orgwebsite" class="error"></div>
+			<div id="errorlabel_orgwebsite" class="error"> </div>
 		
-			<label for="title">job title</label>
+			<label for="orgclaimedmembership">membership</label>
+			<select id="orgclaimedmembership" class="c5">
+				<option value="">(select what best describes your organization&rsquo;s membership/grassroots)</option>
+				{% for v in org_cm %}
+				<option value="{{v}}">{{v}}</option>
+				{% endfor %}
+			</select>
+			<div id="errorlabel_orgclaimedmembership" class="error"> </div>
+
+			<label for="title">your job title</label>
 			<input type="text" id="title" class="c5"/>
-			<div id="errorlabel_title" class="error"></div>
+			<div id="errorlabel_title" class="error"> </div>
 		</div>
 		{% endif %}
 		
@@ -194,7 +218,7 @@ function submit_registration() {
 		<p id="errorlabel" class="error"></p>
 	</div>
 	
-	<div class="clear"></div>
+	<div class="clear"> </div>
 
 </div>
 {% endblock %}

@@ -28,7 +28,7 @@ def annotate_track_status(profile, bills):
 			b.antitrackstatus = True
 	return bills
 
-def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_hidden=True):
+def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extras=True):
 	prof = user.userprofile
 	
 	suggestions = [  ]
@@ -113,8 +113,16 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_hidde
 			"shortname": ix.shortname if ix.shortname != None else ix.name,
 			"bills": select_bills(issues=ix)
 			})
+
+	if include_extras:
+		suggestions.append({
+			"id": "allbills",
+			"type": "allbills",
+			"name": "All Bills",
+			"shortname": "All",
+			"bills": select_bills()
+			})
 		
-	if include_hidden:
 		suggestions.append({
 			"id": "hidden",
 			"type": "hidden",
@@ -396,12 +404,12 @@ def home(request):
 	user = request.user
 	prof = user.get_profile()
 	if prof == None:
-		return Http404()
+		raise Http404()
 		
 	if prof.is_leg_staff():
 		return render_to_response('popvox/home_legstaff_dashboard.html',
 			{
-				"docket": get_legstaff_suggested_bills(request.user, counts_only=True, include_hidden=False),
+				"docket": get_legstaff_suggested_bills(request.user, counts_only=True, include_extras=False),
 				"calendar": get_calendar_agenda(user)
 			},
 			context_instance=RequestContext(request))
@@ -446,10 +454,10 @@ def home(request):
 def docket(request):
 	prof = request.user.get_profile()
 	if prof == None:
-		return Http404()
+		raise Http404()
 		
 	if not prof.is_leg_staff():
-		return Http404()
+		raise Http404()
 
 	member = None
 	if request.user.legstaffrole.member != None:
@@ -471,7 +479,7 @@ def docket(request):
 def legstaff_bill_categories(request):
 	prof = request.user.get_profile()
 	if prof == None or not prof.is_leg_staff():
-		return Http404()
+		raise Http404()
 		
 	if "filternextvotechamber" in request.POST and request.POST["filternextvotechamber"] in ("", "h", "s"):
 		val = request.POST["filternextvotechamber"]
@@ -496,7 +504,7 @@ def legstaff_bill_category_panel(request):
 def home_suggestions(request):
 	prof = request.user.get_profile()
 	if prof == None:
-		return Http404()
+		raise Http404()
 		
 	if prof.is_leg_staff() or prof.is_org_admin():
 		return HttpResponseRedirect("/home")

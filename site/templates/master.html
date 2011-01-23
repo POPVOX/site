@@ -124,12 +124,14 @@
 				{% if user.is_admin or user.is_staff %}
 					<li class="last"><a style="font-weight: bold; color: #FCC" href="/admin">ADMIN</a></li>
 				{% endif %}
+				{% block loginblock %}
 				{% if user.is_authenticated %}
 					<li><a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a></li>
 				{% else %}
 					<li><a href="/accounts/login" onclick="document.location = '/accounts/login' + login_redirect; return false;">Join or Login</a></li>
 				{% endif %}
-				<li><a href="/blog">Blog</a></li>
+				{% endblock %}
+				<li><a href="http://www.popvox.com/blog">Blog</a></li>
 				<li><a href="/press">Press</a></li>
 				<li><a href="/about" class="last">About</a></li> 
 			</ul>
@@ -212,7 +214,7 @@
 			<li><a href="/legal">Privacy and Terms</a></li>
 		</ul>
 		
-		{% if user.is_staff or user.username == "demo_user" or user.username == "demo_org_staffer" or user.username == "demo_leg_staffer" %}
+		{% if user.is_staff or user.username == "POPVOXTweets" or user.username == "demo_org_staffer" or user.username == "demo_leg_staffer" %}
 		<ul>
 			<li><a href="/accounts/switchuser/demo_user">demo_user</a></li>
 			<li><a href="/accounts/switchuser/demo_leg_staffer">demo_leg_staffer</a></li>

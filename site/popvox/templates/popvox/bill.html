@@ -54,7 +54,7 @@ function getshorturl() {
 	<h1>Bill Summary and Status</h1>
 	
 	{% if canvote and not bill.isAlive %}
-		{% if bill.getDeadReason == "died" %}
+		{% if bill.died %}
 			<div class="alert_dead">
 				<div class="col_6">
 					<h2 class="shadow_up">{{bill.displaynumber_nosession}} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned.</h2>

@@ -663,7 +663,7 @@ p {
 		width: 220px;
 		}
 		
-		.col_3 .search_orange .search {
+		.col_3 .search_orange .search_form {
 			margin: 0 0 5px 15px;
 			}
 	
@@ -1378,7 +1378,7 @@ h3#reporttitle {
 		background-position: left top;
 		border: none;
 		color: #fff;
-		margin-right: 30px;
+		/*margin-right: 30px; covers content to the right preventing clicks on stuff */
 		padding-left: 30px;
 		}
 		
@@ -1687,7 +1687,8 @@ tr.bill td a:hover {
 	cursor: pointer;
 	background-position: left bottom;
 	}
-	
+
+/* disabling hover 	
 .bill .flipcolor .billtrack, .bill .flipcolor .billantitrack, .bill .flipcolor .expand  {
 	background-position: left -100px;
 	}
@@ -1696,7 +1697,8 @@ tr.bill td a:hover {
 	.active .flipcolor .billtrack, .active .flipcolor .billantitrack, .active .flipcolor .expand  {
 		background-position: left bottom;
 		}
-		
+*/
+
 	.flipcolor {
 		width: 60px;
 		}
@@ -2146,7 +2148,6 @@ p.b_edit a {
 		}
 		
 	#billsearch_congress {
-		margin-left: 0px;
 		font-size: 10px;
 		background-color: white;
 		padding: 1px 0;
@@ -3848,6 +3849,9 @@ ul.staff, .small {
 		margin-bottom: 20px;
 		}
 
+	.search_form {
+		margin: 8px 10px 0 0;
+		}
 	.search {
 		background: #fff;
 		border: 1px solid #999;
@@ -3855,7 +3859,6 @@ ul.staff, .small {
 		font-size: 11px;
 		font-weight: bold;
 		height: 24px;
-		margin: 8px 10px 0 0;
 		padding: 0 5px;
 		width: 240px;/*275*/
 		}

@@ -142,10 +142,16 @@ class Bill(models.Model):
 	def cosponsors(self):
 		return govtrack.getBillCosponsors(self.govtrack_metadata())
 	def isAlive(self):
+		# alive = pending further Congressional action
 		return govtrack.billFinalStatus(self) == None
 	def getDeadReason(self):
+		# dead = no longer pending action because it passed, failed, or died in a previous session
 		return govtrack.billFinalStatus(self)
+	def died(self):
+		# died is the specific state of having failed to be passed in a previous session
+		return govtrack.billFinalStatus(self, "died") == "died"
 	def getChamberOfNextVote(self):
+		# bill must be alive
 		return govtrack.getChamberOfNextVote(self)
 		
 	def latest_action_formatted(self):
@@ -240,10 +246,38 @@ def getbillsfromhash(bills):
 
 class Org(models.Model):
 	"""An advocacy group."""
+
+	ORG_TYPE_NOT_SET = 0
+	ORG_TYPE_501C3 = 1
+	ORG_TYPE_501C4 = 2
+	ORG_TYPE_501C5 = 3
+	ORG_TYPE_501C6 = 4
+	ORG_TYPE_501C7 = 5
+	ORG_TYPE_527_OR_PAC = 6
+	ORG_TYPE_COMMUNITY_GROUP = 7
+	ORG_TYPE_ISSUE_ASSOC = 8
+	ORG_TYPE_RESEARCH_ORG = 9
+	ORG_TYPES = (
+		(ORG_TYPE_NOT_SET, "Not Set"),
+		(ORG_TYPE_501C3, "501(c)(3) organization (e.g. charitable, religious, educational, research or scientific organization)"),
+		(ORG_TYPE_501C4, "501(c)(4) organization (e.g. civic leagues, lobbying or other social welfare organization)"),
+		(ORG_TYPE_501C5, "501(c)(5) organization (e.g. labor union or allied group)"),
+		(ORG_TYPE_501C6, "501(c)(6) organization (e.g. business league or associations)"),
+		(ORG_TYPE_501C7, "501(c)(7) organization (e.g. social and recreation clubs)"),
+		(ORG_TYPE_527_OR_PAC, "527 or PAC (e.g. groups primarily created to influence election of candidates for public office)"),
+		(ORG_TYPE_COMMUNITY_GROUP, "Community group not classified as tax-exempt, but with a not-for-profit mission"),
+		(ORG_TYPE_ISSUE_ASSOC, "Issues-based association not classified as tax-exempt, but with a not-for-profit mission"),
+		(ORG_TYPE_RESEARCH_ORG, "Research or services organization not classified as tax-exempt, but with a not-for-profit orientation"),
+		)
+
+	ORG_CLAIMEDMEMBERSHIP_CHOICES = ["Not Set", "Fewer than 1,000", "1,000-10,000", "10,000-100,000", "100,000-500,000", "More than 500,000"]
+
 	slug = models.SlugField(db_index=True, unique=True)
 	name = models.CharField(max_length=100)
+	type = models.IntegerField(choices=ORG_TYPES, default=ORG_TYPE_NOT_SET)
 	website = models.URLField(blank=True, db_index=True, unique=True)
 	description = models.TextField(blank=True)
+	claimedmembership = models.TextField(choices=ORG_CLAIMEDMEMBERSHIP_CHOICES, default="Not Set")
 	postaladdress = models.TextField(blank=True)
 	phonenumber = models.TextField(blank=True)
 	twittername = models.TextField(blank=True, null=True)
@@ -732,6 +766,9 @@ class PostalAddress(models.Model):
 			return "she"
 		else:
 			return "he or she"
+
+	def statename(self):
+		return govtrack.statenames[self.state]
 
 class UserComment(models.Model):
 	"""A comment by a user on a bill."""

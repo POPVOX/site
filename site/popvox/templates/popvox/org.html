@@ -116,11 +116,11 @@
 			{% for cam in cams %}
 				{% if not cam.default %}
 				<p class="campaign_edit">
-					<a class="b_view" href="{{ cam.url }}">view</a>
-					{% if admin %} <a class="b_edit" href="{{cam.url}}/_edit">edit</a>{% endif %}
+					<a class="xxxx_b_view" href="{{ cam.url }}">view</a>
+					{% if admin %} <a class="xxxx_b_edit" href="{{cam.url}}/_edit">edit</a>{% endif %}
 				</p>
 				<h4>{{ cam.name }}</h4>
-				<p class="campaign_description"><em>{{ cam.description }}</em></p>
+				{% if cam.description %}<p class="campaign_description"><em>{{ cam.description }}</em></p>{% endif %}
 				{% endif %}
 				
 				{% if not cam.visible %}<p class="whattodonext">This campaign has not yet been <a href="{{cam.url}}/_edit">published</a>.</p>{% endif %}
