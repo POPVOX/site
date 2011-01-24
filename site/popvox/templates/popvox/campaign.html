@@ -17,7 +17,7 @@
 	{% endif %}
 {% endblock %}
 {% block content %}
-<div class="content"> 
+<div class="orgprofile"> 
 	<div class="col_3 col_top profile_block"> 
 		<a href="{{cam.org.url}}{% if admin and not cam.org.logo %}/_edit{% endif %}" style="border: none">
 		<img id="profileimage" src="{% if cam.org.logo %}{{cam.org.logo.url}}{% else %}/media/master/grey.gif{% endif %}" alt="Profile Image" width="220" height="166" />

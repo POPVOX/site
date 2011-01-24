@@ -15,7 +15,7 @@
 	{% endif %}
 {% endblock %}
 {% block content %}
-<div class="content"> 
+<div class="orgprofile"> 
 	<div class="col_3 col_top profile_block">
 		{% if admin and not org.logo %}<a href="{{org.slug}}/_edit" style="border: none">{% endif %}
 		<img id="profileimage" src="{% if org.logo %}{{org.logo.url}}{% else %}/media/master/grey.gif{% endif %}" alt="Profile Image" width="220" height="166" />
@@ -187,7 +187,7 @@
 	
 	{% include "ads/rightbar.html" %}
  
-</div>	<!-- e: content -->
+</div>	<!-- e: orgprofile -->
 	
 {% endblock %}
 

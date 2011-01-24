@@ -80,10 +80,13 @@ $(function() {
 						{% with billrec.bill as bill %}
 						
 						{% if billrec.pos == "" %}
-						<a class="action" href="{{bill.url}}">Action</a>
+						<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
 						{% endif %}
 						
 						<h4><a href="{{billrec.bill.url}}">{{ billrec.bill.title }}</a></h4>
+						
+						<div class="bill_detail">
+						
 						{% if bill.sponsor %}
 						<p><strong>Sponsor:</strong>
 						<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
@@ -120,6 +123,8 @@ $(function() {
 							{% endcomment %}
 						</div>
 						{% endfor %}
+						
+						</div>
 					</div>
 					
 					{% endwith %}

@@ -1,3 +1,3 @@
-select state, congressionaldistrict as dist, count(*) as N, (select city from popvox_postaladdress where state=AA.state and congressionaldistrict=AA.congressionaldistrict group by city order by count(*) DESC limit 1) from popvox_postaladdress as AA group by state, congressionaldistrict;
+select state, congressionaldistrict as dist, count(*) as c, (select city from popvox_postaladdress as b where a.state=b.state and a.congressionaldistrict=b.congressionaldistrict group by city having count(*) > 5 order by count(*) desc limit 1) as city from popvox_postaladdress as a group by state, congressionaldistrict having c > 10;
 
 going from a campaign, search bills, find bill, default campaign to the last campaign viewed

@@ -29,7 +29,7 @@ def getrange(value):
 def wraplines(value, arg):
     """Splits value on newline characters and then wraps each line
     with <arg>...</arg> tags."""
-    return mark_safe("".join(["<" + arg + ">" + cgi.escape(line) + "</" + arg + ">" for line in value.split("\n")]))
+    return mark_safe("".join(["<" + arg + ">" + cgi.escape(line) + "</" + arg + ">" for line in value.split("\n") if line.strip() != ""]))
 
 @register.filter
 @stringfilter

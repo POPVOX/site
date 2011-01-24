@@ -24,7 +24,7 @@
 				at-large district
 			{% endif %}
 		</p>
-		<div class="comments">
+		<div>
 			<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
 				<div >
 					<h4>{% if item.position == "+" %}
@@ -36,7 +36,7 @@
 					<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.</h4>
 				</div>
 				{% if not user.is_anonymous %}
-				<div class="flipcolor flip_activity">
+				<div class="" style="display: none">
 				{% with "+" as tracktype %}
 				{% with item.bill as bill %}
 				{% include "popvox/track.html" %}
@@ -45,8 +45,10 @@
 				</div>
 				{% endif %}
 				
+				<div class="usercomment">
 				{{item.message|wraplines:"p"|truncatewords_html:150}}
-				<span class="share"><a href="{{item.url}}">share</a></span>
+				</div>
+				<span class="share" style="margin-top: 5px"><a href="{{item.url}}">share</a></span>
 			</div>
 		</div>
 	{% endif %}
@@ -90,6 +92,8 @@
 		{% endif %}
 	{% endif %}
 	
+	{% if not forloop.last %}
 	<div class="hr"> </div>
+	{% endif %}
 	
 {% endfor %}
