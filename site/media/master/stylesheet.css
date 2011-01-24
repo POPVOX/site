@@ -394,6 +394,9 @@ h2 {
 h3 {
 	font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	letter-spacing: .02em;
+	background: url("bg_rule.gif") repeat-x left top;
+	padding: 15px 0 10px;
+	margin: 15px 0 0px;
 	}
 	.col_3 h3,  .col_6 h3, .col_12 h3 {
 		font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
@@ -959,19 +962,6 @@ h3#reporttitle {
 				font-family: helvetica, san-serif;
 				font-style: normal;
 				}
-
-		.orgprofile .col_3 h3,
-		.orgprofile .col_6 h3,
-		.orgprofile .col_9 h3 {
-			font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
-			background: url("bg_rule.gif") repeat-x left top;
-			padding: 15px 0 10px;
-			margin: 15px 0 0px;
-			letter-spacing: .02em;
-			/* color: #606065; */
-			/*			border-bottom: 1px solid #c2bfb8; */
-			}
-			
 
 		.content .col_3.col_orange {
 			background: #c76925;
@@ -1702,7 +1692,7 @@ h1.h1_smaller {
 .tip_inline {
 	margin: 0 0 2em 0;
 	color: #404045;
-	background: url("bg_alert.png") no-repeat 0 5px;
+	background: url("bg_alert.png") no-repeat 0 0px;
 	padding: 5px 15px 15px 40px;
 	clear: both;
 	min-height: 30px;
