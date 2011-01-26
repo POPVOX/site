@@ -3,10 +3,11 @@ from models import *
 import random
 from datetime import datetime
 
-def select_banner(adformat, targets):
+def select_banner(adformat, targets, exclude):
 	# Select a banner to show and return the banner and the display CPM and CPC prices.
 	
 	banners = adformat.banners.filter(active=True, order__active=True) \
+		.exclude(id__in = exclude) \
 		.select_related("order") \
 		.order_by() # clear default ordering which loads up the Advertiser object
 		
@@ -111,14 +112,14 @@ def select_banner(adformat, targets):
 	# used a different bid type.
 	
 	cpmcost = 0.0
-	if banner.order.cpmbid != None:
+	if banner.order.cpmbid != None and banner.order.cpmbid > 0:
 		# If the bidder specifies a CPM bid, then we price him against the next
 		# equivalent CPM bid (which might be actual CPM or an equivalent CPM
 		# based on a predicted CTR and a CPC).
 		cpmcost = nextbid * 1000.0
 
 	cpccost = 0.0
-	if banner.order.cpcbid != None:
+	if banner.order.cpcbid != None and banner.order.cpcbid > 0:
 		# If the bidder specifies a CPC bid, then we price him against the next bidder's
 		# CPC bid if it is a CPC bid...
 		if nextbanner.order.cpcbid != None:

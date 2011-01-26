@@ -13,7 +13,7 @@ from adserver.adselection import select_banner
 from adserver.uasparser import UASparser  
 uas_parser = UASparser(update_interval = None)
 
-from datetime import date
+from datetime import datetime, date, timedelta
 
 register = template.Library()
 
@@ -41,6 +41,13 @@ def show_ad(parser, token):
 			ua = uas_parser.parse(context["request"].META["HTTP_USER_AGENT"])
 			if ua == None or ua["typ"] == "Robot": # if we can't tell, or if we know it's a bot
 				return Template(format.fallbackhtml).render(context)
+
+			# Prepare the list of ads we've served to this user recently.
+			if hasattr(context["request"], "session"):
+				if not "adserver_trail" in context["request"].session:
+					context["request"].session["adserver_trail"] = []
+				context["request"].session["adserver_trail"] = [t for t in context["request"].session["adserver_trail"]
+					if datetime.now() - t[1] < timedelta(seconds=20)]
 			
 			# The remaining arguments are target contexts matched by this
 			# ad impression. The targets are either surrounded in double quotes
@@ -71,13 +78,13 @@ def show_ad(parser, token):
 						raise Exception("There is no ad target with the key " + field)
 				else:
 					return field
-			if "request" in context and hasattr(context["request"], "session") and "adserver-targets" in  context["request"].session:
+			if hasattr(context["request"], "session") and "adserver-targets" in context["request"].session:
 				targets += [make_target2(t) for t in context["request"].session["adserver-targets"]]
 			if "adserver-targets" in  context:
 				targets += [make_target2(t) for t in context["adserver-targets"]]
 			
 			# Find the best banner to run here.
-			selection = select_banner(format, targets)
+			selection = select_banner(format, targets, [t[0] for t in context["request"].session["adserver_trail"]] if hasattr(context["request"], "session") else None)
 			if selection == None:
 				return Template(format.fallbackhtml).render(context)
 			
@@ -104,6 +111,10 @@ def show_ad(parser, token):
 				# add an impression
 				impressions = F('impressions') + 1
 				)
+
+			# Record that this ad was shown.
+			if hasattr(context["request"], "session") and not b.order.advertiser.remnant:
+				context["request"].session["adserver_trail"].append( (b.id, datetime.now()) )
 			
 			# Parse the template. If the banner has HTML override code, use that instead.
 			if b.html != None and b.html.strip() != "":
@@ -123,7 +134,7 @@ def show_ad(parser, token):
 				return t.render(context)
 			finally:
 				context.pop()
-			
+
 	fields = token.split_contents()[1:]
 	
 	return Node(fields)
