@@ -129,7 +129,7 @@
 			<input id="issueareachooser_search" type="text" class="issue_search" />
 			<script>$('#issueareachooser_search').input_default('search for an issue by name');</script>
 			<script>$('#issueareachooser_search').textchange(issueareachooser_search);</script>
-			<h3>Issue Categories</h3>
+			<h3 class="no_rule">Issue Categories</h3>
 			{% if request.ua.os_family == "iPhone OS" %}
 				<p><strong>iPhone/iPad: Use two fingers to scroll this list!</strong></p>
 			{% endif %}
@@ -141,7 +141,7 @@
 		</div><!-- e: col_3 -->
 	
 		<div class="col_3 issues_ad col_last">
-			<h3>Issue Areas</h3>
+			<h3 class="no_rule">Issue Areas</h3>
 			<div id="issueareachooser_subissueslist" class="scroller">
 			</div>
 

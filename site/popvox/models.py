@@ -270,7 +270,14 @@ class Org(models.Model):
 		(ORG_TYPE_RESEARCH_ORG, "Research or services organization not classified as tax-exempt, but with a not-for-profit orientation"),
 		)
 
-	ORG_CLAIMEDMEMBERSHIP_CHOICES = ["Not Set", "Fewer than 1,000", "1,000-10,000", "10,000-100,000", "100,000-500,000", "More than 500,000"]
+	ORG_CLAIMEDMEMBERSHIP_CHOICES = [
+		("Not Set", "Not Set"),
+		("Fewer than 1,000", "Fewer than 1,000"),
+		("1,000-10,000", "1,000-10,000"),
+		("10,000-100,000", "10,000-100,000"),
+		("100,000-500,000", "100,000-500,000"),
+		("More than 500,000", "More than 500,000"),
+		]
 
 	slug = models.SlugField(db_index=True, unique=True)
 	name = models.CharField(max_length=100)

@@ -46,7 +46,7 @@ def getissueareas():
 	issue_areas = issues
 	return issues
 
-@cache_page(60 * 60 * 24) # one day
+@cache_page(60 * 60 * 2) # two hours
 def issuearea_chooser_list(request):
 	return render_to_response('popvox/issueareachooser_list.html', {'issues': getissueareas()}, context_instance=RequestContext(request))	
 

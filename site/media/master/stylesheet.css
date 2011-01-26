@@ -2513,7 +2513,7 @@ ul#issuearealist {
 		
 		.hm_slide_mid h1 {
 			text-indent: -9999em;
-			height: 200px;
+			height: 150px;
 			}
 
 		.hm_slide_mid ul {
@@ -2572,6 +2572,7 @@ ul#issuearealist {
 			width: 235px;
 			height: 52px;
 			text-indent: -9999em;
+			padding: 0;
 			}
 			
 			.hm_col h4 {
