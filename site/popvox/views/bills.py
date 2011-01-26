@@ -667,6 +667,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				
 		
 		except Exception, e:
+			import sys
+			sys.stderr.write("leaving comment failed> " + unicode(e) + "\n")
 			request.goal = { "goal": "comment-address-error" }
 			return render_to_response('popvox/billcomment_address.html', {
 				'bill': bill,

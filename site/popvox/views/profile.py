@@ -413,7 +413,7 @@ def register_validation(request):
 		
 		axn.title = test_field_provided(request, "title", fielderrors=status)
 
-		axn.orgtype = test_field_provided(request, "orgtype", fielderrors=status)
+		axn.orgtype = int(test_field_provided(request, "orgtype", fielderrors=status))
 		axn.orgclaimedmembership = test_field_provided(request, "orgclaimedmembership", fielderrors=status)
 		
 	if len(status) != 0:
