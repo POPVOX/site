@@ -226,8 +226,8 @@
 				
 			<div class="stroke_top"> </div>
 
-			<h3 id="reporttitle">Loading Legislative Report...</h3>
-			<h3 id="reportsubtitle"></h3>
+			<h3 id="reporttitle" class="no_rule" style="padding: 0">Loading Legislative Report...</h3>
+			<h3 id="reportsubtitle" class="no_rule" style="padding: 0"></h3>
 	    
 			<div class="search_box">
 				<p>
@@ -253,9 +253,9 @@
 	</div><!-- e: section -->
 	
 	<div class="section clearfix"> 
-		<div class="col_6 rule"> 
+		<div class="col_6"> 
 			<div>
-				<h3>Constituents Say</h3>
+				<h3 class="no_rule">Constituents Say</h3>
 				<div id="stats_overall_info" class="pad_btm" style="font-size: 12px"></div>
 				{% for index in "3"|range %}
 				<div id="chart{{index}}" class="clear" style="display: none; padding-bottom: 1em">
@@ -280,9 +280,9 @@
 		</div>
 		
 		
-		<div class="col_6 col_last rule"> 
+		<div class="col_6 col_last"> 
 			<div class="col_3 org_endorse"> 
-				<h3>Orgs Endorsing</h3>
+				<h3 class="no_rule">Orgs Endorsing</h3>
 				{% with "orgsendorsing" as org_group %}
 				{% with orgs_supporting as org_list %}
 					{% include "popvox/bill_report_orglist.html" %}
@@ -291,7 +291,7 @@
 			</div>
 			
 			<div class="col_3 col_last org_oppose"> 
-				<h3>Orgs Opposing</h3> 
+				<h3 class="no_rule">Orgs Opposing</h3> 
 				{% with "orgsopposing" as org_group %}
 				{% with orgs_opposing as org_list %}
 					{% include "popvox/bill_report_orglist.html" %}
@@ -304,7 +304,7 @@
 	{% if user.userprofile.is_leg_staff or user.userprofile.is_org_admin %}
 	<div class="col_6 col_last rule btm_10"> 
 		<div class="cosponsor"> 
-			<h3>Co-Sponsors</h3> 
+			<h3 class="no_rule">Co-Sponsors</h3> 
 			{% if bill.cosponsors|length == 0 %}
 				<ul class="smalllist"> 
 					<li>(none)</li>
@@ -350,7 +350,7 @@
 	<div style="display: none" id="comment_template">
 		<div class="comment">
 			<h4><span class="username">UserUser</span> <span class="location">in City, State</span><span class="date">, Tuesday</span></h4>
-			<div class="endorse_oppose_image"> </div>
+			<div class="endorse_oppose_image" style="padding-left: 0"> </div>
 			<p class="usercomment">Lorem ipsum etc etc</p>
 			<span class="share" style="margin-top: -10px"><a href="">share</a></span>
 		</div>
@@ -359,13 +359,13 @@
 	<div class="section clearfix"> 
 		<div class="col_6 rule"> 
 			<div class="comments"> 
-				<h3>Supporting Comments</h3>
+				<h3 class="no_rule">Supporting Comments</h3>
 				<div id="comments_pro">Loading...</div>
 			</div> 
 		</div> 
 		<div class="col_6 col_last rule"> 
 			<div class="comments"> 
-				<h3>Opposing Comments</h3>
+				<h3 class="no_rule">Opposing Comments</h3>
 				<div id="comments_con">Loading...</div>
 			</div> 
 		</div> 

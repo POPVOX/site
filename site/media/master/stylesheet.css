@@ -895,7 +895,7 @@ h3#reporttitle {
 					padding: 0 4px;
 					}
 
-		.legreport .comments p, .bills .comments p {
+		.legreport .comments p.usercomment, .bills .comments p {
 			margin-bottom: 15px;
 			padding-left: 45px;
 			}
