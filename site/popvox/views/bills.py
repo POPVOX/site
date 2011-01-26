@@ -251,9 +251,10 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 	
 	pro = pro_comments.count()
 	con = con_comments.count()
+	pro_comments_reintro = bill_comments(bill, "+", **filterargs).exclude(created__lt=enddate)
 
 	# Don't display statistics when there's very little data.
-	if pro+con < 10:
+	if pro+con+pro_comments_reintro.count() < 10:
 		return None
 	
 	all_comments = (pro_comments | con_comments)
@@ -287,8 +288,6 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 			"con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
 			}
 			
-	pro_comments_reintro = bill_comments(bill, "+", **filterargs).exclude(created__lt=enddate)
-
 	return {
 		"shortdescription": shortdescription,
 		"longdescription": longdescription,
