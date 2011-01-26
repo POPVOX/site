@@ -305,6 +305,8 @@ def org_update_logo_2(org, imagedata):
 
 	# Get out the binary jpeg data.
 	buf = StringIO()
+	if im.mode != "RGB":
+		im = im.convert() # convert out of pallette image
 	im.save(buf, "JPEG")
 	
 	try:

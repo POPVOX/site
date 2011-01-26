@@ -21,7 +21,11 @@ if os.path.exists(stampfile) and len(sys.argv) == 1:
 else:
 	updatetime = 0
 
-for fn in glob(DATADIR + "govtrack/us/" + str(CURRENT_CONGRESS) + "/bills/*.xml"):
+cn = CURRENT_CONGRESS
+if len(sys.argv) == 2:
+	cn = sys.argv[1]
+
+for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	m = fre.search(fn)
 	
 	if os.stat(fn).st_mtime < updatetime:

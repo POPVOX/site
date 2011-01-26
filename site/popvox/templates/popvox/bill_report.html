@@ -212,7 +212,7 @@
 					{% include "popvox/track.html" %}
 					{% endwith %}
 				</div>
-				<h2>{{ bill.title }}</h2> 
+				<h2>{{ bill.title|truncatewords:30 }}</h2> 
 				{% if bill.sponsor %}
 				<div id="sponsor">
 					<h4>Sponsor:</h4>
