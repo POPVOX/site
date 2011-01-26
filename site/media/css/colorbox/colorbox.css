@@ -18,7 +18,7 @@
     The following rules are ordered and tabbed in a way that represents the
     order/nesting of the generated HTML, so that the structure easier to understand.
 */
-#cboxOverlay{background:#fff;}
+#cboxOverlay{background:#000;}
 
 #colorBox{}
     #cboxTopLeft{width:27px; height:27px; background:url(images/border1.png) 0px -2px no-repeat;}
@@ -29,7 +29,7 @@
     #cboxBottomRight{width:27px; height:27px; background:url(images/border1.png) -27px -27px no-repeat;}
     #cboxMiddleLeft{width:27px; background:url(images/border2.png) 0 0 repeat-y;}
     #cboxMiddleRight{width:27px; background:url(images/border2.png) -27px 0 repeat-y;}
-    #cboxContent{background:#E8E5DF; padding: 0 0 0 0px;}
+    #cboxContent{background:#fff; padding: 0 0 0 0px;}  /*#E8E5DF creme color*/
         #cboxLoadedContent{margin-bottom:20px;}
         #cboxTitle{position:absolute; bottom:0px; left:0; text-align:center; width:100%; color:#999;}
         #cboxCurrent{position:absolute; bottom:0px; left:100px; color:#999;}
@@ -37,7 +37,16 @@
         #cboxPrevious{position:absolute; bottom:0px; left:0; color:#444;}
         #cboxNext{position:absolute; bottom:0px; left:63px; color:#444;}
         #cboxLoadingOverlay{background:url(images/loading.gif) 5px 5px no-repeat #fff;}
-        #cboxClose{position:absolute; top:0; right:0; display:block; color:#444;}
+        #cboxClose{position:absolute; top:0; right:-7px; display:block; color:#444;
+        	background: url(images/b_close_modal.png) left top no-repeat;
+        	width: 80px;
+        	height: 14px;
+        	text-indent: -9999em;
+        	}
+        #cboxClose:hover {
+        	cursor: pointer;
+        	background-position: left bottom;
+        	}
 
 /*
     The following fixes png-transparency for IE6.  

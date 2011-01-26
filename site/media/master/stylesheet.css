@@ -1,6 +1,3 @@
-/* @override http://william.popvox.com/media/master/stylesheet.css */
-
-
 /*
 
 
@@ -813,6 +810,29 @@ table.form_fields td {
 		padding: 10px 0 10px 100px;
 		}
 		
+/* ----second bills list page iteration---- 
+.bills_list {
+/*	background: url(_junk_bills.jpg) left -67px no-repeat;
+	}
+
+	.content .col_9 .bills_list h3 {
+		margin-top: 0;
+		padding: 20px 0 10px 80px;
+		color: #404045;
+		}
+	
+	.content .col_9 .bills_list p {
+		padding-left: 90px;
+		}
+	
+	.bills_list ul li{
+		margin-left: 100px;
+		text-indent: -10px;
+		padding-left: 0;
+		background: none;
+		}
+
+*/
 
 /* ----legislative report classes---- */
 
@@ -1480,6 +1500,12 @@ ul.ul_tags {
 	font-weight: bold;
 	}
 
+.content .tab_panel h4 {
+	margin: 0;
+	padding: 10px 0 5px;
+	border-bottom: 1px solid #D4D1CA;
+	}
+	
 .tab_panel, .content .tab_panel p {
 	font-size: 12px;
 	}
@@ -1835,6 +1861,9 @@ h1.h1_smaller {
 		.form input.b_login {
 			float: left;
 			margin: 5px 0 0 100px;
+			border:0 none;
+			width:80px;
+			height:22px;
 			}
 		
 			.form input.b_login:hover,
@@ -4070,7 +4099,8 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat; }
 	text-align: left;
 	}
 	
-.colorbox h1, .colorbox #billsearch_endorse_oppose_title {
+.colorbox h1, .colorbox #billsearch_endorse_oppose_title,
+#issueareachooser.colorbox h2  {
 	margin-top: 10px;
 	margin-bottom: .5em;
 	font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
@@ -4117,4 +4147,131 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat; }
 	text-decoration: none;
 	border: 0;
 }
+
+/* ---- issues modal---- */
+#issueareachooser {
+	color: #75747c;
+	font-weight: bold;
+	}
+	
+	#issueareachooser.colorbox h2 {
+		color: #333;
+		}
+	
+	#issueareachooser h3 {
+		padding: 10px 0 10px 10px;
+		text-transform: uppercase;
+		color: #333;
+		}
+
+.issues_tracking {
+	background: url(http://b3.s3.quickshareit.com/screenshot20110118at732pmjpg7 4c15d14d7.jpeg) -115px -52px no-repeat;
+	width: 230px;
+	}
+	
+	#issueareachooser.colorbox .issues_tracking h2 {
+		margin-bottom: 55px;
+		}
+
+	#issueareachooser li {
+		margin-bottom: 10px;
+		min-height: 16px;
+		height: auto !important;
+		height: 16px;
+		}
+			
+	.issues_tracking li {
+		background: url(b_remove.png) right -74px no-repeat;
+		}
+		
+		.issues_tracking li:hover{
+			background-position: right top;
+			cursor: pointer;
+			color: #CC6A11;
+			}
+
+#issueareachooser .issues_cat_ad {
+	width: 300px;
+	border-left: 1px solid #75747c;
+	padding-left: 15px;
+	}
+	
+	#issueareachooser .issues_cat_ad h2 {
+		margin-left: 10px;
+		}
+		
+	input.issue_search {
+		background: url(bg_search_issues.png) left top no-repeat;
+		border: 0;
+		width: 230px;
+		height: 20px;
+		margin: 0 10px 10px;
+		padding: 0 2px 2px;
+		line-height: 12px;
+		font-size: 12px;
+		font-weight: normal;
+		color: #75747c;
+		}
+		
+	#issueareachooser .issues_cat_ad li {
+		min-height: 14px;
+		height: auto !important;
+		height: 18px;
+		margin: 0 0 0px 0px;
+		padding: 4px 15px 4px 10px;
+		}
+		
+	.issues_cat_ad li.selected {
+		background: url(b_check.png) right -16px no-repeat;
+		}
+	
+	.issues_cat_ad li.active,	
+	.issues_cat_ad li:hover {
+		color: #fff;
+		background: url(bg_issue_cat_o.png) left top no-repeat;
+		cursor: pointer;
+		}
+	
+#issueareachooser .issues_ad {
+	margin-top: 80px;
+	width: 300px;
+	}
+
+	#issueareachooser .issues_ad li {
+		padding: 1px 12px 0 10px;
+		width: 235px;
+		}
+		
+		#issueareachooser .issues_ad li:hover {
+			background: url(b_add.png) right top no-repeat;
+			cursor: pointer;
+			color: #CC6A11;
+			}
+			
+	#issueareachooser .issues_ad li.add_all {
+		background: url(bg_add_all.png) 10px top no-repeat;
+		padding-left: 35px;
+		text-transform: uppercase;
+		}
+		
+		#issueareachooser .issues_ad li.add_all {
+			background-position: 10px bottom;
+			}
+	
+.scroller {
+	height: 350px; 
+	overflow: auto;
+	padding-right: 10px;
+	}
+
+	p#issueareachooser_listnone {
+		font-size: 11px;
+		font-family: georgia;
+		font-style: italic;
+		}
+		
+	#issueareachooser_subissueslist {
+		width: 300px;
+		}
+
 

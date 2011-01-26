@@ -14,7 +14,7 @@
 		onComplete: function() {
 			issuearea_count = 0;
 			$('#issueareachooser_list').text("");
-			$('#issueareachooser_allissueslist').text("");
+			$('#issueareachooser_allissueslist ul').text("");
 			
 			$.ajax({ 
 				type:"GET",
@@ -22,7 +22,9 @@
 				complete:
 					function(res, status) {
 						$('#issueareachooser_list').text("");
-						$('#issueareachooser_allissueslist').html(res.responseText);
+						$('#issueareachooser_allissueslist ul').html(res.responseText);
+						$('#issueareachooser_subissueslist').append($('#issueareachooser_allissueslist div'));
+						$('#issueareachooser_allissueslist li').first().click();
 						
 						for (var i = 0; i < selectedissues.length; i++)
 							if (selectedissues[i])
@@ -36,22 +38,16 @@
  function appendIssueArea(id) {
 	var d = document.createElement("li");
 	d.setAttribute('id', "issueareachooser_selected_" + id);
-	d.appendChild(document.createTextNode($("#issueareachooser_list_" + id).text() + " ("));
-
-	var r = document.createElement("a");
-	r.setAttribute('href', '#');
-	r.setAttribute('onclick', 'removeIssueArea_Chooser(' + id + '); return false;');
-	r.appendChild(document.createTextNode("remove"));
-	d.appendChild(r);
-
-	d.appendChild(document.createTextNode(")"));
+	d.setAttribute('onclick', 'removeIssueArea_Chooser(' + id + '); return false;');
+	d.setAttribute('title', 'remove issue area');
+	d.appendChild(document.createTextNode($("#issueareachooser_list_" + id).text()));
 	
 	$('#issueareachooser_list').append(d);
 	issuearea_count++;
 	$('#issueareachooser_listnone').hide();
-	$('#issueareachooser_listhead').show();
+	//$('#issueareachooser_listhead').show();
 	
-	$("#issueareachooser_list_" + id).addClass("active");
+	$("#issueareachooser_list_" + id).addClass("selected");
  }
  function addIssueArea_Chooser(id) {
 	 if ($('#issueareachooser_selected_' + id).attr('id')) {
@@ -71,11 +67,11 @@
 	issuearea_chooser_change_made = true;
 	addRemoveIssueArea("remove", id, "issue_add_remove_status", function(issueareachooser_list) {
 		$("#issueareachooser_selected_" + id).remove();
-		$("#issueareachooser_list_" + id).removeClass("active");
+		$("#issueareachooser_list_" + id).removeClass("selected");
 		issuearea_count--;
 		if (issuearea_count == 0) {
 			$('#issueareachooser_listnone').show();
-			$('#issueareachooser_listhead').hide();
+			//$('#issueareachooser_listhead').hide();
 		}
 		if (issueareachooser_list) {
 			for (var i = 0; i < issueareachooser_list.length; i++) {
@@ -86,35 +82,70 @@
 			}
 		}
 	});
-}
+ }
+ function issueareachooser_search() {
+	var m = $('#issueareachooser_search').val();
+	if (!m || m == "" || $('#issueareachooser_search').hasClass('default')) {
+		$('#issueareachooser_allissueslist li').show();
+		$('#issueareachooser_subissueslist li').show();
+		$('#issueareachooser_allissueslist li').first().click();
+		return;
+	}
+	m = m.toLowerCase();
+	$('#issueareachooser_allissueslist li').each(function(idx, item) {
+		item = $(item);
+		if (item.text().toLowerCase().match(m)) {
+			item.show()
+			$('#' + item.attr('id') + '_sx li').show();
+		} else {
+			item.hide();
+			$('#' + item.attr('id') + '_sx li').each(function(idx2, item2) {
+				if ($(item2).text().toLowerCase().match(m)) {
+					$(item).show();
+					$(item2).show();
+				} else {
+					$(item2).hide();
+				}
+			});
+		}
+	});
+	$('#issueareachooser_allissueslist li:visible').first().click();
+ }
  </script>
  
 <div style="display: none">
 	<div id="issueareachooser" class="colorbox">
-	 
-	<h1>Your Issue Areas</h1>
-
-	<div class="col_50">
-		<h2>Selected Issue Areas</h2>
-		<p id="issueareachooser_listhead" style="display: none">You have selected the following issue areas:</p>
-		<ul id="issueareachooser_list" class="bullets">
-		 </ul>
-		 <p id="issueareachooser_listnone" style="font-style: italic">No issue areas have been selected yet. Choose some issue areas from the list on the right by clicking on them.</p>
-		 <p id="issue_add_remove_status" style="display: none"></p>
-		 <p><input type="button" class="submit" value="Finished" onclick="$.colorbox.close(); if (issuearea_chooser_finished_callback && issuearea_chooser_change_made) issuearea_chooser_finished_callback()"/></p>
-	</div>
-	<div class="col_50">
-		<h2>Available Issue Areas</h2>
-		<p>Click on an issue area to add it to your selection. The issue areas are based on the Library of Congress&rsquo;s classification of legislation.</p>
-		{% if request.ua.os_family == "iPhone OS" %}
-		<p><strong>iPhone/iPad: Use two fingers to scroll this list!</strong></p>
-		{% endif %}
-		 <div id="issueareachooser_allissueslist_container" style="height: 350px; overflow: auto">
-			<ul id="issueareachooser_allissueslist" class="issueareachooser_allissueslist">
+		<div class="col_3 issues_tracking">
+			<h2>Selected Issue Areas</h2>
+			<ul id="issueareachooser_list" class="scroller">
 			</ul>
+			<p id="issueareachooser_listnone">No issue areas have been selected yet. Choose some issue areas from the list on the right by clicking on them.</p>
+			<p id="issue_add_remove_status" style="display: none"></p>
+			<p class="btn b_finished"><input type="button" class="submit" value="Finished" onclick="$.colorbox.close(); if (issuearea_chooser_finished_callback && issuearea_chooser_change_made) issuearea_chooser_finished_callback()"/></p>
 		</div>
-	</div>
+
+		<div class="col_3 issues_cat_ad">
+			<h2>Add More Issues</h2>
+			<input id="issueareachooser_search" type="text" class="issue_search" />
+			<script>$('#issueareachooser_search').input_default('search for an issue by name');</script>
+			<script>$('#issueareachooser_search').textchange(issueareachooser_search);</script>
+			<h3>Issue Categories</h3>
+			{% if request.ua.os_family == "iPhone OS" %}
+				<p><strong>iPhone/iPad: Use two fingers to scroll this list!</strong></p>
+			{% endif %}
+
+			<div id="issueareachooser_allissueslist" class="scroller">
+				<ul>
+				</ul>
+			</div>
+		</div><!-- e: col_3 -->
 	
+		<div class="col_3 issues_ad col_last">
+			<h3>Issue Areas</h3>
+			<div id="issueareachooser_subissueslist" class="scroller">
+			</div>
+
+		</div><!-- e: col_last -->
 	</div>
 </div>
 

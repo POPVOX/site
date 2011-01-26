@@ -1,13 +1,17 @@
 {% for issue in issues %}
-<li>
-	<a id="issueareachooser_list_{{issue.object.id}}" href="{{issue.object.url}}" onclick="addIssueArea_Chooser({{issue.object.id}}); return false;">{{ issue.object.name }}</a>
-	<ul style="margin-left: 2em">
+<li id="issueareachooser_list_{{issue.object.id}}" href="#"
+		onclick="$('#issueareachooser_allissueslist li').removeClass('active'); $('#issueareachooser_list_{{issue.object.id}}').addClass('active'); $('#issueareachooser_subissueslist div').hide(); $('#issueareachooser_list_{{issue.object.id}}_sx').show(); return false;">
+	{{ issue.object.name }}
+	<div id="issueareachooser_list_{{issue.object.id}}_sx" style="display: none">
+	<ul>
+	<li class="add_all" href="#" onclick="addIssueArea_Chooser({{issue.object.id}}); return false;">Add all in this category</li>
 	{% for issue2 in issue.subissues %}
-		<li>
-			<a id="issueareachooser_list_{{issue2.id}}" href="{{issue2.url}}" onclick="addIssueArea_Chooser({{issue2.id}}); return false;">{{ issue2.name }}</a>
+		<li id="issueareachooser_list_{{issue2.id}}" href="#" onclick="addIssueArea_Chooser({{issue2.id}}); return false;">
+			{{ issue2.name }}
 		</li>
 	{% endfor %}
 	</ul>
+	</div>
 </li>
 {% endfor %}
 
