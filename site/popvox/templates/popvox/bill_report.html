@@ -103,12 +103,14 @@
 					
 					elem.find("h4 span.username").text(c.user)
 					if (c.location)
-						elem.find("h4 span.location").text("in " + c.location + ", ")
+						elem.find("h4 span.location").text("in " + c.location)
 					else
 						elem.find("h4 span.location").text("")
 					elem.find("h4 span.date").text(c.date);
 					elem.find(".share a").attr("href", c.share);
 					elem.find("p").text(c.msg)
+					if (c.verb != "supports" && c.verb != "opposes")
+						elem.find(".verb").text(c.verb + " this bill");
 					elem.find(".endorse_oppose_image").addClass((c.pos == "+") ? "endorse" : "oppose")
 					elem.appendTo((c.pos == "+") ? c_pro : c_con);
 					
@@ -136,6 +138,13 @@
 					$('#chart' + index + " .users").text("(" + stats.total + " users)");
 					$('#chart' + index + " .bg_support").text(stats.pro_pct + "% Support");
 					$('#chart' + index + " .bg_oppose").text(stats.con_pct + "% Oppose");
+					
+					if (stats.pro_reintro == 0) {
+						$('#chart' + index + ' .pro_reintro').hide();
+					} else {
+						$('#chart' + index + ' .pro_reintro').show();
+						$('#chart' + index + ' .pro_reintro').text(stats.pro_reintro + " users support reintroduction of the bill");
+					}
 					
 					bill_chart('chart_pie_' + index, stats.pro_pct, stats.con_pct, { "small": true });
 					bill_timeseries('chart_time_' + index, stats.timeseries);
@@ -269,6 +278,8 @@
 							<span class="bg_oppose">ZZZ% Oppose </span><br />
 							<span class="users">(WWW users)</span>
 						</p>
+						<p class="chart_stats pro_reintro">
+						</p>
 					</div>
 					<div class="col_3 col_last">
 						<div id="chart_time_{{index}}" style="height: 100px"></div>
@@ -349,7 +360,7 @@
 
 	<div style="display: none" id="comment_template">
 		<div class="comment">
-			<h4><span class="username">UserUser</span> <span class="location">in City, State</span><span class="date">, Tuesday</span></h4>
+			<h4><span class="username">UserUser</span> <span class="location">in City, State</span><span class="date">Tuesday</span> <span class="verb"></span></h4>
 			<div class="endorse_oppose_image" style="padding-left: 0"> </div>
 			<p class="usercomment">Lorem ipsum etc etc</p>
 			<span class="share" style="margin-top: -10px"><a href="">share</a></span>

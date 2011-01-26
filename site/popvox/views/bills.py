@@ -241,37 +241,42 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 	# that the user has not set, return None for the whole statistic group.
 	for key in filterargs:
 		if filterargs[key] == None:
-			return None
+			return None\
+			
+	# Get comments that were left only before the session ended.
+	enddate = govtrack.getCongressDates(bill.congressnumber)[1] + timedelta(days=1)
 	
-	pro_comments = bill_comments(bill, "+", **filterargs)
-	con_comments = bill_comments(bill, "-", **filterargs)
+	pro_comments = bill_comments(bill, "+", **filterargs).filter(created__lt=enddate)
+	con_comments = bill_comments(bill, "-", **filterargs).filter(created__lt=enddate)
 	
 	pro = pro_comments.count()
 	con = con_comments.count()
-		
+
 	# Don't display statistics when there's very little data.
 	if pro+con < 10:
 		return None
+	
+	all_comments = (pro_comments | con_comments)
 	
 	time_series = None
 	if want_timeseries:
 		# Get a time-series. Get the time bounds --- use the national data for the
 		# time bounds so that if we display multiple charts together they line up.
-		firstcommentdate = bill.usercomments.order_by('created')[0].created
-		lastcommentdate = bill.usercomments.order_by('-updated')[0].updated
+		firstcommentdate = bill.usercomments.filter(created__lt=enddate).order_by('created')[0].created
+		lastcommentdate = bill.usercomments.filter(created__lt=enddate).order_by('-created')[0].updated
 		
 		# Compute a bin size (i.e. number of days per point) that approximates
 		# ten comments per day, but with a minimum size of one day.
 		binsize = 1
 		if firstcommentdate < lastcommentdate:
-			binsize = int((lastcommentdate - firstcommentdate).days / float(len(pro_comments)+len(con_comments)) * 10.0)
+			binsize = int((lastcommentdate - firstcommentdate).days / float(all_comments.count()) * 10.0)
 		if binsize < 1:
 			binsize = 1
 		
 		# Bin the observations.
 		bins = { }
-		for c in list(pro_comments) + list(con_comments):
-			days = int(round((c.updated - firstcommentdate).days / binsize) * binsize)
+		for c in all_comments:
+			days = int(round((c.created - firstcommentdate).days / binsize) * binsize)
 			if not days in bins:
 				bins[days] = { "+": 0, "-": 0 }
 			bins[days][c.position] += 1
@@ -281,8 +286,16 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 			"pro": [sum([bins[y]["+"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
 			"con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
 			}
+			
+	pro_comments_reintro = bill_comments(bill, "+", **filterargs).exclude(created__lt=enddate)
 
-	return {"shortdescription": shortdescription, "longdescription": longdescription, "total": pro+con, "pro":pro, "con":con, "pro_pct": 100*pro/(pro+con), "con_pct": 100*con/(pro+con), "timeseries": time_series}
+	return {
+		"shortdescription": shortdescription,
+		"longdescription": longdescription,
+		"total": pro+con, "pro":pro, "con":con,
+		"pro_pct": 100*pro/(pro+con), "con_pct": 100*con/(pro+con),
+		"timeseries": time_series,
+		"pro_reintro": pro_comments_reintro.count()}
 	
 @csrf_protect
 def bill(request, congressnumber, billtype, billnumber):
@@ -1126,6 +1139,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 				"date": formatDateTime(c.updated),
 				"pos": c.position,
 				"share": c.url(),
+				"verb": c.verb(),
 				} for c in comments ],
 		"stats": {
 			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True),

@@ -25,6 +25,7 @@ people_list = None # sorted list of people records for current people only
 senators = None # map of state abbrs to list of IDs
 congresspeople = None # map of state+district strings to ID
 committees = None # list of committees, each committee a dict
+congressdates = None # list of Congress start and end dates
 
 def open_govtrack_file(fn):
 	import settings
@@ -498,4 +499,19 @@ def loadfeed(monitors):
 		return feed
 	except:
 		return None
+
+def getCongressDates(congressnumber):
+	global congressdates
+	if congressdates == None:
+		cd = { }
+		for line in open_govtrack_file("us/sessions.tsv"):
+			cn, sessionname, startdate, enddate = line.strip().split("\t")[0:4]
+			if not "-" in startdate: # header
+				continue
+			cn = int(cn)
+			if not cn in cd:
+				cd[cn] = [parse_govtrack_date(startdate), None]
+			cd[cn][1] = parse_govtrack_date(enddate)
+		congressdates = cd
+	return congressdates[congressnumber]
 

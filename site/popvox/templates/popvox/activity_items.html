@@ -27,12 +27,8 @@
 		<div>
 			<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
 				<div >
-					<h4>{% if item.position == "+" %}
-						Supports
-					{% endif %}
-					{% if item.position == "-" %}
-						Opposes
-					{% endif %}
+					<h4>
+					{{item.verb|capfirst}}
 					<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.</h4>
 				</div>
 				{% if not user.is_anonymous %}

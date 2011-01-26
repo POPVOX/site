@@ -810,3 +810,22 @@ class UserComment(models.Model):
 
 	def url(self):
 		return self.get_absolute_url()
+	
+	def verb(self):
+		# the verb used to describe the comment depends on when the comment
+		# was left in the stages of a bill's progress.
+		if self.created.date() <= govtrack.getCongressDates(self.bill.congressnumber)[1].date():
+			# comment was (first) left before the end of the Congress in which the
+			# bill was introduced
+			if self.position == "+":
+				return "supports"
+			else:
+				return "opposes"
+		else:
+			# comment was left after Congress recessed, and the comment now
+			# is about reintroduction
+			if self.position == "+":
+				return "supports the reintroduction of"
+			else:
+				return "opposes the reintroduction of" # we have no interface for users to leave a negative comment
+

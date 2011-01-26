@@ -29,9 +29,7 @@
 
 	<div class="col_6 col_top">
 		<div class="block referred_quote_{% if comment.position == '+' %}endorse{% else %}opposed{% endif %}">
-			<p class="commenter">{{comment.user.username}} <!--from {{comment.address.state}}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district-->commented {{comment.updated|date2}}:</p>
-
-			<h4>{{bill.displaynumber}}: {% if comment.position == '+' %}Support{% else %}Oppose{% endif %}</h4>
+			<p class="commenter">{{comment.user.username}} from {{comment.address.statename}}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district commented {{comment.updated|date2}} that {{comment.address.heshe}}  {{comment.verb}} {{bill.displaynumber}}:</p>
 			{% if comment.message %}
 				{{comment.message|wraplines:"p"}}
 			{% else %}
@@ -58,7 +56,7 @@
 			{% include "popvox/bill_howshouldtheyvote.html" %}
 			{% include "popvox/bill_uservote.html" %}
 		</div>
-		<div class="hr"> </div>
+
 		{% endif %}
 
 		{% include "popvox/billcomment_share_social.html" %}
