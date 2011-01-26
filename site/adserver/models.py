@@ -166,18 +166,26 @@ class Banner(models.Model):
 		# accurage gauge on the true CTR.
 		
 		# Only look at impressions in the last two weeks.
-		impressions = self.impressions.filter(date__gt = datetime.now() - timedelta(days=14)).count()
+		impressions = self.impressions.filter(date__gt = datetime.now() - timedelta(days=14))
+		
+		# If there are fewer than 10000 impressions, look at all time.
+		if impressions.count() < 10000:
+			impressions = self.impressions.all()
+		count = impressions.count()
 		
 		# compute the actual realized CTR so far
-		ctr = float(self.impressions.filter(date__gt = datetime.now() - timedelta(days=14), clicks__gt=0).count()) / (float(impressions) if impressions > 0 else 1)
+		if count == 0:
+			ctr = 0.0
+		else:
+			ctr = float(impressions.filter(clicks__gt=0).count()) / float(count)
 		
-		if impressions > 10000:
+		if count > 10000:
 			return ctr, False
 
 		# Since there have been so few impressions, don't take it
 		# at face value. The closer to 0 impressions, the more we
 		# artificially inflate/defalate the CTR toward to 0.01.
-		ctr += (0.01-ctr) * (1.0 - float(impressions)/10000.0)
+		ctr += (0.01-ctr) * (1.0 - float(count)/10000.0)
 		return ctr, True
 
 	def setimage(self, imagedata, dims=None):

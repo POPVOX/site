@@ -139,3 +139,29 @@ def show_ad(parser, token):
 	
 	return Node(fields)
 
+@register.tag
+def banner_stats(parser, token):
+	class Node(template.Node):
+		fields = None
+		def __init__(self, fields):
+			self.fields = fields
+		def render(self, context):
+			if len(fields) == 0:
+				raise Exception("Usage: banner_stats object_id")
+				
+			obj_id = Variable(fields[0]).resolve(context)
+			
+			impressions = 0
+			clicks = 0
+			cost = 0
+			for im in ImpressionBlock.objects.filter(banner__id = obj_id):
+				impressions += im.impressions
+				clicks += im.clicks
+				cost += im.cost()
+				
+			return "$%g for %d impressions/%d clicks" % (cost, impressions, clicks)
+
+	fields = token.split_contents()[1:]
+	
+	return Node(fields)
+

@@ -39,7 +39,10 @@ def select_banner(adformat, targets, exclude):
 			ctr = banner.recentctr
 			if ctr == None:
 				ctr, too_few_to_save = banner.compute_ctr()
-				if too_few_to_save and bid > 0.0: # prefer cpm to a guestimate based on cpc
+				if not too_few_to_save:
+					banner.recentctr = ctr
+					banner.save()
+				elif bid > 0.0: # prefer cpm to a guestimate based on cpc
 					return bid
 			
 			cpcbid = ctr * banner.order.cpcbid
