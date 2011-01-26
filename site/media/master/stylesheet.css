@@ -379,7 +379,7 @@ p {
 	}
 
 h1 {
-	margin: 25px 0 22px;
+	margin: 15px 0 22px;
 	font: normal 40px/30px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	letter-spacing: .02em;
 	}
@@ -2141,7 +2141,7 @@ p.b_edit a {
 
 	.leg_staff_dash h1 {
 		background: url("bg_rule.gif") repeat-x left bottom;
-		padding-bottom: 10px;
+		padding-bottom: 15px;
 		}
 
 	.dash_docket, .dash_comments, .dash_calendar {
