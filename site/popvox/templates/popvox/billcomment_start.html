@@ -101,14 +101,14 @@ function validate_form() {
 		{% endif %}
 	
 		<p>Do you want to write a personal message explaining how this bill affects you?</p>
-		<p>
+		<div style="margin-bottom: .75em">
 			<input id="writemessage0"  type="radio" name="writemessage" {% if not message %}checked="1"{% endif %} onclick="$('#message_container').hide(); $('#nomessage_container').fadeIn()"/>
 			<label for="writemessage0">No, I have nothing personal to add.</label>
-		</p>
-		<p style="margin-bottom: 2em">
+		</div>
+		<div style="margin-bottom: 2em">
 			<input id="writemessage1" type="radio" name="writemessage" {% if message %}checked="1"{% endif %} onclick="$('#message_container').fadeIn(); $('#nomessage_container').hide()"/>
 			<label for="writemessage1">Yes, I have a personal story.</label>
-		</p>
+		</div>
 		
 		<div id="nomessage_container"  {% if message %}style="display: none"{% endif %}>
 		<form method="post">
@@ -165,6 +165,8 @@ function validate_form() {
 		
 		
 	{% endif %}
+	
+	<div class="clear"> </div>
 	
 	</div>
 </div>
