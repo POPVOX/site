@@ -41,6 +41,12 @@ def loadpeople():
 	
 	if people != None:
 		return
+		
+	people = cache.get("govtrack_people")
+	senators = cache.get("govtrack_senators")
+	congresspeople = cache.get("govtrack_congresspeople")
+	if people != None:
+		return
 	
 	people = { }
 	senators = { }
@@ -83,6 +89,10 @@ def loadpeople():
 	people_list = [ ]
 	people_list.extend([p for p in people.values() if p["current"]])
 	people_list.sort(key = lambda x : x["sortkey"])
+
+	cache.set("govtrack_people", people)
+	cache.set("govtrack_senators", senators)
+	cache.set("govtrack_congresspeople", congresspeople)
 
 def getMembersOfCongress():
 	global people_list
