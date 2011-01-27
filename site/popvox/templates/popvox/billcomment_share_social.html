@@ -32,7 +32,7 @@
 						if ($('#share_includecomment').attr('checked'))
 							$('#share_message').val("I'm using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Check out my comment.");
 						else
-							$('#share_message').val("I'm using POPVOX.com to weigh in on {{comment.bill.displaynumber}}. Make sure your voice is heard too.");
+							$('#share_message').val("I'm using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.displaynumber}}. Make sure your voice is heard too.");
 					{% else %}
 						$('#share_message').val("Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.displaynumber}}.");
 					{% endif %}
@@ -57,7 +57,7 @@
 				<input id="share_email_button" type="button" class="submit btn" value="Share Via Email" onclick="share('email')"/>
 				<span id="share_email_status" class="error"></span>
 			</div>
-			<p class="tip_inline">The email will appear to come from {{user.username}} &lt;{{user.email}}&gt;.</p>
+			<p class="tip_inline">The email will be sent from your email address <tt>{{user.email}}</tt>.</p>
 			<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
 		</div>
 		{% else %}

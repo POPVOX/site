@@ -187,7 +187,7 @@ class Bill(models.Model):
 		bs = ""
 		if self.congressnumber < govtrack.CURRENT_CONGRESS:
 			bs = "/" + str(self.congressnumber)
-		return "#usbill #" + bt + str(self.billnumber) + bs
+		return "#" + bt + str(self.billnumber) + bs
 
 def bill_from_url(url):
 	fields = url.split("/")
@@ -795,7 +795,7 @@ class UserComment(models.Model):
 	address = models.ForeignKey(PostalAddress, db_index=True) # current address at time of writing
 
 	created = models.DateTimeField(auto_now_add=True)
-	updated = models.DateTimeField(auto_now=True)
+	updated = models.DateTimeField(auto_now_add=True)
 	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed'), (COMMENT_APPROVED, 'Approved'), (COMMENT_REJECTED, 'Rejected')], default=COMMENT_NOT_REVIEWED)
 	
 	tweet_id = models.BigIntegerField(blank=True, null=True)
@@ -818,21 +818,41 @@ class UserComment(models.Model):
 	def url(self):
 		return self.get_absolute_url()
 	
-	def verb(self):
+	def verb(self, tense="present"):
 		# the verb used to describe the comment depends on when the comment
 		# was left in the stages of a bill's progress.
 		if self.created.date() <= govtrack.getCongressDates(self.bill.congressnumber)[1].date():
 			# comment was (first) left before the end of the Congress in which the
 			# bill was introduced
 			if self.position == "+":
-				return "supports"
+				if tense=="present":
+					return "supports"
+				elif tense=="past":
+					return "supported"
+				elif tense=="ing":
+					return "supporting"
 			else:
-				return "opposes"
+				if tense=="present":
+					return "opposes"
+				elif tense=="past":
+					return "opposed"
+				elif tense=="ing":
+					return "opposing"
 		else:
 			# comment was left after Congress recessed, and the comment now
 			# is about reintroduction
 			if self.position == "+":
-				return "supports the reintroduction of"
+				if tense=="present":
+					return "supports the reintroduction of"
+				elif tense=="past":
+					return "supported the reintroduction of"
+				elif tense=="ing":
+					return "supporting the reintroduction of"
 			else:
-				return "opposes the reintroduction of" # we have no interface for users to leave a negative comment
+				if tense=="present":
+					return "opposes the reintroduction of" # we have no interface for users to leave a negative comment
+				elif tense=="past":
+					return "opposed the reintroduction of"
+				elif tense=="ing":
+					return "opposing the reintroduction of"
 

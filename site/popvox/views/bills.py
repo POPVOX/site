@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import cache_page
+from django.template.defaultfilters import truncatewords
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
 
@@ -740,6 +741,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				address_record.save()
 			
 		comment.address = address_record
+		comment.updated = datetime.now()
 		comment.save()
 			
 		# Clear the session state set in the preview. Don't clear until the end
@@ -883,23 +885,51 @@ def billshare_share(request):
 	
 	bill = comment.bill
 	
-	includecomment = True
-	if request.user == comment.user and request.POST["includecomment"] == "0":
+	# There are three factors that affect how we share this comment:
+	#
+	# 1. a) The comment has no message.
+	#     b) This is the user's own comment but he has chosen to share it anonymously
+	#          (via includecomment=0), which works similarly to (a).
+	#     c) The user is sharing his own comment.
+	#     d) The user is sharing someone else's comment.
+	#
+	# 2. a) The comment was written during the normal bill commenting period.
+	#     b) The comment was written in support of reintroduction of the bill.
+	#     (These only apply to 1c/d.)
+	#
+	# 3. a) The bill is still alive, so it is a call for normal action.
+	#     b) The bill is dead and the comment is in support, so it is a call to reintroduce.
+	#     c) The bill is dead and the comment was against, so it is not a call for action.
+		
+	if comment.message == None or (request.user == comment.user and request.POST["includecomment"] == "0"): # 1a/b
 		includecomment = False
+		target = comment.bill
 		
-	support_oppose = "support" if comment.position == "+"  else "oppose"
-	support_oppose2 = "support of" if comment.position == "+"  else "opposition to"
-	if not includecomment:
-		support_oppose = "weigh in on"
+		if comment.bill.isAlive(): # 3a
+			if comment.position == "+":
+				subject = "Support"
+			elif comment.position == "-":
+				subject = "Oppose"
+		elif comment.bill.died() and comment.position == "+":  # 3b
+			subject = "Support the reintroduction of"
+		else: # 3c
+			subject = "Take a look at"
 		
-	if comment.message == None:
-		includecomment = False
+		message = comment.bill.title
 		
-	# Where does the link point to? If the user isn't including his own comment,
-	# then target the bill. Even though we reveal the username in the message
-	# so recipients could find the comment.
-	target = comment if includecomment else comment.bill
+	else: # 1c/d
+		includecomment = True
+		target = comment
 		
+		if request.user == comment.user: # 2
+			subject = "I " + comment.verb(tense="past")
+			message = comment.message
+		else:
+			subject = comment.user.username + "'s message " + comment.verb(tense="ing")
+			message = comment.user.username + " wrote:\n\n" + comment.message
+	
+	subject += " " + truncatewords(comment.bill.title, 10) + " at POPVOX"
+	
 	import shorturl
 	surlrec, created = shorturl.models.Record.objects.get_or_create(owner=request.user, target=target)
 	url = surlrec.url()
@@ -919,43 +949,27 @@ def billshare_share(request):
 		if len(emails) > 10:
 			return { "status": "fail", "msg": "You can only share your message with 10 recipients at a time." }
 		
-		# and send...
-		for em in emails:
-			if request.user == comment.user:
-				send_mail2(
-					subject = request.user.username + " wants you to " + support_oppose + " " + bill.displaynumber() + " at POPVOX",
-					message = """Hi!
-		
-%s
-
-%s
-
-Go to %s to have your voice be heard!
-
-%s""" % (request.POST["message"],
-		comment.message if includecomment else comment.bill.title,
-		url, request.user.username),
-					from_email = '"' + request.user.username + '" <' + request.user.email + ">",
-					recipient_list = [em],
-					fail_silently = True)
-			else:
-				send_mail2(
-					subject = request.user.username + " sent you " + (comment.user.username+"'s" if request.user != comment.user else "his or her") + " comment on " + bill.displaynumber() + " at POPVOX",
-					message = """Hi!
-				
-%s
-
-Comment by %s in %s bill %s:
-
-%s
-
-Go to %s to have your voice be heard!
-
-%s""" % (request.POST["message"], comment.user.username, support_oppose2, bill.title, repr(comment.message), url, request.user.username),
-					from_email = '"' + request.user.username + '" <' + request.user.email + ">",
-					recipient_list = [em],
-					fail_silently = True)
+		###
+		body = """Hi!
 	
+%s
+
+%s
+
+Go to %s to have your voice be heard!""" % (
+			request.POST["message"],
+			message,
+			url)
+		###
+
+		for em in emails:
+			send_mail2(
+				subject = subject,
+				message = body,
+				from_email = request.user.email,
+				recipient_list = [em],
+				fail_silently = True)
+
 		return { "status": "success", "msg": "Message sent." }
 
 	elif request.POST["method"] == "twitter":
@@ -988,27 +1002,16 @@ Go to %s to have your voice be heard!
 	elif request.POST["method"] == "facebook":
 		fb = request.user.singlesignon.get(provider="facebook")
 		
-		if request.user == comment.user:
-			ret = urllib.urlopen("https://graph.facebook.com/" + str(fb.uid) + "/feed",
-				urllib.urlencode({
-					"access_token": fb.auth_token["access_token"],
-					"link": url,
-					"name": bill.title.encode('utf-8'),
-					"caption": "Voice your opinion on this bill at POPVOX.com",
-					"description": comment.message.encode('utf-8') if includecomment else (bill.officialtitle().encode('utf-8') if bill.officialtitle() != None else None),
-					"message": request.POST["message"].encode('utf-8')
-					}))
-		else:
-			ret = urllib.urlopen("https://graph.facebook.com/" + str(fb.uid) + "/feed",
-				urllib.urlencode({
-					"access_token": fb.auth_token["access_token"],
-					"link": url,
-					"name": comment.user.username.encode('utf-8') + "'s comment on " + bill.title.encode('utf-8'),
-					"caption": "Voice your opinion on this bill at POPVOX.com",
-					"description": comment.message.encode('utf-8') if comment.message != None else None,
-					"message": request.POST["message"].encode('utf-8'),
-					}))
-				
+		ret = urllib.urlopen("https://graph.facebook.com/" + str(fb.uid) + "/feed",
+			urllib.urlencode({
+				"access_token": fb.auth_token["access_token"],
+				"link": url,
+				"name": subject.encode('utf-8'),
+				"caption": "Voice your opinion on this bill at POPVOX.com",
+				"description": message.encode('utf-8'),
+				"message": request.POST["message"].encode('utf-8')
+				}))
+		
 		if ret.getcode() in (400, 403):
 			request.session["billshare_share.state"] = request.POST["message"], includecomment
 			return { "status": "fail", "error": "not-authorized", "scope": "publish_stream" }
