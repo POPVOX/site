@@ -1,6 +1,7 @@
 from django.db import models
 
 from datetime import datetime, timedelta
+import random
 
 class Format(models.Model):
 	"""A Format represents different types of banners, such as text ads,
@@ -219,6 +220,8 @@ class Banner(models.Model):
 		
 		# Get out the binary jpeg data.
 		buf = StringIO()
+		if im.mode != "RGB":
+			im = im.convert("RGB")
 		im.save(buf, "JPEG")
 		buf.size = len(buf.getvalue())
 		buf.name = "unnamed"
@@ -243,7 +246,6 @@ class ImpressionBlock(models.Model):
 	path = models.ForeignKey(SitePath, db_index=True, related_name="impressions")
 	date = models.DateField(auto_now_add=True)
 	cpmcost = models.FloatField(default=0) # average cpm cost over all impressions
-	cpccost = models.FloatField(default=0) # current cpc cost for the next click
 	impressions = models.IntegerField(default=0) # total number of impressions
 	clickcost = models.FloatField(default=0) # total cost attributed to clicks (not per click)
 	clicks = models.IntegerField(default=0)
@@ -256,3 +258,22 @@ class ImpressionBlock(models.Model):
 	def cost(self):
 		return self.impressions*self.cpmcost/1000.0 + self.clickcost
 	
+class Impression(models.Model):
+	"""An Impression is an actual impression of a banner at a given time, with a
+	random string associated with it so that when the link in the advertisement
+	is clicked, the corresponding Impression can be looked up without risk of
+	abuse, and from there the cost of the click can be added to the cost-tracking
+	in the corresponding ImpressionBlock. Impression objects can be safely deleted
+	after a certain time after which we assume the user no longer will actually
+	click the ad."""
+	CODE_LENGTH = 16
+	
+	created = models.DateTimeField(auto_now_add=True, db_index=True)
+	code = models.CharField(max_length=CODE_LENGTH, db_index=True)
+	block = models.ForeignKey(ImpressionBlock)
+	cpccost = models.FloatField(default=0)
+	
+	def set_code(self):
+		self.code = ''.join(random.choice(("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")) for x in range(Impression.CODE_LENGTH))
+
+

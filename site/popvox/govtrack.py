@@ -437,7 +437,7 @@ def getCommitteeList():
 	if committees != None:
 		return committees
 
-	#committees = cache.get('govtrack_committees')
+	committees = cache.get('govtrack_committees')
 	if committees != None:
 		return committees
 		

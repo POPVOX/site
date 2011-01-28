@@ -1,7 +1,14 @@
-from models import *
+from django.template import Context, Template
+from django.db.models import F
 
 import random
-from datetime import datetime
+from datetime import datetime, date, timedelta
+
+from models import *
+
+from adserver.uasparser import UASparser  
+uas_parser = UASparser(update_interval = None)
+
 
 def select_banner(adformat, targets, exclude):
 	# Select a banner to show and return the banner and the display CPM and CPC prices.
@@ -51,9 +58,10 @@ def select_banner(adformat, targets, exclude):
 				
 		return bid
 		
-	# Make a list of pairs of banners and their proposed bid and sort.
+	# Make a list of pairs of banners and their proposed bid, and sort them first by
+	# bid, and if there are ties prefer non-remnant advertisers.
 	banners = [(b, get_bid(b)) for b in banners]
-	banners.sort(key = lambda x : -x[1])
+	banners.sort(key = lambda x : (-x[1], 1 if b.order.advertiser.remnant else 0))
 	
 	# Because of rate limiting, we can't just take the top banner.
 	banner = None
@@ -111,8 +119,15 @@ def select_banner(adformat, targets, exclude):
 	if len(banners) == 0:
 		return banner, 0.0, 0.0
 		
-	# Since there are two bid types, we have to handle the case where the next bidder
-	# used a different bid type.
+	# There are two bid types and this leads to some complications on how to charge
+	# the advertiser. First, we only charge based on the bid type(s) actually placed.
+	# Since we determine the sale price based on the next-higest bidder, these two
+	# bidders may have different types of bids and so we have to do a conversion
+	# of some sort in that case.
+	#
+	# And if the advertiser makes two types of bids, we should not charge both for the
+	# impression and for potential clicks --- we should choose the lower projected
+	# cost of the two.
 	
 	cpmcost = 0.0
 	if banner.order.cpmbid != None and banner.order.cpmbid > 0:
@@ -133,5 +148,116 @@ def select_banner(adformat, targets, exclude):
 			# ratio of the bidder's *predicted* CPM to the next bidder's actual CPM.
 			cpccost = banner.order.cpcbid * nextbid/bid
 	
+	if cpmcost > 0 and cpccost > 0:
+		# We can't charge both CPM and CPC for the same impression. Choose the
+		# one that has the *greater* predicted cost. This is for two reasons. First,
+		# we might consider the next-highest bidder as having placed two bids, one
+		# CPM and one CPC, and in that model we should be pricing this impression
+		# against the true next-highest bid, which is the higher of those two. Secondly,
+		# since we can only project a cost for CPC bids we do not want to allow an
+		# advertiser to win an auction based on a high CPM bid but then price him
+		# at a CPC rate when his CTR might be, in the extreme, zero, thus giving him
+		# free advertising!
+		ctr = banner.recentctr
+		if ctr == None:
+			ctr, too_few_to_save = banner.compute_ctr()
+		if cpmcost/1000.0 < ctr*cpccost:
+			cpmcost = 0.0
+		else:
+			cpccost = 0.0
+	
 	return banner, cpmcost, cpccost
 
+def show_banner(format, request, context, targets, path):
+	# Select a banner to show and return the HTML code.
+	
+	# Don't show ads when the user agent is a bot.
+	if not "HTTP_USER_AGENT" in request.META:
+		return Template(format.fallbackhtml).render(context)
+	ua = uas_parser.parse(request.META["HTTP_USER_AGENT"])
+	if ua == None or ua["typ"] == "Robot": # if we can't tell, or if we know it's a bot
+		return Template(format.fallbackhtml).render(context)
+
+	# Prepare the list of ads we've served to this user recently.
+	if hasattr(request, "session"):
+		if not "adserver_trail" in request.session:
+			request.session["adserver_trail"] = []
+		request.session["adserver_trail"] = [t for t in request.session["adserver_trail"]
+			if datetime.now() - t[1] < timedelta(seconds=20)]
+	
+	# Besides the targets specified in the template tag, additionally apply
+	# templates stored in the session key and context variable
+	# "adserver-targets", which must be string or Target instances.
+	def make_target2(field):
+		if type(field) == str:
+			try:
+				return Target.objects.get(key=field)
+			except:
+				raise Exception("There is no ad target with the key " + field)
+		else:
+			return field
+	if hasattr(request, "session") and "adserver-targets" in request.session:
+		targets += [make_target2(t) for t in request.session["adserver-targets"]]
+	if "adserver-targets" in  context:
+		targets += [make_target2(t) for t in context["adserver-targets"]]
+	
+	# Find the best banner to run here.
+	selection = select_banner(format, targets, [t[0] for t in request.session["adserver_trail"]] if hasattr(request, "session") else None)
+	if selection == None:
+		return Template(format.fallbackhtml).render(context)
+	
+	b, cpm, cpc = selection
+	
+	# Create a SitePath object.
+	sp, isnew = SitePath.objects.get_or_create(path=path)
+							
+	# Create an ImpressionBlock.
+	imb, isnew = ImpressionBlock.objects.get_or_create(
+		banner = b,
+		path = sp,
+		date = datetime.now().date,
+		)
+
+	# Atomically update the rest.
+	ImpressionBlock.objects.filter(id=imb.id).update(
+		# update the amortized CPM on the impression object
+		cpmcost = (F('cpmcost')*F('impressions') + cpm) / (F('impressions') + 1),
+	
+		# add an impression
+		impressions = F('impressions') + 1
+		)
+	
+	# Create a unique object for this impression.
+	im = Impression()
+	im.set_code()
+	im.block = imb
+	im.cpccost = cpc
+	im.save()
+	
+	# Clear out old impressions (maybe do this not quite so frequently?).
+	Impression.objects.filter(created__lt = datetime.now()-timedelta(minutes=30)).delete()
+	
+	# Record that this ad was shown.
+	if hasattr(request, "session") and not b.order.advertiser.remnant:
+		request.session["adserver_trail"].append( (b.id, datetime.now()) )
+	
+	# Parse the template. If the banner has HTML override code, use that instead.
+	if b.html != None and b.html.strip() != "":
+		t = Template(b.html)
+	else:
+		t = Template(format.html)
+	
+	# Apply the template to the banner and return the code.
+	context.push()
+	try:
+		context.update({
+			"banner": b,
+			"impression": im,
+			"impressionblock": imb,
+			"cpm": cpm,
+			"cpc": cpc,
+			})
+		return t.render(context)
+	finally:
+		context.pop()
+	
