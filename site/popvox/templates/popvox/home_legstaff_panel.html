@@ -80,25 +80,28 @@
 		</tr>
 		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
 			<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="display: none">
-					<div class="col_4_5">
-						<p class="date">{{bill.current_status_date|date2}}</p>
-						<p title="{{bill.status_advanced}}"><strong>Status:</strong> {{bill.status_advanced_abbreviated}}</p>
-					</div>	
-					<div class="col_4_5 col_last">
+				<div class="col_4_5">
+					<h4>Bill Status</h4>
+
+					<p class="date">{{bill.current_status_date|date2}}</p>
+					<p title="{{bill.status_advanced}}"><strong>Status:</strong> {{bill.status_advanced_abbreviated}}</p>
 					{% for date, text in bill.latest_action_formatted %}
-						<p class="date">{{date}}</p>
+						<p class="clear date">{{date}}</p>
 						<div><p>{{text|truncatewords:30}}</p></div>
 					{% endfor %}
+
+					{% if user.legstaffrole.member %}
+					<div class="hr"> </div>
+					<div class="clear">
+						<a href="{{bill.url}}/upload">Upload Position Document</a>
 					</div>
-				<div class="hr_lite"> </div>
-				
-				<div id="bill_{{subgroup.id}}_{{bill.id}}_details_dynamic" class="clear"> </div>
-				
-				{% if user.legstaffrole.member %}
-				<div class="clear col_4_5">
-					<a href="{{bill.url}}/upload">Upload Position Document</a>
+					{% endif %}
 				</div>
-				{% endif %}
+				
+				<div class="col_4_5 col_last">
+					<div id="bill_{{subgroup.id}}_{{bill.id}}_details_dynamic" class="clear"> </div>
+				</div>
+				
 			</td>
 		</tr>
 	{% endfor %}

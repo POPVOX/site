@@ -1,40 +1,12 @@
 {% load popvox_utils %}
 {% load humanize %}
 
-{% for item in items %}
-
-	{% if item|pythontype == 'popvox.models.UserComment' %}
-	<div class="col_4_5">	
-		<p class="date">{{item.updated|date2}}</p>
-		<p>
-			<span class="username">
-				{% if not can_see_user_details %}
-					{{item.user.username}}
-				{% else %}
-					{{item.address.firstname}} {{item.address.lastname}}
-				{% endif %}
-			</span>
-			from
-			{% if can_see_user_details %}
-				{{item.address.city}},
-			{% endif %}
-			{{item.address.state}}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district
-		</p>
-		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
-			{{item.message|truncatewords:25}}
-			<span>[<a href="{{item.url}}">more</a>]</span>
-		</div>
-	{% endif %}
-	
-
-	{% if forloop.last %}
-	<p class="pad_left">See the <a href="{{bill.url}}/report">full report</a> for all {{total_count}} comment{{total_count|pluralize}}.</p>
-	{% endif %}
-{% endfor %}
-	</div>
-
-<div class="col_4_5 col_last">
 {% bill_statistics bill as stats %}
+
+{% if stats or items %}
+<h4>Constituent Sentiment</h4>
+{% endif %}
+
 {% if stats %}
 		<div style="width: 90px; float: left">
 			<a href="{{bill.url}}/report">
@@ -59,5 +31,34 @@
 	<p class="view_report clear" style="padding: 0">
 		<span><a href="{{bill.url}}/report">View Report</a></span>
 	</p>
-</div>
+
+{% for item in items %}
+	{% if item|pythontype == 'popvox.models.UserComment' %}
+		<p class="date">{{item.updated|date2}}</p>
+		<p>
+			<span class="username">
+				{% if not can_see_user_details %}
+					{{item.user.username}}
+				{% else %}
+					{{item.address.firstname}} {{item.address.lastname}}
+				{% endif %}
+			</span>
+			from
+			{% if can_see_user_details %}
+				{{item.address.city}},
+			{% endif %}
+			{{item.address.state}}{% if item.address.congressionaldistrict != 0 %}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district{% endif %}
+		</p>
+		<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
+			{{item.message|truncatewords:25}}
+			<span>[<a href="{{item.url}}">more</a>]</span>
+		</div>
+	{% endif %}
+	
+	{% if forloop.last %}
+	<p class="pad_left">See the <a href="{{bill.url}}/report">full report</a> for all {{total_count}} comment{{total_count|pluralize}}.</p>
+	{% endif %}
+{% endfor %}
+
+
 

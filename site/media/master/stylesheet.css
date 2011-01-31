@@ -2042,7 +2042,7 @@ h1.h1_smaller {
 .col_chart {
 	width: 120px;
 	float: left;
-	margin: 0 0 20px 20px;
+	margin: 0 0 10px 20px;
 	padding-top: 0px;
 	}
 .col_3 .col_chart {
@@ -2079,6 +2079,7 @@ h1.h1_smaller {
 
 p.view_report {
 	margin-top: 10px; 
+	margin-bottom: 0;
 	padding-top: 0;
 	padding-left: 20px;
 	}
@@ -2096,6 +2097,7 @@ p.view_report {
 	
 p.chart_stats {
 	margin-top: 5px; 
+	margin-bottom: 0;
 	}
 	
 	p.chart_stats strong {
