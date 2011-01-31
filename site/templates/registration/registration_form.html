@@ -82,7 +82,7 @@ function submit_registration() {
 	<div class="form" style="clear: both">
 		<div class="col_9 rule">
 			{% if mode != "" %}
-			<h3>About You</h3>
+			<h3 class="no_rule">About You</h3>
 			{% endif %}
 		
 			{% if mode == "" %}
@@ -122,7 +122,7 @@ function submit_registration() {
 		
 		{% if mode == "legstaff" %}
 		<div class="col_9 rule">
-			<h3>About Your Position</h3>
+			<h3 class="no_rule">About Your Position</h3>
 			
 			<label for="member">member</label>
 			<select id="member" class="c5">
@@ -165,7 +165,7 @@ function submit_registration() {
 			
 		{% if mode == "orgstaff" %}
 		<div class="col_9 rule">
-			<h3>About Your Organization</h3>
+			<h3 class="no_rule">About Your Organization</h3>
 			
 			<label for="orgname">organization</label>
 			<input type="text" id="orgname" class="c5"/>
@@ -190,8 +190,8 @@ function submit_registration() {
 			<label for="orgclaimedmembership">membership</label>
 			<select id="orgclaimedmembership" class="c5">
 				<option value="">(select what best describes your organization&rsquo;s membership/grassroots)</option>
-				{% for v in org_cm %}
-				<option value="{{v}}">{{v}}</option>
+				{% for k, v in org_cm %}
+				<option value="{{k}}">{{v}}</option>
 				{% endfor %}
 			</select>
 			<div id="errorlabel_orgclaimedmembership" class="error"> </div>

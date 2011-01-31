@@ -29,7 +29,8 @@
 
 	<div class="col_6 col_top">
 		<div class="block referred_quote_{% if comment.position == '+' %}endorse{% else %}opposed{% endif %}">
-			<p class="commenter">{{comment.user.username}} from {{comment.address.statename}}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district commented {{comment.updated|date2}} that {{comment.address.heshe}}  {{comment.verb}} {{bill.displaynumber}}:</p>
+			<p class="commenter">{{comment.user.username}} from {{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}
+			commented {{comment.updated|date2}} that {{comment.address.heshe}}  {{comment.verb}} {{bill.displaynumber}}:</p>
 			{% if comment.message %}
 				{{comment.message|wraplines:"p"}}
 			{% else %}

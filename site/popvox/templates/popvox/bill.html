@@ -316,7 +316,7 @@ function getshorturl() {
 		{% endif %}
 	
 		<div id="billstatus" style="display: none" class="tab_panel">
-			<h3>Bill Status</h3>
+			<h3 class="no_rule">Bill Status</h3>
 			
 			{% if bill.sponsor %}
 			<div id="sponsor">
@@ -338,7 +338,7 @@ function getshorturl() {
 		{% for position, orgset in orgs.items %}
 			<div id="orgs{{position}}" {% if welcome_tabname or forloop.counter >= 2 %}style="display: none"{% endif %} class="tab_panel">
 	
-				<h3>
+				<h3 class="no_rule">
 					{% if position == "support" %}Endorsing Organizations{% endif %}
 					{% if position == "oppose" %}Opposing Organizations{% endif %}
 					{% if position == "neutral" %}Other Statements{% endif %}
