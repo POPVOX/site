@@ -12,7 +12,7 @@ from settings import RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY
 from settings import APP_NICE_SHORT_NAME
 
 def captcha_html(error = None):
-	return recaptcha.client.captcha.displayhtml(RECAPTCHA_PUBLIC_KEY, error = error)
+	return recaptcha.client.captcha.displayhtml(RECAPTCHA_PUBLIC_KEY, error = error, use_ssl=True)
 
 def validate_captcha(request):
 	# This may have to be the last check in a form because if the captcha succeeds, the user
