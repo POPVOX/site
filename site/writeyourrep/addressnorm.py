@@ -43,7 +43,10 @@ def verify_adddress(address):
 		if hasattr(address, a) and getattr(address, a).lower() != ret[b].lower():
 			setattr(address, a, ret[b])
 	
-	address.congressionaldistrict = int(ret["LegislativeInfo"]["CongressionalDistrictNumber"])
+	if ret["LegislativeInfo"]["CongressionalDistrictNumber"] == "AL":
+		address.congressionaldistrict = 0
+	else:
+		address.congressionaldistrict = int(ret["LegislativeInfo"]["CongressionalDistrictNumber"])
 	address.state_legis_upper = ret["LegislativeInfo"]["StateLegislativeUpper"]
 	address.state_legis_lower = ret["LegislativeInfo"]["StateLegislativeLower"]
 	address.latitude = float(ret["GeoLocationInfo"]["AvgLatitude"])
