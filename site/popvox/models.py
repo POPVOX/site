@@ -659,10 +659,14 @@ class UserOrgRole(models.Model):
 		return self.org.name
 
 class UserLegStaffRole(models.Model):
+	def lazy_choices():
+		for item in [(x["id"], x["name"]) for x in govtrack.getCommitteeList()]:
+			yield item
+	
 	user = models.OneToOneField(User, related_name="legstaffrole", db_index=True)
 	member = models.IntegerField(blank=True, null=True, db_index=True)
 	committee = models.CharField(max_length=7, blank=True, null=True, db_index=True,
-		choices = [(x["id"], x["name"]) for x in govtrack.getCommitteeList()])
+		choices = lazy_choices())
 	position = models.CharField(max_length=50)
 	class Meta:
 		verbose_name = "legislative staff role"
