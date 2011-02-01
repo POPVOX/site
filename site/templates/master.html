@@ -173,8 +173,11 @@
 				{% endif %}
 			</ul>
 			<div id="search_head">
-				<input type="text" value="" name="q" class="search" id="billsearch_q"><br />
-				<input type="submit" value="Search" class="submit_search btn">
+				<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
+					<input type="text" value="" name="q" class="search" id="master_billsearch_q"><br />
+					<input type="submit" value="Search" class="submit_search btn">
+					<script>$('#master_billsearch_q').input_default("bill number or keywords");</script>
+				</form>
 			</div>
 			{% endblock %}
 			{% if user.is_authenticated %}
