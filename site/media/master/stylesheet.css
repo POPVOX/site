@@ -122,13 +122,14 @@ body.grid {
 		}
 		
 	ul#nav_2 {
-		width: 850px;
+		width: 600px;
 		height: 35px;
 		display: block;
 		margin-left: 0px;
 		clear: both;		
 		background: url(bg_nav_divide.gif) left top no-repeat;
 		padding-left: 2px;
+		float: left;
 		}
 		
 		#nav_2 li {
@@ -150,12 +151,43 @@ body.grid {
 			text-transform: uppercase;
 		}
 		
-		
 			#nav_2 li a:hover, #nav_2 li.active a {
 				background: url(bg_nav2_active.png) center top no-repeat;
 				color: #e47816;
 				}
 				
+/* ----search in the header of each page---- */
+
+	#search_head {
+		float: left;
+		display: block;
+		width: 235px;
+		height: 30px;
+		margin-left: 20px;
+		}
+
+	#search_head input {
+		background: url("bg_search_head.png") left top no-repeat;
+		width: 172px;
+		height: 20px;
+		float: left;
+		margin: 2px 0 0 10px;
+		border: none;
+		}
+		
+		#search_head .submit_search {
+			background: #333 url("b_search_head.png") left top no-repeat;
+			width: 20px;
+			height: 20px;
+			margin: -13px 0 0 2px;
+			border: 0;
+			float: left;
+			}
+			
+			#search_head .submit_search:hover {
+				background-position: left bottom;
+				}
+
 	#whoami {
 		width: 600px;
 		height: 20px;

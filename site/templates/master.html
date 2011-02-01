@@ -172,6 +172,10 @@
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
 				{% endif %}
 			</ul>
+			<div id="search_head">
+				<input type="text" value="" name="q" class="search" id="billsearch_q"><br />
+				<input type="submit" value="Search" class="submit_search btn">
+			</div>
 			{% endblock %}
 			{% if user.is_authenticated %}
 			<div id="whoami">
