@@ -562,6 +562,7 @@ class UserProfile(models.Model):
 
 	allow_mass_mails = models.BooleanField(default=True)
 	registration_followup_sent = models.BooleanField(default=False)
+	registration_welcome_sent = models.BooleanField(default=False)
 	
 	issues = models.ManyToManyField(IssueArea, blank=True)
 	tracked_bills = models.ManyToManyField(Bill, blank=True, related_name="trackedby")

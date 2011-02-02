@@ -1,2 +1,3 @@
 MAILTO=josh@popvox.com
  10 2,8 * * * nice /home/www/sources/scripts/daily.sh
+ 20 *   * * * nice /home/www/sources/scripts/hourly.sh
