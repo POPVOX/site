@@ -3,12 +3,14 @@ from django.db.models import F
 
 import random
 from datetime import datetime, date, timedelta
+from time import time
 
 from models import *
 
 from adserver.uasparser import UASparser  
 uas_parser = UASparser(update_interval = None)
 
+from settings import SITE_ROOT_URL
 
 def select_banner(adformat, targets, ad_trail):
 	# Select a banner to show and return the banner and the display CPM and CPC prices.
@@ -89,21 +91,8 @@ def select_banner(adformat, targets, ad_trail):
 		# Remnant advertisers and 0 max cost orders have no limit.
 		if remnant or banner.order.maxcostperday == None or banner.order.maxcostperday == 0:
 			break
-			
-		# To perform rate limiting, we look at the last (up to) 2 ImpressionBlocks.
-		imprs = ImpressionBlock.objects.filter(banner__in=banner.order.banners.all()).order_by('-date')[0:2]
-		if len(imprs) == 0:
-			# If there are no impressions yet, obviously there is nothing to limit.
-			break
 		
-		# And get the total cost of the impressions per day from the earliest
-		# impression (the start of its day) till now.
-		d = imprs[len(imprs)-1].date
-		td = datetime.now() - datetime(d.year, d.month, d.day)
-		td = float(td.seconds)/float(24 * 3600) + float(td.days)
-		totalcost = sum([im.cost() for im in imprs])
-		numimpressions = sum([im.impressions for im in imprs])
-		costperday = totalcost / td
+		costperday, totalcost, td = banner.order.rate_limit_info() # note that these could come back all 0.0
 		
 		# When the recent realized cost hits the rate limit, we allow no new impressions.
 		if costperday >= banner.order.maxcostperday:
@@ -111,8 +100,9 @@ def select_banner(adformat, targets, ad_trail):
 			
 		# Otherwise we randomly drop impressions with a probability proportional
 		# to how close we are to the rate limit. This should spread out the ad
-		# impressions.
-		elif random.uniform(0.0, 1.0) < costperday/banner.order.maxcostperday:
+		# impressions. Square the probability so that when we are far from the
+		# rate limit we drop fewer ads.
+		elif random.uniform(0.0, 1.0) < (costperday/banner.order.maxcostperday)**2:
 			banner = None # clear field and continue looking for a banner
 		
 		else:		
@@ -194,7 +184,7 @@ def show_banner(format, request, context, targets, path):
 	ua = uas_parser.parse(request.META["HTTP_USER_AGENT"])
 	if ua == None or ua["typ"] == "Robot": # if we can't tell, or if we know it's a bot
 		return Template(format.fallbackhtml).render(context)
-
+		
 	# Prepare the list of ads we've served to this user recently. Prune the list
 	# of ads not seen in two days, which is the maximum.
 	if hasattr(request, "session"):
@@ -227,6 +217,7 @@ def show_banner(format, request, context, targets, path):
 	b, cpm, cpc = selection
 	
 	# Create a SitePath object.
+	path = path[0:SitePath.MAX_PATH_LENGTH] # truncate before get_or_create or it will create duplicates if it gets truncated by mysql
 	sp, isnew = SitePath.objects.get_or_create(path=path)
 							
 	# Create an ImpressionBlock.
@@ -246,10 +237,12 @@ def show_banner(format, request, context, targets, path):
 		)
 	
 	# Create a unique object for this impression.
+	timestamp = str(int(time()))
 	im = Impression()
 	im.set_code()
 	im.block = imb
 	im.cpccost = cpc
+	im.targeturl = b.get_target_url(timestamp)
 	im.save()
 	
 	# Clear out old impressions (maybe do this not quite so frequently?).
@@ -269,9 +262,11 @@ def show_banner(format, request, context, targets, path):
 	context.push()
 	try:
 		context.update({
+			"SITE_ROOT_URL": SITE_ROOT_URL,
 			"banner": b,
 			"impression": im,
 			"impressionblock": imb,
+			"imageurl": b.get_image_url(timestamp),
 			"cpm": cpm,
 			"cpc": cpc,
 			})

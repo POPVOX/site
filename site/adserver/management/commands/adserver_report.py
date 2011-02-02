@@ -46,14 +46,20 @@ class Command(BaseCommand):
 			print "\tImpressions:", info["impressions"]
 			print "\tClicks:", info["clicks"], "(CTR: ", str(round(10000*info["clicks"]/info["impressions"])/100.0) + "%)"
 			print "\tSale:", "$" + str(round(info["cost"]*100)/100.0)
-
+			
+			# Status of rate limiting...
+			if not order.advertiser.remnant and order.maxcostperday != None and order.maxcostperday > 0:
+				costperday, totalcost, td = order.rate_limit_info()
+				print "\tCurrent Rate Limit:", "$" + str(round(totalcost*100.0)/100.0), "in", round(td*10.0)/10.0, "days ($" + str(round(costperday*100.0)/100.0) + "/day);", "Max=$" + str(order.maxcostperday)
+				
+		
 		print
 		print "Paths"
 		print "====="
 		paths = list(paths.items())
 		paths.sort(key = lambda x : -x[1]["cost"])
 		for path, info in paths[0:20]:
-			print path.path.ljust(30), "\timpr:", info["impressions"], "clicks:", info["clicks"], "ctr:", str(round(10000*info["clicks"]/info["impressions"])/100.0) + "%", "$" + str(round(info["cost"]*100)/100.0)
+			print path.path.ljust(SitePath.MAX_PATH_LENGTH), "impr:", info["impressions"], "clicks:", info["clicks"], "ctr:", str(round(10000*info["clicks"]/info["impressions"])/100.0) + "%", "$" + str(round(info["cost"]*100)/100.0)
 			
 		print
 		print "Dates"

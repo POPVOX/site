@@ -1,7 +1,6 @@
 from django.db import models
 
 from datetime import datetime, timedelta
-from time import time
 import random
 
 class Format(models.Model):
@@ -134,7 +133,31 @@ class Order(models.Model):
 		ret = list(ret)
 		ret.sort()
 		return ", ".join(ret)
-	
+		
+	def rate_limit_info(self):
+		# Look at impressions in the last two days...
+		imprs = ImpressionBlock.objects.filter(banner__in=self.banners.all(), date__gte=datetime.now()-timedelta(days=1))
+		
+		# Get the first impression date (i.e. today or yesterday) and the total
+		# cost of the impressions in this range.
+		impr_info = imprs.extra(select={"firstdate": "min(date)", "cost": "sum(impressions*cpmcost/1000 + clickcost)"}).values("firstdate", "cost")
+		
+		if len(impr_info) == 0: # no impressions yet
+			return 0.0, 0.0, 0.0
+			
+		# Compute the fraction of the number of days from midnight on the
+		# earliest impression day in this range (since we don't have a time)
+		# until now.
+		d = impr_info[0]["firstdate"]
+		td = datetime.now() - datetime(d.year, d.month, d.day)
+		td = float(td.seconds)/float(24 * 3600) + float(td.days)
+		
+		# Compute the corresponding cost-per-day in this range.
+		totalcost = impr_info[0]["cost"]
+		costperday = totalcost / td
+		
+		return costperday, totalcost, td
+			
 class Banner(models.Model):
 	"""A Banner is text or an image provided by an advertiser."""
 	order = models.ForeignKey(Order, db_index=True, related_name = "banners", help_text="The advertisement order that this banner is a part of.")
@@ -158,16 +181,19 @@ class Banner(models.Model):
 	def __unicode__(self):
 		return self.order.advertiser.name + " - " + self.name
 		
-	def get_image_url(self):
+	def get_image_url(self, timestamp):
 		# This is a convenience function that abstracts over whether the image is stored
 		# locally or remotely. Also, if the image is stored remotely we replace [timestamp]
 		# in the URL with a numeric time stamp to block any caching.
 		if self.imageurl != None:
-			return imageurl.replace("[timestamp]", str(int(time())))
-		elif self.image != None and self.image.url() != None:
-			return self.image.url()
+			return self.imageurl.replace("[timestamp]", timestamp)
+		elif self.image != None and self.image.url != None:
+			return self.image.url
 		else:
 			return None
+
+	def get_target_url(self, timestamp):
+		return self.targeturl.replace("[timestamp]", timestamp)
 		
 	def compute_ctr(self):
 		# For new banners, we have to make up a CTR. In order to give new
@@ -247,7 +273,8 @@ class Banner(models.Model):
 class SitePath(models.Model):
 	"""A SitePath is a local address on the website, used to aggregate impressions
 	for statistical purposes."""
-	path = models.CharField(max_length=32)
+	MAX_PATH_LENGTH = 32
+	path = models.CharField(max_length=MAX_PATH_LENGTH, db_index=True, unique=True)
 	def __unicode__(self):
 		return self.path
 
@@ -286,6 +313,7 @@ class Impression(models.Model):
 	code = models.CharField(max_length=CODE_LENGTH, db_index=True)
 	block = models.ForeignKey(ImpressionBlock)
 	cpccost = models.FloatField(default=0)
+	targeturl = models.CharField(max_length=128)
 	
 	def set_code(self):
 		self.code = ''.join(random.choice(("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")) for x in range(Impression.CODE_LENGTH))
