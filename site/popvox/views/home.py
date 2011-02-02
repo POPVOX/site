@@ -542,8 +542,10 @@ def activity(request):
 			
 			# for admins only....
 			"count_users": User.objects.all().count(),
+			"count_legstaff": UserLegStaffRole.objects.all().count() - 1, # minus one for our demo acct
 			"count_users_verified": pntv,
 			"count_comments": UserComment.objects.all().count(),
+			"count_comments_messages": UserComment.objects.filter(message__isnull=False).count(),
 			"count_orgs": Org.objects.filter(createdbyus=False).count(),
 		}, context_instance=RequestContext(request))
 	
