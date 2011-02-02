@@ -1,3 +1,5 @@
+/* @override https://www.popvox.com:777/media/master/stylesheet.css */
+
 /*
 
 
@@ -1513,6 +1515,7 @@ h3#reporttitle {
 ul.ul_tags {
 	margin-bottom: 10px;
 	font-size: 12px;
+	width:  610px;;
 	}
 	
 .ul_tags li {
@@ -1538,10 +1541,24 @@ ul.ul_tags {
 	}
 
 .content .tab_panel h4 {
-	margin: 0;
-	padding: 10px 0 5px;
+	margin: 3px 0;
+	padding: 3px 0 0px 15px;
 	border-bottom: 1px solid #D4D1CA;
+	color:  #404045;
+	background: url(bg_h4_panel.gif) left bottom no-repeat;
 	}
+	
+	.content .tab_panel .col_4_5 h4 {
+		background: none;
+		padding-left: 0;
+		}
+		
+.content .tab_panel .col_4_5 {
+	margin: 0 20px 0 10px;
+	width: 320px;
+	float: left;
+	padding-top: 15px;
+	}		
 	
 .tab_panel, .content .tab_panel p {
 	font-size: 12px;
@@ -1555,6 +1572,11 @@ ul.ul_tags {
 	background: #bcb7b1;
 	padding: 0 2px;
 	line-height: 18px;
+	}
+	
+.content .tab_panel p.view_report {
+	background: url("bg_hr.png") repeat-x left bottom;
+	margin: 0 0 10px;
 	}
 	
 	.content .tab_panel p span.username {
@@ -1578,10 +1600,15 @@ ul.ul_tags {
 		text-decoration: none;
 		}
 
+a.a_bold_cap {
+	font-weight: bold;
+	text-transform: uppercase;
+	padding-bottom: 10px;
+	}
+
 .tracked_detail {
 	background: url(bg_hr.png) left bottom repeat-x;
 	}
-
 
 thead th {
 	text-transform: lowercase;
@@ -1593,21 +1620,26 @@ tr.bill td {
 	background: url(bg_hr.png) left bottom repeat-x;
 	font-size: 12px;
 	}
+	
 	tr.bill td.expando {
 		cursor: pointer;
 		}
+		
 tr.bill:hover td {
 	background-color: #d9d6d2;
 	}
+	
 tr.bill.active td {
 	background-color: #d8d6d0;
 	border: none;
 	}
+	
 tr.billdetails.active td {
 	background-color: #d9d6d2;
 	border-bottom: 1px dotted #666;
-	border-top: 1px solid #E8E5DF;
+	padding-bottom: 10px;
 	}
+	
 tr.bill.active:hover td {
 	background-color: #d8d6d0;
 	}
@@ -1615,6 +1647,7 @@ tr.bill.active:hover td {
 tr.bill td a {
 	color: #404045;
 	}
+	
 tr.bill td a:hover {
 	border: 0;
 	color: #D07B2E;
@@ -3669,6 +3702,7 @@ ul.staff, .small {
 		text-align: center;
 		padding: 0px 0;
 		margin-top: -36px;
+		background: #E8E5DF;
 		}
 		
 		.col_ad h4 {
@@ -3682,6 +3716,10 @@ ul.staff, .small {
 		
 		.col_ad div {
 			margin-bottom: 20px;
+			}
+			
+		.advertisement {
+			background: #E8E5DF;
 			}
 			
 	.bg_endorse {
