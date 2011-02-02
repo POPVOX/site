@@ -50,8 +50,8 @@ class Command(BaseCommand):
 			# Status of rate limiting...
 			if not order.advertiser.remnant and order.maxcostperday != None and order.maxcostperday > 0:
 				costperday, totalcost, td = order.rate_limit_info()
-				print "\tCurrent Rate Limit:", "$" + str(round(totalcost*100.0)/100.0), "in", round(td*10.0)/10.0, "days ($" + str(round(costperday*100.0)/100.0) + "/day);", "Max=$" + str(order.maxcostperday)
-				
+				print "\tCurrent Rate Limit:", "$" + str(round(costperday*100.0)/100.0) + "/day", "($" + str(round(totalcost*100.0)/100.0), "in", round(td*10.0)/10.0, "days)", "/", "$" + str(order.maxcostperday) + "/day"
+
 		
 		print
 		print "Paths"

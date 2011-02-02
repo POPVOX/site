@@ -71,6 +71,7 @@ def select_banner(adformat, targets, ad_trail):
 	
 	# Because of rate limiting, we can't just take the top banner.
 	banner = None
+	rate_limit = 0
 	while len(banners) > 0:
 		banner, bid = banners.pop(0)
 		remnant = banner.order.advertiser.remnant
@@ -92,20 +93,59 @@ def select_banner(adformat, targets, ad_trail):
 		if remnant or banner.order.maxcostperday == None or banner.order.maxcostperday == 0:
 			break
 		
+		# Determine the recent expenditure.
 		costperday, totalcost, td = banner.order.rate_limit_info() # note that these could come back all 0.0
+
+		rate_limit = (costperday/banner.order.maxcostperday)**2
 		
 		# When the recent realized cost hits the rate limit, we allow no new impressions.
-		if costperday >= banner.order.maxcostperday:
+		if (costperday/banner.order.maxcostperday)**2 >= 1.0:
 			banner = None # clear field and continue looking for a banner
 			
 		# Otherwise we randomly drop impressions with a probability proportional
 		# to how close we are to the rate limit. This should spread out the ad
 		# impressions. Square the probability so that when we are far from the
 		# rate limit we drop fewer ads.
-		elif random.uniform(0.0, 1.0) < (costperday/banner.order.maxcostperday)**2:
+		#
+		# If we kept track of how often we were dropping ads, we would be
+		# able to know exactly how often to drop ads so that we hit the exact
+		# daily budget. Lacking that information, we take some reasonable guess.
+		#
+		# The above rate_limit formulation has the beneficial property that as the
+		# available inventory grows much greater than the impressions this order
+		# can fill within budget, say at a ratio of 5:1 or more, then the
+		# resulting probability of displaying this banner in the current ad slot
+		# approaches that ratio in the limit, which is perfect.
+		#
+		# In the other direction when the user has uselessly specified a budget
+		# far greater than the amount of inventory we can sell, the probability
+		# converges on 1 (i.e. use up as much inventory as we can) as the budget
+		# increases. When the budget is 5 times the inventory or more, the
+		# computed probability is close to 1.
+		#
+		# The problem comes when the budget is specified close to the inventory
+		# available, i.e. between five times less than the budget to five times
+		# greater than the budget. In this range, the computed probability
+		# falls short of what is needed to actually fulfill the budget.
+		# The worst case is when the budget is equal to the inventory, at which point
+		# we'd actually sell only 62% of the inventory even though the advertiser
+		# would pay for all of it!
+		#
+		# If there are multiple advertisers at the same bid the problem is reduced,
+		# but not eliminated. The first buyer would get 62% of the inventory.
+		# The next buyer would get 62% of the remaining inventory (24%),
+		# and so on.
+		# 
+		# This is determined by noting that the cost per day will roughly
+		# be the probability of showing this ad (P) times the total inventory available (R).
+		# Let C be the realized cost per day and B the max cost per day (the budget).
+		# By the formula below P=1-(C/B)^2, and thus P=1 - (PR/B)^2. This
+		# can be solved with the quadratic formula, and plotted in Matlab, i.e.:
+		# Plot[{-0.5 x^2 + Sqrt[x^2 + 0.25 x^4], min(x,1)}, {x, 0, 1}] 
+		elif random.uniform(0.0, 1.0) < rate_limit:
 			banner = None # clear field and continue looking for a banner
 		
-		else:		
+		else:
 			# If we got this far, accept the banner.
 			break
 	
@@ -124,7 +164,7 @@ def select_banner(adformat, targets, ad_trail):
 	
 	# If there are no additional bidders then there is no cost because there is no competition.
 	if len(banners) == 0:
-		return banner, 0.0, 0.0
+		return banner, 0.0, 0.0, rate_limit
 		
 	# There are two bid types and this leads to some complications on how to charge
 	# the advertiser. First, we only charge based on the bid type(s) actually placed.
@@ -173,7 +213,7 @@ def select_banner(adformat, targets, ad_trail):
 		else:
 			cpccost = 0.0
 	
-	return banner, cpmcost, cpccost
+	return banner, cpmcost, cpccost, rate_limit
 
 def show_banner(format, request, context, targets, path):
 	# Select a banner to show and return the HTML code.
@@ -214,7 +254,7 @@ def show_banner(format, request, context, targets, path):
 	if selection == None:
 		return Template(format.fallbackhtml).render(context)
 	
-	b, cpm, cpc = selection
+	b, cpm, cpc, r = selection
 	
 	# Create a SitePath object.
 	path = path[0:SitePath.MAX_PATH_LENGTH] # truncate before get_or_create or it will create duplicates if it gets truncated by mysql
@@ -233,7 +273,9 @@ def show_banner(format, request, context, targets, path):
 		cpmcost = (F('cpmcost')*F('impressions') + cpm) / (F('impressions') + 1),
 	
 		# add an impression
-		impressions = F('impressions') + 1
+		impressions = F('impressions') + 1,
+
+		ratelimit_sum = F('ratelimit_sum') + r,
 		)
 	
 	# Create a unique object for this impression.

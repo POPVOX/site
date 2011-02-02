@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from django.template.defaultfilters import escapejs
 
+import re
+
 from models import *
 from adselection import show_banner
 
@@ -14,7 +16,13 @@ def banner(request, formatid):
 	targets = [get_object_or_404(Target, key=target)
 		for target in request.GET.get("target", "").split(",") if target != ""]
 	
-	html = show_banner(format, request, RequestContext(request), targets, request.META.get('HTTP_REFERER', '-'))
+	# In the database, store the path where the banner is shown based
+	# on the HTTP_REFERER, but to save space in the field translate
+	# http://www.example.com/abc to example.com::abc.
+	path = request.META.get('HTTP_REFERER', '-')
+	path = re.sub(r"^https?://(www\.)?([^/:]+)(:\d+)?", r"\2::", path)
+
+	html = show_banner(format, request, RequestContext(request), targets, path)
 	
 	if request.GET.get("method", '') == "":
 		response = HttpResponse(html, mimetype="text/html")

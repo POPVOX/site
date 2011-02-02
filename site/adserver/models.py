@@ -81,7 +81,7 @@ class Order(models.Model):
 		ordering = ('-updated',)
 
 	def __unicode__(self):
-		return self.advertiser.name + " " + str(self.id)
+		return self.advertiser.name + "; O#" + str(self.id)
 		
 	def save(self):
 		# Set the active flag based on the run dates.
@@ -136,7 +136,7 @@ class Order(models.Model):
 		
 	def rate_limit_info(self):
 		# Look at impressions in the last two days...
-		imprs = ImpressionBlock.objects.filter(banner__in=self.banners.all(), date__gte=datetime.now()-timedelta(days=1))
+		imprs = ImpressionBlock.objects.filter(banner__in=self.banners.all(), date__gte=datetime.now()-timedelta(days=2))
 		
 		# Get the first impression date (i.e. today or yesterday) and the total
 		# cost of the impressions in this range.
@@ -290,6 +290,7 @@ class ImpressionBlock(models.Model):
 	impressions = models.IntegerField(default=0) # total number of impressions
 	clickcost = models.FloatField(default=0) # total cost attributed to clicks (not per click)
 	clicks = models.IntegerField(default=0)
+	ratelimit_sum = models.FloatField(default=0) # sum of rate limits in effect at each impression (only recorded when an impression is made); divide by impressions to get the average rate limit; it is the probability of not displaying an ad
 	class Meta:
 		unique_together = (("banner", "path", "date"),)
 	
