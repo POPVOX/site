@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.views.generic.simple import direct_to_template
 from django.core.cache import cache
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
 from django.db.models import Count
 from django.db.models.query import QuerySet
@@ -688,4 +688,22 @@ def get_calendar_agenda2(chamber, agenda=None, prefix=None):
 			dstart = dstart + timedelta(days=1)
 		
 	return agenda
+
+@user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
+def waiting_for_reintroduction(request):
+	bills = { }
+	
+	# Quickly find non-staff users tracking any bill introduced in a previous congress.
+	for user in UserProfile.objects.filter(tracked_bills__congressnumber__lt = popvox.govtrack.CURRENT_CONGRESS, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct(): # weird that we need a distinct here
+		for bill in user.tracked_bills.filter(congressnumber__lt = popvox.govtrack.CURRENT_CONGRESS).distinct():
+			if not bill in bills:
+				bills[bill] = [ ]
+			bills[bill].append(user)
+	
+	bills = list(bills.items())
+	bills.sort(key = lambda kv : len(kv[1]), reverse = True)
+	
+	return render_to_response('popvox/waiting_for_reintroduction.html', {
+		"bills": bills,
+		}, context_instance=RequestContext(request))
 	

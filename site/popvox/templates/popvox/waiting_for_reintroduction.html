@@ -1,0 +1,20 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Users Waiting for Bill Reintroduction{% endblock%}
+{% block content %}
+	<h1>Bills from a Previous Congress that Users are Tracking</h1>	
+
+	{% for bill, users in bills %}
+	
+		<h3><a href="{{bill.url}}">{{bill.title|truncatewords:20}}</a></h3>
+		
+		<p><strong>{{users|length}} users tracking this bill</strong></p>
+		
+		{% for user in users %}
+			<div>{{user.user.email}}</div>
+		{% endfor %}
+	
+	{% endfor %}
+
+{% endblock %}
+
