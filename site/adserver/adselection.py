@@ -10,15 +10,19 @@ from adserver.uasparser import UASparser
 uas_parser = UASparser(update_interval = None)
 
 
-def select_banner(adformat, targets, exclude):
+def select_banner(adformat, targets, ad_trail):
 	# Select a banner to show and return the banner and the display CPM and CPC prices.
 	
 	banners = adformat.banners.filter(active=True, order__active=True) \
-		.exclude(id__in = exclude) \
 		.select_related("order") \
 		.order_by() # clear default ordering which loads up the Advertiser object
 		
 	target_ids = [t.id for t in targets]
+
+	ad_trail_dict = { }
+	if ad_trail != None:
+		for banner_id, last_display_time in ad_trail:
+			ad_trail_dict[banner_id] = last_display_time
 	
 	# Remove banners that do not match the targetting.
 	def matches_targets(banner):
@@ -67,10 +71,23 @@ def select_banner(adformat, targets, exclude):
 	banner = None
 	while len(banners) > 0:
 		banner, bid = banners.pop(0)
+		remnant = banner.order.advertiser.remnant
+		
+		# Check the ad frequency against the time of the last display.
+		# Remnant ads should never appear in ad_trail_dict but we'll check anyway.
+		if banner.id in ad_trail_dict and not remnant:
+			if banner.order.period != None:
+				period = timedelta(hours=banner.order.period)
+			else:
+				period = timedelta(seconds=20)
+			if datetime.now() - ad_trail_dict[banner.id] < period:
+				# clear field and continue looking for a banner
+				banner = None
+				continue
 		
 		# Apply rate limiting based on the max cost per day.
 		# Remnant advertisers and 0 max cost orders have no limit.
-		if banner.order.advertiser.remnant or banner.order.maxcostperday == 0:
+		if remnant or banner.order.maxcostperday == None or banner.order.maxcostperday == 0:
 			break
 			
 		# To perform rate limiting, we look at the last (up to) 2 ImpressionBlocks.
@@ -178,12 +195,13 @@ def show_banner(format, request, context, targets, path):
 	if ua == None or ua["typ"] == "Robot": # if we can't tell, or if we know it's a bot
 		return Template(format.fallbackhtml).render(context)
 
-	# Prepare the list of ads we've served to this user recently.
+	# Prepare the list of ads we've served to this user recently. Prune the list
+	# of ads not seen in two days, which is the maximum.
 	if hasattr(request, "session"):
 		if not "adserver_trail" in request.session:
 			request.session["adserver_trail"] = []
 		request.session["adserver_trail"] = [t for t in request.session["adserver_trail"]
-			if datetime.now() - t[1] < timedelta(seconds=20)]
+			if datetime.now() - t[1] < timedelta(days=2)]
 	
 	# Besides the targets specified in the template tag, additionally apply
 	# templates stored in the session key and context variable
@@ -202,7 +220,7 @@ def show_banner(format, request, context, targets, path):
 		targets += [make_target2(t) for t in context["adserver-targets"]]
 	
 	# Find the best banner to run here.
-	selection = select_banner(format, targets, [t[0] for t in request.session["adserver_trail"]] if hasattr(request, "session") else None)
+	selection = select_banner(format, targets, request.session["adserver_trail"] if hasattr(request, "session") else None)
 	if selection == None:
 		return Template(format.fallbackhtml).render(context)
 	

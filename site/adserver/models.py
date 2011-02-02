@@ -1,6 +1,7 @@
 from django.db import models
 
 from datetime import datetime, timedelta
+from time import time
 import random
 
 class Format(models.Model):
@@ -69,6 +70,7 @@ class Order(models.Model):
 	cpmbid = models.FloatField(null=True, blank=True, verbose_name="CPM Bid", help_text="The cost-per-thousand impressions bid price in dollars. If both the CPM bid and the CPC bid are used, the higher of the two is used.")
 	cpcbid = models.FloatField(null=True, blank=True, verbose_name="CPC Bid", help_text="The cost-per-click bid price in dollars. If both the CPM bid and the CPC bid are used, the higher of the two is used.")
 	maxcostperday = models.FloatField(default=0, verbose_name="Max Cost/Day", help_text="The maximum dollar amount the advertiser wants to spend on this order per day. This field is ignored for remnant advertisers.")
+	period = models.FloatField(null=True, blank=True, verbose_name="The minimum time between ad displays to the same visitor (i.e. the reciprocal of the ad frequency), in hours, or null to use the default period (currently 20 seconds). The maximum is two days (48 hours): any value above two days is treated as two days.")
 	targets = models.TextField(blank=True, null=True, help_text="Criteria to target the advertisement to. Separate target keys by spaces or new lines. One target must match on each line. Leave blank for run-of-site advertising.")
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
@@ -142,7 +144,8 @@ class Banner(models.Model):
 	notes = models.TextField(blank=True)
 	textline1 = models.CharField(max_length=128, blank=True, null=True, verbose_name="Text Line 1", help_text="The first line of text for text-format ads or alternate text for image-format ads.")
 	textline2 = models.CharField(max_length=128, blank=True, null=True, verbose_name="Text Line 2", help_text="The second line of text for text-format ads.")
-	image = models.ImageField(upload_to="adserver/banners", blank=True, null=True, help_text="The image, for image-format ads.")
+	image = models.ImageField(upload_to="adserver/banners", blank=True, null=True, help_text="The image, for locally-uploaded image-format ads.")
+	imageurl = models.CharField(max_length=128, blank=True, null=True, verbose_name="image URL", help_text="The URL to load the image from, for remote-stored image-format ads.")
 	html = models.TextField(blank=True, null=True, verbose_name="Override HTML Code", help_text="Django template HTML for this banner to override the ad format's default template. If set, the image and text fields are ignored.")
 	targeturl = models.URLField(verbose_name="Target URL", help_text="The destination URL for the ad.")
 	created = models.DateTimeField(auto_now_add=True)
@@ -154,6 +157,17 @@ class Banner(models.Model):
 		
 	def __unicode__(self):
 		return self.order.advertiser.name + " - " + self.name
+		
+	def get_image_url(self):
+		# This is a convenience function that abstracts over whether the image is stored
+		# locally or remotely. Also, if the image is stored remotely we replace [timestamp]
+		# in the URL with a numeric time stamp to block any caching.
+		if self.imageurl != None:
+			return imageurl.replace("[timestamp]", str(int(time())))
+		elif self.image != None and self.image.url() != None:
+			return self.image.url()
+		else:
+			return None
 		
 	def compute_ctr(self):
 		# For new banners, we have to make up a CTR. In order to give new
