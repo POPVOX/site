@@ -68,10 +68,21 @@ class MemberOfCongress(models.Model):
 			return govtrack.getMemberOfCongress(self.id)["party"]
 		else:
 			return "?"
+	
+	# Make sure there is a record for every Member of Congress.
+	@classmethod
+	def init_members(clz):
+		existing_id_set = [x["id"] for x in MemberOfCongress.objects.all().values("id")]
+		for px in govtrack.getMembersOfCongress():
+			if not px["id"] in existing_id_set:
+				obj, new = MemberOfCongress.objects.get_or_create(id=px["id"])
+				if new:
+					print "Initializing new Member of Congress:", obj
+MemberOfCongress.init_members()
 
 class CongressionalCommittee(models.Model):
 	"""A congressional committee or subcommittee."""
-	code = models.CharField(max_length=8)
+	code = models.CharField(max_length=8, unique=True, db_index=True)
 	def __unicode__(self):
 		return self.code + u" " + self.name()
 	def name(self):
@@ -80,6 +91,17 @@ class CongressionalCommittee(models.Model):
 		return govtrack.getCommittee(self.code)["shortname"]
 	def abbrevname(self):
 		return govtrack.getCommittee(self.code)["abbrevname"]
+		
+	# Make sure there is a record for every committee.
+	@classmethod
+	def init_committees(clz):
+		existing_id_set = [x["code"] for x in CongressionalCommittee.objects.all().values("code")]
+		for cx in govtrack.getCommitteeList():
+			if not cx["id"] in existing_id_set:
+				obj, new = CongressionalCommittee.objects.get_or_create(code=cx["id"])
+				if new:
+					print "Initializing new committee:", obj
+CongressionalCommittee.init_committees()
 
 class Bill(models.Model):
 	"""A bill in Congress."""
@@ -661,33 +683,27 @@ class UserOrgRole(models.Model):
 		return self.org.name
 
 class UserLegStaffRole(models.Model):
-	def lazy_choices():
-		for item in [(x["id"], x["name"]) for x in govtrack.getCommitteeList()]:
-			yield item
-	
 	user = models.OneToOneField(User, related_name="legstaffrole", db_index=True)
-	member = models.IntegerField(blank=True, null=True, db_index=True)
-	committee = models.CharField(max_length=7, blank=True, null=True, db_index=True,
-		choices = lazy_choices())
+	member = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, db_column="member")
+	committee = models.ForeignKey(CongressionalCommittee, blank=True, null=True, db_index=True, to_field="code", db_column="committee")
 	position = models.CharField(max_length=50)
 	class Meta:
 		verbose_name = "legislative staff role"
 	def __unicode__(self):
-		return self.user.username + " - " + (
-			govtrack.getMemberOfCongress(self.member)["name"] if self.member != None else "n/a") + " - " + (self.committee if self.committee != None else "n/a") + ", " + self.position
+		return self.user.username + " - " + (self.member.name() if self.member != None else "n/a") + " - " + (self.committee.name() if self.committee != None else "n/a") + ", " + self.position
 	def as_string(self):
 		ret = []
 		if self.member != None:
-			ret.append( govtrack.getMemberOfCongress(self.member)["name"] )
+			ret.append( self.member.name() )
 		if self.committee != None:
-			ret.append( govtrack.getCommittee(self.committee)["shortname"] )
+			ret.append( self.committee.shortname() )
 		ret.append( self.position )
 		return ", ".join(ret)
 	def bossname(self):
-		return govtrack.getMemberOfCongress(self.member)["name"]
+		return self.member.name()
 	def chamber(self):
 		if self.member != None:
-			member = govtrack.getMemberOfCongress(self.member)
+			member = govtrack.getMemberOfCongress(self.member_id)
 			if not member["current"]:
 				return None
 			elif member["type"] == "rep":
@@ -695,8 +711,8 @@ class UserLegStaffRole(models.Model):
 			else:
 				return "S"
 		elif self.committee != None:
-			if self.committee[0] in ("H", "S"): # but not J
-				return self.committee[0]
+			if self.committee.code[0] in ("H", "S"): # but not J
+				return self.committee.code[0]
 		return None
 		
 class MemberPositionDocument(models.Model):

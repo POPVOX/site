@@ -250,8 +250,8 @@ sorry for the inconvenience.)"""
 			# so we don't require approval for this role.
 			role = UserLegStaffRole()
 			role.user = user
-			role.member = self.member
-			role.committee = self.committee
+			role.member = MemberOfCongress.objects.get(id=self.member) if self.member != None else None
+			role.committee = CongressionalCommittee.objects.get(code=self.committee) if self.committee != None else None
 			role.position = self.position
 			role.save()
 			
@@ -502,20 +502,20 @@ def account_profile_update(request, field, value, validate_only):
 	elif field == "member":
 		# TODO: Validate
 		value = int(value) if value != "" else None
+		role = request.user.legstaffrole
+		role.member = MemberOfCongress.objects.get(id=value) if value != None else None
 		if validate_only:
 			return { "status": "success" }
-		role = request.user.legstaffrole
-		role.member = value
 		role.save()
 		return { "status": "success", "value": value }
 	elif field == "committee":
 		# TODO: Validate
-		if validate_only:
-			return { "status": "success" }
 		if value == "":
 			value = None
 		role = request.user.legstaffrole
-		role.committee = value
+		role.committee = CongressionalCommittee.objects.get(code=value) if value != None else None
+		if validate_only:
+			return { "status": "success" }
 		role.save()
 		return { "status": "success", "value": value }
 	elif field == "position":

@@ -1032,7 +1032,7 @@ def get_default_statistics_context(user):
 	default_district = None
 	if user.is_authenticated():
 		if user.userprofile.is_leg_staff():
-			member = govtrack.getMemberOfCongress(user.legstaffrole.member)
+			member = govtrack.getMemberOfCongress(user.legstaffrole.member_id)
 			if member["current"]:
 				default_state = member["state"]
 				if member["type"] == "rep":

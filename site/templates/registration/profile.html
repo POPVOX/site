@@ -94,7 +94,7 @@
 	<select id="member" class="c5">
 		<option value="">(Select If Applicable)</option>
 		{% for c in mocs %}
-		<option value="{{c.id}}" {% if c.id == user.legstaffrole.member %}selected="1"{% endif %}>{{c.sortkey}}</option>
+		<option value="{{c.id}}" {% if c.id == user.legstaffrole.member_id %}selected="1"{% endif %}>{{c.sortkey}}</option>
 		{% endfor %}
 	</select>
 	<div id="errorlabel_member" class="error"></div>
@@ -104,7 +104,7 @@
 	<select id="committee"class="c5">
 		<option value="">(Select If Applicable)</option>
 		{% for c in committees %}
-		<option value="{{c.id}}" {% if c.id == user.legstaffrole.committee %}selected="1"{% endif %}>{{c.name}}</option>
+		<option value="{{c.id}}" {% if c.id == user.legstaffrole.committee.code %}selected="1"{% endif %}>{{c.name}}</option>
 		{% endfor %}
 	</select>
 	<small>If you are committee staff, choose the committee you work for.</small>

@@ -43,7 +43,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			
 	boss = user.legstaffrole.member
 	if boss != None:
-		bossname = popvox.govtrack.getMemberOfCongress(boss)["name"]
+		bossname = boss.name()
 	else:
 		bossname = ""
 	
@@ -60,13 +60,13 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			"id": "sponsor",
 			"type": "sponsor",
 			"name": "Sponsored by " + bossname,
-			"shortname": popvox.govtrack.getMemberOfCongress(boss)["lastname"],
+			"shortname": boss.lastname(),
 			"bills": select_bills(sponsor = boss)
 			})
 
 	localbills = get_legstaff_district_bills(user)
 	if localbills != None and len(localbills) > 0:
-		moc = popvox.govtrack.getMemberOfCongress(boss)
+		moc = popvox.govtrack.getMemberOfCongress(boss.id)
 		d = moc["state"] + ("" if moc["type"] == "sen" else "-" + str(moc["district"]))
 		suggestions.append({
 			"id": "local",
@@ -78,31 +78,26 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 		
 	committeename = ""
 	if user.legstaffrole.committee != None:
-		cx = None
-		try:
-			cx = CongressionalCommittee.objects.get(code=user.legstaffrole.committee)
-		except:
-			pass
-		if cx != None:
-			name = popvox.govtrack.getCommittee(user.legstaffrole.committee)["name"]
-			shortname = popvox.govtrack.getCommittee(user.legstaffrole.committee)["abbrevname"]
-			committeename = popvox.govtrack.getCommittee(user.legstaffrole.committee)["shortname"]
+		cx = user.legstaffrole.committee
+		name = cx.name()
+		shortname = cx.abbrevname()
+		committeename = cx.shortname()
 
-			suggestions.append({
-				"id": "committeereferral",
-				"type": "committeereferral",
-				"name": "Referred to the " + name,
-				"shortname": shortname + " (Referral)",
-				"bills": select_bills(committees = cx)
-				})
+		suggestions.append({
+			"id": "committeereferral",
+			"type": "committeereferral",
+			"name": "Referred to the " + name,
+			"shortname": shortname + " (Referral)",
+			"bills": select_bills(committees = cx)
+			})
 
-			suggestions.append({
-				"id": "committeemember",
-				"type": "committeemember",
-				"name": "Introduced by a Member of the " + name,
-				"shortname": shortname + " (Member)",
-				"bills": select_bills(sponsor__in = govtrack.getCommittee(user.legstaffrole.committee)["members"])
-				})
+		suggestions.append({
+			"id": "committeemember",
+			"type": "committeemember",
+			"name": "Introduced by a Member of the " + name,
+			"shortname": shortname + " (Member)",
+			"bills": select_bills(sponsor__in = govtrack.getCommittee(user.legstaffrole.committee.code)["members"])
+			})
 
 	for ix in prof.issues.all():
 		suggestions.append({
@@ -235,7 +230,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			for b in s["bills"]:
 				if b.congressnumber != popvox.govtrack.CURRENT_CONGRESS:
 					ix = str(b.congressnumber) + popvox.govtrack.ordinate(b.congressnumber) +  " Congress"
-				elif s["type"] != "sponsor" and b.sponsor_id != None and b.sponsor_id == boss:
+				elif s["type"] != "sponsor" and b.sponsor_id != None and b.sponsor_id == boss.id:
 					ix = "Sponsored by " + bossname
 				elif (s["type"] != "issue" or s["issue"].parent != None) and b.topterm != None:
 					ix = b.topterm.name
@@ -261,7 +256,7 @@ def get_legstaff_district_bills(user):
 	if user.legstaffrole.member == None:
 		return []
 
-	member = govtrack.getMemberOfCongress(user.legstaffrole.member)
+	member = govtrack.getMemberOfCongress(user.legstaffrole.member_id)
 	if not member["current"]:
 		return []
 	
@@ -461,7 +456,7 @@ def docket(request):
 
 	member = None
 	if request.user.legstaffrole.member != None:
-		member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
+		member = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
 	return render_to_response('popvox/home_legstaff.html',
 		{
 			"districtstr":
@@ -563,7 +558,7 @@ def activity_getinfo(request):
 	can_see_user_details = False
 	if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 		if request.user.legstaffrole.member != None:
-			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member)
+			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
 			if member != None and member["current"]:
 				if state == member["state"] and (member["type"] == "sen" or district == member["district"]):
 					can_see_user_details = True
@@ -617,13 +612,9 @@ def calendar(request):
 	return render_to_response('popvox/legcalendar.html', {
 		}, context_instance=RequestContext(request))
 
-def get_legstaff_district_bills(user):
-	if user.legstaffrole.member == None:
-		return []
-
 def get_calendar_agenda(user):
 	chamber = user.legstaffrole.chamber()
-	if chamber != None:
+	if chamber in ("H", "S"):
 		agenda = get_calendar_agenda2(chamber)
 	else:
 		agenda = get_calendar_agenda2("H", prefix="House")
