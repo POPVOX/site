@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.core.cache import cache
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.contrib.humanize.templatetags.humanize import ordinal
 
 import os
 from datetime import datetime, timedelta
@@ -782,6 +783,17 @@ class PostalAddress(models.Model):
 	def statename(self):
 		return govtrack.statenames[self.state]
 
+	def nicelocation(self):
+		ret = govtrack.statenames[self.state]
+		if self.congressionaldistrict > 0:
+			 ret += "'s " + ordinal(self.congressionaldistrict) + " District"
+		else:
+			ret += " At Large"
+		ret += ", represented by " + ", ".join(
+			[x["name"] for x in govtrack.getMembersOfCongressForDistrict(self.state + str(self.congressionaldistrict))]
+			)
+		return ret
+		
 class UserComment(models.Model):
 	"""A comment by a user on a bill."""
 	
@@ -860,4 +872,5 @@ class UserComment(models.Model):
 					return "opposed the reintroduction of"
 				elif tense=="ing":
 					return "opposing the reintroduction of"
+
 

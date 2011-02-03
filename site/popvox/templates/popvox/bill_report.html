@@ -367,6 +367,7 @@
 		</div>
 	</div>
 	
+	{% if not bot_comments %}
 	<div class="section clearfix"> 
 		<div class="col_6 rule"> 
 			<div class="comments"> 
@@ -381,10 +382,11 @@
 			</div> 
 		</div> 
 	</div><!-- e: section -->
+	{% endif %}
 
 	{% for c in bot_comments %}
 		<div class="comment">
-			<h4><span class="username">{{c.user.username}}</span> <span class="location">{{c.address.state}}</span><span class="date">, {{c.created}}</span></h4>
+			<h4><span class="username">{{c.user.username}}</span> <span class="location">{{c.address.nicelocation}}</span><span class="date">, {{c.created}}</span></h4>
 			<p>{{c.message}}</p>
 		</div>
 	{% endfor %}

@@ -235,7 +235,7 @@ def bill_comments(bill, plusminus, **filterargs):
 				ret[k] = v
 		return ret
 	
-	return bill.usercomments.filter(position=plusminus, **filter_null_args(filterargs))
+	return bill.usercomments.filter(position=plusminus, **filter_null_args(filterargs)).select_related("user", "address")
 
 def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
 	# If any of the filters is None, meaning it is based on demographic info
@@ -1066,7 +1066,7 @@ def billreport(request, congressnumber, billtype, billnumber):
 			lst.append(pos.campaign.org)
 
 	bot_comments = []
-	if hasattr(request, "ua") and request.ua["typ"] in "Robot":
+	if hasattr(request, "ua") and (request.ua["typ"] in "Robot" or request.ua["ua_family"] in "cURL"):
 		limit = 50
 		pro_comments = bill_comments(bill, "+").filter(message__isnull = False)[0:limit]
 		con_comments = bill_comments(bill, "-").filter(message__isnull = False)[0:limit]
