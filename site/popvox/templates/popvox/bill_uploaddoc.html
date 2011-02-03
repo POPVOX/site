@@ -12,6 +12,7 @@
 		curtab = tab;
 		
 		tinyMCE.execCommand("mceRemoveControl", false, "doctext");
+		$('#doctitle, #doctext, #doclink').val('');
 		$('#doctitle, #doctext, #doclink, #submitbutton').attr('disabled', 1);
 		
 		$.ajax({
@@ -19,7 +20,6 @@
 			url: "/ajax/bills/getdoc",
 			data: {
 				"billid": {{bill.id}},
-				"member": {{user.legstaffrole.member}},
 				"doctype": curtab
 			},
 			complete: function(res, status) {
@@ -27,11 +27,7 @@
 				tinyMCE.execCommand("mceAddControl", false, "doctext");
 				
 				res = eval("[" + res.responseText + "]")[0];
-				if (res.status == "doesnotexist") {
-					$('#doctitle').val('');
-					$('#doctext').val('');
-					$('#doclink').val('');
-				} else {
+				if (res.status != "doesnotexist") {
 					$('#doctitle').val(res.title);
 					$('#doctext').val(res.text);
 					$('#doclink').val(res.link);
@@ -82,12 +78,13 @@
 
 	<div class="col_3">
 		<ul class="tab_tab">
-			<li id="tab_pressrelease"><a href="#" onclick="return showtab('pressrelease')">Press Release</a></li>
-			<li id="tab_introstatement"><a href="#" onclick="return showtab('introstatement')">Introductory Statement</a></li>
-			<li id="tab_dearcolleague"><a href="#" onclick="return showtab('dearcolleague')">Dear Colleague</a></li>
-			<li id="tab_other"><a href="#" onclick="return showtab('other')">Other Document</a></li>
+			{% for typeid, typename in types %}
+			<li id="tab_{{typeid}}"><a href="#" onclick="return showtab({{typeid}})">{{typename}}</a></li>
+			{% if forloop.first %}
+				<script>$(function() { showtab({{typeid}}); });</script>
+			{% endif %}
+			{% endfor %}
 		</ul>
-		<script>$(function() { showtab('pressrelease'); });</script>
 	</div>
 	
 	<div class="tab_pane">

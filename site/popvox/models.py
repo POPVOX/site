@@ -56,7 +56,11 @@ class IssueArea(models.Model):
 		
 class MemberOfCongress(models.Model):
 	"""A Member of Congress or former member."""
+	
 	# The primary key is the GovTrack ID.
+	
+	documents = models.ManyToManyField("PositionDocument", blank=True)
+
 	def __unicode__(self):
 		return unicode(self.id) + u" " + self.name()
 	def name(self):
@@ -319,6 +323,8 @@ class Org(models.Model):
 	visible = models.BooleanField(default=False)
 	createdbyus = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	
+	documents = models.ManyToManyField("PositionDocument", blank=True)
 	
 	class Meta:
 			verbose_name = "organization"
@@ -715,10 +721,9 @@ class UserLegStaffRole(models.Model):
 				return self.committee.code[0]
 		return None
 		
-class MemberPositionDocument(models.Model):
-	member = models.IntegerField(blank=True, null=True, db_index=True)
-	bill = models.ForeignKey(Bill, related_name="memberpositions", db_index=True)
-	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (99, 'Other')])
+class PositionDocument(models.Model):
+	bill = models.ForeignKey(Bill, related_name="documents", db_index=True)
+	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter of Support"), (4, "Coalition Letter"), (99, 'Other')])
 	title = models.CharField(max_length=128)
 	text = tinymce_models.HTMLField(blank=True) #models.TextField()
 	link = models.URLField(blank=True, null=True)

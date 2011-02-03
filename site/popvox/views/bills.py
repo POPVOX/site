@@ -8,6 +8,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import cache_page
 from django.template.defaultfilters import truncatewords
+from django.utils.html import strip_tags
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
 
@@ -1187,62 +1188,55 @@ def getbillshorturl(request):
 def uploaddoc(request, congressnumber, billtype, billnumber):
 	if request.user.is_anonymous():
 		raise Http404()
-	if not request.user.userprofile.is_leg_staff():
-		raise Http404()
-	if request.user.legstaffrole.member == None:
+	elif request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
+		types = ((0, "Press Release"), (1, "Introductory Statement"), (2, "Dear Colleague"), (99, "Other Document"))
+	else:
 		raise Http404()
 		
 	bill = getbill(congressnumber, billtype, billnumber)
-	return render_to_response('popvox/legstaff_post_position.html', {
+	return render_to_response('popvox/bill_uploaddoc.html', {
+			'types': types,
 			'bill': bill,
 		}, context_instance=RequestContext(request))
 
 @json_response
 def getdoc(request):
-	bill = get_object_or_404(Bill, id=request.POST["billid"])
-	
-	if "member" in request.POST:
-		if request.POST["doctype"] == "pressrelease":
-			doctype = 0
-		elif request.POST["doctype"] == "introstatement":
-			doctype = 1
-		elif request.POST["doctype"] == "dearcolleague":
-			doctype = 2
-		elif request.POST["doctype"] == "other":
-			doctype = 99
-		else:
-			raise ValueError("Invalid doc type.")
+	if request.user.is_anonymous():
+		raise Http404()
+	elif request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
+		docs = request.user.legstaffrole.member.documents
+	else:
+		raise Http404()
 		
-		try:
-			doc = MemberPositionDocument.objects.get(
-				member = int(request.POST["member"]),
-				bill = bill,
-				doctype = doctype)
-			return { "title": doc.title, "text": doc.text, "link": doc.link, "updated": doc.updated.strftime("%x") }
-		except:
-			return { "status": "doesnotexist" }
+	bill = get_object_or_404(Bill, id=request.POST["billid"])
+	doctype = int(request.POST["doctype"])
+
+	try:
+		doc = docs.get(bill = bill, doctype = doctype)
+		return { "title": doc.title, "text": doc.text, "link": doc.link, "updated": doc.updated.strftime("%x") }
+	except:
+		return { "status": "doesnotexist" }
 
 @json_response
 def uploaddoc2(request):
 	if request.user.is_anonymous():
 		raise Http404()
-	if not request.user.userprofile.is_leg_staff():
-		raise Http404()
-	if request.user.legstaffrole.member == None:
-		raise Http404()
-	bill = get_object_or_404(Bill, id=request.POST["billid"])
-	
-	if request.POST["doctype"] == "pressrelease":
-		doctype = 0
-	elif request.POST["doctype"] == "introstatement":
-		doctype = 1
-	elif request.POST["doctype"] == "dearcolleague":
-		doctype = 2
-	elif request.POST["doctype"] == "other":
-		doctype = 99
+	elif request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
+		docs = request.user.legstaffrole.member.documents
 	else:
-		raise ValueError("Invalid doc type.")
-		
+		raise Http404()
+	
+	bill = get_object_or_404(Bill, id=request.POST["billid"])
+	doctype = int(request.POST["doctype"])
+	
+	if request.POST.get("title", "").strip() == "" and strip_tags(request.POST.get("text", "")).strip() == "" and request.POST.get("link", "").strip() == "":
+		try:
+			doc = docs.get(bill = bill, doctype = doctype)
+			doc.delete()
+		except:
+			pass
+		return { "status": "success" }
+
 	title = forms.CharField(min_length=5, max_length=128, error_messages = {'min_length': "The title is too short.", "max_length": "The title is too long.", "required": "The title is required."}).clean(request.POST.get("title", "")) # raises ValidationException
 		
 	text = forms.CharField(min_length=100, max_length=2048, error_messages = {'min_length': "The body text is too short.", "max_length": "The body text is too long.", "required": "The document text is required."}).clean(request.POST.get("text", "")) # raises ValidationException
@@ -1254,8 +1248,7 @@ def uploaddoc2(request):
 	link = forms.URLField(required=False, verify_exists = True).clean(link) # raises
 	
 	if request.POST["validate"] != "validate":
-		doc, is_new = MemberPositionDocument.objects.get_or_create(
-			member = request.user.legstaffrole.member,
+		doc, is_new = docs.get_or_create(
 			bill = bill,
 			doctype = doctype)
 		doc.title = title

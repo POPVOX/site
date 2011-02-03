@@ -42,8 +42,8 @@ admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)
 admin.site.register(UserOrgRole, UserOrgRoleAdmin)
 admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
-admin.site.register(MemberPositionDocument)
 admin.site.register(PostalAddress)
+admin.site.register(PositionDocument)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html']
