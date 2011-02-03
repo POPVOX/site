@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Sum
 
 from adserver.models import *
 
@@ -13,9 +14,9 @@ class Command(BaseCommand):
 		enddate = datetime.now().date()
 		pathprefix = ""
 		
-		if len(args) >= 1:
+		if len(args) >= 1 and args[0] not in ("", "."):
 			startdate = args[0]
-		if len(args) >= 2:
+		if len(args) >= 2 and args[1] not in ("", "."):
 			enddate = args[1]
 		if len(args) >= 3:
 			pathprefix = args[2]
@@ -49,9 +50,16 @@ class Command(BaseCommand):
 			
 			# Status of rate limiting...
 			if not order.advertiser.remnant and order.maxcostperday != None and order.maxcostperday > 0:
-				costperday, totalcost, td = order.rate_limit_info()
-				print "\tCurrent Rate Limit:", "$" + str(round(costperday*100.0)/100.0) + "/day", "($" + str(round(totalcost*100.0)/100.0), "in", round(td*10.0)/10.0, "days)", "/", "$" + str(order.maxcostperday) + "/day"
-
+				totalcost, td, impressions, recent_drop_rate = order.rate_limit_info()
+				print "\tCurrent Daily Rate:", "$" + str(round(totalcost/td*100.0)/100.0) + "/day", "($" + str(round(totalcost*100.0)/100.0), "in", round(td*10.0)/10.0, "days)", "of", "$" + str(order.maxcostperday) + "/day max"
+				
+				# Compute the ad drop rate according to the formulation in adselection.py.
+				drop_rate = 1.0 - order.maxcostperday * ((td / totalcost) * (1.0 - recent_drop_rate))
+				if drop_rate < 0.0: drop_rate = 0.0
+				drop_rate_2 = ((totalcost/td) / (order.maxcostperday)) ** 2
+				if drop_rate_2 > 1.0: drop_rate_2 = 1.0
+				if drop_rate > drop_rate_2: drop_rate = drop_rate_2
+				print "\tDrop Rate:", round(drop_rate, 2)
 		
 		print
 		print "Paths"

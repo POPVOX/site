@@ -68,7 +68,7 @@ def select_banner(adformat, targets, ad_trail):
 	
 	# Because of rate limiting, we can't just take the top banner.
 	banner = None
-	rate_limit = 0
+	drop_rate = 0.0
 	while len(banners) > 0:
 		banner, bid = banners.pop(0)
 		remnant = banner.order.advertiser.remnant
@@ -90,61 +90,81 @@ def select_banner(adformat, targets, ad_trail):
 		if remnant or banner.order.maxcostperday == None or banner.order.maxcostperday == 0:
 			break
 		
-		# Determine the recent expenditure.
-		costperday, totalcost, td = banner.order.rate_limit_info() # note that these could come back all 0.0
-
-		rate_limit = (costperday/banner.order.maxcostperday)**2
+		# Determine the recent expenditure over about the last two days. Note
+		# that these values could come back all 0.0 if we haven't had any impressions
+		# yet, or if the ad is CPC based and we haven't had a click. We're getting:
+		#   totalcost = total cost of impressions over about the last two days
+		#   td = the actual amount of time over which the totalcost was spread, in days
+		#   impressions = the number of impressions in this time
+		#   recent_drop_rate = the average drop_rate for all of those impressions
+		totalcost, td, impressions, recent_drop_rate = banner.order.rate_limit_info()
 		
-		# When the recent realized cost hits the rate limit, we allow no new impressions.
-		if (costperday/banner.order.maxcostperday)**2 >= 1.0:
-			banner = None # clear field and continue looking for a banner
-			
-		# Otherwise we randomly drop impressions with a probability proportional
-		# to how close we are to the rate limit. This should spread out the ad
-		# impressions. Square the probability so that when we are far from the
-		# rate limit we drop fewer ads.
-		#
-		# If we kept track of how often we were dropping ads, we would be
-		# able to know exactly how often to drop ads so that we hit the exact
-		# daily budget. Lacking that information, we take some reasonable guess.
-		#
-		# The above rate_limit formulation has the beneficial property that as the
-		# available inventory grows much greater than the impressions this order
-		# can fill within budget, say at a ratio of 5:1 or more, then the
-		# resulting probability of displaying this banner in the current ad slot
-		# approaches that ratio in the limit, which is perfect.
-		#
-		# In the other direction when the user has uselessly specified a budget
-		# far greater than the amount of inventory we can sell, the probability
-		# converges on 1 (i.e. use up as much inventory as we can) as the budget
-		# increases. When the budget is 5 times the inventory or more, the
-		# computed probability is close to 1.
-		#
-		# The problem comes when the budget is specified close to the inventory
-		# available, i.e. between five times less than the budget to five times
-		# greater than the budget. In this range, the computed probability
-		# falls short of what is needed to actually fulfill the budget.
-		# The worst case is when the budget is equal to the inventory, at which point
-		# we'd actually sell only 62% of the inventory even though the advertiser
-		# would pay for all of it!
-		#
-		# If there are multiple advertisers at the same bid the problem is reduced,
-		# but not eliminated. The first buyer would get 62% of the inventory.
-		# The next buyer would get 62% of the remaining inventory (24%),
-		# and so on.
-		# 
-		# This is determined by noting that the cost per day will roughly
-		# be the probability of showing this ad (P) times the total inventory available (R).
-		# Let C be the realized cost per day and B the max cost per day (the budget).
-		# By the formula below P=1-(C/B)^2, and thus P=1 - (PR/B)^2. This
-		# can be solved with the quadratic formula, and plotted in Matlab, i.e.:
-		# Plot[{-0.5 x^2 + Sqrt[x^2 + 0.25 x^4], min(x,1)}, {x, 0, 1}] 
-		elif random.uniform(0.0, 1.0) < rate_limit:
-			banner = None # clear field and continue looking for a banner
-		
-		else:
-			# If we got this far, accept the banner.
+		# If we haven't had any spend yet, accept the ad.
+		if totalcost == 0.0:
 			break
+			
+		# Otherwise we randomly accept this ad for potential impressions according to
+		# some probability accept_rate. The accept_rate would ideally be precisely the
+		# ratio of the order's maxcostperday to the total daily cost if we filled all
+		# impressions with this ad (bounded at 1.0, of course, if the order wants more
+		# ads than we can fill). Obviously we don't know how many relevant impressions
+		# are going to come, so we have to predict something appropriate.
+		#
+		# The simplest approach would be to accept this ad with a probability of
+		#     accept_rate = 1.0 - ((totalcost/td)/maxcostperday)^2
+		#     [in python: accept_rate = 1.0 - ((totalcost/td)/banner.order.maxcostperday)**2 ]
+		# i.e. based on the ratio of recent ad spend to the spending target. The closer
+		# we are to the target, the fewer ads we accept going forward.
+		#
+		# This formulation always under-estimates the right accept_rate, but it comes
+		# close in the extremes: when the order's maxcostperday is either very
+		# small (< 1/5th of the inventory available), or much larger (i.e. the order
+		# has specified a rate limit 5x times what we can fulfill). But when the order's
+		# limit is not extreme, the computed probability falls short of what is needed
+		# to actually fulfill the budget. The worst case is when the budget is equal to the
+		# inventory, at which point we'd actually sell only 62% of the inventory even
+		# though the advertiser would pay for all of it! This is determined by setting
+		# (totalcost/td) to accept_rate*inventory*CPI and then solving for accept_rate.
+		#
+		# If only we knew what the available inventory is! Each time we display an
+		# ad we save the 1.0 - accept_rate that we used when selecting that ad,.
+		# which we've just gotten back as recent_drop_rate. Using the number of actual
+		# impressions we can infer the daily inventory that had recently been available:
+		#     recent_inventory = impressions / (1 - recent_drop_rate)
+		#     daily_inventory = recent_inventory / td
+		# Then we can determine the total cost if we filled this ad for the entire daily
+		# inventory (i.e. daily_inventory * CPI, where CPI = totalcost/impressions):
+		#    total_daily_inventory_cost = (totalcost/(1 - recent_drop_rate))/td
+		# Finally the accept_rate is the ratio as indicated at the start, maxcostperday
+		# to the total daily inventory cost, and the drop_rate is one minus that.
+		
+		drop_rate = 1.0 - banner.order.maxcostperday * ((td / totalcost) * (1.0 - recent_drop_rate))
+		
+		# What if the order wants more than we can fill? drop_rate will be less than zero.
+		# For our sanity, let's set a lower bound of drop_rate on zero. This won't affect
+		# what we do with it here, but it will affect what we store for later, and then later
+		# we will get back 0.0 for recent_drop rate. The effect will be that we estimate
+		# the daily inventory to be exactly the recent inventory...
+		if drop_rate < 0.0: drop_rate = 0.0
+		
+		# There is a small chance the drop_rate could reach and be sustained at 1.0. Once
+		# the recent_drop_rate reaches 1.0, drop_rate will be equal to 1.0 and there is no
+		# hope to ever display this ad again. To prevent this, we will upper-bound the drop
+		# rate with the "simple" drop_rate calculation discussed above which always over-
+		# estimates the ideal drop_rate but is not susceptible to getting stuck because
+		# it will always be less than 1.0 so long as the recent ad spend rate is less than
+		# the order's maximum.
+		drop_rate_2 = ((totalcost/td) / (banner.order.maxcostperday)) ** 2
+		if drop_rate_2 > 1.0: drop_rate_2 = 1.0
+		if drop_rate > drop_rate_2:
+			drop_rate = drop_rate_2
+		
+		if drop_rate > 0.0 and random.uniform(0.0, 1.0) < drop_rate:
+			banner = None # clear field and continue looking for a banner
+			continue
+		
+		# If we got this far, accept the banner.
+		break
 	
 	if banner == None:
 		return None
@@ -161,7 +181,7 @@ def select_banner(adformat, targets, ad_trail):
 	
 	# If there are no additional bidders then there is no cost because there is no competition.
 	if len(banners) == 0:
-		return banner, 0.0, 0.0, rate_limit
+		return banner, 0.0, 0.0, drop_rate
 		
 	# There are two bid types and this leads to some complications on how to charge
 	# the advertiser. First, we only charge based on the bid type(s) actually placed.
@@ -210,7 +230,7 @@ def select_banner(adformat, targets, ad_trail):
 		else:
 			cpccost = 0.0
 	
-	return banner, cpmcost, cpccost, rate_limit
+	return banner, cpmcost, cpccost, drop_rate
 
 def show_banner(format, request, context, targets, path):
 	# Select a banner to show and return the HTML code.

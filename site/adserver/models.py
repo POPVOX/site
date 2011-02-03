@@ -140,10 +140,15 @@ class Order(models.Model):
 		
 		# Get the first impression date (i.e. today or yesterday) and the total
 		# cost of the impressions in this range.
-		impr_info = imprs.extra(select={"firstdate": "min(date)", "cost": "sum(impressions*cpmcost/1000 + clickcost)"}).values("firstdate", "cost")
+		impr_info = imprs.extra(select={
+			"firstdate": "min(date)",
+			"cost": "sum(impressions*cpmcost/1000 + clickcost)",
+			"impressions": "sum(impressions)",
+			"rate_limit_sum": "sum(ratelimit_sum)",
+			}).values("firstdate", "cost", "impressions", "rate_limit_sum")
 		
 		if len(impr_info) == 0: # no impressions yet
-			return 0.0, 0.0, 0.0
+			return 0.0, 0.0, 0.0, 0L, 0.0
 			
 		# Compute the fraction of the number of days from midnight on the
 		# earliest impression day in this range (since we don't have a time)
@@ -154,9 +159,8 @@ class Order(models.Model):
 		
 		# Compute the corresponding cost-per-day in this range.
 		totalcost = impr_info[0]["cost"]
-		costperday = totalcost / td
 		
-		return costperday, totalcost, td
+		return totalcost, td, long(impr_info[0]["impressions"]), impr_info[0]["rate_limit_sum"] / float(impr_info[0]["impressions"])
 			
 class Banner(models.Model):
 	"""A Banner is text or an image provided by an advertiser."""
