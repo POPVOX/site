@@ -14,14 +14,14 @@
 
 	<h1>Bill Search</h1>
 	
-	<div class="block bill_search search_orange">
+	<div class="block bill_search search_orange search_wide">
 		<div class="search_box">
 			<p><strong>Bill Number or Keywords</p> 
 			{% include "popvox/billsearch_form.html" %}
 			{% if not is_leg_staff %}
-			<p class="help">Try the <a href="/orgs">Organization Directory</a> to find legislation endorsed or opposed by organizations you support.</p>
+			<small class="help">Try the <a href="/orgs">Organization Directory</a> to find legislation endorsed or opposed by organizations you support.</small>
 			{% else %}
-			<p class="help">We&rsquo;ll be adding more search methods in the future.</p>
+			<small class="help">We&rsquo;ll be adding more search methods in the future.</small>
 			{% endif %}
 		</div>
 	</div>
@@ -38,6 +38,8 @@
 	<p>The search function had an internal error.</p>
 	{% endif %}
 	
+	<div class="clear"> </div>
+	<h2>Your Search Results</h2>
 	<table width="100%">
 	{% for bill in bills %}
 		<tr class="bill">

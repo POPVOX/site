@@ -766,6 +766,10 @@ table.form_fields td {
 	width: 460px;
 	}
 	
+	.search_orange.search_wide {
+		
+		}
+	
 	.col_3 .search_orange .search_box {
 		width: 220px;
 		}
@@ -999,6 +1003,30 @@ h3#reporttitle {
 		margin-bottom: 10px;
 		}
 
+
+.map_dots {
+	display: block;
+	z-index: 1;
+	width: 6px;
+	height: 6px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	border-radius: 3px;
+	
+	}
+	
+.map_dots:hover {
+	z-index: 999 !important;
+	width: 10px !important;
+	height: 10px !important;
+	-moz-border-radius: 5px !important;
+	-webkit-border-radius: 5px !important;
+	-khtml-border-radius: 5px !important;
+	border-radius: 5px !important;
+	}
+	
+	
 /* ----org profile classes---- */
 
 	.orgprofile #pagetitle {

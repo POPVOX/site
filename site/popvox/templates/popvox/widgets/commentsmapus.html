@@ -44,7 +44,9 @@
 	
 		{% for district, count in data %}
 			<a href="{{bill.url}}/report#{{count.href}}" target="_top" title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.contention}}, {{count.coord.left}})" onmouseout="$('#infobox').hide()">
-				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px; width: 5px; height: 5px; background-color: {{count.color}}; border: 1px solid #aaa"> </div>
+				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px; width: 6px; height: 6px; background-color: {{count.color}}; border: 0px solid #aaa; -moz-border-radius: 3px; -webkit-border-radius: 3px; -khtml-border-radius: 3px; border-radius: 3px;"> </div>
+				
+				
 			</a>
 		{% endfor %}
 		
