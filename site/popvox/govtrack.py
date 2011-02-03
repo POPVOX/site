@@ -3,6 +3,7 @@
 CURRENT_CONGRESS = 112
 
 from django.core.cache import cache
+from django.core.cache.backends.filebased import CacheClass as FileBasedCache
 
 import os.path
 from urllib import urlopen, urlencode
@@ -42,58 +43,64 @@ def loadpeople():
 	if people != None:
 		return
 		
+	cache = FileBasedCache("/tmp/popvox/cache", { })
+		
 	people = cache.get("govtrack_people")
+	people_list = cache.get("govtrack_people_list")
 	senators = cache.get("govtrack_senators")
 	congresspeople = cache.get("govtrack_congresspeople")
-	if people != None:
+	if not None in (people, people_list, senators, congresspeople):
 		return
-	
+
 	people = { }
 	senators = { }
 	congresspeople = { }
 	#xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/people.xml"))
 	xml = minidom.parse(open_govtrack_file("us/people.xml"))
 	for node in xml.getElementsByTagName("person"):
-		people[int(node.getAttribute("id"))] = {
+		px = {
 			"id": int(node.getAttribute("id")),
 			"name": node.getAttribute("name"),
 			"lastname": node.getAttribute("lastname"),
 			"current": False,
 			"sortkey": node.getAttribute("lastname") + ", " + node.getAttribute("firstname") + " " + node.getAttribute("middlename")
 		}
+		people[int(node.getAttribute("id"))] = px
 				
 		for role in node.getElementsByTagName("role"):
 			# roles are in chronological order, so the last party sticks
 			if role.getAttribute("party") != "":
-				people[int(node.getAttribute("id"))]["party"] = role.getAttribute("party")[0]
+				px["party"] = role.getAttribute("party")[0]
 			else:
-				people[int(node.getAttribute("id"))]["party"] = "?"
+				px["party"] = "?"
 			
 			if role.getAttribute("current") == "1":
-				people[int(node.getAttribute("id"))]["current"] = True
-				people[int(node.getAttribute("id"))]["type"] = role.getAttribute("type")
-				people[int(node.getAttribute("id"))]["state"] = role.getAttribute("state")
-				people[int(node.getAttribute("id"))]["district"] = int(role.getAttribute("district")) if role.getAttribute("type") == "rep" else None
+				px["current"] = True
+				px["type"] = role.getAttribute("type")
+				px["state"] = role.getAttribute("state")
+				px["district"] = int(role.getAttribute("district")) if role.getAttribute("type") == "rep" else None
 			
 				if role.getAttribute("type") == "sen":
 					if not role.getAttribute("state") in senators:
 						senators[role.getAttribute("state")] = []
 					senators[role.getAttribute("state")].append(int(node.getAttribute("id")))
 					senators[role.getAttribute("state")].sort(key = lambda x : people[x]["sortkey"])
-					people[int(node.getAttribute("id"))]["sortkey"] += " (Senate)"
+					px["sortkey"] += " (Senate)"
 				
 				if role.getAttribute("type") == "rep":
 					congresspeople[role.getAttribute("state")+role.getAttribute("district")] = int(node.getAttribute("id"))
-					people[int(node.getAttribute("id"))]["sortkey"] += " (House)"
+					px["sortkey"] += " (House)"
 
 	people_list = [ ]
 	people_list.extend([p for p in people.values() if p["current"]])
 	people_list.sort(key = lambda x : x["sortkey"])
 
-	cache.set("govtrack_people", people)
-	cache.set("govtrack_senators", senators)
-	cache.set("govtrack_congresspeople", congresspeople)
+	cache.set("govtrack_people", people, 60*60*24) # one day
+	cache.set("govtrack_people_list", people_list, 60*60*24)
+	cache.set("govtrack_senators", senators, 60*60*24)
+	cache.set("govtrack_congresspeople", congresspeople, 60*60*24)
 
+	
 def getMembersOfCongress():
 	global people_list
 	loadpeople()
