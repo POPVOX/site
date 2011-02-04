@@ -65,9 +65,9 @@ class Record(models.Model):
 		unique_together = ["target_content_type", "target_object_id", "owner_content_type", "owner_object_id"]
 	
 	def __unicode__(self):
-		ret = unicode(self.target_content_type) + u" (" + unicode(self.target) + u")"
+		ret = unicode(self.target_content_type) + u" (" + unicode(self.target)[0:30] + u")"
 		if self.owner != None:
-			ret += u" <= " + unicode(self.owner_content_type) + u" (" + unicode(self.owner) + u")"
+			ret += u" <= " + unicode(self.owner_content_type) + u" (" + unicode(self.owner)[0:30] + u")"
 		#ret += u" (" + self.url() + u")"
 		return ret
 		

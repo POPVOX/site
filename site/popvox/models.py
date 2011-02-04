@@ -850,7 +850,7 @@ class UserComment(models.Model):
 			ordering = ["-updated"]
 			unique_together = (("user", "bill"),)
 	def __unicode__(self):
-		return self.user.username + " -- " + repr(self.message)
+		return self.user.username + " -- " + (self.message[0:40] if self.message != None else "NONE")
 
 	def get_absolute_url(self):
 		return self.bill.url() + "/comment/" + str(self.id)
@@ -896,4 +896,6 @@ class UserComment(models.Model):
 				elif tense=="ing":
 					return "opposing the reintroduction of"
 
-
+	def share_hits(self):
+		import shorturl
+		return shorturl.models.Record.objects.filter(target=self).aggregate(models.Sum("hits"))["hits__sum"]
