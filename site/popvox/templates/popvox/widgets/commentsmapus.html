@@ -1,12 +1,15 @@
 <html>
 	<head>
 		<title>Comments Map - United States - {{bill}}</title>
+		<link rel="stylesheet" href="/media/master/_map_style.css" type="text/css" media="screen" /> 
+
 		<style>
 			body {
 				margin: 0;
 				padding: 0;
 				background: url('/media/gis/map_background.png') no-repeat;
 			}
+			
 		</style>
 		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 		<script>
@@ -44,7 +47,7 @@
 	
 		{% for district, count in data %}
 			<a href="{{bill.url}}/report#{{count.href}}" target="_top" title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.contention}}, {{count.coord.left}})" onmouseout="$('#infobox').hide()">
-				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px; width: 6px; height: 6px; background-color: {{count.color}}; border: 0px solid #aaa; -moz-border-radius: 3px; -webkit-border-radius: 3px; -khtml-border-radius: 3px; border-radius: 3px;"> </div>
+				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"> </div>
 				
 				
 			</a>
@@ -53,7 +56,7 @@
 		<div style="position: absolute; left: 400px; top: 400px; font-size: 8pt; width: 201px; font-family: sans-serif">
 			{% for item in legend %}
 				<div style="float: left; width: 80px">
-					<div style="float: left; width: 10px; height: 10px; background-color: {{item.color}}; border: 1px solid #aaa; margin: 1px 3px 0 0"> </div>
+					<div class="dots_key {{count.class}}" style="float: left; margin: 1px 3px 0 0; width: 8px; height: 8px;	-moz-border-radius: 	6px; -webkit-border-radius: 	6px; -khtml-border-radius: 6px; border-radius: 6px;"> </div>
 					<div>{{item.label}}</div>
 				</div>
 			{% endfor %}

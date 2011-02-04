@@ -1,5 +1,3 @@
-/* @override https://www.popvox.com:777/media/master/stylesheet.css */
-
 /*
 
 
@@ -999,32 +997,15 @@ h3#reporttitle {
 		}
 
 
-	.cosponsor {
-		margin-bottom: 10px;
-		}
+	.cosponsor background:
+
+/* ----comment map----
+
+look in master/_map_style.css
+
+*/
 
 
-.map_dots {
-	display: block;
-	z-index: 1;
-	width: 6px;
-	height: 6px;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	-khtml-border-radius: 3px;
-	border-radius: 3px;
-	
-	}
-	
-.map_dots:hover {
-	z-index: 999 !important;
-	width: 10px !important;
-	height: 10px !important;
-	-moz-border-radius: 5px !important;
-	-webkit-border-radius: 5px !important;
-	-khtml-border-radius: 5px !important;
-	border-radius: 5px !important;
-	}
 	
 	
 /* ----org profile classes---- */

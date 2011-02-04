@@ -23,9 +23,6 @@ def bill_js(request):
 	}, context_instance=RequestContext(request))
 
 def commentmapus(request):
-	import colorsys
-	from math import sqrt
-	
 	bill = get_object_or_404(Bill, id=request.GET["bill"])
 	
 	# TODO: put this in the database
@@ -42,19 +39,10 @@ def commentmapus(request):
 		max_count = max(max_count, float(count[district]["+"] + count[district]["-"]))
 	
 	def chartcolor(sentiment, contention):
-		def colorhex(component):
-			ret = hex(int(255*component)).replace("0x", "")
-			while len(ret) < 2:
-				ret = "0" + ret
-			return ret
-			
-		return "#" + "".join([
-					colorhex(component) for component in
-					colorsys.hsv_to_rgb(
-						sentiment*.66,
-						contention,
-						1)
-				])
+		return "dot_clr_%d dot_sz_%d" % (
+			int(sentiment*4.9999) + 1,
+			int(contention*4.9999) + 1
+			)
 	
 	import widgets_usmap
 	mapscale = 720.0 / widgets_usmap.map_scale[0]
@@ -71,10 +59,11 @@ def commentmapus(request):
 		
 		count[district]["sentiment"] = count[district]["+"]/(count[district]["+"] + count[district]["-"])
 		count[district]["contention"] = (count[district]["+"] + count[district]["-"]) / max_count
+		count[district]["count"] = count[district]["+"] + count[district]["-"]
 		
 		# then to compute a color, we'll map sentiment to hue and contention to
 		# saturation, on an HSV color span
-		count[district]["color"] = chartcolor(count[district]["sentiment"], count[district]["contention"])
+		count[district]["class"] = chartcolor(count[district]["sentiment"], count[district]["contention"])
 			
 		count[district]["coord"] = { "left": int(widgets_usmap.district_locations[district][0]*mapscale),  "top": int(widgets_usmap.district_locations[district][1]*mapscale)-yoffset }
 		
@@ -92,7 +81,7 @@ def commentmapus(request):
 		
 		"legend":
 			[
-				{ "color": chartcolor(sentiment, contention), "label": label }
+				{ "class": chartcolor(sentiment, contention), "label": label }
 				for (sentiment, contention, label)
 				in [(0,1,"Oppose"), (0,.1, "Weak Opp."), (1,1, "Support"), (1, .1,  "Weak Supp."), (.5, 1, "Mixed"), (.5,.1, "Few Users")]
 			]
