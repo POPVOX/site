@@ -4,7 +4,7 @@
 	<a href="#" class="btn b_remove" onclick="if (confirm ('Are you sure you want to remove your position on this bill?')) delpos('{{cam.slug|escapejs}}', {{cam.id}}, {{position.id}}); return false;" title="Remove Bill From Agenda">remove</a>
 	{% endif %}
 	<div class="{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}{% if position.position == "0" %}neutral{% endif %}">
-		<h4><a href="{{position.bill.url}}{% if admin %}/report{% endif %}">{{ position.bill.title|truncatewords:25 }}</a></h4>
+		<h5><a href="{{position.bill.url}}{% if admin %}/report{% endif %}">{{ position.bill.title|truncatewords:25 }}</a></h5>
 		
 		<div id="campos_{{cam.id}}_{{position.id}}_comment" class="usercomment comment" {% if admin %}title="Click to Edit"{% endif %}>{% if position.comment %}{{position.comment|wraplines:"p"}}{% else %}{% if admin %}<em>No comment.</em>{% endif %}{% endif %}</div>
 				

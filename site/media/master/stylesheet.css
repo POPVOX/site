@@ -1261,6 +1261,13 @@ look in master/_map_style.css
 			
 			}
 			
+			div.endorse .bullets li a,
+			div.oppose .bullets li a,
+			div.neutral .bullets li a {
+				font-weight: normal;
+				color: #CC6A11;
+				}
+			
 			div.endorse a:hover,
 			div.oppose a:hover,
 			div.neutral a:hover {
