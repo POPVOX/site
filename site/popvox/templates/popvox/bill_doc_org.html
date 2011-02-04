@@ -1,0 +1,88 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% load humanize %}
+{% block title %}{{doc.title}} - {{ org.name }}{% endblock%}
+{%block nav_orgadmin_class_profile%}{%if admin%}active{%endif%}{%endblock%}
+{%block nav_orgadmin_class_orgs%}{%if not admin%}active{%endif%}{%endblock%}
+{%block nav_citzen_class_orgs%}active{%endblock%}
+{% block content %}
+<div class="orgprofile"> 
+	<div class="col_3 col_top profile_block">
+		<img id="profileimage" src="{% if org.logo %}{{org.logo.url}}{% else %}/media/master/grey.gif{% endif %}" alt="Profile Image" width="220" height="166" />
+		
+		{% if admin %}
+		<p class="edit"><a href="{{bill.url}}/upload?org={{org.slug}}#{{doc.doctype}}">EDIT DOCUMENT</a></p>
+		{% endif %}
+		
+		<h3 class="info">Info</h3>
+		
+		<p><a href="{{org.url}}">POPVOX Profile Page</a></p>
+		
+		<p><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></p>
+		
+		{% if org.website %}
+		<p><a href="{{org.website}}">{{org.website|niceurl}}</a></p>
+		{% endif %} 
+		
+		{% if org.postaladdress %}
+		<p class="address">{{org.postaladdress|wraplines:'div'}}</p>
+		{% endif %}
+		{% if org.phonenumber %}
+		<p class="address">{{org.phonenumber}}</p>
+		{% endif %}
+		
+		{% if org.contacts.all %}
+		<div class="block"> 
+			<h3>Contacts</h3>
+			
+			{% if admin or user.userprofile.is_leg_staff %}
+				<p>This information is shared only with Congressional legislative staff.</p>
+				<div class="point_people">
+				{% regroup org.contacts.all by issues.all as issues_list %}
+				{% for issue in issues_list %}
+				<h4>{{issue.grouper|join:','}}</h4> 
+				{% for contact in issue.list|dictsort:"name" %}
+					<div class="point_person">
+						{% comment %} <div class="headshot"> </div> {% endcomment %}
+						<h5>{{ contact.name }}</h5>
+						<h6>{{ contact.title }}</h6>
+						{% if not org.createdbyus %}<p class="staff_email"><a href="mailto:{{contact.email}}">{{contact.email}}</a></p>{% endif %}
+						<p class="staff_number">{{contact.phonenumber}}</p>
+					</div>
+				{% endfor %}
+				{% endfor %}
+				</div>
+			{% else %}
+				<p>This information is shared only with Congressional legislative staff. If you have a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> email address, <a href="/accounts/register/legstaff?next={{org.url}}">register</a> to get instant access to this information.</p>
+			{% endif %}
+		</div> 
+		{% endif %}
+	</div><!-- e: col_3 --> 
+	
+	<div class="col_6 col_top"> 
+		<div class="section_head">
+			<h1><a href="{{org.url}}">{{org.name}}</a></h1>
+			
+			<h3 class="no_rule">{{doc.title}}</h3>
+			<h4><a href="{{bill.url}}">{{bill.title|truncatewords:15}}</a></h4>
+			
+			<p>Last Updated {{docupdated}}</p>
+			
+			{% if doc.link %}
+				<p><a href="{{doc.link}}">{{doc.link}}</a></p>
+			{% endif %}
+		</div> <!-- e: section_head -->
+		
+		<div class="userrichtextcontent">
+			{{doc.text|safe}}
+		</div>
+	
+		
+	</div><!-- e: col_6 -->
+	
+	{% include "ads/rightbar.html" %}
+ 
+</div>	<!-- e: orgprofile -->
+	
+{% endblock %}
+

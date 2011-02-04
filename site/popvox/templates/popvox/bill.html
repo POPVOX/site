@@ -353,7 +353,13 @@ function getshorturl() {
 					{% for cam in org.campaigns %}
 						<p>More Info: <a href="{{cam.url}}">{{cam.name}}</a></p>
 					{% endfor %}
+					{% for doc in org.documents %}
+						{% if forloop.first %}<ul class="bullets">{% endif %}
+						<li><a href="{{bill.url}}/docs/{{org.object.slug}}/{{doc.doctype}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
+						{% if forloop.last %}</ul>{% endif %}
+					{% endfor %}
 				</div>
+				{% endfor %}
 				
 			    {% if existing_org_positions %}
 				    {% if user_org and not user_org.approved %}
@@ -364,7 +370,6 @@ function getshorturl() {
 						{% endif %}
 				    {% endif %}
 			    {% endif %}
-			{% endfor %}
 	
 			</div>
 		{% endfor %}

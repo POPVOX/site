@@ -318,7 +318,7 @@ def bill(request, congressnumber, billtype, billnumber):
 			user_org = user_org[0].org
 			for cam in user_org.orgcampaign_set.all():
 				for p in cam.positions.filter(bill = bill):
-					existing_org_positions.append({"campaign": cam, "position": posdescr[p.position], "comment": p.comment, "id": p.id})
+					existing_org_positions.append({"bill": bill, "campaign": cam, "position": posdescr[p.position], "comment": p.comment, "id": p.id, "documents": p.documents()})
 		
 	user_position = None
 	mocs = []
@@ -348,14 +348,16 @@ def bill(request, congressnumber, billtype, billnumber):
 		cam = p.campaign
 		if not cam.org.slug in orgs[p.position]:
 			orgs[p.position][cam.org.slug] = {
+				"id": cam.org.id,
 				"name": cam.org.name,
 				"url": cam.org.url(),
 				"object": cam.org,
 				"campaigns": [],
 				"comment": None,
+				"documents": cam.org.documents.filter(bill=bill).defer("text"),
 			}
 		if cam.default or orgs[p.position][cam.org.slug]["comment"] == None:
-			orgs[p.position][cam.org.slug]["comment"] = p.comment				
+			orgs[p.position][cam.org.slug]["comment"] = p.comment
 		if not cam.default:
 			orgs[p.position][cam.org.slug]["campaigns"].append(
 				{ "name": cam.name,
@@ -1185,30 +1187,47 @@ def getbillshorturl(request):
 	
 	return { "status": "success", "url": surl.url(), "new": created }
 
-def uploaddoc(request, congressnumber, billtype, billnumber):
+def uploaddoc1(request):
+	prof = request.user.userprofile
+	
 	if request.user.is_anonymous():
 		raise Http404()
-	elif request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
+	elif prof.is_leg_staff() and request.user.legstaffrole.member != None:
 		types = ((0, "Press Release"), (1, "Introductory Statement"), (2, "Dear Colleague"), (99, "Other Document"))
+		whose = request.user.legstaffrole.bossname
+		docs = request.user.legstaffrole.member.documents
+	elif prof.is_org_admin():
+		org = prof.user.orgroles.get(org__slug=request.GET["org"]).org
+		types = ((0, "Press Release"), (3, "Report"), (4, "Letter of Support"), (4, "Coalition Letter"), (99, "Other Document"))
+		whose = org.name
+		docs = org.documents
 	else:
 		raise Http404()
 		
+	return types, whose, docs
+
+def uploaddoc(request, congressnumber, billtype, billnumber):
+	types, whose, docs = uploaddoc1(request)
+		
 	bill = getbill(congressnumber, billtype, billnumber)
+	
+	# check which documents are already uploaded
+	types = [
+		(typecode, typename, docs.filter(bill=bill, doctype=typecode).exists())
+		for (typecode, typename) in types]
+	
 	return render_to_response('popvox/bill_uploaddoc.html', {
-			'types': types,
-			'bill': bill,
+		'whose': whose,
+		'types': types,
+		'bill': bill,
 		}, context_instance=RequestContext(request))
 
 @json_response
 def getdoc(request):
-	if request.user.is_anonymous():
-		raise Http404()
-	elif request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
-		docs = request.user.legstaffrole.member.documents
-	else:
-		raise Http404()
+	types, whose, docs = uploaddoc1(request)
 		
 	bill = get_object_or_404(Bill, id=request.POST["billid"])
+	
 	doctype = int(request.POST["doctype"])
 
 	try:
@@ -1219,27 +1238,22 @@ def getdoc(request):
 
 @json_response
 def uploaddoc2(request):
-	if request.user.is_anonymous():
-		raise Http404()
-	elif request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
-		docs = request.user.legstaffrole.member.documents
-	else:
-		raise Http404()
+	types, whose, docs = uploaddoc1(request)
 	
 	bill = get_object_or_404(Bill, id=request.POST["billid"])
 	doctype = int(request.POST["doctype"])
 	
-	if request.POST.get("title", "").strip() == "" and strip_tags(request.POST.get("text", "")).strip() == "" and request.POST.get("link", "").strip() == "":
+	if request.POST.get("title", "").strip() == "" and strip_tags(request.POST.get("text", "").replace("&nbsp;", "")).strip() == "" and request.POST.get("link", "").strip() == "":
 		try:
 			doc = docs.get(bill = bill, doctype = doctype)
 			doc.delete()
 		except:
 			pass
-		return { "status": "success" }
+		return { "status": "success", "action": "delete" }
 
 	title = forms.CharField(min_length=5, max_length=128, error_messages = {'min_length': "The title is too short.", "max_length": "The title is too long.", "required": "The title is required."}).clean(request.POST.get("title", "")) # raises ValidationException
 		
-	text = forms.CharField(min_length=100, max_length=2048, error_messages = {'min_length': "The body text is too short.", "max_length": "The body text is too long.", "required": "The document text is required."}).clean(request.POST.get("text", "")) # raises ValidationException
+	text = forms.CharField(min_length=100, max_length=32767, error_messages = {'min_length': "The body text is too short.", "max_length": "The body text is too long.", "required": "The document text is required."}).clean(request.POST.get("text", "")) # raises ValidationException
 	text = sanitize_html(text)
 	
 	link = request.POST.get("link", "")	
@@ -1256,5 +1270,25 @@ def uploaddoc2(request):
 		doc.link = link
 		doc.save()
 	
-	return { "status": "success" }
+	return { "status": "success", "action": "upload" }
+
+def billdoc(request, congressnumber, billtype, billnumber, orgslug, doctype):
+	bill = getbill(congressnumber, billtype, billnumber)
+	
+	from org import set_last_campaign_viewed
+	org = get_object_or_404(Org, slug=orgslug, visible=True)
+	set_last_campaign_viewed(request, org)
+	
+	try:
+		doc = org.documents.get(bill=bill, doctype=doctype)
+	except:
+		raise Http404()
+		
+	return render_to_response('popvox/bill_doc_org.html', {
+		'org': org,
+		'bill': bill,
+		'doc': doc,
+		'admin': org.is_admin(request.user),
+		'docupdated': doc.updated.strftime("%b %d, %Y %I:%M %p"),
+		}, context_instance=RequestContext(request))
 

@@ -136,7 +136,7 @@ class Bill(models.Model):
 		return self.url()
 
 	def url(self):
-		return "/bills/us/" + str(self.congressnumber) + "/" + [x[1] for x in Bill.BILL_TYPE_SLUGS if x[0]==self.billtype][0]+ str(self.billnumber)
+		return "/bills/us/" + str(self.congressnumber) + "/" + [x[1] for x in Bill.BILL_TYPE_SLUGS if x[0]==self.billtype][0] + str(self.billnumber)
 
 	def govtrack_metadata(self):
 		if self._govtrack_metadata == None :
@@ -556,6 +556,8 @@ class OrgCampaignPosition(models.Model):
 		return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position
 	def get_absolute_url(self):
 		return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
+	def documents(self):
+		return self.campaign.org.documents.filter(bill=self.bill).defer("text")
 
 class OrgCampaignPositionActionRecord(models.Model):
 	# This is used for org-customized landing pages

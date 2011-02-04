@@ -17,7 +17,7 @@
 		
 		$.ajax({
 			type:"POST",
-			url: "/ajax/bills/getdoc",
+			url: "/ajax/bills/getdoc" + window.location.search, // copy any GET parameters like org=
 			data: {
 				"billid": {{bill.id}},
 				"doctype": curtab
@@ -38,11 +38,11 @@
 	}
 
 	function doctext_on_save() {
-		updateprofile(false);
+		uploaddoc(false);
 	}
 
-	function updateprofile(validate) {
-		ajaxform("/ajax/bills/upload",
+	function uploaddoc(validate) {
+		ajaxform("/ajax/bills/upload" + window.location.search,
 			{
 				"billid": {{bill.id}},
 				"doctype": curtab,
@@ -50,15 +50,20 @@
 			},
 			{
 				"title": "#doctitle",
-				"text": "#doctext",
+				"text": function() { return tinyMCE.get('doctext').getContent() },
 				"link": "#doclink"
 			},
 			{
 				statusfield: "errorlabel",
 				savebutton: "submitbutton",
 				statussuccess: (validate ? null : "Saved."),
-				success: function() {
-				
+				success: function(res) {
+					if (res.action == "upload")
+						$('#tab_' + curtab + ' span').fadeIn();
+					else if (res.action == "delete") {
+						$('#tab_' + curtab + ' span').fadeOut();
+						$('#errorlabel').text("Document removed.");
+					}
 				}
 			}
 			);
@@ -69,19 +74,27 @@
 {% block content %}
 <div class="content">
 
-	<h1>Upload Position Document on {{bill.displaynumber}}</h1>
+	<h1>Upload Position Document</h1>
+	<h3 class="no_rule">{{bill.title|truncatewords:10}}</h3>
 	
-	<p>Upload {{ user.legstaffrole.bossname }}&rsquo;s position on {{bill.title}}. Uploaded positions are made publicly available and reach POPVOX&rsquo;s citizen users
-	and organizations.</p>
+	<p>Upload {{whose}}&rsquo;s position on this bill. Uploaded positions are made publicly available and reach POPVOX&rsquo;s citizen users, organizations, and legislative staff.</p>
 	
 	<p>You may upload one document of each type for this bill. Select the type of document you want to upload.</p>
 
 	<div class="col_3">
 		<ul class="tab_tab">
-			{% for typeid, typename in types %}
-			<li id="tab_{{typeid}}"><a href="#" onclick="return showtab({{typeid}})">{{typename}}</a></li>
+			{% for typeid, typename, typeexists in types %}
+			<li id="tab_{{typeid}}"><a href="#" onclick="return showtab({{typeid}})">
+				<span class="active" {% if not typeexists %}style="display: none"{% endif %}>✔</span>
+				{{typename}}
+			</a></li>
 			{% if forloop.first %}
-				<script>$(function() { showtab({{typeid}}); });</script>
+				<script>$(function() {
+					if (window.location.hash.length <= 1)
+						showtab({{typeid}});
+					else
+						showtab(window.location.hash.substring(1));
+				});</script>
 			{% endif %}
 			{% endfor %}
 		</ul>
@@ -89,7 +102,7 @@
 	
 	<div class="tab_pane">
 	
-		<form class="form" style="float: left" onsubmit="return updateprofile(false);">
+		<form class="form" style="float: left" onsubmit="return uploaddoc(false);">
 			<label for="doctitle">Document Title</label>
 			<input id="doctitle" type="text" class="c6"/>
 			

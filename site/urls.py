@@ -37,12 +37,15 @@ urlpatterns = patterns('',
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/upload$', "popvox.views.bills.uploaddoc"),
 	(r'^ajax/bills/upload$', "popvox.views.bills.uploaddoc2"),
 	(r'^ajax/bills/getdoc$', "popvox.views.bills.getdoc"),
+	(r'^ajax/bills/getshorturl$', 'popvox.views.bills.getbillshorturl'),
 	
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/report$', "popvox.views.bills.billreport"),
 	(r'^ajax/bills/us/(\d+)/([a-z]+)(\d+)/report/getinfo$', "popvox.views.bills.billreport_getinfo"),
-	(r'^ajax/bills/getshorturl$', 'popvox.views.bills.getbillshorturl'),
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)/docs/([\w\-]+)/(\d+)$', "popvox.views.bills.billdoc"),
+	
 	(r'^bills/search$', "popvox.views.bills.billsearch"),
 	(r'^ajax/bills/search$', "popvox.views.bills.billsearch_ajax"),
+	
 	(r'^ajax/issues/chooser_list$', "popvox.views.bills.issuearea_chooser_list"),
 	
 	(r'^orgs/([\w\-]+)$', "popvox.views.org.org"),

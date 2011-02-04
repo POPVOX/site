@@ -419,9 +419,13 @@ p {
 
 h1 {
 	margin: 15px 0 22px;
-	font: normal 40px/30px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font: normal 40px/40px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	letter-spacing: .02em;
 	}
+	h1 a:hover {
+		border: none;
+		color: #D74;
+		}
 
 h2 {
 	font: normal 25px/30px helvetica, arial, sans-serif;
