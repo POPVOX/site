@@ -67,7 +67,7 @@ class Command(BaseCommand):
 		paths = list(paths.items())
 		paths.sort(key = lambda x : -x[1]["cost"])
 		for path, info in paths[0:20]:
-			print path.path.ljust(SitePath.MAX_PATH_LENGTH), "impr:", info["impressions"], "clicks:", info["clicks"], "ctr:", str(round(10000*info["clicks"]/info["impressions"])/100.0) + "%", "$" + str(round(info["cost"]*100)/100.0)
+			print path.path.ljust(SitePath.MAX_PATH_LENGTH), "impr:", info["impressions"], "\t$" + str(round(info["cost"]*100)/100.0)
 			
 		print
 		print "Dates"

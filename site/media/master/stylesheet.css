@@ -557,7 +557,8 @@ table.form_fields td {
 }
 
 .usercomment, .usercomment p {
-	font: italic normal 13px/18px georgia, serif;
+	xxx---font: italic normal 13px/18px georgia, serif;
+ 	font: 13px/18px Verdana, Arial, serif;
 	margin-bottom: .5em;
 	padding-bottom: 0;
 	}
@@ -3119,7 +3120,6 @@ ul#issuearealist {
 				}
 		
 	.block.follow_us {
-		padding-top: 20px;
 		text-align: left;
 		height: 60px;
 		}
@@ -3288,7 +3288,8 @@ ul#issuearealist {
 	
 .referred_quote_endorse p,
 .referred_quote_opposed p {
-	font: italic bold 16px/22px georgia, serif;
+	font-size: 16px;
+	line-height: 22px;
 	}
 		
 	.referred_quote_endorse p.commenter,

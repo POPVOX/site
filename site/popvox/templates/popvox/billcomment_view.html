@@ -5,11 +5,6 @@
 {% block title %}{{comment.user.username}}&rsquo;s Comment on {{ bill.title|truncatewords:10 }}{% endblock%}
 {% block description %}{{comment.message|truncatewords:40}}{% endblock %}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block adunits %}
-	{% if welcome %}
-		{% include "ads/rightbar_single_head.html" %}
-	{% endif %}
-{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -32,7 +27,9 @@
 			<p class="commenter">{{comment.user.username}} from {{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}
 			commented {{comment.updated|date2}} that {{comment.address.heshe}}  {{comment.verb}} {{bill.displaynumber}}:</p>
 			{% if comment.message %}
+				<div class="usercomment">
 				{{comment.message|wraplines:"p"}}
+				</div>
 			{% else %}
 				<p>[No comment left.]</p>
 			{% endif %}
@@ -51,6 +48,8 @@
 	</div>
 		
 	<div class="col_6 col_top col_last">
+		{% include "popvox/billcomment_share_social.html" %}
+
 		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
 		<div id="bill_endorse_oppose_holder_user" class="no_border">
 			<h3 class="no_rule orange">What Do You Think?</h3>
@@ -60,7 +59,6 @@
 
 		{% endif %}
 
-		{% include "popvox/billcomment_share_social.html" %}
 		
 	</div>
 	<div class="clear"> </div>

@@ -1,6 +1,8 @@
 {% load popvox_utils %}
 {% load registration_providers %}
 {% load humanize %}
+
+	<div class="c5">
 	
 	{% if comment.message %}
 	<h3 class="no_rule orange">Share This Comment</h3>
@@ -9,14 +11,14 @@
 	{% endif %}
 	
 	<ul class="social_share_btns">
-		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')">facebook</a></li>
-		<li><a class="btn social_twitter" href="#" onclick="return share_tab('twitter')">twitter</a></li>
-		<li><a class="btn b_social_email" href="#" onclick="return share_tab('email')">email</a></li>
+		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')" title="Facebook">facebook</a></li>
+		<li><a class="btn social_twitter" href="#" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
+		<li><a class="btn b_social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
 	</ul>
 	<div class="clear"> </div>
 	
 	<div id="sharetab_message" class="form" style="display: none">
-		<h3 class="no_rule">Personalized Message to Recipients</h3>
+		<p style="margin-bottom: 0"><strong>Personalized Message to Recipients</strong></p>
 		<textarea id="share_message" class="c5">{% if message %}{{message}}{% endif %}</textarea>
 		{% if comment.user == user and comment.message %}
 		<div>
@@ -50,9 +52,9 @@
 
 	<div id="sharetab_email" style="display: none">
 		{% if user.is_authenticated %}
-		<p><strong>Via Email</strong></p>
+		<p style="margin-bottom: 0"><strong>Recipients&rsquo; Email Addresses</strong></p>
 		<div class="form">
-			<textarea id="share_email_field" class="c6"></textarea>
+			<textarea id="share_email_field" class="c5"></textarea>
 			<div>
 				<input id="share_email_button" type="button" class="submit btn" value="Share Via Email" onclick="share('email')"/>
 				<span id="share_email_status" class="error"></span>
@@ -66,34 +68,32 @@
 	</div>
 	
 	<div id="sharetab_facebook" style="display: none">
-		<p><strong>Via Facebook</strong></p>
 	{% if not facebook %}
-		<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin:</p>
 		<p><a class="b_login_facebook btn" href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#facebook"|urlencode}}">login to facebook</a></p>
+		<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin.</p>
 	{% else %}
 		{% if user == comment.user and comment.fb_linkid %}
 			<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
 		{% endif %}
-		<p>Click the Facebook Share icon to post your message on your Wall (in the account {{facebook.profile.screen_name}}):</p>
-		<p><a class="b_share_facebook btn" href="#" onclick="return share('facebook')">share with facebook</a></p>
+		<p style="float: right"><a class="b_share_facebook btn" href="#" onclick="return share('facebook')">share with facebook</a></p>
+		<p>Click the Facebook Share icon to post your message on your Wall (in the account {{facebook.profile.screen_name}}).</p>
 		<p id="share_facebook_status"></p>
 	{% endif %}
 	</div>
 
 	<div id="sharetab_twitter" style="display: none">
-		<p><strong>Via Twitter</strong></p>
 	{% if not twitter %}
-		<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button to begin:</p>
 		<p><a class="b_login_twitter btn" href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}">login to twitter</a></p> 
+		<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button to begin.</p>
 	{% else %}
 		{% if user == comment.user and comment.tweet_id %}
 			<p>You have already tweeted about this bill but you can tweet again.</p>
 		{% endif %}
+			<p style="float: right"><a class="b_share_twitter btn" href="#" onclick="return share('twitter')">share with twitter</a></p>
 			<p>Click the Twitter share button to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
-			<p><a class="b_share_twitter btn" href="#" onclick="return share('twitter')">share with twitter</a></p>
 			<p id="share_twitter_status"></p>
 	{% endif %}
 	</div>
 
-	
+	</div>
 
