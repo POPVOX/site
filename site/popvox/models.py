@@ -82,7 +82,8 @@ class MemberOfCongress(models.Model):
 				obj, new = MemberOfCongress.objects.get_or_create(id=px["id"])
 				if new:
 					print "Initializing new Member of Congress:", obj
-MemberOfCongress.init_members()
+if not "LOADING_DUMP_DATA" in os.environ:
+	MemberOfCongress.init_members()
 
 class CongressionalCommittee(models.Model):
 	"""A congressional committee or subcommittee."""
@@ -105,7 +106,8 @@ class CongressionalCommittee(models.Model):
 				obj, new = CongressionalCommittee.objects.get_or_create(code=cx["id"])
 				if new:
 					print "Initializing new committee:", obj
-CongressionalCommittee.init_committees()
+if not "LOADING_DUMP_DATA" in os.environ:
+	CongressionalCommittee.init_committees()
 
 class Bill(models.Model):
 	"""A bill in Congress."""
@@ -191,7 +193,7 @@ class Bill(models.Model):
 		return [parse_line(rec) for rec in self.latest_action.split("\n")]
 		
 	def campaign_positions(self):
-		return [p for p in self.orgcampaignposition_set.all() if p.campaign.visible and p.campaign.org.visible]
+		return self.orgcampaignposition_set.filter(campaign__visible=True, campaign__org__visible=True).select_related("campaign", "campaign__org")
 	
 	def hashtag(self):
 		bt = ""
@@ -672,7 +674,7 @@ def user_saved_callback(sender, instance, created, **kwargs):
 		p.save()
 
 		send_mail('New account: ' + instance.username, 'New account created: ' + instance.username + " (" + instance.email + ")", "info@popvox.com", ["marci@popvox.com", "rachna@popvox.com"], fail_silently=True)
-if not "DONT_CREATE_USERPROFILES" in os.environ:
+if not "LOADING_DUMP_DATA" in os.environ:
 	# When we're loading from a fixture, we get the UserProfile record later so we cannot
 	# create it now or we get a duplicate value for index error.
 	django.db.models.signals.post_save.connect(user_saved_callback, sender=User)
