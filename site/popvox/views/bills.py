@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.cache import cache_page
 from django.template.defaultfilters import truncatewords
 from django.utils.html import strip_tags
+from django.db.models import Count
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
 
@@ -23,11 +24,12 @@ from popvox.models import *
 from registration.helpers import captcha_html, validate_captcha
 from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, open_govtrack_file, statenames, getStateReps
 from emailverification.utils import send_email_verification
-from utils import formatDateTime
+from utils import formatDateTime, cache_page_postkeyed
 
 from settings import DEBUG, SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
 
 popular_bills_cache = None
+popular_bills_cache_2 = None
 issue_areas = None
 
 def getissueareas():
@@ -62,8 +64,7 @@ def get_popular_bills():
 
 	# Additionally choose bills with the most number of comments.
 	# TODO: Is this SQL fast enough? Well, it's not run often.
-	from django.db.models import Count
-	for b in Bill.objects.filter(congressnumber=CURRENT_CONGRESS).annotate(Count('usercomments')).order_by('-usercomments__count')[0:12]:
+	for b in Bill.objects.filter(congressnumber=CURRENT_CONGRESS).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]:
 		if b.usercomments__count == 0:
 			break
 		if not b in popular_bills:
@@ -75,7 +76,12 @@ def get_popular_bills():
 	
 	return popular_bills
 
-def bills(request):
+def get_popular_bills2():
+	global popular_bills_cache_2
+
+	if popular_bills_cache_2 != None and (datetime.now() - popular_bills_cache_2[0] < timedelta(minutes=30)):
+		return popular_bills_cache_2[1]
+
 	popular_bills = get_popular_bills()
 
 	# Get the campaigns that support or oppose any of the bills, in batch.
@@ -133,6 +139,13 @@ def bills(request):
 			))
 		billrec["orgs"] = orgs
 		
+	popular_bills_cache_2 = (datetime.now(), popular_bills2)
+	
+	return popular_bills2
+		
+def bills(request):
+	popular_bills2 = get_popular_bills2()
+	
 	# Annotate a copy of the popular_bills dict with whether the user
 	# or the user on behalf of an org has taken a position on each
 	# bill.
@@ -207,7 +220,7 @@ def getbill(congressnumber, billtype, billnumber):
 	except:
 		raise Http404("Invalid bill number. \"" + billtype + "\" is not valid.")
 	try:
-		return Bill.objects.get(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber)
+		return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber).select_related("sponsor")[0]
 	except:
 		raise Http404("Invalid bill number. There is no bill by that number.")
 	
@@ -228,7 +241,7 @@ def billsearch_ajax(request):
 		"sponsor": { "id": bill.sponsor.id, "name": bill.sponsor.name() } if bill.sponsor != None else None,
 		}
 	
-def bill_comments(bill, plusminus, **filterargs):
+def bill_comments(bill, **filterargs):
 	def filter_null_args(kv):
 		ret = { }
 		for k, v in kv.items():
@@ -236,33 +249,42 @@ def bill_comments(bill, plusminus, **filterargs):
 				ret[k] = v
 		return ret
 	
-	return bill.usercomments.filter(position=plusminus, **filter_null_args(filterargs)).select_related("user", "address")
+	return bill.usercomments.filter(**filter_null_args(filterargs))\
+		.select_related("user", "address", "bill")
 
 def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
 	# If any of the filters is None, meaning it is based on demographic info
 	# that the user has not set, return None for the whole statistic group.
 	for key in filterargs:
 		if filterargs[key] == None:
-			return None\
+			return None
 			
 	# Get comments that were left only before the session ended.
 	enddate = govtrack.getCongressDates(bill.congressnumber)[1] + timedelta(days=1)
 	
-	pro_comments = bill_comments(bill, "+", **filterargs).filter(created__lt=enddate)
-	con_comments = bill_comments(bill, "-", **filterargs).filter(created__lt=enddate)
+	# Get all counts at once, where stage = 0 if the comment was before the end of
+	# the session, 1 if after the end of the session.
+	counts = bill_comments(bill, **filterargs).order_by().extra(select={"stage": "popvox_usercomment.created > '" + enddate.strftime("%Y-%m-%d") + "'"}).values("position", "stage").annotate(count=Count("id"))
 	
-	pro = pro_comments.count()
-	con = con_comments.count()
-	pro_comments_reintro = bill_comments(bill, "+", **filterargs).exclude(created__lt=enddate)
-
+	pro = 0
+	con = 0
+	pro_reintro = 0
+	for item in counts:
+		if item["position"] == "+" and item["stage"] == 0:
+			pro = item["count"]
+		if item["position"] == "-" and item["stage"] == 0:
+			con = item["count"]
+		if item["position"] == "+" and item["stage"] == 1:
+			pro_reintro = item["count"]
+		
 	# Don't display statistics when there's very little data.
-	if pro+con+pro_comments_reintro.count() < 10:
+	if pro+con+pro_reintro < 10:
 		return None
-	
-	all_comments = (pro_comments | con_comments)
 	
 	time_series = None
 	if want_timeseries:
+		all_comments = bill_comments(bill, **filterargs).exclude(created__gt=enddate)
+	
 		# Get a time-series. Get the time bounds --- use the national data for the
 		# time bounds so that if we display multiple charts together they line up.
 		firstcommentdate = bill.usercomments.filter(created__lt=enddate).order_by('created')[0].created
@@ -296,7 +318,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		"total": pro+con, "pro":pro, "con":con,
 		"pro_pct": 100*pro/(pro+con), "con_pct": 100*con/(pro+con),
 		"timeseries": time_series,
-		"pro_reintro": pro_comments_reintro.count()}
+		"pro_reintro": pro_reintro}
 	
 @csrf_protect
 def bill(request, congressnumber, billtype, billnumber):
@@ -418,10 +440,6 @@ def bill(request, congressnumber, billtype, billnumber):
 			"user_position": user_position,
 			"mocs": mocs,
 			"nextchamber": ch,
-			
-			"stats": {
-				"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation"),
-			},
 			
 			"orgs": orgs,
 			
@@ -1071,8 +1089,8 @@ def billreport(request, congressnumber, billtype, billnumber):
 	bot_comments = []
 	if hasattr(request, "ua") and (request.ua["typ"] in "Robot" or request.ua["ua_family"] in "cURL"):
 		limit = 50
-		pro_comments = bill_comments(bill, "+").filter(message__isnull = False)[0:limit]
-		con_comments = bill_comments(bill, "-").filter(message__isnull = False)[0:limit]
+		pro_comments = bill_comments(bill, position="+").filter(message__isnull = False)[0:limit]
+		con_comments = bill_comments(bill, position="-").filter(message__isnull = False)[0:limit]
 		bot_comments = list(pro_comments) + list(con_comments)
 
 	return render_to_response('popvox/bill_report.html', {
@@ -1087,6 +1105,7 @@ def billreport(request, congressnumber, billtype, billnumber):
 			"bot_comments": bot_comments,
 		}, context_instance=RequestContext(request))
 	
+@cache_page_postkeyed(60*2) # two minutes
 @json_response
 def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	bill = getbill(congressnumber, billtype, billnumber)
@@ -1097,8 +1116,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	
 	limit = 50
 	
-	pro_comments = bill_comments(bill, "+", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)[0:limit]
-	con_comments = bill_comments(bill, "-", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)[0:limit]
+	pro_comments = bill_comments(bill, position="+", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)[0:limit]
+	con_comments = bill_comments(bill, position="-", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)[0:limit]
 	
 	comments = list(pro_comments) + list(con_comments)
 	comments.sort(key = lambda x : x.updated, reverse=True)

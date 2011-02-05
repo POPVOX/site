@@ -1,4 +1,5 @@
 {% extends "master.html" %}
+{% load cache %}
 {% load popvox_utils %}
 {% block title %}Bills in Congress{% endblock%}
 {%block nav_legstaff_class_bills%}active{%endblock%}
@@ -46,6 +47,7 @@ $(function() {
 		<p style="margin-bottom: 1em">Your role in the lawmaking process is critical: Members of Congress must understand the sentiment of their district. POPVOX simplifies this task by allowing you to voice your concerns about specific legislation in a format that is tailored for Congressional staff.</p>
 		{% endif %}
 		
+		{% cache 60 our_bills %}
 		<div class="userrichtextcontent">
 			<div class="col_6 col_top">
 				{% rawtext "bills_left" %}
@@ -54,6 +56,7 @@ $(function() {
 				{% rawtext "bills_right" %}
 			</div>
 		</div>
+		{% endcache %}
 		
 		<div class="clear block bill_search search_orange">
 			<div class="search_box search_wide">

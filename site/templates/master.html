@@ -229,11 +229,17 @@
 		</ul>
 		{% endif %}
 		
-		<div>
-			{% for sql in sql_queries %}
-			<div style="border-bottom: 1px solid black">{{time}}: {{sql}}</div>
-			{% endfor %}
-		</div>
+		{% for sql in sql_queries %}
+			{% if forloop.first %}
+				<div>
+				<table>
+			{% endif %}
+			<tr><td style="border-bottom: 1px solid black; padding-right: 2em">{{sql.time}}</td> <td style="border-bottom: 1px solid black">{{sql.sql}}</td></tr>
+			{% if forloop.last %}
+				</table>
+				</div>
+			{% endif %}
+		{% endfor %}
 	</div><!-- e: footer -->
 		
 </div><!-- e: wrap --> 

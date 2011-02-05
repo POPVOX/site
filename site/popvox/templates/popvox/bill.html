@@ -4,13 +4,7 @@
 {% block title %}{{ bill.title }}{% endblock%}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block adunits %}
-	{% if welcome %}
-		{% include "ads/rightbar_single_head.html" %}
-	{% endif %}
-{% endblock %}
 {% block head %}
-<!-- {{bill.id}} -->
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script>
