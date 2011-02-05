@@ -1247,9 +1247,10 @@ def uploaddoc2(request):
 		try:
 			doc = docs.get(bill = bill, doctype = doctype)
 			doc.delete()
+			return { "status": "success", "action": "delete" }
 		except:
+			# If there was no document to delete, then fall through because the user must be intenting to save...
 			pass
-		return { "status": "success", "action": "delete" }
 
 	title = forms.CharField(min_length=5, max_length=128, error_messages = {'min_length': "The title is too short.", "max_length": "The title is too long.", "required": "The title is required."}).clean(request.POST.get("title", "")) # raises ValidationException
 		
