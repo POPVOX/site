@@ -319,7 +319,7 @@ def compute_prompts(user):
 	sugs = { }
 	bill_org = { }
 	
-	for c in user.comments.all():
+	for c in user.comments.all().select_related("bill"):
 		bills = []
 		
 		# Find all orgs that had the same position.
@@ -328,7 +328,7 @@ def compute_prompts(user):
 			
 			# Now find all bills endorsed/opposed by that org, except for the original
 			# bill since there's no need to recommend something the user already did.
-			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org, bill__congressnumber=popvox.govtrack.CURRENT_CONGRESS).exclude(bill=c.bill).exclude(position="0"):
+			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org, bill__congressnumber=popvox.govtrack.CURRENT_CONGRESS).exclude(bill=c.bill).exclude(position="0").select_related("bill"):
 				bills.append(q.bill)
 				
 				# find the org with the largest user base that has a statement on this bill to
@@ -339,20 +339,20 @@ def compute_prompts(user):
 					bill_org[q.bill.id] = orec
 				
 		# Find all other users that had the same position.
-		for d in UserComment.objects.filter(bill=c.bill, position=c.position).exclude(user=user):
+		for d in UserComment.objects.filter(bill=c.bill, position=c.position).exclude(user=user).select_related("bill"):
 			# Now find all of the other positions this other user took...
-			for q in d.user.comments.filter(bill__congressnumber=popvox.govtrack.CURRENT_CONGRESS).exclude(bill=c.bill):
+			for q in d.user.comments.filter(bill__congressnumber=popvox.govtrack.CURRENT_CONGRESS).exclude(bill=c.bill).select_related("bill"):
 				bills.append(q.bill)
-				
+		
+		# Batch filter out any bills user has taken a position on or has anti-tracked.
+		bills = Bill.objects.filter(id__in=[b.id for b in bills]).exclude(usercomments__user=user).exclude(id__in=user.userprofile.antitracked_bills.all())
+		
 		for bill in bills:
 			if not bill.id in sugs:
 				billsug = { "bill": bill, "count": 0, "bill_sources": {} }
 				sugs[bill.id] = billsug
 				
 				if not q.bill.isAlive():
-					billsug["skip"] = True
-					continue
-				if user.comments.filter(bill=bill).exists():
 					billsug["skip"] = True
 					continue
 			else:
@@ -369,19 +369,22 @@ def compute_prompts(user):
 	# Add the popular bills to the list of suggestions if they are not already
 	# suggested.
 	from bills import get_popular_bills
-	for bill in get_popular_bills():
+	popular_bills = get_popular_bills()
+	popular_bills = Bill.objects.filter(id__in=[b.id for b in popular_bills]).exclude(usercomments__user=user).exclude(id__in=user.userprofile.antitracked_bills.all())
+	for bill in popular_bills:
 		if bill.id in sugs:
 			continue
-		if bill.id != None and user.comments.filter(bill=bill).exists():
-			continue
-		sugs[bill.govtrack_code()] = { "bill": bill, "count": -1, "bill_sources": {} } # -1 is a flag for the HTML and also to sort them below the other bills
-	
+		sugs[bill.id] = { "bill": bill, "count": -1, "bill_sources": {} } # -1 is a flag for the HTML and also to sort them below the other bills
+
+	for b in Bill.objects.filter(id__in = [x["bill"].id for x in sugs.values()]).annotate(count=Count("usercomments")):
+		sugs[b.id]["commentcount"] = b.count
+
 	sugs = list(sugs.values())
 	
 	# sort suggestions by the number of users recommending the bill first,
 	# and then by the total comments left on each bill
-	
-	sugs.sort(key = lambda x : (-x["count"], -x["bill"].usercomments.count()))
+
+	sugs.sort(key = lambda x : (-x["count"], -x["commentcount"]))
 	
 	sugs = sugs[0:10] # max number of suggestions to return
 	
