@@ -102,5 +102,19 @@
 	{% endif %}
 	{% endwith %}
 
+	{% if user.is_staff or user.is_superuser %}
+	{% for s in comment.shares %}
+		{% if forloop.first %}
+			<p><strong>Referrals: (This is shown to POPVOX staff only...)</strong></p>
+			<table>
+			<tr><th style="padding-right: 2em">hits</th> <th>owner</th></tr>
+		{% endif %}
+		<tr><td>{{s.hits}}</td><td>{{s.owner}}</td></tr>
+		{% if forloop.last %}
+			</table>
+		{% endif %}
+	{% endfor %}
+	{% endif %}
+
 	</div>
 

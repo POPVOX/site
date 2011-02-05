@@ -894,9 +894,12 @@ class UserComment(models.Model):
 				elif tense=="ing":
 					return "opposing the reintroduction of"
 
-	def share_hits(self):
+	def shares(self):
 		import shorturl
-		return shorturl.models.Record.objects.filter(target=self).aggregate(models.Sum("hits"))["hits__sum"]
+		return shorturl.models.Record.objects.filter(target=self)
+
+	def share_hits(self):
+		return self.shares().aggregate(models.Sum("hits"))["hits__sum"]
 
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people
