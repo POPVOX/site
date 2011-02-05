@@ -82,8 +82,6 @@ class MemberOfCongress(models.Model):
 				obj, new = MemberOfCongress.objects.get_or_create(id=px["id"])
 				if new:
 					print "Initializing new Member of Congress:", obj
-if not "LOADING_DUMP_DATA" in os.environ:
-	MemberOfCongress.init_members()
 
 class CongressionalCommittee(models.Model):
 	"""A congressional committee or subcommittee."""
@@ -106,8 +104,6 @@ class CongressionalCommittee(models.Model):
 				obj, new = CongressionalCommittee.objects.get_or_create(code=cx["id"])
 				if new:
 					print "Initializing new committee:", obj
-if not "LOADING_DUMP_DATA" in os.environ:
-	CongressionalCommittee.init_committees()
 
 class Bill(models.Model):
 	"""A bill in Congress."""
@@ -901,3 +897,13 @@ class UserComment(models.Model):
 	def share_hits(self):
 		import shorturl
 		return shorturl.models.Record.objects.filter(target=self).aggregate(models.Sum("hits"))["hits__sum"]
+
+if not "LOADING_DUMP_DATA" in os.environ:
+	# Make sure that we have MoC and CC records for all people
+	# and committees that exist in Congress. Accessing these
+	# models now prevents any further ManyToMany relationships
+	# that reference these models from working and yields a
+	# "Can't resolve keyword ... into field" error on querying
+	# the M2M field.
+	MemberOfCongress.init_members()
+	CongressionalCommittee.init_committees()
