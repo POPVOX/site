@@ -8,6 +8,7 @@ import cgi
 
 from adserver.models import *
 from adserver.adselection import show_banner
+import adserver.cache as cache
 
 register = template.Library()
 
@@ -25,7 +26,8 @@ def show_ad(parser, token):
 			# Find the requested ad format.
 			formatname = fields.pop(0)
 			try:
-				format = Format.objects.get(key=formatname)
+				format = cache.get('Format_key', formatname, lambda key :
+						Format.objects.get(key=formatname))
 			except:
 				raise Exception("There is no ad format by the name of " + formatname)
 			
@@ -41,7 +43,8 @@ def show_ad(parser, token):
 					if type(field) == Target:
 						return field
 				try:
-					return Target.objects.get(key=field)
+					return cache.get('Target_key', field, lambda key :
+							Target.objects.get(key=field))
 				except:
 					raise Exception("There is no ad target with the key " + field)
 				

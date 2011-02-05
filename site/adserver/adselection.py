@@ -6,11 +6,14 @@ from datetime import datetime, date, timedelta
 from time import time
 
 from models import *
+import cache
 
 from adserver.uasparser import UASparser  
 uas_parser = UASparser(update_interval = None)
 
 from settings import SITE_ROOT_URL
+
+last_impression_clear_time = None
 
 def select_banner(adformat, targets, ad_trail):
 	# Select a banner to show and return the banner and the display CPM and CPC prices.
@@ -18,7 +21,7 @@ def select_banner(adformat, targets, ad_trail):
 	now = datetime.now()
 
 	banners = adformat.banners.filter(active=True, order__active=True) \
-		.select_related("order") \
+		.select_related("order", "order__advertiser") \
 		.order_by() # clear default ordering which loads up the Advertiser object
 		
 	target_ids = [t.id for t in targets]
@@ -234,6 +237,8 @@ def select_banner(adformat, targets, ad_trail):
 
 def show_banner(format, request, context, targets, path):
 	# Select a banner to show and return the HTML code.
+	
+	global last_impression_clear_time
 
 	now = datetime.now()
 	
@@ -280,7 +285,8 @@ def show_banner(format, request, context, targets, path):
 	
 	# Create a SitePath object.
 	path = path[0:SitePath.MAX_PATH_LENGTH] # truncate before get_or_create or it will create duplicates if it gets truncated by mysql
-	sp, isnew = SitePath.objects.get_or_create(path=path)
+	sp = cache.req_get(request, 'SitePath_path', path, lambda x :
+			SitePath.objects.get_or_create(path=path)[0]) # [0] because get_or_create returns (objects, is_new).
 							
 	# Create an ImpressionBlock.
 	imb, isnew = ImpressionBlock.objects.get_or_create(
@@ -309,8 +315,10 @@ def show_banner(format, request, context, targets, path):
 	im.targeturl = b.get_target_url(timestamp)
 	im.save()
 	
-	# Clear out old impressions (maybe do this not quite so frequently?).
-	Impression.objects.filter(created__lt = now-timedelta(minutes=30)).delete()
+	# Clear out old impressions every so often.
+	if last_impression_clear_time == None or now-last_impression_clear_time>timedelta(minutes=30):
+		Impression.objects.filter(created__lt = now-timedelta(minutes=30)).delete()
+		last_impression_clear_time = now
 	
 	# Record that this ad was shown.
 	if adserver_trail != None and not b.order.advertiser.remnant:
