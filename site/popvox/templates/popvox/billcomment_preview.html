@@ -2,9 +2,6 @@
 {% load popvox_utils %}
 {% block title %}Preview Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block head %}
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-{% endblock %}
 {% block content %}
 <div class="content">
 
@@ -55,8 +52,8 @@
 	{% endif %}
 		
 	{% if not user.is_authenticated %}
-	<div id="needsauth">
-		<div class="col_4_5" style="margin-right: 30px">
+	<div id="needsauth" {% if not message %}style="border: 0; margin: 0"{% endif %}>
+		<div class="col_4_5" style="margin-right: 30px{% if not message %}; padding: 0{% endif %}">
 			
 			<h4>Sign Up</h4>
 			
@@ -123,7 +120,7 @@
 			});
 			</script>
 		
-		<div class="col_4_3 col_last">
+		<div class="col_4_3 col_last" style="{% if not message %}padding: 0{% endif %}">
 			<h4>Already A Member? Log In</h4>
 			
 			<p class="create_text">Login instantly using one of these services:</p>
