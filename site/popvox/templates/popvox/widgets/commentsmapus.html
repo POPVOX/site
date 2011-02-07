@@ -7,7 +7,6 @@
 			body {
 				margin: 0;
 				padding: 0;
-				background: url('/media/gis/map_background.png') no-repeat;
 			}
 			
 		</style>
@@ -56,7 +55,7 @@
 		<div style="position: absolute; left: 400px; top: 400px; font-size: 8pt; width: 201px; font-family: sans-serif">
 			{% for item in legend %}
 				<div style="float: left; width: 80px">
-					<div class="dots_key {{count.class}}" style="float: left; margin: 1px 3px 0 0; width: 8px; height: 8px;	-moz-border-radius: 	6px; -webkit-border-radius: 	6px; -khtml-border-radius: 6px; border-radius: 6px;"> </div>
+					<div class="dots_key {{item.class}}" style="float: left; margin: 1px 3px 0 0; width: 8px; height: 8px;	-moz-border-radius: 	6px; -webkit-border-radius: 	6px; -khtml-border-radius: 6px; border-radius: 6px;"> </div>
 					<div>{{item.label}}</div>
 				</div>
 			{% endfor %}
