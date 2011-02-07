@@ -83,7 +83,7 @@ common_fieldnames = {
 	"city": "city",
 	"state": "state",
 	"zipcode": "zipcode",
-	"county": "county",
+	#"county": "county",
 	"message": "message",
 	"subjectline": "subjectline",
 	"response_requested": "response_requested",
@@ -270,6 +270,7 @@ def find_webform(htmlstring, webformid, webformurl):
 	# cut out all table tags because when tables are mixed together with forms
 	# html5lib can reorder the tags so that the fields fall out of the form.
 	htmlstring = re.sub("</?(table|tr|td|tbody)( [^>]*)?>", "", htmlstring)
+	htmlstring = re.sub("<FORM ", "<form ", htmlstring) # make sure start and end tag match in case
 
 	doc = html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("dom")).parse(htmlstring)
 	
@@ -382,10 +383,11 @@ def parse_webform(webformurl, webform, webformid, id):
 		ax = attr.lower()
 		
 		#if ax == "ctl00$ctl01$zip": ax = "zip5" # 199
-		#if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
+		if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
 		#if ax == "ctl00$ctl08$zip": ax = "zip5" # 191
 		#if ax == "ctl00$ctl09$zip": ax = "zip5" # 191
 		#if ax == "ctl00$ctl10$zip": ax = "zip5" # 173
+		if ax == "ctl00$ctl105$zip": ax = "zip5"
 		
 		ax = re.sub(r"^(required[\-\_]|ctl\d+\$ctl\d+\$)", "", ax)
 		ax = re.sub(r"[\-\_]required$", "", ax)
@@ -463,9 +465,6 @@ def send_message_webform(di, msg, deliveryrec):
 	if not "#" in di.webform:
 		raise WebformParseException("Webform URL should specify a # and the id, name, .class, or @action of the form")
 		
-	if di.webformresponse == None or di.webformresponse.strip() == "":
-		raise WebformParseException("Webform's webformresponse text is not set.")
-		
 	webformurl, webformid = di.webform.split("#")
 	
 	deliveryrec.trace += webformurl + "\n"
@@ -517,7 +516,7 @@ def send_message_webform(di, msg, deliveryrec):
 			if f in field_map.values():
 				break
 		else:
-			raise WebformParseException("Form does not seem to accept field " + repr(field))
+			raise WebformParseException("Form does not seem to accept field " + repr(field) + " (we got " + ", ".join(field_map.values()) + ")")
 
 	# Deliver message.
 	
@@ -541,6 +540,7 @@ def send_message_webform(di, msg, deliveryrec):
 				alts.append(q)
 				for rec in Synonym.objects.filter(term1 = q):
 					alts.append(rec.term2)
+			alts.sort(key = lambda x : x in ("other", "others", "miscellaneous")) # put these at the end
 			for q in alts:
 				if q.lower() in field_options[k]:
 					postdata[k] = field_options[k][q.lower()]
@@ -601,6 +601,11 @@ def send_message_webform(di, msg, deliveryrec):
 	
 	if type(ret) == str:
 		ret = ret.decode('utf8', 'replace')
+
+	if di.webformresponse == None or di.webformresponse.strip() == "":
+		deliveryrec.trace += "\n" + ret + "\n\n"
+		raise WebformParseException("Webform's webformresponse text is not set.")
+
 	success = (di.webformresponse in ret)
 	
 	if not success:
@@ -627,7 +632,7 @@ def send_message_housewyr(msg, deliveryrec):
 	# Submit the address, then the comment....
 	
 	webformurl = writerep_house_gov
-	for formname, responsetext in (("@/htbin/wrep_const", '<form action="/htbin/wrep_save" method="post">'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office to express your views on an issue of importance")):
+	for formname, responsetext in (("@/htbin/wrep_const", '<form action="/htbin/wrep_save" method="post">'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office to express your views on an issue of importance|Thank you for getting in touch")):
 		field_map, field_options, field_default, webformurl = parse_webform(webformurl, ret, formname, "housewyr")
 		
 		postdata = { }

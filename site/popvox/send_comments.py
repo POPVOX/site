@@ -1,32 +1,59 @@
 # REMOTEDB=1 DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/send_comments.py
 
+import sys
+
 from popvox.models import *
-from popvox.govtrack import CURRENT_CONGRESS
+from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress
 
 from writeyourrep.send_message import Message, send_message, Endpoint
 
-recips = { }
+stats_only = (len(sys.argv) > 1 and sys.argv[1] == "stats")
+reject_no_prefix = 0
+reject_no_method = 0
+reject_no_phone = 0
+messages_pending = 0
+success = 0
 
 # it would be nice if we could skip comment records that we know we
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
 for comment in UserComment.objects.filter(message__isnull=False, bill__congressnumber=CURRENT_CONGRESS).order_by('created').select_related("bill"):
-	# Who are we delivering to?
+	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
 	if not type(govtrackrecipients) == list:
 		continue
-	
+		
 	# Filter out delivery targets that we've already successfully delivered to.
 	govtrackrecipientids = [
 		g["id"] for g in govtrackrecipients
 		if not comment.delivery_attempts.filter(target__govtrackid = g["id"], success = True).exists()]
-		
 	if len(govtrackrecipientids) == 0:
+		success += 1
+		continue
+
+	if comment.address.nameprefix in (None, ""):
+		reject_no_prefix += 1
+		continue # !!!
+	
+	# Filter out delivery targets that we know we have no delivery method for.
+	govtrackrecipientids = [g for g in govtrackrecipientids
+		if not Endpoint.objects.filter(govtrackid = g, method = Endpoint.METHOD_NONE).exists()]
+	if len(govtrackrecipientids) == 0:
+		reject_no_method += 1
+		continue
+
+	# offices that we know require a phone number and we don't have it
+	govtrackrecipientids = [g for g in govtrackrecipientids
+		if comment.address.phonenumber != "" or g not in (412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,300062)]
+	if len(govtrackrecipientids) == 0:
+		reject_no_phone += 1
 		continue
 		
-	#print comment
-
+	if stats_only:
+		messages_pending += 1
+		continue
+	
 	# Set up the message record.
 	
 	msg = Message()
@@ -44,7 +71,7 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
 	msg.message = comment.message + \
 		"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
-	msg.topicarea = comment.bill.hashtag()
+	msg.topicarea = comment.bill.hashtag() + "-" + str(comment.bill.congressnumber)
 	if comment.bill.topterm != None:
 		msg.topicarea = comment.bill.topterm.name
 	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","")
@@ -88,8 +115,12 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	msg.delivery_agent_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
 	
 	# Begin delivery.
-	
 	for govtrackrecipientid in govtrackrecipientids:
+		print
+		print comment.created
+		print govtrackrecipientid, getMemberOfCongress(govtrackrecipientid)["sortkey"]
+		print msg.xml().encode("utf8")
+	
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
 		try:
@@ -103,9 +134,14 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 		# may not have been successful. Whatever happened, record it
 		# so we know not to try again.
 		comment.delivery_attempts.add(delivery_record)
-	
-		# We probably also want to congratulate the user with an email!
-		# TODO
-	
-	break
+		
+		print delivery_record
+		
+		sys.stdin.readline()
+
+print "Rejected because no delivery method is available", reject_no_method
+print "Rejected because name has no prefix", reject_no_prefix
+print "Rejected because no phone number is available", reject_no_phone
+print "Successfully delivered to all targets", success
+print "Comments pending/undeliverable", messages_pending
 

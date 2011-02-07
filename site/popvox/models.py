@@ -779,6 +779,8 @@ class PostalAddress(models.Model):
 		self.state = request.POST["useraddress_state"].upper()
 		self.zipcode = request.POST["useraddress_zipcode"]
 		self.phonenumber = request.POST["useraddress_phonenumber"]
+		if self.nameprefix.strip() == "":
+			raise ValueError("Please select your title (Mr., Ms., etc.).")
 		if self.firstname.strip() == "":
 			raise ValueError("Please enter your first name.")
 		if self.lastname.strip() == "":

@@ -536,8 +536,13 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		addresses = request.user.postaladdress_set.order_by("-created")
 		if len(addresses) > 0:
 			address_record = addresses[0]
-			if (datetime.now() - address_record.created).days < 60 and (address_record.phonenumber != None and address_record.phonenumber != ""):
+			if (datetime.now() - address_record.created).days < 60:
 				address_record_fixed = "You cannot change your address for two months after entering your address."
+				
+	# Allow (actually require) the user to revise an address that does not have a prefix or phone number.
+	if address_record != None and address_record_fixed != None and (
+		address_record.nameprefix == "" or address_record.phonenumber == ""):
+		address_record_fixed = None
 	
 	# We will require a captcha for this comment if the user is creating many comments
 	# in a short period of time and if we are not editing an existing comment.

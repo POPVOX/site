@@ -22,6 +22,9 @@ class Endpoint(models.Model):
 	def __unicode__(self):
 		return str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["sortkey"] + " " + self.get_method_display()
 
+	def mocname(self):
+		return popvox.govtrack.getMemberOfCongress(self.govtrackid)["sortkey"]
+
 	def admin_url(self):
 		return "%s/admin/writeyourrep/endpoint/%s/" % (SITE_ROOT_URL, str(self.id))
 		
