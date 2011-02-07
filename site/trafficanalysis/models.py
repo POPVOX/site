@@ -43,6 +43,16 @@ class Session(models.Model):
 		self.path += base64.b64encode(cPickle.dumps(pe)) + "\n"
 	def get_path(self):
 		return (cPickle.loads(base64.b64decode(pe)) for pe in self.path.split("\n") if pe != "")
+
+	def matches_only_path(self, path):
+		for p in self.get_path():
+			if not path in p.path:
+				return False
+		return True
+	def dump(self):
+		print self.start, self.end, self.user
+		for p in self.get_path():
+			print "\t", p
 	
 class PathEntry:
 	time = None

@@ -32,11 +32,16 @@ def banner(request, formatid):
 	else:
 		raise Http404()
 	response['Cache-Control'] = 'no-cache'
+
+	response.goal = None
+
 	return response
 
 def click(request):
 	impr = get_object_or_404(Impression, code=request.GET["imx"])
 	ImpressionBlock.objects.filter(id=impr.block.id).update(clicks=F('clicks')+1, clickcost=F("clickcost")+impr.cpccost)
+
+	request.goal = None
 	
 	return HttpResponseRedirect(impr.targeturl)
 

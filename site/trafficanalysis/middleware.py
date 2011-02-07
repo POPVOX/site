@@ -17,7 +17,7 @@ class TrafficAnalysisMiddleware:
 			return response
 
 		# If the goal has been set explicitly to none, don't record.
-		if (hasattr(request, "goal") and getattr(request, "goal", None) == None) or (hasattr(response, "goal") and getattr(response, "goal", None) == None):
+		if (hasattr(request, "goal") and getattr(request, "goal") == None) or (hasattr(response, "goal") and getattr(response, "goal") == None):
 			return response
 
 		# Don't record static content.

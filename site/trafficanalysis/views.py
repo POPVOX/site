@@ -23,9 +23,12 @@ def getnodename(pe):
 	nodename = pe.view
 	if hasattr(pe, "goal"):
 		nodename = getattr(pe, "goal")
+		if pe.loggedin:
+			nodename += " (L)"
 
 	if nodename.startswith("registration."):
 		nodename = "registration.*"
+		return None # not interested in these dummy steps
 
 	return nodename
 
@@ -294,7 +297,10 @@ def report_goal(request, data_startdate, data_enddate, max_depth, path):
 				"y": 0.0 if not p in timeseries[dates[d]] else 100.0 * float(timeseries[dates[d]][p]) / float(timeseries[dates[d]]["_TOTAL_"]),
 					} for d in xrange(len(dates))]
 	data = data.values()
-			
+
+	# Order the series by their sum, i.e. the area represented by the series, largest on the bottom
+	data.sort(key = lambda x : sum([d["y"] for d in x]), reverse=True)
+
 	ymax = 0.0
 	for d in timeseries.values():
 		t = 100.0 * float(d["_GOALS_"])/float(d["_TOTAL_"])
@@ -304,7 +310,6 @@ def report_goal(request, data_startdate, data_enddate, max_depth, path):
 	for series in data:
 		series[ random.choice( [x for x in range(len(dates)) if series[x]["y"] > 0]) ] \
 			["showserieslabel"] = True
-		
 	
 	return render_to_response("trafficanalysis/completions.html", {
 		'startdate': data_startdate.strftime("%Y-%m-%d"),

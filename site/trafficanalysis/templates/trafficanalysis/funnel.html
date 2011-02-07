@@ -19,8 +19,7 @@ function reload_page() {
 	<input name="path" type="hidden" value="{{path}}">
 	<span style="padding-left: 2em">Starting Date: </span>
 	<input name="start-date" value="{{startdate}}"/>
-	<span style="padding-left: 2em">Depth: </span>
-	<input name="depth" value="{{depth}}" size="3" maxlength="2"/>
+	<input type="hidden" name="depth" value="{{depth}}"/>
 	<input type="button" value="Update" onclick="reload_page()">
 </form>
 
@@ -33,7 +32,20 @@ var w = document.body.clientWidth * .85,
     h = document.body.clientHeight * .75,
     x = pv.Scale.linear(0, {{xmax}}).range(0, w),
     y = pv.Scale.linear(0, 100).range(0, h);
- 
+
+
+// nevermind, log scale, but make sure any values below the
+// minimum of the scale are truncated because if we have
+// zeroes it will bust...
+y = pv.Scale.log(3, 100).base(30).range(0, h);
+for (i = 0; i < data.length; i++) {
+ s = data[i];
+ for (j = 0; j < s.length; j++) {
+  t = s[j];
+  if (t.y < y.domain()[0]) t.y = y.domain()[0];
+ }
+}
+
 /* The root panel. */
 var vis = new pv.Panel()
     .width(w)
@@ -77,7 +89,8 @@ vis.add(pv.Rule)
     .bottom(y)
     .strokeStyle(function(d) d ? "rgba(128,128,128,.5)" : "#000")
     .anchor("left").add(pv.Label)
-    .text(y.tickFormat);
+//    .text(y.tickFormat);
+    .text(function (v) v);
 
 vis.add(pv.Label)
     .left(-40)
