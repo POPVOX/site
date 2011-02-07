@@ -194,7 +194,7 @@ class Bill(models.Model):
 	def campaign_positions(self):
 		return self.orgcampaignposition_set.filter(campaign__visible=True, campaign__org__visible=True).select_related("campaign", "campaign__org")
 	
-	def hashtag(self):
+	def hashtag(self, always_include_session=False):
 		bt = ""
 		if self.billtype == "h":
 			bt = "hr"
@@ -213,7 +213,7 @@ class Bill(models.Model):
 		elif self.billtype == "sc":
 			bt = "sconres"
 		bs = ""
-		if self.congressnumber < govtrack.CURRENT_CONGRESS:
+		if self.congressnumber < govtrack.CURRENT_CONGRESS or always_include_session:
 			bs = "/" + str(self.congressnumber)
 		return "#" + bt + str(self.billnumber) + bs
 

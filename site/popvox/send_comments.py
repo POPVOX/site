@@ -71,7 +71,7 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
 	msg.message = comment.message + \
 		"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
-	msg.topicarea = comment.bill.hashtag() + "-" + str(comment.bill.congressnumber)
+	msg.topicarea = comment.bill.hashtag(always_include_session=True)
 	if comment.bill.topterm != None:
 		msg.topicarea = comment.bill.topterm.name
 	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","")
