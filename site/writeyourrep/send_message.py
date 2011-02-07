@@ -142,6 +142,7 @@ common_fieldnames = {
 	"zip4": "zip4",
 	"zipfour": "zip4",
 	"zip2": "zip4",
+	"plusfour": "zip4",
 	"postalcode": "zipcode",
 	"mailing_zipcode": "zipcode",
 	"phone": "phone",
@@ -210,7 +211,7 @@ common_fieldnames = {
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
 skippable_fields = ("prefixother", "middle", "middlename", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact",
-	"survey_answer_1", "survey_answer_2", "survey_answer_3")
+	"survey_answer_1", "survey_answer_2", "survey_answer_3", "speech")
 
 select_override_validate = ("county",)
 radio_choices = {
@@ -243,6 +244,7 @@ custom_overrides = {
 	'179_affl_radio': 'on',
 	'198_field_5eb7428f-9e29-4ecb-a666-6bc56b6a435e_radio': 'NO', #response req
 	'204_action_radio': '', # subscribe
+	"568_subject_radio": "CRNR", # no response
 }
 
 class WebformParseException(Exception):
@@ -270,7 +272,12 @@ def find_webform(htmlstring, webformid, webformurl):
 	# cut out all table tags because when tables are mixed together with forms
 	# html5lib can reorder the tags so that the fields fall out of the form.
 	htmlstring = re.sub("</?(table|tr|td|tbody)( [^>]*)?>", "", htmlstring)
-	htmlstring = re.sub("<FORM ", "<form ", htmlstring) # make sure start and end tag match in case
+	
+	# change all tag names to lower case
+	htmlstring = re.sub(r"<(/?)([A-Z]+)", lambda m : "<" + (m.group(1) if m.group(1) != None else "") + m.group(2).lower(), htmlstring)
+	
+	# make sure all input tags are closed
+	#htmlstring = re.sub(r"(<input[^/]+?)(checked)?>", lambda m : m.group(1) + ("" if m.group(2) == None else "checked='1'") + "></input>", htmlstring)
 
 	doc = html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("dom")).parse(htmlstring)
 	
@@ -278,7 +285,7 @@ def find_webform(htmlstring, webformid, webformurl):
 	
 	# scan <form>s
 	altforms = []
-	for form in doc.getElementsByTagName("form")+doc.getElementsByTagName("FORM"):
+	for form in doc.getElementsByTagName("form"):
 		if form.getAttribute("id") == webformid or \
 			form.getAttribute("name") == webformid or \
 			webformid in ["." + x for x in form.getAttribute("class").split()] or \
@@ -383,7 +390,9 @@ def parse_webform(webformurl, webform, webformid, id):
 		ax = attr.lower()
 		
 		#if ax == "ctl00$ctl01$zip": ax = "zip5" # 199
+		if ax == "ctl00$ctl04$zip": ax = "zip5"
 		if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
+		if ax == "ctl00$ctl06$zip": ax = "zip5"
 		#if ax == "ctl00$ctl08$zip": ax = "zip5" # 191
 		#if ax == "ctl00$ctl09$zip": ax = "zip5" # 191
 		#if ax == "ctl00$ctl10$zip": ax = "zip5" # 173
@@ -505,7 +514,11 @@ def send_message_webform(di, msg, deliveryrec):
 		webform = http.open(webformurl, urllib.urlencode(postdata)).read()
 
 	webformid = webform_stages.pop(0) if len(webform_stages) > 0 else "<not entered>"
-	field_map, field_options, field_default, formaction = parse_webform(webformurl, webform, webformid, di.id)
+	try:
+		field_map, field_options, field_default, formaction = parse_webform(webformurl, webform, webformid, di.id)
+	except:
+		deliveryrec.trace += "\n" + webform.decode('utf8', 'replace') + "\n\n"
+		raise
 			
 	# Make sure that we've found the equivalent of all of the fields
 	# that the form should be accepting.
@@ -604,7 +617,7 @@ def send_message_webform(di, msg, deliveryrec):
 
 	if di.webformresponse == None or di.webformresponse.strip() == "":
 		deliveryrec.trace += "\n" + ret + "\n\n"
-		raise WebformParseException("Webform's webformresponse text is not set.")
+		raise SubmissionSuccessUnknownException("Webform's webformresponse text is not set.")
 
 	success = (di.webformresponse in ret)
 	
@@ -653,6 +666,7 @@ def send_message_housewyr(msg, deliveryrec):
 			raise IOError("Form POST resulted in an error.")
 		
 		ret = ret.read()
+		ret = ret.decode('utf8', 'replace')
 		
 		for rt in responsetext.split("|"):
 			if rt in ret:
@@ -781,6 +795,8 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 	except Exception, e:
 		deliveryrec.trace += str(e) + "\n"
 		deliveryrec.failure_reason = DeliveryRecord.FAILURE_UNHANDLED_EXCEPTION
+		import traceback
+		traceback.print_exc()
 		
 	deliveryrec.save()
 

@@ -38,14 +38,14 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	
 	# Filter out delivery targets that we know we have no delivery method for.
 	govtrackrecipientids = [g for g in govtrackrecipientids
-		if not Endpoint.objects.filter(govtrackid = g, method = Endpoint.METHOD_NONE).exists()]
+		if not Endpoint.objects.filter(govtrackid = g, method = Endpoint.METHOD_NONE, tested=True).exists()]
 	if len(govtrackrecipientids) == 0:
 		reject_no_method += 1
 		continue
 
 	# offices that we know require a phone number and we don't have it
 	govtrackrecipientids = [g for g in govtrackrecipientids
-		if comment.address.phonenumber != "" or g not in (412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,300062)]
+		if comment.address.phonenumber != "" or g not in (412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,300062,400255,400633,400408)]
 	if len(govtrackrecipientids) == 0:
 		reject_no_phone += 1
 		continue
