@@ -50,7 +50,6 @@ for userprof in users:
 	
 	try:
 		msg.send()
-		print user.email
 	except Exception, e:
 		print user.email, str(e)
 
