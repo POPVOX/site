@@ -928,7 +928,7 @@ class UserComment(models.Model):
 	def get_recipients(self):
 		ch = self.bill.getChamberOfNextVote()
 		if ch == None:
-			return "The comment cannot be delivered because the bill is not pending a vote in Congress."
+			return "The comment will not be delivered because the bill is not pending a vote in Congress."
 			
 		d = self.address.state + str(self.address.congressionaldistrict)
 		
@@ -943,6 +943,45 @@ class UserComment(models.Model):
 			govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
 			
 		return govtrackrecipients
+	
+	def delivery_status(self):
+		if self.message == None:
+			return ""
+		
+		recips = self.get_recipients()
+		if not type(recips) == list:
+			return recips
+			
+		if len(recips) == 0:
+			return "The comment cannot be delivered at this time because the Congressional office(s) that represents you is/are currently vacant."
+			
+		recips = [g["id"] for g in recips]
+		
+		retd = { }
+		for d in self.delivery_attempts.filter(next_attempt__isnull = True):
+			if d.target.govtrackid in recips:
+				recips.remove(d.target.govtrackid)
+			if d.success:
+				if not d.created.strftime("%x") in retd:
+					retd[d.created.strftime("%x")] = []
+				retd[d.created.strftime("%x")].append(d.target.govtrackid)
+			else:
+				retd[d.target.govtrackid] = "We had trouble delivering your message to " + govtrack.getMemberOfCongress(d.target.govtrackid)["name"] + " but we will try again. "
+				
+		retk = list(retd.keys())
+		retk.sort()
+		
+		ret = ""
+		for k in retk:
+			if type(k) == str:
+				ret += "Your comment was delivered to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in retd[k]]) + " on " + k + ". "
+			else:
+				ret += retd[k]
+				
+		if len(recips) > 0:
+			ret += "Your comment has not yet been sent to Congress. It is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
+			
+		return ret
 	
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people

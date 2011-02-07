@@ -79,7 +79,8 @@ function phone_number_twilio_callback() {
 						<p class="date">{{comment.updated|date2}}</p>
 						<h4>You {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.displaynumber}}</a></h4>
 						{% if comment.message %}
-						<p>&ldquo;{{comment.message|truncatewords:30}}&rdquo; </p>
+						<p style="margin-bottom: 0">&ldquo;{{comment.message|truncatewords:30}}&rdquo; </p>
+						<p style="margin-bottom: 0"><small>({{comment.delivery_status}})</small></p>
 						{% else %}
 						<p style="margin-bottom: 0"><small>{{comment.bill.title_no_number|truncatewords:10}}</small></p>
 						{% endif %}
