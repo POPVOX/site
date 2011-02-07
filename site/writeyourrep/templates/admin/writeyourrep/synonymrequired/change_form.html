@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% block after_related_objects %}
+{% if change %}{% if not is_popup %}
+	
+<p>To add a synonym, edit the fields so that there is one line in the first box and one line in the second box, deleting the rest, and then save.</p>
+
+{% endif %}{% endif %}
+{% endblock %}
+

@@ -5,6 +5,8 @@ from popvox.govtrack import CURRENT_CONGRESS
 
 from writeyourrep.send_message import Message, send_message, Endpoint
 
+recips = { }
+
 # it would be nice if we could skip comment records that we know we
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
@@ -15,23 +17,15 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	if not type(govtrackrecipients) == list:
 		continue
 	
-	# Filter out delivery targets that we've already successfully delivered to
-	# or we know we have no available method of delivery for.
+	# Filter out delivery targets that we've already successfully delivered to.
 	govtrackrecipientids = [
 		g["id"] for g in govtrackrecipients
-		if not comment.delivery_attempts.filter(target__govtrackid = g["id"], success = True).exists() and not Endpoint.objects.filter(govtrackid = g["id"], method = Endpoint.METHOD_NONE).exists()]
+		if not comment.delivery_attempts.filter(target__govtrackid = g["id"], success = True).exists()]
 		
-	# TESTING...
-	# Filter out delivery targets that we've already attempted, except those
-	# that needed option mapping.
-	govtrackrecipientids = [
-		g for g in govtrackrecipientids
-		if not comment.delivery_attempts.filter(target__govtrackid = g).exclude(failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE).exists() ]
-	
 	if len(govtrackrecipientids) == 0:
 		continue
 		
-	print comment
+	#print comment
 
 	# Set up the message record.
 	
@@ -48,7 +42,8 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	msg.zipcode = comment.address.zipcode
 	msg.phone = comment.address.phonenumber
 	msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
-	msg.message = comment.message + "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
+	msg.message = comment.message + \
+		"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
 	msg.topicarea = comment.bill.hashtag()
 	if comment.bill.topterm != None:
 		msg.topicarea = comment.bill.topterm.name
@@ -56,10 +51,10 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	if comment.position == "+":
 		msg.support_oppose = ('i support',)
 	else:
-		msg.support_oppose = ('i sppose',)
+		msg.support_oppose = ('i oppose',)
 	
 	if comment.referrer != None and isinstance(comment.referrer, Org):
-		msg.campaign_id = "popvox.com" + comment.referrer.url()
+		msg.campaign_id = "http://popvox.com" + comment.referrer.url()
 		msg.campaign_info = comment.referrer.name
 		msg.form_url = "http://www.popvox.com" + comment.referrer.url()
 		if comment.referrer.website == None:
@@ -70,7 +65,7 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 		msg.org_description = comment.referrer.description
 		msg.org_contact = "(unknown)"
 	elif comment.referrer != None and isinstance(comment.referrer, OrgCampaign):
-		msg.campaign_id = "popvox.com" + comment.referrer.url()
+		msg.campaign_id = "http://popvox.com" + comment.referrer.url()
 		msg.campaign_info = comment.referrer.name
 		msg.form_url = "http://www.popvox.com" + comment.referrer.url()
 		if comment.referrer.website_or_orgsite() == None:
@@ -81,8 +76,8 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 		msg.org_description = comment.referrer.org.description
 		msg.org_contact = "(unknown)"
 	else:
-		msg.campaign_id = "popvox.com" + comment.bill.url()
-		msg.campaign_info = "Comments on Bill " + comment.bill.title
+		msg.campaign_id = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
+		msg.campaign_info = "Comments " + ("Supporting" if comment.position == "+" else "Opposing") + " " + comment.bill.title
 		msg.form_url = "http://www.popvox.com" + comment.bill.url()
 		msg.org_url = "popvox.com" # harkin: no leading http://www.
 		msg.org_name = "POPVOX.com Message Delivery Agent"
@@ -91,7 +86,7 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	
 	msg.delivery_agent = "POPVOX.com"
 	msg.delivery_agent_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
-
+	
 	# Begin delivery.
 	
 	for govtrackrecipientid in govtrackrecipientids:

@@ -4,6 +4,7 @@ import re
 import urllib
 import urlparse
 import html5lib
+import xml.sax.saxutils
 
 from writeyourrep.models import *
 from testzipcodes import testzipcodes
@@ -26,14 +27,46 @@ u"""%prefix %firstname %lastname %suffix <%email>
 %city, %state %zipcode
 %phone
 
-= [%topicarea] %support_oppose %subjectline =
+%topicarea / %support_oppose 
+%subjectline
+
 %message
 
-[%campaign_id %campaign_info %form_url 
-%org_name <%org_url> <%org_contact>
-%org_description]
-
-[%delivery_agent <%delivery_agent_contact>""")
+Campaign:
+	%campaign_id
+	%campaign_info
+	%form_url 
+Org:
+	%org_name
+	%org_description
+	%org_url
+	%org_contact
+Delivery:
+	%delivery_agent
+	%delivery_agent_contact
+""")
+			
+	def xml(self):
+			import re
+			return re.sub(
+				r"%(\w+)",
+				lambda m : xml.sax.saxutils.escape(unicode(getattr(self, m.group(1)))),
+u"""<APP>CUSTOM
+<PREFIX>%prefix</PREFIX>
+<FIRST>%firstname</FIRST>
+<LAST>%lastname</LAST>
+<SUFFIX>%suffix</SUFFIX>
+<ADDR1>%address1</ADDR1>
+<ADDR2>%address2</ADDR2>
+<CITY>%city</CITY>
+<STATE>%state</STATE>
+<ZIP>%zipcode</ZIP>
+<PHONE>%phone</PHONE>
+<EMAIL>%email</EMAIL>
+<TOPIC>%campaign_id</TOPIC>
+<RSP>Y</RSP>
+<MSG>%message</MSG>
+</APP>""")
 
 # Here are some common aliases for the field names we use.
 # Don't include spaces, all lowercase.
