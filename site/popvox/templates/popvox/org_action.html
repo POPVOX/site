@@ -48,9 +48,18 @@ function validate(form) {
 {% endblock %}
 {% block content %}
 	<div class="content org_custom">
+		{% if admin %}
+			<p class="whattodonext">
+				<strong>This is your custom action page for {{position.bill.title|truncatewords:20}}.</strong>
+				<br/><br/>
+				Edit the headline and body text below to create a compelling message for your members. When you are done, send your members to this page to take action. (They won&rsquo;t see the edit buttons or this text!) Use the short URL <tt>{{shorturl}}</tt> to link to this page (we&rsquo;ll be adding analytics in the future).
+			</p>
+		{% endif %}
+
 		<div class="col_12">
+			{% if admin %}<div class="b_edit b_edit_h1" id="action_headline_editbtn" onclick="$('#action_headline').click()"></div>{% endif %}
 			<h1 class="rule_btm"><span id="action_headline">{{position.action_headline}}</span> <span class="info">A message from {{position.campaign.org.name}}</span></h1>
-			{% if admin %}<div class="b_edit b_edit_h1" id="action_headline_editbtn" onclick="$('#action_headline').click()"></div><script>$('#action_headline').inline_edit(update_headline, 'input');</script>{% endif %}
+			{% if admin %}<script>$('#action_headline').inline_edit(update_headline, 'input');</script>{% endif %}
 		</div>
 		
 		<div class="col_6">
@@ -59,16 +68,12 @@ function validate(form) {
 				<img class="float_right" src="http://william.popvox.com/media/master/_dummy_org_upload.jpg" alt="dummy" width="" height="" />
 				{% endcomment %}
 				
+				{% if admin %}<div class="b_edit b_edit_msg" id="action_body_editbtn" onclick="$('#action_body').click()"></div>{% endif %}
 				<div id="action_body">
 					{{ position.action_body|safe }}
 				</div>
-				{% if admin %}<div class="b_edit b_edit_msg" id="action_body_editbtn" onclick="$('#action_body').click()"></div><script>$('#action_body').inline_edit(update_body, 'tinymce');</script>{% endif %}
+				{% if admin %}<script>$('#action_body').inline_edit(update_body, 'tinymce');</script>{% endif %}
 				
-				{% if admin %}
-					<p class="whattodonext">
-						This is your custom action page for {{position.bill.title|truncatewords:20}}. Edit the headline and body text above to create a compelling message for your members. When you are done, send your members to this page to take action. (They won&rsquo;t see the edit buttons or this text!) You can copy the address of this page from your address bar or use: <tt>{{shorturl}}</tt>
-					</p>
-				{% endif %}
 			</div>
 			
 			<div class="bills">
@@ -108,7 +113,7 @@ function validate(form) {
 				<p>This bill {{position.bill.getDeadReason}}. You can no longer write a comment about this bill.</p>
 			{% else %}
 		
-			<h3 class="no_rule orange">{% if position.position == "+" %}Support{% endif %}{% if position.position == "-" %}Oppose{% endif %} {{position.bill.displaynumber}}</h3>
+			<h3 class="no_rule orange">{{verb}} {{position.bill.displaynumber}}</h3>
 			<form class="form form_org" action="{{position.bill.url}}/comment/{% if position.position == "+" %}support{% endif %}{% if position.position == "-" %}oppose{% endif %}" method="POST" onsubmit="return validate(this);"><br />
 			{% csrf_token %}
 				<input type="hidden" name="orgcampaignposition" value="{{position.id}}"/>
@@ -134,7 +139,7 @@ function validate(form) {
 		
 			{% if admin %}
 				<p class="whattodonext">
-					{{num}} user{{num|pluralize}} filled out this form so far. Download data in <a href="{{position.get_absolute_url}}/_download/csv">CSV</a> format.
+					{{num}} user{{num|pluralize}} filled out this form so far.<br/><br/>Download data in <a href="{{position.get_absolute_url}}/_download/csv">CSV</a> format.
 				</p>
 			{% endif %}
 		</div>

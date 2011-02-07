@@ -16,7 +16,6 @@
 	{% csrf_token %}
 	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
 	<input type="hidden" name="message" value="{% if message %}{{message}}{% endif %}"/>
-	<input type="hidden" name="district" value="{{district}}" id="districtfield"/>
 	
 	{% if not newaccount_error and message %}
 		<div class="tip_inline mar_no">
@@ -134,11 +133,11 @@
 			
 				<label for="login_email">email</label>
 				<input class="c2" type="text" id="login_email" value="{{email}}"/><br />
-				<span id="login_errorlabel_email" class="error"></span>
+				<div id="login_errorlabel_email" class="error"> </div>
 				
 				<label for="login_password">password</label>
 				<input class="c2" type="password" id="login_password"/><br />
-				<span id="login_errorlabel_password" class="error"></span>
+				<div id="login_errorlabel_password" class="error"> </div>
 				
 				<input class="b_login btn" type="button" value="Login" onclick="trylogin()" class="submit"/>
 				<div class="error" id="login_errorlabel"></div>

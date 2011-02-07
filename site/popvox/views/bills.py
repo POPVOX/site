@@ -595,6 +595,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			# TODO: Validate that a message has been provided and that messages are
 			# not too long or too short.
 			message = request.POST.get("message", None)
+			if message != None and (message.strip() == "" or message == "None"):
+				message = None
 		else:
 			message = request.session[pending_comment_session_key]["message"]
 		
@@ -608,9 +610,12 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			"position": position,
 			"message": message
 			}
-			
-		request.goal = { "goal": "comment-preview" }
 		
+		if message != None:
+			request.goal = { "goal": "comment-preview" }
+		else:
+			request.goal = { "goal": "comment-nomessage" }
+
 		return render_to_response('popvox/billcomment_preview.html', {
 				'bill': bill,
 				"position": position,
@@ -1141,7 +1146,14 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 							moctype="rep" if district != None else "sen")]
 					)
 				)
-			
+	
+	t = re.escape(bill.title).replace(":", ":?")
+	def msg(m):
+		m = re.sub(r"I (support|oppose) " + t + r" because[\s\.]*(\S)",
+			lambda x : x.group(2).upper(), m)
+		m = re.sub(r"\n+\W*$", "", m)
+		return m
+
 	from django.contrib.humanize.templatetags.humanize import ordinal
 	def location(c):
 		if district != None:
@@ -1159,7 +1171,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 		"comments":
 			[ {
 				"user":c.user.username,
-				"msg": c.message,
+				"msg": msg(c.message),
 				"location": location(c.address),
 				"date": formatDateTime(c.updated),
 				"pos": c.position,

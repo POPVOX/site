@@ -17,6 +17,7 @@ from xml.dom import minidom
 import urllib
 import cgi
 from StringIO import StringIO
+from datetime import datetime
 
 from popvox.models import *
 from popvox.views.bills import getissueareas
@@ -169,6 +170,10 @@ def org_update_fields(request, field, value, validate_only):
 		m = re.match(r"^http://(www.)?facebook.com/([^/ ]+)$", value)
 		if m != None:
 			gid = m.group(2)
+
+		m = re.match(r"^http://(www.)?facebook.com/group.php\?gid=(\d+)$", value)
+		if m != None:
+			gid = m.group(2)
 			
 		if gid == None:
 			gid = value
@@ -179,7 +184,7 @@ def org_update_fields(request, field, value, validate_only):
 		fb = json.load(urlopen("http://graph.facebook.com/" + gid))
 		if "error" in fb:
 			raise ValueError("That is not a Facebook Page address.")
-		if "link" in fb: # normalize value to what Facebook says
+		if "link" in fb and "http://www.facebook.com" in fb["link"] : # normalize value to what Facebook says, FB Group link values are to an external website...
 			value = fb["link"]
 		if not validate_only and value != org.facebookurl:
 			org.facebookurl = value
@@ -289,6 +294,8 @@ def org_update_logo_2(org, imagedata):
 	from PIL import Image
 	dims = (220, 166)
 	imx = Image.open(imagedata)
+	if imx.mode != "RGB":
+		imx = imx.convert("RGB") # convert out of pallette image
 	topleftcolor = imx.getpixel((0,0))
 	(w, h) = imx.size
 	if w > h*dims[0]/dims[1]:
@@ -305,8 +312,6 @@ def org_update_logo_2(org, imagedata):
 
 	# Get out the binary jpeg data.
 	buf = StringIO()
-	if im.mode != "RGB":
-		im = im.convert() # convert out of pallette image
 	im.save(buf, "JPEG")
 	
 	try:
@@ -410,41 +415,48 @@ def org_support_oppose(request):
 	# Get a bill object.
 	bill = bill_from_url(request.POST["bill"])
 	
-	# Delete any existing positions 
-	cam.positions.filter(bill = bill).delete()
-	
-	# Add the position to the campaign.
-	p = OrgCampaignPosition()
-	p.campaign = cam
-	p.bill = bill
+	# Add the position to the campaign. Don't delete an existing position
+	# because it will delete any associated org custom action page info.
+	try:
+		p = cam.positions.get(bill = bill)
+	except:
+		p = OrgCampaignPosition()
+		p.campaign = cam
+		p.bill = bill
+
 	p.position = request.POST["position"]
 	if request.POST["comment"].strip() != "":
 		p.comment = request.POST["comment"].strip()	
 	p.save()
 
+	if p.position == "+":
+		support = "Endorse"
+	elif p.position == "-":
+		support = "Oppose"
+	elif p.position == "0":
+		support = "Neutral"
+
 	if cam.slug == "_default_":
-		message = p.bill.title + " has been added to " + org.name + "'s legislative agenda."
+		message = "%s (%s) has been added to %s's legislative agenda. (%s)" % (p.bill.displaynumber(), support, org.name, p.bill.title)
 	elif not newcam:
-		message = p.bill.title + " has been added to " + cam.name + "."
+		message = "%s (%s) has been added to the %s campaign. (%s)" % (p.bill.displaynumber(), support, cam.name, p.bill.title)
 	else:
-		message = "A new campaign has been created for " + p.bill.title + "."
+		message = "A new campaign named %s was created and %s (%s) was added to its legislative agenda. (%s)" % (cam.name, p.bill.displaynumber(), support, p.bill.title)
 
 	# Send an email to all of the org's administrators.
 	send_mail("POPVOX: Legislative Agenda Changed: " + org.name,
 """This is an automated email to confirm the following change to the
-legislative agenda of """ + org.name + """.
+legislative agenda of %s. The following action was taken:
 
-The following action was taken:
-
-""" + message + """
+   %s
 
 For more information please see your organization profile:
-""" + SITE_ROOT_URL + org.url() + """/_edit
+%s
 
 Thanks for participating!
 
 POPVOX
-""",
+""" % (org.name, message, SITE_ROOT_URL + org.url() + "/_edit"),
 		EMAILVERIFICATION_FROMADDR, [admin.user.email for admin in org.admins.all()], fail_silently=True)
 	
 	# Add a session message to be displayed on the next page.
@@ -614,9 +626,17 @@ def action(request, orgslug, billposid):
 			del request.session["shorturl"]
 			
 		num = OrgCampaignPositionActionRecord.objects.filter(ocp=billpos).count()
+
+	# create a Comment instance to get the appropriate verb to display
+	# to the user
+	cx = UserComment()
+	cx.created = datetime.now()
+	cx.bill = billpos.bill
+	cx.position = billpos.position
 	
 	return render_to_response('popvox/org_action.html', {
 		'position': billpos,
+		"verb": cx.verb(tense="imp"),
 		'admin': admin,
 		"shorturl": url,
 		"num": num,

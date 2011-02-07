@@ -153,13 +153,18 @@
 					{% include "popvox/org_common_position.html" %}
 				{% endwith %}
 			{% empty %}
-				Add legislation to your campaign by searching for a bill your organization endorses or opposes.
+				<p>Add legislation to your campaign by searching for a bill your organization endorses, opposes, or has a neutral position on.</p>
 			{% endfor %}
 			</div>
 
-			{% with cam.org as org %}
-			{% include "popvox/endorse_oppose.html" %}
-			{% endwith %}
+			<div class="bill_search search_orange">
+				<div class="search_box">
+					<p><strong>ADD BILL</strong></p>
+					{% with cam.org as org %}
+					{% include "popvox/endorse_oppose.html" %}
+					{% endwith %}
+				</div>
+			</div>
 		</div>
 
 		<h3>Publish This Campaign</h3>

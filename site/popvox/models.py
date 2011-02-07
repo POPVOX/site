@@ -732,7 +732,7 @@ class PositionDocument(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	def __unicode__(self):
-		return govtrack.getMemberOfCongress(self.member)["name"] + " - " + self.bill.title + " [" + str(self.doctype) + "]"
+		return self.bill.title + " [" + self.get_doctype_display() + "]"
 		
 class PostalAddress(models.Model):
 	"""A postal address."""
@@ -882,6 +882,8 @@ class UserComment(models.Model):
 					return "supported"
 				elif tense=="ing":
 					return "supporting"
+				elif tense=="imp":
+					return "support"
 			else:
 				if tense=="present":
 					return "opposes"
@@ -889,6 +891,8 @@ class UserComment(models.Model):
 					return "opposed"
 				elif tense=="ing":
 					return "opposing"
+				elif tense=="imp":
+					return "oppose"
 		else:
 			# comment was left after Congress recessed, and the comment now
 			# is about reintroduction
@@ -899,6 +903,8 @@ class UserComment(models.Model):
 					return "supported the reintroduction of"
 				elif tense=="ing":
 					return "supporting the reintroduction of"
+				elif tense=="imp":
+					return "support the reintroduction of"
 			else:
 				if tense=="present":
 					return "opposes the reintroduction of" # we have no interface for users to leave a negative comment
@@ -906,6 +912,8 @@ class UserComment(models.Model):
 					return "opposed the reintroduction of"
 				elif tense=="ing":
 					return "opposing the reintroduction of"
+				elif tense=="imp":
+					return "oppose the reintroduction of"
 
 	def shares(self):
 		import shorturl

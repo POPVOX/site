@@ -50,6 +50,11 @@ function billsearch_q_submit() {
 	return false;
 }
 function billsearch_endorse_oppose(pos) {
+	if (pos == "0" && $('#bill_endorse_oppose_comment').hasClass('default')) {
+		alert("You must provide a short explanation of your position when you leave a neutral statement.");
+		return false;
+	}
+
 	$('#billsearch_endorse_oppose_submit_endorse').attr('disabled', '1');
 	$('#billsearch_endorse_oppose_submit_oppose').attr('disabled', '1');
 	$('#billsearch_endorse_oppose_submit_cancel').attr('disabled', '1');
@@ -59,7 +64,7 @@ function billsearch_endorse_oppose(pos) {
 		   "cam": ( $('#billsearch_endorse_oppose_forcam')[0].checked ? $('#billsearch_endorse_oppose_cam').val() : "_default_"),
 		   "bill": selected_bill.url,
 		   "position": pos,
-		   "comment": $('#bill_endorse_oppose_comment').val()
+		   "comment": $('#bill_endorse_oppose_comment').hasClass('default') ? "" : $('#bill_endorse_oppose_comment').val()
 		},
 		{
 			success: function(res) {
@@ -76,7 +81,9 @@ function billsearch_endorse_oppose(pos) {
 				$('#billsearch_endorse_oppose_submit_cancel').attr('disabled', '');
 			}
 		}
-		);					
+		);
+
+	return false;
 }
 </script>
 <div class="">
@@ -106,8 +113,9 @@ function billsearch_endorse_oppose(pos) {
 				<label>Status</label> <span></span>
 			</div>
 		</div>
-		<p>Provide a short explanation of your position: (optional)</p>
-		<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%"></textarea>
+		<textarea id="bill_endorse_oppose_comment" style="margin-top: 1em; height: 80px; width: 100%"></textarea>
+		<script>$('#bill_endorse_oppose_comment').input_default("Provide a short explanation of your position. (Optional except when leaving a neutral statement.)");</script>
+
 		<div id="billsearch_endorse_oppose_campaign" {% if cam %}style="display: none"{% endif %}>
 			<p>Campaigns are issue silos in which your organization may endorse or oppose one or more bills.</p>
 			<p>
@@ -125,6 +133,7 @@ function billsearch_endorse_oppose(pos) {
 			<input id="billsearch_endorse_oppose_submit_endorse" class="submit" type="button" value="Endorse" onclick="billsearch_endorse_oppose('+')"/>
 			<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="billsearch_endorse_oppose('-')"/>
 		</div>
+		<p>Or leave a <a href="#" onclick="return billsearch_endorse_oppose('0')">neutral statement</a>.</p>
 		{% comment %}<div style="text-align: center">
 			<a id="billsearch_endorse_oppose_submit_cancel" href="#" onclick="$.colorbox.close(); return false">Cancel</a>
 		</div>{% endcomment %}

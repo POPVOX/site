@@ -93,8 +93,10 @@
 		{% endfor %}
 		</div>
 		{% endif %}
-		
+
 		{% if admin %}
+		<p class="edit">To add more items to this legislative agenda, <a href="{{cam.slug}}/_edit">edit this campaign</a>.</p>
+
 		<p class="whattodonext" style="margin-top: 2em">
 		Done setting up the legislative agenda of this campaign? Go back to your profile&rsquo;s <a href="{{cam.org.url}}">main page</a> and review what you entered or check on your legislation on your <a href="/home">home dashboard</a>.
 		</p>

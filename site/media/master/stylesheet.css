@@ -530,6 +530,9 @@ table.form_fields td {
 	color: red;
 	font-weight: bold;
 }
+	.form .error {
+		margin-top: -10px;
+		}
 
 .inlineedit {
 	cursor: pointer;
@@ -1236,7 +1239,10 @@ h3#reporttitle {
 		display: block;
 		margin-bottom: 15px;
 		padding: 0 0 0 45px;
-		position: relative;
+		/* position: relative; breaks remove button on org profile */
+		min-height: 35px;
+		height: auto !important;
+		height: 35px;
 		}
 		
 		div.endorse a,
@@ -3634,8 +3640,8 @@ ul.staff, .small {
 		
 	.b_add,
 	.b_remove {
-		width: 15px;
-		height: 15px;
+		width: 16px;
+		height: 16px;
 		text-indent: -9999em;
 		display: block;
 		float: right;
@@ -3660,15 +3666,13 @@ ul.staff, .small {
 			}
 			
 			.b_edit_h1 {
-				position: absolute;
-				left: -10px;
-				top: 20px;
+				float: left;
+				margin-left: -30px;
 				}
 
 			.b_edit_msg {
-				position: absolute;
-				left: -10px;
-				top: 93px;
+				float: left;
+				margin-left: -30px;
 				}
 				
 			.b_edit_title {

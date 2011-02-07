@@ -109,6 +109,7 @@
 					elem.find("h4 span.date").text(c.date);
 					elem.find(".share a").attr("href", c.share);
 					elem.find("p").text(c.msg)
+					elem.find("p").html(elem.find("p").html().replace("\n", "<br/><br/>"))
 					if (c.verb != "supports" && c.verb != "opposes")
 						elem.find(".verb").text(c.verb + " this bill");
 					elem.find(".endorse_oppose_image").addClass((c.pos == "+") ? "endorse" : "oppose")

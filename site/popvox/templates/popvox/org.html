@@ -123,19 +123,26 @@
 				{% if cam.description %}<p class="campaign_description"><em>{{ cam.description }}</em></p>{% endif %}
 				{% endif %}
 				
-				{% if not cam.visible %}<p class="whattodonext">This campaign has not yet been <a href="{{cam.url}}/_edit">published</a>.</p>{% endif %}
-				
 				{% for position in cam.positions.all %}
 					{% include "popvox/org_common_position.html" %}
+				{% empty %}
+					<p style="margin-left: 45px">This campaign does not have a legislative agenda.</p>
 				{% endfor %}
+
+				{% if not cam.visible %}<p class="error" style="margin-left: 45px">(This campaign has not yet been <a href="{{cam.url}}/_edit">published</a>. It is currently hidden from public view.)</p>{% endif %}
+
 			{% endfor %}
 			
 			{% if admin %}
-			<p><em>To endorse or oppose legislation you have the option to <a href="{{org.url}}/_newcampaign">create a new campaign</a> or search for a bill:</em></p>
+			<div class="hr"> </div>
+
+			<p><em>To endorse, oppose, or leave a neutral statement on legislation search for a bill
+			below, or <a href="{{org.url}}/_newcampaign">create a new campaign</a> if you intend to
+			group multiple bills under a single silo.</em></p>
 			
 			<div class="bill_search search_orange">
 				<div class="search_box">
-					<p><strong>Bill Search</strong></p>
+					<p><strong>ADD BILL</strong></p>
 					{% include "popvox/endorse_oppose.html" %}	
 				</div>
 			</div>
@@ -180,6 +187,7 @@
 		{% endif %}
 	
 		{% if admin and cams and org.visible %}
+		<div class="hr"> </div>
 		<p class="whattodonext">Done setting up your organization&rsquo;s profile? Check on your legislation on your <a href="/home">home dashboard</a>.</p>
 		{% endif %}
 		

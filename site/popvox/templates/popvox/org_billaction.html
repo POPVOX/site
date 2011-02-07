@@ -1,7 +1,9 @@
 {% load humanize %}
 	<ul class="bullets">
 		<li id="getorgshorturl_{{position.id}}"><a href="#" onclick="return getorgshorturl({{position.id}})">Get a tracking URL</a></li>
+		{% if position.position != "0" %}
 		<li><a href="{{position.campaign.org.url}}/_action/{{position.id}}">Create a customized action page for list building</a></li>
+		{% endif %}
 		
 		{% with position.documents as docs %}
 			<li><a href="{{position.bill.url}}/upload?org={{position.campaign.org.slug}}">

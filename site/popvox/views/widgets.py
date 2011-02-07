@@ -61,6 +61,10 @@ def commentmapus(request):
 	yoffset = 192 # ??
 	
 	for district in count:
+		# Some invalid congressional districts!
+		if not district in widgets_usmap.district_locations:
+			continue
+
 		# we'll compute a score on two dimensions (each from 0 to 1)
 		#    overall sentiment, the % of comments in support
 		#    contentiousness, the relative number of commets compared to districts nationally
