@@ -19,16 +19,12 @@ success = 0
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
-<<<<<<< HEAD
 for comment in UserComment.objects.filter(
 	message__isnull=False,
 	bill__congressnumber=CURRENT_CONGRESS,
 	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
 	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5)
 	).order_by('created').select_related("bill"):
-=======
-for comment in UserComment.objects.filter(message__isnull=False, bill__congressnumber=CURRENT_CONGRESS).order_by('created').select_related("bill"):
->>>>>>> require user to enter their name prefix; wry module work
 	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
 	if not type(govtrackrecipients) == list:
@@ -48,22 +44,14 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	
 	# Filter out delivery targets that we know we have no delivery method for.
 	govtrackrecipientids = [g for g in govtrackrecipientids
-<<<<<<< HEAD
 		if not Endpoint.objects.filter(govtrackid = g, method = Endpoint.METHOD_NONE, tested=True).exists()]
-=======
-		if not Endpoint.objects.filter(govtrackid = g, method = Endpoint.METHOD_NONE).exists()]
->>>>>>> require user to enter their name prefix; wry module work
 	if len(govtrackrecipientids) == 0:
 		reject_no_method += 1
 		continue
 
 	# offices that we know require a phone number and we don't have it
 	govtrackrecipientids = [g for g in govtrackrecipientids
-<<<<<<< HEAD
 		if comment.address.phonenumber != "" or g not in (412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,300062,400255,400633,400408)]
-=======
-		if comment.address.phonenumber != "" or g not in (412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,300062)]
->>>>>>> require user to enter their name prefix; wry module work
 	if len(govtrackrecipientids) == 0:
 		reject_no_phone += 1
 		continue
@@ -89,11 +77,7 @@ for comment in UserComment.objects.filter(message__isnull=False, bill__congressn
 	msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
 	msg.message = comment.message + \
 		"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
-<<<<<<< HEAD
 	msg.topicarea = comment.bill.hashtag(always_include_session=True)
-=======
-	msg.topicarea = comment.bill.hashtag() + "-" + str(comment.bill.congressnumber)
->>>>>>> require user to enter their name prefix; wry module work
 	if comment.bill.topterm != None:
 		msg.topicarea = comment.bill.topterm.name
 	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","")
