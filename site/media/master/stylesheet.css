@@ -2034,7 +2034,6 @@ h1.h1_smaller {
 		}
 		
 	.form.signinup input.c2 {
-		margin-bottom: 0;
 		margin-right: 5px;
 		height: 18px;
 		width: 188px;
@@ -2048,7 +2047,7 @@ h1.h1_smaller {
 		margin-bottom: 10px;
 		margin-left: 100px;
 		margin-top: -6px;
-		width: 240px;
+		width: 500px;
 		}
 		
 	.b_create_box {

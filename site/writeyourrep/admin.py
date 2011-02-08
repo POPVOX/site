@@ -7,7 +7,7 @@ class EndpointAdmin(admin.ModelAdmin):
 
 class DeliveryRecordAdmin(admin.ModelAdmin):
 	raw_id_fields = ("target", "next_attempt")
-	readonly_fields = ("created", "target", "next_attempt", "trace") #, "success", "failure_reason")
+	readonly_fields = ("created", "target", "next_attempt") #, "trace") #, "success", "failure_reason")
 	date_hierarchy = "created"
 	list_display = ("created", "target", "success", "failure_reason")
 	list_filter = ("success", "failure_reason", "created")
