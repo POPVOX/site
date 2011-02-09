@@ -69,6 +69,7 @@
 		
 		// Post report info and then update.
 		$('#loadingstatus').text("Loading...");
+		$('#showmap').show();
 		$.ajax({
 			type:"POST",
 			url: "/ajax{{bill.url}}/report/getinfo",
@@ -174,12 +175,23 @@
 				} else {
 					$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart.");
 				}
+
+				if (!report_state || res.comments.length == 0) {
+					$('#map').show();
+					$('#showmap').hide();
+				} else {
+					$('#map').hide();
+					$('#showmap').show();
+				}
+
 			}
 		});
+
 	}
 
 	$(function() {
 		$(window).bind("hashchange", function() {
+			//$(window).scrollTop(320);
 			var hashargs = $.deparam.fragment();
 			if (hashargs.state) report_state = hashargs.state;
 			if (hashargs.district) report_district = hashargs.district;
@@ -288,6 +300,9 @@
 					</div>
 				</div>
 				{% endfor %}
+				<div id="showmap" style="text-align: center; margin: .5em">
+					<a href="#" onclick="$('#map').show(); $('#showmap').hide(); return false;">Show National Map</a>
+				</div>
 			</div>
 		</div>
 		
@@ -357,7 +372,7 @@
 	</div>
 	{% endcomment %}
 	
-	<div class="section clearfix">
+	<div id="map" class="section clearfix">
 		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}" width="940" height="522" border="0"></iframe>
 	</div>
 
