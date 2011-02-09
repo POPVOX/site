@@ -262,7 +262,9 @@ function getshorturl() {
 			</div>
 		</div>
 		{% else %}
-			<p class="no_pie">Not many people have left a comment on this bill yet. See the <a href="{{bill.url}}/report">legislative report for {{bill.displaynumber}}</a> for any comments left so far.</p>
+			<div class="no_pie">
+				<p>Too few constituents have commented on {{bill.displaynumber}} to display statistics.<br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+			</div>
 		{% endif %}
 	</div>
 	{% comment %} END OF PIE CHART {% endcomment %}
@@ -321,9 +323,9 @@ function getshorturl() {
 			<div id="status">
 				<h4>Status</h4>
 				{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-					{{bill.status_advanced}} ({{bill.current_status_date|date2}})
+					<p>{{bill.status_advanced}} ({{bill.current_status_date|date2}})</p>
 				{% else %}
-					{{bill.status}}
+					<p>{{bill.status}}</p>
 				{% endif %}
 			</div>
 			<div class="clear"> </div>

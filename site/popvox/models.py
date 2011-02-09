@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.humanize.templatetags.humanize import ordinal
 
+import sys
 import os
 from datetime import datetime, timedelta
 from urllib import urlopen
@@ -83,7 +84,7 @@ class MemberOfCongress(models.Model):
 			if not px["id"] in existing_id_set:
 				obj, new = MemberOfCongress.objects.get_or_create(id=px["id"])
 				if new:
-					print "Initializing new Member of Congress:", obj
+					sys.stderr.write("Initializing new Member of Congress: " + str(obj) + "\n")
 
 class CongressionalCommittee(models.Model):
 	"""A congressional committee or subcommittee."""
@@ -105,7 +106,7 @@ class CongressionalCommittee(models.Model):
 			if not cx["id"] in existing_id_set:
 				obj, new = CongressionalCommittee.objects.get_or_create(code=cx["id"])
 				if new:
-					print "Initializing new committee:", obj
+					sys.stderr.write("Initializing new committee: " + str(obj) + "\n")
 
 class Bill(models.Model):
 	"""A bill in Congress."""

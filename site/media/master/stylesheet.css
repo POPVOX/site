@@ -899,6 +899,16 @@ h3#reporttitle {
 	height: 455px;
 	}
 	
+.no_pie {
+	background: url(bg_pie_empty.png) left top no-repeat;
+	padding-left: 85px;
+	}	
+	
+	.no_pie a {
+		font-weight: bold;
+		text-transform: uppercase;
+		}
+	
 .legreport .block {
 	background: url(bg_legreport.png) left top no-repeat;
 	padding-left: 65px;
@@ -1245,6 +1255,7 @@ look in master/_map_style.css
 		}
 
 	div.neutral {
+		background: url("bg_neutral_bubl.png") no-repeat left top;
 		display: block;
 		margin-bottom: 15px;
 		padding: 0 0 0 45px;
@@ -3961,6 +3972,14 @@ ul.staff, .small {
 			font-size: 14px;
 			line-height: 25px;
 			} 
+
+		#billstatus #sponsor h4,
+		#billstatus #status h4 {
+			background: none;
+			padding-left: 0;
+			border-bottom: 0;
+			}
+
 		
 	.stroke {
 /*		border-bottom: 1px solid #c2bfb8;*/

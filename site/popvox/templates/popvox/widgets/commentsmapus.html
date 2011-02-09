@@ -1,3 +1,4 @@
+{% load humanize %}
 <html>
 	<head>
 		<title>Comments Map - United States - {{bill}}</title>
@@ -12,57 +13,64 @@
 		</style>
 		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 		<script>
-			function show(district, label, support, contention, x){
-				return;
+			function show(district, label, support, count, x){
 				$('#infobox').show();
 
-				if (district.substr(2) == "0"){
+				/*if (district.substr(2) == "0"){
 					$('#infobox img').hide();
 				} else {
 					$('#infobox img').show();
 					district2 = district.substr(0, 2) + (district.length == 3 ? "0" : "") + district.substr(2);
 					$('#infobox img').attr('src', 'https://s3.amazonaws.com/govtrackus/printabledistrictmaps/' + district2 + '_1200_context.png');
-				}
+				}*/
 				
 				$('#infobox div').text(label);
 				
 				$('#support').text(Math.round(support*100))
-				$('#activity').text(Math.round(contention*100))
+				$('#activity').text(count)
 				
 				left = x + 50;
-				if (left + 210 > 720)
+				if (left + 210 > 900)
 					left = x - 210 - 50;
 				$('#infobox').animate({left: left});
 			}
 		</script>
 	</head>
 	<body>
-		<div id="infobox" style="display: none; position: absolute; top: 75px; width: 210px; border: 2px solid black; background-color: white; padding: 5px; z-index: 100">
+		<div id="infobox" style="display: none; position: absolute; top: 75px; width: 198px; border: 2px solid black; background-color: white; z-index: 100">
 			<div style="text-align: center; font-weight: bold"> </div>
-			<img src="" width="200"/>
-			<p>Support: <span id="support"></span>%</p>
-			<p>Activity: <span id="activity"></span>%</p>
+			<p><span id="support"></span>% support this bill</p>
+			<p><span id="activity"></span> individuals weighing in</p>
 		</div>
 	
 		{% for district, count in data %}
-			<a href="{{bill.url}}/report#{{count.href}}" target="_top" title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.contention}}, {{count.coord.left}})" onmouseout="$('#infobox').hide()">
+			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.count}}, {{count.coord.left}})" onmouseout="$('#infobox').hide()">
 				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"> </div>
 				
 				
 			</a>
 		{% endfor %}
 		
-		<div style="position: absolute; left: 400px; top: 400px; font-size: 8pt; width: 201px; font-family: sans-serif">
-			{% for item in legend %}
-				<div style="float: left; width: 80px">
-					<div class="dots_key {{item.class}}" style="float: left; margin: 1px 3px 0 0; width: 8px; height: 8px;	-moz-border-radius: 	6px; -webkit-border-radius: 	6px; -khtml-border-radius: 6px; border-radius: 6px;"> </div>
-					<div>{{item.label}}</div>
-				</div>
-			{% endfor %}
+		<div id="legend_clr">
+			<div class="label first">Support</div>
+			<div class="dots dot_sz_3 dot_clr_5"> </div>
+			<div class="dots dot_sz_3 dot_clr_4"> </div>
+			<div class="dots dot_sz_3 dot_clr_3"> </div>
+			<div class="dots dot_sz_3 dot_clr_2"> </div>
+			<div class="dots dot_sz_3 dot_clr_1"> </div>
+			<div class="label last">Oppose</div>
 		</div>
-		
-		<div style="position: absolute; left: 400px; top: 480px; font-size: 8pt; width: 201px; font-family: sans-serif">
-			Each square represents a Congressional District.
+		<div id="legend_sz">
+			<div class="label first">{{max_sz_num}} Individual{{max_sz_num|pluralize}}</div>
+			<div class="dots dot_sz_5 dot_clr_3"> </div>
+			<div class="dots dot_sz_4 dot_clr_3"> </div>
+			<div class="dots dot_sz_3 dot_clr_3"> </div>
+			<div class="dots dot_sz_2 dot_clr_3"> </div>
+			<div class="dots dot_sz_1 dot_clr_3"> </div>
+			<div class="label last">{{min_sz_num}} Individual{{min_sz_num|pluralize}}</div>
+		</div>
+		<div id="legend_text">
+			Each dot represents a Congressional District.
 		</div>
 	</body>
 </html>

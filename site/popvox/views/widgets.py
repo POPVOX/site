@@ -34,14 +34,14 @@ def commentmapus(request):
 			count[district] = { "+": 0, "-": 0 } 
 		count[district][comment.position] += 1
 
-	max_count = 0.0
+	max_count = 0
 	for district in count:
-		max_count = max(max_count, float(count[district]["+"] + count[district]["-"]))
+		max_count = max(max_count, count[district]["+"] + count[district]["-"])
 	
-	def chartcolor(sentiment, contention):
+	def chartcolor(sentiment, countpct):
 		return "dot_clr_%d dot_sz_%d" % (
 			int(sentiment*4.9999) + 1,
-			int(contention*4.9999) + 1
+			int(countpct*4.9999) + 1
 			)
 	
 	import widgets_usmap
@@ -53,38 +53,24 @@ def commentmapus(request):
 		if not district in widgets_usmap.district_locations:
 			continue
 
-		# we'll compute a score on two dimensions (each from 0 to 1)
-		#    overall sentiment, the % of comments in support
-		#    contentiousness, the relative number of commets compared to districts nationally
-		
-		count[district]["sentiment"] = count[district]["+"]/(count[district]["+"] + count[district]["-"])
-		count[district]["contention"] = (count[district]["+"] + count[district]["-"]) / max_count
+		count[district]["sentiment"] = float(count[district]["+"])/float(count[district]["+"] + count[district]["-"])
 		count[district]["count"] = count[district]["+"] + count[district]["-"]
 		
-		# then to compute a color, we'll map sentiment to hue and contention to
-		# saturation, on an HSV color span
-		count[district]["class"] = chartcolor(count[district]["sentiment"], count[district]["contention"])
+		count[district]["class"] = chartcolor(count[district]["sentiment"], float(count[district]["+"] + count[district]["-"]) / float(max_count))
 			
 		count[district]["coord"] = { "left": int(widgets_usmap.district_locations[district][0]*mapscale),  "top": int(widgets_usmap.district_locations[district][1]*mapscale)-yoffset }
 		
 		count[district]["href"] = "state=" + district[0:2] + "&district=" + district[2:]
 		
 		if int(district[2:]) == 0:
-			count[district]["label"] = statenames[district[0:2]] + "'s At-Large District"
+			count[district]["label"] = statenames[district[0:2]] + u"\u2019s At-Large District"
 		else:
-			count[district]["label"] = statenames[district[0:2]] + "'s " + district[2:] + ordinate(int(district[2:])) + " District"
+			count[district]["label"] = statenames[district[0:2]] + u"\u2019s " + district[2:] + ordinate(int(district[2:])) + " District"
 	
 	return render_to_response('popvox/widgets/commentsmapus.html', {
 		"bill": bill,
-		
 		"data": count.items(),
-		
-		"legend":
-			[
-				{ "class": chartcolor(sentiment, contention), "label": label }
-				for (sentiment, contention, label)
-				in [(0,1,"Oppose"), (0,.1, "Weak Opp."), (1,1, "Support"), (1, .1,  "Weak Supp."), (.5, 1, "Mixed"), (.5,.1, "Few Users")]
-			]
-		
+		"min_sz_num": int(float(max_count)/5.0)+1,
+		"max_sz_num": max_count,
 	}, context_instance=RequestContext(request))
 
