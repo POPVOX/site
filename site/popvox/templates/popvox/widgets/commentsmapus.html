@@ -13,7 +13,9 @@
 		</style>
 		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 		<script>
-			function show(district, label, support, count, x){
+			var visible = false;
+			var shown = 0;
+			function show(district, label, support, count, x, y){
 				$('#infobox').show();
 
 				/*if (district.substr(2) == "0"){
@@ -27,29 +29,52 @@
 				$('#infobox div').text(label);
 				
 				$('#support').text(Math.round(support*100))
-				$('#activity').text(count)
+				$('#activity').text(count + " individual" + (count > 1 ? "s" : ""))
 				
-				left = x + 50;
-				if (left + 210 > 900)
-					left = x - 210 - 50;
-				$('#infobox').animate({left: left});
+				x = x + 50;
+				if (x + 210 > 900) x = x - 210 - 50;
+				y = y - 50;
+				if (y < 0) y = 0;
+				if (y + 100 > 500) y = 500 - 100;
+
+				if (!visible) {
+					$('#infobox').css({left: x, top: y, opacity: 100});
+				} else {
+					$('#infobox').stop();
+					$('#infobox').animate({left: x, top: y, opacity: 100});
+				}
+
+				shown++;
+				visible = true;
+			}
+
+			function togglecolors(m) {
+				var n = $('#colormode_' + m);
+				$('#colormode div').removeClass('active');
+				$(n).addClass('active');
+				$('body').attr('class', 'colormode_' + m);
 			}
 		</script>
 	</head>
-	<body>
-		<div id="infobox" style="display: none; position: absolute; top: 75px; width: 198px; border: 2px solid black; background-color: white; z-index: 100">
+	<body class="colormode_1">
+		<div id="infobox" style="display: none; position: absolute; width: 198px; border: 2px solid black; background-color: white; z-index: 100">
 			<div style="text-align: center; font-weight: bold"> </div>
 			<p><span id="support"></span>% support this bill</p>
-			<p><span id="activity"></span> individuals weighing in</p>
+			<p><span id="activity"></span> weighing in</p>
+		</div>
+
+		<div id="colormode">
+			<div id="colormode_1" class="active" title="POVPOX Color Scheme" onclick="togglecolors(1)">PV Colors</div>
+			<div id="colormode_2" title="Alternative Color Scheme" onclick="togglecolors(2)">Alt Colors</div>
 		</div>
 	
+		<div id="mapdots">
 		{% for district, count in data %}
-			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.count}}, {{count.coord.left}})" onmouseout="$('#infobox').hide()">
+			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.count}}, {{count.coord.left}}, {{count.coord.top}})" onmouseout="setTimeout('if (shown==' + shown + ') $(\'#infobox\').fadeOut(function() { visible = false; })', 500)">
 				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"> </div>
-				
-				
 			</a>
 		{% endfor %}
+		</div>
 		
 		<div id="legend_clr">
 			<div class="label first">Support</div>

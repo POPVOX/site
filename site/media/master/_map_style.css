@@ -22,36 +22,19 @@ body {
 	}
 
 /*  for oppose, mostly oppose, mixed, mostly support, support */
-.dot_clr_0 {
-	background: #fff;
-	border: .5px solid #777;
-	}
-	.dot_clr_1 {
-		background: /*#ffcc33 #3cc03c*/ #ffc61c;
-		}
-	.dot_clr_2 {
-		background: yellow;
-		}
-	.dot_clr_3 {
-		background: blue;
-		}
-	.dot_clr_4 {
-		background: orange;
-		}
-	.dot_clr_5 {
-		background: /*#fc9b00*/ #b86123;
-		}
+.colormode_1 .dot_clr_1 { background: #ffc61c; }
+.colormode_1 .dot_clr_2 { background: #edac20; }
+.colormode_1 .dot_clr_3 { background: #dc9323; }
+.colormode_1 .dot_clr_4 { background: #ca7a23; }
+.colormode_1 .dot_clr_5 { background: #b86123; }
+
+.colormode_2 .dot_clr_1 { background: #df1397; }
+.colormode_2 .dot_clr_2 { background: #c73bb0; }
+.colormode_2 .dot_clr_3 { background: #a950c9; }
+.colormode_2 .dot_clr_4 { background: #805fe3; }
+.colormode_2 .dot_clr_5 { background: #2a6cfd; }
 		
 /*  few people vs many people */
-.dot_sz_0 {
-	width: 3px;
-	height: 3px;
-	-moz-border-radius: 		3px;
-	-webkit-border-radius: 		3px;
-	-khtml-border-radius: 		3px;
-	border-radius: 				3px;
-	}
-	
 	.dot_sz_1 {
 		width: 4px;
 		height: 4px;
@@ -97,14 +80,14 @@ body {
 		border-radius: 			8px;
 		}
 		
-		
+
 .dots {
 	display: block;
 	z-index: 1;
 	border: 1px solid #fff;
 	}
 	
-.dots:hover {
+#mapdots .dots:hover {
 	z-index: 999 !important;
 	width: 12px !important;
 	height: 12px !important;
@@ -154,4 +137,27 @@ body {
 #legend_sz .dots, #legend_clr .dots {
 	margin: 2px;
 	border: none;
+	}
+
+#colormode div {
+	width: 70px;
+	border: 1px solid black;
+	background-color: white;
+	font-size: 11px;
+	font-family: sans-serif;
+	padding: 2px;
+	margin: 2px;
+	cursor: default;
+	}
+#colormode div:hover {
+	background-color: #efef63;
+	}
+#colormode_1 {
+	color: #b86123;
+	}
+#colormode_2 {
+	color: #2a6cfd
+	}
+#colormode div.active {
+	background-color: #ffff69;
 	}
