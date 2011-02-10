@@ -52,7 +52,12 @@
 									</p>
 								 </div>
 							</div>
+						{% else %}
+							<div class="no_pie" style="height: 80px">
+							<small>Not enough individuals have commented on this bill yet to display statistics. For details, view the <a href="{{pos.bill.url}}/report">Bill Report</a>.</small>
+							</div>
 						{% endif %}
+						<div class="clear"> </div>
 					</div>
 					<div class="hr"> </div>
 				{% endfor %}

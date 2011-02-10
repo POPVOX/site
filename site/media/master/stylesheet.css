@@ -901,7 +901,7 @@ h3#reporttitle {
 	
 .no_pie {
 	background: url(bg_pie_empty.png) left top no-repeat;
-	padding-left: 85px;
+	padding-left: 85px;]
 	}	
 	
 	.no_pie a {
@@ -1677,6 +1677,10 @@ tr.billdetails.active td {
 	border-bottom: 1px dotted #666;
 	padding-bottom: 10px;
 	}
+	
+	.content .tab_panel tr.billdetails h4 {
+		padding-bottom: 10px;
+		}
 	
 tr.bill.active:hover td {
 	background-color: #d8d6d0;

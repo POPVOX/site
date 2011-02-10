@@ -3,9 +3,7 @@
 
 {% bill_statistics bill as stats %}
 
-{% if stats or items %}
 <h4>Constituent Sentiment</h4>
-{% endif %}
 
 {% if stats %}
 		<div style="width: 90px; float: left">
@@ -25,12 +23,16 @@
 				</p>
 			</div>
 		</div>
+		
+		<p class="view_report clear" style="padding: 0">
+			<span><a href="{{bill.url}}/report">View Report</a></span>
+		</p>
 {% else %}
-	<small>Too few constituents have commented on this bill to display statistics.</small>
+	<div class="no_pie" style="height: 80px">
+	<small>Too few constituents have commented on this bill to display statistics.
+	For details, view the <a href="{{bill.url}}/report">Bill Report</a>.</small>
+	</div>
 {% endif %}
-	<p class="view_report clear" style="padding: 0">
-		<span><a href="{{bill.url}}/report">View Report</a></span>
-	</p>
 
 {% for item in items %}
 	{% if item|pythontype == 'popvox.models.UserComment' %}

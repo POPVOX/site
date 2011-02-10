@@ -58,7 +58,9 @@
 							</div>
 						</div>
 						{% else %}
-							<p style="font-size: 12px; font-style: italic; font-family: georgia, serif; line-height: 120%">Too few individuals have commented on this bill to display statistics.</p>						
+							<div class="no_pie" style="margin-top: 10px; height: 80px">
+							<small>Not enough individuals have commented on this bill yet to display statistics. For details, view the <a href="{{pos.bill.url}}/report">Bill Report</a>.</small>
+							</div>
 						{% endif %}
 				</div>
 				
