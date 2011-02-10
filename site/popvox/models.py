@@ -829,9 +829,11 @@ class UserComment(models.Model):
 	
 	POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose') ]
 
-	COMMENT_NOT_REVIEWED = 0
-	COMMENT_APPROVED = 1
+	COMMENT_NOT_REVIEWED = 0 # note that these values are hard-coded in several templates
+	COMMENT_ACCEPTED = 1
 	COMMENT_REJECTED = 2
+	COMMENT_REJECTED_STOP_DELIVERY = 3
+	COMMENT_REJECTED_REVISED = 4
 
 	user = models.ForeignKey(User, related_name="comments", db_index=True) # user authoring the comment
 	bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True)
@@ -843,7 +845,7 @@ class UserComment(models.Model):
 
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now_add=True)
-	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed'), (COMMENT_APPROVED, 'Approved'), (COMMENT_REJECTED, 'Rejected')], default=COMMENT_NOT_REVIEWED)
+	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed -- Displayed'), (COMMENT_ACCEPTED, 'Reviewed & Accepted -- Displayed'), (COMMENT_REJECTED, 'Rejected -- Not Displayed'), (COMMENT_REJECTED_STOP_DELIVERY, 'Rejected -- Not Displayed / Not Deliverable'), (COMMENT_REJECTED_REVISED, 'Rejected+Revised by User - Not Displayed')], default=COMMENT_NOT_REVIEWED)
 	
 	tweet_id = models.BigIntegerField(blank=True, null=True)
 	fb_linkid = models.CharField(max_length=32, blank=True, null=True)
@@ -982,6 +984,19 @@ class UserComment(models.Model):
 			ret += "Your comment has not yet been sent to Congress. It is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
 			
 		return ret
+		
+	def review_status(self):
+		if self.status == UserComment.COMMENT_NOT_REVIEWED:
+			return None
+		if self.status == UserComment.COMMENT_ACCEPTED:
+			return "This comment was initially rejected by POPVOX staff for violating our acceptable language policy, but after your changes the comment has been restored."
+		if self.status == UserComment.COMMENT_REJECTED:
+			return "This comment has been rejected by POPVOX staff for violating our acceptable language policy. We encourage you to revise your comment so that it keeps a civil tone. We will review your comment after it has been revised."
+		if self.status == UserComment.COMMENT_REJECTED_STOP_DELIVERY:
+			return "This comment has been rejected by POPVOX staff for violating our acceptable language policy and it will not be delivered to Congress. We encourage you to revise your comment so that it keeps a civil tone. We will review your comment after it has been revised."
+		if self.status == UserComment.COMMENT_REJECTED_REVISED:
+			return "This comment was rejected by POPVOX staff for violating our acceptable language policy. You have revised the comment, and POPVOX staff will review it soon."
+		return None
 	
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people

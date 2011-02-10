@@ -1,6 +1,7 @@
 # REMOTEDB=1 DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/send_comments.py
 
 import sys
+import datetime
 
 from popvox.models import *
 from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress
@@ -18,7 +19,12 @@ success = 0
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
-for comment in UserComment.objects.filter(message__isnull=False, bill__congressnumber=CURRENT_CONGRESS).order_by('created').select_related("bill"):
+for comment in UserComment.objects.filter(
+	message__isnull=False,
+	bill__congressnumber=CURRENT_CONGRESS,
+	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
+	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5)
+	).order_by('created').select_related("bill"):
 	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
 	if not type(govtrackrecipients) == list:

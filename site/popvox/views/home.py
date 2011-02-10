@@ -578,7 +578,7 @@ def activity_getinfo(request):
 		filters["bill"] = bill
 		format = "_bill"
 		
-	q = UserComment.objects.filter(message__isnull=False, **filters).order_by('-created')
+	q = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED), **filters).order_by('-created')
 
 	total_count = None
 	if format == "_bill":

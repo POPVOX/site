@@ -774,6 +774,12 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			
 		comment.address = address_record
 		comment.updated = datetime.now()
+
+		if comment.status in (UserComment.COMMENT_REJECTED, UserComment.COMMENT_REJECTED_STOP_DELIVERY):
+			comment.status = UserComment.COMMENT_REJECTED_REVISED
+		else:
+			comment.status = UserComment.COMMENT_NOT_REVIEWED
+
 		comment.save()
 			
 		# Clear the session state set in the preview. Don't clear until the end
@@ -840,7 +846,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	# Get the user's comment.
 	user_position = None
 	if commentid != None:
-		comment = UserComment.objects.get(id=int(commentid))
+		comment = get_object_or_404(UserComment, id=int(commentid))
 		if request.user.is_authenticated():
 			try:
 				user_position = request.user.comments.get(bill=bill)
@@ -885,7 +891,11 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 		request.session["comment-referrer"] = (bill.id, surl.owner, surl.id)
 		welcome = comment.user.username + " is using POPVOX to send their message to Congress. He or she left this comment on " + bill.displaynumber() + "."
 		del request.session["shorturl"] # so that we don't indefinitely display the message
-		
+
+	comment_rejected = False
+	if comment.status > UserComment.COMMENT_ACCEPTED and (not request.user.is_authenticated() or (not request.user.is_staff and not request.user.is_superuser)):
+		comment_rejected = True
+
 	return render_to_response(
 			'popvox/billcomment_share.html' if commentid == None else 'popvox/billcomment_view.html', {
 			'bill': bill,
@@ -912,6 +922,8 @@ def send_mail2(subject, message, from_email, recipient_list, fail_silently=False
 def billshare_share(request):
 	try:
 		comment = UserComment.objects.get(id = int(request.POST["comment"]))
+		if comment.status not in (UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED):
+			return { "status": "fail", "msg": "This comment cannot be shared." }
 	except:
 		return { "status": "fail", "msg": "Invalid call." }
 	
@@ -1059,6 +1071,71 @@ Go to %s to have your voice be heard!""" % (
 
 		return { "status": "success", "msg": "A link has been posted on your Wall." }
 
+def billcomment_moderate(request, commentid, action):
+	from django.core.mail import EmailMessage
+	
+	comment = UserComment.objects.get(id = commentid)
+	
+	if comment.status == UserComment.COMMENT_NOT_REVIEWED:
+		if action in ("reject", "reject-stop-delivery"):
+			if action == "reject":
+				comment.status = UserComment.COMMENT_REJECTED
+			elif action == "reject-stop-delivery":
+				comment.status = UserComment.COMMENT_REJECTED_STOP_DELIVERY
+			comment.save()
+			msg = EmailMessage(
+				subject = "Your comment on " + comment.bill.displaynumber() + " at POPVOX needs to be revised",
+				body = """Dear %s,
+
+After reviewing the comment you left on POPVOX about the bill %s, we have
+decided that it violates our guidelines for acceptable language. Comments
+may not be profane, harassing, or threatening to others and may not include the
+personal, private information of others. For our full guidelines, please see:
+
+  https://www.popvox.com/legal
+
+At this time, your comment has been hidden from the legislative reports that other
+users see, and it may not be delivered to Congress.
+
+We encourage you to revise your comment so that it meets our guidelines. After
+you revise your comment, we will review it and hope to post it back on POPVOX.
+You can revise your comment by following this link:
+
+  https://www.popvox.com/home
+
+Thank you,
+
+POPVOX
+
+(Please note that our decision is final.) 
+""" % (comment.user.username, comment.bill.displaynumber()),
+				from_email = SERVER_EMAIL,
+				to = [comment.user.email])
+			msg.send(fail_silently=True)
+	
+	if comment.status == UserComment.COMMENT_REJECTED_REVISED:
+		if action == "accept":
+			comment.status = UserComment.COMMENT_ACCEPTED
+			comment.save()
+			msg = EmailMessage(
+				subject = "Your revised comment on " + comment.bill.displaynumber() + " at POPVOX has been accepted",
+				body = """Dear %s,
+
+After reviewing the revisions you made to the comment you left on POPVOX
+about the bill %s, we have decided to restore your comment. Thank you
+for taking the time to follow our language guidelines. Your comment now
+appears on bill reports and other pages of POPVOX.
+
+Thank you,
+
+POPVOX
+""" % (comment.user.username, comment.bill.displaynumber()),
+				from_email = SERVER_EMAIL,
+				to = [comment.user.email])
+			msg.send(fail_silently=True)
+			
+	return HttpResponseRedirect(comment.url())
+
 def get_default_statistics_context(user):
 	default_state = None
 	default_district = None
@@ -1100,8 +1177,8 @@ def billreport(request, congressnumber, billtype, billnumber):
 	bot_comments = []
 	if hasattr(request, "ua") and (request.ua["typ"] in "Robot" or request.ua["ua_family"] in "cURL"):
 		limit = 50
-		pro_comments = bill_comments(bill, position="+").filter(message__isnull = False)[0:limit]
-		con_comments = bill_comments(bill, position="-").filter(message__isnull = False)[0:limit]
+		pro_comments = bill_comments(bill, position="+").filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
+		con_comments = bill_comments(bill, position="-").filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
 		bot_comments = list(pro_comments) + list(con_comments)
 
 	return render_to_response('popvox/bill_report.html', {
@@ -1127,8 +1204,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	
 	limit = 50
 	
-	pro_comments = bill_comments(bill, position="+", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)[0:limit]
-	con_comments = bill_comments(bill, position="-", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False)[0:limit]
+	pro_comments = bill_comments(bill, position="+", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
+	con_comments = bill_comments(bill, position="-", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
 	
 	comments = list(pro_comments) + list(con_comments)
 	comments.sort(key = lambda x : x.updated, reverse=True)
@@ -1181,7 +1258,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 				"date": formatDateTime(c.updated),
 				"pos": c.position,
 				"share": c.url(),
-				"verb": c.verb(),
+				"verb": c.verb(tense="past"),
 				} for c in comments ],
 		"stats": {
 			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True),

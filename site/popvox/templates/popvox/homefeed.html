@@ -81,6 +81,12 @@ function phone_number_twilio_callback() {
 						{% if comment.message %}
 						<p style="margin-bottom: 0">&ldquo;{{comment.message|truncatewords:30}}&rdquo; </p>
 						<p style="margin-bottom: 0"><small>({{comment.delivery_status}})</small></p>
+						{% if comment.status = 1 %}
+							<p><small>({{comment.review_status}})</small></p>
+						{% endif %}
+						{% if comment.status > 1 %}
+							<p class="error">{{comment.review_status}}</p>
+						{% endif %}
 						{% else %}
 						<p style="margin-bottom: 0"><small>{{comment.bill.title_no_number|truncatewords:10}}</small></p>
 						{% endif %}

@@ -27,9 +27,13 @@
 			<p class="commenter">{{comment.user.username}} from {{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}
 			commented {{comment.updated|date2}} that {{comment.address.heshe}}  {{comment.verb}} {{bill.displaynumber}}:</p>
 			{% if comment.message %}
-				<div class="usercomment">
-				{{comment.message|wraplines:"p"}}
-				</div>
+				{% if not comment_rejected %}
+					<div class="usercomment">
+					{{comment.message|wraplines:"p"}}
+					</div>
+				{% else %}
+					<p>This comment has been hidden by POPVOX staff because it violates our policies for acceptable language.</p>
+				{% endif %}
 			{% else %}
 				<p>[No comment left.]</p>
 			{% endif %}
@@ -48,6 +52,38 @@
 	</div>
 		
 	<div class="col_6 col_top col_last">
+		{% if user.is_staff or user.is_superuser %}
+		<div class="review" style="margin-bottom: 1em; border: 1px solid #999; padding: 5px; color: #999">
+			<div>Administrative commands:</div>
+			<div>
+				{% if comment.message %}
+					{% if comment.status == 0 %}
+						<a href="#" style="color: #B77" onclick="$('#reject_comment').fadeIn(); return false;">Reject Comment?</a>
+						<span id="reject_comment" style="display: none">
+							<a href="{% url popvox.views.bills.billcomment_moderate comment.id "reject" %}">Standard Reject</a> |
+							<a href="{% url popvox.views.bills.billcomment_moderate comment.id "reject-stop-delivery" %}">Reject and Halt Delivery</a>
+						</span>
+					{% endif %}
+					{% if comment.status == 1 %}
+						The comment was approved after initially being rejected.
+					{% endif %}
+					{% if comment.status == 2 %}
+						This comment has been rejected.
+					{% endif %}
+					{% if comment.status == 3 %}
+						This comment has been rejected w/ halted message delivery.
+					{% endif %}
+					{% if comment.status == 4 %}
+						The user has revised the comment. <a href="#" style="color: #B77" onclick="$('#accept_comment').fadeIn(); return false;">Accept Comment?</a>
+						<span id="accept_comment" style="display: none">
+							<a href="{% url popvox.views.bills.billcomment_moderate comment.id "accept" %}">Accept</a>
+						</span>
+					{% endif %}
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		
 		{% include "popvox/billcomment_share_social.html" %}
 
 		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
