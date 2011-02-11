@@ -121,7 +121,7 @@
 				if (n_pro == 0)
 					c_pro.append($("<p>No supporting comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
 				if (n_con == 0)
-					c_con.append($("<p>No opposing comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
+					c_con.append($("<p>No opposing comments {% if bill.isAlive %}have been{% else %}were{% endif %} left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + "{% if not bill.isAlive %} during the time the bill was up for consideration in Congress{% endif %}.</p>"));
 				
 				function escapeHTML(text) {
 					var div = document.createElement('div');
@@ -135,9 +135,20 @@
 				
 					if (!islast) $('#chart' + index).addClass("chart_notlast");
 					else $('#chart' + index).removeClass("chart_notlast");
+
+					if (stats.total == 0) {
+						$('#chart' + index).addClass("no_pie");
+						$('#chart' + index + " .past_stats").hide();
+						$('#chart' + index + ' .pro_reintro').show();
+						$('#chart' + index + ' .pro_reintro').text(stats.pro_reintro + " individuals in " + stats.longdescription + " support reintroduction of the bill.");
+						return;
+					} else {
+						$('#chart' + index).removeClass("no_pie");
+						$('#chart' + index + " .past_stats").show();
+					}
 					
 					$('#chart' + index + " .chart_title").text(stats.longdescription);
-					$('#chart' + index + " .users").text("(" + stats.total + " users)");
+					$('#chart' + index + " .users").text("(" + stats.total + " people)");
 					$('#chart' + index + " .bg_support").text(stats.pro_pct + "% Support");
 					$('#chart' + index + " .bg_oppose").text(stats.con_pct + "% Oppose");
 					
@@ -145,7 +156,7 @@
 						$('#chart' + index + ' .pro_reintro').hide();
 					} else {
 						$('#chart' + index + ' .pro_reintro').show();
-						$('#chart' + index + ' .pro_reintro').text(stats.pro_reintro + " users support reintroduction of the bill");
+						$('#chart' + index + ' .pro_reintro').text(stats.pro_reintro + " people support reintroduction of the bill.");
 					}
 					
 					bill_chart('chart_pie_' + index, stats.pro_pct, stats.con_pct, { "small": true });
@@ -160,20 +171,20 @@
 					buildchart(res.stats.overall, 2, true);
 				} else if (res.stats.state) {
 					if (report_district != "" && report_district != "0")
-						$('#stats_overall_info').text("Not enough users from the Congressional district have commented on this bill to display a chart for district. Charts for the state and nation are displayed instead.");
+						$('#stats_overall_info').text("Not enough individuals from the Congressional district have commented on this bill to display a chart for district." + (res.stats.state.total > 0 ? " Charts for the state and nation are displayed instead." : ""));
 					buildchart(res.stats.state, 0);
 					buildchart(res.stats.overall, 1, true);
 					$('#chart2').hide();
 				} else if (res.stats.overall) {
 					if (report_district != "")
-						$('#stats_overall_info').text("Not enough users from the state have commented on this bill to display a chart for the district or state. A chart for the nation is displayed instead.");
+						$('#stats_overall_info').text("Not enough individuals from the state have commented on this bill to display a chart for the district or state." + (res.stats.overall.total > 0 ? " A chart for the nation is displayed instead." : ""));
 					else if (report_state != "")
-						$('#stats_overall_info').text("Not enough users from the state have commented on this bill to display a chart for the state. A chart for the nation is displayed instead.");
+						$('#stats_overall_info').text("Not enough individuals from the state have commented on this bill to display a chart for the state." + (res.stats.overall.total > 0 ? " A chart for the nation is displayed instead." : ""));
 					buildchart(res.stats.overall, 0, true);
 					$('#chart1').hide();
 					$('#chart2').hide();
 				} else {
-					$('#stats_overall_info').text("Not enough users have commented on this bill to display a chart.");
+					$('#stats_overall_info').text("Not enough individuals have commented on this bill to display a chart.");
 				}
 
 				if (!report_state || res.comments.length == 0) {
@@ -281,23 +292,23 @@
 				<div id="stats_overall_info" class="pad_btm" style="font-size: 12px"></div>
 				{% for index in "3"|range %}
 				<div id="chart{{index}}" class="clear" style="display: none; padding-bottom: 1em">
-					<div class="col_1">
+					<div class="col_1 past_stats">
 						<div id="chart_pie_{{index}}" style="height: 75px"></div>
 					</div>
-					 <div class="col_2" style="padding-right: 1em; width: 110px">
+					 <div class="col_2 past_stats" style="padding-right: 1em; width: 110px">
 						<p class="chart_stats">
 							<span class="chart_title">XXX:</span> <br />
 							<span class="bg_support">YYY% Support</span><br />
 							<span class="bg_oppose">ZZZ% Oppose </span><br />
 							<span class="users">(WWW users)</span>
 						</p>
-						<p class="chart_stats pro_reintro">
-						</p>
 					</div>
-					<div class="col_3 col_last">
+					<div class="col_3 col_last past_stats">
 						<div id="chart_time_{{index}}" style="height: 100px"></div>
 						<div style="font-size: 8pt; color: #999">Cumulative Number of Individuals Over Time</div>
 					</div>
+					<p class="pro_reintro">
+					</p>
 				</div>
 				{% endfor %}
 				<div id="showmap" style="text-align: center; margin: .5em">
@@ -400,7 +411,7 @@
 		</div> 
 		<div class="col_6 col_last rule"> 
 			<div class="comments"> 
-				<h3 class="no_rule">Opposing Comments</h3>
+				<h3 class="no_rule">{% if not bill.isAlive %}Archived {% endif %}Opposing Comments</h3>
 				<div id="comments_con">Loading...</div>
 			</div> 
 		</div> 

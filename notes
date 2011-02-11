@@ -1,3 +1,6 @@
-select state, congressionaldistrict as dist, count(*) as c, (select city from popvox_postaladdress as b where a.state=b.state and a.congressionaldistrict=b.congressionaldistrict group by city having count(*) > 5 order by count(*) desc limit 1) as city from popvox_postaladdress as a group by state, congressionaldistrict having c > 10;
+create table if not exists congressional_district_city (state char(2), district int, city text, unique index statedist (state, district);
+delete from congressional_district_city;
+insert into congressional_district_city select state, congressionaldistrict as dist, (select city from popvox_postaladdress as b where a.state=b.state and a.congressionaldistrict=b.congressionaldistrict group by city having count(*) > 5 order by count(*) desc limit 1) as city from popvox_postaladdress as a group by state, congressionaldistrict having count(*) > 5;
+
 
 going from a campaign, search bills, find bill, default campaign to the last campaign viewed

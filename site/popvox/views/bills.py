@@ -277,9 +277,21 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		if item["position"] == "+" and item["stage"] == 1:
 			pro_reintro = item["count"]
 		
-	# Don't display statistics when there's very little data.
+	# Don't display statistics when there's very little data,
+	# and definitely not when pro+con == 0 since that'll gen
+	# an error down below.
 	if pro+con+pro_reintro < 10:
 		return None
+
+	if pro+con < 10:
+		return {
+			"shortdescription": shortdescription,
+			"longdescription": longdescription,
+			"total": pro+con, "pro":pro, "con":con,
+			"pro_pct": 0, "con_pct": 0,
+			"timeseries": None,
+			"pro_reintro": pro_reintro
+			}
 	
 	time_series = None
 	if want_timeseries:
