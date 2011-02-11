@@ -253,7 +253,7 @@ def external_finish(request):
 			{
 				"provider": provider,
 				"username": username,
-				"email": profile["email"] if "email" in profile else "",
+				"email": profile["email"] if "email" in profile and len(profile["email"]) <= 64 else "", # longer addresses might be proxy addresses provided by the service that the user isn't aware of and run the risk of getting truncated
 			},
 			context_instance=RequestContext(request))
 		
