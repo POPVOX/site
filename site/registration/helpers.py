@@ -65,7 +65,7 @@ def validate_password(value, fielderrors=None):
 		
 def validate_email(value, skip_if_this_user=None, for_login=False, fielderrors=None):
 	try:
-		value = forms.EmailField().clean(value)
+		value = forms.EmailField(max_length = 75, error_messages = {'max_length': "Email addresses on this site can have at most 75 characters."}).clean(value) # Django's auth_user table has email as varchar(75)
 		if not for_login:
 			users = User.objects.filter(email = value)
 			if len(users) > 0 and users[0] != skip_if_this_user:
