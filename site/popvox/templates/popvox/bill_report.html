@@ -61,7 +61,7 @@
 		}
 	}
 	
-	function showdata() {
+	function showdata(is_first_load) {
 		$('#options_state').val(report_state);
 		$('#options_district').val(report_district);
 		
@@ -187,7 +187,7 @@
 					$('#stats_overall_info').text("Not enough individuals have commented on this bill to display a chart.");
 				}
 
-				if (!report_state || res.comments.length == 0) {
+				if (is_first_load || !report_state || res.comments.length == 0) {
 					$('#map').show();
 					$('#showmap').hide();
 				} else {
@@ -215,7 +215,7 @@
 		if (hashargs.district) report_district = hashargs.district;
 		
 		update();
-		showdata();
+		showdata(true);
 	});
 
 	</script>
@@ -311,9 +311,9 @@
 					</p>
 				</div>
 				{% endfor %}
-				<div id="showmap" style="text-align: center; margin: .5em">
-					<a href="#" onclick="$('#map').show(); $('#showmap').hide(); return false;">Show National Map</a>
-				</div>
+				<a href="#" onclick="$('#map').show(); $('#showmap').hide(); return false;">
+					<div id="showmap" style="text-align: center; margin: .5em">Show National Map</div>
+				</a>
 			</div>
 		</div>
 		
@@ -384,7 +384,7 @@
 	{% endcomment %}
 	
 	<div id="map" class="section clearfix">
-		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}" width="940" height="522" border="0"></iframe>
+		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}" width="940" height="590" border="0"></iframe><!--height="690"-->
 	</div>
 
 	<div style="display: none" id="comment_template">

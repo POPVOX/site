@@ -1,5 +1,3 @@
-/* @override https://www.popvox.com:777/media/master/stylesheet.css */
-
 /*
 
 
@@ -16,17 +14,21 @@
 
 */	
 
-body {
-	background: url('/media/gis/bg_map.png') no-repeat;
-	background: url('/media/gis/+map_background.png') no-repeat;
+#mapdots {
+	background: url(/media/gis/map_background.png) no-repeat;
+	position: absolute;
+	top: 23px;
+	left: 0;
+	width: 719px;
+	height: 522px;
 	}
-
+	
 /*  for oppose, mostly oppose, mixed, mostly support, support */
-.colormode_1 .dot_clr_1 { background: #ffc61c; }
-.colormode_1 .dot_clr_2 { background: #edac20; }
-.colormode_1 .dot_clr_3 { background: #dc9323; }
-.colormode_1 .dot_clr_4 { background: #ca7a23; }
-.colormode_1 .dot_clr_5 { background: #b86123; }
+.colormode_1 .dot_clr_1 { background: #89c23f; }
+.colormode_1 .dot_clr_2 { background: #ed5a24; }
+.colormode_1 .dot_clr_3 { background: #75747c; }
+.colormode_1 .dot_clr_4 { background: #f8ac3c; }
+.colormode_1 .dot_clr_5 { background: #2aa7df; }
 
 .colormode_2 .dot_clr_1 { background: #df1397; }
 .colormode_2 .dot_clr_2 { background: #c73bb0; }
@@ -96,8 +98,12 @@ body {
 	-webkit-border-radius: 7px !important;
 	-khtml-border-radius: 7px !important;
 	border-radius: 7px !important;
-	}		
-
+	}
+	
+	#mapdots .dot_sz_4.dots:hover {		
+		margin: -2px 0 0 -2px;
+		}
+		
 /*.dots_key {
 	display: block;
 	z-index: 1;
@@ -112,22 +118,30 @@ body {
 
 #legend_sz, #legend_clr, #legend_text {
 	position: absolute;
-	left: 380px;
-	font-size: 8pt;
-	font-family: sans-serif;
+	left: 370px;
+	font: bold 13px/18px helvetica, arial, sans-serif;
+	color: #404045;
 	}
 #legend_clr {
-	top: 470px;
+	top: 503px;
+	left: 340px;
 	}
 #legend_sz {
-	top: 490px;
+	top: 523px;
+	left: 345px;
 	}
 #legend_text {
-	top: 425px;
+	top: 428px;
+	left: 420px;
+	width: 200px;
 	}
+	
 #legend_sz div, #legend_clr div {
 	float: left;
 	}
+	 #legend_clr div {
+		margin-top: -3px;
+		}
 .label.first {
 	padding-right: .5em;
 	}
@@ -138,26 +152,87 @@ body {
 	margin: 2px;
 	border: none;
 	}
+	
+	#legend_sz .dot_sz_5 {
+		margin-top: 3px;
+		}
+	#legend_sz .dot_sz_4 {
+		margin-top: 4px;
+		}
+	#legend_sz .dot_sz_3 {
+		margin-top: 5px;
+		}
+	#legend_sz .dot_sz_2 {
+		margin-top: 6px;
+		}
+	#legend_sz .dot_sz_1 {
+		margin-top: 7px;
+		}
 
-#colormode div {
-	width: 70px;
-	border: 1px solid black;
-	background-color: white;
-	font-size: 11px;
-	font-family: sans-serif;
-	padding: 2px;
-	margin: 2px;
-	cursor: default;
+#colormode {
+	width: 122px;
+	height: 22px;
+	cursor: pointer;
+	text-indent: -9999em;
+	background: url(/media/gis/b_alt_colors.png) left top no-repeat;
+	position: absolute;
+	left: 550px;
+	top: 500px;
 	}
-#colormode div:hover {
-	background-color: #efef63;
+#colormode:hover {
+	background-position: left bottom;
 	}
-#colormode_1 {
-	color: #b86123;
+#colormode.active {
+	background: url(/media/gis/b_alt_colors.png) left top no-repeat;
 	}
-#colormode_2 {
-	color: #2a6cfd
+
+#infobox {
+	background: url(/media/gis/bg_hover.png) left top no-repeat;
+	display: block;
+	width: 233px;
+	height: 79px;
+/*	background: #404045; */
+	color: #fff;
+	font: normal 13px/18px helvetica, arial, san-serif;
+	position: absolute; 
+	z-index: 100;
+	border: none;
+	margin: 12px 0 0 -50px;
+	padding: 13px 0 0 50px;
 	}
-#colormode div.active {
-	background-color: #ffff69;
-	}
+	
+	#infobox.lefty {
+		background: url(/media/gis/bg_hover_lefty.png) left top no-repeat;
+		margin: 12px 0 0 0px;
+		padding: 13px 0 0 20px;
+		}
+	
+	#district {
+		text-align: left;
+		}
+		
+	#infobox #support {
+		background: url(/media/gis/map_heart.png) left top no-repeat;
+		padding: 0 20px 0 22px;
+		height: 20px;
+		width: 20px;
+		display: block;
+		float: left;
+		}
+		
+	#infobox #oppose {
+		background: url(/media/gis/map_anti.png) left top no-repeat;
+		padding: 0 15px 0 22px;
+		height: 20px;
+		width: 20px;
+		display: block;
+		float: left;
+		}	
+			
+	#infobox #activity {
+		font-size: 12px;
+		}
+	
+	
+	
+	

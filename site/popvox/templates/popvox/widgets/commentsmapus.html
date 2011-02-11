@@ -2,14 +2,13 @@
 <html>
 	<head>
 		<title>Comments Map - United States - {{bill}}</title>
-		<link rel="stylesheet" href="/media/master/_map_style.css" type="text/css" media="screen" /> 
+		<link rel="stylesheet" href="/media/master/map_style.css" type="text/css" media="screen" /> 
 
 		<style>
 			body {
 				margin: 0;
 				padding: 0;
 			}
-			
 		</style>
 		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 		<script>
@@ -28,14 +27,18 @@
 				
 				$('#infobox div').text(label);
 				
-				$('#support').text(Math.round(support*100))
-				$('#activity').text(count + " individual" + (count > 1 ? "s" : ""))
+				$('#support').text(Math.round(support*100) + "%")
+				$('#oppose').text(Math.round((1.0-support)*100) + "%")
+				$('#activity').text("(" + count + " user" + (count > 1 ? "s" : "") + ")")
 				
-				x = x + 50;
-				if (x + 210 > 900) x = x - 210 - 50;
+				$('#infobox').removeClass("lefty");
+				x += 50 + 5;
+				if (x + 233 > 940) {
+					$('#infobox').addClass("lefty");
+					x = x - 233 - 50 - 5;
+				}
+
 				y = y - 50;
-				if (y < 0) y = 0;
-				if (y + 100 > 500) y = 500 - 100;
 
 				if (!visible) {
 					$('#infobox').css({left: x, top: y, opacity: 100});
@@ -48,34 +51,29 @@
 				visible = true;
 			}
 
-			function togglecolors(m) {
-				var n = $('#colormode_' + m);
-				$('#colormode div').removeClass('active');
-				$(n).addClass('active');
-				$('body').attr('class', 'colormode_' + m);
+			var curcolmode = "1";
+			function togglecolors() {
+				if (curcolmode == "1") curcolmode = "2"; else curcolmode = "1";
+				$('body').attr('class', 'colormode_' + curcolmode);
+				$('#colormode').text(curcolmode == "1" ? "Alternate Colors" : "Original Colors");
 			}
 		</script>
 	</head>
 	<body class="colormode_1">
-		<div id="infobox" style="display: none; position: absolute; width: 198px; border: 2px solid black; background-color: white; z-index: 100">
-			<div style="text-align: center; font-weight: bold"> </div>
-			<p><span id="support"></span>% support this bill</p>
-			<p><span id="activity"></span> weighing in</p>
-		</div>
-
-		<div id="colormode">
-			<div id="colormode_1" class="active" title="POVPOX Color Scheme" onclick="togglecolors(1)">PV Colors</div>
-			<div id="colormode_2" title="Alternative Color Scheme" onclick="togglecolors(2)">Alt Colors</div>
-		</div>
-	
 		<div id="mapdots">
 		{% for district, count in data %}
 			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.count}}, {{count.coord.left}}, {{count.coord.top}})" onmouseout="setTimeout('if (shown==' + shown + ') $(\'#infobox\').fadeOut(function() { visible = false; })', 500)">
 				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"> </div>
 			</a>
 		{% endfor %}
+		<div id="infobox" style="display: none;">
+			<div id="district"> </div>
+			<p><span id="support"></span> <span id="oppose"> </span> <span id="activity"> </span></p>
+		</div>
 		</div>
 		
+		<div id="colormode" title="Switch Colors" onclick="togglecolors()">Alternate Colors</div>
+	
 		<div id="legend_clr">
 			<div class="label first">Support</div>
 			<div class="dots dot_sz_3 dot_clr_5"> </div>
@@ -86,16 +84,16 @@
 			<div class="label last">Oppose</div>
 		</div>
 		<div id="legend_sz">
-			<div class="label first">{{max_sz_num}} Individual{{max_sz_num|pluralize}}</div>
+			<div class="label first">{{max_sz_num}} User{{max_sz_num|pluralize}}</div>
 			<div class="dots dot_sz_5 dot_clr_3"> </div>
 			<div class="dots dot_sz_4 dot_clr_3"> </div>
 			<div class="dots dot_sz_3 dot_clr_3"> </div>
 			<div class="dots dot_sz_2 dot_clr_3"> </div>
 			<div class="dots dot_sz_1 dot_clr_3"> </div>
-			<div class="label last">{{min_sz_num}} Individual{{min_sz_num|pluralize}}</div>
+			<div class="label last">{{min_sz_num}} User{{min_sz_num|pluralize}}</div>
 		</div>
 		<div id="legend_text">
-			Each dot represents a Congressional District.
+			Each circle represents a Congressional District.
 		</div>
 	</body>
 </html>

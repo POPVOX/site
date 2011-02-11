@@ -1007,14 +1007,28 @@ h3#reporttitle {
 		}
 
 
-	.cosponsor background:
+	
 
 /* ----comment map----
 
 look in master/_map_style.css
 
-*/
 
+*/
+#showmap {
+	clear: both;  
+	height: 22px;
+	margin: 40px 0 50px !important;
+	position: relative;
+	width: 940px;
+	background: url(../gis/b_show_map.png) center top no-repeat;
+	text-indent: -9999em;
+	}
+	
+	#showmap:hover {
+		background-position: center bottom;
+		cursor: pointer;
+		}
 
 	
 	
