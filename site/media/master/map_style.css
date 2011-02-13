@@ -14,6 +14,10 @@
 
 */	
 
+body {
+	background: #e8e5df;
+}
+
 #mapdots {
 	background: url(/media/gis/map_background.png) no-repeat;
 	position: absolute;
@@ -24,11 +28,11 @@
 	}
 	
 /*  for oppose, mostly oppose, mixed, mostly support, support */
-.colormode_1 .dot_clr_1 { background: #89c23f; }
-.colormode_1 .dot_clr_2 { background: #ed5a24; }
-.colormode_1 .dot_clr_3 { background: #75747c; }
-.colormode_1 .dot_clr_4 { background: #f8ac3c; }
-.colormode_1 .dot_clr_5 { background: #2aa7df; }
+.colormode_1 .dot_clr_1 { background: #ed5a24; }
+.colormode_1 .dot_clr_2 { background: #f8ac3c; }
+.colormode_1 .dot_clr_3 { background: #999999; }
+.colormode_1 .dot_clr_4 { background: #89c23f; }
+.colormode_1 .dot_clr_5 { background: #4a9410; }
 
 .colormode_2 .dot_clr_1 { background: #df1397; }
 .colormode_2 .dot_clr_2 { background: #c73bb0; }

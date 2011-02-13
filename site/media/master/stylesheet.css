@@ -551,9 +551,9 @@ table.form_fields td {
 .userrichtextcontent li {
 	display: list-item;
 	list-style: none;
-	background: url(bullet.png) left .4em no-repeat;
-	margin: 0 0 .5em 1em;
-	padding-left: 1em;
+	background: url(bullet.png) left .35em no-repeat;
+	margin: 0 0 .5em .75em;
+	padding-left: 1.3em;
 	font: normal 13px/18px helvetica, arial, sans-serif;
 }
 

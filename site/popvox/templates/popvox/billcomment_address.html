@@ -47,8 +47,9 @@
 		{% endif %}
 		
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
-			<div class="float_right col_3" style="padding-top: 0">
+			<div class="float_right col_3" style="margin: 0px 20px 0 0">
 				<p class="tip" style="margin-top: 0">Provide the address where you intend to vote. A fake address may cause POPVOX to suspend your account.</p>
+				<p class="tip" style="margin: 170px 0 0 0">We <strong>only</strong> use your phone number when required on a Congressional message submission form.</p>
 			</div>
 			
 			{% include "popvox/address_form.html" %}
