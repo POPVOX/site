@@ -736,7 +736,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"useraddress_prefixes": PostalAddress.PREFIXES,
 				"useraddress_suffixes": PostalAddress.SUFFIXES,
 				"useraddress_states": govtrack.statelist,
-				"captcha": captcha_html(getattr(e, "recaptcha_error", None)) if request.user.is_anonymous() or len(request.user.comments.filter(bill = bill)) == 0 else "",
+				"captcha": captcha_html(getattr(e, "recaptcha_error", None)) if require_captcha else "",
 				"error": validation_error_message(e) # accepts ValidationError, KeyError, ValueError
 				}, context_instance=RequestContext(request))
 		
