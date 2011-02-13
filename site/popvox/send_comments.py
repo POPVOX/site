@@ -39,19 +39,20 @@ for comment in UserComment.objects.filter(
 		continue
 
 	if comment.address.nameprefix in (None, ""):
+		#print str(comment.address.id) + "\t" + comment.address.firstname + "\t" + comment.address.lastname
 		reject_no_prefix += 1
 		continue # !!!
 	
 	# Filter out delivery targets that we know we have no delivery method for.
 	govtrackrecipientids = [g for g in govtrackrecipientids
-		if not Endpoint.objects.filter(govtrackid = g, method = Endpoint.METHOD_NONE, tested=True).exists()]
+		if not Endpoint.objects.filter(govtrackid = g, method = Endpoint.METHOD_NONE, tested=True).exists()] 
 	if len(govtrackrecipientids) == 0:
 		reject_no_method += 1
 		continue
 
 	# offices that we know require a phone number and we don't have it
 	govtrackrecipientids = [g for g in govtrackrecipientids
-		if comment.address.phonenumber != "" or g not in (412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,300062,400255,400633,400408)]
+		if comment.address.phonenumber != "" or g not in (412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,300062,400255,400633,400408,400089,400310,412011,400325,400142,400183)]
 	if len(govtrackrecipientids) == 0:
 		reject_no_phone += 1
 		continue

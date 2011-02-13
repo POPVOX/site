@@ -108,14 +108,18 @@ common_fieldnames = {
 	# other aliases
 	"salutation": "prefix",
 	"prefixlist": "prefix",
+	"title": "prefix",
 	"first": "firstname",
 	"fname": "firstname",
 	"namefirst": "firstname",
 	"first_name": "firstname",
+	"name_first": "firstname",
 	"last": "lastname",
 	"lname": "lastname",
 	"namelast": "lastname",
 	"last_name": "lastname",
+	"name_last": "lastname",
+	"name_suffix": "suffix",
 	"address": "address1",
 	"street_address": "address1",
 	"street_address_2": "address2",
@@ -143,6 +147,7 @@ common_fieldnames = {
 	"zipfour": "zip4",
 	"zip2": "zip4",
 	"plusfour": "zip4",
+	"zip_plus4": "zip4",
 	"postalcode": "zipcode",
 	"mailing_zipcode": "zipcode",
 	"phone": "phone",
@@ -155,6 +160,7 @@ common_fieldnames = {
 	"phone_h": "phone",
 	"primaryphone": "phone",
 	"phone1": "phone",
+	"hphone": "phone",
 	"emailaddress": "email",
 	"email_address": "email",
 	"email_verify": "email",
@@ -204,14 +210,16 @@ common_fieldnames = {
 	"reqresponse": "response_requested",
 	"rsp": "response_requested",
 	"replychoice": "response_requested",
+	"reqestresponse": "response_requested",
 	
 	'view_select': 'support_oppose',
 	}
 
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
-skippable_fields = ("prefixother", "middle", "middlename", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact",
-	"survey_answer_1", "survey_answer_2", "survey_answer_3", "speech")
+skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact",
+	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey",
+	"speech")
 
 select_override_validate = ("county",)
 radio_choices = {
@@ -239,12 +247,15 @@ custom_overrides = {
 	'118_enews_subscribe_radio': '',
 	'122_thall_radio': '',
 	'156_fp_fld2parts-fullname_text': '', # parse bug
-	'157_qnewsletter_radio': 'noAction',
+	'157_newsletter_radio': 'noAction',
 	'174_textmodified_hidden': 'yes',
 	'179_affl_radio': 'on',
 	'198_field_5eb7428f-9e29-4ecb-a666-6bc56b6a435e_radio': 'NO', #response req
 	'204_action_radio': '', # subscribe
 	"568_subject_radio": "CRNR", # no response
+	"583_affl1_select": "no action",
+	"585_aff1_radio": "<affl>subscribe</affl>",
+	"590_response_select": "newsNo",
 }
 
 class WebformParseException(Exception):
@@ -311,58 +322,61 @@ def parse_webform(webformurl, webform, webformid, id):
 	fieldlabels = { }
 				
 	for field in form.getElementsByTagName("input") + form.getElementsByTagName("select") + form.getElementsByTagName("textarea"):
-		if field.getAttribute("name").strip() != "":
+		if field.getAttribute("type").lower() == "image":
+			continue
+		if field.getAttribute("name").strip() == "":
+			continue
 			
-			## Look at any preceding text.
-			#if not field.hasAttribute("id") and field.previousSibling != None and field.previousSibling.data != None:
-			#	field.parentNode.normalize()
-			#	field.setAttribute('id', field.getAttribute("name"))
-			#	fieldlabels[field.getAttribute("name")] = re.sub("[^a-zA-Z0-9]", "", re.sub(".*\n", "", field.previousSibling.data)).lower()
-			
-			options = None
-			if field.nodeName == "select":
-				options = { }
-				for opt in field.getElementsByTagName("option") + field.getElementsByTagName("OPTION"):
-					opttext = ""
-					opt.normalize()
-					if opt.firstChild != None:
-						opttext = opt.firstChild.data.lower()
-						opttext = re.sub("^\W+", "", opttext)
-						opttext = re.sub("\s+$", "", opttext)
-					
-					options[opttext] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext
-					
-			elif field.getAttribute("type") == "checkbox":
-				# just ignore checkboxes --- they should be to subscribe
-				# users to the office's email list. We want to ignore them
-				# outright because we want to specifically NOT submit
-				# their value.
-				continue
+		## Look at any preceding text.
+		#if not field.hasAttribute("id") and field.previousSibling != None and field.previousSibling.data != None:
+		#	field.parentNode.normalize()
+		#	field.setAttribute('id', field.getAttribute("name"))
+		#	fieldlabels[field.getAttribute("name")] = re.sub("[^a-zA-Z0-9]", "", re.sub(".*\n", "", field.previousSibling.data)).lower()
+		
+		options = None
+		if field.nodeName == "select":
+			options = { }
+			for opt in field.getElementsByTagName("option") + field.getElementsByTagName("OPTION"):
+				opttext = ""
+				opt.normalize()
+				if opt.firstChild != None:
+					opttext = opt.firstChild.data.lower()
+					opttext = re.sub("^\W+", "", opttext)
+					opttext = re.sub("\s+$", "", opttext)
 				
-			elif field.getAttribute("type") == "radio":
-				val = field.getAttribute("value")
-				#if not field.hasAttribute("value"):
-				#	val = "on" # specification says value is required, but Chrome submits "on" if it is missing so we'll do the same
+				options[opttext] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext
 				
-				for fieldtype, attr, attrid, default_value, options, maxlen in fields:
-					if fieldtype == "radio" and attr == field.getAttribute("name"):
-						options[field.getAttribute("value").lower()] = val
-						break
-				else:
-					fields.append( ("radio", field.getAttribute("name"), field.getAttribute("id"), val, { val.lower(): val }, None))
-				continue
-					
-			fieldtype = field.nodeName
-			if fieldtype == "input":
-				if field.getAttribute("type") == "":
-					fieldtype = "text"
-				else:
-					fieldtype = field.getAttribute("type")
-					
-			if field.getAttribute("style") == "display: none;":
-				fieldtype = "hidden"
+		elif field.getAttribute("type") == "checkbox":
+			# just ignore checkboxes --- they should be to subscribe
+			# users to the office's email list. We want to ignore them
+			# outright because we want to specifically NOT submit
+			# their value.
+			continue
 			
-			fields.append( (fieldtype.lower(), field.getAttribute("name"), field.getAttribute("id"), field.getAttribute("value") if field.hasAttribute("value") else None, options, field.getAttribute("maxlength")))
+		elif field.getAttribute("type") == "radio":
+			val = field.getAttribute("value")
+			#if not field.hasAttribute("value"):
+			#	val = "on" # specification says value is required, but Chrome submits "on" if it is missing so we'll do the same
+			
+			for fieldtype, attr, attrid, default_value, options, maxlen in fields:
+				if fieldtype == "radio" and attr == field.getAttribute("name"):
+					options[field.getAttribute("value").lower()] = val
+					break
+			else:
+				fields.append( ("radio", field.getAttribute("name"), field.getAttribute("id"), val, { val.lower(): val }, None))
+			continue
+				
+		fieldtype = field.nodeName
+		if fieldtype == "input":
+			if field.getAttribute("type") == "":
+				fieldtype = "text"
+			else:
+				fieldtype = field.getAttribute("type")
+				
+		if field.getAttribute("style") == "display: none;":
+			fieldtype = "hidden"
+		
+		fields.append( (fieldtype.lower(), field.getAttribute("name"), field.getAttribute("id"), field.getAttribute("value") if field.hasAttribute("value") else None, options, field.getAttribute("maxlength")))
 
 	# scan <label>s
 	for label in doc.getElementsByTagName("label"):
@@ -389,7 +403,7 @@ def parse_webform(webformurl, webform, webformid, id):
 		
 		ax = attr.lower()
 		
-		#if ax == "ctl00$ctl01$zip": ax = "zip5" # 199
+		if ax == "ctl00$ctl01$zip": ax = "zip5"
 		if ax == "ctl00$ctl04$zip": ax = "zip5"
 		if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
 		if ax == "ctl00$ctl06$zip": ax = "zip5"
@@ -397,6 +411,8 @@ def parse_webform(webformurl, webform, webformid, id):
 		#if ax == "ctl00$ctl09$zip": ax = "zip5" # 191
 		#if ax == "ctl00$ctl10$zip": ax = "zip5" # 173
 		if ax == "ctl00$ctl105$zip": ax = "zip5"
+		
+		ax = ax.replace("ctl00$contentplaceholderdefault$newslettersignup_1$", "")
 		
 		ax = re.sub(r"^(required[\-\_]|ctl\d+\$ctl\d+\$)", "", ax)
 		ax = re.sub(r"[\-\_]required$", "", ax)
@@ -589,7 +605,11 @@ def send_message_webform(di, msg, deliveryrec):
 	# him with no change.
 	if len(webform_stages) > 0 and webform_stages[0].startswith("verifystage:"):
 		webformid_stage2 = webform_stages.pop(0)[len("verifystage:"):]
-		doc, form, formaction = find_webform(ret, webformid_stage2, formaction)
+		try:
+			doc, form, formaction = find_webform(ret, webformid_stage2, formaction)
+		except WebformParseException:
+			deliveryrec.trace += "\n" + webform.decode('utf8', 'replace') + "\n\n"
+			raise
 					
 		postdata = { }
 		for field in form.getElementsByTagName("input") + form.getElementsByTagName("select") + form.getElementsByTagName("textarea"):
