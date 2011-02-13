@@ -981,7 +981,7 @@ class UserComment(models.Model):
 				ret += retd[k]
 				
 		if len(recips) > 0:
-			ret += "Your comment has not yet been sent to Congress. It is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
+			ret += "Your comment is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
 			
 		return ret
 		

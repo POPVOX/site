@@ -260,8 +260,12 @@ def getBillStatus(bill) :
 			status = "This bill or resolution passed in the Senate and the House, but the House made changes and sent it back to the Senate on %s."
 		elif status == "PASS_BACK:SENATE":
 			status = "This bill or resolution has been passed in the House and the Senate, but the Senate made changes and sent it back to the House on %s."
-		elif status == "PROV_KILL:SUSPENSIONFAILED" or status == "PROV_KILL:CLOTUREFAILED" or status == "PROV_KILL:PINGPONGFAIL":
-			status = "This bill or resolution is provisionally dead due to a failed vote for cloture, under a fast-track vote called \"suspension\", or when resolving differences on %s."
+		elif status == "PROV_KILL:SUSPENSIONFAILED":
+			status = "This bill or resolution is provisionally dead due to a failed vote under a fast-track procedure called \"suspension\" on %s. It may or may not get another vote."
+		elif status == "PROV_KILL:CLOTUREFAILED":
+			status = "This bill or resolution is provisionally dead due to a failed vote for cloture, i.e. to stop a filibuster or threat of a filibuster, on %s."
+		elif status == "PROV_KILL:PINGPONGFAIL":
+			status = "This bill or resolution is provisionally dead due to a failed attempt to resolve differences between the House and Senate versions, on %s."
 		elif status == "PROV_KILL:VETO":
 			status = "This bill was vetoed by the President on %s. The bill is dead unless Congress can override it."
 		elif status == "OVERRIDE_PASS_OVER:HOUSE":
