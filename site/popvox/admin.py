@@ -27,8 +27,9 @@ class OrgCampaignInline(admin.TabularInline):
     
 class OrgAdmin(admin.ModelAdmin):
 	search_fields = ["name"]
-	inlines = [OrgCampaignInline]
+	#inlines = [OrgCampaignInline]
 	filter_horizontal = ("issues", )
+	readonly_fields = ('logo', 'issues', 'documents')
 
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
