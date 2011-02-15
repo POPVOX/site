@@ -58,9 +58,21 @@ def get_news():
 	global _news_updated
 	# Load the blog RSS feed for items tagged frontpage.
 	if _news_items == None or datetime.now() - _news_updated > timedelta(minutes=60):
+		
+		# c/o http://stackoverflow.com/questions/1208916/decoding-html-entities-with-python
+		import re
+		def _callback(matches):
+		    id = matches.group(1)
+		    try:
+			   return unichr(int(id))
+		    except:
+			   return id
+		def decode_unicode_references(data):
+		    return re.sub("&#(\d+)(;|(?=\s))", _callback, data)
+
 		import feedparser
 		feed = feedparser.parse("http://www.popvox.com/blog/atom")
-		_news_items = [{"link":entry.link, "title":entry.title, "date":datetime(*entry.updated_parsed[0:6]), "content":entry.content[0].value} for entry in feed["entries"][0:4]]
+		_news_items = [{"link":entry.link, "title":decode_unicode_references(entry.title), "date":datetime(*entry.updated_parsed[0:6]), "content":decode_unicode_references(entry.content[0].value)} for entry in feed["entries"][0:4]]
 		_news_updated = datetime.now()
 	return _news_items
 

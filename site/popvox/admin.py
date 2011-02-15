@@ -22,6 +22,9 @@ class UserCommentAdmin(admin.ModelAdmin):
 	readonly_fields = ("user","bill","address")
 	search_fields = ("user__username", "user__email")
 
+class PostalAddressAdmin(admin.ModelAdmin):
+	search_fields = ("user__username",)
+
 class OrgCampaignInline(admin.TabularInline):
     model = OrgCampaign
     extra = 1
@@ -44,7 +47,7 @@ admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)
 admin.site.register(UserOrgRole, UserOrgRoleAdmin)
 admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
-admin.site.register(PostalAddress)
+admin.site.register(PostalAddress, PostalAddressAdmin)
 admin.site.register(PositionDocument)
 
 class RawTextAdmin(admin.ModelAdmin):
