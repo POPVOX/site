@@ -20,6 +20,7 @@ class UserLegStaffRoleAdmin(admin.ModelAdmin):
 class UserCommentAdmin(admin.ModelAdmin):
 	raw_id_fields = ("bill","address")
 	readonly_fields = ("user","bill","address")
+	search_fields = ("user__username", "user__email")
 
 class OrgCampaignInline(admin.TabularInline):
     model = OrgCampaign

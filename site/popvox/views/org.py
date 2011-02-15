@@ -672,7 +672,7 @@ def action_download(request, orgslug, billposid):
 	writer = csv.writer(response)
 	writer.writerow(['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode'])
 	for rec in OrgCampaignPositionActionRecord.objects.filter(ocp=billpos):
-		writer.writerow([rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode])
+		writer.writerow([unicode(s).encode("utf-8") for s in [rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode]])
 	
 	return response
 
