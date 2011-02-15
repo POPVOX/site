@@ -1,14 +1,14 @@
 import urllib2
 import json
 
-from settings import CDYNE_LICENSE_KEY
-
-from popvox.govtrack import stateapportionment
-
 last_response = None
 
 def verify_adddress(address):
 	global last_response
+
+	# import here so we can set env variables in the __main__ code
+	from settings import CDYNE_LICENSE_KEY
+	from popvox.govtrack import stateapportionment
 	
 	req = urllib2.Request("http://pav3.cdyne.com/PavService.svc/VerifyAddressAdvanced",
 		json.dumps(
@@ -62,7 +62,11 @@ def verify_adddress(address):
 
 
 if __name__ == "__main__":
-	# DEBUG=1 DJANGO_SETTINGS_MODULE=settings PYTHONPATH=. python writeyourrep/addressnorm.py
+	import sys, os
+	os.environ["DEBUG"] = "1"
+	os.environ["DJANGO_SETTINGS_MODULE"] = "settings"
+	sys.path.insert(0, "..")
+	sys.path.insert(0, "../libs")
 	
 	from popvox.models import PostalAddress
 	address = PostalAddress()

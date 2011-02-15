@@ -1084,6 +1084,9 @@ Go to %s to have your voice be heard!""" % (
 		return { "status": "success", "msg": "A link has been posted on your Wall." }
 
 def billcomment_moderate(request, commentid, action):
+	if not user.is_authenticated() or (not user.is_staff and not user.is_superuser):
+		raise Http404()
+	
 	from django.core.mail import EmailMessage
 	
 	comment = UserComment.objects.get(id = commentid)
