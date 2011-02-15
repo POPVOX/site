@@ -1084,20 +1084,31 @@ Go to %s to have your voice be heard!""" % (
 		return { "status": "success", "msg": "A link has been posted on your Wall." }
 
 def billcomment_moderate(request, commentid, action):
-	if not user.is_authenticated() or (not user.is_staff and not user.is_superuser):
+	if not request.user.is_authenticated() or (not request.user.is_staff and not request.user.is_superuser):
 		raise Http404()
-	
+		
 	from django.core.mail import EmailMessage
 	
 	comment = UserComment.objects.get(id = commentid)
-	
+
+	if comment.moderation_log == None:
+		comment.moderation_log = ""
+	comment.moderation_log = \
+		unicode(datetime.now()) + " " + request.user.username \
+		+ " set status to " +action + "\n" \
+		+ request.GET.get("log", "") + "\n\n" \
+		+ (comment.message if comment.message != None else "[no message]") \
+		+ "\n\n" + comment.moderation_log
+		
 	if comment.status == UserComment.COMMENT_NOT_REVIEWED:
 		if action in ("reject", "reject-stop-delivery"):
 			if action == "reject":
 				comment.status = UserComment.COMMENT_REJECTED
 			elif action == "reject-stop-delivery":
 				comment.status = UserComment.COMMENT_REJECTED_STOP_DELIVERY
+				
 			comment.save()
+			
 			msg = EmailMessage(
 				subject = "Your comment on " + comment.bill.displaynumber() + " at POPVOX needs to be revised",
 				body = """Dear %s,

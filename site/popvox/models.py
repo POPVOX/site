@@ -854,6 +854,8 @@ class UserComment(models.Model):
 	referrer_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
 	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
 	
+	moderation_log = models.TextField(blank=True, null=True)
+	
 	# This holds all delivery attempts at this comment. some of the
 	# delivery attempts have been superceded by their re-send
 	# attempts. Also when we send letters to senators we may
