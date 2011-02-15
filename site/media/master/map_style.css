@@ -97,15 +97,27 @@ body {
 	z-index: 999 !important;
 	width: 12px !important;
 	height: 12px !important;
-	margin: -3px 0 0 -3px;
 	-moz-border-radius: 7px !important;
 	-webkit-border-radius: 7px !important;
 	-khtml-border-radius: 7px !important;
 	border-radius: 7px !important;
+	display: block;
 	}
 	
-	#mapdots .dot_sz_4.dots:hover {		
+	#mapdots .dot_sz_1.dots:hover {		
 		margin: -2px 0 0 -2px;
+		}
+	#mapdots .dot_sz_2.dots:hover {		
+		margin: -3px 0 0 -3px;
+		}
+	#mapdots .dot_sz_3.dots:hover {		
+		margin: -4px 0 0 -4px;
+		}
+	#mapdots .dot_sz_4.dots:hover {		
+		margin: -5px 0 0 -5px;
+		}
+	#mapdots .dot_sz_5.dots:hover {		
+		margin: -6px 0 0 -6px;
 		}
 		
 /*.dots_key {

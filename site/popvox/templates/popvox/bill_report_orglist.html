@@ -6,8 +6,8 @@
 	{% endif %}
 	
 	<div id="{{org_group}}{{forloop.counter0}}" {% if forloop.counter0 == 1 %}style="display: none"{% endif %}>
-	{% for org in grp %}
-		<li><a href="{{org.url}}">{{org.name}}</a></li>
+	{% for org, info in grp %}
+		<li class="{% if info.has_document %}has_doc{% endif %}"><a href="{{org.url}}">{{org.name}}</a></li>
 	{% empty %}
 		<li>No organizations known.</li>
 	{% endfor %}

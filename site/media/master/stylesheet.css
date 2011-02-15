@@ -447,10 +447,21 @@ h4 {
 	font: normal 16px/20px helvetica, arial, sans-serif;
 	}
 		
+ul.smalllist {
+	margin-bottom: 10px;
+	}
+	
+	
 ul.smalllist li {
 	color: #666;
 	font: bold 12px/20px helvetica;
 }
+
+	ul.smalllist #orgsendorsing0 li.has_doc a, ul.smalllist #orgsopposing0 li.has_doc a {
+		background: url(bg_doc.png) right 0 no-repeat;
+		padding: 0 15px 0 0;
+		}
+	
 ul.smalllist li a {
 	color: #404040;
 	font: bold 12px/20px helvetica;
@@ -486,11 +497,12 @@ dd {
 .bullets li {
 	display: list-item;
 	list-style: none;
-	background: url(bullet.png) left .4em no-repeat;
-	margin: 0 0 .5em 1em;
-	padding-left: 1em;
+	background: url(bullet.png) left .35em no-repeat;
+	margin: 0 0 .5em 0;
+	padding-left: 20px;
 	font: normal 13px/18px helvetica, arial, sans-serif;
 	}
+	
 .bullets li a {
 	color: #606060;
 	}
@@ -951,6 +963,17 @@ h3#reporttitle {
 
 	.chart_notlast {
 		background: url(bg_hr.png) left bottom repeat-x;
+		}
+		
+	.pro_reintro {
+		background: none repeat scroll 0 0 #D4D1CA;
+		border-top: 20px solid #E8E5DF;
+		width: 405px;
+		padding: 20px;
+		clear: both;
+		font-weight: bold;
+		text-align: center;
+		text-transform: uppercase;
 		}
 	
 		.legreport .comments h3 {
@@ -1433,9 +1456,16 @@ look in master/_map_style.css
 	}
 	
 	.tab_pane h3 {
-		font: normal 18px/20px 'BebasNeueRegular', helvetica, arial, sans-serif;
+		font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
 		letter-spacing: .055em;
 		color: #606065;
+		padding-top: 0;
+		}
+		
+	.tab_pane h5 {
+		font: normal 16px/24px helvetica, arial, sans-serif;
+		border-top: 1px solid #D4D1CA;
+	    padding-top: 5px;
 		}
 
 
@@ -3724,6 +3754,32 @@ ul.staff, .small {
 				left: 515px;
 				top: 75px;
 				}
+				
+/* ----org ---- */
+		ul.bullets.org_action {
+			border-bottom: 2px solid #D4D1CA;
+		    padding-bottom: 10px;
+			}
+			
+		.bullets.org_action li {
+			background: none;
+			padding-left: 0;
+			}
+			
+		.bullets li a.get_tracking_url {
+			background: url(bg_tracking_url.png) left top no-repeat;
+			padding: 2px 0 4px 25px;
+			}
+			
+		.bullets li a.create_action_pg {
+			background: url(bg_action_pg.png) left top no-repeat;
+			padding: 2px 0 4px 25px;
+			}
+		
+		.bullets li a.upload_doc {
+			background: url(bg_upload_doc.png) left top no-repeat;
+			padding: 2px 0 4px 25px;
+			}
 		
 					
 	.col_50 {

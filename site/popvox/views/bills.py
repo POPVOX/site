@@ -1195,8 +1195,8 @@ def billreport(request, congressnumber, billtype, billnumber):
 
 	default_state, default_district = get_default_statistics_context(request.user)
 					
-	orgs_support = []
-	orgs_oppose = []
+	orgs_support = { }
+	orgs_oppose = { }
 	for pos in bill.campaign_positions():
 		if pos.position == "+":
 			lst = orgs_support
@@ -1205,7 +1205,9 @@ def billreport(request, congressnumber, billtype, billnumber):
 		else:
 			continue # not listing neutral positions
 		if not pos.campaign.org in lst:
-			lst.append(pos.campaign.org)
+			lst[pos.campaign.org] = {
+				"has_document": pos.campaign.org.documents.filter(bill=bill).exists(),
+				}
 
 	bot_comments = []
 	if hasattr(request, "ua") and (request.ua["typ"] in "Robot" or request.ua["ua_family"] in "cURL"):
@@ -1216,8 +1218,8 @@ def billreport(request, congressnumber, billtype, billnumber):
 
 	return render_to_response('popvox/bill_report.html', {
 			'bill': bill,
-			"orgs_supporting": orgs_support,
-			"orgs_opposing": orgs_oppose,
+			"orgs_supporting": orgs_support.items(),
+			"orgs_opposing": orgs_oppose.items(),
 			"default_state": default_state if default_state != None else "",
 			"default_district": default_district if default_district != None else "",
 			"stateabbrs": 

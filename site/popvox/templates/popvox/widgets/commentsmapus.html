@@ -13,9 +13,31 @@
 		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 		<script>
 			var visible = false;
+			var dot_x, dot_y;
 			var shown = 0;
+
+			/*var last_mouse_pos;
+			function mousemove(event) {
+				if (last_mouse_pos && visible && !showing) {
+					if (event.pageX > last_mouse_pos.pageX && dot_x > 252) {
+						if (!$('#infobox').hasClass("lefty")) {
+							$('#infobox').addClass("lefty");
+							$('#infobox').css({left: dot_x - 252});
+						}
+					} else {
+						if ($('#infobox').hasClass("lefty") && dot_x < 940-252-50-5) {
+							$('#infobox').removeClass("lefty");
+							$('#infobox').css({left: dot_x + 50+5});
+						}
+					}
+				}
+				last_mouse_pos = event;
+			}
+			$(document).mousemove(mousemove);*/
+
 			function show(district, label, support, count, x, y){
 				$('#infobox').show();
+				showing = true;
 
 				/*if (district.substr(2) == "0"){
 					$('#infobox img').hide();
@@ -32,10 +54,11 @@
 				$('#activity').text("(" + count + " user" + (count > 1 ? "s" : "") + ")")
 				
 				$('#infobox').removeClass("lefty");
+				dot_x = x;
 				x += 50 + 5;
-				if (x + 233 > 940) {
+				if (x + 252 > 940) {
 					$('#infobox').addClass("lefty");
-					x = x - 233 - 50 - 5;
+					x = x - 252 - 50 - 5;
 				}
 
 				y = y - 50;
@@ -49,21 +72,34 @@
 
 				shown++;
 				visible = true;
+
+				setTimeout("showing = false;", 500);
+			}
+
+			function hide() {
+				setTimeout("if (shown==" + shown + ") $('#infobox').fadeOut(function() { visible = false; })", 500);
 			}
 
 			var curcolmode = "1";
 			function togglecolors() {
-				if (curcolmode == "1") curcolmode = "2"; else curcolmode = "1";
+				if (curcolmode == "1") {
+					curcolmode = "2";
+					//$('#colormode').addClass('active');
+				} else {
+					curcolmode = "1";
+					//$('#colormode').removeClass('active');
+				}
 				$('body').attr('class', 'colormode_' + curcolmode);
 				$('#colormode').text(curcolmode == "1" ? "Alternate Colors" : "Original Colors");
 			}
+
 		</script>
 	</head>
 	<body class="colormode_1">
 		<div id="mapdots">
 		{% for district, count in data %}
-			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.count}}, {{count.coord.left}}, {{count.coord.top}})" onmouseout="setTimeout('if (shown==' + shown + ') $(\'#infobox\').fadeOut(function() { visible = false; })', 500)">
-				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"> </div>
+			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {{count.sentiment}}, {{count.count}}, {{count.coord.left}}, {{count.coord.top}})" onmouseout="hide()">
+				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"></div>
 			</a>
 		{% endfor %}
 		<div id="infobox" style="display: none;">
