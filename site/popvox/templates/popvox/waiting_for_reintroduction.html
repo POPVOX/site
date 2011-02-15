@@ -8,7 +8,7 @@
 	
 		<h3><a href="{{bill.url}}">{{bill.title|truncatewords:20}}</a></h3>
 		
-		<p><strong>{{users|length}} users tracking this bill</strong></p>
+		<p><strong>{{users|length}} users tracking this bill:</strong></p>
 		
 		{% for user in users %}
 			<div>{{user.user.email}}</div>

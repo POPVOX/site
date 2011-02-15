@@ -441,6 +441,12 @@ def bill(request, congressnumber, billtype, billnumber):
 				
 		del request.session["shorturl"]
 	
+	users_tracking_this_bill = None
+	users_commented_on_this_bill = None
+	if request.user.is_authenticated() and (request.user.is_staff or request.user.is_superuser):
+		users_tracking_this_bill = bill.trackedby.filter(user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().select_related("user")
+		users_commented_on_this_bill = UserProfile.objects.filter(user__comments__bill=bill).distinct().select_related("user")
+	
 	return render_to_response('popvox/bill.html', {
 			'bill': bill,
 			"canvote": (request.user.is_anonymous() or (not request.user.userprofile.is_leg_staff() and not request.user.userprofile.is_org_admin())),
@@ -459,6 +465,7 @@ def bill(request, congressnumber, billtype, billnumber):
 			"welcome_tabname": welcome_tabname,
 			"referral_orgposition": referral_orgposition,
 			
+			"users": { "tracking": users_tracking_this_bill, "commented": users_commented_on_this_bill },
 		}, context_instance=RequestContext(request))
 
 pending_comment_session_key = "popvox.views.bills.billcomment__pendingcomment"

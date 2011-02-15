@@ -286,6 +286,10 @@ function getshorturl() {
 
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
 			<script>if (!initial_tab) initial_tab = "billstatus";</script>
+			
+			{% if users.tracking or users.commented %} {% comment %} for admins {% endcomment %}
+			<li id="admin_tracking_tab"><a href="#" onclick="return showtab('admin_tracking')">ADMIN &gt; Users Tracking</a></li>
+			{% endif %}
 		</ul>
 	</div>
 	
@@ -369,6 +373,22 @@ function getshorturl() {
 	
 			</div>
 		{% endfor %}
+		
+		{% if users.tracking or users.commented %}
+		<div id="admin_tracking" style="display: none" class="tab_panel">
+			<p>This tab is displayed to admins only....</p>
+		
+			<h3>Individuals Tracking This Bill ({{users.tracking|length}}):</h3>
+			{% for userprofile in users.tracking %}
+				<div>{{userprofile.user.email}}</div>
+			{% endfor %}
+			
+			<h3>Users That Weighed In ({{users.commented|length}})</h3>
+			{% for userprofile in users.commented %}
+				<div>{{userprofile.user.email}}</div>
+			{% endfor %}
+		</div>
+		{% endif %}
 		
 		<script>showtab(initial_tab)</script>
 		
