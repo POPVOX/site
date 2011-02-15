@@ -12,6 +12,10 @@ class DeliveryRecordAdmin(admin.ModelAdmin):
 	list_display = ("created", "target", "success", "failure_reason")
 	list_filter = ("success", "failure_reason", "created")
 
+	def queryset(self, request):
+		qs = super(DeliveryRecordAdmin, self).queryset(request)
+		return qs.filter(next_attempt__isnull=True)
+
 class SynonymRequiredAdmin(admin.ModelAdmin):
 	list_display = ("term1set", "term2set")
 	def save_model(self, request, obj, form, change):

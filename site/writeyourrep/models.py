@@ -36,12 +36,13 @@ class DeliveryRecord(models.Model):
 	FAILURE_SELECT_OPTION_NOT_MAPPABLE = 4
 	FAILURE_UNEXPECTED_RESPONSE = 5
 	FAILURE_NO_DELIVERY_METHOD = 6
+	FAILURE_DISTRICT_DISAGREEMENT = 7
 	
 	target = models.ForeignKey(Endpoint)
 	trace = models.TextField()
 	success = models.BooleanField()
-	failure_reason = models.IntegerField(choices=[(FAILURE_NO_FAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response"), (FAILURE_NO_DELIVERY_METHOD, "No Delivery Method Available")])
-	next_attempt = models.ForeignKey("DeliveryRecord", blank=True, null=True)
+	failure_reason = models.IntegerField(choices=[(FAILURE_NO_FAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response"), (FAILURE_NO_DELIVERY_METHOD, "No Delivery Method Available"), (FAILURE_DISTRICT_DISAGREEMENT, "District Disagreement")])
+	next_attempt = models.OneToOneField("DeliveryRecord", blank=True, null=True, related_name="previous_attempt")
 	created = models.DateTimeField(auto_now_add=True)
 	
 	class Meta:

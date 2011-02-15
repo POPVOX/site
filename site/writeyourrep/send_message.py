@@ -7,7 +7,6 @@ import html5lib
 import xml.sax.saxutils
 
 from writeyourrep.models import *
-from testzipcodes import testzipcodes
 
 from popvox.govtrack import getMemberOfCongress, statenames
 
@@ -133,6 +132,7 @@ common_fieldnames = {
 	"addr1": "address1",
 	"addr2": "address2",
 	"add": "address_combined",
+	"street-address": "address_combined",
 	"street": "address1",
 	"mailing_city": "city",
 	"hcity": "city",
@@ -161,6 +161,7 @@ common_fieldnames = {
 	"primaryphone": "phone",
 	"phone1": "phone",
 	"hphone": "phone",
+	"phone-number": "phone",
 	"emailaddress": "email",
 	"email_address": "email",
 	"email_verify": "email",
@@ -182,6 +183,7 @@ common_fieldnames = {
 	"body": "message",
 
 	"messagesubject": "subjectline",
+	"message_topic_select": "topicarea",
 	"subject_text": "subjectline",
 	"subject_select": "topicarea",
 	"topic_text": "subjectline",
@@ -199,6 +201,8 @@ common_fieldnames = {
 	"topics_select": "topicarea",
 	"whatisthegeneraltopicofyourmessage_select": "topicarea",
 	"subject_code_select": "topicarea",
+	"category_select": "topicarea",
+	"contact[issue_id]": "topicarea",
 	
 	"responserequested": "response_requested",
 	"responserequest": "response_requested",
@@ -217,7 +221,7 @@ common_fieldnames = {
 
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
-skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact",
+skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phonebusiness", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation",
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey",
 	"speech")
 
@@ -278,6 +282,9 @@ class SubmissionSuccessUnknownException(Exception):
 		  self.parameter = value
 	 def __str__(self):
 		  return str(self.parameter)
+
+class DistrictDisagreementException(Exception):
+	pass
 
 def find_webform(htmlstring, webformid, webformurl):
 	# cut out all table tags because when tables are mixed together with forms
@@ -408,8 +415,8 @@ def parse_webform(webformurl, webform, webformid, id):
 		if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
 		if ax == "ctl00$ctl06$zip": ax = "zip5"
 		#if ax == "ctl00$ctl08$zip": ax = "zip5" # 191
-		#if ax == "ctl00$ctl09$zip": ax = "zip5" # 191
-		#if ax == "ctl00$ctl10$zip": ax = "zip5" # 173
+		if ax == "ctl00$ctl09$zip": ax = "zip5" # 191
+		if ax == "ctl00$ctl10$zip": ax = "zip5" # 173
 		if ax == "ctl00$ctl105$zip": ax = "zip5"
 		
 		ax = ax.replace("ctl00$contentplaceholderdefault$newslettersignup_1$", "")
@@ -492,7 +499,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	webformurl, webformid = di.webform.split("#")
 	
-	deliveryrec.trace += webformurl + "\n"
+	deliveryrec.trace += webformurl.decode('utf8', 'replace') + "\n"
 	webform = http.open(webformurl).read()
 	
 	webform_stages = webformid.split(',')
@@ -569,7 +576,7 @@ def send_message_webform(di, msg, deliveryrec):
 				alts.append(q)
 				for rec in Synonym.objects.filter(term1 = q):
 					alts.append(rec.term2)
-			alts.sort(key = lambda x : x in ("other", "others", "miscellaneous")) # put these at the end
+			alts.sort(key = lambda x : x in ("other", "others", "miscellaneous", "other - not listed", "optionally select an issue")) # put these at the end
 			for q in alts:
 				if q.lower() in field_options[k]:
 					postdata[k] = field_options[k][q.lower()]
@@ -641,6 +648,13 @@ def send_message_webform(di, msg, deliveryrec):
 
 	success = (di.webformresponse in ret)
 	
+	if success:
+		return
+		
+	if "Your zip code indicates that you are outside of" in ret:
+		deliveryrec.trace += "\n" + ret + "\n\n"
+		raise DistrictDisagreementException()
+	
 	if not success:
 		deliveryrec.trace += "\n" + ret + "\n\n"
 		raise SubmissionSuccessUnknownException("Success message not found in result.")
@@ -657,15 +671,12 @@ def send_message_housewyr(msg, deliveryrec):
 	# Check if there is an actual webform, otherwise WYR is not
 	# supported on this address.
 	if "Write Your Representative general error message" in ret or not "Continue to Text Entry Form" in ret:
-		deliveryrec.trace = "I tried House Write Your Rep but it was not available for this recipient."
-		deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_DELIVERY_METHOD
-		deliveryrec.save()
-		return deliveryrec
+		return False
 					
 	# Submit the address, then the comment....
 	
 	webformurl = writerep_house_gov
-	for formname, responsetext in (("@/htbin/wrep_const", '<form action="/htbin/wrep_save" method="post">'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office to express your views on an issue of importance|Thank you for getting in touch")):
+	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office to express your views on an issue of importance|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted")):
 		field_map, field_options, field_default, webformurl = parse_webform(webformurl, ret, formname, "housewyr")
 		
 		postdata = { }
@@ -699,6 +710,8 @@ def send_message_housewyr(msg, deliveryrec):
 		
 	deliveryrec.success = True
 	deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
+	
+	return True
 
 # download a cache of all of the webforms (at least the first-stage page)
 def cache_webforms():
@@ -712,7 +725,7 @@ def cache_webforms():
 		fn.write("\n<!-- " + webformurl + "-->\n")
 		fn.close()
 
-def send_message(msg, govtrackrecipientid, previous_attempt):
+def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 	# Check for delivery information.
 	
 	mm = getMemberOfCongress(govtrackrecipientid)
@@ -737,11 +750,14 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 		method = Endpoint.METHOD_NONE
 		if mm["type"] == "rep":
 			method = Endpoint.METHOD_HOUSE_WRITEREP
-		
+
+	if method == Endpoint.METHOD_NONE:
+		return None
+
 	deliveryrec = DeliveryRecord()
 	deliveryrec.target = moc
 	deliveryrec.success = False
-	deliveryrec.trace = ""
+	deliveryrec.trace = loginfo + u" to " + getMemberOfCongress(govtrackrecipientid)["sortkey"] + u" (" + unicode(govtrackrecipientid) + u")\n" + msg.xml() + u"\n\n"
 	deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
 	deliveryrec.save()
 
@@ -749,12 +765,6 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 		previous_attempt.next_attempt = deliveryrec
 		previous_attempt.save()
 
-	if method == Endpoint.METHOD_NONE:
-		deliveryrec.trace = "No delivery method is available for this recipient."
-		deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_DELIVERY_METHOD
-		deliveryrec.save()
-		return deliveryrec
-		
 	#print mm["name"].encode('utf8'), msg.zipcode
 	#print moc.admin_url()	
 	
@@ -766,6 +776,8 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 		msg.zip4 = ""
 	else:
 		msg.zip5, msg.zip4 = msg.zipcode.split("-")
+	if msg.prefix == "Reverend":
+		msg.prefix = ('Reverend', 'Mr.') # fallback
 
 	# Begin the delivery attempt.
 	try:
@@ -781,7 +793,7 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 				
 				sr = SynonymRequired()
 				sr.term1set = "\n".join(e.values)
-				sr.term2set = "\n".join(e.options)
+				sr.term2set = "\n".join([re.sub(r"\s+", " ", opt) for opt in e.options])
 				sr.save()
 				
 			except WebformParseException, e:
@@ -789,21 +801,26 @@ def send_message(msg, govtrackrecipientid, previous_attempt):
 				deliveryrec.failure_reason = DeliveryRecord.FAILURE_FORM_PARSE_FAILURE
 				
 		elif method == Endpoint.METHOD_HOUSE_WRITEREP:
-			send_message_housewyr(msg, deliveryrec)
+			ok = send_message_housewyr(msg, deliveryrec)
+			
+			if not ok:
+				if previous_attempt != None:
+					previous_attempt.next_attempt = None
+					previous_attempt.save()
+				deliveryrec.delete()
+				return None
 		
 			# If we got this far, House WYR supports this office. Since we
 			# might have been guessing...
 			if deliveryrec.success and moc.method != method:
 				moc.method = Endpoint.METHOD_HOUSE_WRITEREP
 				moc.save()
-		
-		else:
-			deliveryrec.trace = "Delivery method is not implemented for this recipient."
-			deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_DELIVERY_METHOD
-			deliveryrec.save()
-			return deliveryrec
-	
+
 	# exceptions common to all delivery types
+	except DistrictDisagreementException, e:
+		deliveryrec.trace += str(e) + "\n"
+		deliveryrec.failure_reason = DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT
+	
 	except IOError, e:
 		deliveryrec.trace += str(e) + "\n"
 		deliveryrec.failure_reason = DeliveryRecord.FAILURE_HTTP_ERROR

@@ -861,7 +861,7 @@ class UserComment(models.Model):
 	# attempts. Also when we send letters to senators we may
 	# send it to both senators, so this records all delivery attempts
 	# for all of the individuals the message gets sent to.
-	delivery_attempts = models.ManyToManyField(DeliveryRecord, blank=True)
+	delivery_attempts = models.ManyToManyField(DeliveryRecord, blank=True, related_name="comments")
 	
 	class Meta:
 			verbose_name = "user comment"
