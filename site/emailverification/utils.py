@@ -19,11 +19,13 @@ def send_email_verification(email, searchkey, action):
 	emailbody = emailbody.replace("<URL>",
 			getattr(settings, 'SITE_ROOT_URL', "http://%s" % Site.objects.get_current().domain)
 				+ reverse("emailverification.views.processcode", args=[r.code]))
+	
+	fromaddr = getattr(settings, 'EMAILVERIFICATION_FROMADDR',
+			getattr(settings, 'SERVER_EMAIL', 'no.reply@example.com'))
+	if hasattr(action, "get_from_address"):
+		fromaddr = action.get_from_address()
 
-	send_mail(emailsubject, emailbody,
-		getattr(settings, 'EMAILVERIFICATION_FROMADDR',
-			getattr(settings, 'SERVER_EMAIL',
-				'no.reply@example.com')),
+	send_mail(emailsubject, emailbody, fromaddr,
 		[email], fail_silently=False)
 	
 	r.save()

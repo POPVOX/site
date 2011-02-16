@@ -66,6 +66,7 @@ urlpatterns = patterns('',
 	(r'^ajax/orgs/cam/updatefields$', 'popvox.views.org.orgcampaign_updatefields'),
 	(r'^post/org_support_oppose$', "popvox.views.org.org_support_oppose"),
 	(r'^ajax/orgs/updateaction$', 'popvox.views.org.orgcampaignpositionactionupdate'),
+	(r'^ajax/orgs/coalition/(join|invite|delete|leave)$', 'popvox.views.org.coalitionrequest'),
 	
 	(r'^accounts/login$', 'registration.views.loginform'),
 	(r'^accounts/logout$', 'django.contrib.auth.views.logout'),

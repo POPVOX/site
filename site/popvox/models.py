@@ -312,7 +312,8 @@ class Org(models.Model):
 	type = models.IntegerField(choices=ORG_TYPES, default=ORG_TYPE_NOT_SET)
 	website = models.URLField(blank=True, db_index=True, unique=True)
 	description = models.TextField(blank=True)
-	claimedmembership = models.CharField(choices=ORG_CLAIMEDMEMBERSHIP_CHOICES, default="Not Set", max_length=max([len(x[0]) for x in ORG_CLAIMEDMEMBERSHIP_CHOICES]))
+	claimedmembership = models.CharField(choices=ORG_CLAIMEDMEMBERSHIP_CHOICES, default="Not Set", max_length=max([len(x[0]) for x in ORG_CLAIMEDMEMBERSHIP_CHOICES]), verbose_name="Claimed membership")
+	iscoalition = models.BooleanField(default=False, verbose_name="Is this a coalition?")
 	postaladdress = models.TextField(blank=True)
 	phonenumber = models.TextField(blank=True)
 	twittername = models.TextField(blank=True, null=True)
@@ -326,6 +327,8 @@ class Org(models.Model):
 	approved = models.BooleanField(default=False)
 	
 	documents = models.ManyToManyField("PositionDocument", blank=True)
+	
+	coalitionmembers = models.ManyToManyField("Org", blank=True, related_name="ispartofcoalition", verbose_name="Coalition members")
 	
 	class Meta:
 			verbose_name = "organization"

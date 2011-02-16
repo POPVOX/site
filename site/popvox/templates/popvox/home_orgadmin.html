@@ -14,8 +14,12 @@
 <div class="content">
 
 <div class="col_9 col_top">
+	<h1>Home</h1>
+	
 	{% for role in user.orgroles.all %}
-		<h1>Home</h1>
+		{% if user.orgroles.all|length > 1 %}
+		<h2>{{role.org.name}}</h2>
+		{% endif %}
 
 		{% if not role.org.description %}
 		<p class="whattodonext" style="border-bottom: none">Welcome to POPVOX. The first step is to <a href="{{role.org.url}}/_edit">edit your organization profile</a>.</p>

@@ -22,6 +22,8 @@ from datetime import datetime
 from popvox.models import *
 from popvox.views.bills import getissueareas
 
+from emailverification.utils import send_email_verification
+
 from settings import SITE_ROOT_URL, EMAILVERIFICATION_FROMADDR
 
 def orgs(request):
@@ -41,7 +43,21 @@ def org(request, orgslug):
 		
 	set_last_campaign_viewed(request, org)
 	
-	return render_to_response('popvox/org.html', {'org': org, 'admin': org.is_admin(request.user), "cams": cams}, context_instance=RequestContext(request))
+	return render_to_response('popvox/org.html', {
+		'org': org,
+		'admin': org.is_admin(request.user),
+		"cams": cams,
+		
+		# list of orgs user admins that can join this org
+		"coalition_can_join": Org.objects.filter(admins__user=request.user).exclude(id=org.id).exclude(ispartofcoalition=org) if org.admins.exists() and org.iscoalition else None,
+		
+		# list of orgs user admins that can invite this org
+		"coalition_can_invite": Org.objects.filter(iscoalition=True, admins__user=request.user).exclude(id=org.id).exclude(coalitionmembers=org) if org.admins.exists() else None,
+		
+		# list of orgs user admins that can leave this org
+		"coalition_can_leave": Org.objects.filter(admins__user=request.user).filter(ispartofcoalition=org) if org.admins.exists() and org.iscoalition else None,
+		
+		}, context_instance=RequestContext(request))
 
 @login_required
 def org_help(request, orgslug):
@@ -675,4 +691,149 @@ def action_download(request, orgslug, billposid):
 		writer.writerow([unicode(s).encode("utf-8") for s in [rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode]])
 	
 	return response
+
+class CoalitionRequestAction:
+	coalition = None
+	org = None
+	sender = None
+	message = None
+	
+	def get_from_address(self):
+		return self.sender.email
+		
+	def get_response(self, request, vrec):
+		if not self.coalition.coalitionmembers.filter(id=self.org.id).exists():
+			messages.success(request, self.org.name + " has been added to the coalition " + self.coalition.name)
+			self.coalition.coalitionmembers.add(self.org)
+			
+			send_mail("POPVOX: Coalition Changed: New Member: " + self.org.name,
+"""This is an automated email to let you know that the organization
+
+   %s
+   <%s>
+   
+joined the coalition
+
+   %s
+   <%s>
+
+Thank you for using POPVOX!
+
+POPVOX
+""" % (self.org.name, SITE_ROOT_URL + self.org.url(), self.coalition.name, SITE_ROOT_URL + self.coalition.url()),
+				EMAILVERIFICATION_FROMADDR, [admin.user.email for admin in self.coalition.admins.all()], fail_silently=True)
+			
+			send_mail("POPVOX: Coalition Membership Changed: You Joined: " + self.coalition.name,
+"""This is an automated email to let you know that the organization
+
+   %s
+   <%s>
+   
+joined the coalition
+
+   %s
+   <%s>
+
+Thank you for using POPVOX!
+
+POPVOX
+""" % (self.org.name, SITE_ROOT_URL + self.org.url(), self.coalition.name, SITE_ROOT_URL + self.coalition.url()),
+				EMAILVERIFICATION_FROMADDR, [admin.user.email for admin in self.org.admins.all()], fail_silently=True)
+			
+		else:
+			messages.success(request, self.org.name + " had already been added to the coalition " + self.coalition.name)
+		return HttpResponseRedirect(self.coalition.url())
+	
+class CoalitionInviteAction(CoalitionRequestAction):
+	def email_subject(self):
+		return "POPVOX: " + self.coalition.name + " invites you to join their coalition"
+		
+	def email_body(self):
+		return """%s has sent your organization an invitation to join their coalition on POPVOX:
+
+----------
+From: %s <%s>
+          %s
+
+To: %s
+
+%s
+
+----------
+
+Joining a coalition means your organization will be listed among the coalition's members.
+To have your organization accept the invitation, please follow the following link. By clicking on
+the link your organization will be added to the coalition.
+
+<URL>
+
+If you do not want to join this coalition, just ignore this email.""" % (self.coalition.name, self.sender.userprofile.fullname, self.sender.email, self.coalition.name, self.org.name, self.message)
+	
+class CoalitionJoinAction(CoalitionRequestAction):
+	def email_subject(self):
+		return "POPVOX: " + self.org.name + " wants to join " + self.coalition.name
+		
+	def email_body(self):
+		return """%s has sent a request to join your coalition on POPVOX:
+
+----------
+From: %s <%s>
+          %s
+
+To: %s
+
+%s
+
+----------
+
+To accept the request, please follow the following link. By clicking on the link
+the request will be approved.
+
+<URL>
+
+To ignore the request, just ignore this email.""" % (self.org.name, self.sender.userprofile.fullname, self.sender.email, self.org.name, self.coalition.name, self.message)
+
+@json_response
+def coalitionrequest(request, join_or_invite):
+	myorg = get_object_or_404(Org, id=request.POST["myorg"])
+	theirorg = get_object_or_404(Org, id=request.POST["theirorg"])
+	if not myorg.is_admin(request.user):
+		return { "status": "fail", "msg": "You do not have permission to take this action." }
+	
+	axn = None
+	toaddr = [admin.user.email for admin in theirorg.admins.all()]
+	
+	if join_or_invite == "join":
+		if not theirorg.iscoalition or not theirorg.admins.exists():
+			return { "status": "fail", "msg": "Organization cannot be joined." }
+		if theirorg.coalitionmembers.filter(id=myorg.id).exists():
+			return { "status": "fail", "msg": "Organization is already a member of the coalition." }
+			
+		axn = CoalitionJoinAction()
+		axn.coalition = theirorg
+		axn.org = myorg
+			
+	if join_or_invite == "invite":
+		if not myorg.iscoalition or not theirorg.admins.exists():
+			return { "status": "fail", "msg": "Organization cannot be invited." }
+		if myorg.coalitionmembers.filter(id=theirorg.id).exists():
+			return { "status": "fail", "msg": "Organization is already a member of the coalition." }
+	
+		axn = CoalitionInviteAction()
+		axn.coalition = myorg
+		axn.org = theirorg
+	
+	if join_or_invite == "delete":
+		myorg.coalitionmembers.remove(theirorg)
+	
+	if join_or_invite == "leave":
+		theirorg.coalitionmembers.remove(myorg)
+		
+	if axn != None:
+		axn.sender = request.user
+		axn.message = request.POST["message"]
+		for email in toaddr:
+			send_email_verification(email, None, axn)
+	
+	return { "status": "success" }
 

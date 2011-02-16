@@ -5,16 +5,162 @@
 {%block nav_orgadmin_class_profile%}{%if admin%}active{%endif%}{%endblock%}
 {%block nav_orgadmin_class_orgs%}{%if not admin%}active{%endif%}{%endblock%}
 {%block nav_citzen_class_orgs%}active{%endblock%}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
+	<style>
+	.colorbox { width: 550px; height: 420px;}
+	</style>
 	{% include "popvox/org_common_scripts.html" %}
+	<script>
+	function showcolorbox(id) {
+		$.colorbox({
+			transition: "none",
+			inline: true,
+			href:"#" + id,
+			opacity: .5});
+	}
+	
 	{% if admin %}
-		<script>
-			{% include "popvox/org_billaction.js" %}
-		</script>
+		{% include "popvox/org_billaction.js" %}
+		
+		{% if org.iscoalition %}
+		function coalitiondelorg(orgid) {
+			ajax("/ajax/orgs/coalition/delete", {
+				myorg: {{org.id}},
+				theirorg: orgid
+			},
+			{
+				success: function() {
+					$('#coalmember' + orgid).fadeOut();
+				}
+			});
+		}
+		{% endif %}
 	{% endif %}
+	
+	{% if coalition_can_invite %}
+	function coalition_invite() {
+		$('#coalition_invite_error').text('');
+		showcolorbox("coalition_invite");
+		return false;
+	}
+	function coalition_invite_send() {
+		ajax("/ajax/orgs/coalition/invite", {
+			theirorg: {{org.id}},
+			myorg: $('#coalition_invite_target').val(),
+			message: $('#coalition_invite_message').val()
+		},
+		{
+			statusfield: "coalition_invite_error",
+			statusstart: "Sending invitation...",
+			success: function() {
+				$.colorbox.close();
+				alert("Invitation sent.");
+			}
+		});
+	}
+	{% endif %}
+	{% if coalition_can_join %}
+	function coalition_join() {
+		$('#coalition_join_error').text('');
+		showcolorbox("coalition_join");
+		return false;
+	}
+	function coalition_join_send() {
+		ajax("/ajax/orgs/coalition/join", {
+			theirorg: {{org.id}},
+			myorg: $('#coalition_join_target').val(),
+			message: $('#coalition_join_message').val()
+		},
+		{
+			statusfield: "coalition_join_error",
+			statusstart: "Sending request...",
+			success: function() {
+				$.colorbox.close();
+				alert("Request sent.");
+			}
+		});
+	}
+	{% endif %}
+	{% if coalition_can_leave %}
+	function coalition_leave(orgid) {
+		if (!confirm("Are you sure you want to leave this coalition?"))
+			return false;
+		$('#coalition_leave_status').text("Leaving coalition...");
+		ajax("/ajax/orgs/coalition/leave", {
+			theirorg: {{org.id}},
+			myorg: orgid,
+		},
+		{
+			success: function() { window.location.reload(); },
+		});
+		return false;
+	}
+	{% endif %}
+	</script>
 {% endblock %}
 {% block content %}
+<div style="display: none">
+	{% if coalition_can_invite %}
+	<div id="coalition_invite" class="colorbox">
+		<h1>Invite To Your Coalition</h1>
+		
+		{% if coalition_can_invite|length == 1 %}
+			<p>Invite <strong>{{org.name}}</strong> to {{coalition_can_invite.0.name}}?</p>
+			<input type="hidden" id="coalition_invite_target" value="{{coalition_can_invite.0.id}}"/>
+		{% else %}
+			<p>Invite <strong>{{org.name}}</strong> to...</p>
+			<select id="coalition_invite_target">
+			{% for coalition in coalition_can_invite %}
+				<option value="{{coalition.id}}">{{coalition.name}}</option>
+			{% endfor %}
+			</select>
+		{% endif %}
+		
+		<p>We&rsquo;ll send an email to the organization&rsquo;s POPVOX admins inviting them to your coalition. You can optionally customize the email we send:</p>
+		
+		<textarea id="coalition_invite_message" style="width: 90%; height: 6em">Hi!
+		
+I would like to invite your organization to join our coalition on POPVOX.</textarea>
+
+		<p>When any of {{org.name}}&rsquo;s admins approves the invitation, it will be listed in your organization profile. We&rsquo;ll send you an email to let you know.</p>
+
+		<p><input id="coalition_invite_send" type="button" value="Send Invitation" onclick="coalition_invite_send()"/>
+		<p id="coalition_invite_error"> </p>
+	</div>
+	{% endif %}
+	
+	{% if coalition_can_join %}
+	<div id="coalition_join" class="colorbox">
+		<h1>Join Coalition</h1>
+		
+		{% if coalition_can_join|length == 1 %}
+			<p>Do you want {{coalition_can_join.0.name}} to join the coalition {{org.name}}?</p>
+			<input type="hidden" id="coalition_join_target" value="{{coalition_can_join.0.id}}"/>
+		{% else %}
+			<p>Select which of your organizations you want to join the coalition {{org.name}}?</p>
+			<select id="coalition_join_target">
+			{% for og in coalition_can_join %}
+				<option value="{{og.id}}">{{og.name}}</option>
+			{% endfor %}
+			</select>
+		{% endif %}
+		
+		<p>Joining a coalition means your organization&rsquo;s name will be listed among the coalition&rsquo;s members.</p>
+		
+		<p>We&rsquo;ll send an email to the coalition&rsquo;s POPVOX admins notifying them that your organization would like to join their coalition. You can optionally customize the email we send:</p>
+		
+		<textarea id="coalition_join_message" style="width: 90%; height: 6em">Hi!
+		
+We would like to join your coalition.</textarea>
+
+		<p>When any of {{org.name}}&rsquo;s admins approves the request, your organization will be listed in the coalition&rsquo;s profile on this page. We&rsquo;ll send you an email to let you know when that happens.</p>
+
+		<p><input id="coalition_join_send" type="button" value="Send Request" onclick="coalition_join_send()"/>
+		
+		<p id="coalition_join_error"> </p>
+	</div>
+	{% endif %}
+</div>
 <div class="orgprofile"> 
 	<div class="col_3 col_top profile_block">
 		{% if admin and not org.logo %}<a href="{{org.slug}}/_edit" style="border: none">{% endif %}
@@ -24,6 +170,14 @@
 		{% if admin %}
 		<p class="edit"><a href="{{org.slug}}/_edit">EDIT PROFILE</a></p>
 		{% endif %}
+		
+		{% if coalition_can_leave %}
+		<h3 class="info">Your Membership</h3>
+		{% endif %}
+		{% for og in coalition_can_leave %}
+		<p>{{og.name}} is a member of this coalition. <a href="#" onclick="return coalition_leave({{og.id}});">Leave Coalition</a></p>
+		{% endfor %}
+		<p id="coalition_leave_status"> </p>
 		
 		<h3 class="info">Info</h3> 
 		{% if org.website %}
@@ -87,6 +241,13 @@
 		
 			<h1>{{org.name}}</h1>
 
+			{% if coalition_can_join %}
+				<p><a href="#" onclick="return coalition_join();">Join Coaltion</a></p>
+			{% endif %}
+			{% if coalition_can_invite %}
+				<p><a href="#" onclick="return coalition_invite();">Invite To My Coaltion</a></p>
+			{% endif %}
+
 			{% if org.description %}
 			<p class="mission"><strong>Mission:</strong> {{org.description}}</p>
 			{% endif %}
@@ -108,6 +269,24 @@
 			{% endif %}
 			{% endcomment %}
 		</div> <!-- e: section_head -->
+		
+		{% if org.iscoalition %}
+		<div class="block">
+			<h3>Coalition Members</h3>
+			<ul class="bullets">
+			{% for org in org.coalitionmembers.all %}
+				<li id="coalmember{{org.id}}">
+					{% if admin %}
+					<a href="#" class="btn b_remove" onclick="if (confirm ('Are you sure you want to remove {{org.name|escapejs}} from your coalition?')) coalitiondelorg({{org.id}}); return false;" title="Remove Organization From Coalition">remove</a>
+					{% endif %}
+					<a href="{{org.url}}">{{org.name}}</a>
+				</li>
+			{% empty %}
+				<li><em>No members of this coalition are listed on POPVOX.</em></li>
+			{% endfor %}
+			</ul>
+		</div>
+		{% endif %}
 		
 		{% if cams or admin %}
 		<div class="block campaigns">
@@ -134,7 +313,9 @@
 			{% endfor %}
 			
 			{% if admin %}
+			{% if cams %}
 			<div class="hr"> </div>
+			{% endif %}
 
 			<p><em>To endorse, oppose, or leave a neutral statement on legislation search for a bill
 			below, or <a href="{{org.url}}/_newcampaign">create a new campaign</a> if you intend to
