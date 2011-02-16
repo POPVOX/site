@@ -38,6 +38,10 @@
 				{% if forloop.last %}</ul>{% endif %}
 			{% endfor %}
 		{% endif %}
+		
+		{% if position.campaign.org.createdbyus %}
+		<small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small>
+		{% endif %}
 	</div>
 </div>
 

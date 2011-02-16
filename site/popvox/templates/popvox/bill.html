@@ -348,7 +348,7 @@ function getshorturl() {
 				<div>
 					<h5><a href="{{org.url}}">{{org.name}}</a></h5>
 					{% if org.comment %}
-						{{org.comment|wraplines:"p"}}
+						{{org.comment|wraplines:"p style='margin: 0'"}}
 					{% endif %}
 					{% for cam in org.campaigns %}
 						<p>More Info: <a href="{{cam.url}}">{{cam.name}}</a></p>
@@ -359,6 +359,9 @@ function getshorturl() {
 						{% if forloop.last %}</ul>{% endif %}
 					{% endfor %}
 				</div>
+				{% if org.object.createdbyus %}
+					<p><small><em>* This organization&rsquo;s position on this bill was entered by POPVOX.</em></small></p>
+				{% endif %}
 				{% endfor %}
 				
 			    {% if existing_org_positions %}

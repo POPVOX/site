@@ -387,8 +387,8 @@ def register_validation(request):
 
 		axn.mode = "legstaff"
 		axn.fullname = test_field_provided(request, "fullname", fielderrors = status)
-		if request.POST["member"] == "" and request.POST["committee"] == "":
-			status["member"] = "You must select either the Member of Congress you work for or the congressional committee you work for."
+		#if request.POST["member"] == "" and request.POST["committee"] == "":
+		#	status["member"] = "You must select either the Member of Congress you work for or the congressional committee you work for."
 		axn.member = int(request.POST["member"]) if request.POST["member"] != "" else None
 		axn.committee = request.POST["committee"]
 		axn.position = test_field_provided(request, "position", fielderrors = status)

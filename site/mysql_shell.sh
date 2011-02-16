@@ -1,2 +1,2 @@
-mysql -u root -p"qsg;5TtC" popvox
+mysql -u root -p"qsg;5TtC" popvox "$@"
 

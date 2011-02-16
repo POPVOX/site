@@ -27,9 +27,23 @@ def getrange(value):
 @register.filter
 @stringfilter
 def wraplines(value, arg):
-    """Splits value on newline characters and then wraps each line
-    with <arg>...</arg> tags."""
-    return mark_safe("".join(["<" + arg + ">" + cgi.escape(line) + "</" + arg + ">" for line in value.split("\n") if line.strip() != ""]))
+	"""Splits value on newline characters and then wraps each line
+	with <arg>...</arg> tags. Also transforms URLs into links."""
+	def trunc(text):
+		if len(text) < 40:
+			return text
+		return text[0:19] + "..." + text[-19:]
+	
+	def urlify(url):
+		r1 = r"(\b(http|https)://([-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]))"
+		return re.sub(r1,
+			lambda m : r'<a rel="nofollow" target="_blank" href="' + m.group(1) + '" style="font-weight: normal; color: #A62">'
+			+ trunc(m.group(1)) + '</a>',
+			url)
+	
+	arg0 = re.sub(r" .*", "", arg)
+	
+	return mark_safe("".join(["<" + arg + ">" + urlify(cgi.escape(line)) + "</" + arg0 + ">" for line in value.split("\n") if line.strip() != ""]))
 
 @register.filter
 @stringfilter
