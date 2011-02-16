@@ -49,13 +49,16 @@ def org(request, orgslug):
 		"cams": cams,
 		
 		# list of orgs user admins that can join this org
-		"coalition_can_join": Org.objects.filter(admins__user=request.user).exclude(id=org.id).exclude(ispartofcoalition=org) if org.admins.exists() and org.iscoalition else None,
+		"coalition_can_join": Org.objects.filter(admins__user=request.user).exclude(id=org.id).exclude(ispartofcoalition=org)
+			if request.user.is_authenticated() and org.admins.exists() and org.iscoalition else None,
 		
 		# list of orgs user admins that can invite this org
-		"coalition_can_invite": Org.objects.filter(iscoalition=True, admins__user=request.user).exclude(id=org.id).exclude(coalitionmembers=org) if org.admins.exists() else None,
+		"coalition_can_invite": Org.objects.filter(iscoalition=True, admins__user=request.user).exclude(id=org.id).exclude(coalitionmembers=org)
+			if request.user.is_authenticated() and org.admins.exists() else None,
 		
 		# list of orgs user admins that can leave this org
-		"coalition_can_leave": Org.objects.filter(admins__user=request.user).filter(ispartofcoalition=org) if org.admins.exists() and org.iscoalition else None,
+		"coalition_can_leave": Org.objects.filter(admins__user=request.user).filter(ispartofcoalition=org)
+			if request.user.is_authenticated() and org.admins.exists() and org.iscoalition else None,
 		
 		}, context_instance=RequestContext(request))
 
