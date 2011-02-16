@@ -183,11 +183,9 @@
 			{% if user.is_authenticated %}
 			<div id="whoami">
 				<p>
-					{% filter truncatewords:13 %}
 					Welcome, <a href="/accounts/profile">{% filter force_escape %}{% firstof user.userprofile.fullname user.username %}{% endfilter %}</a>
-					{% for orgrole in user.orgroles.all %} &mdash; <a href="{{ orgrole.org.url }}">{{ orgrole.org.name }}</a>{% endfor %}
-					{% if user.legstaffrole %} &mdash; {{ user.legstaffrole.as_string }}{% endif %}
-					{% endfilter %}
+					{% for orgrole in user.orgroles.all %} &mdash; <a href="{{ orgrole.org.url }}">{{ orgrole.org.name|truncatewords:10 }}</a>{% endfor %}
+					{% if user.legstaffrole %} &mdash; {{ user.legstaffrole.as_string|truncatewords:10 }}{% endif %}
 				</p>
 			</div>
 			{% endif %}

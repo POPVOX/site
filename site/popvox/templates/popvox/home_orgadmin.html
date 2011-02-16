@@ -17,20 +17,21 @@
 	<h1>Home</h1>
 	
 	{% for role in user.orgroles.all %}
-		{% if user.orgroles.all|length > 1 %}
-		<h2>{{role.org.name}}</h2>
-		{% endif %}
-
 		{% if not role.org.description %}
-		<p class="whattodonext" style="border-bottom: none">Welcome to POPVOX. The first step is to <a href="{{role.org.url}}/_edit">edit your organization profile</a>.</p>
+			<p class="whattodonext" style="border-bottom: none">Welcome to POPVOX. The first step is to <a href="{{role.org.url}}/_edit">edit {{role.org.name}}&rsquo;s profile</a>.</p>
 		{% endif %}
 	{% endfor %}
 
 	<div class="col_6 col_top">
 		<div class="block leg_agenda">
 			<h3>Let&rsquo;s check on your legislative agenda:</h3>
-				
 			{% for cam in cams %}
+				{% if user.orgroles.all|length > 1 %}
+				 	{% ifchanged %}
+						<h4>{{cam.org.name}}</h4>
+					{% endifchanged %}
+				{% endif %}
+			
 				{% if not cam.default %}
 				{% comment %} <p>{{ cam.org.name }}</p> {% endcomment %}
 				<h4 class="campaign_title"><span>Campaign:</span> {{ cam.name }}</h4>
@@ -63,10 +64,13 @@
 						{% endif %}
 						<div class="clear"> </div>
 					</div>
+					{% if not forloop.last %}
 					<div class="hr"> </div>
+					{% endif %}
 				{% endfor %}
 			{% endfor %}
-				
+			
+			{% if user.orgroles.all|length == 1 %}
 			{% for role in user.orgroles.all %}
 				{% if cams %}
 				<h3>Revising Your Legislative Agenda</h3>
@@ -87,6 +91,7 @@
 				</div>
 				{% endwith %}
 			{% endfor %}
+			{% endif %}
 		</div>
 	</div>	
 		
