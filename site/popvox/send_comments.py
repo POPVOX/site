@@ -15,6 +15,8 @@ reject_no_phone = 0
 reject_needs_attention = 0
 messages_pending = 0
 success = 0
+messages_pending_targets = { }
+
 
 # it would be nice if we could skip comment records that we know we
 # don't need to send but what are those conditions, given that there
@@ -22,7 +24,7 @@ success = 0
 # maybe wh in the future).
 for comment in UserComment.objects.filter(
 	#message__isnull=False,
-	bill=Bill.objects.get(congressnumber=112, billtype="h", billnumber=514),
+	#bill=Bill.objects.get(congressnumber=112, billtype="h", billnumber=514),
 	bill__congressnumber=CURRENT_CONGRESS,
 	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
 	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5)
@@ -45,7 +47,7 @@ for comment in UserComment.objects.filter(
 	# take a look) or FAILURE_DISTRICT_DISAGREEMENT (which we have no solution for
 	# at the moment).
 	govtrackrecipientids = [g for g in govtrackrecipientids
-		if not comment.delivery_attempts.filter(target__govtrackid = g, next_attempt__isnull = False, failure_reason__in = (DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE, DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT)).exists()]
+		if not comment.delivery_attempts.filter(target__govtrackid = g, next_attempt__isnull = True, failure_reason__in = (DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE, DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT)).exists()]
 	if len(govtrackrecipientids) == 0:
 		reject_needs_attention += 1
 		continue
@@ -73,6 +75,10 @@ for comment in UserComment.objects.filter(
 		
 	if stats_only:
 		messages_pending += 1
+		for g in govtrackrecipientids:
+			if comment.delivery_attempts.filter(target__govtrackid = g, next_attempt__isnull = True, failure_reason = DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE).exists():
+				continue
+			messages_pending_targets[g] = True
 		continue
 	
 	# Set up the message record.
@@ -185,5 +191,5 @@ print "Rejected because name has no prefix", reject_no_prefix
 print "Rejected because no phone number is available", reject_no_phone
 print "Successfully delivered to all targets", success
 print "Needs attention", reject_needs_attention
-print "Comments in the queue", messages_pending
+print "Comments in the queue", messages_pending, "covering", len(messages_pending_targets.keys()), "targets"
 

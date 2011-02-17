@@ -340,7 +340,7 @@
 		</div>
 
 	{% if user.userprofile.is_leg_staff or user.userprofile.is_org_admin %}
-	<div class="col_6 col_last rule btm_10"> 
+	<div class="col_6 rule btm_10"> 
 		<div class="cosponsor"> 
 			<h3 class="no_rule">Co-Sponsors</h3> 
 			{% if bill.cosponsors|length == 0 %}
@@ -372,6 +372,19 @@
 		</div>
 	</div>
 	{% endif %}
+
+			{% if orgs_neutral %}
+			<div class="col_6 col_last rule btm_10"> 
+				<h3 class="no_rule">Other Organization Statements</h3> 
+				{% with "orgsneutral" as org_group %}
+				{% with orgs_neutral as org_list %}
+					{% include "popvox/bill_report_orglist.html" %}
+				{% endwith %}
+				{% endwith %}
+				</ul>
+			</div>
+			{% endif %}
+
 	
 	</div><!-- e: section --> 
 
