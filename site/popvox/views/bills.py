@@ -1214,7 +1214,7 @@ def billreport(request, congressnumber, billtype, billnumber):
 	orgs_oppose = list(orgs_oppose.items())
 	orgs_neutral = list(orgs_neutral.items())
 	for lst in orgs_support, orgs_oppose, orgs_neutral:
-		lst.sort(key = lambda x : x[0].name)
+		lst.sort(key = lambda x : x[0].name.replace("The ", ""))
 
 	bot_comments = []
 	if hasattr(request, "ua") and (request.ua["typ"] in "Robot" or request.ua["ua_family"] in "cURL"):
