@@ -448,14 +448,16 @@ h4 {
 	}
 		
 ul.smalllist {
-	margin-bottom: 10px;
+	margin: -5px 0 10px;
 	}
 	
 	
 ul.smalllist li {
-	color: #666;
-	font: bold 12px/20px helvetica;
-}
+	color: #404045;
+	font: bold 12px/16px helvetica;
+	margin: 0 0 6px 20px;
+	text-indent: -20px;
+	}
 
 	ul.smalllist #orgsendorsing0 li.has_doc a, ul.smalllist #orgsopposing0 li.has_doc a {
 		background: url(bg_doc.png) right 0 no-repeat;
@@ -464,11 +466,12 @@ ul.smalllist li {
 	
 ul.smalllist li a {
 	color: #404040;
-	font: bold 12px/20px helvetica;
 	}
-ul.smalllist li a:hover {
-	border-bottom: 1px solid #AAA;
-}
+
+	ul.smalllist li a:hover {
+		color: #CC6A11;
+		border: none;
+		}
 
 dl {
 	margin: 1em
@@ -935,7 +938,15 @@ h3#reporttitle {
 		margin-top: 23px;
 		float: right;
 		}
-			
+	
+	.b_view_report {
+		background: url(b_view_report.png) left top no-repeat;
+		width: 176px;
+		height: 23px;
+		margin-top: 23px;
+		float: right;
+		}
+				
 	.legreport h1 {
 		background: url("bg_rule.gif") repeat-x left bottom;
 		padding-bottom: 15px;
@@ -975,6 +986,11 @@ h3#reporttitle {
 		text-align: center;
 		text-transform: uppercase;
 		}
+		
+		.legreport .comment {
+			border-bottom: 1px solid #D4D1CA;
+			margin-bottom: 10px;
+			}
 	
 		.legreport .comments h3 {
 			padding: 5px 0;
@@ -1189,12 +1205,17 @@ look in master/_map_style.css
 		}
 	.orgprofile .campaigns .campaign_description {
 		border-bottom: 1px solid #CCC;
+		padding-bottom: 10px;
 		}
 		.orgprofile .campaigns p.campaign_edit {
-			margin: 5px 0 15px;
+			margin: 15px 0 0;
 			font: italic normal 12px georgia, serif;
 			float: right;
 			}
+			
+			.orgprofile .campaigns p.campaign_edit a {
+				display: inline;
+				}
 
 	/* ---not sure--- */
 			
@@ -1330,24 +1351,20 @@ look in master/_map_style.css
 			
 			
 			.b_edit {
-				text-indent: -9999em;
-				height: 16px;
+				background: url(b_edit_sm.png) left top no-repeat;
 				display: block;
-				background: url(b_edit.png) left top no-repeat;
+			    height: 16px;
+			    padding: 0 0 0 20px;
 				}
 	
 			.b_view {
-				text-indent: -9999em;
-				height: 16px;
-				display: block;
 				background: url(b_view.png) left top no-repeat;
+				display: block;
+			    height: 16px;
+			    margin-right: 5px;
+			    padding: 0 0 0 20px;
 				}
 
-				.b_edit:hover, a.b_view:hover {
-					background-position: left bottom;
-					cursor: pointer;
-					border: none;
-					}
 
 					
 		.content .campaigns p.view_report,
@@ -2461,7 +2478,11 @@ dt, dd {
 		.content .feed_item p {
 			font-size: 10px;
 			line-height: 15px;
-			}					
+			}
+			
+	.col_activity .hr {
+		margin: 0 0 20px 0;
+		}								
 
 	p.date {
 		float: right;
@@ -3731,12 +3752,10 @@ ul.staff, .small {
 			}
 	
 		.b_edit {
-			background: url(b_edit.png) left top no-repeat;
-			text-indent: -9999em;
+			background: url(b_edit_sm.png) left top no-repeat;
 			display: block;
-			width: 25px;
-			height: 25px;
-			border: none;
+		    height: 16px;
+		    padding: 0 0 0 20px;
 			}
 			
 			.b_edit_h1 {
@@ -3986,9 +4005,61 @@ ul.staff, .small {
 		margin-top: 10px;
 		}
 		
+		.profile_block p {
+			margin-bottom: 10px;
+			}
+			
 		.profile_block img {
 			margin-bottom: 5px;
 			}
+			
+			.profile_block p.edit {
+				background: url("b_edit_sm.png") no-repeat left top;
+				padding: 0 0 0 25px;
+				height: 16px;
+				}
+				
+			.profile_block p.url {
+				background: url("b_url.png") no-repeat left top;
+				padding: 0 0 0 25px;
+				height: 16px;
+				}
+			
+			.profile_block p.profile {
+				background: url("b_profile.png") no-repeat left top;
+				padding: 0 0 0 25px;
+				height: 16px;
+				}
+				
+			.profile_block p.bill {
+				background: url("b_bill.png") no-repeat left top;
+				padding: 0 0 0 25px;
+				}
+					
+			.profile_block p.fb {
+				background: url("b_fb.png") no-repeat left top;
+				padding: 0 0 0 25px;
+				height: 16px;
+				}
+				
+			.profile_block p.twitter {
+				background: url("b_tw.png") no-repeat left top;
+				padding: 0 0 0 25px;
+				height: 16px;
+				}
+				
+			.profile_block p.address {
+				background: url("b_map.png") no-repeat left top;
+				padding: 0 0 0 25px;
+				}
+				
+			.profile_block p.phone {
+				background: url("b_ph.png") no-repeat left top;
+				padding: 0 0 0 25px;
+				height: 16px;
+				}
+				
+
 			
 		.profile_block h4 {
 			margin-top: 15px;
@@ -4002,6 +4073,9 @@ ul.staff, .small {
 			
 	.point_person {
 		margin-bottom: 20px;
+		background: url(b_adbook.png) left top no-repeat;
+		display: block;
+	    padding: 0 0 0 30px;
 		}
 
 	.search_form {

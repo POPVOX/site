@@ -44,9 +44,14 @@ function getshorturl() {
 		{% include "ads/rightbar_single.html" %}
 		<div class="clear rule_12"> </div>
 	{% endif %}
-	
-	<h1>Bill Summary and Status</h1>
-	
+
+	<div class="col_9">
+		<a class="btn b_view_report" href="{{bill.url}}/report">
+			View {{bill.displaynumber}} report
+		</a>
+		
+		<h1>Bill Summary and Status</h1>
+	</div>
 	{% if canvote and not bill.isAlive %}
 		{% if bill.died %}
 			<div class="alert_dead">

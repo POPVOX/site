@@ -16,19 +16,27 @@
 		
 		<h3 class="info">Info</h3>
 		
-		<p><a href="{{org.url}}">POPVOX Profile Page</a></p>
+		<p class="profile"><a href="{{org.url}}">POPVOX Profile Page</a></p>
 		
-		<p><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></p>
+		<p class="bill"><a href="{{bill.url}}">{{bill.title|truncatewords:10}}</a></p>
 		
 		{% if org.website %}
-		<p><a href="{{org.website}}">{{org.website|niceurl}}</a></p>
+		<p class="url"><a href="{{org.website}}">{{org.website|niceurl}}</a></p>
+		{% endif %} 
+
+		{% if org.facebookurl %}
+		<p class="fb"><a href="{{org.facebookurl}}">Our Facebook Page</a> {% if org.facebook_fan_count %}<span>({{ org.facebook_fan_count|intcomma }} fans)</span>{% endif %}</p>
+		{% endif %} 
+		
+		{% if org.twittername %}
+		<p class="twitter"><a href="http://www.twitter.com/{{org.twittername}}">@{{org.twittername}}</a> {% if org.twitter_follower_count %}<span>({{ org.twitter_follower_count|intcomma }} followers)</span>{% endif %}</p>
 		{% endif %} 
 		
 		{% if org.postaladdress %}
-		<p class="address">{{org.postaladdress|wraplines:'div'}}</p>
+		<p class="address">{{org.postaladdress|linebreaksbr}}</p>
 		{% endif %}
 		{% if org.phonenumber %}
-		<p class="address">{{org.phonenumber}}</p>
+		<p class="phone">{{org.phonenumber}}</p>
 		{% endif %}
 		
 		{% if org.contacts.all %}

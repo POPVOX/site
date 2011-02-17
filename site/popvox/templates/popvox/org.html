@@ -181,24 +181,22 @@ We would like to join your coalition.</textarea>
 		
 		<h3 class="info">Info</h3> 
 		{% if org.website %}
-		<p><a href="{{org.website}}">{{org.website|niceurl}}</a></p>
+		<p class="url"><a href="{{org.website}}">{{org.website|niceurl}}</a></p>
 		{% endif %} 
 		
 		{% if org.facebookurl %}
-		<h4>facebook:</h4> 
-		<p><a href="{{org.facebookurl}}">Go to Facebook Page</a> {% if org.facebook_fan_count %}<span>({{ org.facebook_fan_count|intcomma }} fans)</span>{% endif %}</p>
+		<p class="fb"><a href="{{org.facebookurl}}">Our Facebook Page</a> {% if org.facebook_fan_count %}<span>({{ org.facebook_fan_count|intcomma }} fans)</span>{% endif %}</p>
 		{% endif %} 
 		
 		{% if org.twittername %}
-		<h4>twitter:</h4> 
-		<p><a href="http://www.twitter.com/{{org.twittername}}">@{{org.twittername}}</a> {% if org.twitter_follower_count %}<span>({{ org.twitter_follower_count|intcomma }} followers)</span>{% endif %}</p>
+		<p class="twitter"><a href="http://www.twitter.com/{{org.twittername}}">@{{org.twittername}}</a> {% if org.twitter_follower_count %}<span>({{ org.twitter_follower_count|intcomma }} followers)</span>{% endif %}</p>
 		{% endif %} 
 		
 		{% if org.postaladdress %}
-		<p class="address">{{org.postaladdress|wraplines:'div'}}</p>
+		<p class="address">{{org.postaladdress|linebreaksbr}}</p>
 		{% endif %}
 		{% if org.phonenumber %}
-		<p class="address">{{org.phonenumber}}</p>
+		<p class="phone">{{org.phonenumber}}</p>
 		{% endif %}
 		
 		{% comment %}
@@ -295,8 +293,8 @@ We would like to join your coalition.</textarea>
 			{% for cam in cams %}
 				{% if not cam.default %}
 				<p class="campaign_edit">
-					<a class="xxxx_b_view" href="{{ cam.url }}">view</a>
-					{% if admin %} <a class="xxxx_b_edit" href="{{cam.url}}/_edit">edit</a>{% endif %}
+					<a class="b_view" href="{{ cam.url }}">view</a>
+					{% if admin %} <a class="b_edit" href="{{cam.url}}/_edit">edit</a>{% endif %}
 				</p>
 				<h4>{{ cam.name }}</h4>
 				{% if cam.description %}<p class="campaign_description"><em>{{ cam.description }}</em></p>{% endif %}
