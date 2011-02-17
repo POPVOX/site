@@ -377,11 +377,16 @@ def bill(request, congressnumber, billtype, billnumber):
 			
 	# Get the orgs who support or oppose the bill, and the relevant campaigns
 	# within the orgs.
-	orgs = { "+": {}, "-": {}, "0": { } }
+	orgs = [ ["support", {}], ["oppose", {}], ["neutral", {}], ["administration", {}] ]
 	for p in bill.campaign_positions():
 		cam = p.campaign
-		if not cam.org.slug in orgs[p.position]:
-			orgs[p.position][cam.org.slug] = {
+
+		grp = {"+":"support","-":"oppose","0":"neutral"}[p.position]
+		if cam.org.id == 2123: grp = "administration" # The Administration
+		grp = [g[1] for g in orgs if g[0] == grp][0]
+
+		if not cam.org.slug in grp:
+			grp[cam.org.slug] = {
 				"id": cam.org.id,
 				"name": cam.org.name,
 				"url": cam.org.url(),
@@ -390,10 +395,10 @@ def bill(request, congressnumber, billtype, billnumber):
 				"comment": None,
 				"documents": cam.org.documents.filter(bill=bill).defer("text"),
 			}
-		if cam.default or orgs[p.position][cam.org.slug]["comment"] == None:
-			orgs[p.position][cam.org.slug]["comment"] = p.comment
+		if cam.default or grp[cam.org.slug]["comment"] == None:
+			grp[cam.org.slug]["comment"] = p.comment
 		if not cam.default:
-			orgs[p.position][cam.org.slug]["campaigns"].append(
+			grp[cam.org.slug]["campaigns"].append(
 				{ "name": cam.name,
 					 "url": cam.url(),
 					 "description": cam.description,
@@ -405,12 +410,8 @@ def bill(request, congressnumber, billtype, billnumber):
 		orgs = list(orgs)
 		orgs.sort(key = lambda org : -(org["object"].facebook_fan_count() + org["object"].twitter_follower_count()))
 		return orgs
-	orgs["+"] = sort_orgs(orgs["+"].values())
-	orgs["-"] = sort_orgs(orgs["-"].values())
-	orgs["0"] = sort_orgs(orgs["0"].values())
-	orgs = { "support": orgs["+"], "oppose": orgs["-"], "neutral": orgs["0"] }
-	if len(orgs["neutral"]) == 0:
-		del orgs["neutral"] # jist don't list at all
+	for grp in orgs:
+		grp[1] = sort_orgs(grp[1].values())
 	
 	# Welcome message?
 	welcome = None

@@ -284,8 +284,8 @@ function getshorturl() {
 			<script>if (!initial_tab) initial_tab = "welcome";</script>
 			{% endif %}
 			
-			{% for position, orgset in orgs.items %}
-			<li id="orgs{{position}}_tab" {% if not welcome_tabname and forloop.counter == 1 %}class="active"{% endif %}><a href="#" onclick="return showtab('orgs{{position}}')">{% if position == "support" %}Organizations Endorsing{% endif %}{% if position == "oppose" %}Organizations Opposing{% endif %}{% if position == "neutral" %}Other Statements{% endif %}</a></li>
+			{% for position, orgset in orgs %}
+			<li id="orgs{{position}}_tab" {% if not welcome_tabname and forloop.counter == 1 %}class="active"{% endif %}><a href="#" onclick="return showtab('orgs{{position}}')">{% if position == "support" %}Organizations Endorsing{% endif %}{% if position == "oppose" %}Organizations Opposing{% endif %}{% if position == "neutral" %}Other Statements{% endif %}{% if position == "administration" %}The Administration{% endif %}</a></li>
 			<script>if (!initial_tab && {{orgset|length}}) initial_tab = "orgs{{position}}";</script>
 			{% endfor %}
 
@@ -340,13 +340,14 @@ function getshorturl() {
 			<div class="clear"> </div>
 		</div>
 	    
-		{% for position, orgset in orgs.items %}
+		{% for position, orgset in orgs %}
 			<div id="orgs{{position}}" {% if welcome_tabname or forloop.counter >= 2 %}style="display: none"{% endif %} class="tab_panel">
 	
 				<h3 class="no_rule">
 					{% if position == "support" %}Endorsing Organizations{% endif %}
 					{% if position == "oppose" %}Opposing Organizations{% endif %}
 					{% if position == "neutral" %}Other Statements{% endif %}
+					{% if position == "administration" %}The Administration{% endif %}
 					</h3>
 				{% if not orgset %}<p>No organization has {% if position == "support" %}endorsed{% else %}opposed{% endif %} this bill yet on POPVOX.</p>{% endif %}
 				{% for org in orgset %}

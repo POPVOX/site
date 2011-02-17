@@ -755,10 +755,12 @@ class CoalitionInviteAction(CoalitionRequestAction):
 		return """%s has sent your organization an invitation to join their coalition on POPVOX:
 
 ----------
-From: %s <%s>
-          %s
+From:
+%s <%s>
+%s
 
-To: %s
+To:
+%s
 
 %s
 
@@ -780,10 +782,12 @@ class CoalitionJoinAction(CoalitionRequestAction):
 		return """%s has sent a request to join your coalition on POPVOX:
 
 ----------
-From: %s <%s>
-          %s
+From:
+%s <%s>
+%s
 
-To: %s
+To:
+%s
 
 %s
 
