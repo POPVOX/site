@@ -410,14 +410,15 @@ def parse_webform(webformurl, webform, webformid, id):
 		
 		ax = attr.lower()
 		
-		if ax == "ctl00$ctl01$zip": ax = "zip5"
-		if ax == "ctl00$ctl04$zip": ax = "zip5"
-		if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
-		if ax == "ctl00$ctl06$zip": ax = "zip5"
+		if ax.startswith("ctl00$") and ax.endswith("$zip"): ax = "zip5"
+		#if ax == "ctl00$ctl01$zip": ax = "zip5"
+		#if ax == "ctl00$ctl04$zip": ax = "zip5"
+		#if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
+		#if ax == "ctl00$ctl06$zip": ax = "zip5"
 		#if ax == "ctl00$ctl08$zip": ax = "zip5" # 191
-		if ax == "ctl00$ctl09$zip": ax = "zip5" # 191
-		if ax == "ctl00$ctl10$zip": ax = "zip5" # 173
-		if ax == "ctl00$ctl105$zip": ax = "zip5"
+		#if ax == "ctl00$ctl09$zip": ax = "zip5" # 191
+		#if ax == "ctl00$ctl10$zip": ax = "zip5" # 173
+		#if ax == "ctl00$ctl105$zip": ax = "zip5"
 		
 		ax = ax.replace("ctl00$contentplaceholderdefault$newslettersignup_1$", "")
 		
@@ -576,7 +577,7 @@ def send_message_webform(di, msg, deliveryrec):
 				alts.append(q)
 				for rec in Synonym.objects.filter(term1 = q):
 					alts.append(rec.term2)
-			alts.sort(key = lambda x : x in ("other", "others", "miscellaneous", "other - not listed", "optionally select an issue")) # put these at the end
+			alts.sort(key = lambda x : x in ("other", "others", "miscellaneous", "other - not listed", "optionally select an issue", "general concerns")) # put these at the end
 			for q in alts:
 				if q.lower() in field_options[k]:
 					postdata[k] = field_options[k][q.lower()]
@@ -642,6 +643,14 @@ def send_message_webform(di, msg, deliveryrec):
 	if type(ret) == str:
 		ret = ret.decode('utf8', 'replace')
 
+	if "Your zip code indicates that you are outside of" in ret:
+		deliveryrec.trace += "\n" + ret + "\n\n"
+		raise DistrictDisagreementException()
+		
+	if "experiencing technical difficulties" in ret:
+		deliveryrec.trace += "\n" + ret + "\n\n"
+		raise IOError("The site reports it is experiencing technical difficulties.")
+	
 	if di.webformresponse == None or di.webformresponse.strip() == "":
 		deliveryrec.trace += "\n" + ret + "\n\n"
 		raise SubmissionSuccessUnknownException("Webform's webformresponse text is not set.")
@@ -651,10 +660,6 @@ def send_message_webform(di, msg, deliveryrec):
 	if success:
 		return
 		
-	if "Your zip code indicates that you are outside of" in ret:
-		deliveryrec.trace += "\n" + ret + "\n\n"
-		raise DistrictDisagreementException()
-	
 	if not success:
 		deliveryrec.trace += "\n" + ret + "\n\n"
 		raise SubmissionSuccessUnknownException("Success message not found in result.")
@@ -676,7 +681,7 @@ def send_message_housewyr(msg, deliveryrec):
 	# Submit the address, then the comment....
 	
 	webformurl = writerep_house_gov
-	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office to express your views on an issue of importance|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted")):
+	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message")):
 		field_map, field_options, field_default, webformurl = parse_webform(webformurl, ret, formname, "housewyr")
 		
 		postdata = { }

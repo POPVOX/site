@@ -1,3 +1,4 @@
+#!runscript
 # REMOTEDB=1 DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/send_comments.py
 
 import sys
@@ -23,12 +24,13 @@ messages_pending_targets = { }
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
 for comment in UserComment.objects.filter(
-	#message__isnull=False,
-	#bill=Bill.objects.get(congressnumber=112, billtype="h", billnumber=514),
+	message__isnull=False,
 	bill__congressnumber=CURRENT_CONGRESS,
 	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
-	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5)
+	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5), # let users revise
+	created__gt=datetime.datetime.now()-datetime.timedelta(days=30), # abandon when it's too late
 	).order_by('created').select_related("bill"):
+	
 	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
 	if not type(govtrackrecipients) == list:
@@ -44,8 +46,8 @@ for comment in UserComment.objects.filter(
 		continue
 		
 	# Or the delivery resulted in a FAILURE_UNEXPECTED_RESPONSE (which requires us to
-	# take a look) or FAILURE_DISTRICT_DISAGREEMENT (which we have no solution for
-	# at the moment).
+	# take a look) or FAILURE_DISTRICT_DISAGREEMENT (which we have no solution for the
+	# moment).
 	govtrackrecipientids = [g for g in govtrackrecipientids
 		if not comment.delivery_attempts.filter(target__govtrackid = g, next_attempt__isnull = True, failure_reason__in = (DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE, DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT)).exists()]
 	if len(govtrackrecipientids) == 0:
@@ -68,7 +70,11 @@ for comment in UserComment.objects.filter(
 
 	# offices that we know require a phone number and we don't have it
 	govtrackrecipientids = [g for g in govtrackrecipientids
-		if comment.address.phonenumber != "" or g not in (412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,300062,400255,400633,400408,400089,400310,412011,400325,400142,400183,400245,412324,400054,412191,400142,400643,412485,400244,400142)]
+		if comment.address.phonenumber != "" or g not in (
+			412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,
+			300062,400255,400633,400408,400089,400310,412011,400325,400183,412378,
+			400245,412324,400054,400142,400643,412485,400244,400142,400318,412325,
+			412231,400266,412321,300070,400105,300018,400361,300040,400274)]
 	if len(govtrackrecipientids) == 0:
 		reject_no_phone += 1
 		continue
@@ -104,7 +110,7 @@ for comment in UserComment.objects.filter(
 	msg.topicarea = comment.bill.hashtag(always_include_session=True)
 	if comment.bill.topterm != None:
 		msg.topicarea = comment.bill.topterm.name
-	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","")
+	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","")
 	if comment.position == "+":
 		msg.support_oppose = ('i support',)
 	else:
@@ -165,7 +171,7 @@ for comment in UserComment.objects.filter(
 		if delivery_record == None:
 			print "no delivery method available"
 			had_any_errors = True
-			sys.stdin.readline()
+			#sys.stdin.readline()
 			continue
 		
 		# If we got this far, a delivery attempt was made although it
