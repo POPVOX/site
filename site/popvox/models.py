@@ -216,6 +216,14 @@ class Bill(models.Model):
 		if self.congressnumber < govtrack.CURRENT_CONGRESS or always_include_session:
 			bs = "/" + str(self.congressnumber)
 		return "#" + bt + str(self.billnumber) + bs
+		
+	@classmethod
+	def from_hashtag(cls, hashtag):
+		m = re.match(r"\#([a-z]+)(\d+)/(\d+)", hashtag)
+		return Bill.objects.get(
+			congressnumber = m.group(3),
+			billtype = {"hr":"h", "hres":"hr", "hjres":"hj", "hconres":"hc", "s":"s", "sres":"sr", "sjres":"sj", "sconres":"sc"}[m.group(1)],
+			billnumber = m.group(2))
 
 def bill_from_url(url):
 	fields = url.split("/")

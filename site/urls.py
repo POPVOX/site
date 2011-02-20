@@ -89,6 +89,7 @@ urlpatterns = patterns('',
 
 	(r'^ajax/district-lookup$', 'writeyourrep.district_lookup.district_lookup'),
 	
+	(r'^wyr/', include('writeyourrep.urls')),
 	(r'^ajax/phone_number_twilio/', include('phone_number_twilio.urls')),
 	(r'^emailverif/', include('emailverification.urls')),
 	(r'^registration/', include('registration.urls')),

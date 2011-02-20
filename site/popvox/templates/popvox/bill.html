@@ -45,14 +45,7 @@ function getshorturl() {
 		<div class="clear rule_12"> </div>
 	{% endif %}
 
-	<div class="col_9">
-		<a class="btn b_view_report" href="{{bill.url}}/report">
-			View {{bill.displaynumber}} report
-		</a>
-		
-		<h1>Bill Summary and Status</h1>
-	</div>
-	{% if canvote and not bill.isAlive %}
+	{% if canvote and deadbox %}
 		{% if bill.died %}
 			<div class="alert_dead">
 				<div class="col_6">
@@ -69,7 +62,7 @@ function getshorturl() {
 				<div class="col_6 col_last">
 					<h2 class="shadow_up">Help get {{bill.displaynumber_nosession}} reintroduced:</h2>
 					<p class="mar_top_neg">I support reintroduction of this bill.<br />You will be notified upon reintroduction.</p>
-					<input id="b_reintroduce" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
+					<input id="b_reintroduce" class="btn submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
 						
 					<p>Just want to be notified when this bill is reintroduced?</p>
 					{% if user.is_authenticated %}
@@ -89,7 +82,16 @@ function getshorturl() {
 				<p>You can no longer write a comment about this bill.</p>
 			</div>
 		{% endif %}
+
 	{% endif %}
+
+	<div class="col_9">
+		<a class="btn b_view_report" href="{{bill.url}}/report">
+			View {{bill.displaynumber}} report
+		</a>
+		
+		<h1>Bill Summary and Status</h1>
+	</div>
 		
 	<div class="clear col_9 col_top">
 		<div class="block bill_overview_user">
@@ -106,7 +108,7 @@ function getshorturl() {
 			{% else %}
 			<p>(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Information at GovTrack</a>)</p>
 			{% endif %}
-			{% if not canvote and not bill.isAlive %}
+			{% if not bill.isAlive and not deadbox %}
 				<p><strong>This bill {{bill.getDeadReason}}.</strong></p>
 			{% endif %}
 		</div>
@@ -225,7 +227,7 @@ function getshorturl() {
 	{% comment %} END FOR ORG STAFF {% endcomment %}
 	
 	{% comment %} START OF USER VOTE {% endcomment %}
-		{% if canvote and bill.isAlive %}
+		{% if canvote and not deadbox %}
 		<div class="hr"> </div>
 	
 		<div class="col_3 col_top">
@@ -285,8 +287,10 @@ function getshorturl() {
 			{% endif %}
 			
 			{% for position, orgset in orgs %}
+			{% if position == "support" or position == "oppose" or orgset|length > 0 %}
 			<li id="orgs{{position}}_tab" {% if not welcome_tabname and forloop.counter == 1 %}class="active"{% endif %}><a href="#" onclick="return showtab('orgs{{position}}')">{% if position == "support" %}Organizations Endorsing{% endif %}{% if position == "oppose" %}Organizations Opposing{% endif %}{% if position == "neutral" %}Other Statements{% endif %}{% if position == "administration" %}The Administration{% endif %}</a></li>
 			<script>if (!initial_tab && {{orgset|length}}) initial_tab = "orgs{{position}}";</script>
+			{% endif %}
 			{% endfor %}
 
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
@@ -342,6 +346,11 @@ function getshorturl() {
 	    
 		{% for position, orgset in orgs %}
 			<div id="orgs{{position}}" {% if welcome_tabname or forloop.counter >= 2 %}style="display: none"{% endif %} class="tab_panel">
+				{% if position != "administration" %}
+				<div style="float: right">
+					<small>order determined by social media popularity</small>
+				</div>
+				{% endif %}
 	
 				<h3 class="no_rule">
 					{% if position == "support" %}Endorsing Organizations{% endif %}
@@ -352,7 +361,14 @@ function getshorturl() {
 				{% if not orgset %}<p>No organization has {% if position == "support" %}endorsed{% else %}opposed{% endif %} this bill yet on POPVOX.</p>{% endif %}
 				{% for org in orgset %}
 				<div>
-					<h5><a href="{{org.url}}">{{org.name}}</a></h5>
+					<h5><a href="{{org.url}}">{{org.name}}</a>
+						{% if org.object.facebook_fan_count %}
+							<small>{{org.object.facebook_fan_count|intcomma}} Facebook fans</small>
+						{% endif %}
+						{% if org.object.twitter_follower_count %}
+							<small>{{org.object.twitter_follower_count|intcomma}} Twitter followers</small>
+						{% endif %}
+					</h5>
 					{% if org.comment %}
 						{{org.comment|wraplines:"p style='margin: 0'"}}
 					{% endif %}

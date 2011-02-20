@@ -69,7 +69,6 @@
 		
 		// Post report info and then update.
 		$('#loadingstatus').text("Loading...");
-		$('#showmap').show();
 		$.ajax({
 			type:"POST",
 			url: "/ajax{{bill.url}}/report/getinfo",
@@ -312,7 +311,7 @@
 				</div>
 				{% endfor %}
 				<a href="#" onclick="$('#map').show(); $('#showmap').hide(); return false;">
-					<div id="showmap" style="text-align: center; margin: .5em">Show National Map</div>
+					<div id="showmap" style="text-align: center; margin: .5em; display: none">Show National Map</div>
 				</a>
 			</div>
 		</div>
@@ -374,10 +373,21 @@
 	{% endif %}
 
 			{% if orgs_neutral %}
-			<div class="col_6 col_last rule btm_10"> 
-				<h3 class="no_rule">Other Organization Statements</h3> 
+			<div class="col_3 rule btm_10"> 
+				<h3 class="no_rule">Other Statements</h3> 
 				{% with "orgsneutral" as org_group %}
 				{% with orgs_neutral as org_list %}
+					{% include "popvox/bill_report_orglist.html" %}
+				{% endwith %}
+				{% endwith %}
+				</ul>
+			</div>
+			{% endif %}
+			{% if orgs_other %}
+			<div class="col_3 col_last rule btm_10"> 
+				<h3 class="no_rule">Other</h3> 
+				{% with "orgsother" as org_group %}
+				{% with orgs_other as org_list %}
 					{% include "popvox/bill_report_orglist.html" %}
 				{% endwith %}
 				{% endwith %}

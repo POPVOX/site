@@ -4,6 +4,8 @@
 		<input id="billsearch_endorse_oppose_submit_support" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
 		<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="window.location = '{{bill.url|escapejs}}/comment/oppose'"/>
 	{% else %}
+		<p style="margin: 0"><strong>You Chose:</strong></p>
+
 		<div style="margin-bottom: 1em">
 		{% if user_position.position == "+" %}
 			<input id="billsearch_endorse_oppose_submit_support" class="submit nohover" type="button" value="Support"/>
@@ -12,18 +14,14 @@
 		{% endif %}
 		</div>
 		
+		<p>You submitted a comment on this bill {{user_position.updated|date2}}. {% if user_position.message %}You wrote:{% endif %}</p>
 		{% if user_position.message %}
-		<p>
-			You submitted a comment on this bill {{user_position.updated|date2}}. You wrote:
-		</p>
 		<p>&ldquo;{{user_position.message|truncatewords:30}}&rdquo;</p>
 		{% endif %}
 		
-		<div>
-			<p>
-				<a href="{{bill.url}}/comment">edit comment</a> |
-				<a href="{{bill.url}}/comment/clear">remove comment</a> |
-				<a href="{{bill.url}}/comment/share">share comment</a>
-			</p>
-		</div>
+		<p style="margin: 0">
+			<a href="{{bill.url}}/comment">edit comment</a> |
+			<a href="{{bill.url}}/comment/clear">remove comment</a> |
+			<a href="{{bill.url}}/comment/share">share comment</a>
+		</p>
 	{% endif %}

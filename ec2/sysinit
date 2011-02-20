@@ -69,6 +69,6 @@ sudo sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.co
 sudo ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
 sudo /etc/init.d/apache2 restart
 
-# Startup scripts. What do I do with these?
+# Startup scripts. Copy into /etc/rc.local
 git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/ 
 

@@ -3,7 +3,7 @@ from django.contrib import admin
 
 class UserProfileAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user",)
-	readonly_fields = ("user",)
+	readonly_fields = ("user","tracked_bills","antitracked_bills")
 	search_fields = ["user__username", "user__email", "fullname"]
 	list_display = ["user", "fullname", "staff_info"]
 

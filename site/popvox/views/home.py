@@ -230,7 +230,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			for b in s["bills"]:
 				if b.congressnumber != popvox.govtrack.CURRENT_CONGRESS:
 					ix = str(b.congressnumber) + popvox.govtrack.ordinate(b.congressnumber) +  " Congress"
-				elif s["type"] != "sponsor" and b.sponsor_id != None and b.sponsor_id == boss.id:
+				elif s["type"] != "sponsor" and boss != None and b.sponsor_id != None and b.sponsor_id == boss.id:
 					ix = "Sponsored by " + bossname
 				elif (s["type"] != "issue" or s["issue"].parent != None) and b.topterm != None:
 					ix = b.topterm.name

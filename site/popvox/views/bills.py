@@ -451,6 +451,7 @@ def bill(request, congressnumber, billtype, billnumber):
 	return render_to_response('popvox/bill.html', {
 			'bill': bill,
 			"canvote": (request.user.is_anonymous() or (not request.user.userprofile.is_leg_staff() and not request.user.userprofile.is_org_admin())),
+			"deadbox": not bill.isAlive() and user_position == None,
 			
 			"user_org": user_org,
 			"existing_org_positions": existing_org_positions,
@@ -1199,8 +1200,11 @@ def billreport(request, congressnumber, billtype, billnumber):
 	orgs_support = { }
 	orgs_oppose = { }
 	orgs_neutral = { }
+	orgs_other = { }
 	for pos in bill.campaign_positions():
-		if pos.position == "+":
+		if pos.campaign.org.id == 2123:
+			lst = orgs_other
+		elif pos.position == "+":
 			lst = orgs_support
 		elif pos.position == "-":
 			lst = orgs_oppose
@@ -1213,7 +1217,8 @@ def billreport(request, congressnumber, billtype, billnumber):
 	orgs_support = list(orgs_support.items())
 	orgs_oppose = list(orgs_oppose.items())
 	orgs_neutral = list(orgs_neutral.items())
-	for lst in orgs_support, orgs_oppose, orgs_neutral:
+	orgs_other = list(orgs_other.items())
+	for lst in orgs_support, orgs_oppose, orgs_neutral, orgs_other:
 		lst.sort(key = lambda x : x[0].name.replace("The ", ""))
 
 	bot_comments = []
@@ -1228,6 +1233,7 @@ def billreport(request, congressnumber, billtype, billnumber):
 			"orgs_supporting": orgs_support,
 			"orgs_opposing": orgs_oppose,
 			"orgs_neutral": orgs_neutral,
+			"orgs_other": orgs_other,
 			"default_state": default_state if default_state != None else "",
 			"default_district": default_district if default_district != None else "",
 			"stateabbrs": 
@@ -1353,8 +1359,10 @@ def uploaddoc1(request):
 		types = ((0, "Press Release"), (1, "Introductory Statement"), (2, "Dear Colleague"), (99, "Other Document"))
 		whose = request.user.legstaffrole.bossname
 		docs = request.user.legstaffrole.member.documents
-	elif prof.is_org_admin():
-		org = prof.user.orgroles.get(org__slug=request.GET["org"]).org
+	elif "org" in request.GET:
+		org = Org.objects.get(slug=request.GET["org"])
+		if not org.is_admin(request.user):
+			raise Http404()
 		types = ((0, "Press Release"), (3, "Report"), (4, "Letter of Support"), (4, "Coalition Letter"), (99, "Other Document"))
 		whose = org.name
 		docs = org.documents

@@ -978,8 +978,8 @@ h3#reporttitle {
 		
 	.pro_reintro {
 		background: none repeat scroll 0 0 #D4D1CA;
-		border-top: 20px solid #E8E5DF;
-		width: 405px;
+		xxx-border-top: 20px solid #E8E5DF;
+		xxx-width: 405px;
 		padding: 20px;
 		clear: both;
 		font-weight: bold;
