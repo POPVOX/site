@@ -37,7 +37,7 @@ $(function() {
 });
 {% endcomment %}
 function subscribe(validate) {
-	if ($('#subscribe_email').hasClass("default")) return false;
+	if ($('#subscribe_email').hasClass("default") || $('#subscribe_email').val() == "") return false;
 	ajaxform("post/home/subscribe",
 		{ "validate": (validate ? "validate" : "submit") },
 		{ "email": "#subscribe_email" },

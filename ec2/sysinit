@@ -30,8 +30,8 @@ sudo apt-get install -y \
 	memcached python-memcache 
 
 # Custom packages
-DJANGO=python-django_1.2.3-1ubuntu0.1_all.deb
-wget http://launchpadlibrarian.net/57571527/$DJANGO
+DJANGO=python-django_1.2.5-1ubuntu1_all.deb
+wget http://launchpadlibrarian.net/64542273/$DJANGO
 sudo dpkg -i $DJANGO
 rm $DJANGO
 
