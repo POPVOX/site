@@ -33,6 +33,7 @@
 	<link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> 
 	
 	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
+	<script>$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); });</script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
 	
 	<link href="/media/css/jquery-ui.css" rel="stylesheet" type="text/css"/> <!-- autocomplete -->

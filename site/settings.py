@@ -120,6 +120,7 @@ MIDDLEWARE_CLASSES = (
     'jquery.middleware.SessionFromPostMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'trafficanalysis.middleware.TrafficAnalysisMiddleware',
     'popvox.middleware.IE6BlockMiddleware',
 )
