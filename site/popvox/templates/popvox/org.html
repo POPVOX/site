@@ -237,14 +237,13 @@ We would like to join your coalition.</textarea>
 					{% endif %}
 			{% endif %}
 		
-			<h1>{{org.name}}</h1>
+			{% if not org.iscoalition and coalition_can_invite %}
+			<div class="btn_hold" style="margin: -5px 0 1.25em">
+				<a href="#" class="btn b_invite_coalition" onclick="return coalition_invite();">invite to your coalition</a>
+			</div>
+			{% endif %}
 
-			{% if coalition_can_join %}
-				<p><a href="#" onclick="return coalition_join();">Join Coaltion</a></p>
-			{% endif %}
-			{% if coalition_can_invite %}
-				<p><a href="#" onclick="return coalition_invite();">Invite To My Coaltion</a></p>
-			{% endif %}
+			<h1 class="clear">{{org.name}}</h1>
 
 			{% if org.description %}
 			<p class="mission"><strong>Mission:</strong> {{org.description}}</p>
@@ -270,9 +269,16 @@ We would like to join your coalition.</textarea>
 		
 		{% if org.iscoalition %}
 		<div class="block coalition">
+			{% if coalition_can_join or coalition_can_invite %}
 			<div class="btn_hold">
-				<a href="#" class="btn b_join">join</a> <a href="#" class="btn b_invite_coalition">invite to your coalition</a>
+				{% if coalition_can_join %}
+				<a href="#" class="btn b_join" onclick="return coalition_join();">join coalition</a>
+				{% endif %}
+				{% if coalition_can_invite %}
+					<a href="#" class="btn b_invite_coalition" onclick="return coalition_invite();">invite to your coalition</a>
+				{% endif %}
 			</div>
+			{% endif %}
 			<h3>Coalition Members</h3>
 			<ul class="bullets">
 			{% for org in org.coalitionmembers.all %}

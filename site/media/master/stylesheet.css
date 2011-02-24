@@ -4082,7 +4082,7 @@ ul.staff, .small {
 		padding-bottom: 10px;
 		}
 		
-	.coalition .btn_hold {
+	.btn_hold {
 		width: 260px;
 		float: right;
 		margin-top: 10px;
@@ -4092,23 +4092,23 @@ ul.staff, .small {
 		padding-bottom: 0;
 		}
 		
-	.coalition .btn_hold a:hover {
+	.btn_hold a:hover {
 		background-position: left bottom;
 		}
 		
 		.coalition .b_join {
 			background: url("b_join.png") no-repeat left top;
 			display: block;
-		    float: left;
+		    float: right;
 		    width: 58px;
 		    height: 22px;
 		    margin-right: 5px;
 			}
 			
-		.coalition .b_invite_coalition {
+		.b_invite_coalition {
 			background: url("b_invite_coalition.png") no-repeat left top;
 			display: block;
-		    float: left;
+		    float: right;
 		    width: 197px;
 		    height: 22px;
 			}
