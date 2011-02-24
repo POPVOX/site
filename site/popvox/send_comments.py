@@ -28,8 +28,8 @@ for comment in UserComment.objects.filter(
 	bill__congressnumber=CURRENT_CONGRESS,
 	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
 	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5), # let users revise
-	created__gt=datetime.datetime.now()-datetime.timedelta(days=30), # abandon when it's too late
-	).order_by('created').select_related("bill"):
+	created__gt=datetime.datetime.now()-datetime.timedelta(days=60), # abandon when it's too late
+	).order_by('created').select_related("bill").iterator():
 	
 	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
@@ -74,7 +74,8 @@ for comment in UserComment.objects.filter(
 			412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,
 			300062,400255,400633,400408,400089,400310,412011,400325,400183,412378,
 			400245,412324,400054,400142,400643,412485,400244,400142,400318,412325,
-			412231,400266,412321,300070,400105,300018,400361,300040,400274)]
+			412231,400266,412321,300070,400105,300018,400361,300040,400274,412308,
+			400441)]
 	if len(govtrackrecipientids) == 0:
 		reject_no_phone += 1
 		continue
@@ -107,9 +108,17 @@ for comment in UserComment.objects.filter(
 			"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
 	else:
 		msg.message = ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment. Delivered by popvox.com; info@popvox.com. See http://www.popvox.com" + comment.bill.url() + "/report]"
-	msg.topicarea = comment.bill.hashtag(always_include_session=True)
-	if comment.bill.topterm != None:
-		msg.topicarea = comment.bill.topterm.name
+		
+	topterm = comment.bill.topterm
+	if topterm == None:
+		b2 = Bill.objects.filter(billtype=comment.bill.billtype, billnumber=comment.bill.billnumber, topterm__isnull=False)
+		if len(b2) > 0 and comment.bill.title_no_number() == b2[0].title_no_number():
+			topterm = b2[0].topterm
+		
+	if topterm != None and topterm.name != "Private Legislation":
+		msg.topicarea = topterm.name
+	else:
+		msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title)
 	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","")
 	if comment.position == "+":
 		msg.support_oppose = ('i support',)
@@ -155,10 +164,10 @@ for comment in UserComment.objects.filter(
 	# Begin delivery.
 	had_any_errors = False
 	for govtrackrecipientid in govtrackrecipientids:
-		print
-		print comment.created
-		print govtrackrecipientid, getMemberOfCongress(govtrackrecipientid)["sortkey"]
-		print msg.xml().encode("utf8")
+		#print
+		#print comment.created
+		#print govtrackrecipientid, getMemberOfCongress(govtrackrecipientid)["sortkey"]
+		#print msg.xml().encode("utf8")
 		
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
@@ -170,6 +179,8 @@ for comment in UserComment.objects.filter(
 		delivery_record = send_message(msg, govtrackrecipientid, last_delivery_attempt, u"comment #" + unicode(comment.id))
 		if delivery_record == None:
 			print "no delivery method available"
+			print govtrackrecipientid, getMemberOfCongress(govtrackrecipientid)["sortkey"]
+			#print msg.xml().encode("utf8")
 			had_any_errors = True
 			#sys.stdin.readline()
 			continue

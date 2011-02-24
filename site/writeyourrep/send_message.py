@@ -215,6 +215,7 @@ common_fieldnames = {
 	"rsp": "response_requested",
 	"replychoice": "response_requested",
 	"reqestresponse": "response_requested",
+	"responseexpected": "response_requested",
 	
 	'view_select': 'support_oppose',
 	}
@@ -235,6 +236,7 @@ radio_choices = {
 	"affl": "",
 	"aff11": "",
 	"aff12": "",
+	"aff1": "",
 }
 
 custom_overrides = {
@@ -350,6 +352,8 @@ def parse_webform(webformurl, webform, webformid, id):
 					opttext = opt.firstChild.data.lower()
 					opttext = re.sub("^\W+", "", opttext)
 					opttext = re.sub("\s+$", "", opttext)
+					if "select" in opttext or "=" in opttext or "-" in opttext:
+						continue
 				
 				options[opttext] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext
 				
@@ -422,7 +426,7 @@ def parse_webform(webformurl, webform, webformid, id):
 		
 		ax = ax.replace("ctl00$contentplaceholderdefault$newslettersignup_1$", "")
 		
-		ax = re.sub(r"^(required[\-\_]|ctl\d+\$ctl\d+\$)", "", ax)
+		ax = re.sub(r"^(req(uired)?[\-\_]|ctl\d+\$ctl\d+\$)", "", ax)
 		ax = re.sub(r"[\-\_]required$", "", ax)
 
 		ax2 = ax + "_" + fieldtype.lower()
@@ -606,7 +610,7 @@ def send_message_webform(di, msg, deliveryrec):
 	deliveryrec.trace += urllib.urlencode(postdata) + "\n"
 	ret = http.open(formaction, urllib.urlencode(postdata))
 	deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n\n" 
-	ret, ret_code = ret.read(), ret.getcode()
+	ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
 	# If this form has a final stage where the user is supposed to verify
 	# what he entered, then re-submit the verification form presented to
@@ -626,16 +630,16 @@ def send_message_webform(di, msg, deliveryrec):
 			if field.nodeName == "select":
 				for opt in field.getElementsByTagName("option"):
 					if opt.hasAttribute("selected"):
-						postdata[field.getAttribute("name")] = opt.getAttribute("value") if opt.hasAttribute("value") else opt.firstChild.data
+						postdata[field.getAttribute("name").encode("utf8")] = opt.getAttribute("value").encode("utf8") if opt.hasAttribute("value") else opt.firstChild.data.encode("utf8")
 			else:
-				postdata[field.getAttribute("name")] = field.getAttribute("value")
+				postdata[field.getAttribute("name").encode("utf8")] = field.getAttribute("value").encode("utf8")
 				
 		# submit the data via POST and check the result.
 		deliveryrec.trace += formaction + "\n"
 		deliveryrec.trace += urllib.urlencode(postdata) + "\n"
 		ret = http.open(formaction, urllib.urlencode(postdata))
 		deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n\n" 
-		ret, ret_code = ret.read(), ret.getcode()
+		ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
 	if ret_code == 404:
 		raise IOError("Form POST resulted in a 404.")
@@ -651,18 +655,18 @@ def send_message_webform(di, msg, deliveryrec):
 		deliveryrec.trace += "\n" + ret + "\n\n"
 		raise IOError("The site reports it is experiencing technical difficulties.")
 	
+	if "&success=true" in ret_url:
+		return
+	
 	if di.webformresponse == None or di.webformresponse.strip() == "":
 		deliveryrec.trace += "\n" + ret + "\n\n"
 		raise SubmissionSuccessUnknownException("Webform's webformresponse text is not set.")
 
-	success = (di.webformresponse in ret)
-	
-	if success:
+	if di.webformresponse in ret:
 		return
 		
-	if not success:
-		deliveryrec.trace += "\n" + ret + "\n\n"
-		raise SubmissionSuccessUnknownException("Success message not found in result.")
+	deliveryrec.trace += "\n" + ret + "\n\n"
+	raise SubmissionSuccessUnknownException("Success message not found in result.")
 
 def send_message_housewyr(msg, deliveryrec):
 	# Submit the state and ZIP+4 to get the main webform.
@@ -681,7 +685,7 @@ def send_message_housewyr(msg, deliveryrec):
 	# Submit the address, then the comment....
 	
 	webformurl = writerep_house_gov
-	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message")):
+	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message|Thanks for your e-mail message|I will be responding to your email in specific detail|Thank you for your message|Your message has been received")):
 		field_map, field_options, field_default, webformurl = parse_webform(webformurl, ret, formname, "housewyr")
 		
 		postdata = { }
@@ -798,8 +802,9 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 				
 				sr = SynonymRequired()
 				sr.term1set = "\n".join(e.values)
-				sr.term2set = "\n".join([re.sub(r"\s+", " ", opt) for opt in e.options])
-				sr.save()
+				sr.term2set = "\n".join(sorted([re.sub(r"\s+", " ", opt) for opt in e.options]))
+				if not SynonymRequired.objects.filter(term1set=sr.term1set, term2set=sr.term2set).exists():
+					sr.save()
 				
 			except WebformParseException, e:
 				deliveryrec.trace += str(e) + "\n"

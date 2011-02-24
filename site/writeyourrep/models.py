@@ -67,4 +67,6 @@ class SynonymRequired(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	def __unicode__(self):
 		return self.term1set + " => " + self.term2set
-	
+	class Meta:
+		ordering = ('-term1set',)
+
