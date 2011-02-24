@@ -269,7 +269,10 @@ We would like to join your coalition.</textarea>
 		</div> <!-- e: section_head -->
 		
 		{% if org.iscoalition %}
-		<div class="block">
+		<div class="block coalition">
+			<div class="btn_hold">
+				<a href="#" class="btn b_join">join</a> <a href="#" class="btn b_invite_coalition">invite to your coalition</a>
+			</div>
 			<h3>Coalition Members</h3>
 			<ul class="bullets">
 			{% for org in org.coalitionmembers.all %}

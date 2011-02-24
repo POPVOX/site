@@ -497,18 +497,24 @@ dd {
 .bullets {
 	margin: .75em 0 .75em 0;
 	}
-.bullets li {
-	display: list-item;
-	list-style: none;
-	background: url(bullet.png) left .35em no-repeat;
-	margin: 0 0 .5em 0;
-	padding-left: 20px;
-	font: normal 13px/18px helvetica, arial, sans-serif;
-	}
-	
-.bullets li a {
-	color: #606060;
-	}
+
+	.bullets li {
+		display: list-item;
+		list-style: none;
+		background: url(bullet.png) left .35em no-repeat;
+		margin: 0 0 .5em 0;
+		padding-left: 20px;
+		font: normal 13px/18px helvetica, arial, sans-serif;
+		}
+		
+		.bullets.doc li {
+			background: url(b_doc.png) left top no-repeat;
+			padding-left: 25px;
+			}
+		
+	.bullets li a {
+		color: #606060;
+		}
 
 tt {
 	font-family: mono;
@@ -4022,13 +4028,11 @@ ul.staff, .small {
 			.profile_block p.url {
 				background: url("b_url.png") no-repeat left top;
 				padding: 0 0 0 25px;
-				height: 16px;
 				}
 			
 			.profile_block p.profile {
 				background: url("b_profile.png") no-repeat left top;
 				padding: 0 0 0 25px;
-				height: 16px;
 				}
 				
 			.profile_block p.bill {
@@ -4039,13 +4043,11 @@ ul.staff, .small {
 			.profile_block p.fb {
 				background: url("b_fb.png") no-repeat left top;
 				padding: 0 0 0 25px;
-				height: 16px;
 				}
 				
 			.profile_block p.twitter {
 				background: url("b_tw.png") no-repeat left top;
 				padding: 0 0 0 25px;
-				height: 16px;
 				}
 				
 			.profile_block p.address {
@@ -4056,7 +4058,11 @@ ul.staff, .small {
 			.profile_block p.phone {
 				background: url("b_ph.png") no-repeat left top;
 				padding: 0 0 0 25px;
-				height: 16px;
+				}
+				
+			.profile_block p.doc {
+				background: url("b_doc.png") no-repeat left top;
+				padding: 0 0 0 25px;
 				}
 				
 
@@ -4071,6 +4077,57 @@ ul.staff, .small {
 				font: italic normal 12px Georgia, serif;
 				}
 			
+	
+	.col_6 .coalition {
+		padding-bottom: 10px;
+		}
+		
+	.coalition .btn_hold {
+		width: 260px;
+		float: right;
+		margin-top: 10px;
+		}
+		
+	.col_6 .coalition h3 {
+		padding-bottom: 0;
+		}
+		
+	.coalition .btn_hold a:hover {
+		background-position: left bottom;
+		}
+		
+		.coalition .b_join {
+			background: url("b_join.png") no-repeat left top;
+			display: block;
+		    float: left;
+		    width: 58px;
+		    height: 22px;
+		    margin-right: 5px;
+			}
+			
+		.coalition .b_invite_coalition {
+			background: url("b_invite_coalition.png") no-repeat left top;
+			display: block;
+		    float: left;
+		    width: 197px;
+		    height: 22px;
+			}
+			
+		.coalition .bullets li {
+			background: none;
+			padding-left: 0;
+			font-weight: bold;
+			}
+			
+			.coalition .bullets li a {
+				color: #404045;	
+				}
+				
+				.coalition .bullets li a:hover {
+					color: #CC6A11;
+					border: none;	
+					}
+				
 	.point_person {
 		margin-bottom: 20px;
 		background: url(b_adbook.png) left top no-repeat;

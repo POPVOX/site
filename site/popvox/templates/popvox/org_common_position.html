@@ -33,7 +33,7 @@
 		
 		{% if not admin %}
 			{% for doc in position.documents %}
-				{% if forloop.first %}<ul class="bullets">{% endif %}
+				{% if forloop.first %}<ul class="bullets doc">{% endif %}
 				<li><a href="{{position.bill.url}}/docs/{{org.slug}}/{{doc.doctype}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
 				{% if forloop.last %}</ul>{% endif %}
 			{% endfor %}
