@@ -1,4 +1,5 @@
 {% load humanize %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 	<head>
 		<title>Comments Map - United States - {{bill}}</title>
@@ -112,20 +113,24 @@
 	
 		<div id="legend_clr">
 			<div class="label first">Support</div>
+			<div class="dotholder">
 			<div class="dots dot_sz_3 dot_clr_5"> </div>
 			<div class="dots dot_sz_3 dot_clr_4"> </div>
 			<div class="dots dot_sz_3 dot_clr_3"> </div>
 			<div class="dots dot_sz_3 dot_clr_2"> </div>
 			<div class="dots dot_sz_3 dot_clr_1"> </div>
+			</div>
 			<div class="label last">Oppose</div>
 		</div>
 		<div id="legend_sz">
 			<div class="label first">{{max_sz_num}} User{{max_sz_num|pluralize}}</div>
+			<div class="dotholder">
 			<div class="dots dot_sz_5 dot_clr_3"> </div>
 			<div class="dots dot_sz_4 dot_clr_3"> </div>
 			<div class="dots dot_sz_3 dot_clr_3"> </div>
 			<div class="dots dot_sz_2 dot_clr_3"> </div>
 			<div class="dots dot_sz_1 dot_clr_3"> </div>
+			</div>
 			<div class="label last">{{min_sz_num}} User{{min_sz_num|pluralize}}</div>
 		</div>
 		<div id="legend_text">
