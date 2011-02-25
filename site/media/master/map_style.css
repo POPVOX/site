@@ -33,7 +33,7 @@ body {
 /*  for oppose, mostly oppose, mixed, mostly support, support */
 
 .colormode_1 .dots { background-image: url("bg_dots.png");  }
-.colormode_2 .dots { background-image: url("bg_dots_alternate.png");  }
+.colormode_2 .dots { background-image: url("bg_dots_alt.png");  }
 
 .dot_clr_1.dot_sz_1 { background-position: -80px -0px; }
 .dot_clr_2.dot_sz_1 { background-position: -80px -20px; }
@@ -119,7 +119,7 @@ body {
 	display: block;
 	margin: 0;
 	}
-
+	
 #legend_sz, #legend_clr, #legend_text {
 	position: absolute;
 	left: 370px;
