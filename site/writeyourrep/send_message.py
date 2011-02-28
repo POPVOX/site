@@ -1,17 +1,32 @@
-# DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python writeyourrep/send_message.py
-
 import re
 import urllib
+import urllib2
+import cookielib
 import urlparse
 import html5lib
 import xml.sax.saxutils
+
+from django.core.mail import send_mail
 
 from writeyourrep.models import *
 
 from popvox.govtrack import getMemberOfCongress, statenames
 
-http = urllib.FancyURLopener()
-http.version = "POPVOX.com Message Delivery <info@popvox.com>"
+cookiejar = cookielib.CookieJar()
+http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
+http.addheaders = [('User-agent', "POPVOX.com Message Delivery <info@popvox.com>")]
+def urlopen(url, data, method, deliveryrec):
+	if method.upper() == "POST":
+		deliveryrec.trace += "POST " + url + "\n"
+		deliveryrec.trace += urllib.urlencode(data) + "\n"
+		ret = http.open(url, urllib.urlencode(data))
+	else:
+		url = url + ("?" if not "?" in url else "&") + urllib.urlencode(data)
+		deliveryrec.trace += "GET " + url + "\n"
+		ret = http.open(url)
+	deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n"
+	deliveryrec.trace += "".join(ret.info().headers) + "\n"
+	return ret
 
 class Message:
 	def __repr__(self):
@@ -44,7 +59,30 @@ Delivery:
 	%delivery_agent
 	%delivery_agent_contact
 """)
-			
+	
+	def text(self):
+		ret = u""
+		if self.prefix != "": ret += self.prefix + u" "
+		ret += self.firstname + u" " + self.lastname
+		if self.suffix != "": ret += u" " + self.suffix
+		ret += u"\n"
+		
+		ret += self.address1 + u"\n"
+		if self.address2 != "": ret += self.address2 + u"\n"
+		ret += self.city + u", " + self.state + u" " + self.zipcode + u"\n"
+		if self.phone != "": ret += self.phone + u"\n"
+		ret += self.email + u"\n\n"
+		
+		ret += self.subjectline + u"\n\n"
+		ret += self.message
+		
+		if not hasattr(self, "dummy_campaign_info"):
+			ret += u"\n\ntracking info:\n"
+			ret += u"organization: " + self.org_name + u" (" + self.org_url + u")\n"
+			ret += u"topic code: " + self.campaign_id + u"\n"
+		
+		return ret
+		
 	def xml(self):
 			import re
 			return re.sub(
@@ -119,6 +157,7 @@ common_fieldnames = {
 	"last_name": "lastname",
 	"name_last": "lastname",
 	"name_suffix": "suffix",
+	"suffix2": "suffix",
 	"address": "address1",
 	"street_address": "address1",
 	"street_address_2": "address2",
@@ -162,6 +201,7 @@ common_fieldnames = {
 	"phone1": "phone",
 	"hphone": "phone",
 	"phone-number": "phone",
+	"home-phone": "phone",
 	"emailaddress": "email",
 	"email_address": "email",
 	"email_verify": "email",
@@ -183,6 +223,7 @@ common_fieldnames = {
 	"body": "message",
 
 	"messagesubject": "subjectline",
+	"email_subject": "subjectline",
 	"message_topic_select": "topicarea",
 	"subject_text": "subjectline",
 	"subject_select": "topicarea",
@@ -203,6 +244,7 @@ common_fieldnames = {
 	"subject_code_select": "topicarea",
 	"category_select": "topicarea",
 	"contact[issue_id]": "topicarea",
+	"topic_radio": "topicarea",
 	
 	"responserequested": "response_requested",
 	"responserequest": "response_requested",
@@ -222,9 +264,9 @@ common_fieldnames = {
 
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
-skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phonebusiness", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation",
+skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation",
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey",
-	"speech")
+	"speech", "authfailmsg")
 
 select_override_validate = ("county",)
 radio_choices = {
@@ -262,6 +304,9 @@ custom_overrides = {
 	"583_affl1_select": "no action",
 	"585_aff1_radio": "<affl>subscribe</affl>",
 	"590_response_select": "newsNo",
+	"611_aff1req_text": "fill",
+	"645_yes_radio": "NRN",
+	"645_authfailmsg_hidden": "/andrews/AuthFailMsg.htm",
 }
 
 class WebformParseException(Exception):
@@ -301,6 +346,7 @@ def find_webform(htmlstring, webformid, webformurl):
 
 	doc = html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("dom")).parse(htmlstring)
 	
+	formmethod = "POST"
 	formaction = None
 	
 	# scan <form>s
@@ -315,8 +361,10 @@ def find_webform(htmlstring, webformid, webformurl):
 				formaction = urlparse.urljoin(webformurl, form.getAttribute("action"))
 			else:
 				formaction = webformurl
+			if form.getAttribute("method") != "":
+				formmethod = form.getAttribute("method")
 				
-			return doc, form, formaction
+			return doc, form, formaction, formmethod
 	
 		altforms.append( (form.getAttribute("id"), form.getAttribute("name"), form.getAttribute("class"), form.getAttribute("action")) )
 
@@ -325,7 +373,7 @@ def find_webform(htmlstring, webformid, webformurl):
 
 def parse_webform(webformurl, webform, webformid, id):
 	#print webform
-	doc, form, formaction = find_webform(webform, webformid, webformurl)
+	doc, form, formaction, formmethod = find_webform(webform, webformid, webformurl)
 	
 	fields = []
 	fieldlabels = { }
@@ -415,6 +463,7 @@ def parse_webform(webformurl, webform, webformid, id):
 		ax = attr.lower()
 		
 		if ax.startswith("ctl00$") and ax.endswith("$zip"): ax = "zip5"
+		if id == 636 and ax == "zipcode": ax = "zip5"
 		#if ax == "ctl00$ctl01$zip": ax = "zip5"
 		#if ax == "ctl00$ctl04$zip": ax = "zip5"
 		#if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
@@ -430,6 +479,8 @@ def parse_webform(webformurl, webform, webformid, id):
 		ax = re.sub(r"[\-\_]required$", "", ax)
 
 		ax2 = ax + "_" + fieldtype.lower()
+		
+		if attr.lower() == "required-daytimephone": ax = "phone"
 		
 		if str(id) + "_" + ax + "_" + fieldtype.lower() in custom_overrides:
 			field_default[attr] = custom_overrides[str(id) + "_" + ax + "_" + fieldtype.lower()]
@@ -494,7 +545,7 @@ def parse_webform(webformurl, webform, webformid, id):
 			v = "address_combined"
 		field_map[k] = v
 
-	return field_map, field_options, field_default, formaction
+	return field_map, field_options, field_default, formaction, formmethod
 
 def send_message_webform(di, msg, deliveryrec):
 	# Load the web form and parse the fields.
@@ -517,7 +568,7 @@ def send_message_webform(di, msg, deliveryrec):
 		webformid_stage1 = webform_stages.pop(0)[len("zipstage:"):]
 		
 		# Parse the fields.
-		field_map, field_options, field_default, webformurl = parse_webform(webformurl, webform, webformid_stage1, di.id)
+		field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, webform, webformid_stage1, di.id)
 		
 		# Submit the zipcode to get the second stage form.
 		postdata = { }
@@ -537,13 +588,16 @@ def send_message_webform(di, msg, deliveryrec):
 				print k, v
 			return
 			
-		deliveryrec.trace += webformurl + "\n"
-		deliveryrec.trace += urllib.urlencode(postdata) + "\n\n"
-		webform = http.open(webformurl, urllib.urlencode(postdata)).read()
+		webform = urlopen(webformurl, postdata, formmethod, deliveryrec).read()
+		
+		if "The zip code you typed in does not appear to be a zip code within my district" in webform:
+			deliveryrec.trace += "\n" + webform + "\n\n"
+			raise DistrictDisagreementException()
+			
 
 	webformid = webform_stages.pop(0) if len(webform_stages) > 0 else "<not entered>"
 	try:
-		field_map, field_options, field_default, formaction = parse_webform(webformurl, webform, webformid, di.id)
+		field_map, field_options, field_default, formaction, formmethod = parse_webform(webformurl, webform, webformid, di.id)
 	except:
 		deliveryrec.trace += "\n" + webform.decode('utf8', 'replace') + "\n\n"
 		raise
@@ -606,10 +660,7 @@ def send_message_webform(di, msg, deliveryrec):
 			
 	# submit the data via POST and check the result.
 
-	deliveryrec.trace += formaction + "\n"
-	deliveryrec.trace += urllib.urlencode(postdata) + "\n"
-	ret = http.open(formaction, urllib.urlencode(postdata))
-	deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n\n" 
+	ret = urlopen(formaction, postdata, formmethod, deliveryrec)
 	ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
 	# If this form has a final stage where the user is supposed to verify
@@ -618,7 +669,7 @@ def send_message_webform(di, msg, deliveryrec):
 	if len(webform_stages) > 0 and webform_stages[0].startswith("verifystage:"):
 		webformid_stage2 = webform_stages.pop(0)[len("verifystage:"):]
 		try:
-			doc, form, formaction = find_webform(ret, webformid_stage2, formaction)
+			doc, form, formaction, formmethod = find_webform(ret, webformid_stage2, formaction)
 		except WebformParseException:
 			deliveryrec.trace += "\n" + webform.decode('utf8', 'replace') + "\n\n"
 			raise
@@ -635,10 +686,7 @@ def send_message_webform(di, msg, deliveryrec):
 				postdata[field.getAttribute("name").encode("utf8")] = field.getAttribute("value").encode("utf8")
 				
 		# submit the data via POST and check the result.
-		deliveryrec.trace += formaction + "\n"
-		deliveryrec.trace += urllib.urlencode(postdata) + "\n"
-		ret = http.open(formaction, urllib.urlencode(postdata))
-		deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n\n" 
+		ret = urlopen(formaction, postdata, formmethod, deliveryrec)
 		ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
 	if ret_code == 404:
@@ -647,7 +695,7 @@ def send_message_webform(di, msg, deliveryrec):
 	if type(ret) == str:
 		ret = ret.decode('utf8', 'replace')
 
-	if "Your zip code indicates that you are outside of" in ret:
+	if "Your zip code indicates that you are outside of" in ret or "Your zip code indicates that you live outside" in ret:
 		deliveryrec.trace += "\n" + ret + "\n\n"
 		raise DistrictDisagreementException()
 		
@@ -686,7 +734,7 @@ def send_message_housewyr(msg, deliveryrec):
 	
 	webformurl = writerep_house_gov
 	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message|Thanks for your e-mail message|I will be responding to your email in specific detail|Thank you for your message|Your message has been received")):
-		field_map, field_options, field_default, webformurl = parse_webform(webformurl, ret, formname, "housewyr")
+		field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, ret, formname, "housewyr")
 		
 		postdata = { }
 		for k, v in field_map.items():
@@ -697,11 +745,7 @@ def send_message_housewyr(msg, deliveryrec):
 		for k, v in field_default.items():
 			postdata[k] = v
 			
-		deliveryrec.trace += webformurl + "\n"
-		deliveryrec.trace += urllib.urlencode(postdata) + "\n"
-		
-		ret = http.open(webformurl, urllib.urlencode(postdata))
-		deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n\n"
+		ret = urlopen(webformurl, postdata, formmethod, deliveryrec)
 		if ret.getcode() != 200:
 			raise IOError("Form POST resulted in an error.")
 		
@@ -735,6 +779,8 @@ def cache_webforms():
 		fn.close()
 
 def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
+	cookiejar.clear()
+	
 	# Check for delivery information.
 	
 	mm = getMemberOfCongress(govtrackrecipientid)
@@ -825,7 +871,21 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 			if deliveryrec.success and moc.method != method:
 				moc.method = Endpoint.METHOD_HOUSE_WRITEREP
 				moc.save()
+				
+		elif method == Endpoint.METHOD_SMTP:
+			deliveryrec.trace += "sending email to " + moc.webform + "\n\n"
+			deliveryrec.trace += msg.text()
+			
+			send_mail(
+				msg.subjectline,
+				msg.text(),
+				msg.email,
+				[moc.webform],
+				fail_silently=False)
 
+			deliveryrec.success = True
+			deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
+			
 	# exceptions common to all delivery types
 	except DistrictDisagreementException, e:
 		deliveryrec.trace += str(e) + "\n"

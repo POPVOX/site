@@ -75,7 +75,8 @@ for comment in UserComment.objects.filter(
 			300062,400255,400633,400408,400089,400310,412011,400325,400183,412378,
 			400245,412324,400054,400142,400643,412485,400244,400142,400318,412325,
 			412231,400266,412321,300070,400105,300018,400361,300040,400274,412308,
-			400441)]
+			400441,400111,412189,400240,412492,412456,412330,412398,412481,412292,
+			400046)]
 	if len(govtrackrecipientids) == 0:
 		reject_no_phone += 1
 		continue
@@ -119,7 +120,7 @@ for comment in UserComment.objects.filter(
 		msg.topicarea = topterm.name
 	else:
 		msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title)
-	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","")
+	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","")
 	if comment.position == "+":
 		msg.support_oppose = ('i support',)
 	else:
@@ -136,7 +137,6 @@ for comment in UserComment.objects.filter(
 		msg.org_name = comment.referrer.name
 		msg.org_description = comment.referrer.description
 		msg.org_contact = "(unknown)"
-		raise ValueError()
 	elif comment.referrer != None and isinstance(comment.referrer, OrgCampaign):
 		msg.campaign_id = "http://popvox.com" + comment.referrer.url()
 		msg.campaign_info = comment.referrer.name
@@ -148,7 +148,6 @@ for comment in UserComment.objects.filter(
 		msg.org_name = comment.referrer.org.name
 		msg.org_description = comment.referrer.org.description
 		msg.org_contact = "(unknown)"
-		raise ValueError()
 	else:
 		msg.campaign_id = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
 		msg.campaign_info = "Comments " + ("Supporting" if comment.position == "+" else "Opposing") + " " + comment.bill.title
@@ -157,6 +156,7 @@ for comment in UserComment.objects.filter(
 		msg.org_name = "POPVOX.com Message Delivery Agent"
 		msg.org_description = "POPVOX.com delivers constituent messages to Congress."
 		msg.org_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
+		msg.dummy_campaign_info = True
 	
 	msg.delivery_agent = "POPVOX.com"
 	msg.delivery_agent_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
@@ -178,10 +178,10 @@ for comment in UserComment.objects.filter(
 		
 		delivery_record = send_message(msg, govtrackrecipientid, last_delivery_attempt, u"comment #" + unicode(comment.id))
 		if delivery_record == None:
+			had_any_errors = True
 			print "no delivery method available"
 			print govtrackrecipientid, getMemberOfCongress(govtrackrecipientid)["sortkey"]
 			#print msg.xml().encode("utf8")
-			had_any_errors = True
 			#sys.stdin.readline()
 			continue
 		
