@@ -198,6 +198,10 @@ We would like to join your coalition.</textarea>
 		{% if org.phonenumber %}
 		<p class="phone">{{org.phonenumber}}</p>
 		{% endif %}
+
+		{% if org.type %}
+		<p><small>{{org.get_type_display}}</small></p>
+		{% endif %}
 		
 		{% comment %}
 		<div class="col_top">
@@ -368,7 +372,8 @@ We would like to join your coalition.</textarea>
 
 			{% else %}
 
-				<p>This information is shared only with Congressional legislative staff. If you have a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> email address, <a href="/accounts/register/legstaff?next={{org.url}}">register</a> to get instant access to this information.</p>
+				<p>This organization&rsquo;s {{org.contacts.all|length|apnumber}} contact{% if org.contacts.all|length == 1 %} is{% else %}s are{% endif %} shared only with Congressional legislative staff.</p>
+				<p>If you have a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> email address, <a href="/accounts/register/legstaff?next={{org.url}}">register</a> to get instant access to this information.</p>
 				
 			{% endif %}
 		</div> 
