@@ -201,15 +201,16 @@ def org_update_fields(request, field, value, validate_only):
 		from urllib import urlopen, quote_plus
 		import json
 		fb = json.load(urlopen("http://graph.facebook.com/" + gid))
-		if "error" in fb:
-			raise ValueError("That is not a Facebook Page address.")
-		if "link" in fb and "http://www.facebook.com" in fb["link"] : # normalize value to what Facebook says, FB Group link values are to an external website...
-			value = fb["link"]
+		if type(fb) == dict:
+			if "error" in fb:
+				raise ValueError("That is not a Facebook Page address.")
+			if "link" in fb and "http://www.facebook.com" in fb["link"] : # normalize value to what Facebook says, FB Group link values are to an external website...
+				value = fb["link"]
 		if not validate_only and value != org.facebookurl:
 			org.facebookurl = value
 			
 			# If no logo is set, grab it from Facebook, if set there.
-			if not org.logo and "picture" in fb:
+			if not org.logo and type(fb) == dict and "picture" in fb:
 				try:
 					data = urlopen(fb["picture"]).read() # python docs indicate this may not read to end??
 					org_update_logo_2(org, data)

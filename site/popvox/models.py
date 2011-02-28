@@ -62,7 +62,7 @@ class MemberOfCongress(models.Model):
 	
 	# The primary key is the GovTrack ID.
 	
-	documents = models.ManyToManyField("PositionDocument", blank=True)
+	documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_memberofcongress")
 
 	def __unicode__(self):
 		return unicode(self.id) + u" " + self.name()
@@ -334,7 +334,7 @@ class Org(models.Model):
 	createdbyus = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	
-	documents = models.ManyToManyField("PositionDocument", blank=True)
+	documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_org")
 	
 	coalitionmembers = models.ManyToManyField("Org", blank=True, related_name="ispartofcoalition", verbose_name="Coalition members")
 	
@@ -742,9 +742,23 @@ class PositionDocument(models.Model):
 	text = tinymce_models.HTMLField(blank=True) #models.TextField()
 	link = models.URLField(blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
-	updated = models.DateTimeField(auto_now=True)
+	updated = models.DateTimeField(auto_now=True, db_index=True)
 	def __unicode__(self):
-		return self.bill.title + " [" + self.get_doctype_display() + "]"
+		owner = ""
+		if self.owner_memberofcongress.all().exists():
+			owner = unicode(self.owner_memberofcongress.all()[0]) + ": "
+		if self.owner_org.all().exists():
+			owner = unicode(self.owner_org.all()[0]) + ": "
+		return owner + self.bill.title + " [" + self.get_doctype_display() + "]"
+	def get_absolute_url(self):
+		if self.owner_org.all().exists():
+			return self.bill.url() + "/docs/" + self.owner_org.all()[0].slug + "/" + str(self.doctype)
+		if self.owner_memberofcongress.all().exists():
+			return self.bill.url() + "/docs/" + self.owner_memberofcongress.all()[0].id + "/" + str(self.doctype)
+		return self.bill.url() # !!
+
+	def url(self):
+		return self.get_absolute_url()
 		
 class PostalAddress(models.Model):
 	"""A postal address."""

@@ -89,7 +89,23 @@
 			</div>
 		{% endif %}
 	{% endif %}
-	
+
+	{% if item|pythontype == 'popvox.models.PositionDocument' %}
+		<p class="date">{{item.updated|date2}}</p>
+		<p>
+			{% if item.owner_org.all %}
+				<a href="{{item.owner_org.all.0.url}}">{{item.owner_org.all.0.name}}</a>
+			{% endif %}
+			{% if item.updated == item.created %}
+			created
+			{% else %}
+			updated
+			{% endif %}
+			a {{item.get_doctype_display}} on {{item.bill.title|truncatewords:10}} titled
+			<a href="{{item.url}}">{{item.title}}</a>.
+		</p>
+	{% endif %}
+
 	{% if not forloop.last %}
 	<div class="hr"> </div>
 	{% endif %}

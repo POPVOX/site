@@ -110,7 +110,7 @@
 					elem.find(".share a").attr("href", c.share);
 					elem.find("p").text(c.msg)
 					elem.find("p").html(elem.find("p").html().replace("\n", "<br/><br/>"))
-					if (c.verb != "supports" && c.verb != "opposes")
+					if (c.verb != "supported" && c.verb != "opposed")
 						elem.find(".verb").text(c.verb + " this bill");
 					elem.find(".endorse_oppose_image").addClass((c.pos == "+") ? "endorse" : "oppose")
 					elem.appendTo((c.pos == "+") ? c_pro : c_con);

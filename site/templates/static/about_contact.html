@@ -30,6 +30,8 @@
 	    <p style="margin-bottom: 1em">We would be happy to consider any feedback you have. You can email us at <a href="mailto:info@popvox.com">info@popvox.com</a> or just fill out this form:</p>
 	    
 	    <form id="contactformfeedback" class="form feedback" action="{% url feedback.views.handle_ajax %}" method="POST" style="margin: 0">
+		{% csrf_token %}
+		<input type="hidden" name="body" value="..."/>
 		   <label for="email">email (optional)</label>
 			  <input name="email" value="{{user.email}}"/>
 			   <div class="email error"> </div>

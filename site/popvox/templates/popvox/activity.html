@@ -100,10 +100,10 @@
 <div class="content">
 	
 	<div class="col_9 col_top">
+		<h1>Recent Comments and other POPVOX Activity</h1>
+			
 		{% if user.is_staff %}
 		
-			<h1>Recent POPVOX Activity</h1>
-			
 			<p>
 				All-Time Registered Users: {{count_users}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %};
 				Leg Staff: {{count_legstaff}};
@@ -114,8 +114,6 @@
 			
 		{% else %}
 		
-			<h1>Recent Comments</h1>
-			
 			{% if user.userprofile.is_leg_staff %}
 			<p>Names and cities are shown for individuals commenting in your state (Senate personal staff) or district (House personal staff). Otherwise, only POPVOX screen names and congressional districts are shown for privacy reasons.</p>
 			{% endif %}

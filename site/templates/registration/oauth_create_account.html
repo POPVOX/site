@@ -7,10 +7,11 @@
 	<h1>Finish Creating Your Account</h1>
 	
 	<form method="post">
+		{% csrf_token %}
 		<div class="form">
 
 		<div class="col_9">
-			<p>It&rsquo;s just one more step to register your {{provider|provider_name}} account on POPVOX. Please choose a username for POPVOX and provide your email address.</p>
+			<p>It&rsquo;s just one more step to register your {{provider|provider_name}} account on POPVOX. Please choose a username for POPVOX{% if not email %} and provide your email address{% endif %}.</p>
 			
 			<p>Some people prefer to keep their political activity and opinions anonymous. If this describes you, please choose a screen name that is not personally identifiable.</p>
 	

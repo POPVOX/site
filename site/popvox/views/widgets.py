@@ -46,7 +46,8 @@ def commentmapus(request):
 	
 	import widgets_usmap
 	mapscale = 720.0 / widgets_usmap.map_scale[0]
-	yoffset = 192 # ??
+	xoffset = 5
+	yoffset = 196
 	
 	for district in count:
 		# Some invalid congressional districts!
@@ -58,7 +59,7 @@ def commentmapus(request):
 		
 		count[district]["class"] = chartcolor(count[district]["sentiment"], float(count[district]["+"] + count[district]["-"]) / float(max_count))
 			
-		count[district]["coord"] = { "left": int(widgets_usmap.district_locations[district][0]*mapscale),  "top": int(widgets_usmap.district_locations[district][1]*mapscale)-yoffset }
+		count[district]["coord"] = { "left": int(widgets_usmap.district_locations[district][0]*mapscale)-xoffset,  "top": int(widgets_usmap.district_locations[district][1]*mapscale)-yoffset }
 		
 		count[district]["href"] = "state=" + district[0:2] + "&district=" + district[2:]
 		

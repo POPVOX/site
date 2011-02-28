@@ -37,12 +37,13 @@ def verify_adddress(address):
 	last_response = ret
 	
 	if ret["ReturnCode"] not in (100, 101, 102, 103):
-		raise ValueError("The address was not found.")
-	
-	if ret["ResidentialDeliveryIndicator"] == "N":
-		raise ValueError("This address is believed to be a commercial delivery address. Use a residental address.")
+		raise ValueError("We couldn't determine the Congressional district at that address. Make sure you haven't abbreviated the name of your street or city.")
 	
 	address.cdyne_return_code = ret["ReturnCode"]
+
+	if ret["ResidentialDeliveryIndicator"] == "N":
+		#raise ValueError("This address is believed to be a commercial delivery address. Use a residental address.")
+		address.cdyne_return_code = 900 # for us
 	
 	# Correct fields...
 	for a, b in [('address1', 'PrimaryDeliveryLine'), ('address2', 'SecondaryDeliveryLine'), ('city', 'PreferredCityName'), ('state', 'StateAbbreviation'), ('zipcode', 'ZipCode'), ('county', 'County')]:

@@ -26,6 +26,9 @@
 		</div>
 	</div>
 	
+	<div class="clear"> </div>
+	<h3 class="no_rule">Search Results</h3>
+
 	{% if not bills %}
 	<p>Sorry, no bills matched your search.</p>
 	{% endif %}
@@ -38,8 +41,6 @@
 	<p>The search function had an internal error.</p>
 	{% endif %}
 	
-	<div class="clear"> </div>
-	<h2>Your Search Results</h2>
 	<table width="100%">
 	{% for bill in bills %}
 		<tr class="bill">

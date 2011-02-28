@@ -2,7 +2,12 @@
 {% block title %}POPVOX - Media{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}Media coverage of POPVOX.{% endblock %}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
+{% block head %}
+<style>
+.bullets li a { color: #CC6A11; letter-spacing: 1px; font-size: 14px; text-decoration: underline }
+.bullets li a:hover { border: none }
+</style>
+{% endblock %}
 {% block content %}
 
 <div class="content">
@@ -15,18 +20,43 @@
 <h3>Here&rsquo;s what the press thinks!</h3>
 
 <ul class="bullets">
-	<li>February 24, 2011. Fast Company: <a href="http://www.fastcompany.com/1722401/25-women-run-startups-to-watch">25 Women-Run Startups to Watch</a>, by Allyson Kapin.</li>
-	<li>February 11, 2011. Tech Cocktail: <a href="http://techcocktail.com/dc-startup-popvox-delivers-your-message-to-congress-2011-02">DC Startup POPVOX Delivers Your Message to Congress</a>, by Monika Jansen.</li>
-	<li>November 24, 2010. techPresident: <a href="http://techpresident.com/blog-entry/can-we-people-use-internet-make-congress-smarter" class="blank">Can We the People Use the Internet to Make Congress Smarter?</a>, by Nancy Scola.</li>
-	<li>November 16, 2010. gov20.govfresh: <a href="http://gov20.govfresh.com/popvox-tries-to-bring-the-voice-of-the-people-into-congress/" class="blank">POPVOX tries to bring the voice of the people into Congress</a>, by Alex Howard.</li>
-	<li>October 28, 2010. eDemocracyBlog: <a href="http://www.edemocracyblog.com/edemocracy-blog/fixing-broken-political-communication/" class="blank">Fixing 'broken political communication'</a>.</li>
-	<li>October 25, 2010. Huffington Post: <a href="http://www.huffingtonpost.com/jake-brewer/the-tragedy-of-political_b_773734.html" class="blank">The Tragedy of Political Advocacy</a>, by Jake Brewer.</li>
-	<li>Aug 27, 2010. IBM Center for The Business of Government: <a href="http://www.businessofgovernment.org/blog/implementation-recovery-act/can-you-hear-me-now" class="blank">Can you hear me now?</a></li>
+	<li><a href="http://www.fastcompany.com/1722401/25-women-run-startups-to-watch" class="blank">25 Women-Run Startups to Watch</a>
+	<div>February 24, 2011. In <b>Fast Company</b>, by Allyson Kapin.</div></li>
+	<li><a href="http://techcocktail.com/dc-startup-popvox-delivers-your-message-to-congress-2011-02" class="blank">DC Startup POPVOX Delivers Your Message to Congress</a>
+	<div>February 11, 2011. In <b>Tech Cocktail</b>, by Monika Jansen.</div></li>
+	<li><a href="http://techpresident.com/blog-entry/can-we-people-use-internet-make-congress-smarter" class="blank">Can We the People Use the Internet to Make Congress Smarter?</a>
+	<div>November 24, 2010. In <b>techPresident</b>, by Nancy Scola.</div></li>
+	<li><a href="http://gov20.govfresh.com/popvox-tries-to-bring-the-voice-of-the-people-into-congress/" class="blank">POPVOX tries to bring the voice of the people into Congress</a>
+	<div>November 16, 2010. In <b>gov20.govfresh</b>, by Alex Howard.</div></li>
+	<li><a href="http://www.edemocracyblog.com/edemocracy-blog/fixing-broken-political-communication/" class="blank">Fixing 'broken political communication'</a>
+	<div>October 28, 2010. In <b>eDemocracyBlog</b></div></li>
+	<li><a href="http://www.huffingtonpost.com/jake-brewer/the-tragedy-of-political_b_773734.html" class="blank">The Tragedy of Political Advocacy</a>
+	<div>October 25, 2010. In <b>Huffington Post</b>, by Jake Brewer.</div></li>
+	<li><a href="http://www.businessofgovernment.org/blog/implementation-recovery-act/can-you-hear-me-now" class="blank">Can you hear me now?</a>
+	<div>Aug 27, 2010. In <b>IBM Center for The Business of Government</b></div></li>
 </ul>
 
 </div>
 
-{% include "ads/rightbar.html" %}
+	<div class="col_3 col_top col_last">
+		<div class="sub">
+			<h2>MEDIA KIT</h2>
+			<ul class="sub_side">
+				<li><a href="/about/howitworks">What POPVOX Does</a></li>
+				<li><a href="/about/team">Team Bios</a></li>
+				<li><a href="/about/principles">Company Principles</a></li>
+				<li>Logo: <a href="/media_kit/POPVOX_LOGO-V_RGB.png">Low Res (PNG)</a>,
+				High Res: <a href="/media_kit/POPVOX_LOGO-V_CMYK.jpg">JPEG</a> (888k),
+				 <a href="/media_kit/POPVOX_LOGO-V_CMYK.eps">EPS</a> (564k)</li>
+			</ul>
+		</div>
+		<div class="sub">
+			<h2>ADDITIONAL INFO</h2>
+			<ul class="sub_side">
+				<li><a href="/blog">Our Blog</a></li>
+			</ul>
+		</div>
+	</div>
 
 </div>
 

@@ -13,7 +13,7 @@ $(function() {
 		type:"POST",
 		url: "/ajax/activity",
 		data: {
-			count: 5
+			count: 8
 		},
 		complete: function(res, status) {
 			$('#activity').html(res.responseText);
@@ -76,6 +76,10 @@ $(function() {
 				<div class="hr"> </div>
 				
 				<div id="activity"> </div>
+
+				<div style="text-align: center">
+					(<a href="/activity">more</a>)
+				</div>
 			</div>
 			
 			<div class="col_6 col_last">
