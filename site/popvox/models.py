@@ -561,8 +561,9 @@ class OrgCampaignPosition(models.Model):
 	action_body = tinymce_models.HTMLField(blank=True, null=True) #models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
+	order = models.IntegerField(default=0)
 	class Meta:
-		ordering = ['campaign', '-updated', 'position', 'bill']
+		ordering = ['campaign', 'order', '-updated']
 		unique_together = (("campaign", "bill"),)
 	def __unicode__(self):
 		return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position

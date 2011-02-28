@@ -313,11 +313,23 @@ We would like to join your coalition.</textarea>
 				{% if cam.description %}<p class="campaign_description"><em>{{ cam.description }}</em></p>{% endif %}
 				{% endif %}
 				
+				<div id="agendaitems_{{cam.id}}">
 				{% for position in cam.positions.all %}
 					{% include "popvox/org_common_position.html" %}
 				{% empty %}
 					<p style="margin-left: 45px">This campaign does not have a legislative agenda.</p>
 				{% endfor %}
+				</div>
+				
+				{% if admin %}
+				<script>$( "#agendaitems_{{cam.id}}" ).sortable({
+					items: ".orgcampaignposition",
+					axis: "y",
+					containment: ".campaigns", // containing to the list prevents moving any item to the bottom
+					handle: ".b_move",
+					update: function(event,ui) { set_position_order({{cam.id}}, "{{cam.slug|escapejs}}"); }
+					}).disableSelection();</script>
+				{% endif %}
 
 				{% if not cam.visible %}<p class="error" style="margin-left: 45px">(This campaign has not yet been <a href="{{cam.url}}/_edit">published</a>. It is currently hidden from public view.)</p>{% endif %}
 

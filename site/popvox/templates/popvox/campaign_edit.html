@@ -147,7 +147,7 @@
 
 		<div class="block">
 			<h3>Legislative Agenda</h3>
-			<div style="margin: 1em 0 0 0">
+			<div id="agendaitems_{{cam.id}}" style="margin: 1em 0 0 0">
 			{% for position in cam.positions.all %}
 				{% with "true" as admin %}
 					{% include "popvox/org_common_position.html" %}
@@ -156,6 +156,14 @@
 				<p>Add legislation to your campaign by searching for a bill your organization endorses, opposes, or has a neutral position on.</p>
 			{% endfor %}
 			</div>
+	
+			<script>$( "#agendaitems_{{cam.id}}" ).sortable({
+				items: ".orgcampaignposition",
+				axis: "y",
+				containment: ".block", // containing to the list prevents moving any item to the bottom
+				handle: ".b_move",
+				update: function(event,ui) { set_position_order({{cam.id}}, "{{cam.slug|escapejs}}"); }
+				}).disableSelection();</script>
 
 			<div class="bill_search search_orange">
 				<div class="search_box">

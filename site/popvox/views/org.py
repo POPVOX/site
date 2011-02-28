@@ -588,8 +588,16 @@ def orgcampaign_updatefield(request, field, value, validate_only):
 		else:
 			html = "\n".join(["<p>" + cgi.escape(line) + "</p>" for line in value.split("\n")])
 		return { "status": "success", "html":html}
-	if field == "action" and value == "delete-campaign":
+	elif field == "action" and value == "delete-campaign":
 		cam.delete()
+		return { "status": "success" }
+	elif field == "position_order":
+		index = 0
+		for pid in value.split(","):
+			p = OrgCampaignPosition.objects.get(campaign=cam, id=pid)
+			p.order = index
+			p.save()
+			index += 1
 		return { "status": "success" }
 
 def set_last_campaign_viewed(request, cam):

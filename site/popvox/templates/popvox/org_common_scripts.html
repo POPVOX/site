@@ -1,4 +1,4 @@
-{% comment %} for endorse_oppose {% endcomment %}
+{% comment %} for endorse_oppose, reordering leg agenda items {% endcomment %}
 <script>
 function delpos(camslug, camid, id) {
 	ajax(
@@ -24,6 +24,19 @@ function setposcomment(camslug, camid, posid, comment, field, next) {
 				if (next) next();
 			}
 		}
+	);
+}
+function set_position_order(camid, camslug) {
+	var order = Array();
+	$('#agendaitems_' + camid + ' .orgcampaignposition').each(function() {
+		order.push(this.getAttribute("orgcampaignpositionid"));
+	});
+	ajax(
+		"/ajax/orgs/cam/updatefield",
+		{ org: "{{org.slug|escapejs}}",
+		   cam: camslug,
+		   name: "position_order",
+		   value: order.toString()}
 	);
 }
 </script>

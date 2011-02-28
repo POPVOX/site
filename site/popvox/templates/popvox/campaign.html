@@ -87,11 +87,20 @@
 		
 		{% if cam.positions.all %}
 		<h3>Campaign Legislative Agenda</h3>
-		<div>
+		<div id="agendaitems_{{cam.id}}">
 		{% for position in cam.positions.all %}
 			{% include "popvox/org_common_position.html" %}
 		{% endfor %}
 		</div>
+		{% if admin %}
+		<script>$( "#agendaitems_{{cam.id}}" ).sortable({
+			items: ".orgcampaignposition",
+			axis: "y",
+			containment: ".col_6", // containing to the list prevents moving any item to the bottom
+			handle: ".b_move",
+			update: function(event,ui) { set_position_order({{cam.id}}, "{{cam.slug|escapejs}}"); }
+			}).disableSelection();</script>
+		{% endif %}
 		{% endif %}
 
 		{% if admin %}

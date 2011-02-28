@@ -3740,7 +3740,8 @@ ul.staff, .small {
 		}
 		
 	.b_add,
-	.b_remove {
+	.b_remove,
+	.b_move {
 		width: 16px;
 		height: 16px;
 		text-indent: -9999em;
@@ -3757,6 +3758,10 @@ ul.staff, .small {
 			background: url(b_remove.png) left top no-repeat;
 			}
 	
+		.b_move {
+			background: url(b_arrows.png) left top no-repeat;
+			}
+			
 		.b_edit {
 			background: url(b_edit_sm.png) left top no-repeat;
 			display: block;
