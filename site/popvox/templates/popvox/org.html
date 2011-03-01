@@ -211,6 +211,39 @@ We would like to join your coalition.</textarea>
 			</ul>
 		</div>
 		{% endcomment %}
+
+		
+		{% if org.contacts.all %}
+		<div class="block"> 
+			<h3>Contacts</h3>
+		{% if admin or user.userprofile.is_leg_staff %}
+			<p>This information is shared only with Congressional legislative staff.</p>
+			<div class="point_people">
+			{% regroup org.contacts.all by issues.all as issues_list %}
+			{% for issue in issues_list %}
+			<h4>{{issue.grouper|join:','}}</h4> 
+			{% for contact in issue.list|dictsort:"name" %}
+				<div class="point_person">
+					{% comment %} <div class="headshot"> </div> {% endcomment %}
+					<h5>{{ contact.name }}</h5>
+					<h6>{{ contact.title }}</h6>
+					{% if not org.createdbyus %}<p class="staff_email"><a href="mailto:{{contact.email}}">{{contact.email}}</a></p>{% endif %}
+					<p class="staff_number">{{contact.phonenumber}}</p>
+				</div>
+			{% endfor %}
+			{% endfor %}
+
+			{% if org.createdbyus %}
+			<small><em>* This organization profile was set up by POPVOX and the contact information has not been verified by the organization.</em></small>
+			{% endif %}
+			</div>
+		{% else %}
+			<p>This organization&rsquo;s {{org.contacts.all|length|apnumber}} contact{% if org.contacts.all|length == 1 %} is{% else %}s are{% endif %} shared only with Congressional legislative staff.</p>
+			<p>If you have a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> email address, <a href="/accounts/register/legstaff?next={{org.url}}">register</a> to get instant access to this information.</p>
+		{% endif %}
+		</div> 
+		{% endif %}
+		
 		
 		{% if user.is_anonymous %}
 		<div class="hr2"> </div>
@@ -351,43 +384,6 @@ We would like to join your coalition.</textarea>
 				</div>
 			</div>
 			{% endif %}			
-		</div> 
-		{% endif %}
-		
-		
-		{% if org.contacts.all %}
-		<div class="block"> 
-			<h3>Contacts</h3>
-			
-			{% if admin or user.userprofile.is_leg_staff %}
-				<p>This information is shared only with Congressional legislative staff.</p>
-				
-				<div class="point_people">
-				{% regroup org.contacts.all by issues.all as issues_list %}
-				{% for issue in issues_list %}
-				<h4>{{issue.grouper|join:','}}</h4> 
-				{% for contact in issue.list|dictsort:"name" %}
-					<div class="point_person">
-						{% comment %} <div class="headshot"> </div> {% endcomment %}
-						<h5>{{ contact.name }}</h5>
-						<h6>{{ contact.title }}</h6>
-						{% if not org.createdbyus %}<p class="staff_email"><a href="mailto:{{contact.email}}">{{contact.email}}</a></p>{% endif %}
-						<p class="staff_number">{{contact.phonenumber}}</p>
-					</div>
-				{% endfor %}
-				{% endfor %}
-
-				{% if org.createdbyus %}
-				<small><em>* This organization profile was set up by POPVOX and the contact information has not been verified by the organization.</em></small>
-				{% endif %}
-				</div>
-
-			{% else %}
-
-				<p>This organization&rsquo;s {{org.contacts.all|length|apnumber}} contact{% if org.contacts.all|length == 1 %} is{% else %}s are{% endif %} shared only with Congressional legislative staff.</p>
-				<p>If you have a <tt>@mail.house.gov</tt> or <tt>@senate.gov</tt> email address, <a href="/accounts/register/legstaff?next={{org.url}}">register</a> to get instant access to this information.</p>
-				
-			{% endif %}
 		</div> 
 		{% endif %}
 	

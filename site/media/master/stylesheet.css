@@ -1370,9 +1370,7 @@ look in master/_map_style.css
 			    margin-right: 5px;
 			    padding: 0 0 0 20px;
 				}
-
-
-					
+				
 		.content .campaigns p.view_report,
 		.content .campaigns p.chart_stats {
 			padding-left: 0;
@@ -3756,6 +3754,10 @@ ul.staff, .small {
 
 		.b_remove {
 			background: url(b_remove.png) left top no-repeat;
+			}
+			
+		.b_move {
+			background: url(b_arrows.png) left top no-repeat;
 			}
 	
 		.b_move {
