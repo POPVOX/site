@@ -7,9 +7,12 @@
 <script>
 	var curtab = null;
 	function showtab(tab) {
+		if (curtab == "LOADING") return false;
+		
+		curtab = "LOADING";
+		
 		$('.tab_tab li').removeClass('active');
 		$('#tab_' + tab).addClass('active');
-		curtab = tab;
 		
 		tinyMCE.execCommand("mceRemoveControl", false, "doctext");
 		$('#doctitle, #doctext, #doclink').val('');
@@ -20,9 +23,11 @@
 			url: "/ajax/bills/getdoc" + window.location.search, // copy any GET parameters like org=
 			data: {
 				"billid": {{bill.id}},
-				"doctype": curtab
+				"doctype": tab
 			},
 			complete: function(res, status) {
+				curtab = tab;
+				
 				$('#doctitle, #doctext, #doclink, #submitbutton').attr('disabled', '');
 				tinyMCE.execCommand("mceAddControl", false, "doctext");
 				
@@ -31,6 +36,9 @@
 					$('#doctitle').val(res.title);
 					$('#doctext').val(res.text);
 					$('#doclink').val(res.link);
+					$('#deletebutton').fadeIn();
+				} else {
+					$('#deletebutton').hide();
 				}
 			}
 		});
@@ -42,6 +50,8 @@
 	}
 
 	function uploaddoc(validate) {
+		if (curtab == "LOADING") return false;
+		
 		ajaxform("/ajax/bills/upload" + window.location.search,
 			{
 				"billid": {{bill.id}},
@@ -58,17 +68,28 @@
 				savebutton: "submitbutton",
 				statussuccess: (validate ? null : "Saved."),
 				success: function(res) {
-					if (res.action == "upload")
+					if (res.action == "upload") {
 						$('#tab_' + curtab + ' span').fadeIn();
-					else if (res.action == "delete") {
+						$('#deletebutton').fadeIn();
+					} else if (res.action == "delete") {
 						$('#tab_' + curtab + ' span').fadeOut();
 						$('#errorlabel').text("Document removed.");
+						$('#deletebutton').fadeOut();
 					}
 				}
 			}
 			);
 		return false;
-	}	
+	}
+	
+	function deletedoc() {
+		if (!confirm("Do you want to delete this document?")) return;
+		
+		$('#doctitle, #doclink').val('');
+		tinyMCE.get('doctext').setContent("") 
+		
+		uploaddoc(false);
+	}
 </script>
 {% endblock %}
 {% block content %}
@@ -114,9 +135,10 @@
 			<input id="doclink" type="text" class="c6"/>
 			<small>(Optionally provide a link to a PDF or HTML page that you host on your own website.)</small>
 			
+			<input id="deletebutton" type="button" class="submit" value="Delete" onclick="deletedoc()" style="float: right"/>
 			<input id="submitbutton" type="submit" class="submit" value="Upload"/>
 			
-			<p class="error" id="errorlabel"> </p>
+			<p class="error clear" id="errorlabel"> </p>
 		</form>
 		
 		<div class="clear"> </div>
