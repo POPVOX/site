@@ -158,7 +158,7 @@ POPVOX
 		if request.user.is_staff: # redirect to admin page for the new org
 			return HttpResponseRedirect(django.core.urlresolvers.reverse('admin:popvox_org_change', args=(self.org.id,)))
 		return HttpResponse("Org approved!", mimetype="text/plain")
-		
+
 # This object is stored in the email verification app's model as a picked stream
 # so if we want to add more fields, put them in etcetera or version the class
 # (but possibly keep this one in case there are existing records).
@@ -256,66 +256,7 @@ sorry for the inconvenience.)"""
 			role.save()
 			
 		if self.mode == "orgstaff":
-			# De-dup based on the web address. If it's new, create a new Org.
-			org = None
-			
-			dedupset = [self.orgwebsite, self.orgwebsite.replace("http://www.", "http://"), self.orgwebsite.replace("http://", "http://www.")]
-			for url in list(dedupset):
-				if url.endswith("/"):
-					dedupset.append(url[0:len(url)-1])
-				else:
-					dedupset.append(url+"/")
-
-			for url in dedupset:
-				try:
-					org = Org.objects.get(website = url)
-					break
-				except:
-					pass
-				
-			if org != None:
-				# If the org is existing, then we don't need to approve the org
-				# but we do need to approve the user's role.
-				a2 = ApproveOrgRoleCallback()
-				a2.user = user
-				a2.org = org
-				a2.title = self.title
-				if not is_repeat_click:
-					send_email_verification(MANAGERS[0][1], None, a2)
-				
-				redirect = "/accounts/register/needs_approval"
-			elif not is_repeat_click:
-				# If the org is new, then we automatically accept the person as
-				# an administrator for the organization BUT we require that
-				# the org be approved by us.
-				
-				org = Org()
-				org.name = self.orgname
-				org.website = self.orgwebsite
-				org.type = self.orgtype
-				org.claimedmembership = self.orgclaimedmembership
-				org.set_default_slug()
-				org.createdbyus = False
-				org.approved = False
-				org.save()
-				
-				role = UserOrgRole()
-				role.user = user
-				role.org = org
-				role.title = self.title
-				role.save()
-				
-				redirect = org.url() + "/_edit"
-				
-				a2 = ApproveOrgCallback()
-				a2.user = user
-				a2.org = org
-				send_email_verification(MANAGERS[0][1], None, a2)
-			else:
-				# The org is new, and this is a repeat-click, so we're just
-				# getting the slug to redirect the user.
-				org = Org.objects.get(website = self.orgwebsite)
-				redirect = org.url() + "/_edit"
+			redirect = self.register_org(request, user)
 
 		user = authenticate(user_object = user) # registration app auth backend
 		login(request, user)
@@ -324,6 +265,69 @@ sorry for the inconvenience.)"""
 			messages.success(request, "Welcome to POPVOX!")
 		
 		return HttpResponseRedirect(redirect)
+
+	def register_org(self, request, user):
+		# De-dup based on the web address. If it's new, create a new Org.
+		org = None
+		
+		dedupset = [self.orgwebsite, self.orgwebsite.replace("http://www.", "http://"), self.orgwebsite.replace("http://", "http://www.")]
+		for url in list(dedupset):
+			if url.endswith("/"):
+				dedupset.append(url[0:len(url)-1])
+			else:
+				dedupset.append(url+"/")
+	
+		for url in dedupset:
+			try:
+				org = Org.objects.get(website = url)
+				break
+			except:
+				pass
+		
+		if org != None and user.orgroles.filter(org = org).exists():
+			# the user is already an admin for the org
+			messages.success(request, "You are already an administrator for this organization,")
+			redirect = org.url() + "/_edit"
+			
+		elif org != None:
+			# If the org is existing, then we don't need to approve the org
+			# but we do need to approve the user's role.
+			a2 = ApproveOrgRoleCallback()
+			a2.user = user
+			a2.org = org
+			a2.title = self.title
+			send_email_verification(MANAGERS[0][1], None, a2)
+			redirect = "/accounts/register/needs_approval"
+			
+		else:
+			# If the org is new, then we automatically accept the person as
+			# an administrator for the organization BUT we require that
+			# the org be approved by us.
+			
+			org = Org()
+			org.name = self.orgname
+			org.website = self.orgwebsite
+			org.type = self.orgtype
+			org.claimedmembership = self.orgclaimedmembership
+			org.set_default_slug()
+			org.createdbyus = False
+			org.approved = False
+			org.save()
+			
+			role = UserOrgRole()
+			role.user = user
+			role.org = org
+			role.title = self.title
+			role.save()
+			
+			redirect = org.url() + "/_edit"
+			
+			a2 = ApproveOrgCallback()
+			a2.user = user
+			a2.org = org
+			send_email_verification(MANAGERS[0][1], None, a2)
+			
+		return redirect
 
 def register(request, regtype):
 	# regtype can be "/orgstaff" or "/legstaff". Show the appropriate template.
@@ -353,26 +357,38 @@ def legstaffemailcheck(value):
 		return False
 	return True
 
+from popvox import printexceptions
+
 @json_response
+@printexceptions
 def register_validation(request):
 	status = { }
 	
-	password = validate_password(request.POST["password"], fielderrors = status)
-	if password != request.POST["password2"]:
-		status["password"] = "The passwords didn't match. Check that you entered it twice correctly."
-	email = validate_email(request.POST["email"], fielderrors = status)
-	
-	if request.POST["mode"] == "":
-		username = validate_username(request.POST["username"], fielderrors = status)
+	if request.POST["mode"] == "orgstaff" and request.user.is_authenticated():
+		email = None
+		username = None
+		password = None
 		
-		if legstaffemailcheck(email):
-			status["email"] = "Congressional staff should register in the Congressional Staffer section. Click the Congressional Staffer button at the top of the page."
+		if not request.user.orgroles.all().exists():
+			# not sure where to put this status
+			status["fullname"] = "You cannot register an organization under an invidual or legislative staff account. Contact POPVOX staff for assistance."
 		
 	else:
-		# for leg staff and org staff, we'll use the email address for the username
-		# too, since we never actually use it for anything but Django needs it.
-		username = email
-	
+		password = validate_password(request.POST["password"], fielderrors = status)
+		if password != request.POST["password2"]:
+			status["password"] = "The passwords didn't match. Check that you entered it twice correctly."
+		email = validate_email(request.POST["email"], fielderrors = status)
+		
+		if request.POST["mode"] == "":
+			username = validate_username(request.POST["username"], fielderrors = status)
+		else:
+			# for leg staff and org staff, we'll use the email address for the username
+			# too, since we never actually use it for anything but Django needs it.
+			username = email
+			
+		if request.POST["mode"] != "legstaff" and legstaffemailcheck(email):
+			status["email"] = "Congressional staff should register in the Congressional Staffer section. Click the Congressional Staffer button at the top of the page."
+		
 	axn = RegisterUserAction()
 	axn.email = email
 	axn.username = username
@@ -396,7 +412,7 @@ def register_validation(request):
 	if request.POST["mode"] == "orgstaff":
 		axn.mode = "orgstaff"
 
-		axn.fullname = test_field_provided(request, "fullname", fielderrors = status)
+		axn.fullname = test_field_provided(request, "fullname", fielderrors=status)
 
 		axn.orgname = test_field_provided(request, "orgname", fielderrors=status)
 		
@@ -413,13 +429,23 @@ def register_validation(request):
 		
 		axn.title = test_field_provided(request, "title", fielderrors=status)
 
-		axn.orgtype = int(test_field_provided(request, "orgtype", fielderrors=status))
+		axn.orgtype = test_field_provided(request, "orgtype", fielderrors=status)
+		try:
+			axn.orgtype = int(axn.orgtype)
+		except:
+			pass
 		axn.orgclaimedmembership = test_field_provided(request, "orgclaimedmembership", fielderrors=status)
 		
 	if len(status) != 0:
 		return { "status": "fail", "byfield": status }
 	
 	validate_captcha(request)
+	
+	if request.user.is_authenticated() and request.POST["mode"] == "orgstaff":
+		# If the user is already logged in and attempts to register an organization,
+		# skip the part about creating a new account.
+		redirect = axn.register_org(request, request.user)
+		return { "status": "success", "redirect": redirect }
 
 	try:
 		send_email_verification(email, None, axn)

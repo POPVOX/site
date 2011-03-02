@@ -19,9 +19,11 @@ function submit_registration() {
 		   {% if mode == "" %}
 		   "username": "#username",
 		   {% endif %}
+		   {% if mode != "orgstaff" or request.user.is_anonymous %}
 		   "password": "#password",
 		   "password2": "#password2",
 		   "email": "#email",
+		   {% endif %}
 		   {% if mode == "legstaff" %}
 		   "fullname": "#fullname",
 		   "member": "#member",
@@ -41,9 +43,12 @@ function submit_registration() {
 		{
 			statusfield: "errorlabel",
 			savebutton: "submitbutton",
-			success: function() {
+			success: function(res) {
 				$('#submitbutton').attr('disabled', '1');
-				document.location = "/accounts/register/check_inbox?email=" + escape($("#email").val());
+				if (!res.redirect) 
+					document.location = "/accounts/register/check_inbox?email=" + escape($("#email").val());
+				else
+					document.location = res.redirect;
 			}
 		});
 }
@@ -92,6 +97,8 @@ function submit_registration() {
 			<small>Your screen name is how you are known publicly on POPVOX when you leave a public comment on legislation. Screen names must be at least five characters and cannot contain spaces.</small>
 			{% endif %}
 			
+			{% if mode != "orgstaff" or request.user.is_anonymous %}
+			
 			<label for="email">email</label>
 			<input type="text" class="c4" id="email"/><br />
 			<div id="errorlabel_email" class="error"> </div>
@@ -112,9 +119,18 @@ function submit_registration() {
 			<input type="password" class="c3" id="password2"/><br />
 			<div id="errorlabel_password" class="error"> </div>
 			
+			{% endif %}
+			
+			{% if mode == "orgstaff" and request.user.is_authenticated and request.user.orgroles.all.exists %}
+			<p>You will be adding this organization to your acount <tt>{{request.user.email}}</tt>. If you would like to administer the organization under a different email address, <a href="/accounts/logout?next={{request.path}}">log out first</a>.</p>
+			{% endif %}
+			{% if mode == "orgstaff" and request.user.is_authenticated and not request.user.orgroles.all.exists %}
+			<p><strong>You cannot register an organization under your <tt>{{request.user.email}}</tt> account. You must <a href="/accounts/logout?next={{request.path}}">log out first</a> and create a new account.</strong></p>
+			{% endif %}
+			
 			{% if mode == "orgstaff" or mode == "legstaff" %}
 			<label for="fullname">full name</label>
-			<input type="text" id="fullname" class="c4"/>
+			<input type="text" id="fullname" class="c4" value="{% if request.user.userprofile.fullname %}{{request.user.userprofile.fullname}}{% endif %}"/>
 			<div id="errorlabel_fullname" class="error"> </div>
 			{% endif %}
 			
@@ -215,7 +231,7 @@ function submit_registration() {
 		<small style="margin-top: 2em"l>We&rsquo;ll send you an email to confirm your email address once you click Submit. Click the link in the email once you get it.</small>
 		<input id="submitbutton" type="button" value="Submit" onclick="submit_registration()" class="submit"/>
 		
-		<p id="errorlabel" class="error"></p>
+		<p id="errorlabel" class="error clear"></p>
 	</div>
 	
 	<div class="clear"> </div>
