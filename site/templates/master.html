@@ -115,7 +115,6 @@
 {% include "feedback/button.html" %}
 
 <div id="wrap"> 
-	
 	<div id="head"> 
 		<a href="/" id="logo">POPVOX</a>
 		<div id="beta">beta</div> 
@@ -150,15 +149,22 @@
 				{% endif %}
 				{% if user.userprofile.is_org_admin %}
 					<li class="{%block nav_orgadmin_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>
-					{% for role in user.orgroles.all %}
-						<li class="{%block nav_orgadmin_class_profile%}{%endblock%}"><a href="{{role.org.url}}">
-							{% if user.orgroles.all|length == 1 %}
-								Profile
-							{% else %}
-								{{role.org.slug}}
-							{% endif %}				
-						</a></li>
-					{% endfor %}
+					<li id="master_profile_orglist_li" class="{%block nav_orgadmin_class_profile%}{%endblock%}"
+					{% if user.orgroles.all|length == 1 %}
+					><a href="{{role.org.url}}">Profile</a></li>
+					{% else %}
+					onmouseover="$('#master_profile_orglist').show();"><a href="#" onclick="return false;">Profile</a>
+						<div id="master_profile_orglist" style="display: none; position: absolute; z-index: 999; left: 180px; top: 45px; width: 300px;">
+							<div style="height: 19px;"> </div> 
+							<div style="background-color: black; padding: .5em 1em .75em 1em">
+							{% for role in user.orgroles.all %}
+								<div style="margin: .5em"><a href="{{role.org.url}}">{{role.org.name}}</a></div>
+							{% endfor %}
+							</div>
+						</div>
+						<script>$('#master_profile_orglist_li').mouseleave(function() { $('#master_profile_orglist').fadeOut() });</script>					
+					</li>
+					{% endif %}
 					<li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/home/reports">Reports</a></li>
 					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Find Orgs</a></li>
 					<li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Find Bills</a></li>

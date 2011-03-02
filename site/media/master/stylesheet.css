@@ -132,14 +132,14 @@ body.grid {
 		float: left;
 		}
 		
-		#nav_2 li {
+		#nav_2>li {
 			float: left;
 			margin: 0;	
 			padding: 0 5px;
 			background: url(bg_nav2_active.png) right top no-repeat;
 		}
 		
-		#nav_2 li a{
+		#nav_2>li>a{
 			float: left;
 			height: 35px;
 			line-height: 24px;
@@ -151,7 +151,7 @@ body.grid {
 			text-transform: uppercase;
 		}
 		
-			#nav_2 li a:hover, #nav_2 li.active a {
+			#nav_2>li>a:hover, #nav_2>li.active>a {
 				background: url(bg_nav2_active.png) center top no-repeat;
 				color: #e47816;
 				}
@@ -235,11 +235,11 @@ body.grid {
 		text-indent: -9999em;
 		}
 
-#nav a, #nav_2 a, #logo, #footer a {
+#nav a, #nav_2>li>a, #logo, #footer a {
 	border: none;
 	}
 	
-	#nav a:hover, #nav_2 a:hover, #logo:hover {
+	#nav a:hover, #nav_2>li>a:hover, #logo:hover {
 		text-decoration: none;
 		}
 		
