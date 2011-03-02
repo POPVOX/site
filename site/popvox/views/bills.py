@@ -299,8 +299,8 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 	
 		# Get a time-series. Get the time bounds --- use the national data for the
 		# time bounds so that if we display multiple charts together they line up.
-		firstcommentdate = bill.usercomments.filter(created__lt=enddate).order_by('created')[0].created
-		lastcommentdate = bill.usercomments.filter(created__lt=enddate).order_by('-created')[0].updated
+		firstcommentdate = bill.usercomments.filter(created__lte=enddate).order_by('created')[0].created.date()
+		lastcommentdate = bill.usercomments.filter(created__lte=enddate).order_by('-created')[0].updated.date()
 		
 		# Compute a bin size (i.e. number of days per point) that approximates
 		# ten comments per day, but with a minimum size of one day.
@@ -313,11 +313,11 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		# Bin the observations.
 		bins = { }
 		for c in all_comments:
-			days = int(round((c.created - firstcommentdate).days / binsize) * binsize)
+			days = int(round((c.created.date() - firstcommentdate).days / binsize) * binsize)
 			if not days in bins:
 				bins[days] = { "+": 0, "-": 0 }
 			bins[days][c.position] += 1
-		ndays = (lastcommentdate - firstcommentdate).days
+		ndays = (lastcommentdate - firstcommentdate).days + 1
 		time_series = {
 			"xaxis": [(firstcommentdate + timedelta(x)).strftime("%x") for x in xrange(0, ndays)],
 			"pro": [sum([bins[y]["+"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
