@@ -620,6 +620,8 @@ def send_message_webform(di, msg, deliveryrec):
 	for k, v in field_map.items():
 		postdata[k] = getattr(msg, v)
 		
+		if v == "suffix" and field_options[k] != None: field_options[k][""] = ""
+		
 		if field_options[k] == None or k in select_override_validate:
 			if type(postdata[k]) == tuple or type(postdata[k]) == list:
 				# take first preferred value
@@ -811,6 +813,7 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 
 	deliveryrec = DeliveryRecord()
 	deliveryrec.target = moc
+	deliveryrec.method = moc.method
 	deliveryrec.success = False
 	deliveryrec.trace = loginfo + u" to " + getMemberOfCongress(govtrackrecipientid)["sortkey"] + u" (" + unicode(govtrackrecipientid) + u")\n" + msg.xml() + u"\n\n"
 	deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE

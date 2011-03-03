@@ -9,10 +9,13 @@ class Endpoint(models.Model):
 	METHOD_WEBFORM = 1
 	METHOD_SMTP = 2
 	METHOD_HOUSE_WRITEREP = 3
+	METHOD_INPERSON = 4
+	
+	METHOD_CHOICES = [(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP"), (METHOD_INPERSON, "In-Person Delivery")]
 	
 	govtrackid = models.IntegerField(db_index=True, unique=True)
 
-	method = models.IntegerField(choices=[(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP")])
+	method = models.IntegerField(choices=METHOD_CHOICES)
 	
 	webform = models.CharField(max_length=256, blank=True, null=True)
 	webformresponse = models.CharField(max_length=256, blank=True, null=True)
@@ -42,6 +45,7 @@ class DeliveryRecord(models.Model):
 	trace = models.TextField()
 	success = models.BooleanField()
 	failure_reason = models.IntegerField(choices=[(FAILURE_NO_FAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response"), (FAILURE_NO_DELIVERY_METHOD, "No Delivery Method Available"), (FAILURE_DISTRICT_DISAGREEMENT, "District Disagreement")])
+	method = models.IntegerField(choices=Endpoint.METHOD_CHOICES)
 	next_attempt = models.OneToOneField("DeliveryRecord", blank=True, null=True, related_name="previous_attempt")
 	created = models.DateTimeField(auto_now_add=True)
 	

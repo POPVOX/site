@@ -1025,7 +1025,13 @@ class UserComment(models.Model):
 		if self.status == UserComment.COMMENT_REJECTED_REVISED:
 			return "This comment was rejected by POPVOX staff for violating our acceptable language policy. You have revised the comment, and POPVOX staff will review it soon."
 		return None
-	
+
+class UserCommentOfflineDeliveryRecord(models.Model):
+	comment = models.ForeignKey(UserComment)
+	target = models.ForeignKey(MemberOfCongress, db_index=True)
+	class Meta:
+		unique_together = (("target", "comment"),)
+
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people
 	# and committees that exist in Congress. Accessing these

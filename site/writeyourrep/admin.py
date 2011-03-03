@@ -9,13 +9,26 @@ class DeliveryRecordAdmin(admin.ModelAdmin):
 	raw_id_fields = ("target", "next_attempt")
 	readonly_fields = ("created", "target", "next_attempt") #, "trace") #, "success", "failure_reason")
 	date_hierarchy = "created"
-	list_display = ("created", "target", "success", "failure_reason")
-	list_filter = ("success", "failure_reason", "created")
+	list_display = ("created", "target", "success", "failure_reason", "method")
+	list_filter = ("success", "failure_reason", "created", "method")
+	search_fields = ('trace',)
+	actions = ['make_success', 'make_formparsefail']
 
 	def queryset(self, request):
 		qs = super(DeliveryRecordAdmin, self).queryset(request)
 		return qs.filter(next_attempt__isnull=True)
 
+	def make_success(self, request, queryset):
+		queryset.update(success=True, failure_reason=DeliveryRecord.FAILURE_NO_FAILURE)
+		return None
+	make_success.short_description = "Mark as Success"
+	
+	def make_formparsefail(self, request, queryset):
+		queryset.update(success=False, failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE)
+		return None
+	make_formparsefail.short_description = "Mark as Form Parse Fail"
+	
+	
 class SynonymRequiredAdmin(admin.ModelAdmin):
 	list_display = ("term1set", "term2set")
 	def save_model(self, request, obj, form, change):

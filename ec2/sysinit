@@ -27,7 +27,8 @@ sudo apt-get install -y \
 	git-core subversion mercurial \
 	libapache2-mod-wsgi python-flup \
 	python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown \
-	memcached python-memcache 
+	memcached python-memcache \
+	texlive-latex-base
 
 # Custom packages
 DJANGO=python-django_1.2.5-1ubuntu1_all.deb
