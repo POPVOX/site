@@ -60,14 +60,14 @@
 			<h4>First Time Here?</h4>
 			
 			<div id="create_acct_social" {% if newaccount_error %}style="display: none"{% endif %}>
-			<p>Sign in using one of these services if you have a Google, Facebook, Twitter, or LinkedIn account you want to use to log in at POPVOX:</p>
+			<p>Sign in using one of these services*:</p>
 			<div class="signin_social" style="float: none">
 			{% include "registration/login_singlesignon.html" %}
 			</div>
 			
 			<p class="float_text"><a href="#" onclick="$('#create_account').show(); $('#create_acct_social, #returning_user').hide(); return false;">Don't recognize this?</a></p>
 			
-			<p class="clear pad_top"><small>We won&rsquo;t email your contacts or post your comment to your profile on these sites without your permission.</small></p>
+			<p class="clear pad_top"><small>*We won&rsquo;t email your contacts or post your comment to your profile on these sites without your permission.</small></p>
 			</div>
 		</div>
 			
@@ -129,7 +129,7 @@
 			<div class="clear mar_top"> </div>
 			
 			<div class="form signinup">
-				<p class="create_text"><strong>or provide your POPVOX email and password if you didn&rsquo;t use one of the services above:</strong></p>
+				<p class="create_text"><strong>or provide your POPVOX email and password</strong> if you didn&rsquo;t use one of the services above:</p>
 
 				<label for="login_email">email</label>
 				<input class="c2" type="text" id="login_email" value="{{email}}"/><br />

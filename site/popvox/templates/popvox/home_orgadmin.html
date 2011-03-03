@@ -42,27 +42,11 @@
 						<h4><a href="{{pos.bill.url}}">{{pos.bill.title|truncatewords:10}}</a> <span>({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '0' %}Neutral{% endif %})</span></h4>
 						
 						{% bill_statistics pos.bill as stats %}
-						{% if stats %}
-							<a href="{{pos.bill.url}}/report">
-								<div id="chart-container--{{cam.id}}-{{pos.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-							</a>
-							<script>bill_chart("chart-container--{{cam.id}}-{{pos.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
-							
-							<div class="chart_info">
-								<div class="col_chart" style="width: 300px">
-									<p class="chart_stats">
-										<span class="chart_title">{{stats.longdescription}}: <span class="users">({{stats.total}} users)</span></span><br />
-										<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-										<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-									</p>
-								 </div>
-							</div>
-						{% else %}
-							<div class="no_pie" style="height: 80px">
-							<small>Not enough individuals have commented on this bill yet to display statistics. For details, view the <a href="{{pos.bill.url}}/report">Bill Report</a>.</small>
-							</div>
-						{% endif %}
-						<div class="clear"> </div>
+						{% with pos.bill as bill %}
+						{% with pos.id as chart_id %}
+							{% include "popvox/bill_statistics_pie_simple.html" %}
+						{% endwith %}
+						{% endwith %}
 					</div>
 					{% if not forloop.last %}
 					<div class="hr"> </div>

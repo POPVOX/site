@@ -4,35 +4,11 @@
 {% bill_statistics bill as stats %}
 
 <h4>Constituent Sentiment</h4>
-
-{% if stats %}
-		<div style="width: 90px; float: left">
-			<a href="{{bill.url}}/report">
-				<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-			</a>
-			<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true, bg: "#d9d6d2" });</script>
-		</div>
-		
-		<div class="chart_info">
-			<div class="col_chart">
-				<p class="chart_stats">
-					<span class="chart_title">{{stats.longdescription}}:</span><br />
-					<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-					<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-					<span class="users">({{stats.total}} users)</span>
-				</p>
-			</div>
-		</div>
-		
-		<p class="view_report clear" style="padding: 0">
-			<span><a href="{{bill.url}}/report">View Report</a></span>
-		</p>
-{% else %}
-	<div class="no_pie" style="height: 80px">
-	<small>Too few constituents have commented on this bill to display statistics.
-	For details, view the <a href="{{bill.url}}/report">Bill Report</a>.</small>
-	</div>
-{% endif %}
+{% with "{ small: true, bg: '#d9d6d2' }" as chart_opts %}
+{% with bill.id as chart_id %}
+	{% include "popvox/bill_statistics_pie_simple.html" %}
+{% endwith %}
+{% endwith %}
 
 {% for item in items %}
 	{% if item|pythontype == 'popvox.models.UserComment' %}

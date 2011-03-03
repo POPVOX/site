@@ -44,26 +44,7 @@
 		{% if stats %}
 		<div class="col_4" style="padding: 0">
 			<h3>What Others Think</h3>
-			<div>
-				<a href="{{bill.url}}/report">
-					<div id="chart-container--{{bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-				</a>
-				<script>bill_chart("chart-container--{{bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
-				
-				<div class="chart_info">
-					<div class="col_chart">
-						<p class="chart_stats">
-							<span class="chart_title">{{stats.longdescription}}:</span><br />
-							<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-							<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-							<span class="users">({{stats.total}} users)</span>
-						</p>
-						<!--<p class="view_report">
-							<span><a href="{{billrec.bill.url}}/report">View Report</a></span>
-						</p>-->
-					</div>
-				</div>
-			</div>
+			{% include "popvox/bill_statistics_pie_simple.html" %}
 		</div>
 		{% endif %}
 		

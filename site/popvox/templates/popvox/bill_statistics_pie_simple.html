@@ -1,0 +1,33 @@
+{% if stats.total %}
+	<div class="chart_info">
+		<div style="float: left; width: 95px; margin-right: 15px">
+			<a href="{{bill.url}}/report">
+				<div id="chart-container{{chart_id}}" style="width: 95px; height: 95px"></div>
+				<script>bill_chart('chart-container{{chart_id}}', {{stats.pro_pct}}, {{stats.con_pct}} {% if chart_opts %}, {{chart_opts}}{% endif %});</script>
+			</a>
+		</div>
+		 <div style="float: left; width: 110px">
+			<p class="chart_stats">
+				<span class="chart_title">{{ stats.longdescription}}:</span><br />
+				<span class="bg_support">{{ stats.pro_pct }}% Support</span><br />
+				<span class="bg_oppose">{{ stats.con_pct }}% Oppose </span><br />
+				<span class="users">({{stats.total}} user{{stats.total|pluralize}})</span>
+			</p>
+			 <p class="view_report">
+				<span><a href="{{bill.url}}/report">View Report &amp; Comments</a></span>
+			</p>
+		</div>
+	</div>
+{% endif %}
+{% if not stats.total and stats.pro_reintro %}
+	<div class="no_pie">
+		<p>{{stats.pro_reintro}} individuals support the reintroduction of {{bill.displaynumber}}. <a href="{{bill.url}}/report">View report</a></p>
+	</div>
+{% endif %}
+{% if not stats.total and not stats.pro_reintro %}
+	<div class="no_pie">
+		<p>Too few constituents have commented on {{bill.displaynumber}} to display statistics.<br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+	</div>
+{% endif %}
+<div class="clear"> </div>
+

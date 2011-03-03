@@ -8,6 +8,7 @@
 <script>
 var last_issue_elem = null;
 function showlist(elem, issueslug) {
+	$('#activity').hide();
 	$('#orglist_title').text($(elem).text() + " organizations:");
 	$('#orglist_list').text('');
 	if (last_issue_elem) $(last_issue_elem).removeClass('active');
@@ -45,6 +46,19 @@ function showlist(elem, issueslug) {
 		);
 	return false; // cancel click
 }
+$(function() {
+	$.ajax({
+		type:"POST",
+		url: "/ajax/activity",
+		data: {
+			comments: false,
+			count: 8
+		},
+		complete: function(res, status) {
+			$('#activity').html(res.responseText);
+		}
+	});
+});
 </script>
 {% endblock %}
 {% block content %}
@@ -90,10 +104,8 @@ function showlist(elem, issueslug) {
 					<p id="orgnote" class="pad_top" style="display: none">(Entries in bold indicate information reported by the organization itself.)</p>
 					<div id="orglist_status"></div>
 					<ul id="orglist_list" class="org_all">
-						{% for org in recent %}
-							<li><a href="{{org.url}}">{{org.name}}</a></li>
-						{% endfor %}
-					 </ul>
+					</ul>
+					<div id="activity" style="margin-top: 1.5em"></div>
 				</div>
 			</div>
 		</div>

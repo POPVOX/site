@@ -36,28 +36,12 @@
 			</div>
 			
 			{% bill_statistics sug.bill as stats %}
-			{% if stats %}
-			<div class="col_4 col_last">
-				<h5>What Others Think</h5>
-				<a href="{{sug.bill.url}}/report">
-					<div id="chart-container--{{sug.bill.id}}" class="img_chart" style="width: 75px; height: 75px"></div>
-				</a>
-				<script>bill_chart("chart-container--{{sug.bill.id}}", {{stats.pro_pct}}, {{stats.con_pct}}, { small: true });</script>
-				<div class="chart_info">
-					<div class="col_chart">
-						<p class="chart_stats">
-							<span class="chart_title">{{stats.longdescription}}:</span><br />
-							<span class="bg_support">{{stats.pro_pct}}% Support</span><br />
-							<span class="bg_oppose">{{stats.con_pct}}% Oppose </span><br />
-							<span class="users">({{stats.total}} users)</span>
-						</p>
-						<p class="view_report">
-							<span><a href="{{sug.bill.url}}/report">View Report</a></span>
-						</p>
-					</div>
-				</div>
-			</div>
-			{% endif %}
+			{% with sug.bill as bill %}
+			{% with bill.id as chart_id %}
+				{% include "popvox/bill_statistics_pie_simple.html" %}
+			{% endwith %}
+			{% endwith %}
+			
 			
 			<div class="clear"> </div>
 		</div>

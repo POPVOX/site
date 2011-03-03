@@ -922,7 +922,8 @@ h3#reporttitle {
 	
 .no_pie {
 	background: url(bg_pie_empty.png) left top no-repeat;
-	padding-left: 85px;]
+	padding-left: 85px;
+	height: 80px;
 	}	
 	
 	.no_pie a {
@@ -1481,6 +1482,7 @@ look in master/_map_style.css
 		letter-spacing: .055em;
 		color: #606065;
 		padding-top: 0;
+		background-image: none;
 		}
 		
 	.tab_pane h5 {

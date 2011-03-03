@@ -287,7 +287,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		return {
 			"shortdescription": shortdescription,
 			"longdescription": longdescription,
-			"total": pro+con, "pro":pro, "con":con,
+			"total": 0, "pro":0, "con":0,
 			"pro_pct": 0, "con_pct": 0,
 			"timeseries": None,
 			"pro_reintro": pro_reintro

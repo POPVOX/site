@@ -80,14 +80,14 @@
 			their position
 			{% if item.position == "+" %}endorsing{% endif %}{% if item.position == "-" %}opposing{% endif %}{% if item.position == "0" %}on{% endif %}
 			<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
-			{% if not item.campaign.default %}For more see their campaign <a href="{{item.campaign.url}}">{{item.campaign.name}}</a>.{% endif %}
 			{% if item.comment %}They wrote:{% endif %}
 		</p>
 		{% if item.comment %}
 			<div style="margin-left: 2em">
-				{{item.comment|wraplines:"p"|truncatewords_html:50}}
+				{{item.comment|wraplines:"p"|truncatewords_html:25}}
 			</div>
 		{% endif %}
+		{% if item.comment and not item.campaign.default %}<p>For more see their campaign <a href="{{item.campaign.url}}">{{item.campaign.name}}</a>.</p>{% endif %}
 	{% endif %}
 
 	{% if item|pythontype == 'popvox.models.PositionDocument' %}

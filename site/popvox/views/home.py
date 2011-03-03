@@ -566,37 +566,40 @@ def activity_getinfo(request):
 				if state == member["state"] and (member["type"] == "sen" or district == member["district"]):
 					can_see_user_details = True
 	
-	filters = { }
-	if state != None:
-		filters["address__state"] = state
-		if district != None:
-			filters["address__congressionaldistrict"] = district
-	
-	bill = None
-	if "bill" in request.REQUEST:
-		bill = Bill.objects.get(id = request.REQUEST["bill"])
-		filters["bill"] = bill
-		format = "_bill"
-		
-	q = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED), **filters).order_by('-created')
-
-	total_count = None
-	if format == "_bill":
-		total_count = q.count()
-	
 	count = 30
 	if "count" in request.REQUEST:
 		count = int(request.REQUEST["count"])
-	q = q[0:count]
 	
 	items = []
-	items.extend(q)
+	total_count = None
+	bill = None
+
+	if request.POST.get("comments", "true") != "false":
+		filters = { }
+		if state != None:
+			filters["address__state"] = state
+			if district != None:
+				filters["address__congressionaldistrict"] = district
+		
+		if "bill" in request.REQUEST:
+			bill = Bill.objects.get(id = request.REQUEST["bill"])
+			filters["bill"] = bill
+			format = "_bill"
+		
+		q = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED), **filters).order_by('-created')
+
+		if format == "_bill":
+			total_count = q.count()
+	
+		q = q[0:count]
+	
+		items.extend(q)
 	
 	if state == None and district == None and format != "_bill":
-		items.extend( Org.objects.filter(visible=True).exclude(slug="demo").order_by('-updated')[0:count] )
-		items.extend( OrgCampaign.objects.filter(visible=True,default=False, org__visible=True).exclude(org__slug="demo").order_by('-updated')[0:count] )
-		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True).exclude(campaign__org__slug="demo").order_by('-updated')[0:count] )
-		items.extend( PositionDocument.objects.filter(owner_org__visible=True).exclude(owner_org__slug="demo").order_by('-updated')[0:count] )
+		items.extend( Org.objects.filter(visible=True, createdbyus=False).exclude(slug="demo").order_by('-updated')[0:count] )
+		items.extend( OrgCampaign.objects.filter(visible=True, default=False, org__visible=True, org__createdbyus=False).exclude(org__slug="demo").order_by('-updated')[0:count] )
+		items.extend( OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org__visible=True, campaign__org__createdbyus=False).exclude(campaign__org__slug="demo").order_by('-updated')[0:count] )
+		items.extend( PositionDocument.objects.filter(owner_org__visible=True, owner_org__createdbyus=False).exclude(owner_org__slug="demo").order_by('-updated')[0:count] )
 		
 		items.sort(key = lambda x : x.updated, reverse=True)
 		items = items[0:count]

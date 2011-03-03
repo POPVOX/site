@@ -7,7 +7,7 @@
 	<div class="{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}{% if position.position == "0" %}neutral{% endif %}">
 		<h5><a href="{{position.bill.url}}{% if admin %}/report{% endif %}">{{ position.bill.title|truncatewords:25 }}</a></h5>
 		
-		<div id="campos_{{cam.id}}_{{position.id}}_comment" class="usercomment comment" {% if admin %}title="Click to Edit"{% endif %}>{% if position.comment %}{{position.comment|wraplines:"p"}}{% else %}{% if admin %}<em>No comment.</em>{% endif %}{% endif %}</div>
+		<div id="campos_{{cam.id}}_{{position.id}}_comment" class="usercomment comment" {% if admin %}title="Click to Edit"{% endif %}>{% if position.comment %}{{position.comment|wraplines:"p style='margin-bottom: .5em'"}}{% else %}{% if admin %}<em>No comment.</em>{% endif %}{% endif %}</div>
 				
 		{% with position.bill.getDeadReason as deadstatus %}
 			{% if deadstatus %}
