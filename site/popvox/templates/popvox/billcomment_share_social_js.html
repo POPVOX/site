@@ -43,13 +43,23 @@ function share(method, isauto) {
 	return false;
 }
 function share_tab(method) {
+	{% if not facebook %}
+	if (method == "facebook")
+		return facebook_share_simple();
+	{% endif %}
+	
+	{% if not twitter %}
+	if (method == "twitter")
+		return true;
+	{% endif %}
+	
 	if (current_share_tab == method) {
 		$('#sharetab_email').fadeOut();
 		$('#sharetab_facebook').fadeOut();
 		$('#sharetab_twitter').fadeOut();
 		$('#sharetab_message').fadeOut();
 		current_share_tab = null;
-		return;
+		return false;
 	}
 
 	$('#sharetab_email').hide();
@@ -63,6 +73,12 @@ function share_tab(method) {
 	else
 		$('#sharetab_message').hide();
 	
+	if (method == "twitter") {
+		$('#share_message').val($('#share_message').val().replace("{{comment.bill.displaynumber}}", "{{comment.bill.hashtag}}"));
+	} else {
+		$('#share_message').val($('#share_message').val().replace("{{comment.bill.hashtag}}", "{{comment.bill.displaynumber}}"));
+	}
+
 	if (method == "email")
 		$('#sharetab_message p strong').text("Send an Email");
 	if (method == "facebook")
@@ -70,6 +86,7 @@ function share_tab(method) {
 	if (method == "twitter")
 		$('#sharetab_message p strong').text("Tweet");
 	$('#sharetab_' + method).fadeIn();
+	
 	return false;
 }
 if (window.location.hash == "#twitter" || window.location.hash == "#facebook") {
@@ -80,6 +97,21 @@ if (window.location.hash == "#twitter" || window.location.hash == "#facebook") {
 		{% if message %}share(method, true){% endif %}
 		window.location.hash = "";
 	});
+}
+
+function facebook_share_simple() {
+	// based on share bookmarklet: http://www.facebook.com/share_options.php
+	var f="http://www.facebook.com/share";
+	var p=".php?src=bm&v=4&i=1299162093&u=" + encodeURIComponent("{{SITE_ROOT_URL}}{{comment.url}}") + "&t=" + encodeURIComponent(document.title);
+	a = function() {
+		if (!window.open(f+"r"+p,"sharer","toolbar=0,status=0,resizable=1,width=626,height=436"))
+			document.location.href=f+p;
+	}
+	if (/Firefox/.test(navigator.userAgent))
+		setTimeout(a,0);
+	else
+		a();
+	return false;
 }
 </script>
 

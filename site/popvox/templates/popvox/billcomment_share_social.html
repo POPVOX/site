@@ -12,14 +12,14 @@
 	
 	<ul class="social_share_btns">
 		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')" title="Facebook">facebook</a></li>
-		<li><a class="btn social_twitter" href="#" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
+		<li><a class="btn social_twitter" href="http://twitter.com/home?status={{comment.bill.hashtag|urlencode}}%20{{SITE_ROOT_URL|urlencode}}{{comment.url|urlencode}}" target="_blank" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
 		<li><a class="btn b_social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
 	</ul>
 	<div class="clear"> </div>
 	
 	<div id="sharetab_message" class="form" style="display: none">
 		<p style="margin-bottom: 0"><strong>Personalized Message to Recipients</strong></p>
-		<textarea id="share_message" class="c5">{% if message %}{{message}}{% endif %}</textarea>
+		<textarea id="share_message" class="c5" style="margin-bottom: 2px">{% if message %}{{message}}{% endif %}</textarea>
 		{% if comment.user == user and comment.message %}
 		<div>
 			<input id="share_includecomment" type="checkbox" {% if includecomment %}checked="1"{% endif %} onchange="set_message()"/>
@@ -52,7 +52,7 @@
 
 	<div id="sharetab_email" style="display: none">
 		{% if user.is_authenticated %}
-		<p style="margin-bottom: 0"><strong>Recipients&rsquo; Email Addresses</strong></p>
+		<p style="margin: 1em 0 0 0"><strong>Recipients&rsquo; Email Addresses</strong></p>
 		<div class="form">
 			<textarea id="share_email_field" class="c5"></textarea>
 			<div>
@@ -60,7 +60,7 @@
 				<span id="share_email_status" class="error"></span>
 			</div>
 			<p class="tip_inline">The email will be sent from your email address <tt>{{user.email}}</tt>.</p>
-			<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or newlines)"); $('#share_email_field').input_autosize(); });</script>
+			<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or new lines)"); $('#share_email_field').input_autosize(); });</script>
 		</div>
 		{% else %}
 		<p>You&rsquo;ll have to <a href="/accounts/login?next={{bill.url}}/comment/{{comment.id}}">log in</a> first to share this comment by email.</p>
@@ -71,27 +71,46 @@
 	{% if not facebook %}
 		<p><a class="b_login_facebook btn" href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#facebook"|urlencode}}">login to facebook</a></p>
 		<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin.</p>
+		
 	{% else %}
 		{% if user == comment.user and comment.fb_linkid %}
 			<p>You have already posted a link to your Wall, but we&rsquo;ll let you do it again if you want to raise awareness again.</p>
 		{% endif %}
 		<p style="float: right"><a class="b_share_facebook btn" href="#" onclick="return share('facebook')">share with facebook</a></p>
-		<p>Click the Facebook Share icon to post your message on your Wall (in the account {{facebook.profile.screen_name}}).</p>
+		<p>You are using your Facebook account <tt>{{facebook.profile.screen_name}}</tt>.</p>
 		<p id="share_facebook_status"></p>
 	{% endif %}
 	</div>
 
 	<div id="sharetab_twitter" style="display: none">
 	{% if not twitter %}
-		<p><a class="b_login_twitter btn" href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}">login to twitter</a></p> 
+		<p><a class="b_login_twitter btn" href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}">login to twitter</a></p>
 		<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button to begin.</p>
+		{% comment %}
+		<div style="float: left">
+			<a href="http://twitter.com/share" class="twitter-share-button" data-url="{{SITE_ROOT_URL}}{{comment.url}}" data-text="{{comment.bill.hashtag}}" data-count="horizontal">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+		</div>
+		{% endcomment %}
 	{% else %}
 		{% if user == comment.user and comment.tweet_id %}
 			<p>You have already tweeted about this bill but you can tweet again.</p>
 		{% endif %}
-			<p style="float: right"><a class="b_share_twitter btn" href="#" onclick="return share('twitter')">share with twitter</a></p>
-			<p>Click the Twitter share button to send out your message on your Twitter account {{twitter.profile.screen_name}}. We&rsquo;ll add hashtags and a link.</p>
+			<p style="float: right; margin-left: 1em"><a class="b_share_twitter btn" href="#" onclick="return share('twitter')">share with twitter</a></p>
+			<p>We&rsquo;ll add a link back to this page to the end of your tweet. Characters left: <span id="twitter_chars_left">140</span>.</p>
+			<p>You are using your Twitter account <tt>{{twitter.profile.screen_name}}</tt>.</p>
 			<p id="share_twitter_status"></p>
+			<script>
+				function update_twitter_char_count() {
+					var c = 110 - $('#share_message').val().length;
+					$('#twitter_chars_left').text(c);
+					if (c >= 0)
+						$('#twitter_chars_left').css({color: "green"});
+					else
+						$('#twitter_chars_left').css({color: "red"});
+				}
+				$('#share_message').textchange(update_twitter_char_count);
+				$(update_twitter_char_count);
+			</script>
 	{% endif %}
 	</div>
 

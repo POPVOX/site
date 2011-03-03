@@ -26,7 +26,7 @@ from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, o
 from emailverification.utils import send_email_verification
 from utils import formatDateTime, cache_page_postkeyed
 
-from settings import DEBUG, SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
+from settings import DEBUG, SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET, SITE_ROOT_URL
 
 popular_bills_cache = None
 popular_bills_cache_2 = None
@@ -926,7 +926,8 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 			"twitter": twitter,
 			"facebook": facebook,
 			"user_position": user_position,
-			"welcome": welcome
+			"welcome": welcome,
+			"SITE_ROOT_URL": SITE_ROOT_URL,
 		}, context_instance=RequestContext(request))
 
 def send_mail2(subject, message, from_email, recipient_list, fail_silently=False):
@@ -1038,7 +1039,12 @@ Go to %s to have your voice be heard!""" % (
 		return { "status": "success", "msg": "Message sent." }
 
 	elif request.POST["method"] == "twitter":
-		tweet = " " + bill.hashtag() + " " + url + " #" + comment.address.state + str(comment.address.congressionaldistrict)
+		tweet = ""
+		if not bill.hashtag() in request.POST["message"]:
+			tweet += " " + bill.hashtag()
+		tweet += " " + url
+		if request.user == comment.user and includecomment:
+			tweet += " #" + comment.address.state + str(comment.address.congressionaldistrict)
 		tweet = request.POST["message"][0:140-len(tweet)] + tweet # trim msg so total <= 140 but we don't cut off the important bits at the end, like the url
 		
 		tok = request.user.singlesignon.get(provider="twitter").auth_token
