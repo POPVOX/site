@@ -1369,7 +1369,7 @@ def uploaddoc1(request):
 		org = Org.objects.get(slug=request.GET["org"])
 		if not org.is_admin(request.user):
 			raise Http404()
-		types = ((0, "Press Release"), (3, "Report"), (4, "Letter of Support"), (4, "Coalition Letter"), (99, "Other Document"))
+		types = ((0, "Press Release"), (3, "Report"), (4, "Letter of Support"), (5, "Coalition Letter"), (99, "Other Document"))
 		whose = org.name
 		docs = org.documents
 	else:

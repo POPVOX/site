@@ -330,22 +330,18 @@ def getBillStatusAdvanced(bill, abbreviated) :
 			status = "Introduced"
 		elif status == "REFERRED":
 			status = "Referred to Committee"
-			ctr = 0
-			for n in bill.committees_cached if hasattr(bill, "committees_cached") else bill.committees.all():
-				if ":" in n.name():
-					continue
-				if status == "Referred to Committee":
-					if not abbreviated:
-						status = "Referred to "
-					else:
-						status = "Ref. to "
+			cx = [c.abbrevname() if abbreviated else c.shortname()
+				for c in (bill.committees_cached if hasattr(bill, "committees_cached") else bill.committees.all())
+				if not c.issubcommittee()]
+			cx = [c for c in cx if c.strip() != ""] # ??
+			if len(cx) > 0:
+				if len(cx) > 3:
+					cx = cx[0:3] + ["..."]
+				if not abbreviated:
+					status = "Referred to "
 				else:
-					status += ", "
-				status += n.abbrevname() if abbreviated else n.shortname()
-				ctr += 1
-				if ctr > 3:
-					status += "..."
-					break
+					status = "Ref. to "
+				status += ", ".join(cx)
 		elif status == "REPORTED":
 			status = "Reported by Committee"
 		elif status == "PASS_BACK:HOUSE":

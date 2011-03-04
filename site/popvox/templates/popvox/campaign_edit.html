@@ -157,13 +157,13 @@
 			{% endfor %}
 			</div>
 	
-			<script>$( "#agendaitems_{{cam.id}}" ).sortable({
+			<script>$("#agendaitems_{{cam.id}}").sortable({
 				items: ".orgcampaignposition",
 				axis: "y",
 				containment: ".block", // containing to the list prevents moving any item to the bottom
 				handle: ".b_move",
 				update: function(event,ui) { set_position_order({{cam.id}}, "{{cam.slug|escapejs}}"); }
-				}).disableSelection();</script>
+				}); $("#agendaitems_{{cam.id}} .b_move").disableSelection();</script>
 
 			<div class="bill_search search_orange">
 				<div class="search_box">
