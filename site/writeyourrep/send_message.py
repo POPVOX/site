@@ -652,6 +652,13 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	for k, v in field_default.items():
 		postdata[k] = v
+		
+	# This guy has some weird restrictions on the text input to prevent the user from submitting
+	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
+	if di.id == 736:
+		for k in postdata:
+			for badword in ("select","insert","update","delete","drop","--","alter","xp_","execute","declare","information_schema","table_cursor"):
+				postdata[k] = postdata[k].replace(badword, badword[0] + "." + badword[1:] + ".") # the final period is for when "--" repeats
 
 	# Debugging...
 	if False:
@@ -726,6 +733,43 @@ def send_message_housewyr(msg, deliveryrec):
 	if ret.getcode() != 200:
 		raise IOError("Problem loading House WYR form: " + str(ret.getcode()))
 	ret = ret.read()
+	
+	if "Unfortunately, with the advent of email" in ret:
+		doc, form, formaction, formmethod = find_webform(ret, "@wrep_findrep", writerep_house_gov)
+		for label in doc.getElementsByTagName("label"):
+			if label.getAttribute("for") == "HIP_response":
+				resp = None
+				
+				numberz = r"(one|two|three|four|five|six|seven|eight|nine|ten|\d+)"
+				def nummap(n):
+					m = {"one":1, "two":2, "three":3, "four":4, "five":5, "six":6, "seven":7, "eight":8, "nine":9, "ten": 10}
+					if n in m: return m[n]
+					return int(n)
+				
+				m = re.match(r"What is " + numberz + " minus " + numberz + "\?", label.firstChild.data)
+				if m != None: resp = nummap(m.group(1)) - nummap(m.group(2))
+				m = re.match(r"What is the sum of " + numberz + " plus " + numberz + "\?", label.firstChild.data)
+				if m != None: resp = nummap(m.group(1)) + nummap(m.group(2))
+				m = re.match(r"Please solve the following math problem: " + numberz + " x " + numberz + "\?", label.firstChild.data)
+				if m != None: resp = nummap(m.group(1)) * nummap(m.group(2))
+				m = re.match(r"Which of the following numbers is largest: (.*)\?", label.firstChild.data)
+				if m != None:
+					nn = m.group(1).replace("or", "").replace(" ", "").split(",")
+					resp = max([nummap(n) for n in nn])
+				m = re.match(numberz + r" : What number appears at the beginning of this question\?", label.firstChild.data)
+				if m != None: resp = nummap(m.group(1))
+				
+				if resp == None:
+					print "Unrecognized WYR captcha:", label.firstChild.data
+					return False
+				ret = http.open(formaction, urllib.urlencode({ "HIP_response": resp }))
+				if ret.getcode() != 200:
+					raise IOError("Problem loading House WYR form: " + str(ret.getcode()))
+				ret = ret.read()
+				break
+		else:
+			print "Couldn't find WYR captcha text."
+			return False
 	
 	# Check if there is an actual webform, otherwise WYR is not
 	# supported on this address.
@@ -805,6 +849,8 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 		moc.method = Endpoint.METHOD_NONE
 		moc.save()
 		method = Endpoint.METHOD_NONE
+		
+	if moc.method == Endpoint.METHOD_NONE:
 		if mm["type"] == "rep":
 			method = Endpoint.METHOD_HOUSE_WRITEREP
 

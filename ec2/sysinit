@@ -28,7 +28,7 @@ sudo apt-get install -y \
 	libapache2-mod-wsgi python-flup \
 	python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown \
 	memcached python-memcache \
-	texlive-latex-base
+	texlive-latex-base texlive-latex-recommended fontconfig ttf-linux-libertine
 
 # Custom packages
 DJANGO=python-django_1.2.5-1ubuntu1_all.deb

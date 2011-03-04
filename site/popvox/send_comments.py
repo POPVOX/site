@@ -15,9 +15,9 @@ mocs_require_phone_number = (
 	400245,412324,400054,400142,400643,412485,400244,400142,400318,412325,
 	412231,400266,412321,300070,400105,300018,400361,300040,400274,412308,
 	400441,400111,412189,400240,412492,412456,412330,412398,412481,412292,
-	400046)
+	400046,300054,300093)
 
-stats_only = (len(sys.argv) > 1 and sys.argv[1] != "send")
+stats_only = (len(sys.argv) != 2 or sys.argv[1] != "send")
 offline = (len(sys.argv) > 1 and sys.argv[1] == "offline")
 success = 0
 failure = 0
@@ -34,7 +34,6 @@ for comment in UserComment.objects.filter(
 	bill__congressnumber=CURRENT_CONGRESS,
 	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
 	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5), # let users revise
-	created__gt=datetime.datetime.now()-datetime.timedelta(days=60), # abandon when it's too late
 	).order_by('created').select_related("bill").iterator():
 	
 	# Who are we delivering to? Anyone?
@@ -134,14 +133,21 @@ for comment in UserComment.objects.filter(
 				
 		# Check that we have no UserCommentOfflineDeliveryRecord for, meaning it is pending
 		# offline delivery.
-		if UserCommentOfflineDeliveryRecord.objects.filter(comment=comment, target=govtrackrecipientid).exists():
+		if UserCommentOfflineDeliveryRecord.objects.filter(comment=comment, target=govtrackrecipientid).exclude(batch=None).exists():
 			held_for_offline += 1
 			continue
 	
 		# If the delivery resulted in a FAILURE_UNEXPECTED_RESPONSE (which requires us to
-		# take a look) or FAILURE_DISTRICT_DISAGREEMENT (which we have no solution for the
-		# moment), then skip electronic delivery till we can resolve it.
-		if last_delivery_attempt != None and last_delivery_attempt.failure_reason in (DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE, DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT):
+		# take a look) then skip electronic delivery till we can resolve it.
+		if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE:
+			needs_attention += 1
+			if offline:
+				UserCommentOfflineDeliveryRecord.objects.get_or_create(comment=comment, target=MemberOfCongress.objects.get(id=govtrackrecipientid))
+			continue
+			
+		# If the delivery resulted in a FAILURE_DISTRICT_DISAGREEMENT then don't retry
+		# for a week.
+		if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT and datetime.datetime.now() - last_delivery_attempt.created < datetime.timedelta(days=7):
 			needs_attention += 1
 			if offline:
 				UserCommentOfflineDeliveryRecord.objects.get_or_create(comment=comment, target=MemberOfCongress.objects.get(id=govtrackrecipientid))
@@ -150,8 +156,8 @@ for comment in UserComment.objects.filter(
 		# if the name has no prefix, or if we know we need a phone number but don't have one,
 		# or if we know we have no electronic delivery method for the target, then skip delivery.		
 				#or Endpoint.objects.filter(govtrackid = govtrackrecipientid, method = Endpoint.METHOD_NONE, tested=True).exists() \
+				#or not Endpoint.objects.filter(govtrackid = govtrackrecipientid).exclude(method = Endpoint.METHOD_NONE).exists() \
 		if comment.address.nameprefix in (None, "") \
-				or not Endpoint.objects.filter(govtrackid = govtrackrecipientid).exclude(method = Endpoint.METHOD_NONE).exists() \
 				or (comment.address.phonenumber == "" and govtrackrecipientid in mocs_require_phone_number):
 			failure += 1
 			if offline:
@@ -160,14 +166,18 @@ for comment in UserComment.objects.filter(
 			
 		# Send the comment.
 		
+		if offline:
+			UserCommentOfflineDeliveryRecord.objects.get_or_create(comment=comment, target=MemberOfCongress.objects.get(id=govtrackrecipientid))
+			continue
+		
 		if stats_only:
 			pending += 1
 			continue
 		
 		delivery_record = send_message(msg, govtrackrecipientid, last_delivery_attempt, u"comment #" + unicode(comment.id))
 		if delivery_record == None:
-			print "no delivery method available"
-			print govtrackrecipientid, getMemberOfCongress(govtrackrecipientid)["sortkey"]
+			#print "no delivery method available"
+			#print govtrackrecipientid, getMemberOfCongress(govtrackrecipientid)["sortkey"]
 			#print msg.xml().encode("utf8")
 			#sys.stdin.readline()
 			failure += 1
@@ -184,6 +194,8 @@ for comment in UserComment.objects.filter(
 			success += 1
 		else:
 			failure += 1
+			if delivery_record.failure_reason == DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE:
+				sys.stdin.readline()
 		
 print "Success:", success
 print "Failure:", failure

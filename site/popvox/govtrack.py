@@ -79,6 +79,7 @@ def loadpeople():
 				px["type"] = role.getAttribute("type")
 				px["state"] = role.getAttribute("state")
 				px["district"] = int(role.getAttribute("district")) if role.getAttribute("type") == "rep" else None
+				px["address"] = role.getAttribute("address")
 			
 				if role.getAttribute("type") == "sen":
 					if not role.getAttribute("state") in senators:
