@@ -2,21 +2,23 @@
 {% block title %}Create Account - Check Your Inbox{% endblock%}
 {% block disable_login_redirect %}{% endblock %}
 {% block content %}
-	<div class="section">
+	<div class="section check_inbox">
 		<h1>Check Your Inbox</h1>
 		
-		<div class="col_6">
-			<h2>We&rsquo;ve sent you email to &lt;{{email}}&gt; with instructions to activate your account. Please check your email shortly.</h2>
+		<div class="col_7">
+			<h2>We&rsquo;ve sent an email to you at<br /> <em>{{email}}</em><br /> with instructions to activate your account. Please check your email shortly.</h2>
 		</div>
 		
-		<p>If you do not receive a message within the next minute or two:</p>
-		
-		<ul class="bullets">
-			<li>Check your junk mail folder</li>
-			<li>If you entered the wrong email address, you must go back and <a href="/accounts/register">start over with registration</a>.</li>
-			<li>If you cannot get past this point, please <a href="/about/contact">contact us</a> and we will be happy to help.</li>
-		</ul>
-		
+		<div class="col_5 col_last">
+			<h2>If you do not receive a message within the next minute or two:</h2>
+			
+			<ul class="bullets">
+				<li>Check your junk or spam email folder.</li>
+				<li>If you registered using the wrong email address, you must go back and <a href="javascript:history.go(-1)">start your registration over</a>.</li>
+				<li>If you cannot get past this point, please <a href="/about/contact">contact us</a> and we will be happy to help. <small>(no..really. we will.)</small></li>
+			</ul>
+		</div>
+		<div class="clear"> </div>
 	</div>
 {% endblock %}
 

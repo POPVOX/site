@@ -1531,6 +1531,32 @@ look in master/_map_style.css
 		}
 
 
+.check_inbox .col_7 {
+	background: #d4d1ca url(http://b3.s3.quickshareit.com/screenshot20110307at349pmjpg30e28.jpg)  -95px -193px no-repeat;
+	background: #d4d1ca url(bg_check_inbox.png) 30px 30px no-repeat; 
+	height: 190px;
+	}
+	
+	.check_inbox .col_7 h2 {
+		font: bold 18px/24px helvetica, arial, sans-serif;
+		padding: 27px 0 0 195px;
+		}
+		
+	.check_inbox .col_5 {
+		padding: 27px 0 10px 10px;
+	    width: 370px;
+		}
+		
+	.check_inbox .col_5 h2 {
+		font: bold 18px/24px helvetica, arial, sans-serif;
+		}
+		
+	.check_inbox a {
+		color: #404045;
+		border-bottom: 1px solid #404045;
+		}
+	
+
 
 /* ----leg staff dashboard---- */		 
 .dash h2 {
