@@ -23,22 +23,6 @@
 	<div class="col_12 {% if welcome %}rule{% endif %} clear"> </div>
 
 	<div class="col_6 col_top">
-		<div class="block referred_quote_{% if comment.position == '+' %}endorse{% else %}opposed{% endif %}">
-			<p class="commenter">{{comment.user.username}} from {{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}
-			commented {{comment.updated|date2}} that {{comment.address.heshe}}  {{comment.verb}} {{bill.displaynumber}}:</p>
-			{% if comment.message %}
-				{% if not comment_rejected %}
-					<div class="usercomment">
-					{{comment.message|wraplines:"p"}}
-					</div>
-				{% else %}
-					<p>This comment has been hidden by POPVOX staff because it violates our policies for acceptable language.</p>
-				{% endif %}
-			{% else %}
-				<p>[No comment left.]</p>
-			{% endif %}
-		</div>
-		
 		<div class="block bills_referred">
 			<div class="bill">
 				<h4 class="no_rule"><a class="orange" href="{{bill.url}}">{{ bill.title }}</a></h4>
@@ -49,9 +33,7 @@
 				</p>
 			</div>
 		</div>
-	</div>
-		
-	<div class="col_6 col_top col_last">
+
 		{% if user.is_staff or user.is_superuser %}
 		<script>
 		function moderate(url) {
@@ -113,9 +95,29 @@
 		</div>
 
 		{% endif %}
+	</div><!-- e: col_6 -->
 
 		
-	</div>
+	<div class="col_6 col_top col_last">
+		<div class="block referred_quote_{% if comment.position == '+' %}endorse{% else %}opposed{% endif %}">
+			<p class="commenter"><strong>{{comment.user.username}}</strong> from {{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}
+			commented {{comment.updated|date2}} that {{comment.address.heshe}}  {{comment.verb}} {{bill.displaynumber}}:</p>
+			{% if comment.message %}
+				{% if not comment_rejected %}
+					<div class="usercomment">
+					{{comment.message|wraplines:"p"}}
+					</div>
+				{% else %}
+					<p>This comment has been hidden by POPVOX staff because it violates our policies for acceptable language.</p>
+				{% endif %}
+			{% else %}
+				<p>[No comment left.]</p>
+			{% endif %}
+		</div>
+		
+		
+		
+	</div><!-- e: col_6 -->
 	<div class="clear"> </div>
 </div>
 {% endblock %}

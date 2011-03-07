@@ -156,6 +156,45 @@ body.grid {
 				color: #e47816;
 				}
 				
+	/* ----master profile dropdown---- */
+	
+	#master_profile_orglist_li {
+		}
+	
+	#master_profile_orglist {
+		position: absolute; 
+		z-index: 999; 
+		left: 180px; 
+		top: 45px; 
+		width: 300px;
+		display: none;
+		}
+		
+		.orglist_li {
+			background: url("bg_grey_drop.png") left top; 
+			border: 1px solid #000;
+			border-width: 0 1px 1px;
+			margin-top: 1px;
+			padding: 5px 10px 7px;
+			}
+				
+			.orglist_li a {
+				color: #fff;
+				display: block;
+				font-size: 12px;
+				height: 18px;
+				margin: 4px 0 0 5px;
+				}		
+				
+				.orglist_li a:hover {
+					text-decoration: none;
+					border: 0;
+					color: #CC6A11;
+					}
+
+				
+				
+				
 /* ----search in the header of each page---- */
 
 	#search_head {
@@ -1487,7 +1526,7 @@ look in master/_map_style.css
 		
 	.tab_pane h5 {
 		font: normal 16px/24px helvetica, arial, sans-serif;
-		border-top: 1px solid #D4D1CA;
+/*		border-top: 1px solid #D4D1CA;  */
 	    padding-top: 5px;
 		}
 
@@ -1905,6 +1944,24 @@ h1.h1_smaller {
 	height: 30px;
 	}
 	
+	.callout, .calloutr {
+		background: #D4D1CA;
+		font-weight: bold;
+		padding: 20px;
+		color: #404045;
+		}
+		
+		.calloutr {
+			float: right;
+			margin-left: 20px;
+			width: 200px;
+			}
+			
+			.calloutr p {
+				margin-bottom: 0;
+				font-weight: bold;
+				}
+	
 	#saveaddress {
 		margin-left: 60px;
 		line-height: 14px;
@@ -1919,6 +1976,10 @@ h1.h1_smaller {
 	.content p.tip,
 	.content p.tip_inline {
 		font: italic normal 14px georgia, serif;
+		}
+		
+	.tip_inline.mar_no {
+		padding: 0 15px 5px 40px;
 		}
 		
 	.b_preview {
@@ -2078,14 +2139,32 @@ h1.h1_smaller {
 		
 
 #needsauth {
-	border-top: 3px solid #D4D1CA;
 	margin-top: 25px;
 	}
 	
+	#needsauth .col_4 {
+		background: #D4D1CA;
+		padding: 20px;
+		width: 283px;
+		}
+		
+	#needsauth .signin_social {
+		height: 80px;
+		}	
+	
+	#needsauth .form input.b_login {
+		float: right;
+		}
+	
+	
+	
+	
+	
 	.content #needsauth h4 {
-		font: bold 16px/20px helvetica, arial, sans-serif;
+		font: bold 14px/20px helvetica, arial, sans-serif;
 		color: #404045;
 		margin-bottom: 10px;
+		text-transform: uppercase;
 		}
 		
 	.float_text {
@@ -2101,20 +2180,23 @@ h1.h1_smaller {
 		}
 		
 	.form.signinup input.c2 {
-		margin-right: 5px;
+		margin-right: 0px;
 		height: 18px;
-		width: 188px;
+		width: 190px;
 		}
 		
 	.form.signinup label {
-		width: 80px;
+		width: 70px;
+		text-transform: uppercase;
+		font-weight: bold;
+		margin-right: 10px;
 		}
 		
 	.form.signinup small {
 		margin-bottom: 10px;
-		margin-left: 100px;
+		margin-left: 85px;
 		margin-top: -6px;
-		width: 500px;
+		width: 200px;
 		}
 		
 	.b_create_box {
@@ -2545,6 +2627,10 @@ ul#issuearealist {
 	padding-top: 1em;
 	}
 
+.section.team {
+	margin-top: -25px;
+	}
+	
 .team h2, .section_btm h2 {
 	font: normal 30px/20px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	letter-spacing: .02em;
@@ -2558,6 +2644,10 @@ ul#issuearealist {
 	margin: 10px 20px 10px 0;
 	}
 	
+	.col_4_5 .team_img.team_sm {
+		margin-right: 0;
+		}
+
 .team .col_4_5 {
 	margin-right: 20px;
 	width: 330px;	
@@ -2589,6 +2679,13 @@ ul#issuearealist {
 	border-top: 3px solid #757575;
 	padding-top: 10px;
 	}
+	
+.widget {
+	background: url("bg_rule.gif") repeat-x scroll left top #DCD9D2;
+	padding: 0 10px 10px;
+	}
+	
+
 
 
 
@@ -3067,22 +3164,17 @@ ul#issuearealist {
 			}
 		
 		.login input.submit {
-			background: #cc6a11;
+			width: 81px;
+			height: 22px;
+			background: url(b_login.png);
+			display: block;
+			text-indent: -9999em;
 			border: none;
-			color: #fff;
-			font-size: 12px;
-			font-weight: bold;
-			text-transform: uppercase;
-			padding: 0px 20px;
-			margin: 0 0 10px 95px;
-			width: 90px;
-			height: 20px;
-			border: none;
+			margin-left: 90px;
 			}
 	
 		.login input.submit:hover {
-			background: #404040;
-			color: #fff;
+			background-position: left bottom;
 			cursor: pointer;
 			}
 				
@@ -3361,6 +3453,40 @@ ul#issuearealist {
 			.col_3 ul.social li a.linked_in:hover {
 				background-position: left bottom;
 				}
+
+
+/* ----press---- */
+
+.press a img {
+	background: none;
+	float: left;
+	}
+	
+	.press a.blank {
+		background: none;
+		height: inherit;
+		}
+		
+	.press .col_4_5 h4,
+	.press .col_4_5 h5,
+	.press .col_4_5 p {
+		margin-left: 160px;
+		}
+		
+	.press .col_4_5 h4 {
+		margin-bottom: 10px;
+		}
+
+	.press .col_4_5 h5 {
+		font-weight: bold;
+		}
+
+.press .col_4_5 p span {
+	font: italic normal 11px/16px georgia, serif;
+	}
+
+
+
 				
 /* ----more social---- */
 
@@ -3393,6 +3519,11 @@ ul#issuearealist {
 	width: 414px;
 	}
 	
+	.block.referred_quote_opposed,
+	.block.referred_quote_endorse {
+		background-position: left 20px;
+		}
+	
 .referred_quote_endorse p,
 .referred_quote_opposed p {
 	font-size: 16px;
@@ -3419,6 +3550,10 @@ ul#issuearealist {
 	margin-bottom: 10px;
 	}
 	
+	.block.bills_referred {
+		background-position: left -12px;
+		}
+	
 	.bills_referred h4 {
 		margin-bottom: 10px;
 		font-size: 16px;
@@ -3428,8 +3563,22 @@ ul#issuearealist {
 		font-size: 12px;
 		}
 
+.c5.share_social {
+	border: 1px solid #D4D1CA;
+	float: left;
+	margin: 10px 0 30px;
+	padding: 10px 20px 0px;
+	width: 414px;
+	}
+	
+	.share_social h3 {
+		float: left;
+		width: 210px;
+		}
+
 ul.social_share_btns {
 	margin-bottom: 10px;
+	margin-top: 10px;
 	}
 	
 ul.social_share_btns li {
@@ -3686,8 +3835,13 @@ input.default, textarea.default {
 	margin-left: 160px;
 	margin-bottom: 18px;
 	display: none;
-	font-size: 10pt;
+	font-size: 12px;
 }
+
+.form .error {
+	margin: 5px 0 5px 85px;
+	}
+	
 .col_3 .form .error {
 	margin-left: 100px;
 }
@@ -3846,11 +4000,13 @@ ul.staff, .small {
 		padding: 0px 0;
 		margin-top: -36px;
 		background: #E8E5DF;
+		border-left: 20px solid #E8E5DF;
+		margin-left: -20px;
 		}
 		
 		.col_ad h4 {
 			text-align: left;
-			background: url("bg_rule.gif") repeat-x left 20px;
+			background: url("bg_rule.gif") repeat-x left 19px;
 			font-size: 11px;
 			font-weight: bold;
 			margin: 0 0 20px;
@@ -4236,6 +4392,13 @@ ul.staff, .small {
 			letter-spacing: .02em;
 			color: #434247;
 			}
+			
+		.sub p {
+			margin: 10px 0 0;
+			font-size: 14px;
+			font-weight: bold;
+			padding-top: 10px;
+			}
 
 		.sub ul li {
 			margin: 1em 0 1em;
@@ -4250,6 +4413,16 @@ ul.staff, .small {
 				color: #CC6A11;
 				border: none;
 				}
+		
+		.sub ul ul li {
+			margin: 5px 0;
+			}
+			
+			.sub ul ul li a {
+				font-size: 12px;
+				}
+				
+		
 
 			
 	.about_pg .col_4_5 {

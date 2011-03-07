@@ -15,7 +15,7 @@
 		\___ \ / _ \ / _` | | | | | '_ ` _ \| |_| |/ _` | |/ _ \ / _` |/ _ \ '_ \ 
 		 ___) | (_) | (_| | | |_| | | | | | |  _  | (_| | | (_) | (_| |  __/ | | |
 		|____/ \___/ \__,_|_|\__,_|_| |_| |_|_| |_|\__,_|_|\___/ \__, |\___|_| |_|.com
-													  |___/           
+																  |___/           
 	--> 
 		
 
@@ -156,11 +156,11 @@
 					><a href="{{role.org.url}}">Profile</a></li>
 					{% else %}
 					onmouseover="$('#master_profile_orglist').show();"><a href="#" onclick="return false;">Profile</a>
-						<div id="master_profile_orglist" style="display: none; position: absolute; z-index: 999; left: 180px; top: 45px; width: 300px;">
+						<div id="master_profile_orglist">
 							<div style="height: 19px;"> </div> 
-							<div style="background-color: black; padding: .5em 1em .75em 1em">
+							<div class="orglist_li">
 							{% for role in user.orgroles.all %}
-								<div style="margin: .5em"><a href="{{role.org.url}}">{{role.org.name}}</a></div>
+								<a href="{{role.org.url}}">{{role.org.name}}</a>
 							{% endfor %}
 							</div>
 						</div>

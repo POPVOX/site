@@ -3,18 +3,20 @@
 {% block disable_login_redirect %}{% endblock %}
 {% block content %}
 	<div class="section">
-	<h1>Check Your Inbox</h1>
-	
-	<p>We&rsquo;ve sent you email to &lt;{{email}}&gt; with instructions to activate your account. 	Please check your email shortly. 
-	
-	<p>If you do not receive a message within the next minute or two:</p>
-	
-	<ul class="bullets">
-		<li>Check your junk mail folder</li>
-		<li>If you entered the wrong email address, you must go back and <a href="/accounts/register">start over with registration</a>.</li>
-		<li>If you cannot get past this point, please <a href="/about/contact">contact us</a> and we will be happy to help.</li>
-	</ul>
-	
+		<h1>Check Your Inbox</h1>
+		
+		<div class="col_6">
+			<h2>We&rsquo;ve sent you email to &lt;{{email}}&gt; with instructions to activate your account. Please check your email shortly.</h2>
+		</div>
+		
+		<p>If you do not receive a message within the next minute or two:</p>
+		
+		<ul class="bullets">
+			<li>Check your junk mail folder</li>
+			<li>If you entered the wrong email address, you must go back and <a href="/accounts/register">start over with registration</a>.</li>
+			<li>If you cannot get past this point, please <a href="/about/contact">contact us</a> and we will be happy to help.</li>
+		</ul>
+		
 	</div>
 {% endblock %}
 
