@@ -61,6 +61,11 @@ function validate(box) {
 		$('#' + box + "tip").text("Capital letters are often understood as shouting. Try using fewer capital letters.");
 	else if (v.length > .75 * charlimit)
 		$('#' + box + "tip").text("You have " + (charlimit-v.length) + " characters left.");
+
+	if (!$('#' + box + "tip").text())
+		$('#' + box + "tipcontainer").fadeOut();
+	else
+		$('#' + box + "tipcontainer").fadeIn();
 }
 function validate_form() {
 	var m = $('#message').hasClass('default') ? "" : $('#message').val().replace(/^\s+|\s+$/g, '');
@@ -151,9 +156,8 @@ function validate_form() {
 		<form method="post" onsubmit="return validate_form()">
 		{% csrf_token %}
 
-		<div class="tip mar_top">
-			<h5>Letter Writing Tips</h5>
-			<p>Personal communications from constituents are most influential in swaying an undecided Member of Congress, according to a 2011 study by the Congressional Management Foundation.</p>
+		<div id="messagetipcontainer" class="tip mar_top" style="display: none">
+			<h5 style="padding-top: 0">Letter Writing Tips</h5>
 			<p id="messagetip"></p>
 		</div>
 
