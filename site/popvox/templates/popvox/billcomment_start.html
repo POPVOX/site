@@ -88,6 +88,12 @@ function validate_form() {
 		<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents.</p>
 	</div>
 	
+	<noscript>
+		<p><strong>We are not able to check if you have cookies enabled in your browser. Cookies
+		are required to leave a comment on legislation on POPVOX.</strong></p>
+		<hr/>
+	</noscript>
+
 	<h1 class="h1_smaller" style="margin-bottom: 0">
 	{% if position == "0" %}Comment on{% endif %}
 	{% if position == "+" %}I Support{% endif %}
@@ -182,5 +188,9 @@ function validate_form() {
 	
 	</div>
 </div>
+<script>
+if (!document.cookie)
+                $('.tab_pane').html("POPVOX requires cookies to be enabled in your browser in order to weigh in on this bill.");
+</script>
 {% endblock %}
 

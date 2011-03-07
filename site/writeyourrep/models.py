@@ -23,7 +23,7 @@ class Endpoint(models.Model):
 	tested = models.BooleanField(default=False)
 
 	def __unicode__(self):
-		return str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["sortkey"] + " " + self.get_method_display()
+		return str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["name"] + " " + self.get_method_display()
 
 	def mocname(self):
 		return popvox.govtrack.getMemberOfCongress(self.govtrackid)["sortkey"]

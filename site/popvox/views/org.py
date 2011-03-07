@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.utils.html import strip_tags
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, ajaxmultifieldupdate
@@ -285,6 +285,8 @@ def org_update_field(request, field, value, validate_only):
 	else:
 		raise Exception("Bad request: Invalid field: " + field)
 
+
+@csrf_exempt
 @json_response
 def org_update_logo(request, orgslug):
 	org = get_object_or_404(Org, slug=orgslug)

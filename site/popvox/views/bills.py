@@ -2,7 +2,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.views.generic.simple import direct_to_template
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django import forms
 from django.core.urlresolvers import reverse
@@ -448,6 +448,7 @@ def bill(request, congressnumber, billtype, billnumber):
 		users_tracking_this_bill = bill.trackedby.filter(user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().select_related("user")
 		users_commented_on_this_bill = UserProfile.objects.filter(user__comments__bill=bill).distinct().select_related("user")
 	
+	request.session.set_test_cookie() # tested in bill_uservote.html on the client side
 	return render_to_response('popvox/bill.html', {
 			'bill': bill,
 			"canvote": (request.user.is_anonymous() or (not request.user.userprofile.is_leg_staff() and not request.user.userprofile.is_org_admin())),
@@ -607,6 +608,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 					# Hmm.
 					pass
 	
+		request.session.set_test_cookie() # tested in on the client side
 		return render_to_response('popvox/billcomment_start.html', {
 				'bill': bill,
 				"position": position,
@@ -917,6 +919,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	if comment.status > UserComment.COMMENT_ACCEPTED and (not request.user.is_authenticated() or (not request.user.is_staff and not request.user.is_superuser)):
 		comment_rejected = True
 
+	request.session.set_test_cookie() # tested in bill_uservote.html on the client side
 	return render_to_response(
 			'popvox/billcomment_share.html' if commentid == None else 'popvox/billcomment_view.html', {
 			'bill': bill,
@@ -1247,7 +1250,8 @@ def billreport(request, congressnumber, billtype, billnumber):
 			"statereps": getStateReps(),
 			"bot_comments": bot_comments,
 		}, context_instance=RequestContext(request))
-	
+
+@csrf_exempt
 @cache_page_postkeyed(60*2) # two minutes
 @json_response
 def billreport_getinfo(request, congressnumber, billtype, billnumber):

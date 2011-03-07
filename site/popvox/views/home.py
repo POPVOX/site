@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
 from django.db.models import Count
 from django.db.models.query import QuerySet
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
@@ -546,7 +547,8 @@ def activity(request):
 			"count_comments_messages": UserComment.objects.filter(message__isnull=False).count(),
 			"count_orgs": Org.objects.filter(createdbyus=False).count(),
 		}, context_instance=RequestContext(request))
-	
+
+@csrf_exempt	
 def activity_getinfo(request):
 	format = ""
 	

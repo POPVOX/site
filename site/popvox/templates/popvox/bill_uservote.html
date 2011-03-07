@@ -1,5 +1,5 @@
 {% load popvox_utils %}
-
+<div id="billsearch_endorse_oppose_uservote">
 	{% if not user_position %}
 		<input id="billsearch_endorse_oppose_submit_support" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
 		<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="window.location = '{{bill.url|escapejs}}/comment/oppose'"/>
@@ -25,3 +25,8 @@
 			<a href="{{bill.url}}/comment/share">share comment</a>
 		</p>
 	{% endif %}
+</div>
+<script>
+	if (!document.cookie)
+		$('#billsearch_endorse_oppose_uservote').html("POPVOX requires cookies to be enabled in your browser in order to weigh in on this bill.");
+</script>

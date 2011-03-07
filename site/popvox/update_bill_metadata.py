@@ -1,4 +1,4 @@
-# DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/update_bill_metadata.py
+#!runscript
 
 import sys
 

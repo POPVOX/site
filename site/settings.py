@@ -33,6 +33,7 @@ ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'team@popvox.com') ]
 
 SEND_BROKEN_LINK_EMAILS = False
+CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
 
 if not DEBUG or "REMOTEDB" in os.environ:
 	DATABASES = {

@@ -5,3 +5,8 @@ def sitedown(request):
 	t = loader.get_template('503.html')
 	c = Context({})
 	return HttpResponse(t.render(c), status=503)
+
+def csrf_failure_view(request, reason=""):
+	# Send the user an oops and notify us.
+	raise Exception("CSRF Failure: " + reason)
+
