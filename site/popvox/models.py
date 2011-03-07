@@ -782,7 +782,7 @@ class PostalAddress(models.Model):
 	city = models.CharField(max_length=64)
 	state = models.CharField(max_length=2)
 	zipcode = models.CharField(max_length=10)
-	phonenumber = models.CharField(max_length=18)
+	phonenumber = models.CharField(max_length=18, blank=True)
 	congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
 	state_legis_upper = models.TextField(blank=True, null=True)
 	state_legis_lower = models.TextField(blank=True, null=True)
@@ -790,7 +790,10 @@ class PostalAddress(models.Model):
 	longitude = models.FloatField(blank=True, null=True)
 	cdyne_return_code = models.IntegerField(blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
-	
+
+	#class Meta:
+	#		ordering = ["nameprefix"]
+
 	PREFIXES = 	('', 'Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Reverend', 'Sister', 'Pastor')
 	SUFFIXES = 	('', 'Jr.', 'Sr.', 'I', 'II', 'III')
 	
@@ -896,7 +899,7 @@ class UserComment(models.Model):
 			ordering = ["-updated"]
 			unique_together = (("user", "bill"),)
 	def __unicode__(self):
-		return self.user.username + " -- " + (self.message[0:40] if self.message != None else "NONE")
+		return self.user.username + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()
 
 	def get_absolute_url(self):
 		return self.bill.url() + "/comment/" + str(self.id)
@@ -977,9 +980,6 @@ class UserComment(models.Model):
 		return govtrackrecipients
 	
 	def delivery_status(self):
-		if self.message == None:
-			return ""
-		
 		recips = self.get_recipients()
 		if not type(recips) == list:
 			return recips
@@ -1010,6 +1010,9 @@ class UserComment(models.Model):
 			else:
 				ret += retd[k]
 				
+		if self.message == None:
+			return ""
+		
 		if len(recips) > 0:
 			ret += "Your comment is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
 			
@@ -1032,6 +1035,7 @@ class UserCommentOfflineDeliveryRecord(models.Model):
 	comment = models.ForeignKey(UserComment)
 	target = models.ForeignKey(MemberOfCongress, db_index=True)
 	batch = models.IntegerField(blank=True, null=True)
+	failure_reason = models.CharField(max_length=16)
 	class Meta:
 		unique_together = (("target", "comment"),)
 

@@ -21,7 +21,8 @@ def urlopen(url, data, method, deliveryrec):
 		deliveryrec.trace += urllib.urlencode(data) + "\n"
 		ret = http.open(url, urllib.urlencode(data))
 	else:
-		url = url + ("?" if not "?" in url else "&") + urllib.urlencode(data)
+		if len(data) > 0:
+			url = url + ("?" if not "?" in url else "&") + urllib.urlencode(data)
 		deliveryrec.trace += "GET " + url + "\n"
 		ret = http.open(url)
 	deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n"
@@ -124,6 +125,7 @@ common_fieldnames = {
 	"message": "message",
 	"subjectline": "subjectline",
 	"response_requested": "response_requested",
+	"bill": "billnumber",
 	
 	"campaign_id": "campaign_id",
 	"campaignid": "campaign_id",
@@ -175,6 +177,7 @@ common_fieldnames = {
 	"street": "address1",
 	"mailing_city": "city",
 	"hcity": "city",
+	"citytown": "city",
 	"statecode": "state",
 	"hstate": "state",
 	"mailing_state": "state",
@@ -258,6 +261,7 @@ common_fieldnames = {
 	"replychoice": "response_requested",
 	"reqestresponse": "response_requested",
 	"responseexpected": "response_requested",
+	"correspondence_response": "response_requested",
 	
 	'view_select': 'support_oppose',
 	}
@@ -265,8 +269,10 @@ common_fieldnames = {
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
 skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation",
-	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey",
-	"speech", "authfailmsg")
+	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey", "affl_del",
+	"speech", "authfailmsg",
+	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
+	"org")
 
 select_override_validate = ("county",)
 radio_choices = {
@@ -279,6 +285,13 @@ radio_choices = {
 	"aff11": "",
 	"aff12": "",
 	"aff1": "",
+	"affl12": "",
+	"updates": "no",
+	"enewsletteroption": "eoptout",
+}
+
+custom_mapping = {
+	"757_name_text": "firstname",
 }
 
 custom_overrides = {
@@ -300,13 +313,22 @@ custom_overrides = {
 	'179_affl_radio': 'on',
 	'198_field_5eb7428f-9e29-4ecb-a666-6bc56b6a435e_radio': 'NO', #response req
 	'204_action_radio': '', # subscribe
+	"426_aff1_radio": "<AFFL>Subscribe</AFFL>",
 	"568_subject_radio": "CRNR", # no response
 	"583_affl1_select": "no action",
 	"585_aff1_radio": "<affl>subscribe</affl>",
 	"590_response_select": "newsNo",
 	"611_aff1req_text": "fill",
+	"639_aff1req_text": "fill",
 	"645_yes_radio": "NRN",
 	"645_authfailmsg_hidden": "/andrews/AuthFailMsg.htm",
+	"690_aff2_radio": "",
+	"732_field_1807499f-bb47-4a2b-81af-4d6c2497c5e5_radio": " ",
+	"748_messagetype_radio": "express an opinion or share your views with me",
+	"757_add2_text": "",
+	"757_affl_select": "no-action",
+	"761_contact_nature_select": "comment or question",
+	"805_issue_radio": "",
 }
 
 class WebformParseException(Exception):
@@ -486,6 +508,10 @@ def parse_webform(webformurl, webform, webformid, id):
 			field_default[attr] = custom_overrides[str(id) + "_" + ax + "_" + fieldtype.lower()]
 			continue
 
+		if str(id) + "_" + ax + "_" + fieldtype.lower() in custom_mapping:
+			field_map[attr] = custom_mapping[str(id) + "_" + ax + "_" + fieldtype.lower()]
+			continue
+
 		elif ax in common_fieldnames:
 			# we know what this field means
 			field_map[attr] = common_fieldnames[ax]
@@ -555,8 +581,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	webformurl, webformid = di.webform.split("#")
 	
-	deliveryrec.trace += webformurl.decode('utf8', 'replace') + "\n"
-	webform = http.open(webformurl).read()
+	webform = urlopen(webformurl, {}, "GET", deliveryrec).read()
 	
 	webform_stages = webformid.split(',')
 	
@@ -590,7 +615,9 @@ def send_message_webform(di, msg, deliveryrec):
 			
 		webform = urlopen(webformurl, postdata, formmethod, deliveryrec).read()
 		
-		if "The zip code you typed in does not appear to be a zip code within my district" in webform:
+		if "The zip code you typed in does not appear to be a zip code within my district" in webform\
+			or "You might not be in my district" in webform \
+			or "A valid Zip code for the 5th District of Missouri was not entered" in webform:
 			deliveryrec.trace += "\n" + webform + "\n\n"
 			raise DistrictDisagreementException()
 			
@@ -704,7 +731,11 @@ def send_message_webform(di, msg, deliveryrec):
 	if type(ret) == str:
 		ret = ret.decode('utf8', 'replace')
 
-	if "Your zip code indicates that you are outside of" in ret or "Your zip code indicates that you live outside" in ret:
+	if "Your zip code indicates that you are outside of" in ret \
+	 or "Your zip code indicates that you live outside" in ret \
+	 or "The zip code entered indicates that you reside outside the" in ret\
+	 or "This authentication has failed" in ret\
+	 or "You might not be in my district" in ret:
 		deliveryrec.trace += "\n" + ret + "\n\n"
 		raise DistrictDisagreementException()
 		

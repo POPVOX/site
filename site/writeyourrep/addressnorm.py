@@ -46,8 +46,10 @@ def verify_adddress(address):
 		address.cdyne_return_code = 900 # for us
 	
 	# Correct fields...
+	def nrml(x):
+		return x.lower().replace(".", "").replace("#", "")
 	for a, b in [('address1', 'PrimaryDeliveryLine'), ('address2', 'SecondaryDeliveryLine'), ('city', 'PreferredCityName'), ('state', 'StateAbbreviation'), ('zipcode', 'ZipCode'), ('county', 'County')]:
-		if hasattr(address, a) and getattr(address, a).lower() != ret[b].lower():
+		if hasattr(address, a) and nrml(getattr(address, a)) != nrml(ret[b]):
 			setattr(address, a, ret[b])
 	
 	if ret["LegislativeInfo"]["CongressionalDistrictNumber"] == "AL": # hmm

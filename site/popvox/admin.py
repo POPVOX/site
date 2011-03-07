@@ -18,12 +18,13 @@ class UserLegStaffRoleAdmin(admin.ModelAdmin):
 	search_fields = ["user__username", "user__email", "user__userprofile__fullname"]
 
 class UserCommentAdmin(admin.ModelAdmin):
-	raw_id_fields = ("bill","address")
+	raw_id_fields = ("user", "bill", "address")
 	readonly_fields = ("user","bill","address")
 	search_fields = ("user__username", "user__email")
+	list_display = ['created', 'user', 'bill', 'message', 'address', 'delivery_status']
 
 class PostalAddressAdmin(admin.ModelAdmin):
-	search_fields = ("user__username",)
+	search_fields = ("user__username","user__email","firstname","lastname")
 
 class OrgCampaignInline(admin.TabularInline):
     model = OrgCampaign

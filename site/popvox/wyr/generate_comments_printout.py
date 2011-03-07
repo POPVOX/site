@@ -7,9 +7,9 @@
 from django.db.models import Max
 from django.core.mail import EmailMultiAlternatives
 
-import re, shutil, subprocess, sys, tempfile
+import datetime, re, shutil, subprocess, sys, tempfile, os.path
 
-from popvox.models import UserCommentOfflineDeliveryRecord, Bill
+from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign
 from popvox.govtrack import getMemberOfCongress
 from settings import SERVER_EMAIL
 
@@ -34,18 +34,12 @@ def create_tex(tex):
 	outfile = O()
 	outfile.write = lambda x : outfile_.write(x.encode("utf8", "replace"))
 	def escape_latex(x):
-		x = re.sub(r"(\S{15})(\S{15})", r"\1 \2", x)
-		x = x.replace("\\", "\\\\").replace("#", "\\#").replace("$", "\\$").replace("%", "\\%").replace("&", "\\&").replace("~", "\\~").replace("_", "\\_").replace("^", "\\^").replace("{", "\\{").replace("}", "\\}")
+		x = re.sub(r"(\S{15})(\S{15})", r"\1" + u"\u00AD" + r"\2", x) # break up long sequences of otherwise unbreakable characters with soft hyphens, which just show up as hyphens so we replace then with LaTeX discretionary breaks below 
+		x = x.replace("\\", r"\\").replace("#", r"\#").replace("$", r"\$").replace("%", r"\%").replace("&", r"\&").replace("~", r"\~").replace("_", r"\_").replace("^", r"\^").replace("{", r"\{").replace("}", r"\}").replace(u"\u00AD", r"\discretionary{}{}{}")
 		x = re.sub(r'(\s)"', r'\1' + u"\u201C", x)
 		x = re.sub(r"(\s)'", r'\1' + u"\u2018", x)
 		x = re.sub(r'"', u"\u201D", x)
 		x = re.sub(r"'", u"\u2019", x)
-		#x = re.sub(r'(\s)"', r'\1``', x)
-		#x = re.sub(r"(\s)'", r'\1`', x)
-		#x = x.replace(u"\u2018", "`")
-		#x = x.replace(u"\u2019", "'")
-		#x = x.replace(u"\u201C", "``")
-		#x = x.replace(u"\u201D", "''")
 		return x
 		
 	outfile.write_esc = lambda x : outfile.write(escape_latex(x))
@@ -55,6 +49,8 @@ def create_tex(tex):
 	outfile.write(r"\pagestyle{myheadings}" + "\n")
 	outfile.write(r"\usepackage{fontspec}" + "\n")
 	outfile.write(r"\setromanfont{Linux Libertine O}" + "\n")
+	#outfile.write(r"\usepackage{graphics}")
+	outfile.write(r"\usepackage{pdfpages}")
 	outfile.write(r"\begin{document}" + "\n")
 	
 	targets = []
@@ -72,9 +68,26 @@ def create_tex(tex):
 		if batch != None:
 			batch_no = batch
 		else:
+			# Don't create a new batch for this target if there are fewer than three messages to
+			# deliver and they were all written in the last two weeks.
+			if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
+				continue
+			
 			batch_max += 1
 			batch_no = batch_max
-		targets2.append( (govtrack_id, batch_no) )
+			
+		target_errors = {}
+		targets2.append( (govtrack_id, batch_no, target_errors) )
+		
+		#outfile.write(r"\noindent \includegraphics[width=6.5,clip=,trim=1in 1in 1in 1in]{/home/www/sources/Preview}" + "\n")
+		#outfile.write(r"\clearpage" + "\n")
+		if getMemberOfCongress(govtrack_id)["type"] == "sen":
+			hs = "senate"
+		elif getMemberOfCongress(govtrack_id)["type"] == "rep":
+			hs = "house"
+		else:
+			raise ValueError()
+		outfile.write(r"\includepdf[noautoscale]{" + os.path.abspath(os.path.dirname(__file__) + "/coverletter_" + hs + ".pdf") + r"}" + "\n")
 		
 		header = getMemberOfCongress(govtrack_id)["name"] + "\t" + "(batch #" + str(batch_no) + ")"
 		outfile.write(r"\markboth{")
@@ -90,7 +103,7 @@ def create_tex(tex):
 		outfile.write_esc(getMemberOfCongress(govtrack_id)["address"])
 		outfile.write(r"\bigskip" + "\n\n" + r"\noindent ")
 
-		outfile.write(r"\bigskip" + "\n")
+		outfile.write(r"\bigskip" + "\n\n")
 		
 		for t2 in UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).values("comment__bill", "comment__position").order_by("comment__bill", "comment__position").distinct():
 			position = t2["comment__position"]
@@ -102,7 +115,7 @@ def create_tex(tex):
 			outfile.write_esc(bill.title)
 			outfile.write(r"}\nopagebreak\bigskip" + "\n\n\n")
 			
-			outfile.write("\\noindent (These messages and other information can be found at http://www.popvox.com" + bill.url() + "/report)\n\n\n\\bigskip")
+			outfile.write("\\noindent (see http://popvox.com" + bill.url() + "/report)\n\n\n\\bigskip")
 			
 			for t3 in UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position):
 				# Move this into the new batch number if it's not in a numbered batch.
@@ -112,7 +125,9 @@ def create_tex(tex):
 				
 				comment = t3.comment
 				address = comment.address
+				target_errors[t3.failure_reason] = True
 				
+				outfile.write(r"\hrule\bigskip" + "\n\n")
 				outfile.write(r"\noindent ")
 				outfile.write_esc(address.nameprefix + " " + address.firstname + " " + address.lastname + " " + address.namesuffix)
 				outfile.write(r"\\\nopagebreak" + "\n")
@@ -134,14 +149,34 @@ def create_tex(tex):
 				outfile.write_esc(comment.message)
 				outfile.write("\n\n\\bigskip")
 				
-				outfile.write(r"\hrule\bigskip" + "\n\n")
+				if comment.referrer != None and isinstance(comment.referrer, Org):
+					outfile.write(r"{\it ")
+					outfile.write_esc("(This individual was referred by " + comment.referrer.name + ", ")
+					if comment.referrer.website == None:
+						outfile.write_esc("http://popvox.com" + comment.referrer.url())
+					else:
+						outfile.write_esc(comment.referrer.website)
+					outfile.write_esc(")")
+					outfile.write(r"}")
+					outfile.write("\n\n\\bigskip")
+				elif comment.referrer != None and isinstance(comment.referrer, OrgCampaign):
+					outfile.write(r"{\it ")
+					outfile.write_esc("(This individual was referred by " + comment.referrer.org.name + ", ")
+					if comment.referrer.website_or_orgsite() == None:
+						outfile.write_esc("http://popvox.com" + comment.referrer.url())
+					else:
+						outfile.write_esc(comment.referrer.website_or_orgsite())
+					outfile.write_esc(")")
+					outfile.write(r"}")
+					outfile.write("\n\n\\bigskip")
 				
-		outfile.write(r"\clearpage" + "\n")
+			# clear page after each "topic", i.e. bill and support oppose
+			outfile.write(r"\clearpage" + "\n")
 
 	outfile.write(r"\clearpage" + "\n")
 	outfile.write(r"\markboth{Hit Sheet}{Hit Sheet}" + "\n")
 	outfile.write(r"\noindent ")
-	for govtrack_id, batch_no in targets2:
+	for govtrack_id, batch_no, target_errors in targets2:
 		p = getMemberOfCongress(govtrack_id)
 		outfile.write_esc("#" + str(batch_no))
 		outfile.write(r" --- ")
@@ -149,7 +184,9 @@ def create_tex(tex):
 		outfile.write(r"  --- ")
 		outfile.write_esc(" ".join(p["address"].split(" ")[0:2]))
 		outfile.write(r"  --- ")
-		outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no).count()))
+		#outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no).count()))
+		#outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method", "missing-info", "failure-oops")]))
+		outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method",)]))
 		outfile.write(r" \\" + "\n")
 	
 	outfile.write(r"\end{document}" + "\n")
@@ -158,7 +195,7 @@ def create_tex(tex):
 	
 if len(sys.argv) == 2 and sys.argv[1] == "resetbatchnumbers":
 	UserCommentOfflineDeliveryRecord.objects.all().delete()
-elif len(sys.argv) == 3 and sys.argv[1] == "undelivered":
+elif len(sys.argv) == 3 and sys.argv[1] == "kill":
 	UserCommentOfflineDeliveryRecord.objects.filter(batch = sys.argv[2]).delete()
 else:
 	path = tempfile.mkdtemp()
@@ -167,15 +204,17 @@ else:
 		create_tex(tex)
 		
 		subprocess.call(["xelatex", tex], cwd=path)
-		subprocess.call(["cp", tex.replace(".tex", ".pdf"), "."])
 		
-		with open(tex.replace(".tex", ".pdf"), 'rb') as f:
-			msg = EmailMultiAlternatives("User Messages Delivery PDF",
-				"",
-				SERVER_EMAIL,
-				["josh@popvox.com"])
-			msg.attach('messages.pdf', f.read(), "application/pdf")
-			msg.send()
+		subprocess.call(["cp", tex.replace(".tex", ".pdf"), 'httproot/files/messages_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + '.pdf'])
+		
+		if False:
+			with open(tex.replace(".tex", ".pdf"), 'rb') as f:
+				msg = EmailMultiAlternatives("User Messages Delivery PDF",
+					"",
+					SERVER_EMAIL,
+					["josh@popvox.com"])
+				msg.attach('messages_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + '.pdf', f.read(), "application/pdf")
+				msg.send()
 			
 		#print "Done."
 		#sys.stdin.readline()

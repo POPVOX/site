@@ -23,7 +23,7 @@ class Endpoint(models.Model):
 	tested = models.BooleanField(default=False)
 
 	def __unicode__(self):
-		return str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["name"] + " " + self.get_method_display()
+		return str(self.id) + " " + str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["name"] + " " + self.get_method_display()
 
 	def mocname(self):
 		return popvox.govtrack.getMemberOfCongress(self.govtrackid)["sortkey"]
@@ -59,11 +59,12 @@ class Synonym(models.Model):
 	term1 = models.CharField(max_length=64, db_index=True)
 	term2 = models.CharField(max_length=64)
 	created = models.DateTimeField(auto_now_add=True)
+	auto = models.BooleanField(default=False)
 	class Meta:
 		unique_together = [('term1', 'term2')]
 		ordering = ('term1', 'term2')
 	def __unicode__(self):
-		return self.term1 + " => " + self.term2
+		return self.term1 + " => " + self.term2 + ("" if not self.auto else " | AUTO")
 
 class SynonymRequired(models.Model):
 	term1set = models.TextField(verbose_name="Keyword in Comment")

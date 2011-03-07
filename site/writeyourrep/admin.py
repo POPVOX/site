@@ -28,9 +28,11 @@ class DeliveryRecordAdmin(admin.ModelAdmin):
 		return None
 	make_formparsefail.short_description = "Mark as Form Parse Fail"
 	
-	
+class SynonymAdmin(admin.ModelAdmin):
+	list_display = ("created", "term1", "term2", "auto")
+
 class SynonymRequiredAdmin(admin.ModelAdmin):
-	list_display = ("term1set", "term2set")
+	list_display = ("created", "term1set", "term2set")
 	def save_model(self, request, obj, form, change):
 		t1 = form.cleaned_data["term1set"].strip()
 		t2 = form.cleaned_data["term2set"].strip()
@@ -51,6 +53,6 @@ class SynonymRequiredAdmin(admin.ModelAdmin):
 		
 admin.site.register(Endpoint, EndpointAdmin)
 admin.site.register(DeliveryRecord, DeliveryRecordAdmin)
-admin.site.register(Synonym)
+admin.site.register(Synonym, SynonymAdmin)
 admin.site.register(SynonymRequired, SynonymRequiredAdmin)
 
