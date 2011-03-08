@@ -47,9 +47,9 @@
 		{% endif %}
 		
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
-			<div class="float_right col_3" style="margin: 0px 20px 0 0;">
-				<p class="tip" style="margin-top: 130px; height: 30px;">Provide the address where you intend to vote. We need to verify your address to get your message to congress.</p>
-				<p class="tip" style="margin: 70px 0 0 0;">We <strong>only</strong> use your phone number when required on a Congressional message submission form.</p>
+			<div class="float_right col_3" style="margin: 0px 20px 0 0">
+				<p class="tip" style="margin-top: 0">POPVOX verifies your address to ensure that Members of Congress know you are a constituent.</p>
+				<p class="tip" style="margin: 170px 0 0 0">We <strong>only</strong> use your phone number when required on a Congressional message submission form.</p>
 			</div>
 			
 			{% include "popvox/address_form.html" %}
