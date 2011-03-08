@@ -113,7 +113,9 @@
 <body {% block bodyattributes %}{% endblock %}>
 
 {% block feedback_button %}
-{% include "feedback/button.html" %}
+{% with "<p style='margin-bottom: 0'>Use this form to leave comments for <b>POPVOX staff</b> about the website. Do no leave comments about legislation here.</p>" as feedback_text %}
+	{% include "feedback/button.html" %}
+{% endwith %}
 {% endblock %}
 
 <div id="wrap"> 
