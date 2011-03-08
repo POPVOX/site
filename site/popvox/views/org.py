@@ -84,6 +84,7 @@ def org_edit(request, orgslug):
 	
 # this must be available to non-logged-in-users so potential org admins can choose
 # their org
+@csrf_exempt
 @json_response
 def org_search(request):
 	ret = ""
