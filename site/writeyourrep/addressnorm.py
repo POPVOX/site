@@ -9,6 +9,10 @@ def verify_adddress(address):
 	# import here so we can set env variables in the __main__ code
 	from settings import CDYNE_LICENSE_KEY
 	from popvox.govtrack import stateapportionment
+
+	if "pobox" in address.address1.replace(" ", "").lower():
+		raise ValueError("Please enter the address of your residence so that we can determine your Congressional district. We cannot find your district based on a PO Box.")
+
 	
 	req = urllib2.Request("http://pav3.cdyne.com/PavService.svc/VerifyAddressAdvanced",
 		json.dumps(
