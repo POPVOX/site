@@ -591,6 +591,34 @@ table.form_fields td {
 	.form .error {
 		margin-top: -10px;
 		}
+		
+	#commentform .error {
+		width: 300px;
+		margin: 0 0 10px 80px;
+		}
+		
+	#commentform .error_alert {
+		background: url(bg_error.png) right top no-repeat;
+		padding-right: 24px;
+		}
+		
+		#commentform .form input .error_alert {
+			border: 1px solid #F00;
+			}
+			
+/* -------- temporary!!! ----
+#commentform #useraddress_firstname {
+	background: url(bg_error.png) right top no-repeat;
+	padding-right: 24px;
+	}
+	
+	#commentform .form input #useraddress_firstname {
+		border: 1px solid #F00;
+		}
+		
+
+			
+ -------- temporary!!! ----*/			
 
 .inlineedit {
 	cursor: pointer;
@@ -3136,6 +3164,14 @@ ul#issuearealist {
 				border: none;
 				display: block;
 				background: url(../icons/sm/b_icon_twitter.png) left top no-repeat;
+				width: 32px;
+				height: 32px;
+				}
+				
+			.social_link {
+				border: none;
+				display: block;
+				background: url(../icons/sm/b_icon_link.png) left top no-repeat;
 				width: 32px;
 				height: 32px;
 				}

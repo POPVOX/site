@@ -20,7 +20,7 @@
 	<h1>You&rsquo;re Almost Done</h1>
 	
 		 <div class="tip_inline">
-			<p>Members of Congress take messages more seriously when you are willing to stand behind your message with a name and address. They also want to know whether or not you are one of their constituents. In order to maximize the effectiveness of your communication, we require that you provide your address and phone number.</p>
+			<p>Members of Congress take messages more seriously when you are willing to stand behind your message with a name and address. We cannot deliver your comment to your Representative and Senators without your complete contact information.</p>
 		
 			<p>We will share your name, address, and phone number with your Members of Congress.</p>
 			<div class="hr"> </div>
@@ -47,9 +47,9 @@
 		{% endif %}
 		
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
-			<div class="float_right col_3" style="margin: 0px 20px 0 0">
-				<p class="tip" style="margin-top: 0">Provide the address where you intend to vote. A fake address may cause POPVOX to suspend your account.</p>
-				<p class="tip" style="margin: 170px 0 0 0">We <strong>only</strong> use your phone number when required on a Congressional message submission form.</p>
+			<div class="float_right col_3" style="margin: 0px 20px 0 0;">
+				<p class="tip" style="margin-top: 130px; height: 30px;">Provide the address where you intend to vote. We need to verify your address to get your message to congress.</p>
+				<p class="tip" style="margin: 70px 0 0 0;">We <strong>only</strong> use your phone number when required on a Congressional message submission form.</p>
 			</div>
 			
 			{% include "popvox/address_form.html" %}
