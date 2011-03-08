@@ -55,7 +55,7 @@ class IssueArea(models.Model):
 		return self.name
 
 	def orgs(self):
-		return self.org_set.filter(visible=True)
+		return (Org.objects.filter(visible=True, issues=self) | Org.objects.filter(visible=True, issues__parent=self)).distinct()
 		
 class MemberOfCongress(models.Model):
 	"""A Member of Congress or former member."""

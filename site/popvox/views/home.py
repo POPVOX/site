@@ -107,7 +107,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			"issue": ix,
 			"name": "Issue Area: " + ix.name,
 			"shortname": ix.shortname if ix.shortname != None else ix.name,
-			"bills": select_bills(issues=ix)
+			"bills": select_bills(issues=ix) | select_bills(issues__parent=ix)
 			})
 
 	if include_extras:
@@ -197,7 +197,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 		for b in Bill.objects.raw("SELECT popvox_bill.id AS id, popvox_congressionalcommittee.id AS committee_id, popvox_congressionalcommittee.code AS committee_code FROM popvox_bill LEFT JOIN popvox_bill_committees ON popvox_bill.id=popvox_bill_committees.bill_id LEFT JOIN popvox_congressionalcommittee ON popvox_congressionalcommittee.id=popvox_bill_committees.congressionalcommittee_id WHERE popvox_bill.id IN (%s)" % ",".join([str(b.id) for b in all_bills])):
 			if not b.id in committee_assignments:
 				committee_assignments[b.id] = []
-			if b.committee_code == None: # ??
+			if b.committee_code in (None, ""): # ??
 				continue
 			c = CongressionalCommittee()
 			c.id = b.committee_id
