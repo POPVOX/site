@@ -1548,7 +1548,6 @@ look in master/_map_style.css
 		font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
 		letter-spacing: .055em;
 		color: #606065;
-		padding-top: 0;
 		background-image: none;
 		}
 		
@@ -2228,6 +2227,18 @@ h1.h1_smaller {
 	.singlesignon {
 		margin-bottom: 10px;
 		}	
+		.singlesignon li {
+			float: left;
+			clear: right;
+			}
+			
+			.singlesignon li a {
+				text-indent: -9999em;
+				display: block;
+				width: 31px;
+				height: 31px;
+				border: none;
+				}
 	
 	.form.signinup {
 /*		display: none;  */
@@ -3145,52 +3156,28 @@ ul#issuearealist {
 				}
 				
 			.social_google_openid {
-				border: none;
-				display: block;
 				background: url(../icons/sm/b_icon_google.png) left top no-repeat;
-				width: 32px;
-				height: 32px;
 				}
 
 			.social_facebook {
-				border: none;
-				display: block;
 				background: url(../icons/sm/b_icon_facebook.png) left top no-repeat;
-				width: 32px;
-				height: 32px;
 				}
 
 			.social_twitter {
-				border: none;
-				display: block;
 				background: url(../icons/sm/b_icon_twitter.png) left top no-repeat;
-				width: 32px;
-				height: 32px;
 				}
 				
+			.social_email {
+				background: url(b_social_email.png) left top no-repeat;
+				}
+		
 			.social_link {
-				border: none;
-				display: block;
 				background: url(../icons/sm/b_icon_link.png) left top no-repeat;
-				width: 32px;
-				height: 32px;
 				}
 
 			.social_linkedin {
-				border: none;
-				display: block;
 				background: url(../icons/sm/b_icon_linkedin.png) left top no-repeat;
-				width: 32px;
-				height: 32px;
 				}
-				
-				.social_google_openid:hover,
-				.social_facebook:hover,
-				.social_twitter:hover,
-				.social_linkedin:hover {
-					background-position: left bottom;
-					cursor: pointer;
-					}
 					
 				.signin_social img {
 					display: none;
@@ -3658,18 +3645,6 @@ ul.social_share_btns li {
 		margin-bottom: 20px;
 		}
 			
-	.b_social_facebook {
-		background: url(b_social_facebook.png) left top no-repeat;
-		}
-		
-	.b_social_twitter {
-		background: url(b_social_twitter.png) left top no-repeat;
-		}
-	
-	.b_social_email {
-		background: url(b_social_email.png) left top no-repeat;
-		}
-		
 	.b_login_facebook,
 	.b_login_twitter {
 		text-indent: -9999em;

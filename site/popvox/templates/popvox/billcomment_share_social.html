@@ -2,18 +2,19 @@
 {% load registration_providers %}
 {% load humanize %}
 
-	<div class="c5 share_social">
+	<div class="c5 share_social" {% if billcomment_share_social_noborder %}style="border: none"{% endif %}>
 	
 	{% if comment.message %}
 	<h3 class="no_rule orange">Share This Comment</h3>
 	{% else %}
-	<h3 class="no_rule orange">Tell Others About This Bill</h3>
+	<h3 class="no_rule orange">Tell Others</h3>
 	{% endif %}
 	
 	<ul class="social_share_btns">
 		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')" title="Facebook">facebook</a></li>
 		<li><a class="btn social_twitter" href="http://twitter.com/home?status={{comment.bill.hashtag|urlencode}}%20{{SITE_ROOT_URL|urlencode}}{{comment.url|urlencode}}" target="_blank" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
-		<li><a class="btn b_social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
+		<li><a class="btn social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
+		<li><a class="btn social_link" href="#" onclick="return share_tab('link')" title="Get a Short URL">get a link</a></li>
 	</ul>
 	<div class="clear"> </div>
 	
@@ -113,7 +114,10 @@
 			</script>
 	{% endif %}
 	</div>
-
+	
+	<div id="sharetab_link" style="display: none">
+		<p>Loading...</p>
+	</div>
 	
 	{% with comment.share_hits as hits %}
 	{% if hits > 10 %}

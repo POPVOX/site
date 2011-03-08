@@ -25,10 +25,11 @@ function share(method, isauto) {
 		},
 		{ "savebutton": "share_" + method + "_button",
 		   "statusfield": "share_" + method + "_status",
-		   "success": function() {
+		   "success": function(res) {
 			   working = false;
 			   if (method == "email") { $('#share_email_field').val(''); $('#share_email_field').blur(); }
 			   if (method == "email") $("#share_" + method + "_status").delay(6000).fadeOut();
+			   $('#sharetab_link p').html("Copy the link <tt>" + res.url + "</tt> to share this bill with others.");
 		   },
 		   "failure": function(res) {
 			   if (res.error == "not-authorized" && !isauto) {
@@ -65,10 +66,11 @@ function share_tab(method) {
 	$('#sharetab_email').hide();
 	$('#sharetab_facebook').hide();
 	$('#sharetab_twitter').hide();
+	$('#sharetab_link').hide();
 	
 	current_share_tab = method;
 
-	if (0 {% if user.is_authenticated %}|| method == "email"{% endif %} {% if twitter %}|| method == "twitter"{% endif %} {% if facebook %}|| method == "facebook"{% endif %})
+	if (0 {% if user.is_authenticated %}|| method == "email"{% endif %} || method == "twitter" || method == "facebook")
 		$('#sharetab_message').fadeIn();
 	else
 		$('#sharetab_message').hide();
@@ -86,6 +88,9 @@ function share_tab(method) {
 	if (method == "twitter")
 		$('#sharetab_message p strong').text("Tweet");
 	$('#sharetab_' + method).fadeIn();
+	
+	if (method == "link")
+		share(method, true);
 	
 	return false;
 }

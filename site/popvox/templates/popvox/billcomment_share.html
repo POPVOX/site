@@ -28,6 +28,7 @@
 			{% endif %}
 		{% endif %}
 	
+		<div {% if not comment.message %}class="col_4"{% endif %}>
 		{% if not stats %}
 			<p class="tip_inline">You are one of the first few people to comment on {{bill.displaynumber}}. Spread the word with the tools below to put this bill on the radar of your Members of Congress.</p>
 		{% endif %}
@@ -40,16 +41,21 @@
 		{% if stats and stats.total > 200 %}
 			<p class="tip_inline">This bill is becoming popular in {{stats.longdescription}} and you nudged the pie chart in your direction. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}} with the tools below.</p>
 		{% endif %}
+		</div>
 		
-		{% if stats %}
 		<div class="col_4" style="padding: 0">
 			<h3>What Others Think</h3>
-			{% include "popvox/bill_statistics_pie_simple.html" %}
+			{% if stats %}
+				{% include "popvox/bill_statistics_pie_simple.html" %}
+			{% else %}
+				<div class="no_pie">
+					<p>Too few constituents have commented on {{bill.displaynumber}} to display statistics.</p>
+				</div>
+			{% endif %}
 		</div>
-		{% endif %}
 		
 		{% if comment.message %}
-		<div class="{% if stats %}col_4 col_last{% endif %}">
+		<div class="{% if stats %}col_4 col_last{% endif %}" style="padding: 0">
 			<h3 class="clear">What You Wrote</h3>
 			{% with comment.message|wraplines:"p"|truncatewords_html:25 as cmnt %}
 				<div class="message_preview">
@@ -70,7 +76,9 @@
 		
 		<div class="hr"> </div>
 
-		{% include "popvox/billcomment_share_social.html" %}
+		{% with "1" as billcomment_share_social_noborder %}
+			{% include "popvox/billcomment_share_social.html" %}
+		{% endwith %}
 		
 		<div class="hr"> </div>
 		<input class="btn b_finished" type="button" class="submit" value="Finished >" onclick="document.location = '/home'"/>

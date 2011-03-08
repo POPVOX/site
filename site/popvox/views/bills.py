@@ -423,9 +423,7 @@ def bill(request, congressnumber, billtype, billnumber):
 		# then we can use that comment as the basis of the welcome
 		# message.
 		request.session["comment-referrer"] = (bill.id, request.session["shorturl"].owner, request.session["shorturl"].id)
-		if isinstance(request.session["shorturl"].owner, User):
-			welcome = request.session["shorturl"].owner.username + " has shared with you a link to this bill that you might want to weigh in on."
-		elif isinstance(request.session["shorturl"].owner, Org):
+		if isinstance(request.session["shorturl"].owner, Org):
 			welcome = "Hello! " + request.session["shorturl"].owner.name + " wants to tell you about " + bill.displaynumber() + " on POPVOX.  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			try:
 				welcome_tabname = "Organization's Position"
@@ -1071,7 +1069,7 @@ Go to %s to have your voice be heard!""" % (
 			comment.tweet_id = ret["id"]
 			comment.save()
 		
-		return { "status": "success", "msg": "Tweet sent: " + tweet }
+		return { "status": "success", "msg": "Tweet sent: " + tweet, "url": url }
 
 	elif request.POST["method"] == "facebook":
 		fb = request.user.singlesignon.get(provider="facebook")
@@ -1099,7 +1097,10 @@ Go to %s to have your voice be heard!""" % (
 			comment.fb_linkid = ret["id"]
 			comment.save()
 
-		return { "status": "success", "msg": "A link has been posted on your Wall." }
+		return { "status": "success", "msg": "A link has been posted on your Wall.", "url": url }
+
+	elif request.POST["method"] == "link":
+		return { "status": "success", "msg": "Here is a link.", "url": url }
 
 def billcomment_moderate(request, commentid, action):
 	if not request.user.is_authenticated() or (not request.user.is_staff and not request.user.is_superuser):
