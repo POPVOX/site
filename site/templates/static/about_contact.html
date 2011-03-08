@@ -15,6 +15,9 @@
 			   $('#contactformfeedback').find('button').attr('disabled', '');
 			   $('#contactformfeedback').find('textarea').val('');
 			   $('.thanks').fadeIn().delay(2000).fadeOut();
+		   },
+		   'error':function(jqXHR, textStatus, errorThrown) {
+			   $('#contactformfeedback').find('.formeror').text('There was a problem submitting your feedback. Please email us instead.').show();
 		   }
 	    });
 	});
@@ -44,6 +47,7 @@
 		   <div class="buttons">
 			  <button class="submit">Send</button>
 		   </div>
+		   <div class="formeror error"> </div>
 	    </form>
 	    <div class="thanks hiding">Thank you for your feedback!</div>
 	</div>

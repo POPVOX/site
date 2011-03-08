@@ -192,15 +192,18 @@
 				</form>
 			</div>
 			{% endblock %}
-			{% if user.is_authenticated %}
 			<div id="whoami">
 				<p>
+					{% if user.is_authenticated %}
 					Welcome, <a href="/accounts/profile">{% filter force_escape %}{% firstof user.userprofile.fullname user.username %}{% endfilter %}</a>
 					{% for orgrole in user.orgroles.all %} &mdash; <a href="{{ orgrole.org.url }}">{{ orgrole.org.name|truncatewords:10 }}</a>{% endfor %}
 					{% if user.legstaffrole %} &mdash; {{ user.legstaffrole.as_string|truncatewords:10 }}{% endif %}
+					{% else %}
+						<script>if (document.cookie == "") document.write("NOTE: Many features of POPVOX will not work correctly when cookies are disabled.");</script>
+						<noscript>NOTE: Many features of POPVOX will not work correctly with Javascript disabled.</noscript>
+					{% endif %}
 				</p>
 			</div>
-			{% endif %}
 		</div>
 	</div><!-- e: head --> 
 	
