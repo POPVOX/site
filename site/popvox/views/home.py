@@ -235,7 +235,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 					ix = "Sponsored by " + bossname
 				elif (s["type"] != "issue" or s["issue"].parent != None) and b.topterm != None:
 					ix = b.topterm.name
-				elif s["type"] != "committeereferral" and len(b.committees_cached) > 0:
+				elif s["type"] != "committeereferral" and len(b.committees_cached) > 0 and b.committees_cached[0].shortname() != "":
 					ix = b.committees_cached[0].shortname()
 				else:
 					ix = "Other"
