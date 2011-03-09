@@ -593,7 +593,7 @@ table.form_fields td {
 		}
 		
 	#commentform .error {
-		width: 300px;
+		width: 202px;
 		margin: 0 0 10px 80px;
 		}
 		
@@ -2131,15 +2131,19 @@ h1.h1_smaller {
 		border: none;
 		float: left;
 		}
-		
-	.form input.b_finished {
+
+	.b_finished {
+		display: block;
+		text-indent: -9999em;
 		width: 81px;
 		height: 22px;
 		background: url(b_finished.png);
-		display: block;
-		text-indent: -9999em;
-		margin: 0 0 0 603px;
 		border: none;
+		cursor: pointer;
+		}
+		
+	.form input.b_finished {
+		margin: 0 0 0 603px;
 		float: left;
 		}
 		
@@ -3011,7 +3015,7 @@ ul#issuearealist {
 			text-indent: -9999em;
 			}
 			
-		.btn:hover {
+		.btn:hover, .btn.force_hover_state {
 			background-position: left bottom;
 			border: none;
 			cursor: pointer;

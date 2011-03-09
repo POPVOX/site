@@ -52,7 +52,7 @@ function validate(box) {
 	else if (v.search("support") == -1 && v.search("oppose") == -1)
 		$('#' + box + "tip").text("You should include the word 'support' or 'oppose' in your message to make your position clear.");
 	else if (v.length < .3 * charlimit && v.search(" my ") == -1)
-		$('#' + box + "tip").text("Be personalized. Talk about your life or your community.");
+		$('#' + box + "tip").text("Be personal. Write about how this bill affects your life or your community.");
 	else if (bangcount(v) > 1)
 		$('#' + box + "tip").text("Exclamation points might be a little excessive. Try using fewer exclamation points.");
 	else if (v.length < .15 * charlimit)
@@ -100,13 +100,11 @@ function validate_form() {
 	</noscript>
 
 	<h1 class="h1_smaller" style="margin-bottom: 0">
-	{% if position == "0" %}Comment on{% endif %}
-	{% if position == "+" %}I Support{% endif %}
-	{% if position == "-" %}I Oppose{% endif %}
+	Tell Congress Why You
+	{% if position == "+" %}Support{% endif %}
+	{% if position == "-" %}Oppose{% endif %}
 	{{ bill.displaynumber }}</h1>
 	
-	<p>{{bill.title_no_number}}</p>
-    
 	{% if position == "0" %}
 		<p>You are about to clear your position on this bill.</p>
 
@@ -122,7 +120,7 @@ function validate_form() {
 		<p>{{bill.displaynumber_nosession}} was introduced in a previous Congress. You are about to show your support for the reintroduction of this bill.</p>
 		{% endif %}
 	
-		<p>Would you like to add a personal message or story about how this bill affects you or your community? Your comments will be sent to your Representative and Senators and will be available for others to read on POPVOX.</p>
+		<p>Would you like to add a personal message or story about how this bill affects you or your community? Your comments will be sent to your Representative and Senators and will be available for others to read anonymously on POPVOX.</p>
 		<div class="pad_btm">
 			<input id="writemessage0"  type="radio" name="writemessage" {% if not message %}checked="1"{% endif %} onclick="$('#message_container').hide(); $('#nomessage_container').fadeIn()"/>
 			<label for="writemessage0">No, I have nothing personal to add.</label>

@@ -22,7 +22,7 @@
 
 		<h1 class="h1_smaller">Preview Your Comment</h1>
 		<div class="tip_inline mar_no">
-			 <p>Writing your comment is the hardest step but you&rsquo;re doing great.
+			 <p>Writing your comment was the hardest step &mdash; you&rsquo;re doing great!
 				Before we go on, read it over to make sure you are happy with it.
 				(You can revise or remove your comment later.)</p>
 		</div>
@@ -30,16 +30,16 @@
 		<div class="hr"> </div>
 		
 		<div class="message_preview">
-			<h5>{% if position == "+" %}Support{% endif %}{% if position == "-" %}Oppose{% endif %} {{bill.displaynumber}}</h5>
 			{{message|wraplines:"p"}}
 		</div>
 	
 		{% if not user.is_authenticated %}
 		<p class="pad_btm">
-			<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
+			<input class="b_back btn force_hover_state" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
 		</p>
-		<p class="callout">You are not done until you register or sign in. A POPVOX account is free and your public comments will be anonymous,
-		but we will need your name and address in the next step so your comment gets to the right place in Congress.</p>
+		
+		<h1 class="h1_smaller" style="margin-top: 2em">You&rsquo;re not done until you register or sign in</h1>
+		<p class="callout">A POPVOX account is free and your public comments will be anonymous.</p>
 		{% else %}
 		<p class="">You are not done just yet. Click Next to locate your congressional district.</p>
 		{% endif %}
@@ -50,8 +50,7 @@
 		<h1>Register Your Position</h1>
 		{% endif %}
 	
-		<p class="pad_btm">You are not done until you register or sign in. A POPVOX account is free and your public comments will be anonymous,
-		but we will need your name and address in the next step so your comment gets to the right place in Congress.</p>
+		<p class="pad_btm">You are not done until you register or sign in. A POPVOX account is free and your public comments will be anonymous.</p>
 	{% endif %}
 		
 	{% if not user.is_authenticated %}
@@ -115,7 +114,7 @@
 			});
 			</script>
 		
-		<div id="returning_user" class="col_4 col_last" style="{% if newaccount_error %}display: none;{% endif %}">
+		<div id="returning_user" class="col_4 col_last">
 			<h4>Returning to POPVOX?</h4>
 			
 			<p class="create_text">Login below with the service you originally used to create your POPVOX account:</p>

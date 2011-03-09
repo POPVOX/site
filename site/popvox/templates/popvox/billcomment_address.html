@@ -17,11 +17,12 @@
 	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
 	<input type="hidden" name="message" value="{% if message %}{{message}}{% endif %}"/>
 	
-	<h1>You&rsquo;re Almost Done</h1>
+	<h1>Tell Congress Who You Are</h1>
 	
 		 <div class="tip_inline">
-			<p>Members of Congress take comments more seriously when their constituent's name and address goes along with it. On POPVOX, we take this one step further by our verification process, which ensures that you're indeed their constituent!</p>
+			<p>Provide your name and the address of your residence where you intend to vote.  Please understand that we cannot deliver your message to your Representative and Senators without your complete contact information.</p>
 		
+			<p>We will share your name, address, and phone number with your Members of Congress and no one else.</p>
 			<div class="hr"> </div>
 		</div>
 		<p class="error">{{ error }}</p>
@@ -64,7 +65,7 @@
 		
 			<p class="mar_top pad_btm">
 				<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
-				<input class="b_comment" id="submitcomment" type="submit" value="Comment >"/>
+				<input class="b_finished btn" id="submitcomment" type="submit" value="Comment >"/>
 			</p>
 
 		</div>

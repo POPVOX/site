@@ -17,14 +17,14 @@
 	{% include "popvox/billcomment_progress.html" %}
 	{% endwith %}
 
-	<div class="tab_pane form">
+	<div class="tab_pane">
 		{% if stats %}
 			<h1>You Changed the Pie Chart!</h1>
 		{% else %}
 			{% if comment.message %}
 				<h1>Share Your Comment</h1>
 			{% else %}
-				<h1>Thanks For Participating!</h1>
+				<h1>Tell Others to Weigh In</h1>
 			{% endif %}
 		{% endif %}
 	
