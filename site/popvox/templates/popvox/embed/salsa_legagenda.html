@@ -1,0 +1,38 @@
+{% load popvox_utils %}
+{% load humanize %}
+
+{% for cam in org.campaigns %}
+	{% if not cam.default %}
+		<h3><div>Campaign:</div><div>{{ cam.name }}</div></h3>
+		{% if cam.description %}<p class="campaign_description"><em>{{ cam.description }}</em></p>{% endif %}
+	{% endif %}
+				
+	{% for position in cam.positions.all %}
+		<h4>
+			<div>{% if position.position == "+" %}Support:{% endif %}{% if position.position == "-" %}Oppose:{% endif %}</div>
+			<div><a href="https://www.popvox.com/{{position.bill.url}}">{{ position.bill.title|truncatewords:25 }}</a></div>
+		</h4>
+		<div style="margin-left: 2em;">
+		{% if position.comment %}{{position.comment|wraplines:"p style='margin-bottom: .5em'"}}{% endif %}
+				
+		{% with position.bill.getDeadReason as deadstatus %}
+			{% if deadstatus %}
+				<div><small>(This bill {{deadstatus}}.)</small></div>
+			{% endif %}
+		{% endwith %}
+
+		{% if not admin %}
+			{% for doc in position.documents %}
+				{% if forloop.first %}<ul class="bullets doc">{% endif %}
+				<li><a href="http://www.popvox.com{{doc.url}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
+				{% if forloop.last %}</ul>{% endif %}
+			{% endfor %}
+		{% endif %}
+		
+		{% if position.campaign.org.createdbyus %}
+		<p><small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small></p>
+		{% endif %}
+		</div>
+	{% endfor %}
+{% endfor %}	
+
