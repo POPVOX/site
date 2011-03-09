@@ -21,6 +21,43 @@ $(function() {
 	});
 });
 </script>
+<style>
+.category_icon_container {
+    background: url("/media/master/bg_rule.gif") repeat-x left top;
+	padding: 20px 0 0 80px;
+}
+.category_icon_container h2 {
+	font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+.category_icon {
+	float: left;
+	width: 80px;
+	height: 80px;
+	margin-left: -80px;
+}
+.category_icon_governance { background: url("/media/icons_categories/legis.png") no-repeat left top; }
+.category_icon_guns { background: url("/media/icons_categories/gun.png") no-repeat left top; }
+.category_icon_money { background: url("/media/icons_categories/tax.png") no-repeat left top; }
+.category_icon_health { background: url("/media/icons_categories/health.png") no-repeat left top; }
+.category_icon_technology { background: url("/media/icons_categories/chip.png") no-repeat left top; }
+.category_icon_immigration { background: url("/media/icons_categories/immig.png") no-repeat left top; }
+
+.userrichtextcontent a {
+	border-bottom: 1px solid #CC6A11;
+}
+.category_icon_container ul li {
+	background-image: none;
+	padding-left: 0;
+	margin-left: 0;
+}
+.category_icon_container small {
+	xxx-display: block;
+	font-style: normal;
+	font-size: 12px;
+}
+</style>
 {% endblock %}
 {% block content %}
 
@@ -44,30 +81,91 @@ $(function() {
 		<h1>Bills in Congress</h1>
 		
 		{% if user.is_anonymous %}
-		<p style="margin-bottom: 1em">Your role in the lawmaking process is critical: Members of Congress must understand the sentiment of their district. POPVOX simplifies this task by allowing you to voice your concerns about specific legislation in a format that is tailored for Congressional staff.</p>
+		<p style="margin-bottom: 2em">POPVOX allows you to voice your concerns about specific legislation in a format that is effective for reaching your elected representatives in Congress.</p>
 		{% endif %}
 		
-		{% cache 60 our_bills %}
 		<div class="userrichtextcontent">
 			<div class="col_6 col_top">
-				{% rawtext "bills_left" %}
+				{% comment %}{% rawtext "bills_left" %}{% endcomment %}
+				
+				{% comment %}
+				<div class="category_icon_container">
+					<div class="category_icon category_icon_money"> </div>
+					<h2>Employment</h2>
+					<ul>
+					<li><a href="/bills/us/112/hr589">H.R. 589: Emergency Unemployment Compensation Expansion Act of 2011</a></li>
+					</ul>
+					<div class="clear"> </div>
+				</div>
+				{% endcomment %}
+				<div class="category_icon_container">
+					<div class="category_icon category_icon_governance"> </div>
+					<h2>Governance and Taxes</h2>
+					<ul>
+					<li><a href="/bills/us/112/hres135">Holding Congress Accountable Act</a>
+						<small>requires posting of Congressional expenditure data (H.Res 135)</small></li>
+					<li><a href="/bills/us/112/s256">American Opportunity Act of 2011</a>
+						<small>grants a 25% tax credit for certain investments in early-stage businesses (S. 256)</small></li>
+					</ul>
+					<div class="clear"> </div>
+				</div>
+				<div class="category_icon_container">
+					<div class="category_icon category_icon_guns"> </div>
+					<h2>Gun Registration</h2>
+					<ul>
+					<li><a href="/bills/us/112/hr822">National Right-to-Carry Reciprocity Act of 2011</a>
+						<small>permits one to carry concealed firearms with an out-of-state license (H.R. 822)</small></li>
+					</ul>
+					<div class="clear"> </div>
+				</div>
+				{% comment %}
+				<div class="category_icon_container">
+					<div class="category_icon category_icon_health"> </div>
+					<h2>Health Care Reform</h2>
+					<ul>
+					<li><a href="/bills/us/112/hr4">Small Business Paperwork Mandate Elimination Act</a>
+						<small>eliminates certain 1099 filings for corporations (H.R. 4)</small></li>
+					</ul>
+					<div class="clear"> </div>
+				</div>
+				{% endcomment %}
+				<div class="category_icon_container">
+					<div class="category_icon category_icon_immigration"> </div>
+					<h2>Immigration</h2>
+					<ul>
+					<li><a href="/bills/us/112/hr43">Advanced degree immigration bill</a>
+						<small>eliminates the diversity immigrant program and re-allocates those visas to certain employment-based immigrants who obtain an advanced degree in the United States (H.R. 43)</small></li>
+					</ul>
+					<div class="clear"> </div>
+				</div>
+				<div class="category_icon_container">
+					<div class="category_icon category_icon_technology"> </div>
+					<h2>Internet and Innovation</h2>
+					<ul>
+					<li><a href="/bills/us/112/s23">The America Invents Act</a>
+						<small>establishes a first-to-file system to replace the current first-to-invent system, and other reforms (S. 23)</small></li>
+					<li><a href="/bills/us/112/hjres37">Net neutrality reversal bill</a>
+						<small>reverses the Federal Communications Commission rule on Dec. 21, 2010 relating to preserving the open Internet and broadband industry practices (H.J.Res 37)</small></li>
+					<li><a href="/bills/us/112/hr96">Internet Freedom Act</a>
+						<small>prohibits the Federal Communications Commission from further regulating the Internet (H.R. 96)</small></li>
+					</ul>
+					<div class="clear"> </div>
+				</div>
 			</div>
-			<div class="col_3 col_top col_last">
+			<div class="col_3 col_top col_last rightcol" style="margin-top: -15px">
 				{% rawtext "bills_right" %}
+				
+				<div class="clear block bill_search search_orange">
+					<div class="search_box" style="height: 85px">
+						<p style="float: none"><strong>Bill Search</strong> {% comment %} <span>search by bill number or keyword</span>{% endcomment %}</p> 
+						{% include "popvox/billsearch_form.html" %}
+						{% comment %}<p class="help">Don&rsquo;t know what to search for? Use the <a href="/orgs">Organization Directory</a> to find legislation tracked by organizations you support.</p>{% endcomment %}
+					</div>
+				</div>
+			
 			</div>
 		</div>
-		{% endcache %}
 		
-	</div>
-	
-	<div class="col_3 col_last" style="float: right; margin-bottom: 35px">
-		<div class="clear block bill_search search_orange">
-			<div class="search_box" style="height: 85px">
-				<p style="float: none"><strong>Bill Search</strong> {% comment %} <span>search by bill number or keyword</span>{% endcomment %}</p> 
-				{% include "popvox/billsearch_form.html" %}
-				{% comment %}<p class="help">Don&rsquo;t know what to search for? Use the <a href="/orgs">Organization Directory</a> to find legislation tracked by organizations you support.</p>{% endcomment %}
-			</div>
-		</div>
 	</div>
 	
 	{% include "ads/rightbar.html" %}
