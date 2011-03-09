@@ -1583,6 +1583,9 @@ look in master/_map_style.css
 		padding-left: 0;
 		}
 		
+		.c5.share_social h3 {
+			margin-top: 15px;
+			}
 		.share_some_pie .c5.share_social h3,
 		.share_some_pie .social_share_btns {
 			width: 235px;
