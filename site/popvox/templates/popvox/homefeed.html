@@ -43,21 +43,46 @@ function phone_number_twilio_callback() {
 		}
 		</script>
 		
-		<div id="newsfeed" class="your_feed">
+		<div id="newsfeed" class="col_8">
 		
 			{% for sug in suggestions %}
 				{% if forloop.first %}
-				<h3 class="mar_no">Take Action</h3>
-				<p>Here are some suggestions for you:</p>
+				<h3 class="mar_no">Here are some suggestions for you</h3>
 				<ul class="bullets">
 				{% endif %}
 			
 				<li>
-					<div><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></div>
-				{% if sug.users > 1 %}<p>{{sug.users}} other users who took the same action as you {% if sug.position == "+" %}supported{% else %}opposed{% endif %} this bill.</p>{% endif %}
-				{% for b,p in sug.sources %}
-					<p>(Recommended because you {% if p == "+" %}supported{% else %}opposed{% endif %} <a href="{{b.url}}">{{b.title|truncatewords:6}}</a>.)</p>
-				{% endfor %}
+					{% if forloop.counter <= 2 %}
+						<div style="width: 350px; padding-right: 1em; float: left;">
+						<div style="margin-bottom: .5em"><a href="{{sug.bill.url}}" style="font-weight: bold;">{{sug.bill.title|truncatewords:10}}</a></div>
+						
+						{% if sug.count == -1 %}<p>This bill is trending on POPVOX.</p>{% endif %}
+						{% for op in sug.org_sources %}
+							<p><a href="{% if op.campaign.default %}{{op.campaign.org.url}}{% else %}{{op.campaign.url}}{% endif %}">{{ op.campaign.org.name }}</a> {% if op.position == "+" %}endorses{% else %}opposes{% endif %} this bill. {% if op.comment %}They wrote:{% endif %}</p>
+							{% if op.comment %}
+								<div class="message_preview">
+									{{op.comment|wraplines:"p"}}
+								</div>
+							{% endif %}
+						{% endfor %}
+						{% for sbs in sug.bill_sources %}
+							<p>Recommended because you {% if sbs.position == "+" %}supported{% else %}opposed{% endif %} <a href="{{sbs.bill.url}}">{{sbs.bill.title|truncatewords:10}}</a>.</p>
+						{% endfor %}
+						
+						<div><a class="action" href="{{sug.bill.url}}">Action</a></div>
+						</div>
+						
+						{% bill_statistics sug.bill as stats %}
+						{% with sug.bill as bill %}
+						{% with bill.id as chart_id %}
+							{% include "popvox/bill_statistics_pie_simple.html" %}
+						{% endwith %}
+						{% endwith %}
+						
+					{% else %}
+						<div><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></div>
+					{% endif %}
+					
 				</li>
 				
 				{% if forloop.last %}

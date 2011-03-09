@@ -30,7 +30,7 @@
 	
 		<div {% if not comment.message %}class="col_4"{% endif %}>
 		{% if not stats %}
-			<p class="tip_inline">You are one of the first few people to comment on {{bill.displaynumber}}. Spread the word with the tools below to put this bill on the radar of your Members of Congress.</p>
+			<p class="tip_inline">You are one of the first people to comment on {{bill.displaynumber}}. But you can build support or opposition for this bill by sharing your {% if comment.message %}comment{% else %}position{% endif %} with others.</p>
 		{% endif %}
 		{% if stats and stats.total <= 50 %}
 			<p class="tip_inline">You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}. But it will take more people than that to get the attention of your Members of Congress. Spread the word with the tools below.</p>
@@ -44,7 +44,7 @@
 		</div>
 		
 		<div class="col_4" style="padding: 0">
-			<h3>What Others Think</h3>
+			<h3>What POPVOX Nation Thinks</h3>
 			{% if stats %}
 				{% include "popvox/bill_statistics_pie_simple.html" %}
 			{% else %}
