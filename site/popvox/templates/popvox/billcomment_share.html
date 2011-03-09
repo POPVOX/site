@@ -17,33 +17,33 @@
 	{% include "popvox/billcomment_progress.html" %}
 	{% endwith %}
 
-	<div class="tab_pane">
-		{% if stats %}
-			<h1>You Changed the Pie Chart!</h1>
-		{% else %}
-			{% if comment.message %}
-				<h1>Share Your Comment</h1>
+	<div class="tab_pane form share_some_pie">
+		<div class="col_5">
+			{% if stats %}
+				<h1>You Changed the Pie Chart!</h1>
 			{% else %}
-				<h1>Tell Others to Weigh In</h1>
+				{% if comment.message %}
+					<h1>Share Your Comment</h1>
+				{% else %}
+					<h1>Tell Others To Weigh In</h1>
+				{% endif %}
 			{% endif %}
-		{% endif %}
-	
-		<div {% if not comment.message %}class="col_4"{% endif %}>
-		{% if not stats %}
-			<p class="tip_inline">You are one of the first people to comment on {{bill.displaynumber}}. But you can build support or opposition for this bill by sharing your {% if comment.message %}comment{% else %}position{% endif %} with others.</p>
-		{% endif %}
-		{% if stats and stats.total <= 50 %}
-			<p class="tip_inline">You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}. But it will take more people than that to get the attention of your Members of Congress. Spread the word with the tools below.</p>
-		{% endif %}
-		{% if stats and stats.total > 50 and stats.total <= 200 %}
-			<p class="tip_inline">You nudged the pie chart in your direction by about one percent! This bill is starting to get attention in {{stats.longdescription}} but it will take more people than that to get traction in Congress. Spread the word about {{bill.displaynumber}} with the tools below.</p>
-		{% endif %}
-		{% if stats and stats.total > 200 %}
-			<p class="tip_inline">This bill is becoming popular in {{stats.longdescription}} and you nudged the pie chart in your direction. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}} with the tools below.</p>
-		{% endif %}
+		
+			{% if not stats %}
+				<p class="tip_inline">You are one of the first people to comment on {{bill.displaynumber}}. But you can build support or opposition for this bill by sharing your {% if comment.message %}comment{% else %}position{% endif %} with others.</p>
+			{% endif %}
+			{% if stats and stats.total <= 50 %}
+				<p class="tip_inline">You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}. But it will take more people than that to get the attention of your Members of Congress. Spread the word with the tools below.</p>
+			{% endif %}
+			{% if stats and stats.total > 50 and stats.total <= 200 %}
+				<p class="tip_inline">You nudged the pie chart in your direction by about one percent! This bill is starting to get attention in {{stats.longdescription}} but it will take more people than that to get traction in Congress. Spread the word about {{bill.displaynumber}} with the tools below.</p>
+			{% endif %}
+			{% if stats and stats.total > 200 %}
+				<p class="tip_inline">This bill is becoming popular in {{stats.longdescription}} and you nudged the pie chart in your direction. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}} with the tools below.</p>
+			{% endif %}
 		</div>
 		
-		<div class="col_4" style="padding: 0">
+		<div class="col_3" style="padding: 0">
 			<h3>What POPVOX Nation Thinks</h3>
 			{% if stats %}
 				{% include "popvox/bill_statistics_pie_simple.html" %}
@@ -53,9 +53,10 @@
 				</div>
 			{% endif %}
 		</div>
+		<div class="clear"> </div>
 		
 		{% if comment.message %}
-		<div class="{% if stats %}col_4 col_last{% endif %}" style="padding: 0">
+		<div class="{% if stats %}col_5 {% endif %}" style="padding: 20px 0 0;">
 			<h3 class="clear">What You Wrote</h3>
 			{% with comment.message|wraplines:"p"|truncatewords_html:25 as cmnt %}
 				<div class="message_preview">
@@ -63,7 +64,7 @@
 					{% if comment.message|wraplines:"p" != cmnt %}
 						<a href="#" onclick="$.colorbox({transition: 'none', inline: true, href:'#message_preview_full', opacity: .5}); return false">View All</a>
 						<div style="display: none">
-							<div id="message_preview_full" style="width: 400px; height: 400px; overflow: auto; padding: 2em" class="colorbox">
+							<div id="message_preview_full" class="colorbox">
 								<h1>Your Comment</h1>
 								{{comment.message|wraplines:"p"}}
 							</div>
@@ -74,12 +75,17 @@
 		</div>
 		{% endif %}
 		
-		<div class="hr"> </div>
-
-		{% with "1" as billcomment_share_social_noborder %}
-			{% include "popvox/billcomment_share_social.html" %}
-		{% endwith %}
 		
+		<div class="col_4 col_last">
+			{% with "1" as billcomment_share_social_noborder %}
+				{% include "popvox/billcomment_share_social.html" %}
+			{% endwith %}
+		</div>
+
+		
+		<div class="clear"> </div>
+
+			
 		<div class="hr"> </div>
 		<input class="btn b_finished" type="button" class="submit" value="Finished >" onclick="document.location = '/home'"/>
 		<div class="clear"> </div>

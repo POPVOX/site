@@ -1556,8 +1556,64 @@ look in master/_map_style.css
 /*		border-top: 1px solid #D4D1CA;  */
 	    padding-top: 5px;
 		}
-
-
+		
+	.tab_pane.share_some_pie .col_5 {
+		margin-right: 40px;
+		}
+		
+		.tab_pane.share_some_pie .col_5.col_last {
+			margin-right: 0;
+			width: 320px;
+			}
+	
+	.tab_pane.share_some_pie h1 {
+		}
+		 
+	.tab_pane.share_some_pie h3 {
+		margin-top: 0;
+		}
+		
+		.c5 h3 {
+			padding-top: 0;
+			}
+		
+	.share_some_pie .c5.share_social,
+	.share_some_pie .c5 {
+		width: 250px;
+		padding-left: 0;
+		}
+		
+		.share_some_pie .c5.share_social h3,
+		.share_some_pie .social_share_btns {
+			width: 235px;
+			}
+		
+		.share_some_pie .message_preview {
+			padding-left: 55px;
+			margin-top: 0;
+			}
+			
+		.share_some_pie .form textarea.c5 {
+			width: 210px;
+			padding: 5px;
+			}
+			
+			.share_some_pie .form label.checkbox {
+				width: 210px;
+				margin-right: 0;
+				}
+			
+	.tab_pane.share_some_pie .col_4 {
+		width: 320px;
+		margin-right: 20px;
+		}
+	
+	.tab_pane.share_some_pie .col_4.col_last {
+		margin-right: 0;
+		width: 220px;
+		}
+	
+	
 .check_inbox .col_7 {
 	background: #d4d1ca url(http://b3.s3.quickshareit.com/screenshot20110307at349pmjpg30e28.jpg)  -95px -193px no-repeat;
 	background: #d4d1ca url(bg_check_inbox.png) 30px 30px no-repeat; 
@@ -2143,7 +2199,7 @@ h1.h1_smaller {
 		}
 		
 	.form input.b_finished {
-		margin: 0 0 0 603px;
+		margin: 0 0 0 583px;
 		float: left;
 		}
 		
