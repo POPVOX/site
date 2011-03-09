@@ -78,10 +78,14 @@ $(function() {
 <div class="content">
 	
 	<div class="col_9 col_top">
+		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
+		<h1>What do you think about these bills?</h1>
+		{% else %}
 		<h1>Bills in Congress</h1>
+		{% endif %}
 		
 		{% if user.is_anonymous %}
-		<p style="margin-bottom: 2em">POPVOX allows you to voice your concerns about specific legislation in a format that is effective for reaching your elected representatives in Congress.</p>
+		<p style="margin-bottom: 2em">With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress.</p>
 		{% endif %}
 		
 		<div class="userrichtextcontent">
@@ -134,7 +138,7 @@ $(function() {
 					<h2>Immigration</h2>
 					<ul>
 					<li><a href="/bills/us/112/hr43">Advanced degree immigration bill</a>
-						<small>eliminates the diversity immigrant program and re-allocates those visas to certain employment-based immigrants who obtain an advanced degree in the United States (H.R. 43)</small></li>
+						<small>replaces the diversity immigrant program with visas for employment-based immigrants who obtain an advanced degree in the United States (H.R. 43)</small></li>
 					</ul>
 					<div class="clear"> </div>
 				</div>
@@ -144,8 +148,10 @@ $(function() {
 					<ul>
 					<li><a href="/bills/us/112/s23">The America Invents Act</a>
 						<small>establishes a first-to-file system to replace the current first-to-invent system, and other reforms (S. 23)</small></li>
-					<li><a href="/bills/us/112/hjres37">Net neutrality reversal bill</a>
-						<small>reverses the Federal Communications Commission rule on Dec. 21, 2010 relating to preserving the open Internet and broadband industry practices (H.J.Res 37)</small></li>
+					{% comment %}
+					<li><a href="/bills/us/112/hjres37">H.J.Res 37</a>
+						<small>reverses the Federal Communications Commission rule on Dec. 21, 2010 relating to preserving the open Internet and broadband industry practices</small></li>
+					{% endcomment %}
 					<li><a href="/bills/us/112/hr96">Internet Freedom Act</a>
 						<small>prohibits the Federal Communications Commission from further regulating the Internet (H.R. 96)</small></li>
 					</ul>

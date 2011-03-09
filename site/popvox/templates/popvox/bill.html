@@ -91,7 +91,11 @@ function getshorturl() {
 			View {{bill.displaynumber}} report
 		</a>
 		
+		{% if not user.userprofile.is_leg_staff %}
 		<h1>What&rsquo;s your position on {{bill.displaynumber}}?</h1>
+		{% else %}
+		<h1>Bill Status and Org Positions</h1>
+		{% endif %}
 	</div>
 		
 	<div class="clear col_9 col_top">
