@@ -53,7 +53,7 @@ function phone_number_twilio_callback() {
 			
 				<li>
 					{% if forloop.counter <= 2 %}
-						<div style="width: 350px; padding-right: 1em; float: left;">
+						<div style="width: 350px; padding-right: 2em; float: left;">
 						<div style="margin-bottom: .5em"><a href="{{sug.bill.url}}" style="font-weight: bold;">{{sug.bill.title|truncatewords:10}}</a></div>
 						
 						{% if sug.count == -1 %}<p>This bill is trending on POPVOX.</p>{% endif %}
@@ -75,7 +75,9 @@ function phone_number_twilio_callback() {
 						{% bill_statistics sug.bill as stats %}
 						{% with sug.bill as bill %}
 						{% with bill.id as chart_id %}
+						{% with 60 as chart_size %}
 							{% include "popvox/bill_statistics_pie_simple.html" %}
+						{% endwith %}
 						{% endwith %}
 						{% endwith %}
 						

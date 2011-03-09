@@ -1,8 +1,8 @@
 {% if stats.total %}
 	<div class="chart_info">
-		<div style="float: left; width: 95px; margin-right: 15px">
+		<div style="float: left; width: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px; margin-right: 15px">
 			<a href="{{bill.url}}/report">
-				<div id="chart-container{{chart_id}}" style="width: 95px; height: 95px"></div>
+				<div id="chart-container{{chart_id}}" style="width: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px; height: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px"></div>
 				<script>bill_chart('chart-container{{chart_id}}', {{stats.pro_pct}}, {{stats.con_pct}} {% if chart_opts %}, {{chart_opts}}{% endif %});</script>
 			</a>
 		</div>
