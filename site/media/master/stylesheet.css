@@ -3010,7 +3010,14 @@ ul#issuearealist {
 			}	
 		
 		
-		
+/* newsfeed */	
+
+#newsfeed .col_6 {
+	padding-top: 5px;
+	}
+
+
+	
 		
 		
 	.hm_ads h3 {
@@ -4884,3 +4891,28 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat; }
 		}
 
 
+
+
+/* ----blog---- */
+
+.blog h2.widgettitle {
+   padding-top: 15px;
+	}
+	
+.blog .post-header {
+	border-top: 0;
+	}	
+
+.blog .post-footer {
+	border-bottom: 3px solid #c4c2c0;
+	}	
+	
+.blog div.post-header div.date {
+	color: #c4c2c0;
+	}
+	
+.blog .date span {
+	color: #c4c2c0;
+	}
+	
+	
