@@ -16,18 +16,21 @@ from datetime import datetime, timedelta
 from popvox.models import *
 
 def staticpage(request, page):
-	varbls = { }
-
+	news = None
+	
 	if page == "":
 		page = "homepage"
 		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 			return HttpResponseRedirect("/home")
-		varbls["news"] = get_news()
+		news = get_news()
 			
 	page = page.replace("/", "_") # map URL structure to static files
 			
 	try:
-		return render_to_response("static/%s.html" % page, varbls, context_instance=RequestContext(request))
+		return render_to_response("static/%s.html" % page, {
+				"page": page,
+				"news": news,
+			}, context_instance=RequestContext(request))
 	except TemplateDoesNotExist:
 		raise Http404()
 

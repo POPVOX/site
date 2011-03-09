@@ -58,11 +58,14 @@ $(function() {
 		</div>
 		{% endcache %}
 		
+	</div>
+	
+	<div class="col_3 col_last" style="float: right; margin-bottom: 35px">
 		<div class="clear block bill_search search_orange">
-			<div class="search_box search_wide">
-				<p><strong>Bill Search</strong> {% comment %} <span>search by bill number or keyword</span>{% endcomment %}</p> 
+			<div class="search_box" style="height: 85px">
+				<p style="float: none"><strong>Bill Search</strong> {% comment %} <span>search by bill number or keyword</span>{% endcomment %}</p> 
 				{% include "popvox/billsearch_form.html" %}
-				<p class="help">Don&rsquo;t know what to search for? Use the <a href="/orgs">Organization Directory</a> to find legislation tracked by organizations you support.</p>
+				{% comment %}<p class="help">Don&rsquo;t know what to search for? Use the <a href="/orgs">Organization Directory</a> to find legislation tracked by organizations you support.</p>{% endcomment %}
 			</div>
 		</div>
 	</div>

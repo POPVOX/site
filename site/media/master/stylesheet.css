@@ -198,9 +198,9 @@ body.grid {
 /* ----search in the header of each page---- */
 
 	#search_head {
-		float: left;
+		float: right;
 		display: block;
-		width: 235px;
+		width: 190px;
 		height: 30px;
 		margin-left: 20px;
 		}
@@ -212,7 +212,7 @@ body.grid {
 
 	#search_head input {
 		background: url("bg_search_head.png") left top no-repeat;
-		width: 172px;
+		width: 140px;
 		height: 20px;
 		float: left;
 		margin: 2px 0 0 10px;

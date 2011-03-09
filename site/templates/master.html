@@ -138,7 +138,18 @@
 				{% endblock %}
 				<li><a href="http://www.popvox.com/blog">Blog</a></li>
 				<li><a href="/press">Press</a></li>
-				<li><a href="/about" class="last">About</a></li> 
+				<li><a href="/about" class="last">About</a></li>
+				{% if page == "homepage" %}
+				<li>
+					<div id="search_head" style="margin-top: 8px">
+						<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
+							<input type="text" value="" name="q" class="search" id="master_billsearch_q"><br />
+							<input type="submit" value="Search" class="submit_search btn">
+							<script>$('#master_billsearch_q').input_default("bill number or keywords");</script>
+						</form>
+					</div>
+				</li>
+				{% endif %}
 			</ul>
 			
 			{% block head_r_content %}
