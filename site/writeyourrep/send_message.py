@@ -422,7 +422,7 @@ def parse_webform(webformurl, webform, webformid, id):
 					opttext = opt.firstChild.data.lower()
 					opttext = re.sub("^\W+", "", opttext)
 					opttext = re.sub("\s+$", "", opttext)
-					if "select" in opttext or "=" in opttext or "-" in opttext:
+					if opttext == "" or "select" in opttext or "=" in opttext or opttext[0] == "-":
 						continue
 				
 				options[opttext] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext

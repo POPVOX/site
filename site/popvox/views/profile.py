@@ -597,13 +597,15 @@ def account_profile_update2(request, field, value, validate_only):
 def switch_to_demo_account(request, acct):
 	if not request.user.is_authenticated() or (not request.user.is_staff and not request.user.username == "POPVOXTweets" and not request.user.username == "demo_leg_staffer" and not request.user.username == "demo_org_staffer"):
 		raise Http404()
+	if not request.user.is_staff and acct not in ("demo_user", "demo_leg_staffer", "demo_org_staffer"):
+		raise Http404()
 	
 	if acct == "demo_user":
 		acct = "POPVOXTweets"
 	user = authenticate(user_object = User.objects.get(username = acct))
 	login(request, user)
 	
-	return HttpResponseRedirect(request.META["HTTP_REFERER"])
+	return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/home"))
 
 @json_response
 @login_required
