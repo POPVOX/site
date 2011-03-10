@@ -443,8 +443,8 @@ def bill(request, congressnumber, billtype, billnumber):
 	users_tracking_this_bill = None
 	users_commented_on_this_bill = None
 	if request.user.is_authenticated() and (request.user.is_staff or request.user.is_superuser):
-		users_tracking_this_bill = bill.trackedby.filter(user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().select_related("user")
-		users_commented_on_this_bill = UserProfile.objects.filter(user__comments__bill=bill).distinct().select_related("user")
+		users_tracking_this_bill = bill.trackedby.filter(allow_mass_mails=True, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().select_related("user")
+		users_commented_on_this_bill = UserProfile.objects.filter(allow_mass_mails=True, user__comments__bill=bill).distinct().select_related("user")
 	
 	request.session.set_test_cookie() # tested in bill_uservote.html on the client side
 	return render_to_response('popvox/bill.html', {
@@ -998,7 +998,10 @@ def billshare_share(request):
 	subject += " " + truncatewords(comment.bill.title, 10) + " at POPVOX"
 	
 	import shorturl
-	surlrec, created = shorturl.models.Record.objects.get_or_create(owner=request.user, target=target)
+	if not request.user.is_authenticated():
+		surlrec, created = shorturl.models.Record.objects.get_or_create(target=target)
+	else:
+		surlrec, created = shorturl.models.Record.objects.get_or_create(owner=request.user, target=target)
 	url = surlrec.url()
 	
 	if request.POST["method"] == "email":

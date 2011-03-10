@@ -13,14 +13,18 @@
 {% block content %}
 <div class="content">
 	{% if welcome %}
-	<div class="col_9 referred">
-		<h1>The Voice of the people. The Language of Congress.</h1>
-		<p>{{welcome}}</p>
+	<div class="col_12 referred">
+		<h1>Someone shared this comment with you using POPVOX</h1>
+		<p>With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress.
+		Read this comment, see what others think, and then tell your Members of Congress what you think about {{bill.displaynumber}}.</p>
 	</div>
-	{% include "ads/rightbar_single.html" %}	
 	{% endif %}
 	
-	<div class="col_12 {% if welcome %}rule{% endif %} clear"> </div>
+	<div class="col_12 {% if welcome %}rule{% endif %} clear">
+		{% if not welcome %}
+		<h1>{{comment.user.username}} commented on {{bill.displaynumber}}</h1>
+		{% endif %}
+	</div>
 
 	<div class="col_6 col_top">
 		<div class="block bills_referred">
@@ -89,12 +93,16 @@
 
 		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
 		<div id="bill_endorse_oppose_holder_user" class="no_border">
-			<h3 class="no_rule orange">What Do You Think?</h3>
+			<h3 class="no_rule orange">What Do You Think About {{bill.displaynumber}}?</h3>
 			{% include "popvox/bill_howshouldtheyvote.html" %}
 			{% include "popvox/bill_uservote.html" %}
 		</div>
-
 		{% endif %}
+
+		
+		<h3 class="clear">What Others Think</h3>
+		{% bill_statistics bill as stats %}
+		{% include "popvox/bill_statistics_pie_simple.html" %}
 	</div><!-- e: col_6 -->
 
 		

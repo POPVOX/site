@@ -694,7 +694,7 @@ def waiting_for_reintroduction(request):
 	bills = { }
 	
 	# Quickly find non-staff users tracking any bill introduced in a previous congress.
-	for user in UserProfile.objects.filter(tracked_bills__congressnumber__lt = popvox.govtrack.CURRENT_CONGRESS, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct(): # weird that we need a distinct here
+	for user in UserProfile.objects.filter(allow_mass_mails=True, tracked_bills__congressnumber__lt = popvox.govtrack.CURRENT_CONGRESS, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct(): # weird that we need a distinct here
 		for bill in user.tracked_bills.filter(congressnumber__lt = popvox.govtrack.CURRENT_CONGRESS).distinct():
 			if not bill in bills:
 				bills[bill] = []
