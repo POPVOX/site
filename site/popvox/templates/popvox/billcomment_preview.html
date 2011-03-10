@@ -20,7 +20,7 @@
 	{% if not newaccount_error and message %}
 		<div class="clear"> </div>
 
-		<h1 class="h1_smaller">Preview Your Comment</h1>
+		<h1 class="h1_smaller">Preview Your Message to Congress</h1>
 		<div class="tip_inline mar_no">
 			 <p>Writing your comment was the hardest step &mdash; you&rsquo;re doing great!
 				Before we go on, read it over to make sure you are happy with it.
@@ -65,11 +65,11 @@
 					{% include "registration/login_singlesignon.html" %}
 					<p class="clear pad_top alert"><small>* We won&rsquo;t email your contacts or post your comment to your profile on these sites without your permission.</small></p>
 				</div>
-				<div class="hr"> </div>
+				<div class="hr"> <strong>or</strong> </div>
 			</div>
 			
 			<div id="create_account" class="clear">
-				<p>Fill out the following fields to create a POPVOX account:</p>
+				<p>Create a POPVOX account:</p>
 			
 				<div class="clear mar_top"> </div>
 
@@ -117,16 +117,16 @@
 		<div id="returning_user" class="col_4 col_last">
 			<h4>Returning to POPVOX?</h4>
 			
-			<p class="create_text">Login below with the service you originally used to create your POPVOX account:</p>
+			<p>Login below with the service you originally used to create your POPVOX account:</p>
 <!-- -->			<div class="signin_social">
 				{% include "registration/login_singlesignon.html" %}
 			</div>
-			<div class="hr"> </div>
+			<div class="hr"> <strong>or</strong> </div>
 
 			<div class="clear mar_top"> </div>
 			
 			<div class="form signinup">
-				<p class="create_text">or login to your POPVOX account:</p>
+				<p class="create_text">Login to your POPVOX account:</p>
 
 				<label for="login_email">email</label>
 				<input class="c2" type="text" id="login_email" value="{{email}}"/><br />

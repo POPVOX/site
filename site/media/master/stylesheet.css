@@ -2328,7 +2328,8 @@ h1.h1_smaller {
 		}
 		
 	.b_create_box {
-		margin-left: 100px;
+		margin-left: 3260
+		;
 		padding-bottom: 20px;
 		}
 		
@@ -2898,6 +2899,10 @@ ul#issuearealist {
 			background: url(bg_zoom_report.jpg) left top no-repeat;
 			}
 		
+		.hm_col.sxsw_ad {
+			background: url(sxsw_ad.jpg) left top no-repeat;
+			padding-top: 190px;
+			}
 
 /* user home */	
 	h1#landing{
@@ -3252,6 +3257,25 @@ ul#issuearealist {
 				.signin_social img {
 					display: none;
 					}
+					
+			#create_acct_social .hr,
+			#returning_user .hr {
+				background: url("bg_hr.png") repeat-x scroll left 12px transparent;
+				padding: 6px 0 15px;
+				text-align: center;
+				}
+				
+			.hr strong {
+				background: #D4D1CA
+				}
+				
+			p.create_text {
+				margin-top: -5px;
+				}
+				
+			#create_account .b_create_box {
+				margin-left: 165px;
+				}
 		
 		.content .login h2 {
 			text-transform: uppercase;

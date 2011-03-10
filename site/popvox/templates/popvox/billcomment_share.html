@@ -56,7 +56,7 @@
 		<div class="clear"> </div>
 		
 		{% if comment.message %}
-		<div class="{% if stats %}col_5 {% endif %}" style="padding: 20px 0 0;">
+		<div class="col_5" style="padding: 20px 0 0;">
 			<h3 class="clear">What You Wrote</h3>
 			{% with comment.message|wraplines:"p"|truncatewords_html:25 as cmnt %}
 				<div class="message_preview">
