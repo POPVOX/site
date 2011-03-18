@@ -3266,7 +3266,8 @@ ul#issuearealist {
 				}
 				
 			.hr strong {
-				background: #D4D1CA
+				background: #D4D1CA;
+				padding: 0 10px;
 				}
 				
 			p.create_text {
