@@ -10,7 +10,7 @@ def verify_adddress(address):
 	from settings import CDYNE_LICENSE_KEY
 	from popvox.govtrack import stateapportionment
 
-	if "pobox" in address.address1.replace(" ", "").lower():
+	if address.state.lower() != "ak" and "pobox" in address.address1.replace(" ", "").lower():
 		raise ValueError("Please enter the address of your residence so that we can determine your Congressional district. We cannot find your district based on a PO Box.")
 
 	

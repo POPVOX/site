@@ -120,7 +120,7 @@ function validate_form() {
 		<p>{{bill.displaynumber_nosession}} was introduced in a previous Congress. You are about to show your support for the reintroduction of this bill.</p>
 		{% endif %}
 	
-		<p>Would you like to add a personal message or story about how this bill affects you or your community? Your comments will be sent to your Representative and Senators and will be available for others to read anonymously on POPVOX.</p>
+		<p style="margin-top: 1em">Would you like to add a personal message or story about how this bill affects you or your community?</p>
 		<div class="pad_btm">
 			<input id="writemessage0"  type="radio" name="writemessage" {% if not message %}checked="1"{% endif %} onclick="$('#message_container').hide(); $('#nomessage_container').fadeIn()"/>
 			<label for="writemessage0">No, I have nothing personal to add.</label>
@@ -128,6 +128,7 @@ function validate_form() {
 		<div style="margin-bottom: 2em">
 			<input id="writemessage1" type="radio" name="writemessage" {% if message %}checked="1"{% endif %} onclick="$('#message_container').fadeIn(); $('#nomessage_container').hide()"/>
 			<label for="writemessage1">Yes, I have a personal story to tell my Members of Congress.</label>
+			<p style="margin-top: 1em">Your comments will be sent to your Representative and Senators and will be available for others to read anonymously on POPVOX.</p>
 		</div>
 		
 		<div id="nomessage_container"  {% if message %}style="display: none"{% endif %}>

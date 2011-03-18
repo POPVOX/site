@@ -520,7 +520,7 @@ def activity_getinfo(request):
 				if state == member["state"] and (member["type"] == "sen" or district == member["district"]):
 					can_see_user_details = True
 	
-	count = 30
+	count = 80
 	if "count" in request.REQUEST:
 		count = int(request.REQUEST["count"])
 	

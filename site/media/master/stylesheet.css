@@ -990,7 +990,8 @@ h3#reporttitle {
 .no_pie {
 	background: url(bg_pie_empty.png) left top no-repeat;
 	padding-left: 85px;
-	height: 80px;
+	xxx-height: 80px;
+	height: 120px;
 	}	
 	
 	.no_pie a {

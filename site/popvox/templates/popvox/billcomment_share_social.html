@@ -120,7 +120,7 @@
 	</div>
 	
 	{% with comment.share_hits as hits %}
-	{% if hits > 10 %}
+	{% if hits > 10 and 0 %}
 	<p>This comment has been viewed {{hits}} times through sharing!</p>
 	{% endif %}
 	{% endwith %}

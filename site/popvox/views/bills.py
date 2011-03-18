@@ -200,6 +200,9 @@ def billsearch(request):
 			# Ignore invalid data from the API.
 			pass
 
+	if "startup" in q and "visa" in q:
+		bills.append({"congressnumber": 112, "billtype": "s", "billnumber": 565})
+
 	bills = getbillsfromhash(bills)
 	if request.user.is_authenticated():
 		import home
@@ -992,7 +995,7 @@ def billshare_share(request):
 			subject = "I " + comment.verb(tense="past")
 			message = comment.message
 		else:
-			subject = comment.user.username + "'s message " + comment.verb(tense="ing")
+			subject = "Check out this message " + comment.verb(tense="ing")
 			message = comment.user.username + " wrote:\n\n" + comment.message
 	
 	subject += " " + truncatewords(comment.bill.title, 10) + " at POPVOX"

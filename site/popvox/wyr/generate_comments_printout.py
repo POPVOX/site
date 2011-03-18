@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 import datetime, re, shutil, subprocess, sys, tempfile, os.path
 
 from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign
+from writeyourrep import DeliveryRecord
 from popvox.govtrack import getMemberOfCongress
 from writeyourrep.models import DeliveryRecord, Endpoint
 from settings import SERVER_EMAIL

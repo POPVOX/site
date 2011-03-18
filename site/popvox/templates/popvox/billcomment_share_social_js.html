@@ -28,7 +28,7 @@ function share(method, isauto) {
 		   "success": function(res) {
 			   working = false;
 			   if (method == "email") { $('#share_email_field').val(''); $('#share_email_field').blur(); }
-			   if (method == "email") $("#share_" + method + "_status").delay(6000).fadeOut();
+			   //if (method == "email") $("#share_" + method + "_status").delay(6000).fadeOut();
 			   $('#sharetab_link p').html("Copy the link <tt>" + res.url + "</tt> to share this bill with others.");
 		   },
 		   "failure": function(res) {

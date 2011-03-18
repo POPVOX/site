@@ -99,17 +99,18 @@
 		</div>
 		{% endif %}
 
-		
+		{% comment %}
 		<h3 class="clear">What Others Think</h3>
 		{% bill_statistics bill as stats %}
 		{% include "popvox/bill_statistics_pie_simple.html" %}
+		{% endcomment %}
 	</div><!-- e: col_6 -->
 
 		
 	<div class="col_6 col_top col_last">
 		<div class="block referred_quote_{% if comment.position == '+' %}endorse{% else %}opposed{% endif %}">
 			<p class="commenter"><strong>{{comment.user.username}}</strong> from {{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}
-			commented {{comment.updated|date2}} that {{comment.address.heshe}}  {{comment.verb}} {{bill.displaynumber}}:</p>
+			commented {{comment.updated|date2}} that he or she {{comment.verb}} {{bill.displaynumber}}:</p>
 			{% if comment.message %}
 				{% if not comment_rejected %}
 					<div class="usercomment">
