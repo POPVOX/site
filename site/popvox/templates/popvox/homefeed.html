@@ -56,7 +56,7 @@ function phone_number_twilio_callback() {
 						<div class="col_6">
 						<div style="margin-bottom: .5em"><a href="{{sug.bill.url}}" style="font-weight: bold;">{{sug.bill.title|truncatewords:10}}</a></div>
 						{% if sug.source %}
-							<p>Recommended because you weighed in on <a href="{{sbs.bill.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
+							<p>Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
 						{% else %}
 							<p>This bill is trending on POPVOX.</p>
 						{% endif %}

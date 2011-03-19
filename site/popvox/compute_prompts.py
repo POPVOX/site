@@ -51,8 +51,6 @@ for b1 in matrix:
 
 # Compute cosine similarity between each row.
 for b1 in matrix:
-	print b1
-	
 	# Compute similarity scores between this bill and all bills with a greater id.
 	sim = {}
 	for b2 in matrix[b1]: # limit the scoring to bills that at least one User commented on both
@@ -69,7 +67,6 @@ for b1 in matrix:
 	# Store the top scores.
 	BillSimilarity.objects.filter(bill1 = b1).delete()
 	for b2, score in sim[0:5]:
-		print b1, b2, score
 		bs = BillSimilarity()
 		bs.bill1_id = b1
 		bs.bill2_id = b2

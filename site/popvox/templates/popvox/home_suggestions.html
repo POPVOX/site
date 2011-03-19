@@ -22,7 +22,7 @@
 				<div style="float: right"><a class="action" href="{{sug.bill.url}}">Action</a></div>
 				<h4><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h4>
 				{% if sug.source %}
-					<p>Recommended because you weighed in on <a href="{{sbs.bill.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
+					<p>Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
 				{% else %}
 					<p>This bill is trending on POPVOX.</p>
 				{% endif %}

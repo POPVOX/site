@@ -310,34 +310,33 @@ def get_legstaff_district_bills(user):
 	
 def compute_prompts(user):
 	# Compute prompts for action for users by looking at the bills he has commented
-	# on, plus trending bills (with a weight), and then bills that are similar to those bills.
+	# on, plus trending bills (with a weight).
 	
-	source_bills = []
-	for c in user.comments.all().select_related("bill"):
-		source_bills.append( (c.bill, 1.0, False) )
 		
-	from bills import get_popular_bills
-	for bill in get_popular_bills():
-		source_bills.append( (bill, 0.1, True) )
-	
-	# For each source bill, find similar target bills. Remember the weighted similarity
+	# For each source bill, find similar target bills. Remember the similarity
 	# and source for each target.
 	targets = {}
-	for source_bill, source_weight, include_as_target in source_bills:
-		if include_as_target:
-			if not source_bill in targets: targets[source_bill] = []
-			targets[source_bill].append( (None, source_weight) )
+	max_sim = 0
+	for c in user.comments.all().select_related("bill"):
+		source_bill = c.bill
 		for target_bill, similarity in chain(( (s.bill2, s.similarity) for s in source_bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in source_bill.similar_bills_two.all().select_related("bill1"))):
 			if not target_bill in targets: targets[target_bill] = []
-			targets[target_bill].append( (source_bill, source_weight * similarity) )
+			targets[target_bill].append( (source_bill, similarity) )
+			max_sim = max(similarity, max_sim)
+	
+	from bills import get_popular_bills
+	for bill in get_popular_bills():
+		if bill not in targets:
+			targets[bill] = [(None, max_sim/10.0)]
 	
 	# Put the targets in descending weighted similarity order.
 	targets = list(targets.items()) # (target_bill, [list of (source,similarity) pairs]), where source can be null if it is coming from the tending bills list
 	targets.sort(key = lambda x : -sum([y[1] for y in x[1]]))
 	
-	# Remove the recommendations that the user has anti-tracked.
+	# Remove the recommendations that the user has anti-tracked or commented on.
 	antitracked_bills = set(user.userprofile.antitracked_bills.all())
-	targets = filter(lambda x : not x[0] in antitracked_bills, targets)
+	commented_bills = set(Bill.objects.filter(usercomments__user=user))
+	targets = filter(lambda x : not x[0] in antitracked_bills|commented_bills, targets)
 	
 	# Take the top reccomendations.
 	targets = targets[:15]
