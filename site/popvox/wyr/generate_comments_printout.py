@@ -11,6 +11,7 @@ import datetime, re, shutil, subprocess, sys, tempfile, os.path
 
 from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign
 from popvox.govtrack import getMemberOfCongress
+from writeyourrep.models import DeliveryRecord, Endpoint
 from settings import SERVER_EMAIL
 
 buildings = {
@@ -197,6 +198,31 @@ if len(sys.argv) == 2 and sys.argv[1] == "resetbatchnumbers":
 	UserCommentOfflineDeliveryRecord.objects.all().delete()
 elif len(sys.argv) == 3 and sys.argv[1] == "kill":
 	UserCommentOfflineDeliveryRecord.objects.filter(batch = sys.argv[2]).delete()
+elif len(sys.argv) in (2, 3) and sys.argv[1] == "delivered":
+	recs = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False)
+	if len(sys.argv) == 3:
+		recs = recs.filter(batch = sys.argv[2])
+	for ucodr in recs:
+		dr = DeliveryRecord()
+		dr.target = Endpoint.objects.get(govtrackid=ucodr.target.id)
+		dr.trace = "comment #" + unicode(ucodr.comment.id) + " delivered via paper copy"
+		dr.success = True
+		dr.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
+		dr.method = Endpoint.METHOD_INPERSON
+		dr.save()
+		
+		try:
+			prev_dr = ucodr.comment.delivery_attempts.get(target__govtrackid = ucodr.target.id, next_attempt__isnull = True)
+			prev_dr.next_attempt = dr
+			prev_dr.save()
+		except DeliveryRecord.DoesNotExist:
+			pass
+		
+		ucodr.comment.delivery_attempts.add(dr)
+		print ucodr.comment
+
+		ucodr.delete()
+		
 else:
 	path = tempfile.mkdtemp()
 	try:
