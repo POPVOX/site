@@ -1041,6 +1041,14 @@ class UserCommentOfflineDeliveryRecord(models.Model):
 	class Meta:
 		unique_together = (("target", "comment"),)
 
+class BillSimilarity(models.Model):
+	"""Stores a similarity value between two bills, where bill1.id < bill2.id."""
+	bill1 = models.ForeignKey(Bill, related_name="similar_bills_one", db_index=True)
+	bill2 = models.ForeignKey(Bill, related_name="similar_bills_two", db_index=True)
+	similarity = models.FloatField()
+	class Meta:
+		unique_together = (("bill1", "bill2"),)
+
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people
 	# and committees that exist in Congress. Accessing these

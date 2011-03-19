@@ -13,6 +13,7 @@ from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
 import re
 from xml.dom import minidom
+from itertools import chain, izip, cycle
 
 from popvox.models import *
 from popvox.views.bills import bill_statistics, get_default_statistics_context
@@ -308,95 +309,47 @@ def get_legstaff_district_bills(user):
 	return localbills
 	
 def compute_prompts(user):
-	# Compute prompts for action for users. We want to remain agnostic about
-	# what action the user should take, although we probably could predict it,
-	# but we suspect users will find that inappropriate.
+	# Compute prompts for action for users by looking at the bills he has commented
+	# on, plus trending bills (with a weight), and then bills that are similar to those bills.
 	
-	# To compute the prompts we will look at the actions the user took, find
-	# similar actions by other users and orgs, and then tally up the bills that
-	# those other things had taken action on. The sugs array is a dict from
-	# recommended bill ids to a dict from recommendation reasons to counts.
-	
-	sugs = { }
-	bill_org = { }
-	
+	source_bills = []
 	for c in user.comments.all().select_related("bill"):
-		bills = []
+		source_bills.append( (c.bill, 1.0, False) )
 		
-		# Find all orgs that had the same position.
-		for p in OrgCampaignPosition.objects.filter(bill=c.bill, position=c.position):
-			efc = p.campaign.org.estimated_fan_count()
-			
-			# Now find all bills endorsed/opposed by that org, except for the original
-			# bill since there's no need to recommend something the user already did.
-			for q in OrgCampaignPosition.objects.filter(campaign__org=p.campaign.org, bill__congressnumber=popvox.govtrack.CURRENT_CONGRESS).exclude(bill=c.bill).exclude(position="0").select_related("bill"):
-				bills.append(q.bill)
-				
-				# find the org with the largest user base that has a statement on this bill to
-				# represent the bill. Give preference to any org that has written a short message
-				# about the bill.
-				orec = (q.campaign, efc, None if q.comment == None or q.comment.strip() == "" else q.comment, q.position)
-				if not q.bill.id in bill_org or bill_org[q.bill.id][1] < orec[1] or (bill_org[q.bill.id][2] == None and orec[2] != None):
-					bill_org[q.bill.id] = orec
-				
-		# Find all other users that had the same position.
-		for d in UserComment.objects.filter(bill=c.bill, position=c.position).exclude(user=user).select_related("bill"):
-			# Now find all of the other positions this other user took...
-			for q in d.user.comments.filter(bill__congressnumber=popvox.govtrack.CURRENT_CONGRESS).exclude(bill=c.bill).select_related("bill"):
-				bills.append(q.bill)
-		
-		# Batch filter out any bills user has taken a position on or has anti-tracked.
-		bills = Bill.objects.filter(id__in=[b.id for b in bills]).exclude(usercomments__user=user).exclude(id__in=user.userprofile.antitracked_bills.all())
-		
-		for bill in bills:
-			if not bill.id in sugs:
-				billsug = { "bill": bill, "count": 0, "bill_sources": {} }
-				sugs[bill.id] = billsug
-				
-				if not q.bill.isAlive():
-					billsug["skip"] = True
-					continue
-			else:
-				billsug = sugs[bill.id]
-				if "skip" in billsug:
-					continue
-				
-			billsug["count"] += 1
-				
-			if not c.bill.id in billsug["bill_sources"]:
-				billsug["bill_sources"][c.bill.id] = { "bill": c.bill, "position": c.position, "count": 0 }
-			billsug["bill_sources"][c.bill.id]["count"] += 1
-	
-	# Add the popular bills to the list of suggestions if they are not already
-	# suggested.
 	from bills import get_popular_bills
-	popular_bills = get_popular_bills()
-	popular_bills = Bill.objects.filter(id__in=[b.id for b in popular_bills]).exclude(usercomments__user=user).exclude(id__in=user.userprofile.antitracked_bills.all())
-	for bill in popular_bills:
-		if bill.id in sugs:
-			continue
-		sugs[bill.id] = { "bill": bill, "count": -1, "bill_sources": {} } # -1 is a flag for the HTML and also to sort them below the other bills
-
-	for b in Bill.objects.filter(id__in = [x["bill"].id for x in sugs.values()]).annotate(count=Count("usercomments")):
-		sugs[b.id]["commentcount"] = b.count
-
-	sugs = list(sugs.values())
+	for bill in get_popular_bills():
+		source_bills.append( (bill, 0.1, True) )
 	
-	# sort suggestions by the number of users recommending the bill first,
-	# and then by the total comments left on each bill
-
-	sugs.sort(key = lambda x : (-x["count"], -x["commentcount"]))
+	# For each source bill, find similar target bills. Remember the weighted similarity
+	# and source for each target.
+	targets = {}
+	for source_bill, source_weight, include_as_target in source_bills:
+		if include_as_target:
+			if not source_bill in targets: targets[source_bill] = []
+			targets[source_bill].append( (None, source_weight) )
+		for target_bill, similarity in chain(( (s.bill2, s.similarity) for s in source_bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in source_bill.similar_bills_two.all().select_related("bill1"))):
+			if not target_bill in targets: targets[target_bill] = []
+			targets[target_bill].append( (source_bill, source_weight * similarity) )
 	
-	sugs = sugs[0:10] # max number of suggestions to return
+	# Put the targets in descending weighted similarity order.
+	targets = list(targets.items()) # (target_bill, [list of (source,similarity) pairs]), where source can be null if it is coming from the tending bills list
+	targets.sort(key = lambda x : -sum([y[1] for y in x[1]]))
 	
-	for s in sugs:
-		if s["bill"].id in bill_org:
-			s["org_sources"] = [ { "campaign": bill_org[s["bill"].id][0], "comment": bill_org[s["bill"].id][2], "position": bill_org[s["bill"].id][3] } ]
-		s["bill_sources"] = list(s["bill_sources"].values())
-		s["bill_sources"].sort(key = lambda x : -x["count"])
-		s["bill_sources"] = s["bill_sources"][0:1]
+	# Remove the recommendations that the user has anti-tracked.
+	antitracked_bills = set(user.userprofile.antitracked_bills.all())
+	targets = filter(lambda x : not x[0] in antitracked_bills, targets)
 	
-	return sugs
+	# Take the top reccomendations.
+	targets = targets[:15]
+	
+	# Replace the list of target sources with just the highest-weighted source for each target.
+	for i in xrange(len(targets)):
+		targets[i][1].sort(key = lambda x : -x[1])
+		targets[i] = { "bill": targets[i][0], "source": targets[i][1][0][0] }
+	
+	# targets is now a list of (target, source) pairs.
+	
+	return targets
 
 @login_required
 def home(request):
