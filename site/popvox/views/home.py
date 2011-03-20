@@ -45,8 +45,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			congressnumber=popvox.govtrack.CURRENT_CONGRESS,
 			**kwargs) \
 			.exclude(antitrackedby=prof) \
-			.order_by("-current_status_date") \
-			.select_related("sponsor", "topterm")
+			.order_by()
 			
 	boss = user.legstaffrole.member
 	if boss != None:
@@ -59,7 +58,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 		"type": "tracked",
 		"name": "Bookmarked Legislation",
 		"shortname": "Bookmarked",
-		"bills": prof.tracked_bills.all().select_related("sponsor", "topterm")
+		"bills": prof.tracked_bills.all()
 		})
 	
 	if boss != None:
@@ -130,7 +129,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			"type": "hidden",
 			"name": "Legislation You Have Hidden",
 			"shortname": "Hidden",
-			"bills": prof.antitracked_bills.select_related("sponsor", "topterm")
+			"bills": prof.antitracked_bills.all()
 			})
 
 	# If id != None, then we're requesting just one group. We can do this now
@@ -199,8 +198,17 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 		for b in all_bills:
 			b.committees_cached = committee_assignments[b.id]
 			
+		# Pre-create MemberOfCongress objects because they don't have any info...
+		for b in all_bills:
+			b.sponsor = MemberOfCongress(id=b.sponsor_id)
+			
 	# Preset the tracked and antitracked status.
 	annotate_track_status(prof, all_bills)
+	
+	# Pre-fetch all of the top terms for categorization.
+	top_terms = {}
+	for ix in IssueArea.objects.filter(parent__isnull=True):
+		top_terms[ix.id] = ix
 	
 	# Group any of the suggestion groups that have too many bills in them.
 	# This is the only part of this routine that actually iterates through the
@@ -221,8 +229,8 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 					ix = str(b.congressnumber) + popvox.govtrack.ordinate(b.congressnumber) +  " Congress"
 				elif s["type"] != "sponsor" and boss != None and b.sponsor_id != None and b.sponsor_id == boss.id:
 					ix = "Sponsored by " + bossname
-				elif (s["type"] != "issue" or s["issue"].parent != None) and b.topterm != None:
-					ix = b.topterm.name
+				elif (s["type"] != "issue" or s["issue"].parent != None) and b.topterm_id != None:
+					ix = top_terms[b.topterm_id].name
 				elif s["type"] != "committeereferral" and len(b.committees_cached) > 0 and b.committees_cached[0].shortname() != "":
 					ix = b.committees_cached[0].shortname()
 				else:
@@ -238,6 +246,10 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 				x["name"] != committeename,
 				x["name"] not in myissues,
 				x["name"]))
+			
+		for g in s["subgroups"]:
+			g["bills"] = list(g["bills"])
+			g["bills"].sort(key = lambda b : b.current_status_date, reverse = True)
 	
 	return suggestions
 
