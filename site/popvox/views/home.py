@@ -35,6 +35,11 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 	
 	suggestions = [  ]
 	
+	#from settings import DEBUG
+	#if DEBUG:
+	#	from django.db import connection, transaction
+	#	connection.cursor().execute("RESET QUERY CACHE;")
+	
 	def select_bills(**kwargs):
 		return Bill.objects.filter(
 			congressnumber=popvox.govtrack.CURRENT_CONGRESS,
@@ -108,7 +113,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			"issue": ix,
 			"name": "Issue Area: " + ix.name,
 			"shortname": ix.shortname if ix.shortname != None else ix.name,
-			"bills": select_bills(issues=ix) | select_bills(issues__parent=ix)
+			"bills": select_bills(issues__id__in=[ix.id] + list(ix.subissues.all().values_list('id', flat=True))) # the disjunction was slow: select_bills(issues=ix) | select_bills(issues__parent=ix)
 			})
 
 	if include_extras:
