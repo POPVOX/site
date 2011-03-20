@@ -136,7 +136,7 @@ class Order(models.Model):
 		
 	def rate_limit_info(self):
 		# Look at impressions in the last two days...
-		imprs = ImpressionBlock.objects.filter(banner__in=self.banners.all(), date__gte=datetime.now()-timedelta(days=2))
+		imprs = ImpressionBlock.objects.filter(banner__in=list(self.banners.all()), date__gte=datetime.now()-timedelta(days=2))
 		
 		# Get the first impression date (i.e. today or yesterday) and the total
 		# cost of the impressions in this range.
