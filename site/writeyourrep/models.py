@@ -21,6 +21,8 @@ class Endpoint(models.Model):
 	webformresponse = models.CharField(max_length=256, blank=True, null=True)
 	
 	tested = models.BooleanField(default=False)
+	
+	template = models.TextField(blank=True, null=True)
 
 	def __unicode__(self):
 		return str(self.id) + " " + str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["name"] + " " + self.get_method_display()

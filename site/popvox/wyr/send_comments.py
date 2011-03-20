@@ -81,6 +81,8 @@ for comment in UserComment.objects.filter(
 	else:
 		msg.support_oppose = ('i oppose',)
 	
+	msg.simple_topic_code = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
+	
 	if comment.referrer != None and isinstance(comment.referrer, Org):
 		msg.campaign_id = "http://popvox.com" + comment.referrer.url()
 		msg.campaign_info = comment.referrer.name
@@ -104,14 +106,13 @@ for comment in UserComment.objects.filter(
 		msg.org_description = comment.referrer.org.description
 		msg.org_contact = "(unknown)"
 	else:
-		msg.campaign_id = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
+		msg.campaign_id = msg.simple_topic_code
 		msg.campaign_info = "Comments " + ("Supporting" if comment.position == "+" else "Opposing") + " " + comment.bill.title
 		msg.form_url = "http://www.popvox.com" + comment.bill.url()
-		msg.org_url = "popvox.com" # harkin: no leading http://www.
-		msg.org_name = "POPVOX.com Message Delivery Agent"
-		msg.org_description = "POPVOX.com delivers constituent messages to Congress."
-		msg.org_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
-		msg.dummy_campaign_info = True
+		#msg.org_url = "popvox.com" # harkin: no leading http://www.
+		#msg.org_name = "POPVOX.com Message Delivery Agent"
+		#msg.org_description = "POPVOX.com delivers constituent messages to Congress."
+		#msg.org_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
 	
 	msg.delivery_agent = "POPVOX.com"
 	msg.delivery_agent_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
@@ -181,6 +182,60 @@ for comment in UserComment.objects.filter(
 				#or not Endpoint.objects.filter(govtrackid = gid).exclude(method = Endpoint.METHOD_NONE).exists() \
 
 		# Send the comment.
+		
+		template = u"""<APP>
+<IP></IP>
+<Prefix>#prefix#</Prefix>
+<FIRST>#firstname#</FIRST>
+<LAST>#lastname#</LAST>
+<ADDR1>#address1#</ADDR1>
+<ADDR2>#address2#</ADDR2>
+<CITY>#city#</CITY>
+<STATE>#state#</STATE>
+<ZIP>#zipcode#</ZIP>
+<HOMEPHONE>#phone#</HOMEPHONE>
+<WORKPHONE></WORKPHONE>
+<EMAIL>#email#</EMAIL>
+<RESPOND>Y</RESPOND>
+<ISSUE>#simple_topic_code#</ISSUE>
+<MSG>#message#</MSG>
+<CAMPAIGNID>#campaign_id#</CAMPAIGNID>
+<MODIFIED>Y</MODIFIED>
+<URI>#form_url#</URI>
+<ORGURL>#org_url#</ORGURL>
+<ORGNAME>#org_name#</ORGNAME>
+</APP>
+"""
+		
+		import re, xml.dom.minidom, xml.dom
+		def getmsgattr(mgs, attr):
+			if not hasattr(msg, attr) and attr in ("org_url", "org_name", "org_description", "org_contact"):
+				return ""
+			v = getattr(msg, attr)
+			if isinstance(v, tuple) or isinstance(v, list):
+				v = v[0]
+			v = unicode(v)
+			if attr == "message":
+				v += "\n" + open("popvox/wyr/unicodetestcharacters.txt", "r").read().decode("utf-8")
+			return v
+		def applymsgattrs(node):
+			has_elem = False
+			for n in node.childNodes:
+				if n.nodeType == xml.dom.Node.ELEMENT_NODE:
+					has_elem = True
+					if not applymsgattrs(n) and n.firstChild != None:
+						n.replaceChild(
+							xml_message.createTextNode(
+								re.sub(
+									r"#(\w+)#",
+									lambda m : getmsgattr(msg, m.group(1)),
+									n.firstChild.data
+								)),
+							n.firstChild)
+			return has_elem
+		xml_message = xml.dom.minidom.parseString(template)
+		applymsgattrs(xml_message)
+		print xml_message.toxml("utf-8")
 		
 		if stats_only:
 			pending += 1

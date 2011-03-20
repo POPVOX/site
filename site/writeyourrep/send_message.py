@@ -77,10 +77,10 @@ Delivery:
 		ret += self.subjectline + u"\n\n"
 		ret += self.message
 		
-		if not hasattr(self, "dummy_campaign_info"):
-			ret += u"\n\ntracking info:\n"
+		ret += u"\n\ntracking info:\n"
+		if hasattr(self, "org_name") and hasattr(self, "org_url"):
 			ret += u"organization: " + self.org_name + u" (" + self.org_url + u")\n"
-			ret += u"topic code: " + self.campaign_id + u"\n"
+		ret += u"topic code: " + self.campaign_id + u"\n"
 		
 		return ret
 		
