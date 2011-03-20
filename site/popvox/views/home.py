@@ -664,3 +664,46 @@ def waiting_for_reintroduction(request):
 		"bills": bills,
 		}, context_instance=RequestContext(request))
 	
+@user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
+def delivery_status_report(request):
+	from writeyourrep.models import Endpoint, DeliveryRecord
+	report = []
+	for moc in popvox.govtrack.getMembersOfCongress():
+		moc = dict(moc)
+		report.append(moc)
+		
+		try:
+			ep = Endpoint.objects.get(govtrackid=moc["id"])
+		except Endpoint.DoesNotExist:
+			ep = None
+			
+		if ep == None or (ep.method == Endpoint.METHOD_NONE and ep.tested):
+			moc["delivery_status"] = "Cannot Deliver Messages"
+			continue
+			
+		d = DeliveryRecord.objects.filter(target=ep, next_attempt__isnull=True)
+		d_success = d.filter(failure_reason__in=(
+			DeliveryRecord.FAILURE_NO_FAILURE,
+			DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE
+			)).exclude(method=Endpoint.METHOD_INPERSON)
+			
+		d = d.count()
+		if d == 0:
+			moc["delivery_status"] = "Either no messages or no delivery method...."
+			continue
+		
+		ratio = float(d_success.count()) / float(d)
+		ratio = int(100.0*(1.0-ratio))
+		
+		if ratio <= 1:
+			moc["delivery_status"] = "OK!"
+		elif ratio < 5:
+			moc["delivery_status"] = "OK! (Mostly)"
+		else:
+			moc["delivery_status"] = "%s%% of Messages Failing (are hand-delivered)" % ratio
+			
+	return render_to_response('popvox/delivery_status_report.html', {
+		"report": report,
+		}, context_instance=RequestContext(request))
+	
+

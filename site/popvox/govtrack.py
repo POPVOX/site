@@ -55,7 +55,6 @@ def loadpeople():
 	people = { }
 	senators = { }
 	congresspeople = { }
-	#xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/people.xml"))
 	xml = minidom.parse(open_govtrack_file("us/people.xml"))
 	for node in xml.getElementsByTagName("person"):
 		px = {
@@ -80,6 +79,7 @@ def loadpeople():
 				px["state"] = role.getAttribute("state")
 				px["district"] = int(role.getAttribute("district")) if role.getAttribute("type") == "rep" else None
 				px["address"] = role.getAttribute("address")
+				px["url"] = role.getAttribute("url")
 			
 				if role.getAttribute("type") == "sen":
 					if not role.getAttribute("state") in senators:

@@ -23,6 +23,7 @@ urlpatterns = patterns('',
 	(r'^activity$', 'popvox.views.home.activity'),
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),
 	(r'^waiting-for-reintroduction$', 'popvox.views.home.waiting_for_reintroduction'),
+	(r'^delivery-status-report$', 'popvox.views.home.delivery_status_report'),
 	
 	(r'^calendar$', 'popvox.views.home.calendar'),
 	
