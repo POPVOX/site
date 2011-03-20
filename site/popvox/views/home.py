@@ -117,13 +117,13 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			})
 
 	if include_extras:
-		suggestions.append({
-			"id": "allbills",
-			"type": "allbills",
-			"name": "All Bills",
-			"shortname": "All",
-			"bills": select_bills()
-			})
+		#suggestions.append({
+		#	"id": "allbills",
+		#	"type": "allbills",
+		#	"name": "All Bills",
+		#	"shortname": "All",
+		#	"bills": select_bills()
+		#	})
 		
 		suggestions.append({
 			"id": "hidden",
@@ -154,24 +154,6 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 	if ext_filter != None:
 		for s in suggestions:
 			if s["type"] not in ("tracked", "sponsor") and isinstance(s["bills"], QuerySet):
-				s["bills"] = ext_filter(s["bills"])
-		
-	# If the user wants to filter out only bills relevant to a particular chamber, then
-	# we have to filter by status. Note that PROV_KILL:PINGPONGFAIL is included in
-	# both H and S bills because we don't know what chamber is next.
-	chamber_of_next_vote = prof.getopt("home_legstaff_filter_nextvote", None)
-	ext_filter = None
-	if chamber_of_next_vote == "h":
-		ext_filter = lambda q : \
-			q.filter(billtype__in = ('h', 'hr', 'hc', 'hj'), current_status__in = ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO")) |\
-			q.filter(current_status__in = ("PASS_OVER:SENATE", "PASS_BACK:SENATE", "OVERRIDE_PASS_OVER:SENATE", "PROV_KILL:SUSPENSIONFAILED", "PROV_KILL:PINGPONGFAIL"))
-	elif chamber_of_next_vote == "s":
-		ext_filter = lambda q : \
-			q.filter(billtype__in = ('s', 'sr', 'sc', 'sj'), current_status__in = ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO")) |\
-			q.filter(current_status__in = ("PASS_OVER:HOUSE", "PASS_BACK:HOUSE", "OVERRIDE_PASS_OVER:HOUSE", "PROV_KILL:CLOTUREFAILED", "PROV_KILL:PINGPONGFAIL"))
-	if ext_filter != None:
-		for s in suggestions:
-			if s["id"] not in ("tracked", "hidden") and isinstance(s["bills"], QuerySet):
 				s["bills"] = ext_filter(s["bills"])
 		
 	if counts_only:
