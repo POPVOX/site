@@ -428,7 +428,7 @@ class Org(models.Model):
 			if rec.prev_count != None:
 				if count == 0:
 					rec.growth = None
-				else:
+				elif (datetime.now() - rec.prev_updated).days > 0:
 					rec.growth = float(count-rec.prev_count) / float((datetime.now() - rec.prev_updated).days) / float(count)
 			
 			rec.save()
@@ -451,7 +451,8 @@ class Org(models.Model):
 					from urllib import urlopen, quote_plus
 					import json
 					fbdata = json.load(urlopen("http://graph.facebook.com/" + fbid))
-					updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, int(fbdata["likes"])) # if no likes key, just skip by raising Exception, catching it, and passing on
+					if type(fbdata) is dict and "likes" in dict:
+						updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, int(fbdata["likes"])) # if no likes key, just skip by raising Exception, catching it, and passing on
 			except Exception, e:
 				print e
 				pass
