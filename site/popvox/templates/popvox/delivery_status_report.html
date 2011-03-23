@@ -1,0 +1,17 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Message Delivery Status Report{% endblock%}
+{% block content %}
+	<h1>Message Delivery Status Report</h1>
+
+	<table>
+	{% for moc in report %}
+	<tr valign="top">
+		<td style="padding-bottom: .5em"><a href="{{moc.url}}">{{moc.name}}</a></td>
+		<td>{{moc.delivery_status}}</td>
+	</tr>
+	{% endfor %}
+	</table>
+
+{% endblock %}
+
