@@ -79,6 +79,8 @@ class MemberOfCongress(models.Model):
 	# Make sure there is a record for every Member of Congress.
 	@classmethod
 	def init_members(clz):
+		#if not govtrack.govtrack_file_modified("us/people.xml"):
+		#	return
 		existing_id_set = [x["id"] for x in MemberOfCongress.objects.all().values("id")]
 		for px in govtrack.getMembersOfCongress():
 			if not px["id"] in existing_id_set:
@@ -103,6 +105,8 @@ class CongressionalCommittee(models.Model):
 	# Make sure there is a record for every committee.
 	@classmethod
 	def init_committees(clz):
+		#if not govtrack.govtrack_file_modified("us/committees.xml"):
+		#	return
 		existing_id_set = [x["code"] for x in CongressionalCommittee.objects.all().values("code")]
 		for cx in govtrack.getCommitteeList():
 			if not cx["id"] in existing_id_set:

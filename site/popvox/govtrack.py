@@ -34,6 +34,23 @@ def open_govtrack_file(fn):
 		print fn
 	return open(settings.DATADIR + "govtrack/" + fn)
 
+def file_md5(fn):
+	import hashlib
+	md5 = hashlib.md5()
+	with open(fn,'rb') as f: 
+		for chunk in iter(lambda: f.read(8192), ''): 
+			md5.update(chunk)
+	return md5.digset()
+def govtrack_file_md5(fn):
+	return file_md5(settings.DATADIR + "govtrack/" + fn)
+def govtrack_file_modified(fn):
+	m1 = cache.get("md5_" + fn)
+	m2 = govtrack_file_md5(fn)
+	if m1 == m2:
+		return False
+	cache.set("md5_" + fn, m2, 60*60*24*2) # two days
+	return True
+
 def loadpeople():
 	global people
 	global people_list
