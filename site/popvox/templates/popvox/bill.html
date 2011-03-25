@@ -276,6 +276,8 @@ function getshorturl() {
 
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
 			<script>if (!initial_tab) initial_tab = "billstatus";</script>
+
+			<li id="widgetpane_tab"><a href="#" onclick="return showtab('widgetpane')">Link Here with a Widget</a></li>
 			
 			{% if users.tracking or users.commented %} {% comment %} for admins {% endcomment %}
 			<li id="admin_tracking_tab"><a href="#" onclick="return showtab('admin_tracking')">ADMIN &gt; Users Tracking</a></li>
@@ -395,6 +397,19 @@ function getshorturl() {
 			{% endfor %}
 		</div>
 		{% endif %}
+		
+		<div id="widgetpane" style="display: none" class="tab_panel">
+		
+			<h3 class="no_rule">Link to this bill with a widget</h3>
+			
+			<p>Copy this HTML into your webpage to link to this bill with a widget:</p>
+			
+			<textarea wrap="virtual" style="width: 100%; height: 3em; font-size: 9px">&lt;script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}"&gt; &lt;/script&gt;</textarea>
+		
+			<p style="margin-top: 1em">Here is how it will look:</p>
+			
+			<script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}"> </script>
+		</div>
 		
 		<script>showtab(initial_tab)</script>
 		
