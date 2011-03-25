@@ -391,6 +391,9 @@ def ajax_login(request):
 	password = validate_password(request.POST["password"])
 	user = authenticate(email=email, password=password)
 	if user == None:
+		sso = AuthRecord.objects.filter(user__email=email)
+		if len(sso) >= 1: # could also be the password is wrong
+			return { "status": "fail", "msg": "You use an identity service provider to log in. Click the %s log in button to sign into this site." % " or ".join(set([providers.providers[p.provider]["displayname"] for p in sso])) }
 		return { "status": "fail", "msg": "That's not a username and password combination we have on file." }
 	elif not user.is_active:
 		return { "status": "fail", "msg": "Your account has been disabled." }
