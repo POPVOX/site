@@ -1,3 +1,5 @@
+#!runscript
+
 import urllib2
 import json
 
@@ -69,12 +71,6 @@ def verify_adddress(address):
 
 
 if __name__ == "__main__":
-	import sys, os
-	os.environ["DEBUG"] = "1"
-	os.environ["DJANGO_SETTINGS_MODULE"] = "settings"
-	sys.path.insert(0, "..")
-	sys.path.insert(0, "../libs")
-	
 	from popvox.models import PostalAddress
 	address = PostalAddress()
 	
