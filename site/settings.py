@@ -124,6 +124,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'trafficanalysis.middleware.TrafficAnalysisMiddleware',
     'popvox.middleware.IE6BlockMiddleware',
+    'popvox.middleware.AdserverTargetsMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

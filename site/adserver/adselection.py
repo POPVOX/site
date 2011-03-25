@@ -302,6 +302,7 @@ def show_banner(format, request, context, targets, path):
 		targets += [make_target2(t) for t in request.session["adserver-targets"]]
 	if "adserver-targets" in  context:
 		targets += [make_target2(t) for t in context["adserver-targets"]]
+	targets = set(targets)
 	
 	# Find the best banner to run here.
 	selection = select_banner(format, targets, adserver_trail, request)
@@ -319,20 +320,26 @@ def show_banner(format, request, context, targets, path):
 	imb, isnew = ImpressionBlock.objects.get_or_create(
 		banner = b,
 		path = sp,
-		date = now.date,
-		)
+		date = now.date)
 
 	# Atomically update the rest.
-	ImpressionBlock.objects.filter(id=imb.id).update(
-		# update the amortized CPM on the impression object
-		cpmcost = (F('cpmcost')*F('impressions') + cpm) / (F('impressions') + 1),
 	
-		# add an impression
-		impressions = F('impressions') + 1,
+	#ImpressionBlock.objects.filter(id=imb.id).update(
+	#	cpmcost = (F('cpmcost')*F('impressions') + cpm) / (F('impressions') + 1), # update the amortized CPM on the impression object
+	#	impressions = F('impressions') + 1, # add an impression
+	#	ratelimit_sum = F('ratelimit_sum') + r,
+	#	)
 
-		ratelimit_sum = F('ratelimit_sum') + r,
-		)
-	
+	imb.cpmcost = (imb.cpmcost * imb.impressions + cpm) / (imb.impressions + 1)
+	imb.impressions += 1
+	imb.ratelimit_sum += r
+	imb.save()
+
+	# Update the TargetImpressionBlock for each target.
+	for target in targets:
+		if TargetImpressionBlock.objects.filter(target = target, path = sp, date = now.date).update(impressions = F('impressions') + 1) == 0: # rows update?
+			TargetImpressionBlock.objects.create(target = target, path = sp, date = now.date, impressions = 1)
+		
 	# Create a unique object for this impression.
 	timestamp = str(int(time()))
 	im = Impression()

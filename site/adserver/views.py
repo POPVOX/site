@@ -14,7 +14,7 @@ def banner(request, formatid):
 	format = get_object_or_404(Format, id=formatid)
 	
 	targets = [get_object_or_404(Target, key=target)
-		for target in request.GET.get("target", "").split(",") if target != ""]
+		for target in request.GET.get("targets", "").split(",") if target != ""]
 	
 	# In the database, store the path where the banner is shown based
 	# on the HTTP_REFERER, but to save space in the field translate

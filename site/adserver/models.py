@@ -323,4 +323,19 @@ class Impression(models.Model):
 	def set_code(self):
 		self.code = ''.join(random.choice(("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")) for x in range(Impression.CODE_LENGTH))
 
-
+class TargetImpressionBlock(models.Model):
+	"""A TargetImpressionBlock tracks the number of impressions
+	for a given target, path, date combination. Since an impression
+	triggers multiple targets, the sum of the impressions over all
+	target blocks doesn't add to the total number of impressions."""
+	
+	target = models.ForeignKey(Target, db_index=True, related_name="impressions")
+	path = models.ForeignKey(SitePath, db_index=True, related_name="targetimpressions")
+	date = models.DateField(auto_now_add=True)
+	impressions = models.IntegerField(default=0)
+	class Meta:
+		unique_together = (("target", "path", "date"),)
+	
+	def __unicode__(self):
+		return str(self.target) + " " + str(self.path) + " " + str(self.date)
+	
