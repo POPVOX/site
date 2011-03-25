@@ -17,13 +17,16 @@ mocs_require_phone_number = (
 	400441,400111,412189,400240,412492,412456,412330,412398,412481,412292,
 	400046,300054,300093,412414,400222,400419,400321,400124,400185,400216)
 
-stats_only = (len(sys.argv) != 2 or sys.argv[1] != "send")
+stats_only = (len(sys.argv) < 2 or sys.argv[1] != "send")
 success = 0
 failure = 0
 needs_attention = 0
 held_for_offline = 0
 pending = 0
 target_counts = { }
+gid_only = None
+if len(sys.argv) == 4 and sys.argv[2] == "only":
+	gid_only = int(sys.argv[3])
 
 # it would be nice if we could skip comment records that we know we
 # don't need to send but what are those conditions, given that there
@@ -91,6 +94,7 @@ for comment in UserComment.objects.filter(
 			msg.org_url = "popvox.com" + comment.referrer.url() # harkin: no leading http://www.
 		else:
 			msg.org_url = comment.referrer.website.replace("http://www.", "").replace("http://", "") # harkin: no leading http://www.
+			if msg.org_url.endswith("/"): msg.org_url = msg.org_url[0:-1]
 		msg.org_name = comment.referrer.name
 		msg.org_description = comment.referrer.description
 		msg.org_contact = "(unknown)"
@@ -102,6 +106,7 @@ for comment in UserComment.objects.filter(
 			msg.org_url = "popvox.com" + comment.referrer.url() # harkin: no leading http://www.
 		else:
 			msg.org_url = comment.referrer.website_or_orgsite().replace("http://www.", "").replace("http://", "") # harkin: no leading http://www.
+			if msg.org_url.endswith("/"): msg.org_url = msg.org_url[0:-1]
 		msg.org_name = comment.referrer.org.name
 		msg.org_description = comment.referrer.org.description
 		msg.org_contact = "(unknown)"
@@ -109,16 +114,18 @@ for comment in UserComment.objects.filter(
 		msg.campaign_id = msg.simple_topic_code
 		msg.campaign_info = "Comments " + ("Supporting" if comment.position == "+" else "Opposing") + " " + comment.bill.title
 		msg.form_url = "http://www.popvox.com" + comment.bill.url()
-		#msg.org_url = "popvox.com" # harkin: no leading http://www.
-		#msg.org_name = "POPVOX.com Message Delivery Agent"
-		#msg.org_description = "POPVOX.com delivers constituent messages to Congress."
-		#msg.org_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
+		msg.org_url = "" # "popvox.com" # harkin: no leading http://www.
+		msg.org_name = "" # "POPVOX.com Message Delivery Agent"
+		msg.org_description = "" # "POPVOX.com delivers constituent messages to Congress."
+		msg.org_contact = "" # "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
 	
 	msg.delivery_agent = "POPVOX.com"
 	msg.delivery_agent_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
 	
 	# Begin delivery.
 	for gid in govtrackrecipientids:
+		if gid_only != None and gid != gid_only: continue
+
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
 		try:
@@ -183,60 +190,6 @@ for comment in UserComment.objects.filter(
 
 		# Send the comment.
 		
-		template = u"""<APP>
-<IP></IP>
-<Prefix>#prefix#</Prefix>
-<FIRST>#firstname#</FIRST>
-<LAST>#lastname#</LAST>
-<ADDR1>#address1#</ADDR1>
-<ADDR2>#address2#</ADDR2>
-<CITY>#city#</CITY>
-<STATE>#state#</STATE>
-<ZIP>#zipcode#</ZIP>
-<HOMEPHONE>#phone#</HOMEPHONE>
-<WORKPHONE></WORKPHONE>
-<EMAIL>#email#</EMAIL>
-<RESPOND>Y</RESPOND>
-<ISSUE>#simple_topic_code#</ISSUE>
-<MSG>#message#</MSG>
-<CAMPAIGNID>#campaign_id#</CAMPAIGNID>
-<MODIFIED>Y</MODIFIED>
-<URI>#form_url#</URI>
-<ORGURL>#org_url#</ORGURL>
-<ORGNAME>#org_name#</ORGNAME>
-</APP>
-"""
-		
-		import re, xml.dom.minidom, xml.dom
-		def getmsgattr(mgs, attr):
-			if not hasattr(msg, attr) and attr in ("org_url", "org_name", "org_description", "org_contact"):
-				return ""
-			v = getattr(msg, attr)
-			if isinstance(v, tuple) or isinstance(v, list):
-				v = v[0]
-			v = unicode(v)
-			if attr == "message":
-				v += "\n" + open("popvox/wyr/unicodetestcharacters.txt", "r").read().decode("utf-8")
-			return v
-		def applymsgattrs(node):
-			has_elem = False
-			for n in node.childNodes:
-				if n.nodeType == xml.dom.Node.ELEMENT_NODE:
-					has_elem = True
-					if not applymsgattrs(n) and n.firstChild != None:
-						n.replaceChild(
-							xml_message.createTextNode(
-								re.sub(
-									r"#(\w+)#",
-									lambda m : getmsgattr(msg, m.group(1)),
-									n.firstChild.data
-								)),
-							n.firstChild)
-			return has_elem
-		xml_message = xml.dom.minidom.parseString(template)
-		applymsgattrs(xml_message)
-		print xml_message.toxml("utf-8")
-		
 		if stats_only:
 			pending += 1
 			mark_for_offline("not-attempted")
@@ -244,7 +197,7 @@ for comment in UserComment.objects.filter(
 		
 		delivery_record = send_message(msg, gid, last_delivery_attempt, u"comment #" + unicode(comment.id))
 		if delivery_record == None:
-			print gid, comment.address.zipcode
+			print gid, comment.address.zipcode, Endpoint.objects.filter(govtrackid=gid)
 			mark_for_offline("no-method")
 			if not gid in target_counts: target_counts[gid] = 0
 			target_counts[gid] += 1

@@ -25,7 +25,10 @@ class Endpoint(models.Model):
 	template = models.TextField(blank=True, null=True)
 
 	def __unicode__(self):
-		return str(self.id) + " " + str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["name"] + " " + self.get_method_display()
+		ret = str(self.id) + " " + str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["name"] + " " + self.get_method_display()
+		if self.method == Endpoint.METHOD_NONE and self.tested:
+			ret += " (Tested)"
+		return ret
 
 	def mocname(self):
 		return popvox.govtrack.getMemberOfCongress(self.govtrackid)["sortkey"]

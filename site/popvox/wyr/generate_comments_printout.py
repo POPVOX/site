@@ -10,7 +10,6 @@ from django.core.mail import EmailMultiAlternatives
 import datetime, re, shutil, subprocess, sys, tempfile, os.path
 
 from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign
-from writeyourrep import DeliveryRecord
 from popvox.govtrack import getMemberOfCongress
 from writeyourrep.models import DeliveryRecord, Endpoint
 from settings import SERVER_EMAIL
@@ -51,7 +50,6 @@ def create_tex(tex):
 	outfile.write(r"\pagestyle{myheadings}" + "\n")
 	outfile.write(r"\usepackage{fontspec}" + "\n")
 	outfile.write(r"\setromanfont{Linux Libertine O}" + "\n")
-	#outfile.write(r"\usepackage{graphics}")
 	outfile.write(r"\usepackage{pdfpages}")
 	outfile.write(r"\begin{document}" + "\n")
 	
@@ -81,8 +79,6 @@ def create_tex(tex):
 		target_errors = {}
 		targets2.append( (govtrack_id, batch_no, target_errors) )
 		
-		#outfile.write(r"\noindent \includegraphics[width=6.5,clip=,trim=1in 1in 1in 1in]{/home/www/sources/Preview}" + "\n")
-		#outfile.write(r"\clearpage" + "\n")
 		if getMemberOfCongress(govtrack_id)["type"] == "sen":
 			hs = "senate"
 		elif getMemberOfCongress(govtrack_id)["type"] == "rep":
@@ -112,8 +108,8 @@ def create_tex(tex):
 			bill = Bill.objects.get(id=t2["comment__bill"])
 			
 			outfile.write(r"{\large \noindent ")
-			if position == "+": outfile.write_esc(r"Support: ")
-			if position == "-": outfile.write_esc(r"Oppose: ")
+			if position == "+": outfile.write_esc("Support: ")
+			if position == "-": outfile.write_esc("Oppose: ")
 			outfile.write_esc(bill.title)
 			outfile.write(r"}\nopagebreak\bigskip" + "\n\n\n")
 			

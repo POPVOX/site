@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.core.cache.backends.filebased import CacheClass as FileBasedCache
 
 import os.path
-from urllib import urlopen, urlencode
+from urllib import urlencode
 from xml.dom import minidom
 from datetime import datetime
 import re

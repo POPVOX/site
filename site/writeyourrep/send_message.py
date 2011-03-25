@@ -78,7 +78,7 @@ Delivery:
 		ret += self.message
 		
 		ret += u"\n\ntracking info:\n"
-		if hasattr(self, "org_name") and hasattr(self, "org_url"):
+		if self.org_name != "" and self.org_url != "":
 			ret += u"organization: " + self.org_name + u" (" + self.org_url + u")\n"
 		ret += u"topic code: " + self.campaign_id + u"\n"
 		
@@ -174,7 +174,9 @@ common_fieldnames = {
 	"addr2": "address2",
 	"add": "address_combined",
 	"street-address": "address_combined",
+	"streetaddress": "address1",
 	"street": "address1",
+	"addressline2": "address2",
 	"mailing_city": "city",
 	"hcity": "city",
 	"citytown": "city",
@@ -212,6 +214,7 @@ common_fieldnames = {
 	"vemail": "email",
 	"valid-email": "email",
 	"email2": "email",
+	"fromemail": "email",
 
 	"messagebody": "message",
 	"comment": "message",
@@ -295,6 +298,7 @@ custom_mapping = {
 }
 
 custom_overrides = {
+	"18_prefix2_select": "Yes",
 	"29_subject_radio": "CRNR", # no response requested
 	"38_subsubject_select": "Other",
 	"44_modified_hidden": "1",
@@ -328,6 +332,7 @@ custom_overrides = {
 	"757_add2_text": "",
 	"757_affl_select": "no-action",
 	"761_contact_nature_select": "comment or question",
+	"776_formfield1234567894_text": "",
 	"805_issue_radio": "",
 }
 
@@ -484,6 +489,8 @@ def parse_webform(webformurl, webform, webformid, id):
 		
 		ax = attr.lower()
 		
+		ax = ax.replace("contactform:cd:txt", "")
+
 		if ax.startswith("ctl00$") and ax.endswith("$zip"): ax = "zip5"
 		if id == 636 and ax == "zipcode": ax = "zip5"
 		#if ax == "ctl00$ctl01$zip": ax = "zip5"
@@ -810,7 +817,7 @@ def send_message_housewyr(msg, deliveryrec):
 	# Submit the address, then the comment....
 	
 	webformurl = writerep_house_gov
-	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message|Thanks for your e-mail message|I will be responding to your email in specific detail|Thank you for your message|Your message has been received")):
+	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message|Thanks for your e-mail message|I will be responding to your email in specific detail|Thank you for your message|Your message has been received|Thank you for taking the time to contact me|Thank you for contacting me by email")):
 		field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, ret, formname, "housewyr")
 		
 		postdata = { }
