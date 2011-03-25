@@ -11,11 +11,11 @@ import cache
 from adserver.uasparser import UASparser  
 uas_parser = UASparser(update_interval = None)
 
-from settings import SITE_ROOT_URL
+from settings import SITE_ROOT_URL, DEBUG
 
 last_impression_clear_time = None
 
-def select_banner(adformat, targets, ad_trail):
+def select_banner(adformat, targets, ad_trail, request):
 	# Select a banner to show and return the banner and the display CPM and CPC prices.
 	
 	now = datetime.now()
@@ -45,10 +45,38 @@ def select_banner(adformat, targets, ad_trail):
 	def get_bid(banner):
 		bid = 0.0
 		
-		if banner.order.cpmbid != None:
-			bid = banner.order.cpmbid / 1000.0
+		cpmbid = banner.order.cpmbid
+		cpcbid = banner.order.cpcbid
+		
+		# Call a banner plugin.
+		extra_info = None
+		pl = banner.order.plugin
+		if pl != None:
+			path = pl.split(".")
+			tmp = __import__(".".join(path[:-1]), globals(), fromlist = [path[-1]])
+			plobj = getattr(tmp, path[-1])
 			
-		if banner.order.cpcbid != None:
+			if not DEBUG:
+				try:
+					extra_info = plobj(banner, request)
+				except:
+					# trap all errors
+					extra_info = None
+			else:
+				# do not trap errors when debugging
+				extra_info = plobj(banner, request)
+			
+			if extra_info == None or not isinstance(extra_info, dict):
+				return None # do not display this banner
+			if "cpm" in extra_info:
+				cpmbid = extra_info["cpm"]
+			if "cpc" in extra_info:
+				cpcbid = extra_info["cpc"]
+		
+		if cpmbid != None:
+			bid = cpmbid / 1000.0
+			
+		if cpcbid != None:
 			ctr = banner.recentctr
 			if ctr == None:
 				ctr, too_few_to_save = banner.compute_ctr()
@@ -56,29 +84,29 @@ def select_banner(adformat, targets, ad_trail):
 					banner.recentctr = ctr
 					banner.save()
 				elif bid > 0.0: # prefer cpm to a guestimate based on cpc
-					return bid
+					return banner, bid, extra_info
 			
-			cpcbid = ctr * banner.order.cpcbid
+			cpcbid = ctr * cpcbid
 			if bid == 0.0 or cpcbid > bid:
 				bid = cpcbid
 				
-		return bid
+		return banner, bid, extra_info
 		
 	# Make a list of pairs of banners and their proposed bid, and sort them first by
-	# bid, and if there are ties prefer non-remnant advertisers.
-	banners = [(b, get_bid(b)) for b in banners]
-	banners.sort(key = lambda x : (-x[1], 1 if b.order.advertiser.remnant else 0))
+	# bid, and if there are ties prefer ones with higher max cost per day, which means
+	# ones without a max cost (usually remnant ads) are ordered last.
+	banners = [get_bid(b) for b in banners]
+	banners = [b for b in banners if b != None] # filter out banners that plugin says do not display
+	banners.sort(key = lambda x : (-x[1], -x[0].order.maxcostperday))
 	
 	# Because of rate limiting, we can't just take the top banner.
 	banner = None
 	drop_rate = 0.0
 	while len(banners) > 0:
-		banner, bid = banners.pop(0)
-		remnant = banner.order.advertiser.remnant
+		banner, bid, extra_info = banners.pop(0)
 		
 		# Check the ad frequency against the time of the last display.
-		# Remnant ads should never appear in ad_trail but we'll check anyway.
-		if banner.id in ad_trail and not remnant:
+		if banner.id in ad_trail and (banner.order.period == None or banner.order.period != 0):
 			if banner.order.period != None:
 				period = timedelta(hours=banner.order.period)
 			else:
@@ -89,8 +117,7 @@ def select_banner(adformat, targets, ad_trail):
 				continue
 		
 		# Apply rate limiting based on the max cost per day.
-		# Remnant advertisers and 0 max cost orders have no limit.
-		if remnant or banner.order.maxcostperday == None or banner.order.maxcostperday == 0:
+		if banner.order.maxcostperday == None or banner.order.maxcostperday == 0:
 			break
 		
 		# Determine the recent expenditure over about the last two days. Note
@@ -177,14 +204,14 @@ def select_banner(adformat, targets, ad_trail):
 	# To get the actual cost of this banner, we look to the next-highest bidder excluding
 	# additional banners from the same advertiser.
 	while len(banners) > 0:
-		nextbanner, nextbid = banners[0]
+		nextbanner, nextbid, nextextrainfo = banners[0]
 		if nextbanner.order.advertiser_id != banner.order.advertiser_id:
 			break
 		banners.pop(0)
 	
 	# If there are no additional bidders then there is no cost because there is no competition.
 	if len(banners) == 0:
-		return banner, 0.0, 0.0, drop_rate
+		return banner, 0.0, 0.0, drop_rate, extra_info
 		
 	# There are two bid types and this leads to some complications on how to charge
 	# the advertiser. First, we only charge based on the bid type(s) actually placed.
@@ -233,7 +260,7 @@ def select_banner(adformat, targets, ad_trail):
 		else:
 			cpccost = 0.0
 	
-	return banner, cpmcost, cpccost, drop_rate
+	return banner, cpmcost, cpccost, drop_rate, extra_info
 
 def show_banner(format, request, context, targets, path):
 	# Select a banner to show and return the HTML code.
@@ -277,11 +304,11 @@ def show_banner(format, request, context, targets, path):
 		targets += [make_target2(t) for t in context["adserver-targets"]]
 	
 	# Find the best banner to run here.
-	selection = select_banner(format, targets, adserver_trail)
+	selection = select_banner(format, targets, adserver_trail, request)
 	if selection == None:
 		return Template(format.fallbackhtml).render(context)
 	
-	b, cpm, cpc, r = selection
+	b, cpm, cpc, r, extra_info = selection
 	
 	# Create a SitePath object.
 	path = path[0:SitePath.MAX_PATH_LENGTH] # truncate before get_or_create or it will create duplicates if it gets truncated by mysql
@@ -321,7 +348,7 @@ def show_banner(format, request, context, targets, path):
 		last_impression_clear_time = now
 	
 	# Record that this ad was shown.
-	if adserver_trail != None and not b.order.advertiser.remnant:
+	if adserver_trail != None and (b.order.period == None or b.order.period != 0):
 		adserver_trail[b.id] = now
 	
 	# Parse the template. If the banner has HTML override code, use that instead.
@@ -333,6 +360,9 @@ def show_banner(format, request, context, targets, path):
 	# Apply the template to the banner and return the code.
 	context.push()
 	try:
+		if extra_info != None: # do this first so we overwrite with important keys
+			context.update(extra_info)
+		
 		context.update({
 			"SITE_ROOT_URL": SITE_ROOT_URL,
 			"banner": b,

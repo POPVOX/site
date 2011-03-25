@@ -10,7 +10,6 @@ from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
 import re
 from xml.dom import minidom
-import urllib
 from datetime import datetime, timedelta
 
 from popvox.models import *
@@ -79,3 +78,48 @@ def get_news():
 		_news_updated = datetime.now()
 	return _news_items
 
+def citygrid_ad_plugin(banner, request):
+	if not request.user.is_authenticated():
+		return None
+	
+	try:
+		addr = PostalAddress.objects.filter(user=request.user, latitude__isnull=False).order_by("-created")[0]
+	except IndexError:
+		return None
+	
+	import urllib
+	url = "http://api.citygridmedia.com/ads/custom/v2/latlon?" + urllib.urlencode({
+			"what": "all",
+			"lat": addr.latitude,
+			"lon": addr.longitude,
+			"radius": 50,
+			"publisher": "test",
+			"max": 2,
+	})
+	res = urllib.urlopen(url)
+	
+	from lxml import etree
+	tree = etree.parse(res).getroot()
+	ads = []
+	for ad in tree.iter("ad"):
+		dist = ad.xpath("string(distance)")
+		try:
+			dist = int(float(dist))
+		except:
+			dist = None
+		
+		ads.append({
+				"name": ad.xpath("string(name)"),
+				"tagline": ad.xpath("string(tagline)"),
+				"destination_url": ad.xpath("string(ad_destination_url)"),
+				"display_url": ad.xpath("string(ad_display_url)"),
+				"city": ad.xpath("string(city)"),
+				"state": ad.xpath("string(state)"),
+				"distance": dist
+		})
+	
+	if len(ads) == 0:
+		return None
+	
+	return { "addr": addr, "ads": ads, "url": url }
+	

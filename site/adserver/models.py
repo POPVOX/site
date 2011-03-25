@@ -51,7 +51,6 @@ class Advertiser(models.Model):
 	contact_name = models.CharField(max_length=128, help_text="The name of the person who is the advertising contact at the organization.")
 	contact_email = models.EmailField(max_length=128, help_text="The email address of the contact person at the organization.")
 	notes = models.TextField(blank=True)
-	remnant = models.BooleanField(default=False, help_text="Turn this on if this organization is YOU or if it represents other remnant or house advertising.")
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	def __unicode__(self):
@@ -68,11 +67,12 @@ class Order(models.Model):
 	endtime = models.DateTimeField(null=True, blank=True, verbose_name="End Date", help_text="The date the advertising will end. Leave blank to continue indefinitely.")
 	cpmbid = models.FloatField(null=True, blank=True, verbose_name="CPM Bid", help_text="The cost-per-thousand impressions bid price in dollars. If both the CPM bid and the CPC bid are used, the higher of the two is used.")
 	cpcbid = models.FloatField(null=True, blank=True, verbose_name="CPC Bid", help_text="The cost-per-click bid price in dollars. If both the CPM bid and the CPC bid are used, the higher of the two is used.")
-	maxcostperday = models.FloatField(default=0, verbose_name="Max Cost/Day", help_text="The maximum dollar amount the advertiser wants to spend on this order per day. This field is ignored for remnant advertisers.")
+	maxcostperday = models.FloatField(default=0, verbose_name="Max Cost/Day", help_text="The maximum dollar amount the advertiser wants to spend on this order per day, or zero for no limit.")
 	period = models.FloatField(null=True, blank=True, help_text="The minimum time between ad displays to the same visitor (i.e. the reciprocal of the ad frequency), in hours, or null to use the default period (currently 20 seconds). The maximum is two days (48 hours): any value above two days is treated as two days.")
 	targets = models.TextField(blank=True, null=True, help_text="Criteria to target the advertisement to. Separate target keys by spaces or new lines. One target must match on each line. Leave blank for run-of-site advertising.")
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
+	plugin = models.CharField(max_length=64, blank=True, null=True, help_text="The dotted Python path to a function which takes as arguments banner and request and returns a dict or None. The dict is passed to the banner template rendering context. If it contains keys cpm or cpc, they override the order's set price. If the return is None, the banner is not included in ad selection.")
 	
 	# set on save
 	active = models.BooleanField(default=False)
@@ -81,7 +81,7 @@ class Order(models.Model):
 		ordering = ('-updated',)
 
 	def __unicode__(self):
-		return self.advertiser.name + "; O#" + str(self.id)
+		return "Order #" + str(self.id) + ": " + self.advertiser.name + (": " + self.notes[0:20] if self.notes != "" else "")
 		
 	def save(self):
 		# Set the active flag based on the run dates.

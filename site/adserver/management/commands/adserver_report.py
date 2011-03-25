@@ -91,7 +91,7 @@ class Command(BaseCommand):
 			print "\tClicks:", info["clicks"], "(CTR: ", str(round(10000*info["clicks"]/info["impressions"])/100.0) + "%)"
 			
 			# Status of rate limiting...
-			if not order.advertiser.remnant and order.maxcostperday != None and order.maxcostperday > 0:
+			if order.maxcostperday != None and order.maxcostperday > 0:
 				totalcost, td, impressions, recent_drop_rate = order.rate_limit_info()
 				print "\tCurrent Daily Rate:", "$" + str(round(totalcost/td*100.0)/100.0) + "/day", "($" + str(round(totalcost*100.0)/100.0), "in", round(td*10.0)/10.0, "days)", "of", "$" + str(order.maxcostperday) + "/day max"
 				

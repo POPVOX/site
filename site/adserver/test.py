@@ -5,5 +5,5 @@ import sys
 from adserver.models import Format
 from adserver.adselection import select_banner
 
-print select_banner(Format.objects.get(key=sys.argv[1]), None)
+print select_banner(Format.objects.get(key=sys.argv[1]), None, None)
 
