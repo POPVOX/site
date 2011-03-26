@@ -63,9 +63,9 @@ def get_popular_bills():
 		
 	popular_bills = []
 
-	# Additionally choose bills with the most number of comments.
+	# Select bills with the most number of recent comments.
 	# TODO: Is this SQL fast enough? Well, it's not run often.
-	for b in Bill.objects.filter(congressnumber=CURRENT_CONGRESS).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]:
+	for b in Bill.objects.filter(usercomments__created__gt=datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]:
 		if b.usercomments__count == 0:
 			break
 		if not b in popular_bills:
@@ -138,7 +138,7 @@ def get_popular_bills2():
 			org_fan_count[org["object"].slug][OrgExternalMemberCount.FACEBOOK_FANS]
 			+ org_fan_count[org["object"].slug][OrgExternalMemberCount.TWITTER_FOLLOWERS]
 			))
-		billrec["orgs"] = orgs
+		billrec["orgs"] = orgs[0:4]
 		
 	popular_bills_cache_2 = (datetime.now(), popular_bills2)
 	
