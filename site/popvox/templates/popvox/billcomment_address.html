@@ -1,6 +1,6 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
-{% block title %}Preview Comment on {{ bill.title }}{% endblock%}
+{% block title %}Finish Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block content %}
 <div class="content">
@@ -22,10 +22,14 @@
 		 <div class="tip_inline">
 			<p>Provide your name and the address of your residence where you intend to vote.  Please understand that we cannot deliver your message to your Representative and Senators without your complete contact information.</p>
 		
+			{% if not error %}
 			<p>We will share your name, address, and phone number with your Members of Congress and no one else.</p>
+			{% endif %}
+
 			<div class="hr"> </div>
 		</div>
-		<p class="error">{{ error }}</p>
+		
+		<p class="error" style="width: 583px">{{ error }}</p>
 	
 		{% if useraddress.id %}
 			<div id="savedaddress">
@@ -56,18 +60,28 @@
 		</div>
 		
 		<div class="clear"> </div>
-	
+		
 		<div class="captcha">
 			{% if captcha %}
 			<p>Please type the words you see below to help us prevent spam:</p>
 			{{captcha|safe}}
 			{% endif %}
+		</div>
 		
+		{% if error_is_validation %}
+			<p class="error" style="width: 583px">If you revised your address, click Try Again. If you are having trouble getting passed this point, click I&rsquo;m Having Trouble.</p>
+		{% endif %}
+			
+		<div class="captcha">
 			<p class="mar_top pad_btm">
 				<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
+				{% if not error_is_validation %}
 				<input class="b_finished btn" id="submitcomment" type="submit" value="Comment >"/>
+				{% else %}
+				<input class="b_tryagain _btn" id="submittryagain" type="submit" value="Try Again >"/>
+				<input class="b_trouble _btn" id="havingtrouble" type="button" value="I'm Having Trouble >" onclick="submitform('Use a Map >')"/>
+				{% endif %}
 			</p>
-
 		</div>
 	</form>
 	

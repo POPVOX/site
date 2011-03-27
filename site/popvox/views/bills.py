@@ -31,6 +31,7 @@ from settings import DEBUG, SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOK
 popular_bills_cache = None
 popular_bills_cache_2 = None
 issue_areas = None
+state_bounds = { }
 
 def getissueareas():
 	# Gets the issue areas in batch.
@@ -564,7 +565,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				
 	# Allow (actually require) the user to revise an address that does not have a prefix or phone number.
 	if address_record != None and address_record_fixed != None and (
-		address_record.nameprefix == "" or address_record.phonenumber == ""):
+		address_record.nameprefix == "" or address_record.phonenumber == ""): # or request.user.username == "POPVOXTweets"):
 		address_record_fixed = None
 	
 	# We will require a captcha for this comment if the user is creating many comments
@@ -693,6 +694,52 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"captcha": captcha_html() if require_captcha else "",
 			}, context_instance=RequestContext(request))
 
+	elif request.POST["submitmode"] == "Use a Map >":
+		request.goal = { "goal": "comment-address-map" }
+		
+		address_record = PostalAddress()
+		address_record.user = request.user
+		address_record.load_from_form(request, validate=False)
+		
+		if address_record.state in state_bounds:
+			bounds = state_bounds[address_record.state]
+			
+		else:
+			def http_rest_json(url, args=None, method="GET"):
+				import urllib, urllib2, json
+				if method == "GET" and args != None:
+					url += "?" + urllib.urlencode(args).encode("utf8")
+				req = urllib2.Request(url)
+				r = urllib2.urlopen(req)
+				return json.load(r, "utf8")
+		
+			try:
+				info = http_rest_json(
+					"http://www.govtrack.us/perl/wms/list-regions.cgi",
+					{
+					"dataset": "http://www.rdfabout.com/rdf/usgov/us/states",
+					"uri": "http://www.rdfabout.com/rdf/usgov/geo/us/" + address_record.state.lower(),
+					"fields": "coord,area",
+					"format": "json"
+					  })["regions"][0]
+
+				from math import log, sqrt
+				bounds = info["long"], info["lat"], round(1.5 - log(sqrt(info["area"])/24902.0))
+				state_bounds[address_record.state] = bounds
+			except:
+				bounds = None
+        
+		return render_to_response('popvox/billcomment_address_map.html', {
+			'bill': bill,
+			"position": position,
+			"message": request.POST["message"],
+			"useraddress": address_record,
+			"useraddress_prefixes": PostalAddress.PREFIXES,
+			"useraddress_suffixes": PostalAddress.SUFFIXES,
+			"useraddress_states": govtrack.statelist,
+			"bounds": bounds,
+			}, context_instance=RequestContext(request))
+			
 	elif request.POST["submitmode"] == "Submit Comment >" or request.POST["submitmode"] == "Clear Comment >":
 		if position == "0":
 			# Clear the user's comment on this bill.
@@ -716,6 +763,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			return HttpResponse("Organization staff cannot post comments on legislation.")
 		
 		# More validation.
+		from writeyourrep.addressnorm import verify_adddress, AddressVerificationError
 		try:
 			# If we didn't lock the address, load it and validate it from the form.
 			if address_record_fixed == None:
@@ -725,15 +773,30 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				
 			# We don't display a captcha when we are editing an existing comment
 			# or if the user has not left many comments yet.
-			if require_captcha and not DEBUG:
+			if require_captcha and not "latitude" in request.POST and not DEBUG:
 				validate_captcha(request) # throws ValidationException and sets recaptcha_error attribute on the exception object
 				
-			if address_record_fixed == None:
+			if request.POST.get("latitude", "") != "":
+				# If the user went to the map and specified a coordinate, skip address normalization.
+				address_record.latitude = float(request.POST["latitude"])
+				address_record.longitude = float(request.POST["longitude"])
+				
+				# But we have to convert the coordinate to a district...
+				import urllib, urllib2
+				url = "http://www.govtrack.us/perl/district-lookup.cgi?" + urllib.urlencode({"lat": address_record.latitude, "long": address_record.longitude })
+				ret = minidom.parse(urllib2.urlopen(urllib2.Request(url)))
+				try:
+					state = ret.getElementsByTagName("state")[0].firstChild.data
+					if state != address_record.state:
+						raise ValueError("You moved the marker to a location outside of the state indicated in your address.")
+					address_record.congressionaldistrict = ret.getElementsByTagName("district")[0].firstChild.data
+				except: # XML is missing district info, so coordinate is not even in a district
+					raise ValueError("You moved the marker to a location outside of the state indicated in your address.")
+				
+			elif address_record_fixed == None:
 				# Now do verification against CDYNE to get congressional district.
 				# Do this after the CAPTCHA to prevent any abuse.
-				from writeyourrep.addressnorm import verify_adddress
 				verify_adddress(address_record)
-				
 		
 		except Exception, e:
 			import sys
@@ -749,7 +812,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"useraddress_suffixes": PostalAddress.SUFFIXES,
 				"useraddress_states": govtrack.statelist,
 				"captcha": captcha_html(getattr(e, "recaptcha_error", None)) if require_captcha else "",
-				"error": validation_error_message(e) # accepts ValidationError, KeyError, ValueError
+				"error": validation_error_message(e), # accepts ValidationError, KeyError, ValueError
+				"error_is_validation": isinstance(e, AddressVerificationError),
 				}, context_instance=RequestContext(request))
 		
 			

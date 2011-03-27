@@ -805,7 +805,7 @@ class PostalAddress(models.Model):
 	def __unicode__(self):
 		return unicode(self.user) + ": " + self.firstname +  " " + self.lastname + "\n" + self.address1 + ("\n" + self.address2 if self.address2 != "" else "") + "\n" + self.city + ", " + self.state + " " + self.zipcode + " (CD" + str(self.congressionaldistrict) + ")"
 	
-	def load_from_form(self, request):
+	def load_from_form(self, request, validate=True):
 		self.nameprefix = request.POST["useraddress_prefix"]
 		self.firstname = request.POST["useraddress_firstname"]
 		self.lastname = request.POST["useraddress_lastname"]
@@ -816,6 +816,8 @@ class PostalAddress(models.Model):
 		self.state = request.POST["useraddress_state"].upper()
 		self.zipcode = request.POST["useraddress_zipcode"]
 		self.phonenumber = request.POST["useraddress_phonenumber"]
+		if not validate:
+			return
 		if self.nameprefix.strip() == "":
 			raise ValueError("Please select your title (Mr., Ms., etc.).")
 		if self.firstname.strip() == "":

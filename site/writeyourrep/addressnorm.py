@@ -5,6 +5,9 @@ import json
 
 last_response = None
 
+class AddressVerificationError(ValueError):
+	pass
+
 def verify_adddress(address):
 	global last_response
 
@@ -13,7 +16,7 @@ def verify_adddress(address):
 	from popvox.govtrack import stateapportionment
 
 	if address.state.lower() != "ak" and "pobox" in address.address1.replace(" ", "").lower():
-		raise ValueError("Please enter the address of your residence so that we can determine your Congressional district. We cannot find your district based on a PO Box.")
+		raise AddressVerificationError("Please enter the address of your residence so that we can determine your Congressional district. We cannot find your district based on a PO Box.")
 
 	
 	req = urllib2.Request("http://pav3.cdyne.com/PavService.svc/VerifyAddressAdvanced",
@@ -38,17 +41,17 @@ def verify_adddress(address):
 	try:
 		ret = json.loads(urllib2.urlopen(req).read())
 	except Exception, e:
-		raise ValueError("Address verification is not working at the moment.")
+		raise AddressVerificationError("Address verification is not working at the moment.")
 	
 	last_response = ret
 	
 	if ret["ReturnCode"] not in (100, 101, 102, 103):
-		raise ValueError("We couldn't determine the Congressional district at that address. Make sure you haven't abbreviated the name of your street or city.")
+		raise AddressVerificationError("We couldn't determine the Congressional district at that address. Make sure you haven't abbreviated the name of your street or city.")
 	
 	address.cdyne_return_code = ret["ReturnCode"]
 
 	if ret["ResidentialDeliveryIndicator"] == "N":
-		#raise ValueError("This address is believed to be a commercial delivery address. Use a residental address.")
+		#raise AddressVerificationError("This address is believed to be a commercial delivery address. Use a residental address.")
 		address.cdyne_return_code = 900 # for us
 	
 	# Correct fields...
