@@ -15,7 +15,8 @@ mocs_require_phone_number = (
 	400245,412324,400054,400142,400643,412485,400244,400142,400318,412325,
 	412231,400266,412321,300070,400105,300018,400361,300040,400274,412308,
 	400441,400111,412189,400240,412492,412456,412330,412398,412481,412292,
-	400046,300054,300093,412414,400222,400419,400321,400124,400185,400216)
+	400046,300054,300093,412414,400222,400419,400321,400124,400185,400216,
+	412265)
 
 stats_only = (len(sys.argv) < 2 or sys.argv[1] != "send")
 success = 0
@@ -33,7 +34,7 @@ if len(sys.argv) == 4 and sys.argv[2] == "only":
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
 for comment in UserComment.objects.filter(
-	message__isnull=False,
+	#message__isnull=False,
 	bill__congressnumber=CURRENT_CONGRESS,
 	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
 	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5), # let users revise
@@ -44,7 +45,7 @@ for comment in UserComment.objects.filter(
 	if not type(govtrackrecipients) == list:
 		continue
 		
-	govtrackrecipientids = [	g["id"] for g in govtrackrecipients]
+	govtrackrecipientids = [g["id"] for g in govtrackrecipients]
 	
 	# Set up the message record.
 	
@@ -182,6 +183,7 @@ for comment in UserComment.objects.filter(
 			mark_for_offline("missing-info")
 			continue
 
+		# If we know we have no delivery method for this target, fail fast.
 		if Endpoint.objects.filter(govtrackid = gid, method = Endpoint.METHOD_NONE, tested=True).exists():
 			failure += 1
 			mark_for_offline("bad-webform")
@@ -202,6 +204,7 @@ for comment in UserComment.objects.filter(
 			if not gid in target_counts: target_counts[gid] = 0
 			target_counts[gid] += 1
 			failure += 1
+			sys.stdin.readline()
 			continue
 		
 		# If we got this far, a delivery attempt was made although it
@@ -209,7 +212,7 @@ for comment in UserComment.objects.filter(
 		# so we know not to try again.
 		comment.delivery_attempts.add(delivery_record)
 		
-		print delivery_record
+		print comment.created, delivery_record
 		
 		if delivery_record.success:
 			success += 1

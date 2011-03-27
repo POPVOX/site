@@ -158,6 +158,7 @@ common_fieldnames = {
 	"namelast": "lastname",
 	"last_name": "lastname",
 	"name_last": "lastname",
+	"fullname": "name",
 	"name_suffix": "suffix",
 	"suffix2": "suffix",
 	"address": "address1",
@@ -172,6 +173,8 @@ common_fieldnames = {
 	"street2": "address2",
 	"addr1": "address1",
 	"addr2": "address2",
+	"add1": "address1",
+	"add2": "address2",
 	"add": "address_combined",
 	"street-address": "address_combined",
 	"streetaddress": "address1",
@@ -227,6 +230,7 @@ common_fieldnames = {
 	"details_textarea": "message",
 	"msg": "message",
 	"body": "message",
+	"claim": "message",
 
 	"messagesubject": "subjectline",
 	"email_subject": "subjectline",
@@ -271,7 +275,7 @@ common_fieldnames = {
 
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
-skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation",
+skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation",
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey", "affl_del",
 	"speech", "authfailmsg",
 	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
@@ -295,6 +299,7 @@ radio_choices = {
 
 custom_mapping = {
 	"757_name_text": "firstname",
+	"789_phone8_text": "phone",
 }
 
 custom_overrides = {
@@ -326,6 +331,8 @@ custom_overrides = {
 	"639_aff1req_text": "fill",
 	"645_yes_radio": "NRN",
 	"645_authfailmsg_hidden": "/andrews/AuthFailMsg.htm",
+	"661_subject_hidden": "",
+	"661_reqresponse_radio": "on",
 	"690_aff2_radio": "",
 	"732_field_1807499f-bb47-4a2b-81af-4d6c2497c5e5_radio": " ",
 	"748_messagetype_radio": "express an opinion or share your views with me",
@@ -333,6 +340,7 @@ custom_overrides = {
 	"757_affl_select": "no-action",
 	"761_contact_nature_select": "comment or question",
 	"776_formfield1234567894_text": "",
+	"791_typeofresponse_select": "email",
 	"805_issue_radio": "",
 }
 
@@ -363,7 +371,7 @@ class DistrictDisagreementException(Exception):
 def find_webform(htmlstring, webformid, webformurl):
 	# cut out all table tags because when tables are mixed together with forms
 	# html5lib can reorder the tags so that the fields fall out of the form.
-	htmlstring = re.sub("</?(table|tr|td|tbody)( [^>]*)?>", "", htmlstring)
+	htmlstring = re.sub("</?(table|tr|td|tbody|TABLE|TR|TD|TBODY)( [^>]*)?>", "", htmlstring)
 	
 	# change all tag names to lower case
 	htmlstring = re.sub(r"<(/?)([A-Z]+)", lambda m : "<" + (m.group(1) if m.group(1) != None else "") + m.group(2).lower(), htmlstring)
@@ -474,7 +482,7 @@ def parse_webform(webformurl, webform, webformid, id):
 			pass
 		
 	if len(fields) == 0:
-		raise WebformParseException("Form %s is missing at %s." % (webformid, webformurl))
+		raise WebformParseException("Form %s has no fields at %s." % (webformid, webformurl))
 
 	# Map the form fields to our data structure and construct the POST data.
 
@@ -611,7 +619,7 @@ def send_message_webform(di, msg, deliveryrec):
 				postdata[k] = postdata[k][0]
 			postdata[k] = postdata[k].encode("utf8")
 		for k, v in field_default.items():
-			postdata[k] = v
+			postdata[k] = v.encode("utf8")
 		
 		# Debugging...
 		if False:
@@ -638,7 +646,7 @@ def send_message_webform(di, msg, deliveryrec):
 			
 	# Make sure that we've found the equivalent of all of the fields
 	# that the form should be accepting.
-	for field in ("email", "firstname", "lastname", ("address1", "address_combined"), ("address2", "address_combined"), "city", ("zipcode", "zip5"), "message"):
+	for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined"), ("address2", "address_combined"), "city", ("zipcode", "zip5"), "message"):
 		if type(field) == str:
 			field = [field]
 		for f in field:
@@ -685,7 +693,7 @@ def send_message_webform(di, msg, deliveryrec):
 		postdata[k] = postdata[k].encode("utf8")
 		
 	for k, v in field_default.items():
-		postdata[k] = v
+		postdata[k] = v.encode("utf8")
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
