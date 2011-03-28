@@ -851,6 +851,9 @@ class PostalAddress(models.Model):
 
 	def statename(self):
 		return govtrack.statenames[self.state]
+		
+	def address_string(self):
+		return self.address1 + ("\n" + self.address2 if self.address2 != "" else "") + "\n" + self.city + ", " + self.state + " " + self.zipcode
 
 	def nicelocation(self):
 		ret = govtrack.statenames[self.state]

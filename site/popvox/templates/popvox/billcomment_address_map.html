@@ -94,14 +94,15 @@
 	<h1>Find Your Congressional District</h1>
 	
 		<div class="col_3">
-			<h3 style="margin-top: 0">You Entered</h3>
+			<div style="font-size: 12.5px; color: #666">
 			<div>{{useraddress.prefix}} {{useraddress.firstname}} {{useraddress.lastname}} {% if useraddress.suffix %}, {{useraddress.suffix}}{% endif %}</div>
 			<div>{{useraddress.address1}}</div>
 			<div>{{useraddress.address2}}</div>
 			<div>{{useraddress.city}}, {{useraddress.state}} {{useraddress.zipcode}}</div>
 			<div>{{useraddress.phonenumber}}</div>
+			</div>
 			
-			<h3>Find Your Location</h3>
+			<h3>Find Your Home</h3>
 			<p>Drag the marker in the map as close to your home as possible. You may need to zoom in as you get closer.</p>
 			
 			<p class="mar_top pad_btm">
@@ -109,7 +110,7 @@
 				<input class="b_finished btn" id="submitcomment" type="submit" value="Comment >" style="display: none"/>
 			</p>
 
-			<p id="finishedhelp">When you have moved the marker to your home, click Finished.</p>
+			<p id="finishedhelp" style="display: none">When you have moved the marker to your home, click Finished.</p>
 		</div>
 		
 		<div id="map_canvas" class="col_3_last" style="height: 400px; border: 1px solid black"> </div>
