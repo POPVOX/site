@@ -795,6 +795,7 @@ class PostalAddress(models.Model):
 	longitude = models.FloatField(blank=True, null=True)
 	cdyne_return_code = models.IntegerField(blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
+	timezone = models.CharField(max_length=4, blank=True, null=True)
 
 	#class Meta:
 	#		ordering = ["nameprefix"]
@@ -861,6 +862,29 @@ class PostalAddress(models.Model):
 			[x["name"] for x in govtrack.getMembersOfCongressForDistrict(self.state + str(self.congressionaldistrict))]
 			)
 		return ret
+		
+	def set_timezone(self):
+		# This is correct only to the majority of a state. Some states split timezones.
+		# http://en.wikipedia.org/wiki/List_of_U.S._states_by_time_zone
+		if self.state in ("AK", ):
+			self.timezone = "AKST"  # UTC-9
+		if self.state in ("AS", ):
+			self.timezone = "SAST" # Samoa Standard Time,  UTC-11, made-up abbreviation
+		if self.state in ("GU", "MP"):
+			self.timezone = "CHST" # Chamorro Standard Time, UTC+10, made-up abbreviation
+		if self.state in ("HI", ):
+			self.timezone = "HAST" # Hawaii time, UTC-10, made-up abbreviation
+		if self.state in ("PR", "VI"):
+			self.timezone = "AST" # Atlantic Standard Time, UTC-4
+		if self.state in ("CT", "DC", "DE", "FL", "GA", "IN", "ME", "MD", "MA", "MI", "NH", "NJ", "NY", "NC", "OH", "PA", "RI", "SC", "VT", "VA", "WV"):
+			self.timezone = "EST" # UTC-5
+		if self.state in ("AL", "AR", "IL", "IA", "KS", "KY", "LA", "MN", "MS", "MO", "NE", "ND", "OK", "SD", "TN", "TX", "WI"):
+			self.timezone = "CST" # UTC-6
+		if self.state in ("AZ", "CO", "ID", "MT", "NM", "UT", "WY"):
+			self.timezone = "MST" # UTC-7
+		if self.state in ("CA", "NV", "OR", "WA"):
+			self.timezone = "PST" # UTC-8
+		self.save()
 		
 class UserComment(models.Model):
 	"""A comment by a user on a bill."""

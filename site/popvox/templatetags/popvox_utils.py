@@ -2,10 +2,11 @@ from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
-from django.template import Context, Template, Variable
+from django.template import Context, Template, Variable, TemplateSyntaxError
 
 import cgi
 import re
+from datetime import timedelta
 
 from popvox.models import Bill, RawText
 import popvox.views.utils
@@ -88,7 +89,49 @@ def split_at(items, count):
 @register.filter
 def date2(date):
 	return popvox.views.utils.formatDateTime(date)
+
+@register.tag
+def display_date(parser, token):
+	class DisplayDateNode(template.Node):
+		def __init__(self, dv):
+			self.dv = dv
+		def render(self, context):
+			d = self.dv.resolve(context)
+			tz_name, tz_offset = "ET", -5 # database time zone
+			
+			if "request" in context and hasattr(context["request"], "user"):
+				user = context["request"].user
+				if user.is_authenticated():
+					try:
+						pa = user.postaladdress_set.all().order_by("-created")[0]
+						tz = pa.timezone
+						
+						# UTC offsets of timezones we know. Some of the time zone abbreviations are
+						# made up, see PostalAddress.set_timezone.
+						tzd = { "AKST": -9, "SAST": -11, "CHST": +10, "HAST": -10, "AST": -4,
+							"EST": -5, "CST": -6, "MST": -7, "PST": -8 }
+						
+						# Since times are stored in Eastern Time, UTC-4/5, just shift by the number
+						# of hours indicated, assuming daylight savings occurs simultaneously
+						# everywhere. TODO.
+						if tz in tzd:
+							tz_name = tz
+							tz_offset = tzd[tz]
+						
+					except IndexError:
+						pass
+
+			d = d + timedelta(hours=5 + tz_offset) 
+
+			return popvox.views.utils.formatDateTime(d) + " " + tz_name
 	
+	try:
+		# split_contents() knows not to split quoted strings.
+		tag_name, date_var = token.split_contents()
+	except ValueError:
+		raise TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
+	return DisplayDateNode(Variable(date_var))
+
 @register.filter
 def json(data):
 	return mark_safe(simplejson.dumps(data))

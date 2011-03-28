@@ -851,14 +851,16 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 
 		if address_record.id == None: # (parsed from form, not from a fixed record)
 			# If the user gives the same address as one on file for the user,
-			# reuse the record.
+			# reuse the record.... but overwrite it with new info because
+			# the user might have updated something non-meaningful or
+			# we might have gotten new address info from the address
+			# normalization.
 			for addr in request.user.postaladdress_set.all():
 				if address_record.equals(addr):
-					address_record = addr
+					address_record.id = addr.id
 					break
 			
-			if address_record.id == None: # don't modify an existing record
-				address_record.save()
+			address_record.save()
 			
 		comment.address = address_record
 		comment.updated = datetime.now()

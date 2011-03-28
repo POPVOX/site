@@ -4,7 +4,7 @@
 {% for item in items %}
 
 	{% if item|pythontype == 'popvox.models.UserComment' %}
-		<p class="date">{{item.updated|date2}}</p>
+		<p class="date">{% display_date item.updated %}</p>
 		<p>
 			<span class="username">
 				{% if not can_see_user_details %}

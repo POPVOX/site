@@ -71,6 +71,7 @@ def verify_adddress(address):
 	address.state_legis_lower = ret["LegislativeInfo"]["StateLegislativeLower"]
 	address.latitude = float(ret["GeoLocationInfo"]["AvgLatitude"])
 	address.longitude = float(ret["GeoLocationInfo"]["AvgLongitude"])
+	address.timezone = ret["GeoLocationInfo"]["TimeZone"]
 
 
 if __name__ == "__main__":
