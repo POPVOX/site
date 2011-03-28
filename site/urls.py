@@ -101,6 +101,8 @@ urlpatterns = patterns('',
 	(r'^feedback/', include('feedback.urls')),
 	(r'^adserver/', include('adserver.urls')),
 
+	(r'^about/photos/', include('stockphoto.urls')),
+
 	(r'^admin/', include(admin.site.urls)),
 )
 

@@ -159,6 +159,7 @@ INSTALLED_APPS = (
     'tinymce',
     'feedback',
     'picklefield',
+    'stockphoto',
     'jquery',
     'writeyourrep',
     'phone_number_twilio',
@@ -214,4 +215,6 @@ if DEBUG:
 	#DISTRICT_LOOKUP_SIMULATE_RESPONSE = { "status": "success", "method": "zipcode", "state": "NY", "district": 2 }
 
 CDYNE_LICENSE_KEY = "b9033636-528a-444c-bfed-4cee41f8f84a"
+
+STOCKPHOTO_URL = "/about/photos"
 
