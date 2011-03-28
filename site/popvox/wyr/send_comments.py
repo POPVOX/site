@@ -16,7 +16,7 @@ mocs_require_phone_number = (
 	412231,400266,412321,300070,400105,300018,400361,300040,400274,412308,
 	400441,400111,412189,400240,412492,412456,412330,412398,412481,412292,
 	400046,300054,300093,412414,400222,400419,400321,400124,400185,400216,
-	412265)
+	412265,412287)
 
 stats_only = (len(sys.argv) < 2 or sys.argv[1] != "send")
 success = 0
@@ -204,7 +204,7 @@ for comment in UserComment.objects.filter(
 			if not gid in target_counts: target_counts[gid] = 0
 			target_counts[gid] += 1
 			failure += 1
-			sys.stdin.readline()
+			#sys.stdin.readline()
 			continue
 		
 		# If we got this far, a delivery attempt was made although it

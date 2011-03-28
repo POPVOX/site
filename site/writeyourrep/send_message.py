@@ -300,6 +300,7 @@ radio_choices = {
 custom_mapping = {
 	"757_name_text": "firstname",
 	"789_phone8_text": "phone",
+	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
 }
 
 custom_overrides = {
@@ -632,7 +633,8 @@ def send_message_webform(di, msg, deliveryrec):
 		
 		if "The zip code you typed in does not appear to be a zip code within my district" in webform\
 			or "You might not be in my district" in webform \
-			or "A valid Zip code for the 5th District of Missouri was not entered" in webform:
+			or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
+			or "The zip code entered indicates that you reside outside the" in webform:
 			deliveryrec.trace += "\n" + webform + "\n\n"
 			raise DistrictDisagreementException()
 			
@@ -780,7 +782,7 @@ def send_message_housewyr(msg, deliveryrec):
 		raise IOError("Problem loading House WYR form: " + str(ret.getcode()))
 	ret = ret.read()
 	
-	if "Unfortunately, with the advent of email" in ret:
+	if "To prevent this practice we ask" in ret:
 		doc, form, formaction, formmethod = find_webform(ret, "@wrep_findrep", writerep_house_gov)
 		for label in doc.getElementsByTagName("label"):
 			if label.getAttribute("for") == "HIP_response":
