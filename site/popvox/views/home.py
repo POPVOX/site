@@ -680,6 +680,7 @@ def delivery_status_report(request):
 			DeliveryRecord.FAILURE_NO_FAILURE,
 			DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE
 			)).exclude(method=Endpoint.METHOD_INPERSON)
+		d_delivered = d.filter(success=True)
 			
 		d = d.count()
 		if d == 0:
@@ -695,7 +696,9 @@ def delivery_status_report(request):
 			moc["delivery_status"] = "OK! (Mostly)"
 		else:
 			moc["delivery_status"] = "%s%% of Messages Failing (are hand-delivered)" % ratio
-			
+
+		moc["delivery_status"] += " %d/%d/%d" % (d_success.count(), d_delivered.count(), d)
+
 	return render_to_response('popvox/delivery_status_report.html', {
 		"report": report,
 		}, context_instance=RequestContext(request))

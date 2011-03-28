@@ -455,7 +455,7 @@ class Org(models.Model):
 					from urllib import urlopen, quote_plus
 					import json
 					fbdata = json.load(urlopen("http://graph.facebook.com/" + fbid))
-					if type(fbdata) is dict and "likes" in dict:
+					if type(fbdata) == dict and "likes" in fbdata:
 						updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, int(fbdata["likes"])) # if no likes key, just skip by raising Exception, catching it, and passing on
 			except Exception, e:
 				print e
