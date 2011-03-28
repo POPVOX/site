@@ -159,7 +159,7 @@ INSTALLED_APPS = (
     'tinymce',
     'feedback',
     'picklefield',
-    'stockphoto',
+    #'stockphoto',
     'jquery',
     'writeyourrep',
     'phone_number_twilio',
