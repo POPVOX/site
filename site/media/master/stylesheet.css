@@ -2228,6 +2228,28 @@ h1.h1_smaller {
 				border: none;
 				}
 				
+	.b_trouble {
+		width: 141px;
+		height: 23px;
+		background: url(b_trouble.png) no-repeat;
+		display: block;
+		text-indent: -9999em;
+		margin: 0;
+		border: none;
+		float: left;
+		}
+
+	.b_tryagain {
+		width: 100px;
+		height: 22px;
+		background: url(b_try_again.png) no-repeat;
+		display: block;
+		text-indent: -9999em;
+		margin: 0;
+		border: none;
+		float: left;
+		}
+				
 	#share_email_button {
 		width: 118px;
 		height: 22px;

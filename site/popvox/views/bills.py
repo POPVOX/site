@@ -565,7 +565,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				
 	# Allow (actually require) the user to revise an address that does not have a prefix or phone number.
 	if address_record != None and address_record_fixed != None and (
-		address_record.nameprefix == "" or address_record.phonenumber == ""): # or request.user.username == "POPVOXTweets"):
+		address_record.nameprefix == "" or address_record.phonenumber == "" or request.user.username == "POPVOXTweets"):
 		address_record_fixed = None
 	
 	# We will require a captcha for this comment if the user is creating many comments
