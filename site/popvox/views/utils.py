@@ -3,20 +3,20 @@ from django.core.cache import cache
 
 import urllib
 
-def formatDateTime(d, withtime=True):
+def formatDateTime(d, withtime=True, tz="EST"):
 	if (datetime.now().date() == d.date()):
 		if withtime:
-			return d.strftime("Today at %I:%M %p").replace(" 0", " ")
+			return d.strftime("Today at %I:%M %p").replace(" 0", " ") + " " + tz
 		else:
 			return "Today"
 	elif ((datetime.now() - timedelta(.5)).date() == d.date()):
 		if withtime:
-			return d.strftime("Yesterday at %I:%M %p").replace(" 0", " ")
+			return d.strftime("Yesterday at %I:%M %p").replace(" 0", " ") + " " + tz
 		else:
 			return "Yesterday"
 	elif (datetime.now() - d).days < 7:
 		if withtime:
-			return d.strftime("%A at %I:%M %p").replace(" 0", " ")
+			return d.strftime("%A at %I:%M %p").replace(" 0", " ") + " " + tz
 		else:
 			return d.strftime("%A")
 	elif (datetime.now() - d).days < 120:

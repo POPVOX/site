@@ -123,7 +123,7 @@ def display_date(parser, token):
 
 			d = d + timedelta(hours=5 + tz_offset) 
 
-			return popvox.views.utils.formatDateTime(d) + " " + tz_name
+			return popvox.views.utils.formatDateTime(d, tz=tz_name)
 	
 	try:
 		# split_contents() knows not to split quoted strings.

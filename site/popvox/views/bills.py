@@ -702,7 +702,6 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		address_record.load_from_form(request, validate=False)
 		
 		def http_rest_json(url, args=None, method="GET"):
-			import urllib, urllib2, json
 			if method == "GET" and args != None:
 				url += "?" + urllib.urlencode(args).encode("utf8")
 			req = urllib2.Request(url)
@@ -806,7 +805,6 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				address_record.longitude = float(request.POST["longitude"])
 				
 				# But we have to convert the coordinate to a district...
-				import urllib, urllib2
 				url = "http://www.govtrack.us/perl/district-lookup.cgi?" + urllib.urlencode({"lat": address_record.latitude, "long": address_record.longitude })
 				ret = minidom.parse(urllib2.urlopen(urllib2.Request(url)))
 				try:
