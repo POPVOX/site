@@ -206,7 +206,7 @@ $(function() {
 			</div>
 			
 			<div class="col_6 col_last">
-				<h3 class="no_rule">Trending Bills</h3>
+				<h3 class="no_rule">Trending Bills of the Week</h3>
 				{% for billrec in trending_bills %}
 					<div class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}">
 						{% with billrec.bill as bill %}
