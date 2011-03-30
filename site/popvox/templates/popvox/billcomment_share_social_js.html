@@ -4,7 +4,7 @@
 <script>
 var working = false;
 var current_share_tab = null;
-function share(method, isauto) {
+function share(method, isauto, linkcallback) {
 	if (method == "email" && $('#share_email_field').hasClass("default")) {
 		alert("Enter some email addresses.");
 		return;
@@ -29,7 +29,11 @@ function share(method, isauto) {
 			   working = false;
 			   if (method == "email") { $('#share_email_field').val(''); $('#share_email_field').blur(); }
 			   //if (method == "email") $("#share_" + method + "_status").delay(6000).fadeOut();
-			   $('#sharetab_link p').html("Copy the link <tt>" + res.url + "</tt> to share this bill with others.");
+			   if (res.url) {
+				   $('#sharetab_link p').html("Copy the link <tt>" + res.url + "</tt> to share this bill with others.");
+				   if (linkcallback)
+					   linkcallback(res.url);
+			   }
 		   },
 		   "failure": function(res) {
 			   if (res.error == "not-authorized" && !isauto) {
@@ -39,6 +43,8 @@ function share(method, isauto) {
 			   	$('.b_share_' + method).fadeIn();
 			   	working = false;
 			   }
+			   if (linkcallback)
+				   linkcallback("{{SITE_ROOT_URL|escapejs}}{{comment.url|escapejs}}");
 		   },
 		});
 	return false;
@@ -46,12 +52,12 @@ function share(method, isauto) {
 function share_tab(method) {
 	{% if not facebook %}
 	if (method == "facebook")
-		return facebook_share_simple();
+		share("link", null, facebook_share_simple);
 	{% endif %}
 	
 	{% if not twitter %}
 	if (method == "twitter")
-		return true;
+		share("link", null, twitter_share_simple);
 	{% endif %}
 	
 	if (current_share_tab == method) {
@@ -70,7 +76,7 @@ function share_tab(method) {
 	
 	current_share_tab = method;
 
-	if (0 {% if user.is_authenticated %}|| method == "email"{% endif %} || method == "twitter" || method == "facebook")
+	if (0 {% if user.is_authenticated %}|| method == "email"{% endif %} {% if twitter %}|| method == "twitter"{% endif %} {% if facebook %}|| method == "facebook"{% endif %})
 		$('#sharetab_message').fadeIn();
 	else
 		$('#sharetab_message').hide();
@@ -104,19 +110,33 @@ if (window.location.hash == "#twitter" || window.location.hash == "#facebook") {
 	});
 }
 
-function facebook_share_simple() {
-	// based on share bookmarklet: http://www.facebook.com/share_options.php
-	var f="http://www.facebook.com/share";
-	var p=".php?src=bm&v=4&i=1299162093&u=" + encodeURIComponent("{{SITE_ROOT_URL}}{{comment.url}}") + "&t=" + encodeURIComponent(document.title);
+function share_simple_open(url1, url2) {
 	a = function() {
-		if (!window.open(f+"r"+p,"sharer","toolbar=0,status=0,resizable=1,width=626,height=436"))
-			document.location.href=f+p;
+		if (!window.open(url1,"sharer","toolbar=0,status=0,resizable=1,width=626,height=436"))
+			document.location.href=url2;
 	}
 	if (/Firefox/.test(navigator.userAgent))
 		setTimeout(a,0);
 	else
 		a();
 	return false;
+}
+
+function facebook_share_simple(targeturl) {
+	// based on share bookmarklet: http://www.facebook.com/share_options.php
+	var f="http://www.facebook.com/share";
+	var p=".php?src=bm&v=4&i=1299162093&u=" + encodeURIComponent(targeturl) + "&t=" + encodeURIComponent(document.title);
+	share_simple_open(f+"r"+p, f+p);
+}
+
+function twitter_share_simple(targeturl) {
+	var t = $('#share_message').val();
+	if (t.indexOf("{{comment.bill.hashtag|escapejs}}") == -1)
+		t += " {{comment.bill.hashtag|escapejs}}"
+	t += " " + targeturl;
+	var p1 = "http://twitter.com/intent/tweet?text=" + encodeURIComponent(t);
+	var p2 = "http://twitter.com/home?status=" + encodeURIComponent(t);
+	share_simple_open(p1, p2);
 }
 </script>
 

@@ -12,7 +12,7 @@
 	
 	<ul class="social_share_btns">
 		<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')" title="Facebook">facebook</a></li>
-		<li><a class="btn social_twitter" href="http://twitter.com/home?status={{comment.bill.hashtag|urlencode}}%20{{SITE_ROOT_URL|urlencode}}{{comment.url|urlencode}}" target="_blank" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
+		<li><a class="btn social_twitter" href="#" target="_blank" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
 		<li><a class="btn social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
 		<li><a class="btn social_link" href="#" onclick="return share_tab('link')" title="Get a Short URL">get a link</a></li>
 	</ul>
@@ -70,8 +70,8 @@
 	
 	<div id="sharetab_facebook" style="display: none">
 	{% if not facebook %}
+		<p>Make this easier next time by connecting POPVOX to your Facebook account. Click the Facebook login button to begin.</p>
 		<p><a class="b_login_facebook btn" href="/registration/ext/associate/start/facebook?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#facebook"|urlencode}}">login to facebook</a></p>
-		<p>Before we can post to your wall you will need to connect POPVOX to your Facebook account. Click the Facebook login button to begin.</p>
 		
 	{% else %}
 		{% if user == comment.user and comment.fb_linkid %}
@@ -86,12 +86,7 @@
 	<div id="sharetab_twitter" style="display: none">
 	{% if not twitter %}
 		<p><a class="b_login_twitter btn" href="/registration/ext/associate/start/twitter?next={{bill.url}}/comment/{% if comment.user != user %}{{comment.id}}{% else %}share{% endif %}{{"#twitter"|urlencode}}">login to twitter</a></p>
-		<p>Before we can tweet your comment you will need to connect POPVOX to your Twitter account. Click the Twitter login button to begin.</p>
-		{% comment %}
-		<div style="float: left">
-			<a href="http://twitter.com/share" class="twitter-share-button" data-url="{{SITE_ROOT_URL}}{{comment.url}}" data-text="{{comment.bill.hashtag}}" data-count="horizontal">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
-		</div>
-		{% endcomment %}
+		<p>Make this easier for next time by connecting POPVOX to your Twitter account. Click the Twitter login button to begin.</p>
 	{% else %}
 		{% if user == comment.user and comment.tweet_id %}
 			<p>You have already tweeted about this bill but you can tweet again.</p>

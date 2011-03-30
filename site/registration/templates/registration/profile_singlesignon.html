@@ -1,6 +1,5 @@
 {% load registration_providers %}
 
-<h2>Single Sign-On</h2>
 {% if user.singlesignon.all %}
 	<p>You have connected your account to these other sites:</p>
 	{% for auth in user.singlesignon.all %}
@@ -26,5 +25,7 @@
 		</a>
 	</div>
 {% endfor %}
+<div style="clear: both"> </div>
 </div>
+
 
