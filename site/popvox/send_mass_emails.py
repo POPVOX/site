@@ -1,5 +1,4 @@
-# REMOTEDB=1 DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/send_mass_emails.py
-
+#!runscript
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 
@@ -63,7 +62,7 @@ for userprof in users:
 		[user.email])
 	msg.attach_alternative(email_body_html % (user.username), "text/html")
 	
-	#print user.email
+	#print user.email, user.date_joined, user.last_login
 	if False:
 		print "To:", user.email
 		print "From:", email_from
