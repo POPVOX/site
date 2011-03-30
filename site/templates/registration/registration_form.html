@@ -37,6 +37,7 @@ function submit_registration() {
 		   "title": '#title',
 		   "orgtype": "#orgtype",
 		   "orgclaimedmembership": "#orgclaimedmembership",
+		   "homestate": "#homestate",
 		   {% endif %}
 		   "": '' // no trailing comma
 		},
@@ -212,6 +213,16 @@ function submit_registration() {
 			</select>
 			<div id="errorlabel_orgclaimedmembership" class="error"> </div>
 
+			<label for="homestate">geographic focus</label>
+			<select class="c5" id="homestate">
+				<option value="">National</option>
+				{% for abbr, name in states %}
+					<option value="{{abbr}}">{{name}}</option>
+				{% endfor %}
+			</select>
+			<div id="errorlabel_homestate" class="error"> </div>
+			<small>If your organization is state- or locally-focused, please indicate the state you are primarily focused in.</small>
+			
 			<label for="title">your job title</label>
 			<input type="text" id="title" class="c5"/>
 			<div id="errorlabel_title" class="error"> </div>

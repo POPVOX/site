@@ -21,6 +21,7 @@ from datetime import datetime
 
 from popvox.models import *
 from popvox.views.bills import getissueareas
+from popvox import govtrack
 
 from emailverification.utils import send_email_verification
 
@@ -29,6 +30,7 @@ from settings import SITE_ROOT_URL, EMAILVERIFICATION_FROMADDR
 def orgs(request):
 	return render_to_response('popvox/org_list.html', {
 		'issueareas': IssueArea.objects.filter(parent=None).order_by('name'),
+		"states": ((state, name) for state, name in govtrack.statelist if Org.objects.filter(homestate=state).exists()),
 		#'recent': Org.objects.filter(visible=True).order_by('-updated')[0:30],
 		}, context_instance=RequestContext(request))
 
@@ -80,10 +82,11 @@ def org_edit(request, orgslug):
 	
 	set_last_campaign_viewed(request, org)
 
-	return render_to_response('popvox/org_edit.html', {'org': org}, context_instance=RequestContext(request))
+	return render_to_response('popvox/org_edit.html', {
+		'org': org,
+		"states": govtrack.statelist,
+		}, context_instance=RequestContext(request))
 	
-# this must be available to non-logged-in-users so potential org admins can choose
-# their org
 @csrf_exempt
 @json_response
 def org_search(request):
@@ -94,10 +97,15 @@ def org_search(request):
 	elif "issue" in request.POST:
 		ix = IssueArea.objects.get(slug=request.REQUEST["issue"])
 		q = ix.orgs()
+	elif "state" in request.POST:
+		q = Org.objects.filter(visible=True, homestate=request.REQUEST["state"])
 	else:
 		return ret # googlebot
 	
-	ret = [ { "label": org.name, "slug": org.slug, "url": org.url(), "createdbyus": org.createdbyus } for org in q ]
+	ret = [ { "label": org.name, "slug": org.slug, "url": org.url(), "createdbyus": org.createdbyus,
+		"homestate": govtrack.statenames[org.homestate] if org.homestate != None else None} for org in q ]
+	
+	ret.sort(key = lambda x : (x["homestate"], x["label"].replace("The ", "")))
 	
 	if "format" in request.POST:
 		ret = { "status": "success", "orgs":  ret }
@@ -153,6 +161,15 @@ def org_update_fields(request, field, value, validate_only):
 			value = USPhoneNumberField().clean(value)
 		if not validate_only and value != org.phonenumber:
 			org.phonenumber = value
+			org.save()
+		return { "status": "success", "value": value }
+	elif field == "homestate":
+		if value == "":
+			value = None
+		elif not value in govtrack.statenames:
+			return { "status": "fail", "msg": "Invalid state." }
+		if not validate_only and value != org.homestate:
+			org.homestate = value
 			org.save()
 		return { "status": "success", "value": value }
 	elif field == "twittername":

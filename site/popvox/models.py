@@ -330,6 +330,7 @@ class Org(models.Model):
 	iscoalition = models.BooleanField(default=False, verbose_name="Is this a coalition?")
 	postaladdress = models.TextField(blank=True)
 	phonenumber = models.TextField(blank=True)
+	homestate = models.CharField(choices=govtrack.statelist, max_length=2, blank=True, null=True, db_index=True)
 	twittername = models.TextField(blank=True, null=True)
 	facebookurl = models.URLField(blank=True, null=True)
 	issues = models.ManyToManyField(IssueArea, blank=True)
@@ -373,19 +374,17 @@ class Org(models.Model):
 				for c in str(m.group(3)):
 					if c in string.letters+string.digits:
 						self.slug += c.lower()
-				if self.slug == "":
-					self.slug = None
+				if self.slug != "":
+					return
 		# else, generate slug from all uppercase letters in name except letters within parenthesis
-		if self.slug == None:
-			self.slug = ""
-			for c in re.sub(r"\(.*?\)", "", self.name):
-				if c == c.upper() and c != c.lower():
-					self.slug += c.lower()
-			if self.slug == "":
-				self.slug = None
-		# else, choose a random base		
-		if self.slug == None:
-			self.slug = "org"
+		self.slug = ""
+		for c in re.sub(r"\(.*?\)", "", self.name):
+			if c == c.upper() and c != c.lower():
+				self.slug += c.lower()
+		if self.slug != "":
+			return
+			
+		self.slug = "org"
 			
 		# check if it's in use, and if so add a numeric suffix to make it distinct
 		suffix = ""

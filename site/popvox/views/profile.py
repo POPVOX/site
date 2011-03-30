@@ -110,10 +110,11 @@ class ApproveOrgCallback:
 	def email_body(self):
 		return """Hi, team! Someone has registered a new organization which now awaits approval:
 
-Organization: """ + self.org.name + """ <""" + str(self.org.website) + """>
-User: """ + self.user.userprofile.fullname + """ <""" + self.user.email + """> (""" + self.user.username + """)
-Type: """ + self.org.get_type_display() + """
-Members: """ + self.org.claimedmembership + """
+Organization:\t""" + self.org.name + """ <""" + str(self.org.website) + """>
+User:      \t""" + self.user.userprofile.fullname + """ <""" + self.user.email + """> (""" + self.user.username + """)
+Type:     \t""" + self.org.get_type_display() + """
+Members: \t""" + self.org.claimedmembership + """
+State:    \t""" + ("National" if self.org.homestate == None else self.org.homestate) + """
 
 The organization needs approval before the user can publish it. Approve the organization by following this link
 
@@ -309,6 +310,7 @@ sorry for the inconvenience.)"""
 			org.website = self.orgwebsite
 			org.type = self.orgtype
 			org.claimedmembership = self.orgclaimedmembership
+			org.homestate = self.orghomestate
 			org.set_default_slug()
 			org.createdbyus = False
 			org.approved = False
@@ -343,6 +345,7 @@ def register(request, regtype):
 			"mode": regtype,
 			"org_types": [t for t in Org.ORG_TYPES if t[0] != Org.ORG_TYPE_NOT_SET],
 			"org_cm": Org.ORG_CLAIMEDMEMBERSHIP_CHOICES[1:],
+			"states": popvox.govtrack.statelist,
 			"captcha": captcha_html(),
 			"next": None if not "next" in request.GET else request.GET["next"] },
 		context_instance=RequestContext(request))
@@ -435,6 +438,12 @@ def register_validation(request):
 		except:
 			pass
 		axn.orgclaimedmembership = test_field_provided(request, "orgclaimedmembership", fielderrors=status)
+		
+		axn.orghomestate = request.POST.get("homestate", "")
+		if axn.orghomestate == "":
+			axn.orghomestate = None
+		elif not axn.orghomestate in popvox.govtrack.statenames:
+			status["homestate"] = "Invalid state."
 		
 	if len(status) != 0:
 		return { "status": "fail", "byfield": status }

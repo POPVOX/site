@@ -78,6 +78,7 @@
 					"description": "#description",
 					"postaladdress": "#postaladdress",
 					"phonenumber": "#phonenumber",
+					"homestate": "#homestate",
 					"website": "#website",
 					"facebookurl": "#facebookurl",
 					"twittername": "#twittername"
@@ -179,6 +180,15 @@
 			<input type="text" class="c3" id="phonenumber" value="{{org.phonenumber}}"/><br />
 			<div id="errorlabel_phonenumber" class="error"></div>
 			
+			<label for="homestate">Geographic Focus</label>
+			<select class="c5" id="homestate">
+				<option value="">National</option>
+				{% for abbr, name in states %}
+					<option value="{{abbr}}" {% if abbr == org.homestate %}selected{% endif %}>{{name}}</option>
+				{% endfor %}
+			</select>
+			<div id="errorlabel_homestate" class="error"> </div>
+			
 			<script>$('#description, #postaladdress').input_autosize();</script>
 
 			<label for="website">Website</label>
@@ -199,7 +209,8 @@
 			<input type="button" class="submit" id="submitbutton" value="Save Your Changes" onclick="updateprofile(false)" disabled="1"/>
 			<p id="errorlabel" class="error"/>
 			<script>
-			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').textchange(function() { $('#submitbutton').attr("disabled", ''); });
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername,').textchange(function() { $('#submitbutton').attr("disabled", ''); });
+			$('#homestate').change(function() { $('#submitbutton').attr("disabled", ''); });
 			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').keyup_delayed(function() { updateprofile(true) });
 			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').input_default();
 			</script>
