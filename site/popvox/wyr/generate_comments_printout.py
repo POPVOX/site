@@ -195,10 +195,10 @@ if len(sys.argv) == 2 and sys.argv[1] == "resetbatchnumbers":
 	UserCommentOfflineDeliveryRecord.objects.all().delete()
 elif len(sys.argv) == 3 and sys.argv[1] == "kill":
 	UserCommentOfflineDeliveryRecord.objects.filter(batch = sys.argv[2]).delete()
-elif len(sys.argv) in (2, 3) and sys.argv[1] == "delivered":
+elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 	recs = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False)
-	if len(sys.argv) == 3:
-		recs = recs.filter(batch = sys.argv[2])
+	if sys.argv[2] != "all":
+		recs = recs.filter(batch__in = sys.argv[2:])
 	for ucodr in recs:
 		dr = DeliveryRecord()
 		dr.target = Endpoint.objects.get(govtrackid=ucodr.target.id)
