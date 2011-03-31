@@ -1,4 +1,8 @@
 from django.db import models
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+
+import settings
 
 import base64
 import pickle
@@ -37,4 +41,7 @@ class Record(models.Model):
 			return True
 		return False
 	
+	def url(self):
+		return getattr(settings, 'SITE_ROOT_URL', "http://%s" % Site.objects.get_current().domain) \
+			+ reverse("emailverification.views.processcode", args=[self.code])
 

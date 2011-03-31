@@ -35,6 +35,7 @@ DJANGO=python-django_1.2.5-1ubuntu1_all.deb
 wget http://launchpadlibrarian.net/64542273/$DJANGO
 sudo dpkg -i $DJANGO
 rm $DJANGO
+   # in /usr/share/pyshared/django/middleware/csrf.py I've manually disabled strict referrer checking
 
 # Persistent storage disk
 echo "/dev/sdg        /mnt/persistent auto" >> /etc/fstab
