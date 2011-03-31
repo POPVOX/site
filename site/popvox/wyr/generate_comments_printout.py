@@ -70,8 +70,8 @@ def create_tex(tex):
 		else:
 			# Don't create a new batch for this target if there are fewer than three messages to
 			# deliver and they were all written in the last two weeks.
-			if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
-				continue
+			#if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
+			#	continue
 			
 			batch_max += 1
 			batch_no = batch_max
@@ -85,7 +85,7 @@ def create_tex(tex):
 			hs = "house"
 		else:
 			raise ValueError()
-		outfile.write(r"\includepdf[noautoscale]{" + os.path.abspath(os.path.dirname(__file__) + "/coverletter_" + hs + ".pdf") + r"}" + "\n")
+		###outfile.write(r"\includepdf[noautoscale]{" + os.path.abspath(os.path.dirname(__file__) + "/coverletter_" + hs + ".pdf") + r"}" + "\n")
 		
 		header = getMemberOfCongress(govtrack_id)["name"] + "\t" + "(batch #" + str(batch_no) + ")"
 		outfile.write(r"\markboth{")
@@ -228,16 +228,16 @@ else:
 		
 		subprocess.call(["xelatex", tex], cwd=path)
 		
-		subprocess.call(["cp", tex.replace(".tex", ".pdf"), 'httproot/files/messages_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + '.pdf'])
+		# don't make this file publicly accessible!
+		#subprocess.call(["cp", tex.replace(".tex", ".pdf"), 'httproot/files/messages_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + '.pdf'])
 		
-		if False:
-			with open(tex.replace(".tex", ".pdf"), 'rb') as f:
-				msg = EmailMultiAlternatives("User Messages Delivery PDF",
-					"",
-					SERVER_EMAIL,
-					["josh@popvox.com"])
-				msg.attach('messages_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + '.pdf', f.read(), "application/pdf")
-				msg.send()
+		with open(tex.replace(".tex", ".pdf"), 'rb') as f:
+			msg = EmailMultiAlternatives("User Messages Delivery PDF",
+				"",
+				SERVER_EMAIL,
+				["josh@popvox.com"])
+			msg.attach('messages_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + '.pdf', f.read(), "application/pdf")
+			msg.send()
 			
 		#print "Done."
 		#sys.stdin.readline()

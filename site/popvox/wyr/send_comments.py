@@ -34,7 +34,7 @@ if len(sys.argv) == 4 and sys.argv[2] == "only":
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
 for comment in UserComment.objects.filter(
-	#message__isnull=False,
+	message__isnull=False,
 	bill__congressnumber=CURRENT_CONGRESS,
 	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
 	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5), # let users revise

@@ -634,7 +634,8 @@ def send_message_webform(di, msg, deliveryrec):
 		if "The zip code you typed in does not appear to be a zip code within my district" in webform\
 			or "You might not be in my district" in webform \
 			or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
-			or "The zip code entered indicates that you reside outside the" in webform:
+			or "The zip code entered indicates that you reside outside the" in webform\
+			or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform:
 			deliveryrec.trace += "\n" + webform + "\n\n"
 			raise DistrictDisagreementException()
 			
