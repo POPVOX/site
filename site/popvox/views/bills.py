@@ -868,6 +868,14 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 					surl = shorturl.models.Record.objects.get(id=request.session["comment-referrer"][2])
 					surl.increment_completions()
 				del request.session["comment-referrer"]
+		
+		# We're updating an existing record.
+		else:
+			if comment.position != position:
+				comment.position = position
+				# When the user switches sides, any comment diggs he previously left on the
+				# other side must be cleared.
+				comment.my_diggs.all().delete()
 			
 		comment.message = message
 

@@ -901,6 +901,9 @@ class UserComment(models.Model):
 
 	user = models.ForeignKey(User, related_name="comments", db_index=True) # user authoring the comment
 	bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True)
+	
+	# if this value changes, we should delete the UserCommentDiggs the user left on
+	# this bill.
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
 	
 	message = models.TextField(blank=True, null=True)
@@ -1073,6 +1076,21 @@ class UserCommentOfflineDeliveryRecord(models.Model):
 	failure_reason = models.CharField(max_length=16)
 	class Meta:
 		unique_together = (("target", "comment"),)
+
+class UserCommentDigg(models.Model):
+	"""A digg by a user on a comment."""
+	
+	DIGG_TYPES = [ ('+', 'Appreciate') ]
+
+	comment = models.ForeignKey(UserComment, related_name="diggs", db_index=True)
+	diggtype = models.IntegerField(choices=DIGG_TYPES)
+	user = models.ForeignKey(User, related_name="commentdiggs", db_index=True)
+	
+	# the source_comment track's the user's position on the same bill: a user can only digg
+	# a comment if he expressed the same position on the bill. by using a ForeignKey, we
+	# ensure that if the user deletes his comment, his diggs on that bill also disappear.
+	source_comment = models.ForeignKey(UserComment, related_name="my_diggs", db_index=True)
+
 
 class BillSimilarity(models.Model):
 	"""Stores a similarity value between two bills, where bill1.id < bill2.id."""
