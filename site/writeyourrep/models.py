@@ -10,8 +10,9 @@ class Endpoint(models.Model):
 	METHOD_SMTP = 2
 	METHOD_HOUSE_WRITEREP = 3
 	METHOD_INPERSON = 4
+	METHOD_STAFFDOWNLOAD = 5
 	
-	METHOD_CHOICES = [(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP"), (METHOD_INPERSON, "In-Person Delivery")]
+	METHOD_CHOICES = [(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP"), (METHOD_INPERSON, "In-Person Delivery"), (METHOD_STAFFDOWNLOAD, "Staff Download")]
 	
 	govtrackid = models.IntegerField(db_index=True, unique=True)
 

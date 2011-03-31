@@ -154,6 +154,7 @@ class Order(models.Model):
 		# earliest impression day in this range (since we don't have a time)
 		# until now.
 		d = impr_info[0]["firstdate"]
+		if type(d) == unicode: d = datetime.strptime(d, "%Y-%m-%d") # sqlite
 		td = datetime.now() - datetime(d.year, d.month, d.day)
 		td = float(td.seconds)/float(24 * 3600) + float(td.days)
 		

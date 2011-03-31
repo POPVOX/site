@@ -728,7 +728,8 @@ def get_legstaff_undelivered_messages(user):
 	filters["address__state"] = member["state"]
 	if member["type"] == "rep":
 		filters["address__congressionaldistrict"] = member["district"]
-	
+		
+	# Return undelivered messages that are also not queued for off-line delivery.
 	return UserComment.objects.filter(
 			created__gt = datetime.now() - timedelta(days=60),
 			**filters
@@ -748,20 +749,52 @@ def legstaff_download_messages(request):
 			"access": "denied",
 			}, context_instance=RequestContext(request))
 		
-	if "date" in request.POST:
+	from writeyourrep.models import Endpoint, DeliveryRecord
+	from datetime import datetime
+
+	member_id = request.user.legstaffrole.member.id
+	
+	date_format = "%Y-%m-%d %H:%M:%S.%f"
+	
+	if request.POST.get("clear", "") == "Return to Queue":
+		# On the previous attempt record, reset the next attempt field.
+		DeliveryRecord.objects.filter(
+				next_attempt__success=True,
+				next_attempt__target__govtrackid=member_id,
+				next_attempt__method=Endpoint.METHOD_STAFFDOWNLOAD,
+				next_attempt__created = request.POST["date"]
+				).update(next_attempt=None)
+		
+		# And delete the actual download record.
+		DeliveryRecord.objects.filter(
+				success=True,
+				target__govtrackid=member_id,
+				method=Endpoint.METHOD_STAFFDOWNLOAD,
+				created = request.POST["date"]
+				).delete()
+	
+	elif "date" in request.POST:
 		if request.POST["date"] == "new":
-			pass # we already queried above
+			# we already queried above
+			is_new = True
+			download_date = datetime.now()
 		else:
-			msgs = get_legstaff_undelivered_messages(request.user, date=request.POST["date"])
+			msgs = UserComment.objects.filter(
+				delivery_attempts__success=True,
+				delivery_attempts__target__govtrackid=member_id,
+				delivery_attempts__method=Endpoint.METHOD_STAFFDOWNLOAD,
+				delivery_attempts__created = request.POST["date"]
+				)
+			is_new = False
+			download_date = datetime.strptime(request.POST["date"], date_format)
+			
+		msgs = msgs.order_by('created')
 			
 		import csv
-		from datetime import datetime
 		from django.http import HttpResponse
 		
-		download_date = datetime.now()
-	
 		response = HttpResponse(mimetype='text/csv')
-		response['Content-Disposition'] = 'attachment; filename=constituent_messages_' + download_date.strftime("%Y-%m-%d_%H%M") + '.csv'
+		response['Content-Disposition'] = 'attachment; filename=constituent_messages_' + download_date.strftime("%Y-%m-%d_%H%M").strip() + '.csv'
 	
 		writer = csv.writer(response)
 		writer.writerow(['pvcid', 'date', 'subject', 'topic_code', 'prefix', 'firstname', 'lastname', 'suffix', 'address1', 'address2', 'city', 'state', 'zipcode', 'phonenumber', 'district', 'email', 'message', 'referrer'])
@@ -803,10 +836,39 @@ def legstaff_download_messages(request):
 				comment.message if comment.message != None else "(This user chose not to write a personal message.)",
 				campaign_id,
 				])
-		
+
+			if is_new:
+				dr = DeliveryRecord()
+				dr.target = Endpoint.objects.get(govtrackid=member_id)
+				dr.trace = "comment #" + unicode(comment.id) + " delivered via staff download by " + request.user.username + "\n\n" + repr(request)
+				dr.success = True
+				dr.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
+				dr.method = Endpoint.METHOD_STAFFDOWNLOAD
+				dr.save()
+
+				# explicitly set all of the records to the same date to group the batch
+				dr.created = download_date
+				dr.save()
+
+				try:
+					prev_dr = comment.delivery_attempts.get(target__govtrackid = member_id, next_attempt__isnull = True)
+					prev_dr.next_attempt = dr
+					prev_dr.save()
+				except DeliveryRecord.DoesNotExist:
+					pass
+				
+				comment.delivery_attempts.add(dr)
+
 		return response
-		
+	
+	delivered_message_dates = DeliveryRecord.objects.filter(
+				success=True,
+				target__govtrackid=member_id,
+				method=Endpoint.METHOD_STAFFDOWNLOAD).values_list("created", flat=True).distinct().order_by('-created')
+	delivered_message_dates = [(d, d.strftime(date_format)) for d in delivered_message_dates]
+
 	return render_to_response('popvox/legstaff_download_messages.html', {
 		"new_messages": msgs.count(),
+		"delivered_message_dates": delivered_message_dates,
 		}, context_instance=RequestContext(request))
 

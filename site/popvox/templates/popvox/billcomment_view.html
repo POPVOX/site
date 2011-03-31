@@ -50,8 +50,6 @@
 		<div class="review" style="margin-bottom: 1em; border: 1px solid #999; padding: 5px; color: #999">
 			<div>Administrative commands:</div>
 			<div>
-				<p style="margin-bottom: 0">&ldquo;{{comment.delivery_status}}&rdquo;</p>
-				
 				{% if comment.message %}
 					{% if comment.status == 0 %}
 						<a href="#" style="color: #B77" onclick="$('#reject_comment, #moderation_comment').fadeIn(); return false;">Reject Comment?</a>
@@ -124,7 +122,11 @@
 			{% endif %}
 		</div>
 		
-		
+		{% if user.is_staff or user.is_superuser or user.userprofile.is_leg_staff %}
+		<div class="review" style="margin-bottom: 1em; border: 1px solid #999; padding: 5px; color: #999">
+			<p style="margin: 0">Delivery status shown to the constituent: &ldquo;{{comment.delivery_status}}&rdquo;</p>
+		</div>
+		{% endif %}
 		
 	</div><!-- e: col_6 -->
 	<div class="clear"> </div>
