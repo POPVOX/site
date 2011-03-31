@@ -4541,6 +4541,44 @@ ul.staff, .small {
 	.col_3 .search {
 		width: 145px;
 	}
+
+/* ads */ 
+.text_ad .header{
+	display: none;
+	}
+
+	.ad {
+		background: #dbd8d1;
+		padding: 20px;
+		text-align: left;
+		}
+		
+		.ad .title {
+			font-size: 14px;
+			font-weight: bold;
+			margin: 0;
+			}
+		
+		.ad p.tagline {
+			margin: 0;
+			color: ;
+			}
+			
+		.ad p.url {
+			font-size: 12px;
+			margin: 0;
+			}
+			
+		.ad p.address {
+			font: normal 10px/12px helvetica, arial, sans-serif;
+			margin: 10px 0 0;
+			}
+			
+	.text_ad .footer {
+		font: italic normal 11px/18px georgia, serif;
+		margin: -10px 0 20px;
+		}
+
 	
 	
 /* conditional css */
@@ -4648,12 +4686,12 @@ ul.issue_list, ul.org_all {
 			}
 			
 			ul.issue_list li a:hover, ul.org_all li a:hover {
-				color: #FF9700;
+				color: #CC6A11;
 				}
 		
 			ul.issue_list li a.active, ul.org_all li a.active {
 				font-weight: bold;
-				color: #FF9700;
+				color: #CC6A11;
 				}
 
 		ul.issue_list li ul {

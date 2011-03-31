@@ -50,7 +50,7 @@ function showlist(elem, issueslug) {
 				for (orgx in ret.orgs) {
 					var org = ret.orgs[orgx];
 					
-					if (org.homestate != last_homestate && distinct_state_count > 2) {
+					if (org.homestate != last_homestate && distinct_state_count > 1) {
 						var homestate = org.homestate;
 						if (!homestate) {
 							homestate = "National Organizations";
@@ -173,7 +173,7 @@ function toggle_categories() {
 					<div id="orglist_status"></div>
 					<ul id="orglist_list" class="org_all">
 					</ul>
-					<p id="orgnote" class="pad_top" style="display: none">(Entries in bold indicate information reported by the organization itself.)</p>
+					<p id="orgnote" class="pad_top" style="display: none"><small>(Entries in bold indicate information reported by the organization itself.)</small></p>
 					<div id="activity" style="margin-top: 1.5em"></div>
 				</div>
 			</div>
