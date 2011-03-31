@@ -46,6 +46,13 @@ $(function() {
 	<div class="col_3 col_top col_last">
 		{% include "ads/rightbar_single.html" %}
 		
+		{% if message_count or message_count == 0 %}
+		<div class="">
+			<h3>Download Constituent Messages</h3>
+			<p>There are <a href="/home/constituent-messages">{{message_count}} constituent message{{message_count|pluralize}}</a> for your office waiting to be downloaded. <a href="/home/constituent-messages">More information...</a></p>
+		</div>
+		{% endif %}
+		
 		<div class="dash_calendar">
 			<a href="/calendar" class="btn b_view_calendar">View Calendar</a>
 			<h3>Calendar</h3>

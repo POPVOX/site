@@ -1,0 +1,50 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Download Constituent Messages{% endblock%}
+{% block head %}
+<script>
+</script>
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="col_9 col_top">
+		<h1>Download Constituent Messages</h1>
+		
+		{% if access == "denied" %}
+		
+			<p>You do not have access to constituent messages.</p>
+		
+		{% else %}
+
+			<h3>New Messages</h3>
+		
+			<p>There are {{new_messages}} constituent message{{new_messages|pluralize}} for your office waiting to be downloaded.</p>
+			
+			<form method="post" style="margin-left: 2em" onsubmit="window.setTimeout('document.location.reload()', 3000);">
+				{% csrf_token %}
+				<input type="hidden" name="date" value="new"/>
+				
+				<p>
+					Click to download spreadsheet in CSV format: 
+					<input type="submit" value="Download"/>
+				</p>
+			</form>
+			
+			<p>Once you download the spreadsheet, the constituents will be notified that their message has been delivered to your office. You are responsible for entering the messages into your CRM software.</p>
+
+			<h3>Older Messages</h3>
+			
+			<p></p>
+		
+		{% endif %}
+		
+	</div> <!-- e: col_9 -->
+	
+	
+	<div class="col_3 col_top col_last">
+		{% include "ads/rightbar_single.html" %}
+	</div> <!-- e: col_3 -->	
+</div><!-- e: content -->
+
+{% endblock %}
+

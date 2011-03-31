@@ -357,10 +357,14 @@ def home(request):
 		raise Http404()
 		
 	if prof.is_leg_staff():
+		msgs = get_legstaff_undelivered_messages(user)
+		if msgs != None: msgs = msgs.count()
+		
 		return render_to_response('popvox/home_legstaff_dashboard.html',
 			{
 				"docket": get_legstaff_suggested_bills(request.user, counts_only=True, include_extras=False),
-				"calendar": get_calendar_agenda(user)
+				"calendar": get_calendar_agenda(user),
+				"message_count": msgs,
 			},
 			context_instance=RequestContext(request))
 		
@@ -481,6 +485,11 @@ def activity(request):
 	
 	import phone_number_twilio
 	pntv = phone_number_twilio.models.PhoneNumber.objects.filter(verified=True).count()
+	
+	msgs = None
+	if request.user.userprofile.is_leg_staff():
+		msgs = get_legstaff_undelivered_messages(request.user)
+		if msgs != None: msgs = msgs.count()
 		
 	return render_to_response('popvox/activity.html', {
 			"default_state": default_state if default_state != None else "",
@@ -489,6 +498,9 @@ def activity(request):
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
 			"statereps": govtrack.getStateReps(),
+			
+			# for leg staff only...
+			"message_count": msgs,
 			
 			# for admins only....
 			"count_users": User.objects.all().count(),
@@ -703,4 +715,98 @@ def delivery_status_report(request):
 		"report": report,
 		}, context_instance=RequestContext(request))
 	
+def get_legstaff_undelivered_messages(user):
+	role = user.legstaffrole
+	if role.member == None:
+		return None
+		
+	member = role.member.info()
+	if not member["current"]:
+		return None
+	
+	filters = { }	
+	filters["address__state"] = member["state"]
+	if member["type"] == "rep":
+		filters["address__congressionaldistrict"] = member["district"]
+	
+	return UserComment.objects.filter(
+			created__gt = datetime.now() - timedelta(days=60),
+			**filters
+		).exclude(
+			delivery_attempts__success=True,
+			delivery_attempts__target__govtrackid=role.member.id,
+		).exclude(
+			usercommentofflinedeliveryrecord__target=role.member,
+			usercommentofflinedeliveryrecord__batch__isnull=False
+		)
+		
+@user_passes_test(lambda u : u.is_authenticated() and u.userprofile.is_leg_staff())
+def legstaff_download_messages(request):
+	msgs = get_legstaff_undelivered_messages(request.user)
+	if msgs == None: # no access to messages
+		return render_to_response('popvox/legstaff_download_messages.html', {
+			"access": "denied",
+			}, context_instance=RequestContext(request))
+		
+	if "date" in request.POST:
+		if request.POST["date"] == "new":
+			pass # we already queried above
+		else:
+			msgs = get_legstaff_undelivered_messages(request.user, date=request.POST["date"])
+			
+		import csv
+		from datetime import datetime
+		from django.http import HttpResponse
+		
+		download_date = datetime.now()
+	
+		response = HttpResponse(mimetype='text/csv')
+		response['Content-Disposition'] = 'attachment; filename=constituent_messages_' + download_date.strftime("%Y-%m-%d_%H%M") + '.csv'
+	
+		writer = csv.writer(response)
+		writer.writerow(['pvcid', 'date', 'subject', 'topic_code', 'prefix', 'firstname', 'lastname', 'suffix', 'address1', 'address2', 'city', 'state', 'zipcode', 'phonenumber', 'district', 'email', 'message', 'referrer'])
+		for comment in msgs:
+			
+			topic_code = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
+			campaign_id = ""
+			
+			if comment.referrer != None and isinstance(comment.referrer, Org):
+				if comment.referrer.website == None:
+					campaign_id = "http://popvox.com" + comment.referrer.url()
+				else:
+					campaign_id = comment.referrer.website
+			elif comment.referrer != None and isinstance(comment.referrer, OrgCampaign):
+				if comment.referrer.website_or_orgsite() == None:
+					campaign_id = "http://popvox.com" + comment.referrer.url()
+				else:
+					campaign_id = comment.referrer.website_or_orgsite()
+			
+			writer.writerow([
+				comment.id,
+				comment.updated,
+				comment.bill.hashtag() + " " + ("support" if comment.position=="+" else "oppose"),
+				topic_code,
+				
+				comment.address.nameprefix,
+				comment.address.firstname,
+				comment.address.lastname,
+				comment.address.namesuffix,
+				comment.address.address1,
+				comment.address.address2,
+				comment.address.city,
+				comment.address.state,
+				comment.address.zipcode,
+				comment.address.phonenumber,
+				comment.address.congressionaldistrict,
+
+				comment.user.email,
+				comment.message if comment.message != None else "(This user chose not to write a personal message.)",
+				campaign_id,
+				])
+		
+		return response
+		
+	return render_to_response('popvox/legstaff_download_messages.html', {
+		"new_messages": msgs.count(),
+		}, context_instance=RequestContext(request))
 

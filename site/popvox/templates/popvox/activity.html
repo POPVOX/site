@@ -131,6 +131,10 @@
 				</select>
 				<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 			</p>
+			
+			{% if message_count %}
+			<p>There are <a href="/home/constituent-messages">{{message_count}} constituent message{{message_count|pluralize}}</a> for your office waiting to be downloaded. <a href="/home/constituent-messages">More information...</a></p>
+			{% endif %}
 		</div>
  
 		<div id="activity" style="padding-top: 1em"> 

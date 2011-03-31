@@ -19,6 +19,7 @@ urlpatterns = patterns('',
 	(r'^docket$', 'popvox.views.home.docket'),
 	(r'^ajax/docket/bill_categories$', 'popvox.views.home.legstaff_bill_categories'),
 	(r'^ajax/docket/bill_category_panel$', 'popvox.views.home.legstaff_bill_category_panel'),
+	(r'^home/constituent-messages$', 'popvox.views.home.legstaff_download_messages'),
 	
 	(r'^activity$', 'popvox.views.home.activity'),
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),

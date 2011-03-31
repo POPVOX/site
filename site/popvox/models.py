@@ -67,14 +67,17 @@ class MemberOfCongress(models.Model):
 	def __unicode__(self):
 		return unicode(self.id) + u" " + self.name()
 	def name(self):
-		return govtrack.getMemberOfCongress(self.id)["name"]
+		return self.info()["name"]
 	def lastname(self):
-		return govtrack.getMemberOfCongress(self.id)["lastname"]
+		return self.info()["lastname"]
 	def party(self):
-		if "party" in govtrack.getMemberOfCongress(self.id):
-			return govtrack.getMemberOfCongress(self.id)["party"]
+		if "party" in self.info():
+			return self.info()["party"]
 		else:
 			return "?"
+			
+	def info(self):
+		return govtrack.getMemberOfCongress(self.id)
 	
 	# Make sure there is a record for every Member of Congress.
 	@classmethod
