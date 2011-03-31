@@ -30,7 +30,7 @@ from settings import SITE_ROOT_URL, EMAILVERIFICATION_FROMADDR
 def orgs(request):
 	return render_to_response('popvox/org_list.html', {
 		'issueareas': IssueArea.objects.filter(parent=None).order_by('name'),
-		"states": ((state, name) for state, name in govtrack.statelist if Org.objects.filter(homestate=state).exists()),
+		"states": ((state, name) for state, name in govtrack.statelist if Org.objects.filter(visible=True, homestate=state).exists()),
 		#'recent': Org.objects.filter(visible=True).order_by('-updated')[0:30],
 		}, context_instance=RequestContext(request))
 
