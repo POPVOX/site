@@ -4128,6 +4128,16 @@ ul.staff, .small {
 			background: url(bg_upload_doc.png) left top no-repeat;
 			padding: 2px 0 4px 25px;
 			}
+			
+			.col_3.col_orange .bullets li a.get_tracking_url,
+			.col_3.col_orange .bullets li a.create_action_pg,
+			.col_3.col_orange .bullets li a.upload_doc {
+				background-position: left -24px;
+				}
+				
+				.col_3.col_orange .bullets li a:hover {
+					border-bottom: 1px solid #fff;
+					}
 		
 					
 	.col_50 {
