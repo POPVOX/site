@@ -840,7 +840,14 @@ def legstaff_download_messages(request):
 			if is_new:
 				dr = DeliveryRecord()
 				dr.target = Endpoint.objects.get(govtrackid=member_id)
-				dr.trace = "comment #" + unicode(comment.id) + " delivered via staff download by " + request.user.username + "\n\n" + repr(request)
+				dr.trace = """comment #%d delivered via staff download by %s
+				
+email: %s
+IP: %s
+UA: %s
+""" % (comment.id, request.user.username, request.user.email, request.META.get("REMOTE_ADDR", ""), request.META.get("HTTP_USER_AGENT", ""))
+				
+				
 				dr.success = True
 				dr.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
 				dr.method = Endpoint.METHOD_STAFFDOWNLOAD
