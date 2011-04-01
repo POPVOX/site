@@ -21,7 +21,7 @@
 			<p>There are {{new_messages}} constituent message{{new_messages|pluralize}} for your office waiting to be downloaded.</p>
 			
 			{% if new_messages %}
-			<form method="post" style="margin-left: 2em" onsubmit="window.setTimeout('document.location.reload()', 3000);">
+			<form method="post" style="margin-left: 2em" onsubmit="window.setTimeout('document.location.reload()', 6000);">
 				{% csrf_token %}
 				<input type="hidden" name="date" value="new"/>
 				

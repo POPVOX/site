@@ -5,6 +5,7 @@ from django.views.generic.simple import direct_to_template
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
+from django.db import transaction
 from django.db.models import Count
 from django.db.models.query import QuerySet
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
@@ -742,6 +743,7 @@ def get_legstaff_undelivered_messages(user):
 		)
 		
 @user_passes_test(lambda u : u.is_authenticated() and u.userprofile.is_leg_staff())
+@transaction.commit_on_success
 def legstaff_download_messages(request):
 	msgs = get_legstaff_undelivered_messages(request.user)
 	if msgs == None: # no access to messages
