@@ -166,9 +166,9 @@
 					<li class="{%block nav_orgadmin_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>
 					<li id="master_profile_orglist_li" class="{%block nav_orgadmin_class_profile%}{%endblock%}"
 					{% if user.orgroles.all|length == 1 %}
-					><a href="{{role.org.url}}">Profile</a></li>
+					><a href="{{user.orgroles.all.0.org.url}}">Profile</a></li>
 					{% else %}
-					onmouseover="$('#master_profile_orglist').show();"><a href="#" onclick="return false;">Profile</a>
+					onmouseover="$('#master_profile_orglist').show();"><a href="#" onclick="return false;">Profiles</a>
 						<div id="master_profile_orglist">
 							<div style="height: 19px;"> </div> 
 							<div class="orglist_li">
