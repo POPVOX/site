@@ -8,10 +8,18 @@ from popvox.govtrack import statenames, ordinate
 
 from settings import SITE_ROOT_URL
 
+def do_not_track_compliance(f):
+	def g(request, *args, **kwargs):
+		# Do-Not-Track Compliance: Don't record in traffic stats. Don't set a session cookie
+		# by not touching the session object: to enforce, clear the session object. Don't
+		# even *use* the session!
+		request.goal = None
+		request.session = None
+		return f(request, *args, **kwargs)
+	return g
+		
+@do_not_track_compliance
 def bill_js(request):
-	# Don't record in traffic stats.
-	request.goal = None
-
 	try:
 		bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
 	except:

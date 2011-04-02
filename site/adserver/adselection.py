@@ -107,7 +107,7 @@ def select_banner(adformat, targets, ad_trail, request):
 		banner, bid, extra_info = banners.pop(0)
 		
 		# Check the ad frequency against the time of the last display.
-		if banner.id in ad_trail and (banner.order.period == None or banner.order.period != 0):
+		if ad_trail != None and banner.id in ad_trail and (banner.order.period == None or banner.order.period != 0):
 			if banner.order.period != None:
 				period = timedelta(hours=banner.order.period)
 			else:

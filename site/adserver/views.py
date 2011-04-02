@@ -11,6 +11,11 @@ from models import *
 from adselection import show_banner
 
 def banner(request, formatid):
+	# To comply with Do-Not-Track, we should not set a session cookie.
+	# To prevent this, we'll clear the session state ahead of time.
+	if request.META.get("DNT", "0") == "1":
+		delattr(request, "session")
+		
 	format = get_object_or_404(Format, id=formatid)
 	
 	targets = [get_object_or_404(Target, key=target)
@@ -34,7 +39,7 @@ def banner(request, formatid):
 	response['Cache-Control'] = 'no-cache'
 
 	response.goal = None
-
+	
 	return response
 
 def click(request):
