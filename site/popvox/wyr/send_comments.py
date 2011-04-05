@@ -8,6 +8,7 @@ from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, Or
 from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress
 
 from writeyourrep.send_message import Message, send_message, Endpoint, DeliveryRecord
+from writeyourrep.addressnorm import verify_adddress
 
 mocs_require_phone_number = (
 	412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,
@@ -16,7 +17,7 @@ mocs_require_phone_number = (
 	412231,400266,412321,300070,400105,300018,400361,300040,400274,412308,
 	400441,400111,412189,400240,412492,412456,412330,412398,412481,412292,
 	400046,300054,300093,412414,400222,400419,400321,400124,400185,400216,
-	412265,412287)
+	412265,412287,400141,412427,400247,400640)
 
 stats_only = (len(sys.argv) < 2 or sys.argv[1] != "send")
 success = 0
@@ -76,9 +77,9 @@ for comment in UserComment.objects.filter(
 			topterm = b2[0].topterm
 		
 	if topterm != None and topterm.name != "Private Legislation":
-		msg.topicarea = topterm.name
+		msg.topicarea = (topterm.name, "legislation")
 	else:
-		msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title)
+		msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title, "legislation")
 	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","")
 	if comment.position == "+":
 		msg.support_oppose = ('i support',)
@@ -204,7 +205,11 @@ for comment in UserComment.objects.filter(
 			if not gid in target_counts: target_counts[gid] = 0
 			target_counts[gid] += 1
 			failure += 1
-			#sys.stdin.readline()
+			
+			if len(comment.address.zipcode) == 5:
+				continue
+			
+			sys.stdin.readline()
 			continue
 		
 		# If we got this far, a delivery attempt was made although it

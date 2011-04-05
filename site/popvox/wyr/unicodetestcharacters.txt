@@ -1,0 +1,7 @@
+=== test special characters ===
+XML characters: < angle brackets > "quotes"
+latin vowels: à é î õ ü ȳ
+punctuation: “ ‘curly quotes’ ”
+unicode chess: ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
+=== end of test of special characters ===
+

@@ -180,6 +180,8 @@ common_fieldnames = {
 	"streetaddress": "address1",
 	"street": "address1",
 	"addressline2": "address2",
+	"address-line1": "address1",
+	"address-line2": "address2",
 	"mailing_city": "city",
 	"hcity": "city",
 	"citytown": "city",
@@ -295,12 +297,15 @@ radio_choices = {
 	"affl12": "",
 	"updates": "no",
 	"enewsletteroption": "eoptout",
+	"rsptype": "email",
+	"forums": "forums_no",
 }
 
 custom_mapping = {
+	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
+	"666_daytime-phone_text": "phone",
 	"757_name_text": "firstname",
 	"789_phone8_text": "phone",
-	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
 }
 
 custom_overrides = {
