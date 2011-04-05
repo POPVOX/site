@@ -1097,6 +1097,7 @@ class UserCommentDigg(models.Model):
 	# we allow leg staff to appreciate all comments, so this can be null
 	source_comment = models.ForeignKey(UserComment, related_name="my_diggs", db_index=True, blank=True, null=True)
 
+	created = models.DateTimeField(auto_now_add=True)
 
 class BillSimilarity(models.Model):
 	"""Stores a similarity value between two bills, where bill1.id < bill2.id."""

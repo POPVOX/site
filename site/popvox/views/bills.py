@@ -1483,17 +1483,18 @@ def comment_digg(request):
 		return { "status": "fail", "msg": "invalid action" }
 		
 	d = UserCommentDigg.objects.filter(comment=comment, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user)
-	if len(d) > 0:
-		d[0].delete()
+	if request.POST["action"] == "-":
+		d.delete()
 		action = "-"
 	else:
-		d = UserCommentDigg(
-			comment=comment,
-			diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE,
-			user=request.user)
-		if type(appreciate) == UserComment:
-			d.source_comment = appreciate
-		d.save()
+		if len(d) == 0:
+			d = UserCommentDigg(
+				comment=comment,
+				diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE,
+				user=request.user)
+			if type(appreciate) == UserComment:
+				d.source_comment = appreciate
+			d.save()
 		action = "+"
 		
 	return { "status": "success", "action": action, "count": UserCommentDigg.objects.filter(comment=comment, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE).count() }

@@ -226,7 +226,8 @@
 	function digg(elem) {
 		ajax("/ajax/bills/comment/digg", {
 				bill: {{bill.id}},
-				comment: elem.getAttribute("commentid")
+				comment: elem.getAttribute("commentid"),
+				action: $(elem.parentNode).hasClass("active") ? "-" : "+"
 		}, {
 			success: function(res) {
 				if (res.action == "+") {
