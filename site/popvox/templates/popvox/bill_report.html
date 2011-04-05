@@ -210,12 +210,12 @@
 					$('#stats_overall_info').text("Not enough individuals have commented on this bill to display a chart.");
 				}
 
-				if (is_first_load || !report_state || res.comments.length == 0) {
+				if ((is_first_load || !report_state || res.comments.length == 0) && res.stats.overall) {
 					$('#map').show();
 					$('#showmap').hide();
 				} else {
 					$('#map').hide();
-					$('#showmap').show();
+					if (res.stats.overall) $('#showmap').show();
 				}
 
 			}
