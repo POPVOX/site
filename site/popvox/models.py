@@ -1094,7 +1094,8 @@ class UserCommentDigg(models.Model):
 	# the source_comment track's the user's position on the same bill: a user can only digg
 	# a comment if he expressed the same position on the bill. by using a ForeignKey, we
 	# ensure that if the user deletes his comment, his diggs on that bill also disappear.
-	source_comment = models.ForeignKey(UserComment, related_name="my_diggs", db_index=True)
+	# we allow leg staff to appreciate all comments, so this can be null
+	source_comment = models.ForeignKey(UserComment, related_name="my_diggs", db_index=True, blank=True, null=True)
 
 
 class BillSimilarity(models.Model):

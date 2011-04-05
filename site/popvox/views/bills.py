@@ -1369,7 +1369,7 @@ def can_appreciate(request, bill):
 	return False
 
 @csrf_exempt
-#@cache_page_postkeyed(60*2) # two minutes
+@cache_page_postkeyed(60*2) # two minutes
 @json_response
 def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	# Get report information.

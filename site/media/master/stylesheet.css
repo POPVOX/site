@@ -1380,28 +1380,31 @@ look in master/_map_style.css
 		background: url(b_appreciate_span.png) left top no-repeat;
 		width: 114px;
 		float: right;
+		cursor: default;
 		}
 
-		.appreciate a {
+		.appreciate a, .appreciate span.text {
 			font: bold 11px helvetica, arial, sans-serif;
-			background: url(b_appreciate.png) left top no-repeat;
-			width: 64px;
-			height: 13px;
 			margin: 0;
 			padding: 2px 0 0 20px;
 			border: none;
 			display: block;
 			float: left;
+			width: 64px;
+			}
+		.appreciate a {
+			background: url(b_appreciate.png) left top no-repeat;
+			height: 13px;
 			}
 			
-			.appreciate a:hover {
+			.appreciate a:hover, .appreciate.active a {
 				color: #75747c;
 				text-decoration: none;
 				background-position: left bottom;
 				border: none;
 				}
 				
-		.appreciate span {
+		.appreciate span.num {
 			background: #75747C;
 			color: #FFF;
 			display: block;
