@@ -1085,7 +1085,10 @@ h3#reporttitle {
 				.legreport .comments h4 .date {
 					background: #d4d1ca;
 					float: right;
-					padding: 0 4px;
+					margin-left: 5px;
+					padding: 0 5px;
+					text-align: right;
+					width: 114px;
 					}
 
 		.legreport .comments p.usercomment, .bills .comments p {
@@ -1342,27 +1345,74 @@ look in master/_map_style.css
 	
 		
 	.share {
-		margin: 0px 0 15px 30px;
+		margin: -5px 0 15px 45px;
 		display: block;
+/*		background: #efefef; */
+		width: 115px;
+		float: left;
 		}
 		
 		#activity .share {
 			margin: -10px 0 15px -10px;
 			}
 		
-	.share a {
-		font: italic normal 12px georgia, serif;
-		background: url(b_social.png) right bottom no-repeat;
-		height: 14px;
-		margin-left: 15px;
-		padding-right: 70px;
-		border: none;
-		}
-		
-		.share a:hover {
-			text-decoration: none;
-			background-position: right top;
+		.share a {
+			font: bold 11px helvetica, arial, sans-serif;
+			background: url(b_social.png) 50px bottom no-repeat;
+			width: 115px;
+			height: 13px;
+			margin: 0;
+			padding: 2px 0 0;
 			border: none;
+			display: block;
+			}
+			
+			.share a:hover {
+				text-decoration: none;
+				background-position: 50px top;
+				border: none;
+				}
+			
+	.appreciate {
+		display: block;
+		margin-top: -5px;
+/*		background: #efefef; */
+		background: url(b_appreciate_span.png) left top no-repeat;
+		width: 114px;
+		float: right;
+		}
+
+		.appreciate a {
+			font: bold 11px helvetica, arial, sans-serif;
+			background: url(b_appreciate.png) left top no-repeat;
+			width: 64px;
+			height: 13px;
+			margin: 0;
+			padding: 2px 0 0 20px;
+			border: none;
+			display: block;
+			float: left;
+			}
+			
+			.appreciate a:hover {
+				color: #75747c;
+				text-decoration: none;
+				background-position: left bottom;
+				border: none;
+				}
+				
+		.appreciate span {
+			background: #75747C;
+			color: #FFF;
+			display: block;
+			float: left;
+			font-size: 10px;
+			font-weight: bold;
+			line-height: 14px;
+			height: 14px;
+			padding: 2px;
+			text-align: center;
+			width: 26px;
 			}
 		
 	div.endorse {
