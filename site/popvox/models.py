@@ -1083,7 +1083,9 @@ class UserCommentOfflineDeliveryRecord(models.Model):
 class UserCommentDigg(models.Model):
 	"""A digg by a user on a comment."""
 	
-	DIGG_TYPES = [ ('+', 'Appreciate') ]
+	DIGG_TYPE_APPRECIATE = 0
+	
+	DIGG_TYPES = [ (DIGG_TYPE_APPRECIATE, 'Appreciate') ]
 
 	comment = models.ForeignKey(UserComment, related_name="diggs", db_index=True)
 	diggtype = models.IntegerField(choices=DIGG_TYPES)

@@ -44,6 +44,7 @@ urlpatterns = patterns('',
 	
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/report$', "popvox.views.bills.billreport"),
 	(r'^ajax/bills/us/(\d+)/([a-z]+)(\d+)/report/getinfo$', "popvox.views.bills.billreport_getinfo"),
+	(r'^ajax/bills/comment/digg$', "popvox.views.bills.comment_digg"),
 	(r'^bills/us/(\d+)/([a-z]+)(\d+)/docs/([\w\-]+)/(\d+)$', "popvox.views.bills.billdoc"),
 	
 	(r'^bills/search$', "popvox.views.bills.billsearch"),

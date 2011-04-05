@@ -1354,10 +1354,26 @@ def billreport(request, congressnumber, billtype, billnumber):
 			"bot_comments": bot_comments,
 		}, context_instance=RequestContext(request))
 
+def can_appreciate(request, bill):
+	# Can I appreciate comments? Only if I've weighed in on this bill and
+	# then only on the side I've weighed in on, or if I'm leg staff. Returns
+	# None if the user cannot appreciate any comments, True if the user
+	# can appreciate all comments, or the user's comment if he is restricted
+	# to commenting on the same side.
+	if request.user.is_authenticated():
+		if request.user.userprofile.is_leg_staff():
+			return True
+		comments = request.user.comments.filter(bill = bill)
+		if len(comments) > 0:
+			return comments[0]
+	return False
+
 @csrf_exempt
-@cache_page_postkeyed(60*2) # two minutes
+#@cache_page_postkeyed(60*2) # two minutes
 @json_response
 def billreport_getinfo(request, congressnumber, billtype, billnumber):
+	# Get report information.
+	
 	bill = getbill(congressnumber, billtype, billnumber)
 	
 	state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
@@ -1390,10 +1406,12 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 							moctype="rep" if district != None else "sen")]
 					)
 				)
+			
+	# Functions for formatting comments.
 	
 	t = re.escape(bill.title).replace(":", ":?")
 	def msg(m):
-		m = re.sub(r"I (support|oppose) " + t + r" because[\s\.]*(\S)",
+		m = re.sub(r"I (support|oppose) " + t + r" because[\s\.:]*(\S)",
 			lambda x : x.group(2).upper(), m)
 		m = re.sub(r"\n+\W*$", "", m)
 		return m
@@ -1408,12 +1426,25 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 			return statenames[c.state] + "'s " + ordinal(c.congressionaldistrict) + " District"
 		return statenames[c.state] + " At Large"
 
+	# Return.
+
+	appreciate = can_appreciate(request, bill)
+	if type(appreciate) == UserComment:
+		appreciate = appreciate.position
+	elif appreciate:
+		appreciate = "both"
+	else:
+		appreciate = "none"
+
 	return {
 		"reporttitle": reporttitle,
 		"reportsubtitle": reportsubtitle,
+		
+		"can_appreciate": appreciate,
 	
 		"comments":
 			[ {
+				"id": c.id,
 				"user":c.user.username,
 				"msg": msg(c.message),
 				"location": location(c.address),
@@ -1421,6 +1452,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 				"pos": c.position,
 				"share": c.url(),
 				"verb": c.verb(tense="past"),
+				"appreciates": UserCommentDigg.objects.filter(comment=c, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE).count(),
+				"appreciated": UserCommentDigg.objects.filter(comment=c, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user).exists() if c.position == appreciate or appreciate == "both" else False,
 				} for c in comments ],
 		"stats": {
 			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True),
@@ -1439,6 +1472,31 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 					if state != None and district not in (None, 0) else None
 		}
 	}
+
+@json_response
+def comment_digg(request):
+	bill = get_object_or_404(Bill, id=request.POST["bill"])
+	comment = get_object_or_404(UserComment, id=request.POST["comment"])
+	
+	appreciate = can_appreciate(request, bill)
+	if not appreciate or (type(appreciate) == UserComment and appreciate.position != comment.position):
+		return { "status": "fail", "msg": "invalid action" }
+		
+	d = UserCommentDigg.objects.filter(comment=comment, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user)
+	if len(d) > 0:
+		d[0].delete()
+		action = "-"
+	else:
+		d = UserCommentDigg(
+			comment=comment,
+			diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE,
+			user=request.user)
+		if type(appreciate) == UserComment:
+			d.source_comment = appreciate
+		d.save()
+		action = "+"
+		
+	return { "status": "success", "action": action, "count": UserCommentDigg.objects.filter(comment=comment, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE).count() }
 
 @json_response
 def getbillshorturl(request):

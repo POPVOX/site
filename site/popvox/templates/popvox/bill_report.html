@@ -53,17 +53,21 @@
 		}
 		
 		if (!hashchange) {
-			var hashstate = Object();
-			if (report_state) hashstate.state = report_state;
-				else hashstate.q = 0; // if we give an empty hash, browser scrolls to the top
-			if (report_district) hashstate.district = report_district;
-			window.location = "#" + $.param(hashstate);
+			if (!report_state) { // if we give an empty hash, browser scrolls to the top
+				window.location = "#nation";
+			} else {
+				var hashstate = Object();
+				hashstate.state = report_state;
+				if (report_district) hashstate.district = report_district;
+				window.location = "#" + $.param(hashstate);
+			}
 		}
 	}
 	
 	function showdata(is_first_load) {
 		$('#options_state').val(report_state);
 		$('#options_district').val(report_district);
+		$('#options_state, #options_district').attr('disabled', '1');
 		
 		update(true);
 		
@@ -78,6 +82,7 @@
 			},
 			complete: function(res, status) {
 				$('#loadingstatus').text("");
+				$('#options_state, #options_district').attr('disabled', '');
 				
 				if (status != "success") {
 					$('#shortmessages').text("Error loading report.");
@@ -113,6 +118,18 @@
 					if (c.verb != "supported" && c.verb != "opposed")
 						elem.find(".verb").text(c.verb + " this bill");
 					elem.find(".endorse_oppose_image").addClass((c.pos == "+") ? "endorse" : "oppose")
+					if (res.can_appreciate == "both" || res.can_appreciate == c.pos) {
+						elem.find(".appreciate").show();
+						elem.find(".appreciate a").attr("commentid", c.id);
+						elem.find(".appreciate a").text((!c.appreciated ? "appreciate" : "appreciated"));
+					} else if (res.can_appreciate == "none") {
+						elem.find(".cantappreciate").text("appreciation");
+					} else if (res.can_appreciate == "+") {
+						elem.find(".cantappreciate").text("opposing users can appreciate");
+					} else if (res.can_appreciate == "-") {
+						elem.find(".cantappreciate").text("supporting users can appreciate");
+					}
+					elem.find(".appreciate span").text(c.appreciates);
 					elem.appendTo((c.pos == "+") ? c_pro : c_con);
 					
 					if (c.pos == "+") n_pro++; else n_con++;
@@ -198,6 +215,21 @@
 		});
 
 	}
+	
+	function digg(elem) {
+		ajax("/ajax/bills/comment/digg", {
+				bill: {{bill.id}},
+				comment: elem.getAttribute("commentid")
+		}, {
+			success: function(res) {
+				if (res.action == "+")
+					$(elem).text("appreciated " + res.count);
+				else
+					$(elem).text("appreciate " + res.count);
+			}
+		});
+		return false;
+	}
 
 	$(function() {
 		$(window).bind("hashchange", function() {
@@ -209,10 +241,14 @@
 			showdata();
 		});
 
-		var hashargs = $.deparam.fragment();
-		if (hashargs.state) report_state = hashargs.state;
-		if (hashargs.district) report_district = hashargs.district;
-		
+		if (window.location.hash == "#nation") {
+			report_state = "";
+			report_district = "";
+		} else {
+			var hashargs = $.deparam.fragment();
+			if (hashargs.state) report_state = hashargs.state;
+			if (hashargs.district) report_district = hashargs.district;
+		}
 		update();
 		showdata(true);
 	});
@@ -421,7 +457,7 @@
 			<div class="endorse_oppose_image" style="padding-left: 0"> </div>
 			<p class="usercomment" style="padding-left: 0; overflow: hidden">Lorem ipsum etc etc</p>
 			<div class="clear"> </div>
-			<div class="appreciate"><a href="">appreciate</a><span>96</span></div>
+			<div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span>96</span></div>
 			<div class="share"><a href="">share</a></div>
 			<div class="clear"> </div>
 		</div>
