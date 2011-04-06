@@ -1093,7 +1093,7 @@ h3#reporttitle {
 
 		.legreport .comments p.usercomment, .bills .comments p {
 			margin-bottom: 15px;
-			padding-left: 45px;
+/*			padding-left: 45px; */
 			}
 			
 			.bills .comments p {
@@ -1323,7 +1323,7 @@ look in master/_map_style.css
 		}
 		
 	.endorse {
-		background: url(bg_endorsed_bubl.png) left top no-repeat;
+		background: url(bg_endorsed_bubl.png) left 5px no-repeat;
 		}
 		
 		.endorse_icon {
@@ -1333,7 +1333,7 @@ look in master/_map_style.css
 			}
 		
 	.oppose {
-		background: url(bg_opposed_bubl.png) left top no-repeat;
+		background: url(bg_opposed_bubl.png) left 5px no-repeat;
 		}
 
 		.oppose_icon {
@@ -1342,6 +1342,13 @@ look in master/_map_style.css
 			padding-left: 25px;
 			}
 
+	.comment p.endorse_oppose_image {
+		height: 100%;
+		min-height: 38px;
+		height: auto !important;
+		width: 415px;
+		padding-left: 45px;
+		}
 	
 		
 	.share {
@@ -1378,7 +1385,7 @@ look in master/_map_style.css
 		margin-top: -5px;
 /*		background: #efefef; */
 		background: url(b_appreciate_span.png) left top no-repeat;
-		width: 114px;
+		width: 124px;
 		float: right;
 		cursor: default;
 		}
@@ -1390,7 +1397,7 @@ look in master/_map_style.css
 			border: none;
 			display: block;
 			float: left;
-			width: 64px;
+			width: 74px;
 			}
 		.appreciate a {
 			background: url(b_appreciate.png) left top no-repeat;
@@ -1411,8 +1418,8 @@ look in master/_map_style.css
 			float: left;
 			font-size: 10px;
 			font-weight: bold;
-			line-height: 14px;
-			height: 14px;
+			line-height: 13px;
+			height: 11px;
 			padding: 2px;
 			text-align: center;
 			width: 26px;

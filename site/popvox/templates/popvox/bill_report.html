@@ -111,7 +111,7 @@
 						elem.find("h4 span.location").text("in " + c.location)
 					else
 						elem.find("h4 span.location").text("")
-					elem.find("h4 span.date").text(c.date);
+					elem.find("h4 span.date nobr").text(c.date);
 					elem.find(".share a").attr("href", c.share);
 					elem.find("p").text(c.msg)
 					elem.find("p").html(elem.find("p").html().replace("\n", "<br/><br/>"))
@@ -461,13 +461,12 @@
 	<div style="display: none" id="comment_template">
 		<div class="comment clear">
 			<h4>
-				<span class="date">Tuesday</span>
+				<span class="date"><nobr>Tuesday</nobr></span>
 				<span class="username">UserUser</span>
 				<span class="location">in City, State</span>
 				<span class="verb"> </span>
 			</h4>
-			<div class="endorse_oppose_image" style="padding-left: 0"> </div>
-			<p class="usercomment" style="padding-left: 0; overflow: hidden">Lorem ipsum etc etc</p>
+			<p class="usercomment endorse_oppose_image">Lorem ipsum etc etc</p>
 			<div class="clear"> </div>
 			<div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="text">...</span><span class="num">96</span></div>
 			<div class="share"><a href="">share</a></div>
