@@ -93,27 +93,13 @@ function subscribe(validate) {
 		<p><a class="b_register_con btn" href="/congress">Register Now</a></p>
 	</div>
 	
-	<div class="hm_col hm_col_3 sxsw_ad" style="overflow: hidden">
-		<div>
-			<p>We won in the social media category in the<br />
-				<a href="http://sxsw.com/music/accelerator">SxSW Accelerator Competition</a>! Thanks for
-				everyone's support!</p>
-			<p>Follow <a href="http://twitter.com/#!/popvox">@popvox</a> for<br /> updates or to meet up.</p>
-				
-		</div>
-	
-		{% comment %}
+	<div class="hm_col hm_col_3" style="overflow: hidden; height: 280px">
 		<h3 id="news_feed">News Feed</h3>
 		
 		{% for entry in news %}
 			<h4>{{ entry.date|date:"M j, Y" }}</h4>
 			<p><a href="{{entry.link}}">{{ entry.title|safe }}</a>. {{ entry.content|striptags|truncatewords:7}}</p>
-			{% if forloop.first %}
-				<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
-				<a href="http://twitter.com/share?url={{entry.link}}&text=RT%20@popvox:%20{{entry.title|striptags|truncatewords:10|urlencode}}&related=popvox" class="twitter-share-button">Tweet</a>
-			{% endif %}
 		{% endfor %}
-		{% endcomment %}
 	</div>
 
 </div>

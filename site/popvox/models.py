@@ -747,7 +747,7 @@ class UserLegStaffRole(models.Model):
 		
 class PositionDocument(models.Model):
 	bill = models.ForeignKey(Bill, related_name="documents", db_index=True)
-	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter of Support"), (5, "Coalition Letter"), (99, 'Other')])
+	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other')])
 	title = models.CharField(max_length=128)
 	text = tinymce_models.HTMLField(blank=True) #models.TextField()
 	link = models.URLField(blank=True, null=True)

@@ -488,7 +488,7 @@ def activity(request):
 	pntv = phone_number_twilio.models.PhoneNumber.objects.filter(verified=True).count()
 	
 	msgs = None
-	if request.user.userprofile.is_leg_staff():
+	if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 		msgs = get_legstaff_undelivered_messages(request.user)
 		if msgs != None: msgs = msgs.count()
 		
@@ -717,6 +717,11 @@ def delivery_status_report(request):
 		}, context_instance=RequestContext(request))
 	
 def get_legstaff_undelivered_messages(user):
+	# Return None if the account does not have access to download messages.
+	# Otherwise return a QuerySet of the messages in this person's office's
+	# district that have not been successfully delivered to the office (and are
+	# not in an offline batch).
+	
 	role = user.legstaffrole
 	if role.member == None:
 		return None
