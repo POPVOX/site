@@ -347,6 +347,8 @@ class Org(models.Model):
 	documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_org")
 	
 	coalitionmembers = models.ManyToManyField("Org", blank=True, related_name="ispartofcoalition", verbose_name="Coalition members")
+
+	api_key = models.CharField(max_length=16, blank=True, null=True, db_index=True, unique=True)
 	
 	class Meta:
 			verbose_name = "organization"
