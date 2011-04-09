@@ -651,7 +651,7 @@ table.form_fields td {
 	margin-bottom: .5em;
 	padding-bottom: 0;
 	}
-
+	
 			/* ----Block Styling--- */
 			
 .section {
@@ -1145,6 +1145,24 @@ look in master/_map_style.css
 	#showmap:hover {
 		background-position: center bottom;
 		cursor: pointer;
+		}
+		
+.b_more_comments {
+	clear: both;  
+	height: 22px;
+	margin: 0 0 0 140px !important;
+	position: relative;
+	width: 137px;
+	background: url(b_more_comments.png) center top no-repeat;
+	text-indent: -9999em;
+	display: block;
+	}
+	
+	a.b_more_comments:hover {
+		background-position: center bottom;
+		cursor: pointer;
+		text-decoration: none;
+		border: 0;
 		}
 
 	
