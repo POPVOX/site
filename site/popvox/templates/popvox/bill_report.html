@@ -117,6 +117,9 @@
 				
 				res = eval('(' + res.responseText + ')');
 				
+				if (res.debug_info)
+					$('#debug_info').text(res.debug_info);
+				
 				$('#reporttitle').text(res.reporttitle);
 				if (res.reportsubtitle == "") {
 					$('#reportsubtitle').fadeOut();
@@ -552,6 +555,8 @@
 			<p>{{c.message}}</p>
 		</div>
 	{% endfor %}
+	
+	<pre id="debug_info"> </pre>
 	
 	</div>
 {% endblock %}

@@ -254,7 +254,7 @@ def bill_comments(bill, **filterargs):
 		return ret
 	
 	return bill.usercomments.filter(**filter_null_args(filterargs))\
-		.select_related("user", "address", "bill")
+		.select_related("user")
 
 def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
 	# If any of the filters is None, meaning it is based on demographic info
@@ -299,12 +299,12 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 	
 	time_series = None
 	if want_timeseries:
-		all_comments = bill_comments(bill, **filterargs).exclude(created__gt=enddate)
+		all_comments = bill_comments(bill, **filterargs).exclude(created__gt=enddate).defer("message")
 	
 		# Get a time-series. Get the time bounds --- use the national data for the
 		# time bounds so that if we display multiple charts together they line up.
-		firstcommentdate = bill.usercomments.filter(created__lte=enddate).order_by('created')[0].created.date()
-		lastcommentdate = bill.usercomments.filter(created__lte=enddate).order_by('-created')[0].updated.date()
+		firstcommentdate = bill.usercomments.filter(created__lte=enddate).defer("message").order_by('created')[0].created.date()
+		lastcommentdate = bill.usercomments.filter(created__lte=enddate).defer("message").order_by('-created')[0].updated.date()
 		
 		# Compute a bin size (i.e. number of days per point) that approximates
 		# ten comments per day, but with a minimum size of one day.
@@ -1387,7 +1387,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	
 	def fetch(p):
 		q = bill_comments(bill, position=p, state=state, congressionaldistrict=district)\
-			.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
+			.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))\
+			.order_by("-created")
 		limited = False
 		if q.count() > limit:
 			q = q[start:limit]
@@ -1463,12 +1464,18 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	q = UserComment.objects.filter(
 		id__in = [c.id for c in comments],
 		diggs__diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
+		.values("id")\
 		.annotate(num_diggs=Count("diggs"))\
 		.values("id", "num_diggs")
 	for c in q:
 		num_appreciations[c["id"]] = c["num_diggs"]
 			
 	# Return.
+	
+	debug_info = None
+	if DEBUG:
+		from django.db import connection
+		debug_info = "".join(["%s: %s\n" % (q["time"], q["sql"]) for q in connection.queries])
 
 	return {
 		"reporttitle": reporttitle,
@@ -1478,13 +1485,15 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 		
 		"pro_more": pro_limited,
 		"con_more": con_limited,
+		
+		"debug_info": debug_info,
 	
 		"comments":
 			[ {
 				"id": c.id,
-				"user":c.user.username,
+				"user": c.user.username,
 				"msg": msg(c.message),
-				"location": location(c.address),
+				"location": location(c),
 				"date": formatDateTime(c.updated),
 				"pos": c.position,
 				"share": c.url(),

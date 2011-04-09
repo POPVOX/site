@@ -35,9 +35,9 @@ def commentmapus(request):
 	
 	# TODO: put this in the database
 	count = { }
-	comments = bill_comments(bill)
+	comments = bill_comments(bill).defer("message")
 	for comment in comments:
-		district = comment.address.state + str(comment.address.congressionaldistrict)
+		district = comment.state + str(comment.congressionaldistrict)
 		if not district in count:
 			count[district] = { "+": 0, "-": 0 } 
 		count[district][comment.position] += 1

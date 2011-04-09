@@ -119,3 +119,16 @@
 	{% endif %}
 	
 {% endfor %}
+
+{% for sql in sql_queries %}
+	{% if forloop.first %}
+		<div>
+		<table>
+	{% endif %}
+	<tr><td style="border-bottom: 1px solid black; padding-right: 2em">{{sql.time}}</td> <td style="border-bottom: 1px solid black">{{sql.sql}}</td></tr>
+	{% if forloop.last %}
+		</table>
+		</div>
+	{% endif %}
+{% endfor %}
+

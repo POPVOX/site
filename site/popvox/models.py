@@ -643,7 +643,7 @@ class UserProfile(models.Model):
 		self.user.delete()
 		
 	def most_recent_comment_district(self):
-		for c in self.user.comments.order_by("-created"):
+		for c in self.user.comments.order_by("-created").select_related("address"):
 			return c.address.state + str(c.address.congressionaldistrict)
 		return None
 
@@ -941,7 +941,7 @@ class UserComment(models.Model):
 	
 	class Meta:
 			verbose_name = "user comment"
-			ordering = ["-updated"]
+			ordering = ["-created"]
 			unique_together = (("user", "bill"),)
 	def __unicode__(self):
 		return self.user.username + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()

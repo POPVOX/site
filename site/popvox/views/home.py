@@ -544,16 +544,16 @@ def activity_getinfo(request):
 	if request.POST.get("comments", "true") != "false":
 		filters = { }
 		if state != None:
-			filters["address__state"] = state
+			filters["state"] = state
 			if district != None:
-				filters["address__congressionaldistrict"] = district
+				filters["congressionaldistrict"] = district
 		
 		if "bill" in request.REQUEST:
 			bill = Bill.objects.get(id = request.REQUEST["bill"])
 			filters["bill"] = bill
 			format = "_bill"
 		
-		q = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED), **filters).order_by('-created')
+		q = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED), **filters).select_related("user", "bill", "address").order_by('-created')
 
 		if format == "_bill":
 			total_count = q.count()
@@ -797,7 +797,7 @@ def legstaff_download_messages(request):
 				delivery_attempts__target__govtrackid=member_id,
 				delivery_attempts__method=Endpoint.METHOD_STAFFDOWNLOAD,
 				delivery_attempts__created = request.POST["date"]
-				)
+				).select_related("address")
 			is_new = False
 			download_date = datetime.strptime(request.POST["date"], date_format)
 			
