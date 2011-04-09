@@ -198,7 +198,11 @@ elif len(sys.argv) == 3 and sys.argv[1] == "kill":
 elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 	recs = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False)
 	if sys.argv[2] != "all":
-		recs = recs.filter(batch__in = sys.argv[2:])
+		b = []
+		for c in sys.argv[2:]:
+			b.extend(re.split(r"\s+", c))
+		b = [int(c) for c in b if c.strip() != ""]
+		recs = recs.filter(batch__in = b)
 	for ucodr in recs:
 		dr = DeliveryRecord()
 		dr.target = Endpoint.objects.get(govtrackid=ucodr.target.id)
