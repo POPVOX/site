@@ -11,6 +11,7 @@ class Command(BaseCommand):
 	
 	option_list = BaseCommand.option_list + (
 		make_option('--date', help="Show sessions that extend around a given time."),
+		make_option('--user', help="Show sessions for the given email address."),
 		)
 	
 	def handle(self, *args, **options):
@@ -21,9 +22,11 @@ class Command(BaseCommand):
 				options["date"] = options["date"].replace("T", " ")
 				filter["start__lte"] = options["date"]
 				filter["end__gte"] = options["date"]
+			if options["user"] != None:
+				filter["user__email"] = options["user"]
 		
 			for session in reversed(Session.objects.filter(**filter)):
-				print session.user if session.user != None else "#"+str(session.id), session.start, "to", session.end
+				print session.id, session.user if session.user != None else "#"+str(session.id), session.start, "to", session.end
 				for pe in session.get_path():
 					path = getattr(pe, "path", "")
 					view = getattr(pe, "view", "")
@@ -31,7 +34,6 @@ class Command(BaseCommand):
 					print "", pe.time, path, view, goal
 
 		else:
-			
 			session = Session.objects.get(id=args[0])
 			print session.user if session.user != None else "#"+str(session.id), session.start, "to", session.end
 			print session.get_ua()

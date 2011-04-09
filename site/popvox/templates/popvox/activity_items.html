@@ -23,14 +23,13 @@
 			{% else %}
 				at-large district
 			{% endif %}
+			{{item.verb}}:
 		</p>
-		<div>
-			<div {% if item.position == "+" %}class="endorse"{% endif %} {% if item.position == "-" %}class="oppose"{% endif %}>
-				<div >
-					<h4>
-					{{item.verb|capfirst}}
-					<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.</h4>
-				</div>
+		<div class="comment">
+			<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %} {% if item.position == "-" %}oppose{% endif %}">
+				<h4>
+					<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>
+				</h4>
 				{% if not user.is_anonymous %}
 				<div class="" style="display: none">
 				{% with "+" as tracktype %}
@@ -41,12 +40,21 @@
 				</div>
 				{% endif %}
 				
-				<div class="usercomment">
 				{{item.message|wraplines:"p"|truncatewords_html:150}}
+				
+				<div class="clear"> </div>
+				
+				<div style="padding-top: 10px">
+				{% if item.can_appreciate %}
+				<div class="appreciate"><a href="#" onclick="return digg(this);" billid="{{item.bill.id}}" commentid="{{item.id}}">appreciate</a> <span class="num">{{item.appreciates}}</span></div>
+				{% else %}
+				<div class="appreciate"><span class="text">appreciation</span> <span class="num">{{item.appreciates}}</span></div>
+				{% endif %}
+				<span class="share"><a href="{{item.url}}">share</a></span>
 				</div>
-				<span class="share" style="margin-top: 5px"><a href="{{item.url}}">share</a></span>
 				
 				{% comment %}<p>{{item.delivery_status}}</p>{% endcomment %}
+				<div class="clear"> </div>
 			</div>
 		</div>
 	{% endif %}

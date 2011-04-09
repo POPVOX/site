@@ -1342,7 +1342,7 @@ look in master/_map_style.css
 			padding-left: 25px;
 			}
 
-	.comment p.endorse_oppose_image {
+	.comment .endorse_oppose_image {
 		height: 100%;
 		min-height: 38px;
 		height: auto !important;

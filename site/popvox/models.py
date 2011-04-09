@@ -348,7 +348,7 @@ class Org(models.Model):
 	
 	coalitionmembers = models.ManyToManyField("Org", blank=True, related_name="ispartofcoalition", verbose_name="Coalition members")
 
-	api_key = models.CharField(max_length=16, blank=True, null=True, db_index=True, unique=True)
+	api_key = models.CharField(max_length=16, blank=True, null=True, db_index=True) # cannot be unique when orgs start off null
 	
 	class Meta:
 			verbose_name = "organization"
@@ -1073,6 +1073,9 @@ class UserComment(models.Model):
 		if self.status == UserComment.COMMENT_REJECTED_REVISED:
 			return "This comment was rejected by POPVOX staff for violating our acceptable language policy. You have revised the comment, and POPVOX staff will review it soon."
 		return None
+
+	def appreciates(self):
+		return UserCommentDigg.objects.filter(comment=self, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE).count()
 
 class UserCommentOfflineDeliveryRecord(models.Model):
 	comment = models.ForeignKey(UserComment)

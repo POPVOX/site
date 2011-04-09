@@ -24,9 +24,12 @@ def formatDateTime(d, withtime=True, tz="EST"):
 	else:
 		return d.strftime("%b %d, %Y").replace(" 0", " ")
 		
-def cache_page_postkeyed(duration):
+def cache_page_postkeyed(duration, vary_by_user=False):
 	def f(func):
 		def g(request, *args, **kwargs):
+			if vary_by_user and request.user.is_authenticated():
+				return func(request, *args, **kwargs)
+
 			key = "cache_page_postkeyed::" + request.path + "?"
 			
 			reqkeys = list(request.REQUEST.keys())

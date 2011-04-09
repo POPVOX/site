@@ -7,7 +7,7 @@ cd /home/www/sources/site
 export PYTHONPATH=.
 export DJANGO_SETTINGS_MODULE=settings
 $SCRIPTS/update_fans.py
-python popvox/send_mass_emails.py survey
+#python popvox/send_mass_emails.py survey
 python popvox/update_bill_metadata.py
 python popvox/compute_prompts.py
 

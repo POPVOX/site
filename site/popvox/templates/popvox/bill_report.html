@@ -68,6 +68,7 @@
 		$('#options_state').val(report_state);
 		$('#options_district').val(report_district);
 		$('#options_state, #options_district').attr('disabled', '1');
+		$('#options_jump_nation, #options_jump_local').hide();
 		
 		update(true);
 		
@@ -89,10 +90,21 @@
 					return;
 				}
 				
+				if (report_state == "{{default_state}}" && report_district == "{{default_district}}") {
+					$('#options_jump_nation').show();
+				} else {
+					$('#options_jump_local').show();
+				}
+				
 				res = eval('(' + res.responseText + ')');
 				
 				$('#reporttitle').text(res.reporttitle);
-				$('#reportsubtitle').text(res.reportsubtitle);
+				if (res.reportsubtitle == "") {
+					$('#reportsubtitle').fadeOut();
+				} else {
+					$('#reportsubtitle').fadeIn();
+					$('#reportsubtitle').text(res.reportsubtitle);
+				}
 				
 				c_pro = $('#comments_pro');
 				c_con = $('#comments_con');
@@ -318,6 +330,10 @@
 					</select>
 					<select id="options_district" size="1" onchange="report_district = this.value; update()">
 					</select>
+					{% if default_state %}
+						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show All Comments</a>
+						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = '{{default_state}}'; update(false); report_district = '{{default_district}}'; showdata(); return false;">Show My {% if default_district %}District{% else %}State{% endif %}</a>
+					{% endif %}
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
 			</div>

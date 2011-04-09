@@ -55,14 +55,6 @@
 			}
 		}
 		
-		if (!initial) {
-			var hashstate = Object();
-			if (report_state) hashstate.state = report_state;
-				else hashstate.q = 0; // if we give an empty hash, browser scrolls to the top
-			if (report_district) hashstate.district = report_district;
-			window.location = "#" + $.param(hashstate);
-		}
-		
 		// Post report info and then update.
 		$('#loadingstatus').text("Loading...");
 		$.ajax({
@@ -86,15 +78,28 @@
 	}
 
 	$(function() {
-		$(window).bind( "hashchange", function(e) {
-			var hashargs = $.deparam.fragment();
-			if (hashargs.state) report_state = hashargs.state;
-			if (hashargs.district) report_district = hashargs.district;
-			update(true);
-		});
-		$(window).trigger( "hashchange" );
+		update(true);
 	});
 
+	function digg(elem) {
+		ajax("/ajax/bills/comment/digg", {
+				bill: elem.getAttribute("billid"),
+				comment: elem.getAttribute("commentid"),
+				action: $(elem.parentNode).hasClass("active") ? "-" : "+"
+		}, {
+			success: function(res) {
+				if (res.action == "+") {
+					$(elem).text("appreciated");
+					$(elem.parentNode).addClass("active");
+				} else {
+					$(elem).text("appreciate");
+					$(elem.parentNode).removeClass("active");
+				}
+				$(elem.parentNode).find("span.num").text(res.count);
+			}
+		});
+		return false;
+	}
 	</script>
 	
 <div class="content">
@@ -137,7 +142,7 @@
 			{% endif %}
 		</div>
  
-		<div id="activity" style="padding-top: 1em"> 
+		<div id="activity" style="padding-top: 1em; width: 500px"> 
 		</div> 
 
 	</div> <!-- col_9 -->

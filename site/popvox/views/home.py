@@ -320,13 +320,15 @@ def compute_prompts(user):
 	for c in user.comments.all().select_related("bill"):
 		source_bill = c.bill
 		for target_bill, similarity in chain(( (s.bill2, s.similarity) for s in source_bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in source_bill.similar_bills_two.all().select_related("bill1"))):
+			if not target_bill.isAlive():
+				continue
 			if not target_bill in targets: targets[target_bill] = []
 			targets[target_bill].append( (source_bill, similarity) )
 			max_sim = max(similarity, max_sim)
 	
 	from bills import get_popular_bills
 	for bill in get_popular_bills():
-		if bill not in targets:
+		if bill.isAlive() and bill not in targets:
 			targets[bill] = [(None, max_sim/10.0)]
 	
 	# Put the targets in descending weighted similarity order.
@@ -334,9 +336,8 @@ def compute_prompts(user):
 	targets.sort(key = lambda x : -sum([y[1] for y in x[1]]))
 	
 	# Remove the recommendations that the user has anti-tracked or commented on.
-	antitracked_bills = set(user.userprofile.antitracked_bills.all())
-	commented_bills = set(Bill.objects.filter(usercomments__user=user))
-	targets = filter(lambda x : not x[0] in antitracked_bills|commented_bills, targets)
+	hidden_bills = set(user.userprofile.antitracked_bills.all()) | set(Bill.objects.filter(usercomments__user=user))
+	targets = filter(lambda x : not x[0] in hidden_bills, targets)
 	
 	# Take the top reccomendations.
 	targets = targets[:15]
@@ -573,6 +574,11 @@ def activity_getinfo(request):
 	if request.user.is_authenticated():
 		annotate_track_status(request.user.userprofile,
 			[item.bill for item in items if type(item)==UserComment])
+		
+	from popvox.views.bills import can_appreciate 
+	for item in items:
+		if isinstance(item, UserComment):
+			item.can_appreciate = can_appreciate(request, item.bill)
 
 	return render_to_response('popvox/activity_items' + format + '.html', {
 		"items": items,

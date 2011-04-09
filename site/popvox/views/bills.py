@@ -560,7 +560,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		addresses = request.user.postaladdress_set.order_by("-created")
 		if len(addresses) > 0:
 			address_record = addresses[0]
-			if (datetime.now() - address_record.created).days < 60:
+			if address_record.created and (datetime.now() - address_record.created).days < 60:
 				address_record_fixed = "You cannot change your address for two months after entering your address."
 				
 	# Allow (actually require) the user to revise an address that does not have a prefix or phone number.
@@ -1369,7 +1369,7 @@ def can_appreciate(request, bill):
 	return False
 
 @csrf_exempt
-@cache_page_postkeyed(60*2) # two minutes
+@cache_page_postkeyed(60*2, True) # two minutes; don't cache for logged in users
 @json_response
 def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	# Get report information.

@@ -92,7 +92,8 @@ urlpatterns = patterns('',
 
 	(r'^ajax/district-lookup$', 'writeyourrep.district_lookup.district_lookup'),
 
-	(r'^embed/salsa/org/leggagenda', 'popvox.views.embed.salsa_legagenda'),
+	(r'^embed/org/check_api_key', 'popvox.views.embed.org_check_api_key'),
+	(r'^embed/salsa/org/legagenda', 'popvox.views.embed.salsa_legagenda'),
 	
 	(r'^wyr/', include('writeyourrep.urls')),
 	(r'^ajax/phone_number_twilio/', include('phone_number_twilio.urls')),

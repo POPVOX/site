@@ -1,5 +1,6 @@
 from django.template import Context, Template
 from django.db.models import F
+from django.db import IntegrityError
 
 import random
 from datetime import datetime, date, timedelta
@@ -337,8 +338,10 @@ def show_banner(format, request, context, targets, path):
 
 	# Update the TargetImpressionBlock for each target.
 	for target in targets:
-		if TargetImpressionBlock.objects.filter(target = target, path = sp, date = now.date).update(impressions = F('impressions') + 1) == 0: # rows update?
+		try:
 			TargetImpressionBlock.objects.create(target = target, path = sp, date = now.date, impressions = 1)
+		except IntegrityError:
+			TargetImpressionBlock.objects.filter(target = target, path = sp, date = now.date).update(impressions = F('impressions') + 1)
 		
 	# Create a unique object for this impression.
 	timestamp = str(int(time()))

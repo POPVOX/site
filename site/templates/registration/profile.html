@@ -26,7 +26,8 @@
 					statusfield: "errorlabel",
 					savebutton: "submitbutton",
 					success: function(res) {
-						document.location = "/home";
+						if (!validate)
+							document.location = "/home";
 					}
 				}
 				);
