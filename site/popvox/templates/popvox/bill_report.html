@@ -15,6 +15,9 @@
 	<script>
 	var report_state = "{{default_state}}";
 	var report_district = "{{default_district}}";
+	var start = 0;
+	var count = 50;
+	var isloading = false;
 	
 	var statereps = {{statereps|json}};
 	
@@ -64,7 +67,7 @@
 		}
 	}
 	
-	function showdata(is_first_load) {
+	function showdata(is_first_load, is_more) {
 		$('#options_state').val(report_state);
 		$('#options_district').val(report_district);
 		$('#options_state, #options_district').attr('disabled', '1');
@@ -72,16 +75,32 @@
 		
 		update(true);
 		
-		// Post report info and then update.
+		isloading = true;
+		
 		$('#loadingstatus').text("Loading...");
+		
+		var pro_loading;
+		var con_loading;
+		if (is_more) {
+			pro_loading = $("<p>Loading...</p>");
+			$('#comments_pro').append(pro_loading);
+			
+			con_loading = $("<p>Loading...</p>");
+			$('#comments_con').append(con_loading);
+		}
+		
 		$.ajax({
 			type:"POST",
 			url: "/ajax{{bill.url}}/report/getinfo",
 			data: {
 				state: report_state,
-				district: report_district
+				district: report_district,
+				start: (!is_more ? 0 : start),
+				count: count
 			},
 			complete: function(res, status) {
+				isloading = false;
+				
 				$('#loadingstatus').text("");
 				$('#options_state, #options_district').attr('disabled', '');
 				
@@ -109,8 +128,16 @@
 				c_pro = $('#comments_pro');
 				c_con = $('#comments_con');
 				
-				c_pro.html("");
-				c_con.html("");
+				if (!res.pro_more) $('#comments_pro_more').hide();
+				if (!res.con_more) $('#comments_con_more').hide();
+				
+				if (!is_more) {
+					c_pro.html("");
+					c_con.html("");
+				} else {
+					pro_loading.remove();
+					con_loading.remove();
+				}
 				
 				var n_pro = 0, n_con = 0;
 				for (var i = 0; i < res.comments.length; i++) {
@@ -157,6 +184,8 @@
 					c_pro.append($("<p>No supporting comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
 				if (n_con == 0)
 					c_con.append($("<p>No opposing comments {% if bill.isAlive %}have been{% else %}were{% endif %} left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + "{% if not bill.isAlive %} during the time the bill was up for consideration in Congress{% endif %}.</p>"));
+				
+				if (is_more) return;
 				
 				function escapeHTML(text) {
 					var div = document.createElement('div');
@@ -233,6 +262,14 @@
 			}
 		});
 
+	}
+	
+	function more_comments() {
+		if (isloading) return;
+		start = count;
+		count *= 2;
+		showdata(false, true);
+		return false;
 	}
 	
 	function digg(elem) {
@@ -496,14 +533,14 @@
 			<div class="comments"> 
 				<h3 class="no_rule">Supporting Comments</h3>
 				<div id="comments_pro">Loading...</div>
-				<a href="#" class="b_more_comments">more comments</a>
+				<a id="comments_pro_more" href="#" class="b_more_comments" onclick="return more_comments()">more comments</a>
 			</div> 
 		</div> 
 		<div class="col_6 col_last rule"> 
 			<div class="comments"> 
 				<h3 class="no_rule">{% if not bill.isAlive %}Archived {% endif %}Opposing Comments</h3>
 				<div id="comments_con">Loading...</div>
-				<a href="#" class="b_more_comments">more comments</a>
+				<a id="comments_con_more" href="#" class="b_more_comments" onclick="return more_comments()">more comments</a>
 			</div> 
 		</div> 
 	</div><!-- e: section -->

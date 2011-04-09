@@ -1380,10 +1380,22 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	
 	district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
 	
-	limit = 50
+	start = int(request.REQUEST.get("start", "0"))
+	limit = int(request.REQUEST.get("count", "50"))
 	
-	pro_comments = bill_comments(bill, position="+", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
-	con_comments = bill_comments(bill, position="-", address__state=state, address__congressionaldistrict=district).filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
+	def fetch(p):
+		q = bill_comments(bill, position=p, address__state=state, address__congressionaldistrict=district)\
+			.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
+		limited = False
+		if q.count() > limit:
+			q = q[start:limit]
+			limited = True
+		else:
+			q = q[start:]
+		return q, limited
+	
+	pro_comments, pro_limited = fetch("+")
+	con_comments, con_limited = fetch("-")
 	
 	comments = list(pro_comments) + list(con_comments)
 	comments.sort(key = lambda x : x.updated, reverse=True)
@@ -1426,8 +1438,9 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 			return statenames[c.state] + "'s " + ordinal(c.congressionaldistrict) + " District"
 		return statenames[c.state] + " At Large"
 
-	# Return.
+	# Appreciation
 
+	# Can the user appreciate comments?
 	appreciate = can_appreciate(request, bill)
 	if type(appreciate) == UserComment:
 		appreciate = appreciate.position
@@ -1436,11 +1449,33 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	else:
 		appreciate = "none"
 
+	# Get the user's current set of appreciated comments, rather than query on each comment
+	# if the user appreciated it.
+	user_appreciated = set()
+	if request.user.is_authenticated():
+		for c in UserCommentDigg.objects.filter(diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user):
+			user_appreciated.add(c.id)
+	
+	# Pre-load the count of num_appreciations.
+	num_appreciations = {}
+	q = UserComment.objects.filter(
+		id__in = [c.id for c in comments],
+		diggs__diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
+		.annotate(num_diggs=Count("diggs"))\
+		.values("id", "num_diggs")
+	for c in q:
+		num_appreciations[c["id"]] = c["num_diggs"]
+			
+	# Return.
+
 	return {
 		"reporttitle": reporttitle,
 		"reportsubtitle": reportsubtitle,
 		
 		"can_appreciate": appreciate,
+		
+		"pro_more": pro_limited,
+		"con_more": con_limited,
 	
 		"comments":
 			[ {
@@ -1452,8 +1487,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 				"pos": c.position,
 				"share": c.url(),
 				"verb": c.verb(tense="past"),
-				"appreciates": UserCommentDigg.objects.filter(comment=c, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE).count(),
-				"appreciated": UserCommentDigg.objects.filter(comment=c, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user).exists() if c.position == appreciate or appreciate == "both" else False,
+				"appreciates": num_appreciations[c.id] if c.id in num_appreciations else 0,
+				"appreciated": c.id in user_appreciated,
 				} for c in comments ],
 		"stats": {
 			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True),
