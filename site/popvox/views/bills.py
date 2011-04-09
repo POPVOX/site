@@ -894,6 +894,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			
 		comment.address = address_record
 		comment.updated = datetime.now()
+		comment.state = address_record.state
+		comment.congressionaldistrict = address_record.congressionaldistrict
 
 		if comment.status in (UserComment.COMMENT_REJECTED, UserComment.COMMENT_REJECTED_STOP_DELIVERY):
 			comment.status = UserComment.COMMENT_REJECTED_REVISED
@@ -1384,7 +1386,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	limit = int(request.REQUEST.get("count", "50"))
 	
 	def fetch(p):
-		q = bill_comments(bill, position=p, address__state=state, address__congressionaldistrict=district)\
+		q = bill_comments(bill, position=p, state=state, congressionaldistrict=district)\
 			.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
 		limited = False
 		if q.count() > limit:
@@ -1496,14 +1498,14 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 				state,
 				govtrack.statenames[state],
 				want_timeseries=True,
-				address__state=state)
+				state=state)
 					if state != None else None,
 			"district": bill_statistics(bill,
 				state + "-" + str(district),
 				state + "-" + str(district),
 				want_timeseries=True,
-				address__state=state,
-				address__congressionaldistrict=district)
+				state=state,
+				congressionaldistrict=district)
 					if state != None and district not in (None, 0) else None
 		}
 	}

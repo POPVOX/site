@@ -918,7 +918,11 @@ class UserComment(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now_add=True)
 	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed -- Displayed'), (COMMENT_ACCEPTED, 'Reviewed & Accepted -- Displayed'), (COMMENT_REJECTED, 'Rejected -- Not Displayed'), (COMMENT_REJECTED_STOP_DELIVERY, 'Rejected -- Not Displayed / Not Deliverable'), (COMMENT_REJECTED_REVISED, 'Rejected+Revised by User - Not Displayed')], default=COMMENT_NOT_REVIEWED)
-	
+
+	# repeated from the address for better indexing
+	state = models.CharField(max_length=2)
+	congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
+
 	tweet_id = models.BigIntegerField(blank=True, null=True)
 	fb_linkid = models.CharField(max_length=32, blank=True, null=True)
 

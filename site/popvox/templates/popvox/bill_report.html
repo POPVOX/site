@@ -265,7 +265,7 @@
 	}
 	
 	function more_comments() {
-		if (isloading) return;
+		if (isloading) return false;
 		start = count;
 		count *= 2;
 		showdata(false, true);
