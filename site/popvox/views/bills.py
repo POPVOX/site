@@ -1461,14 +1461,14 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	
 	# Pre-load the count of num_appreciations.
 	num_appreciations = {}
-	q = UserComment.objects.filter(
-		id__in = [c.id for c in comments],
-		diggs__diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
-		.values("id")\
-		.annotate(num_diggs=Count("diggs"))\
-		.values("id", "num_diggs")
+	q = UserCommentDigg.objects.filter(
+		comment__id__in = [c.id for c in comments],
+		diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
+		.values("comment")\
+		.annotate(num_diggs=Count("id"))\
+		.values("comment_id", "num_diggs")
 	for c in q:
-		num_appreciations[c["id"]] = c["num_diggs"]
+		num_appreciations[c["comment_id"]] = c["num_diggs"]
 			
 	# Return.
 	

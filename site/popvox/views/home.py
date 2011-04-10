@@ -263,46 +263,23 @@ def get_legstaff_district_bills(user):
 		return []
 	
 	# Create some filters for the district.
-	f1 = { "state": member["state"] }
+	f1 = { "usercomments__state": member["state"] }
 	cache_key = "get_legstaff_district_bills#" + member["state"]
 	if member["type"] == "rep":
 		cache_key += "," + str(member["district"])
-		f1["congressionaldistrict"] = member["district"]
+		f1["usercomments__congressionaldistrict"] = member["district"]
 	
 	localbills = cache.get(cache_key)
 	if localbills != None:
 		return localbills
 	
-	f2 = { }
-	for k, v in f1.items():
-		f2["usercomments__address__" + k] = v
-		
-	# Get the approximate total number of users in the district which
-	# we will use to cut off aggregate results.
-	localusers = PostalAddress.objects.filter(
-		usercomment__updated__gt = datetime.now() - timedelta(days=365),
-		**f1).count()
-	
-	# Get the approximate total number of users in the nation.
-	globalusers = PostalAddress.objects.filter(usercomment__updated__gt = datetime.now() - timedelta(days=365)).count()
-	
 	# Now run an aggregate query to find the total number of comments
-	# by bill w/in this district, reporting only bills that at least 1% of the
-	# district has commented on.
-	localbills = Bill.objects.filter(**f2) \
+	# by bill w/in this district.
+	localbills = Bill.objects.filter(**f1) \
 		.annotate(num_comments=Count("usercomments")) \
-		.filter(num_comments__gt = localusers / 100) \
-		.order_by("-num_comments")
-	
-	# Get the number of global comments on each of those bills.
-	globalcomments = { }
-	for bill in Bill.objects.filter(
-		id__in = [b.id for b in localbills]) \
-		.annotate(num_comments=Count("usercomments")):
-		globalcomments[bill.id] =  bill.num_comments
-	
-	# Now filter out the local bills that have less activity than the national mean.
-	localbills = [b for b in localbills if localusers/b.num_comments < globalusers/globalcomments[b.id]]
+		.filter(num_comments__gt = 15) \
+		.order_by("-num_comments") \
+		[0:15]
 	
 	cache.set(cache_key, localbills, 60*60*6) # six hours
 	
@@ -737,9 +714,9 @@ def get_legstaff_undelivered_messages(user):
 		return None
 	
 	filters = { }	
-	filters["address__state"] = member["state"]
+	filters["state"] = member["state"]
 	if member["type"] == "rep":
-		filters["address__congressionaldistrict"] = member["district"]
+		filters["congressionaldistrict"] = member["district"]
 		
 	# Return undelivered messages that are also not queued for off-line delivery.
 	return UserComment.objects.filter(
