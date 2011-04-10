@@ -36,13 +36,20 @@ SEND_BROKEN_LINK_EMAILS = False
 CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
 
 if not DEBUG or "REMOTEDB" in os.environ:
+	mysqlhost = "localhost" # unix domain
+	mysqluser = "root"
+	if "REMOTEDB" in os.environ and os.environ["REMOTEDB"] == "1":
+		mysqlhost = "127.0.0.1"
+	elif "REMOTEDB" in os.environ:
+		mysqlhost = os.environ["REMOTEDB"]
+		mysqluser = "slave"
 	DATABASES = {
 	    'default': {
 	        'NAME': 'popvox',
 	        'ENGINE': 'django.db.backends.mysql',
-	        'USER': 'root',
+	        'USER': mysqluser,
 	        'PASSWORD': 'qsg;5TtC',
-	        'HOST': '127.0.0.1' if "REMOTEDB" in os.environ else "localhost", # tcp or unix domain
+	        'HOST': mysqlhost,
 	        'PORT': 3306
 	    }
 	}
