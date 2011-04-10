@@ -1,9 +1,13 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from django.core.cache import cache
 
 import urllib
 
 def formatDateTime(d, withtime=True, tz="EST"):
+	if d.time() == time.min:
+		# midnight usually means we have no time info
+		withtime = False
+
 	if (datetime.now().date() == d.date()):
 		if withtime:
 			return "Today at" + d.strftime(" %I:%M%p").replace(" 0", " ").lower() #+ " " + tz
