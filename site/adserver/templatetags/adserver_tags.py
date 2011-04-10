@@ -20,11 +20,11 @@ def show_ad(parser, token):
 			self.fields = fields
 		def render(self, context):
 			# This is the main ad-serving code!
-			if len(fields) == 0:
+			if len(self.fields) == 0:
 				raise Exception("Usage: show_ad formatkey [target1 target2 . . .]")
 			
 			# Find the requested ad format.
-			formatname = fields.pop(0)
+			formatname = self.fields[0]
 			try:
 				format = cache.get('Format_key', formatname, lambda key :
 						Format.objects.get(key=formatname))
@@ -48,7 +48,7 @@ def show_ad(parser, token):
 				except:
 					raise Exception("There is no ad target with the key " + field)
 				
-			targets = [make_target(f) for f in fields]
+			targets = [make_target(f) for f in self.fields[1:]]
 			
 			# Requires RequestContext...
 			return show_banner(format, context["request"], context, targets, context["request"].path)

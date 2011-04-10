@@ -641,7 +641,7 @@ def send_message_webform(di, msg, deliveryrec):
 			or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
 			or "The zip code entered indicates that you reside outside the" in webform\
 			or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform:
-			deliveryrec.trace += "\n" + webform + "\n\n"
+			deliveryrec.trace += "\n" + webform.decode("utf8", "replace") + "\n\n"
 			raise DistrictDisagreementException()
 			
 
@@ -802,16 +802,23 @@ def send_message_housewyr(msg, deliveryrec):
 				
 				m = re.match(r"What is " + numberz + " minus " + numberz + "\?", label.firstChild.data)
 				if m != None: resp = nummap(m.group(1)) - nummap(m.group(2))
+				
 				m = re.match(r"What is the sum of " + numberz + " plus " + numberz + "\?", label.firstChild.data)
 				if m != None: resp = nummap(m.group(1)) + nummap(m.group(2))
+				
 				m = re.match(r"Please solve the following math problem: " + numberz + " x " + numberz + "\?", label.firstChild.data)
 				if m != None: resp = nummap(m.group(1)) * nummap(m.group(2))
+				
 				m = re.match(r"Which of the following numbers is largest: (.*)\?", label.firstChild.data)
 				if m != None:
 					nn = m.group(1).replace("or", "").replace(" ", "").split(",")
 					resp = max([nummap(n) for n in nn])
+					
 				m = re.match(numberz + r" : What number appears at the beginning of this question\?", label.firstChild.data)
 				if m != None: resp = nummap(m.group(1))
+				
+				if label.firstChild.data == "What is the first letter of this question?":
+					resp = "W"
 				
 				if resp == None:
 					print "Unrecognized WYR captcha:", label.firstChild.data

@@ -105,7 +105,9 @@ ADMIN_MEDIA_PREFIX = '/admin_media/'
 SECRET_KEY = '#hk(--a8dq@6$z%476=mmf7*rgg-x204xm5@t5^jcco6x#)u2r'
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
-#CACHE_BACKEND = "locmem://"
+CACHE_MIDDLEWARE_SECONDS = 60*60 # one hour
+CACHE_MIDDLEWARE_KEY_PREFIX = "pv_sitecache_"
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 AUTH_PROFILE_MODULE = 'popvox.UserProfile'
 LOGIN_URL = "/accounts/login"
@@ -115,20 +117,21 @@ TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
     )
-# not working!
-#if not DEBUG:
-#	TEMPLATE_LOADERS = (
-#      ('django.template.loaders.cached.Loader', TEMPLATE_LOADERS)
-#      )
+if not DEBUG:
+	TEMPLATE_LOADERS = (
+      ('django.template.loaders.cached.Loader', TEMPLATE_LOADERS),
+      )
 
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'jquery.middleware.SessionFromPostMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     'trafficanalysis.middleware.TrafficAnalysisMiddleware',
     'popvox.middleware.IE6BlockMiddleware',
     'popvox.middleware.AdserverTargetsMiddleware',
