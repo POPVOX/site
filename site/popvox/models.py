@@ -719,6 +719,7 @@ class UserLegStaffRole(models.Model):
 	member = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, db_column="member")
 	committee = models.ForeignKey(CongressionalCommittee, blank=True, null=True, db_index=True, to_field="code", db_column="committee")
 	position = models.CharField(max_length=50)
+	verified = models.BooleanField(default=False)
 	class Meta:
 		verbose_name = "legislative staff role"
 	def __unicode__(self):

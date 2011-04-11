@@ -706,7 +706,7 @@ def get_legstaff_undelivered_messages(user):
 	# not in an offline batch).
 	
 	role = user.legstaffrole
-	if role.member == None:
+	if not role.verified or role.member == None:
 		return None
 		
 	member = role.member.info()

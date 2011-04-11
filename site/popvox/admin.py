@@ -16,6 +16,7 @@ class UserLegStaffRoleAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user",)
 	#readonly_fields = ("user",)
 	search_fields = ["user__username", "user__email", "user__userprofile__fullname"]
+	list_display = ["user", "member", "committee", "position", "verified"]
 
 class UserCommentAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user", "bill", "address")

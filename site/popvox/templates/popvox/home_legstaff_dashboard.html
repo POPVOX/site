@@ -46,6 +46,14 @@ $(function() {
 	<div class="col_3 col_top col_last">
 		{% include "ads/rightbar_single.html" %}
 		
+		{% if not user.legstaffrole.verified %}
+		<div class="">
+			<h3>Verify Your Staff Account</h3>
+			<p>We need to verify your account to protect the privacy of the constituents in your district.
+			<a href="/about/contact">Request verification</a> to access your constituent mail download.</p>
+		</div>
+		{% endif %}
+		
 		{% if message_count or message_count == 0 %}
 		<div class="">
 			<h3>Download Constituent Messages</h3>
