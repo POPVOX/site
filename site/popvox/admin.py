@@ -37,6 +37,11 @@ class OrgAdmin(admin.ModelAdmin):
 	filter_horizontal = ("issues", )
 	readonly_fields = ('logo', 'issues', 'documents')
 
+class ServiceAccountAdmin(admin.ModelAdmin):
+	raw_id_fields = ("user", "org")
+	readonly_fields = ("api_key",)
+	search_fields = ["user__username", "user__email", "org__name"]
+
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
 admin.site.register(Org, OrgAdmin)
@@ -51,6 +56,7 @@ admin.site.register(UserOrgRole, UserOrgRoleAdmin)
 admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
 admin.site.register(PostalAddress, PostalAddressAdmin)
 admin.site.register(PositionDocument)
+admin.site.register(ServiceAccount, ServiceAccountAdmin)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html']

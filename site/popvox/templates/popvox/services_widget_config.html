@@ -1,0 +1,149 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}POPVOX Services: Widgets{% endblock%}
+{% block head %}
+<script>
+var accounts = [
+	{% for account in accounts %}
+	{
+		name: "{{account|escapejs}}",
+		key: "{{account.api_key|escapejs}}",
+		permissions: [{% for p in account.permissions.all %}"{{p.name|escapejs}}",{% endfor %} ""]
+	}{% if not forloop.last %},{% endif %}
+	{% endfor %}
+];
+
+function showtab(tab) {
+	$('.tab_tab li').removeClass('active');
+	$('.tab_pane .tab_panel').hide();
+	$('#' + tab + "_tab").addClass('active');
+	$('#' + tab).fadeIn();
+	return false; // cancel click
+}
+
+function update_preview() {
+	var host = ""; // host = "https://www.popvox.com";
+	
+	var account = "";
+	// account = 'accounts/' + account + '/' + config + '/';
+	var widgettype = $('.tab_tab .active')[0].id.replace("_tab", "");
+	var opts = "";
+	
+	var bills = [];
+	if (!$('#commentstream_bills').hasClass("default")) bills = $('#commentstream_bills').val().split(/,\s*/);
+	if (bills[1] == "") bills = [];
+	$('#commentstream_bills_error').hide();
+	for (var i = 0; i < bills.length; i++) {
+		var bill_re = /^(supporting|opposing)?(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
+		var match = bill_re.exec(bills[i].replace(/\s/g, "").replace(/\./g, ""));
+		if (!match) {
+			$('#commentstream_bills_error').text("I didn't understand <" + bills[i] + ">. Example bill numbers are H.R. 1, S. 2, H.Res. 3, etc. Precede a bill number with \"supporting\" or \"opposing\" to show only show supporting or opposing comments. Separate multiple bills with commas.");
+			$('#commentstream_bills_error').show();
+			return;
+		}
+		
+		var support_oppose = match[1];
+		var billtype = match[2].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
+		var billnumber = match[3];
+		var congressnumber = match[5]; // possibly undefined, GovTrack style prev congress search
+		if (!congressnumber) congressnumber = {{current_congress}};
+		
+		bills[i] = "us/" + congressnumber + "/" + billtype + billnumber + (support_oppose ? ":" + support_oppose : "");
+	}
+	if (bills.length > 0) opts += "&bills=" + bills;
+	
+	var ix = $('#commentstream_issuearea').val();
+	if (ix) opts += "&issue=" + ix;
+	
+	var state = $('#commentstream_state').val();
+	if (state) opts += "&state=" + state;
+
+	var code = '<iframe src="' + host + '/services/widgets/w/' + account + widgettype + '?' + opts + '" width="275" height="350"> </iframe>';
+	$('#preview').html(code);
+	$('#code').val(code);
+}
+
+$(function() {
+	$('.form input[type=text]').keyup_delayed(function() { update_preview(); });
+	$('.form select').change(function() { update_preview(); });
+	update_preview();
+});
+</script>
+{% endblock %}
+{% block content %}
+<div class="content">
+
+	<h1>POPVOX Widgets</h1>
+	
+	{% if accounts|length > 1 %}
+	<div>Select Billing Account:
+		<select id="serviceaccount">
+			<option value="">- Free Services Only -</option>
+			{% for account in accounts %}
+				<option value="{{forloop.counter0}}">{{account}}</option>
+			{% endfor %}
+		</select>
+	</div>
+	{% endif %}
+
+	<div class="col_3">
+		<ul class="tab_tab">
+			<li id="commentstream_tab" class="active"><a href="#" onclick="return showtab('commentstream')">Comment Stream</a></li>
+		</ul>
+	</div>
+	
+	<div class="tab_pane">
+		<p>Displays the most recent constituent comments left on POPVOX.</p>
+		
+		<h3>Configuration</h3>
+	
+		<div class="form">
+		
+		<p>Show the comments...</p>
+		<div>
+			<label for="commentstream_bills">Related to these bills</label>
+			<input id="commentstream_bills" type="text" value=""/>
+			<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>
+			<div id="commentstream_bills_error" class="error"> </div>
+		</div>
+		<div>
+			<label for="commentstream_issuearea">Related to this subject</label>
+			<select id="commentstream_issuearea">
+				<option value="">(All)</option>
+				{% for ix in issueareas %}
+					<option value="{{ix.id}}">{{ix.name}}</option>
+				{% endfor %}
+			</select>
+		</div>
+
+		<div>
+			<label for="commentstream_state">Show from users in</label>
+			<select id="commentstream_state" class="c2">
+				<option value="">(All)</option>
+				{% for abbr, name in states %}
+					<option value="{{abbr}}">{{name}}</option>
+				{% endfor %}
+			</select>
+		</div>
+		
+		<div class="rule"> </div>
+
+		<h3>Preview</h3>
+
+			<div class="col_4">
+				<p>Copy and paste the following HTML code into your website:</p>
+				
+				<textarea id="code" style="width: 100%; height: 4em"> </textarea>
+			</div>
+		
+			<div style="float: left" id="preview">
+			</div>
+		
+		</div>
+		
+		<div class="clear"> </div>
+	</div>
+</div><!-- e: content -->
+
+{% endblock %}
+

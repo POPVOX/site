@@ -1,0 +1,48 @@
+{% load humanize %}
+{% load popvox_utils %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<title>POPVOX Comment Stream - {{title}}</title>
+		<link rel="stylesheet" href="/media/master/widgets.css" type="text/css" media="screen" /> 
+
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>{{title}}</h1>
+	
+		{% for item in comments %}
+		<p class="date">{% display_date item.updated %}</p>
+		<p>
+			<span class="username">
+				{{item.user.username}}
+			</span>
+			from
+			{{item.address.statename}}&rsquo;s
+			{% if item.address.congressionaldistrict > 0 %}
+				{{item.address.congressionaldistrict|ordinal}} district
+			{% else %}
+				at-large district
+			{% endif %}
+			{{item.verb}}{% if not show_bill_number %} this bill{% endif %}:
+		</p>
+		<div class="comment">
+			<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %} {% if item.position == "-" %}oppose{% endif %}">
+				{% if show_bill_number %}
+				<h4><a href="https://www.popvox.com{{item.bill.url}}" target="_blank">{{item.bill.title|truncatewords:15}}</a></h4>
+				{% endif %}
+				
+				{{item.message|wraplines:"p"|truncatewords_html:150}}
+				
+				<div class="clear"> </div>
+			</div>
+		</div>
+		{% endfor %}
+	</body>
+</html>
+

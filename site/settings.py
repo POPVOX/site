@@ -113,6 +113,9 @@ AUTH_PROFILE_MODULE = 'popvox.UserProfile'
 LOGIN_URL = "/accounts/login"
 LOGIN_REDIRECT_URL = "/home"
 
+#DEBUG=True
+TEMPLATE_DEBUG=True
+
 TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
@@ -220,11 +223,8 @@ FACEBOOK_APP_ID = "150910028257528"
 FACEBOOK_APP_SECRET = "736f9da5e1218854f9fb638336ad7c17"
 FACEBOOK_AUTH_SCOPE = "email" #,offline_access,publish_stream,user_location"
 
-if DEBUG:
-	DISTRICT_LOOKUP_API = "http://www.popvox.com/ajax/district-lookup"
-	#DISTRICT_LOOKUP_SIMULATE_RESPONSE = { "status": "success", "method": "zipcode", "state": "NY", "district": 2 }
-
 CDYNE_LICENSE_KEY = "b9033636-528a-444c-bfed-4cee41f8f84a"
 
 STOCKPHOTO_URL = "/about/photos"
+
 

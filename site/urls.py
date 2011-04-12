@@ -89,6 +89,10 @@ urlpatterns = patterns('',
 	
 	(r'^widgets/js/bill.js$', 'popvox.views.widgets.bill_js'),
 	(r'^widgets/bill-comment-map$', "popvox.views.widgets.commentmapus"),
+		
+	(r'^services/widgets$', "popvox.views.services.widget_config"),
+	(r'^services/widgets/w/(?P<widgettype>commentstream)$', "popvox.views.services.widget_render"),
+	(r'^services/widgets/w/account/(?P<account_key>.{16})/(?P<widgetconfig_id>\d+)/(?P<widgettype>commentstream)$', "popvox.views.services.widget_render"),
 
 	(r'^ajax/district-lookup$', 'writeyourrep.district_lookup.district_lookup'),
 
