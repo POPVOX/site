@@ -113,15 +113,16 @@ AUTH_PROFILE_MODULE = 'popvox.UserProfile'
 LOGIN_URL = "/accounts/login"
 LOGIN_REDIRECT_URL = "/home"
 
-#DEBUG=True
-TEMPLATE_DEBUG=True
+if os.path.exists(os.path.dirname(__file__) + "/debug"):
+	DEBUG=True
+	TEMPLATE_DEBUG=True
 
 TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
     )
 if not DEBUG:
-	TEMPLATE_LOADERS = (
+    TEMPLATE_LOADERS = (
       ('django.template.loaders.cached.Loader', TEMPLATE_LOADERS),
       )
 
@@ -139,6 +140,8 @@ MIDDLEWARE_CLASSES = (
     'popvox.middleware.IE6BlockMiddleware',
     'popvox.middleware.AdserverTargetsMiddleware',
 )
+if DEBUG:
+	MIDDLEWARE_CLASSES = [m for m in MIDDLEWARE_CLASSES if not "cache" in m]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
 	"django.contrib.auth.context_processors.auth",

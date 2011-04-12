@@ -1,48 +1,60 @@
-{% load humanize %}
-{% load popvox_utils %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-	<head>
-		<title>POPVOX Comment Stream - {{title}}</title>
-		<link rel="stylesheet" href="/media/master/widgets.css" type="text/css" media="screen" /> 
+<html xmlns="http://www.w3.org/1999/xhtml">
 
-		<style>
-			body {
-				margin: 0;
-				padding: 0;
-			}
-		</style>
-	</head>
-	<body>
-		<h1>{{title}}</h1>
+<head profile="http://gmpg.org/xfn/11">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /><!--[if lte IE 7]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
+		
+	<title>comment widget POPVOX // your new political monkey</title>
 	
-		{% for item in comments %}
-		<p class="date">{% display_date item.updated %}</p>
-		<p>
-			<span class="username">
-				{{item.user.username}}
-			</span>
-			from
-			{{item.address.statename}}&rsquo;s
-			{% if item.address.congressionaldistrict > 0 %}
-				{{item.address.congressionaldistrict|ordinal}} district
-			{% else %}
-				at-large district
-			{% endif %}
-			{{item.verb}}{% if not show_bill_number %} this bill{% endif %}:
-		</p>
-		<div class="comment">
-			<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %} {% if item.position == "-" %}oppose{% endif %}">
-				{% if show_bill_number %}
-				<h4><a href="https://www.popvox.com{{item.bill.url}}" target="_blank">{{item.bill.title|truncatewords:15}}</a></h4>
-				{% endif %}
-				
-				{{item.message|wraplines:"p"|truncatewords_html:150}}
-				
-				<div class="clear"> </div>
-			</div>
-		</div>
-		{% endfor %}
-	</body>
-</html>
+	<link rel="stylesheet" href="widget_comment.css" type="text/css" media="screen" />
 
+	
+</head>
+<body>
+
+	<div id="wrap">
+		<div id="comment_widget" class="float_left">
+			<div id="widget_top">
+				<h1>Recent Comments for:</h1>
+				<h2>Issue Area - Civil Rights and Liberties, Minority Issues</h2>
+			</div>
+			
+			<div id="widget_body">
+				<h3><a href="https://www.popvox.com/bills/us/112/hr237" target="_blank">HR 1: American Recovery and Reinvestment Act...</a></h3>
+				<p>
+					<span class="username">jjehmen</span>
+					from New Jersey&rsquo;s 3rd district
+				</p>
+	
+				<div class="comment">
+					<div class="usercomment endorse_oppose_image endorse">
+						<p><span></span>I support H.R. 237: To amend the Homeowners Assistance Program of the Department of Defense to give ... because... our family purchased a home in December 2007 in New Jersey.  We now have orders to  move to Anchorage, AK.  Our house has been on the market for almost 8 months.  We put $50,000 as a down payment.  At the market price we are listed at now, that has us bringing $52,000 to closing.  We are unable to do a short sale due to the damage it would do to our credit, in turn affecting my husbands security clearance.  We can not rent out our house for enough money to cover our mortgage payment, causing us to pay an additional $500 a month to cover the mortgage that would not be covered by a renter.  This is causing extreme stress for our family.  We will be taking all our ...</p>
+						<div class="clear"> </div>
+					</div>
+				</div><!-- e: comment -->
+				
+				<h3><a href="https://www.popvox.com/bills/us/112/hjres17" target="_blank">H.J.Res. 17: Proposing an amendment to the Constitution of the United States to repeal the ...</a></h3>
+				<p>
+					<span class="username">countryboybubba</span>
+					from Georgia&rsquo;s 11th district
+				</p>
+				<div class="comment">
+					<div class="usercomment endorse_oppose_image oppose">
+						<p><span></span>I oppose H.J.Res. 17: Proposing an amendment to the Constitution of the United States to repeal the ... because...</p>
+						<p>We don't need another FDR that would be "KING" for life..  A person  should serve no more than 2 terms as President then go home step out of the lime light and have the good sense to remain low key.</p>
+						<div class="clear"> </div>
+					</div>
+				</div><!-- e: comment -->
+			</div><!-- e: body -->
+			
+			<div id="widget_foot">
+				<p><a href="#">read more at POPVOX.com</a></p>
+			</div>
+			
+		</div><!-- e: widget -->
+		
+
+	</div><!-- e: wrap -->
+</body>
+</html>
