@@ -55,14 +55,14 @@
 			border-top: 1px solid #8C582D;
 			background: #fff url(bg_widget_comment_body_grad.png) left top repeat-x;
 			margin: 0 0 -10px;
-			padding-top: 1px;
+			padding: 1px 10px 0;
 			}
 			
 		#comment_widget h3 {
 			font: bold 12px/14px helvetica, arial, sans-serif;
 			color: #CC6A11;
-			margin: 15px 0 10px;
-			padding: 0 10px;
+			margin: 15px 0 5px;
+			padding: 0;
 			}
 			
 			#comment_widget h3 a {
@@ -79,7 +79,7 @@
 		#comment_widget p {
 			font: normal 12px/14px helvetica, arial, sans-serif;
 			color: #404045;
-			margin: 0 10px 5px;
+			margin: 0 0px 5px;
 			}
 
 		#comment_widget p .username {
@@ -89,20 +89,39 @@
 			#comment_widget .comment p {
 				margin-bottom: 10px;
 				}
+		#comment_widget p.share {
+			font-size: 10px;
+			font-weight: bold;
+			margin-top: -8px;
+			text-align: right;
+			}
+
+		#comment_widget p.share a {
+			color: #CC6A11;
+			text-decoration: none;
+			}
 			
+			#comment_widget p.share a:hover {
+				color: #B6B3B2;
+				}
+			
+		#comment_widget p.share span.date {
+			float: left;
+			}
+						
 	#comment_widget .usercomment .icon {
 		float: left;
-		width: 50px;
+		width: 45px;
 		height: 38px;
 		display: block;
 		}
 		
 	#comment_widget .endorse {
-		background: url(bg_endorsed_bubl.png) 10px top no-repeat;
+		background: url(bg_endorsed_bubl.png) left top no-repeat;
 		}
 		
 	#comment_widget .oppose {
-		background: url(bg_opposed_bubl.png) 10px top no-repeat;
+		background: url(bg_opposed_bubl.png) left top no-repeat;
 		}
 		
 /* widget foot */		
@@ -115,7 +134,8 @@
 		border: 1px solid #B4B4B6;
 		border-width: 0 1px 1px;
 		text-align: right;
-		padding-top: 10px;
+		margin-top: 10px;
+		padding: 10px 10px 0;
 		}
 		
 		#widget_foot p a {
@@ -135,7 +155,6 @@
 #comment_widget.wide {
 	width: 400px;
 	}		
-		
 		
 	#comment_widget.blue {
 		background: #FCF6EC;
@@ -167,5 +186,10 @@
 				font-family: Palatino Georgia;
 				font-size: 13px;
 				}
+				
+			#comment_widget.blue .comment {
+				border-bottom: 1px dotted #B6B3B2;
+				}
+
 		
 		
