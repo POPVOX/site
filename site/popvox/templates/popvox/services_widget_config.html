@@ -2,6 +2,10 @@
 {% load popvox_utils %}
 {% block title %}POPVOX Services: Widgets{% endblock%}
 {% block head %}
+
+<link rel="stylesheet" media="screen" type="text/css" href="/media/css/jquery.miniColors.css" />
+<script type="text/javascript" src="/media/js/jquery.miniColors.js"></script>
+
 <style>
 .config_pane {
 	float: left;
@@ -30,6 +34,10 @@
 	padding: 0;
 	width: auto;
 	}
+input.colorpicker {
+	width: 60px;
+	margin-bottom: 0; /* fixes color picker alignment */
+	}
 .form .error {
 	margin: 7px 0px 20px 0;
 	}
@@ -40,6 +48,21 @@
 .preview_pane textarea {
 	font-size: 10.5px;
 	}
+.form .radio input {
+	float: left;
+	display: block;
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	width: 20px;
+	}
+.form .radio label {
+	float: left;
+	display: block;
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	}
 </style>
 <script>
 var accounts = [
@@ -47,14 +70,26 @@ var accounts = [
 	{
 		name: "{{account|escapejs}}",
 		key: "{{account.api_key|escapejs}}",
-		permissions: [{% for p in account.permissions.all %}"{{p.name|escapejs}}",{% endfor %} ""]
+		permissions: [{% for p in account.permissions.all %}"{{p.name|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}]
 	}{% if not forloop.last %},{% endif %}
 	{% endfor %}
 ];
 
+function account_changed() {
+	var permissions = [];
+	
+	if ($('#serviceaccount').val() != "")
+		permissions = accounts[$('#serviceaccount').val()].permissions;
+		
+	pro_enabled = (permissions.indexOf("commentstream_theme") >= 0);
+	
+	$('.pro input').attr("disabled", pro_enabled ? '' : '1')
+	$(".miniColors").miniColors('disabled', !pro_enabled);
+	
+	update_preview();
+}
+
 function update_preview() {
-	var account = "";
-	// account = 'accounts/' + account + '/' + config + '/';
 	var widgettype = "commentstream";
 	var opts = "";
 	
@@ -87,24 +122,47 @@ function update_preview() {
 	var state = $('#commentstream_state').val();
 	if (state) opts += "&state=" + state;
 	
-	var width = $('#commentstream_width').val() || 220;
-	var height = $('#commentstream_height').val() || 350;
+	var width = $('#size_width').val() || 220;
+	var height = $('#size_height').val() || 350;
 	
+	var account = "";
+	
+	if ($('#serviceaccount').val() != "") {
+		// Only apply these configuration options if they are permitted.
+		var clrs = ["sbg", "sfg", "lnk", "bg", "fg"];
+		for (var e in clrs)
+			opts += "&" + clrs[e] + "=" + $('#color_' + clrs[e]).val().replace("#", "");
+		
+		if ($('#commentstream_scrollmode_scroll')[0].checked)
+			opts += "&scroll=bar";
+		else
+			opts += "&scroll=animate";
+		
+		account = accounts[$('#serviceaccount').val()].key
+	}
+		
 	function make_code(host, width, height) {
-		return '<iframe src="' + host + '/services/widgets/w/' + account + widgettype + '?iframe=1' + opts + '" width="' + width + '" height="' + height + '" border="0"> </iframe>';
+		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + '" width="' + width + '" height="' + height + '" border="0"> </iframe>';
 	}
 
 	var prv = make_code("", 220, 350);
 	if ($('#preview').html() != prv) $('#preview').html(prv);
-	
+
 	$('#code').val(make_code("https://www.popvox.com", width, height));
 }
 
 $(function() {
 	$('.form input[type=text]').keyup_delayed(function() { update_preview(); });
 	$('.form select').change(function() { update_preview(); });
-	update_preview();
+	$('.form input[type=radio]').click(function() { update_preview(); });
+	account_changed();
 });
+
+var minicolors_opts = {
+	change: function(hex, rgb) {
+		$('#color_sbg').keyup(); // trigger delayed update of preview
+	}
+};
 </script>
 {% endblock %}
 {% block content %}
@@ -112,72 +170,126 @@ $(function() {
 
 	<h1>POPVOX Widgets</h1>
 	
-	{% if accounts|length > 1 %}
-	<div>Select Billing Account:
-		<select id="serviceaccount">
-			<option value="">- Free Services Only -</option>
-			{% for account in accounts %}
-				<option value="{{forloop.counter0}}">{{account}}</option>
-			{% endfor %}
-		</select>
-	</div>
-	{% endif %}
-
 	<div class="config_pane">
 		<p>The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.</p>
 		
-		<div class="form">
-		
-		<h4>Stream Options</h4>
-		<div class="vert">
-			<label for="commentstream_bills">Related to these bills</label>
-			<input id="commentstream_bills" type="text" value="" class="c2"/>
-			<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>
-		</div>
-		<div class="vert">
-			<p>or</p>
-		</div>
-		<div class="vert">
-			<label for="commentstream_issuearea">Related to this subject</label>
-			<select id="commentstream_issuearea" class="c3">
-				<option value="">(All)</option>
-				{% for ix in issueareas %}
-					<option value="{{ix.id}}">{{ix.name}}</option>
+		{% if accounts|length > 0 %}
+		{% comment %}This goes outside of the form so that the select doesn't trigger a preview update.{% endcomment %}
+		<div>
+			<label for="serviceaccount">Service Account:</label>
+			<select id="serviceaccount" onchange="account_changed()">
+				<option value="">- Free Services Only -</option>
+				{% for account in accounts %}
+					<option value="{{forloop.counter0}}" {% if forloop.first %}selected="1"{% endif %}>{{account}}</option>
 				{% endfor %}
 			</select>
 		</div>
-
-		<div class="clear"> </div>
-
-		<div id="commentstream_bills_error" class="error"> </div>
+		{% endif %}
+	
+		<form class="form">
 		
-		<div class="vert">
-			<label for="commentstream_state">Show users in</label>
-			<select id="commentstream_state" class="c2">
-				<option value="">(All)</option>
-				{% for abbr, name in states %}
-					<option value="{{abbr}}">{{name}}</option>
-				{% endfor %}
-			</select>
-		</div>
-
-		<div class="clear"> </div>
-
-		<h4>Widget Dimensions</h4>
+			<h4>Stream Options</h4>
+			<div class="vert">
+				<label for="commentstream_bills">Related to these bills</label>
+				<input id="commentstream_bills" type="text" value="" class="c2"/>
+				<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>
+			</div>
+			<div class="vert">
+				<p>or</p>
+			</div>
+			<div class="vert">
+				<label for="commentstream_issuearea">Related to this subject</label>
+				<select id="commentstream_issuearea" class="c3">
+					<option value="">(All)</option>
+					{% for ix in issueareas %}
+						<option value="{{ix.id}}">{{ix.name}}</option>
+					{% endfor %}
+				</select>
+			</div>
+	
+			<div class="clear"> </div>
+	
+			<div id="commentstream_bills_error" class="error"> </div>
+			
+			<div class="vert">
+				<label for="commentstream_state">Show users in</label>
+				<select id="commentstream_state" class="c2">
+					<option value="">(All)</option>
+					{% for abbr, name in states %}
+						<option value="{{abbr}}">{{name}}</option>
+					{% endfor %}
+				</select>
+			</div>
+	
+			<div class="clear"> </div>
+	
+			<h4>Widget Dimensions</h4>
+			
+			<div class="vert">
+				<label for="size_width">Width (pixels)</label>
+				<input id="size_width" type="text" value="" class="c2"/>
+			</div>
+			<div class="vert">
+				<label for="size_height">Height (pixels)</label>
+				<input id="size_height" type="text" value="" class="c2"/>
+			</div>
+			<div class="vert" class="c2">
+				<p><small>Widget size does not update in preview.</small></p>
+			</div>
+			
+			<div class="clear"> </div>
+			
+			<div class="pro">
+				<h3>POPVOX Pro</h3>
+				
+				<h4>Colors</h4>
+				
+				<div class="vert">
+				<input id="color_sbg" type="text" value="#cb8452" class="colorpicker"/>
+				<label for="color_sbg">Shell Background</label>
+				<script>$('#color_sbg').miniColors(minicolors_opts);</script>
+				</div>
+				
+				<div class="vert">
+				<input id="color_sfg" type="text" value="#ffffff" class="colorpicker"/>
+				<label for="color_sfg">Shell Text</label>
+				<script>$('#color_sfg').miniColors(minicolors_opts);</script>
+				</div>
 		
-		<div class="vert">
-			<label for="commentstream_width">Width (pixels)</label>
-			<input id="commentstream_width" type="text" value="" class="c2"/>
-		</div>
-		<div class="vert">
-			<label for="commentstream_height">Height (pixels)</label>
-			<input id="commentstream_height" type="text" value="" class="c2"/>
-		</div>
-		<div class="vert" class="c2">
-			<p><small>Widget size does not update in preview.</small></p>
-		</div>
+				<div class="vert">
+				<input id="color_lnk" type="text" value="#cc6A11" class="colorpicker"/>
+				<label for="color_lnk">Link</label>
+				<script>$('#color_lnk').miniColors(minicolors_opts);</script>
+				</div>
+				
+				<div class="clear"> </div>
 		
-		</div>
+				<div class="vert">
+				<input id="color_bg" type="text" value="#b4b4b6" class="colorpicker"/>
+				<label for="color_bg">Comment Background</label>
+				<script>$('#color_bg').miniColors(minicolors_opts);</script>
+				</div>
+				
+				<div class="vert">
+				<input id="color_fg" type="text" value="#404045" class="colorpicker"/>
+				<label for="color_fg">Comment Text</label>
+				<script>$('#color_fg').miniColors(minicolors_opts);</script>
+				</div>
+				
+				<div class="clear"> </div>
+				
+				<h4>Animation</h4>
+		
+				<div class="radio">
+				<input id="commentstream_scrollmode_scroll" type="radio" name="commentstream_scrollmode" value="scrollbar" checked="1"/>
+				<label for="commentstream_scrollmode_scroll">Scrollbar</label>
+				</div>
+				<div class="radio">
+				<input id="commentstream_scrollmode_animate" type="radio" name="commentstream_scrollmode" value="animate"/>
+				<label for="commentstream_scrollmode_animate">Animate</label>
+				</div>
+			</div>
+		</form>
 	</div>
 	
 	<div class="preview_pane">
@@ -188,7 +300,7 @@ $(function() {
 	
 		<p style="margin-top: 15px">Copy and paste the following HTML code into your website:</p>
 		
-		<textarea id="code" style="width: 100%; height: 6em"> </textarea>
+		<textarea id="code" style="width: 100%; height: 15em"> </textarea>
 	</div>
 </div><!-- e: content -->
 

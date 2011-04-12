@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 
@@ -8,6 +8,8 @@ from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS
 from widgets import do_not_track_compliance
 
 from settings import SITE_ROOT_URL
+
+import urlparse
 
 def widget_config(request):
 	# Collect all of the ServiceAccounts that the user has access to.
@@ -20,8 +22,35 @@ def widget_config(request):
 		"current_congress": CURRENT_CONGRESS,
 		}, context_instance=RequestContext(request))
 
+def validate_widget_request(request):
+	api_key = request.GET.get("api_key", "")
+	if not api_key:
+		return []
+	
+	# Validate the key
+	try:
+		account = ServiceAccount.objects.get(api_key=api_key)
+	except ServiceAccount.DoesNotExist:
+		return None
+		
+	# Validate the referrer.
+	try:
+		host = urlparse.urlparse(request.META.get("HTTP_REFERER", "http://www.example.org/")).hostname
+		if host.startswith("www."):
+			host = host[4:]
+		if host != "popvox.com" and host not in account.hosts.split("\n"):
+			return None
+	except:
+		return None
+	
+	return [p.name for p in account.permissions.all()]
+
 @do_not_track_compliance
-def widget_render(request, widgettype, account_key=None, widgetconfig_id=None):
+def widget_render(request, widgettype):
+	permissions = validate_widget_request(request)
+	if permissions == None:
+		return HttpResponseForbidden()
+	
 	comments = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED)).order_by("-created")
 	
 	title1 = "Recent Comments"
@@ -79,5 +108,6 @@ def widget_render(request, widgettype, account_key=None, widgetconfig_id=None):
 		'comments': comments,
 		"show_bill_number": show_bill_number,
 		"url": url,
+		"permissions": permissions,
 		}, context_instance=RequestContext(request))
 

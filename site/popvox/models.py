@@ -1145,6 +1145,7 @@ class ServiceAccount(models.Model):
 	
 	permissions = models.ManyToManyField(ServiceAccountPermission, blank=True)
 	notes = models.TextField(blank=True)
+	hosts = models.TextField(blank=True, help_text="Restrict the widget to appearing on sites at these domain names. Put domain names each on a separate line. You do not need to include the www.")
 	
 	api_key = models.CharField(max_length=16, blank=True, unique=True, db_index=True)
 	
@@ -1161,32 +1162,6 @@ class ServiceAccount(models.Model):
 
 	def has_permission(self, name):
 		return self.permissions.filter(name=name).exists()
-	
-class WidgetConfig(models.Model):
-	"""A WidgetConfig contains theming information for a widget. Theming information can be
-	reused across widget types."""
-	
-	account = models.ForeignKey(ServiceAccount, db_index=True)
-	name = models.CharField(max_length=16)
-	hosts = models.TextField(blank=True, help_text="Restrict the widget to appearing on sites at these domain names. Put domain names each on a separate line. You do not need to include the www.")
-	options = PickledObjectField(default={})
-	
-	def getopt(self, key, default=None):
-		if self.options == None or type(self.options) == str: # not initialized (null or empty string)
-			return default
-		if key in self.options:
-			return self.options[key]
-		else:
-			return default
-	def setopt(self, key, value, save=True):
-		if self.options == None or type(self.options) == str: # not initialized (null or empty string)
-			self.options = { }
-		if value != None:
-			self.options[key] = value
-		elif key in self.options:
-			del self.options[key]
-		if save:
-			self.save()
 	
 
 if not "LOADING_DUMP_DATA" in os.environ:
