@@ -11,25 +11,67 @@
 	
 	<link rel="stylesheet" href="/media/widget/widget_comment.css" type="text/css" media="screen" />
 
+	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 	
+	<style>
+	{% if request.GET.iframe %}
+	body {
+		padding: 0;
+		margin: 0;
+		overflow: hidden;
+	}
+	#widget_body {
+		overflow: hidden;
+	}
+	{% endif %}
+	</style>
+	
+	<script>
+	var scroll_delay = 15000;
+	
+	$(function() {
+			$('#widget_top').css("height", ($('#widget_top h2').height() + 35) + "px");
+			
+			{% if request.GET.iframe %}
+			$('#widget_body').css("height", ($(window).height() - $('#widget_top').height() - $('#widget_foot').height() - 15) + "px");
+			{% endif %}
+			
+			if (scroll_delay) window.setTimeout("scroll_comments()", scroll_delay);
+	});
+	
+	function scroll_comments() {
+		var nodes = $("#widget_body .widget_item");
+		if (nodes.length <= 1) return;
+		
+		var node = nodes[0];
+		$(node).animate({ opacity: 0, height: 0}, 3000,
+			function() {
+				// move node to the end
+				node.parentNode.appendChild(node);
+				$(node).css({ opacity: 100, height: "auto" }); // reset
+				
+				// next
+				window.setTimeout("scroll_comments()", scroll_delay);
+			});
+	}
+	</script>
 </head>
 <body>
 	<div id="wrap">
 		<div id="comment_widget" class="float_left">
-			<p class="wm">Free - heavy branding</p>
 			<div id="widget_top">
 				<h1>{{title1}}</h1>
-				<h2>{{title2}}</h2>
+				<h2>{{title2|truncatewords:7}}</h2>
 			</div>
 			
 			<div id="widget_body">
 				{% for item in comments %}
 
-				{% comment %}{% display_date item.updated %}{% endcomment %}
-
+				<div class="widget_item">
 				{% if show_bill_number %}
 				<h3><a href="https://www.popvox.com{{item.bill.url}}" target="_blank">{{item.bill.title|truncatewords:12}}</a></h3>
 				{% endif %}
+				
 				<p>
 					<span class="username">{{item.user.username}}</span>
 					from
@@ -39,58 +81,20 @@
 				<div class="comment">
 					<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %} {% if item.position == "-" %}oppose{% endif %}">
 						<div class="icon"></div>
-						{{item.message|wraplines:"p"|truncatewords_html:150}}
-						<p class="share"><span class="date">Mar 30, 2011</span> <a href="#">view</a> | <a href="#">share</a></p>
+						{{item.message|wraplines:"p"|truncatewords_html:50}}
+						<p class="share"><span class="date">{% display_date item.updated %}</span> <a href="#">view</a> | <a href="#">share</a></p>
 						<div class="clear"> </div>
 					</div>
 				</div><!-- e: comment -->
+				</div><!-- e: widget_item -->
 				{% endfor %}
 			</div><!-- e: body -->
 			
 			<div id="widget_foot">
-				<p><a href="#">read more at POPVOX.com</a></p>
+				<p><a href="{{url}}" target="_blank">read more at POPVOX.com</a></p>
 			</div>
 			
 		</div><!-- e: widget -->
-		
-		<div id="comment_widget" class="blue wide">
-			<p class="wm">Plus - customize it</p>
-			<div id="widget_top">
-				<h1>{{title1}}</h1>
-				<h2>{{title2}}</h2>
-			</div>
-			
-			<div id="widget_body">
-				{% for item in comments %}
-
-				{% comment %}{% display_date item.updated %}{% endcomment %}
-
-				{% if show_bill_number %}
-				<h3><a href="https://www.popvox.com{{item.bill.url}}" target="_blank">{{item.bill.title|truncatewords:12}}</a></h3>
-				{% endif %}
-				<p>
-					<span class="username">{{item.user.username}}</span>
-					from
-					{{item.address.statename}}{% if item.address.congressionaldistrict > 0 %}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district{% endif %}
-				</p>
-	
-				<div class="comment">
-					<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %} {% if item.position == "-" %}oppose{% endif %}">
-						<div class="icon"></div>
-						{{item.message|wraplines:"p"|truncatewords_html:150}}
-						<div class="clear"> </div>
-					</div>
-				</div><!-- e: comment -->
-				{% endfor %}
-			</div><!-- e: body -->
-			
-			<div id="widget_foot">
-				<p><a href="#">read more at POPVOX.com</a></p>
-			</div>
-			
-		</div><!-- e: widget -->
-		
-
 	</div><!-- e: wrap -->
 </body>
 </html>

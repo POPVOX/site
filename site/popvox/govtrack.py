@@ -31,7 +31,10 @@ congressdates = None # list of Congress start and end dates
 def open_govtrack_file(fn):
 	import settings
 	if settings.DEBUG:
-		print fn
+		try:
+			print fn
+		except:
+			pass # wsgi prevents
 	return open(settings.DATADIR + "govtrack/" + fn)
 
 def file_md5(fn):

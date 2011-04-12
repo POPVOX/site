@@ -2,6 +2,45 @@
 {% load popvox_utils %}
 {% block title %}POPVOX Services: Widgets{% endblock%}
 {% block head %}
+<style>
+.config_pane {
+	float: left;
+	width: 650px;
+	}
+.preview_pane {
+	float: left;
+	width: 225px;
+	background-color: white;
+	margin-left: 2em;
+	padding: 1em;
+	}
+.form .vert {
+	float: left;
+	margin-right: 15px;
+	}
+.form .vert label {
+	float: none;
+	display: block;
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	}
+.form .vert small {
+	margin: 0;
+	padding: 0;
+	width: auto;
+	}
+.form .error {
+	margin: 7px 0px 20px 0;
+	}
+.form input {
+	font-size: 11px;
+	height: 14px;
+	}
+.preview_pane textarea {
+	font-size: 10.5px;
+	}
+</style>
 <script>
 var accounts = [
 	{% for account in accounts %}
@@ -13,25 +52,15 @@ var accounts = [
 	{% endfor %}
 ];
 
-function showtab(tab) {
-	$('.tab_tab li').removeClass('active');
-	$('.tab_pane .tab_panel').hide();
-	$('#' + tab + "_tab").addClass('active');
-	$('#' + tab).fadeIn();
-	return false; // cancel click
-}
-
 function update_preview() {
-	var host = ""; // host = "https://www.popvox.com";
-	
 	var account = "";
 	// account = 'accounts/' + account + '/' + config + '/';
-	var widgettype = $('.tab_tab .active')[0].id.replace("_tab", "");
+	var widgettype = "commentstream";
 	var opts = "";
 	
 	var bills = [];
 	if (!$('#commentstream_bills').hasClass("default")) bills = $('#commentstream_bills').val().split(/,\s*/);
-	if (bills[1] == "") bills = [];
+	if (bills[0] == "") bills = [];
 	$('#commentstream_bills_error').hide();
 	for (var i = 0; i < bills.length; i++) {
 		var bill_re = /^(supporting|opposing)?(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
@@ -57,10 +86,18 @@ function update_preview() {
 	
 	var state = $('#commentstream_state').val();
 	if (state) opts += "&state=" + state;
+	
+	var width = $('#commentstream_width').val() || 220;
+	var height = $('#commentstream_height').val() || 350;
+	
+	function make_code(host, width, height) {
+		return '<iframe src="' + host + '/services/widgets/w/' + account + widgettype + '?iframe=1' + opts + '" width="' + width + '" height="' + height + '" border="0"> </iframe>';
+	}
 
-	var code = '<iframe src="' + host + '/services/widgets/w/' + account + widgettype + '?' + opts + '" width="275" height="350"> </iframe>';
-	$('#preview').html(code);
-	$('#code').val(code);
+	var prv = make_code("", 220, 350);
+	if ($('#preview').html() != prv) $('#preview').html(prv);
+	
+	$('#code').val(make_code("https://www.popvox.com", width, height));
 }
 
 $(function() {
@@ -86,29 +123,23 @@ $(function() {
 	</div>
 	{% endif %}
 
-	<div class="col_3">
-		<ul class="tab_tab">
-			<li id="commentstream_tab" class="active"><a href="#" onclick="return showtab('commentstream')">Comment Stream</a></li>
-		</ul>
-	</div>
-	
-	<div class="tab_pane">
-		<p>Displays the most recent constituent comments left on POPVOX.</p>
+	<div class="config_pane">
+		<p>The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.</p>
 		
-		<h3>Configuration</h3>
-	
 		<div class="form">
 		
-		<p>Show the comments...</p>
-		<div>
+		<h4>Stream Options</h4>
+		<div class="vert">
 			<label for="commentstream_bills">Related to these bills</label>
-			<input id="commentstream_bills" type="text" value=""/>
+			<input id="commentstream_bills" type="text" value="" class="c2"/>
 			<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>
-			<div id="commentstream_bills_error" class="error"> </div>
 		</div>
-		<div>
+		<div class="vert">
+			<p>or</p>
+		</div>
+		<div class="vert">
 			<label for="commentstream_issuearea">Related to this subject</label>
-			<select id="commentstream_issuearea">
+			<select id="commentstream_issuearea" class="c3">
 				<option value="">(All)</option>
 				{% for ix in issueareas %}
 					<option value="{{ix.id}}">{{ix.name}}</option>
@@ -116,8 +147,12 @@ $(function() {
 			</select>
 		</div>
 
-		<div>
-			<label for="commentstream_state">Show from users in</label>
+		<div class="clear"> </div>
+
+		<div id="commentstream_bills_error" class="error"> </div>
+		
+		<div class="vert">
+			<label for="commentstream_state">Show users in</label>
 			<select id="commentstream_state" class="c2">
 				<option value="">(All)</option>
 				{% for abbr, name in states %}
@@ -125,23 +160,35 @@ $(function() {
 				{% endfor %}
 			</select>
 		</div>
-		
-		<div class="rule"> </div>
 
-		<h3>Preview</h3>
+		<div class="clear"> </div>
 
-			<div class="col_4">
-				<p>Copy and paste the following HTML code into your website:</p>
-				
-				<textarea id="code" style="width: 100%; height: 4em"> </textarea>
-			</div>
+		<h4>Widget Dimensions</h4>
 		
-			<div style="float: left" id="preview">
-			</div>
-		
+		<div class="vert">
+			<label for="commentstream_width">Width (pixels)</label>
+			<input id="commentstream_width" type="text" value="" class="c2"/>
+		</div>
+		<div class="vert">
+			<label for="commentstream_height">Height (pixels)</label>
+			<input id="commentstream_height" type="text" value="" class="c2"/>
+		</div>
+		<div class="vert" class="c2">
+			<p><small>Widget size does not update in preview.</small></p>
 		</div>
 		
-		<div class="clear"> </div>
+		</div>
+	</div>
+	
+	<div class="preview_pane">
+		<h3 class="no_rule">Preview</h3>
+
+		<div id="preview">
+		</div>
+	
+		<p style="margin-top: 15px">Copy and paste the following HTML code into your website:</p>
+		
+		<textarea id="code" style="width: 100%; height: 6em"> </textarea>
 	</div>
 </div><!-- e: content -->
 

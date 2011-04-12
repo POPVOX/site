@@ -7,6 +7,8 @@ from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS
 
 from widgets import do_not_track_compliance
 
+from settings import SITE_ROOT_URL
+
 def widget_config(request):
 	# Collect all of the ServiceAccounts that the user has access to.
 	
@@ -18,17 +20,20 @@ def widget_config(request):
 		"current_congress": CURRENT_CONGRESS,
 		}, context_instance=RequestContext(request))
 
+@do_not_track_compliance
 def widget_render(request, widgettype, account_key=None, widgetconfig_id=None):
 	comments = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED)).order_by("-created")
 	
 	title1 = "Recent Comments"
-	title2 = "in POPVOX Nation"
+	title2 = "from POPVOX Nation"
 
 	show_bill_number = True
+	url = SITE_ROOT_URL
 	
 	if "state" in request.GET:
 		comments = comments.filter(state=request.GET["state"])
 		title2 = "in " + statenames[request.GET["state"]]
+		#url = SITE_ROOT_URL + "/activity#state=" + request.GET["state"]
 
 	cx = []
 	
@@ -51,24 +56,28 @@ def widget_render(request, widgettype, account_key=None, widgetconfig_id=None):
 		if len(cx) == 1: # the bills have to be processed first
 			show_bill_number = False
 			title1 = "Recent Comments on"
-			title2 = b.displaynumber()
+			title2 = b.title
+			url = SITE_ROOT_URL + b.url()
 
 	if "issue" in request.GET:
-		cx.append(comments.filter(bill__topterm__id=request.GET["issue"]))
+		ix = IssueArea.objects.get(id=request.GET["issue"])
+		cx.append(comments.filter(bill__topterm=ix))
 		title1 = "Recent Comments on"
-		title2 = IssueArea.objects.get(id=request.GET["issue"]).name
+		title2 = ix.name
+		#url = SITE_ROOT_URL + ix.url()
 
 	if len(cx) > 0:
 		comments = cx[0]
 		for c in cx[1:]:
 			comments |= c
 				
-	comments = comments[0:25]
+	comments = comments[0:50]
 	
 	return render_to_response('popvox/widgets/' + widgettype + '.html', {
 		'title1': title1,
 		'title2': title2,
 		'comments': comments,
 		"show_bill_number": show_bill_number,
+		"url": url,
 		}, context_instance=RequestContext(request))
 
