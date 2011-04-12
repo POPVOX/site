@@ -79,12 +79,16 @@
 		#comment_widget p {
 			font: normal 12px/14px helvetica, arial, sans-serif;
 			color: #404045;
-			margin: 0 10px 10px;
+			margin: 0 10px 5px;
 			}
 
 		#comment_widget p .username {
 			font-weight: bold;
 			}
+			
+			#comment_widget .comment p {
+				margin-bottom: 10px;
+				}
 			
 	#comment_widget .usercomment .icon {
 		float: left;
