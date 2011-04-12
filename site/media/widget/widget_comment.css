@@ -1,0 +1,114 @@
+
+
+
+
+	#wrap {
+		background: url(bg_temp_widget.jpg) center top no-repeat;
+		}
+	
+	#comment_widget {
+		width: 220px;
+		display: block;
+		padding: 0;
+		}
+/* widget head */
+		#widget_top {
+			-moz-border-radius: 10px 10px 0 0;
+			-webkit-border-radius: 10px 10px 0 0;
+			-khtml-border-radius: 10px 10px 0 0;
+			border-radius: 10px 10px 0 0;
+			border: 1px solid #8C582D;
+			height: 70px;
+			background: #CC6A11 url(comments_widget_head_grad.png) left top repeat-x;
+			background-image: 
+			}
+
+			#comment_widget h1 {
+				font: normal 14px/18px helvetica, arial, sans-serif;
+				color: #fff;
+				text-transform: uppercase;
+				text-shadow: 0px -1px 1px #8c4607;
+				margin: 0;
+				padding: 10px 10px 0;
+				}
+				
+			#comment_widget h2 {
+				font: normal 14px/18px helvetica, arial, sans-serif;
+				color: #fff;
+				text-shadow: 0px -1px 1px #8c4607;
+				margin: 1px 0 0;
+				padding: 0 10px;
+				}
+
+/* widget body */			
+		#widget_body {
+			border: 1px solid #B4B4B6;
+			border-width: 0 1px;
+			background: #fff url(bg_widget_comment_body_grad.png) left top repeat-x;
+			margin: 0 0 -10px;
+			padding-top: 1px;
+			}
+			
+		#comment_widget h3 {
+			font: bold 12px/14px helvetica, arial, sans-serif;
+			color: #CC6A11;
+			margin: 15px 0 10px;
+			padding: 0 10px;
+			}
+			
+			#comment_widget h3 a {
+				color: #CC6A11;
+				text-decoration: none;
+				}
+				
+		#comment_widget .comment {
+			}
+			
+		#comment_widget p {
+			font: normal 12px/14px helvetica, arial, sans-serif;
+			color: #404045;
+			margin: 0 10px 10px;
+			}
+
+		#comment_widget p .username {
+			font-weight: bold;
+			}
+			
+	#comment_widget .usercomment p span {
+		float: left;
+		width: 42px;
+		height: 38px;
+		}
+			
+	#comment_widget .endorse {
+		background: url(../master/bg_endorsed_bubl.png) 10px top no-repeat;
+		}
+		
+	#comment_widget .oppose {
+		background: url(../master/bg_opposed_bubl.png) 10px top no-repeat;
+		}
+		
+/* widget foot */		
+	
+	#widget_foot {
+		-moz-border-radius: 0 0 10px 10px;
+		-webkit-border-radius: 0 0 10px 10px;
+		-khtml-border-radius: 0 0 10px 10px;
+		border-radius: 0 0 10px 10px;
+		border: 1px solid #B4B4B6;
+		border-width: 0 1px 1px;
+		text-align: right;
+		padding-top: 10px;
+		}
+		
+		#widget_foot p a {
+			color: #CC6A11;
+			text-decoration: none;
+			font-weight: bold;
+			}
+		
+		
+		
+		
+		
+		
