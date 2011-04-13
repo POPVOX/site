@@ -1,64 +1,43 @@
+
+
+
 	#wrap {
-		background: url(bg_temp_widget.jpg) right top no-repeat;
+		background: url(bg_temp_widget.jpg) center top no-repeat;
 		}
 	
 	#comment_widget {
-		width: 100%;
+		width: 240px;
+		background: url(bg_widget_comment_top.png) left top no-repeat;
 		display: block;
 		padding: 0;
-		float: left;
 		}
 		
-		#comment_widget p.wm,
-		#comment_widget.blue p.wm  {
-			font: bold 18px/24px helvetica, arial, sans-serif;
-			color: #020202;
-			}
-		
-/* widget head */
 		#widget_top {
-			-moz-border-radius: 10px 10px 0 0;
-			-webkit-border-radius: 10px 10px 0 0;
-			-khtml-border-radius: 10px 10px 0 0;
-			border-radius: 10px 10px 0 0;
-			border: 1px solid #8C582D;
-			border-bottom: 1px solid #cb8452;
-			height: 70px;
-			background: #CC6A11 url(comments_widget_head_grad.png) left top repeat-x;
+			
 			}
-
-			#comment_widget h1 {
-				font: normal 14px/18px helvetica, arial, sans-serif;
-				color: #fff;
-				text-transform: uppercase;
-				text-shadow: 0px -1px 1px #8c4607;
-				margin: 0;
-				padding: 10px 10px 0;
-				}
-				
-			#comment_widget h2 {
-				font: normal 14px/18px helvetica, arial, sans-serif;
-				color: #fff;
-				text-shadow: 0px -1px 1px #8c4607;
-				margin: 1px 0 0;
-				padding: 0 10px;
-				}
-
-/* widget body */			
-		#widget_body {
-			border: 1px solid #B4B4B6;
-			border-width: 1px 1px 0;
-			border-top: 1px solid #8C582D;
-			background: #fff url(bg_widget_comment_body_grad.png) left top repeat-x;
-			margin: 0 0 -10px;
-			padding: 1px 10px 0;
+			
+		#comment_widget h1 {
+			font: normal 14px/18px helvetica, arial, sans-serif;
+			color: #fff;
+			text-transform: uppercase;
+			text-shadow: 0px -1px 1px #8c4607;
+			margin: 0;
+			padding: 10px 10px 0;
+			}
+			
+		#comment_widget h2 {
+			font: normal 14px/18px helvetica, arial, sans-serif;
+			color: #fff;
+			text-shadow: 0px -1px 1px #8c4607;
+			margin: 1px 0 0;
+			padding: 0 10px;
 			}
 			
 		#comment_widget h3 {
 			font: bold 12px/14px helvetica, arial, sans-serif;
 			color: #CC6A11;
-			margin: 15px 0 5px;
-			padding: 0;
+			margin: 15px 0 10px;
+			padding: 0 10px;
 			}
 			
 			#comment_widget h3 a {
@@ -66,126 +45,30 @@
 				text-decoration: none;
 				}
 				
-		#comment_widget .comment .endorse_oppose_image {
-			min-height: 32px;
-			height: auto !important;
-			height: 32px;
+		#comment_widget .comment {
+			background: url(bg_widget_comment_mid.png) left top repeat-y;
 			}
 			
 		#comment_widget p {
 			font: normal 12px/14px helvetica, arial, sans-serif;
 			color: #404045;
-			margin: 0 0px 5px;
+			margin: 0 10px 10px;
 			}
 
 		#comment_widget p .username {
 			font-weight: bold;
 			}
 			
-			#comment_widget .comment p {
-				margin-bottom: 10px;
-				}
-		#comment_widget p.share {
-			font-size: 10px;
-			font-weight: bold;
-			margin-top: -8px;
-			text-align: right;
-			}
-
-		#comment_widget p.share a {
-			color: #CC6A11;
-			text-decoration: none;
-			}
-			
-			#comment_widget p.share a:hover {
-				color: #B6B3B2;
-				}
-			
-		#comment_widget p.share span.date {
-			float: left;
-			}
-						
-	#comment_widget .usercomment .icon {
+	#comment_widget .usercomment p span {
 		float: left;
-		width: 45px;
+		width: 38px;
 		height: 38px;
-		display: block;
 		}
-		
+			
 	#comment_widget .endorse {
-		background: url(bg_endorsed_bubl.png) left top no-repeat;
+		background: url(../master/bg_endorsed_bubl.png) 10px top no-repeat;
 		}
 		
 	#comment_widget .oppose {
-		background: url(bg_opposed_bubl.png) left top no-repeat;
+		background: url(../master/bg_opposed_bubl.png) 10px top no-repeat;
 		}
-		
-/* widget foot */		
-	
-	#widget_foot {
-		-moz-border-radius: 0 0 10px 10px;
-		-webkit-border-radius: 0 0 10px 10px;
-		-khtml-border-radius: 0 0 10px 10px;
-		border-radius: 0 0 10px 10px;
-		border: 1px solid #B4B4B6;
-		border-width: 0 1px 1px;
-		text-align: right;
-		margin-top: 10px;
-		padding: 10px 10px 0;
-		}
-		
-		#widget_foot p a {
-			color: #CC6A11;
-			text-decoration: none;
-			font-weight: bold;
-			}
-		
-
-
-/* testing */
-
-#comment_widget.float_left {
-	width: 220px;
-	}
-	
-#comment_widget.wide {
-	width: 400px;
-	}		
-		
-	#comment_widget.blue {
-		background: #FCF6EC;
-		color: #202020;
-		float: left;
-		margin-left: 20px;
-		}
-		
-		#comment_widget.blue #widget_top {
-			background: #42727A url("comments_widget_head_grad.png") left top repeat-x;
-			border: #000;
-			}
-			
-			#comment_widget.blue #widget_body {
-				background: #FCF6EC url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;
-				}
-				
-			#comment_widget.blue h1,
-			#comment_widget.blue h2 {
-				text-shadow: 0 -1px 1px #000;
-				}
-				
-			#comment_widget.blue h3 a {	
-				color: #680000;
-				}
-			
-			#comment_widget.blue p {
-				color: #020202;
-				font-family: Palatino Georgia;
-				font-size: 13px;
-				}
-				
-			#comment_widget.blue .comment {
-				border-bottom: 1px dotted #B6B3B2;
-				}
-
-		
-		

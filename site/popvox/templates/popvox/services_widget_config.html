@@ -7,46 +7,12 @@
 <script type="text/javascript" src="/media/js/jquery.miniColors.js"></script>
 
 <style>
-.config_pane {
-	float: left;
-	width: 650px;
-	}
-.preview_pane {
-	float: left;
-	width: 225px;
-	background-color: white;
-	margin-left: 2em;
-	padding: 1em;
-	}
-.form .vert {
-	float: left;
-	margin-right: 15px;
-	}
-.form .vert label {
-	float: none;
-	display: block;
-	margin: 0;
-	padding: 0;
-	text-align: left;
-	}
-.form .vert small {
-	margin: 0;
-	padding: 0;
-	width: auto;
-	}
 input.colorpicker {
 	width: 60px;
 	margin-bottom: 0; /* fixes color picker alignment */
 	}
 .form .error {
 	margin: 7px 0px 20px 0;
-	}
-.form input {
-	font-size: 11px;
-	height: 14px;
-	}
-.preview_pane textarea {
-	font-size: 10.5px;
 	}
 .form .radio input {
 	float: left;
@@ -64,6 +30,9 @@ input.colorpicker {
 	text-align: left;
 	}
 </style>
+
+<link rel="stylesheet" href="/media/widget/widget.css" type="text/css" media="screen" />
+
 <script>
 var accounts = [
 	{% for account in accounts %}
@@ -166,7 +135,7 @@ var minicolors_opts = {
 </script>
 {% endblock %}
 {% block content %}
-<div class="content">
+<div class="content widgetizer">
 
 	<h1>POPVOX Widgets</h1>
 	
@@ -188,56 +157,60 @@ var minicolors_opts = {
 	
 		<form class="form">
 		
-			<h4>Stream Options</h4>
-			<div class="vert">
-				<label for="commentstream_bills">Related to these bills</label>
-				<input id="commentstream_bills" type="text" value="" class="c2"/>
-				<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>
-			</div>
-			<div class="vert">
-				<p>or</p>
-			</div>
-			<div class="vert">
-				<label for="commentstream_issuearea">Related to this subject</label>
-				<select id="commentstream_issuearea" class="c3">
-					<option value="">(All)</option>
-					{% for ix in issueareas %}
-						<option value="{{ix.id}}">{{ix.name}}</option>
-					{% endfor %}
-				</select>
-			</div>
+			<div class="block1">
+				<div class="vert">
+					<label for="commentstream_bills">Related to these bills</label>
+					<input id="commentstream_bills" type="text" value="" class="c2"/>
+					<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>
+				</div>
+				<div class="vert">
+					<p class="or">or</p>
+				</div>
+				<div class="vert">
+					<label for="commentstream_issuearea">Related to this subject</label>
+					<select id="commentstream_issuearea" class="c3">
+						<option value="">(All)</option>
+						{% for ix in issueareas %}
+							<option value="{{ix.id}}">{{ix.name}}</option>
+						{% endfor %}
+					</select>
+				</div>
 	
-			<div class="clear"> </div>
-	
-			<div id="commentstream_bills_error" class="error"> </div>
+				<div class="clear"> </div>
+		
+				<div id="commentstream_bills_error" class="error"> </div>
+				
+				<div class="vert">
+					<label for="commentstream_state">Show users in</label>
+					<select id="commentstream_state" class="c2">
+						<option value="">(All)</option>
+						{% for abbr, name in states %}
+							<option value="{{abbr}}">{{name}}</option>
+						{% endfor %}
+					</select>
+				</div>
+		
+				<div class="clear "> </div>
+			</div><!-- e: block -->	
 			
-			<div class="vert">
-				<label for="commentstream_state">Show users in</label>
-				<select id="commentstream_state" class="c2">
-					<option value="">(All)</option>
-					{% for abbr, name in states %}
-						<option value="{{abbr}}">{{name}}</option>
-					{% endfor %}
-				</select>
-			</div>
-	
-			<div class="clear"> </div>
-	
-			<h4>Widget Dimensions</h4>
+			<div class="block2">
+				<h4>Basic <span>(FREE)</span></h4>
+				<div class="vert">
+					<label for="commentstream_width">Width (pixels)</label>
+					<input id="commentstream_width" type="text" value="" class="c2"/>
+				</div>
+				<div class="vert">
+					<label for="commentstream_height">Height (pixels)</label>
+					<input id="commentstream_height" type="text" value="" class="c2"/>
+				</div>
+				<div class="vert" class="c2">
+					<p><small>Widget size does not update in preview.</small></p>
+				</div>
+			</div><!-- e: block2 -->
 			
-			<div class="vert">
-				<label for="size_width">Width (pixels)</label>
-				<input id="size_width" type="text" value="" class="c2"/>
+			<div class="block3">
+				
 			</div>
-			<div class="vert">
-				<label for="size_height">Height (pixels)</label>
-				<input id="size_height" type="text" value="" class="c2"/>
-			</div>
-			<div class="vert" class="c2">
-				<p><small>Widget size does not update in preview.</small></p>
-			</div>
-			
-			<div class="clear"> </div>
 			
 			<div class="pro">
 				<h3>POPVOX Pro</h3>
@@ -289,7 +262,7 @@ var minicolors_opts = {
 				<label for="commentstream_scrollmode_animate">Animate</label>
 				</div>
 			</div>
-		</form>
+		</form><!-- e: form -->
 	</div>
 	
 	<div class="preview_pane">
