@@ -18,7 +18,7 @@ var accounts = [
 	{
 		name: "{{account|escapejs}}",
 		key: "{{account.api_key|escapejs}}",
-		permissions: [{% for p in account.permissions.all %}"{{p.name|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}]
+		permissions: {% templatetag openbrace %}{% for p in account.permissions.all %}"{{p.name|escapejs}}": true{% if not forloop.last %},{% endif %}{% endfor %}}
 	}{% if not forloop.last %},{% endif %}
 	{% endfor %}
 ];
@@ -31,7 +31,7 @@ function account_changed() {
 		permissions = accounts[$('#serviceaccount').val()].permissions;
 	{% endif %}
 		
-	plus_enabled = (permissions.indexOf("commentstream_theme") >= 0);
+	plus_enabled = permissions["commentstream_theme"];
 	
 	if (plus_enabled) $('.plus .panel').removeClass("disabled"); else $('.plus .panel').addClass("disabled");
 	$('.plus input').attr("disabled", plus_enabled ? '' : '1')
@@ -73,7 +73,7 @@ function update_preview() {
 	var state = $('#commentstream_state').val();
 	if (state) opts += "&state=" + state;
 	
-	var width = $('#size_width').val() || 220;
+	var width = $('#size_width').val() || 240;
 	var height = $('#size_height').val() || 350;
 	
 	var account = "";
@@ -98,7 +98,7 @@ function update_preview() {
 		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + '" width="' + width + '" height="' + height + '" border="0"> </iframe>';
 	}
 
-	var prv = make_code("", 220, 350);
+	var prv = make_code("", 240, 350);
 	if ($('#preview').html() != prv) $('#preview').html(prv);
 
 	$('#code').val(make_code("https://www.popvox.com", width, height));
@@ -145,8 +145,8 @@ var minicolors_opts = {
 			<div class="block2">
 				<div class="vert">
 					<label for="commentstream_bills">Related to these bills</label>
-					<input id="commentstream_bills" type="text" value="" class="c2"/>
-					<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>
+					<input id="commentstream_bills" type="text" value="supporting H.R. 724" class="c2"/>
+					<!--<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>-->
 				</div>
 				<div class="vert">
 					<p class="or">or</p>
