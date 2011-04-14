@@ -26,8 +26,10 @@ var accounts = [
 function account_changed() {
 	var permissions = [];
 	
+	{% if accounts|length > 0 %}
 	if ($('#serviceaccount').val() != "")
 		permissions = accounts[$('#serviceaccount').val()].permissions;
+	{% endif %}
 		
 	plus_enabled = (permissions.indexOf("commentstream_theme") >= 0);
 	
@@ -76,6 +78,7 @@ function update_preview() {
 	
 	var account = "";
 	
+	{% if accounts|length > 0 %}
 	if ($('#serviceaccount').val() != "") {
 		// Only apply these configuration options if they are permitted.
 		var clrs = ["sbg", "sfg", "lnk", "bg", "fg"];
@@ -89,6 +92,7 @@ function update_preview() {
 		
 		account = accounts[$('#serviceaccount').val()].key
 	}
+	{% endif %}
 		
 	function make_code(host, width, height) {
 		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + '" width="' + width + '" height="' + height + '" border="0"> </iframe>';

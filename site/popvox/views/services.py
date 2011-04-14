@@ -53,14 +53,15 @@ def widget_render(request, widgettype):
 	
 	comments = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED)).order_by("-created")
 	
-	title1 = "Recent Comments"
-	title2 = "from POPVOX Nation"
+	title1 = "Recent Comments from"
+	title2 = "POPVOX Nation to Congress"
 
 	show_bill_number = True
 	url = SITE_ROOT_URL
 	
 	if "state" in request.GET:
 		comments = comments.filter(state=request.GET["state"])
+		title1 = "Recent Comments"
 		title2 = "in " + statenames[request.GET["state"]]
 		#url = SITE_ROOT_URL + "/activity#state=" + request.GET["state"]
 
