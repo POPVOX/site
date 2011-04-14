@@ -81,12 +81,17 @@ def widget_render(request, widgettype):
 			if b.endswith(":opposing"):
 				position = "-"
 				b = b[0:-len(":opposing")]
-			b = bill_from_url("/bills/" + b)
-			
-			if not position:
-				cx.append(comments.filter(bill=b))
-			else:
-				cx.append(comments.filter(bill=b, position=position))
+			try:
+				b = bill_from_url("/bills/" + b)
+				
+				if not position:
+					cx.append(comments.filter(bill=b))
+				else:
+					cx.append(comments.filter(bill=b, position=position))
+			except:
+				# invalid bill
+				title1 = "Recent Comments"
+				title2 = "Invalid bill number."
 			
 		if len(cx) == 1: # the bills have to be processed first
 			show_bill_number = False
