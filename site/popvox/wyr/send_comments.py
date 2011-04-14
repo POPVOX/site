@@ -68,7 +68,7 @@ for comment in UserComment.objects.filter(
 		msg.message = comment.message + \
 			"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
 	else:
-		msg.message = ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment. Delivered by popvox.com; info@popvox.com. See http://www.popvox.com" + comment.bill.url() + "/report]"
+		msg.message = ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a personal response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
 		
 	topterm = comment.bill.topterm
 	if topterm == None:
@@ -209,7 +209,7 @@ for comment in UserComment.objects.filter(
 			if len(comment.address.zipcode) == 5:
 				continue
 			
-			#sys.stdin.readline()
+			sys.stdin.readline()
 			continue
 		
 		# If we got this far, a delivery attempt was made although it

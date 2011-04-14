@@ -24,6 +24,9 @@ class UserCommentAdmin(admin.ModelAdmin):
 	search_fields = ("user__username", "user__email")
 	list_display = ['created', 'user', 'bill', 'message', 'address', 'delivery_status']
 
+class UserCommentDiggAdmin(admin.ModelAdmin):
+	list_display = ['created', 'user', 'comment', 'diggtype']
+
 class PostalAddressAdmin(admin.ModelAdmin):
 	search_fields = ("user__username","user__email","firstname","lastname")
 
@@ -52,6 +55,7 @@ admin.site.register(OrgContact)
 admin.site.register(Bill)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)
+admin.site.register(UserCommentDigg, UserCommentDiggAdmin)
 admin.site.register(UserOrgRole, UserOrgRoleAdmin)
 admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
 admin.site.register(PostalAddress, PostalAddressAdmin)
