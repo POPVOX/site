@@ -7,28 +7,7 @@
 <script type="text/javascript" src="/media/js/jquery.miniColors.js"></script>
 
 <style>
-input.colorpicker {
-	width: 60px;
-	margin-bottom: 0; /* fixes color picker alignment */
-	}
-.form .error {
-	margin: 7px 0px 20px 0;
-	}
-.form .radio input {
-	float: left;
-	display: block;
-	margin: 0;
-	padding: 0;
-	text-align: left;
-	width: 20px;
-	}
-.form .radio label {
-	float: left;
-	display: block;
-	margin: 0;
-	padding: 0;
-	text-align: left;
-	}
+
 </style>
 
 <link rel="stylesheet" href="/media/widget/widget.css" type="text/css" media="screen" />
@@ -144,7 +123,8 @@ var minicolors_opts = {
 		
 		{% if accounts|length > 0 %}
 		{% comment %}This goes outside of the form so that the select doesn't trigger a preview update.{% endcomment %}
-		<div>
+
+		<div class="block1">
 			<label for="serviceaccount">Service Account:</label>
 			<select id="serviceaccount" onchange="account_changed()">
 				<option value="">- Free Services Only -</option>
@@ -157,7 +137,7 @@ var minicolors_opts = {
 	
 		<form class="form">
 		
-			<div class="block1">
+			<div class="block2">
 				<div class="vert">
 					<label for="commentstream_bills">Related to these bills</label>
 					<input id="commentstream_bills" type="text" value="" class="c2"/>
@@ -193,75 +173,82 @@ var minicolors_opts = {
 				<div class="clear "> </div>
 			</div><!-- e: block -->	
 			
-			<div class="block2">
-				<h4>Basic <span>(FREE)</span></h4>
+			<div class="block3">
+				<h4>Basic </h4><p class="free">(free)</p>
+				<h5 class="clear">Widget Dimensions</h5>
 				<div class="vert">
-					<label for="commentstream_width">Width (pixels)</label>
+					<label for="commentstream_width">Width (px)</label>
 					<input id="commentstream_width" type="text" value="" class="c2"/>
 				</div>
 				<div class="vert">
-					<label for="commentstream_height">Height (pixels)</label>
+					<label for="commentstream_height">Height (px)</label>
 					<input id="commentstream_height" type="text" value="" class="c2"/>
 				</div>
-				<div class="vert" class="c2">
+				<div class="vert">
+					<p class="or">or</p>
+				</div>
+				<div class="radio vert">
+					<input class="auto" type="radio" name="" value="auto"/>
+					<label class="auto" for="auto">Auto</label>
+				</div>
+				<div class="vert last">
 					<p><small>Widget size does not update in preview.</small></p>
 				</div>
 			</div><!-- e: block2 -->
 			
-			<div class="block3">
+			<div class="plus">
+				<h4>PLUS</h4><p class="b_upgrade btn"><a href="#">upgrade</a></p>
+				<div class="clear"> </div>
 				
-			</div>
+				<div class="opacity">
+					<h5>Widget Colors</h5>
+					
+					<div class="vert">
+						<input id="color_sbg" type="text" value="#cb8452" class="colorpicker"/>
+						<label for="color_sbg">shell background</label>
+						<script>$('#color_sbg').miniColors(minicolors_opts);</script>
+					</div>
+					
+					<div class="vert">
+						<input id="color_sfg" type="text" value="#ffffff" class="colorpicker"/>
+						<label for="color_sfg">shell text</label>
+						<script>$('#color_sfg').miniColors(minicolors_opts);</script>
+					</div>
 			
-			<div class="pro">
-				<h3>POPVOX Pro</h3>
+					<div class="vert">
+						<input id="color_lnk" type="text" value="#cc6A11" class="colorpicker"/>
+						<label for="color_lnk">link</label>
+						<script>$('#color_lnk').miniColors(minicolors_opts);</script>
+					</div>
+					
+					<div class="clear"> </div>
+			
+					<div class="vert">
+						<input id="color_bg" type="text" value="#b4b4b6" class="colorpicker"/>
+						<label for="color_bg">comment background</label>
+						<script>$('#color_bg').miniColors(minicolors_opts);</script>
+					</div>
+					
+					<div class="vert">
+						<input id="color_fg" type="text" value="#404045" class="colorpicker"/>
+						<label for="color_fg">comment text</label>
+						<script>$('#color_fg').miniColors(minicolors_opts);</script>
+					</div>
 				
-				<h4>Colors</h4>
-				
-				<div class="vert">
-				<input id="color_sbg" type="text" value="#cb8452" class="colorpicker"/>
-				<label for="color_sbg">Shell Background</label>
-				<script>$('#color_sbg').miniColors(minicolors_opts);</script>
-				</div>
-				
-				<div class="vert">
-				<input id="color_sfg" type="text" value="#ffffff" class="colorpicker"/>
-				<label for="color_sfg">Shell Text</label>
-				<script>$('#color_sfg').miniColors(minicolors_opts);</script>
-				</div>
-		
-				<div class="vert">
-				<input id="color_lnk" type="text" value="#cc6A11" class="colorpicker"/>
-				<label for="color_lnk">Link</label>
-				<script>$('#color_lnk').miniColors(minicolors_opts);</script>
-				</div>
-				
-				<div class="clear"> </div>
-		
-				<div class="vert">
-				<input id="color_bg" type="text" value="#b4b4b6" class="colorpicker"/>
-				<label for="color_bg">Comment Background</label>
-				<script>$('#color_bg').miniColors(minicolors_opts);</script>
-				</div>
-				
-				<div class="vert">
-				<input id="color_fg" type="text" value="#404045" class="colorpicker"/>
-				<label for="color_fg">Comment Text</label>
-				<script>$('#color_fg').miniColors(minicolors_opts);</script>
-				</div>
-				
+				</div><!-- e: opacity -->
 				<div class="clear"> </div>
 				
-				<h4>Animation</h4>
+<!--			<h4>Animation</h4>
 		
 				<div class="radio">
-				<input id="commentstream_scrollmode_scroll" type="radio" name="commentstream_scrollmode" value="scrollbar" checked="1"/>
-				<label for="commentstream_scrollmode_scroll">Scrollbar</label>
+					<input id="commentstream_scrollmode_scroll" type="radio" name="commentstream_scrollmode" value="scrollbar" checked="1"/>
+					<label for="commentstream_scrollmode_scroll">Scrollbar</label>
 				</div>
 				<div class="radio">
-				<input id="commentstream_scrollmode_animate" type="radio" name="commentstream_scrollmode" value="animate"/>
-				<label for="commentstream_scrollmode_animate">Animate</label>
+					<input id="commentstream_scrollmode_animate" type="radio" name="commentstream_scrollmode" value="animate"/>
+					<label for="commentstream_scrollmode_animate">Animate</label>
 				</div>
-			</div>
+-->			</div>
 		</form><!-- e: form -->
 	</div>
 	

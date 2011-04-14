@@ -1,11 +1,12 @@
+/* @override https://popvox.com:777/media/widget/widget.css */
+
 /* css widget - no mokeys were harmed in the making of this code. (except that weird, small one. but you'll hardly notice the limp.) */
 
 
 
  .widgetizer {
-	background: url(http://www.acreativeconcern.com/files/fileshuttle/widget_comment_create_a928.png) center -188px no-repeat;
+/*	background: url(http://sodiumhalogen.com/_tempup/wm/widget_comment_create_a928_dbb2.png) center -188px no-repeat;*/
 	display: block;
-	height: 1000px;
 	}
 
 .content {
@@ -16,8 +17,8 @@
 
 .config_pane {
 	float: left;
-	width: 640px;
-	padding-left: 10px;
+	width: 630px;
+	margin-right: 20px;
 	}
 	
 	.config_pane p {
@@ -36,11 +37,6 @@
 		padding: 5px 0;
 		}
 
-.form .block {
-	width: 620px;
-	height: 135px;
-	background: url("bg_hr.png") repeat-x left bottom;
-	}	
 
 .form .vert {
 	float: left;
@@ -48,7 +44,7 @@
 	}
 	
 	.form .vert p.or {
-		margin: 30px 8px 0 5px;
+		margin: 38px 8px 0 5px;
 		text-transform: uppercase;
 		}
 
@@ -76,7 +72,7 @@
 	.form .vert input {
 		font-size: 11px;
 		height: 16px;
-		margin: 8px 0 25px;
+		margin: 0 0 25px;
 		width: 260px;
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
@@ -89,7 +85,7 @@
 		}
 		
 	.form .vert select {
-		margin-top: 10px;
+		margin-top: 2px;
 		width: 270px;
 		}
 		
@@ -97,18 +93,142 @@
 			width: 140px;
 			}
 			
-	.form .block2 {
-		margin: 45px 0;
+.form .block2 {
+	width: 620px;
+	height: 155px;
+	background: url("../master/bg_hr.png") repeat-x left bottom;
+	margin-top: 10px;
+	}	
+	
+	.form .block2 .vert label {
+		margin: 8px 0;
 		}
-		
-	.form .block2 h4 {
+
+.form .block3 {
+	width: 620px;
+	height: 120px;
+	background: url("../master/bg_hr.png") repeat-x left bottom;
+	margin: 30px 0 20px;
+	}
+	
+	.form h4 {
 		font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
+		margin-bottom: 15px;
 		}
 		
-		.form .block2 h4 span {
-			font: 14px/24px helvetica, arial, sans-serif;
+		.form .block3 h4 {
+			float: left;
 			}
 		
+		.form p.free {
+			font: 16px/24px helvetica, arial, sans-serif;
+			float: left;
+			clear: right;
+			margin: -2px 0 0 5px;
+			}
+		
+		.form h5 {
+			font: bold 13px/18px helvetica,arial,sans-serif;
+			text-transform: uppercase;
+			height: 25px;
+			}
+			
+		.form .block3 .vert label {
+			float: left;
+			width: 60px;
+			text-transform: inherit;
+			font-weight: normal;
+			margin-top: 3px;
+			}
+				
+		.form .block3 .vert input {
+			 margin-right: 8px;
+			width: 56px;
+			}
+			
+		.form .block3 .vert p.or {
+			margin-top: 0;
+			}	
+			
+		.form .block3 .vert.radio {
+			width: 85px;
+			}
+			
+		.form .block3 .vert.radio input {	
+			float: left;
+			display: block;
+			margin: 0;
+			padding: 0;
+			text-align: left;
+			width: 20px;
+			}		
+			
+		.form .block3 .vert.last {
+			width: 150px;
+			}
+			
+			.form .block3 .vert.last p {
+				font-weight: normal;
+				}
+			
+
+	.form .plus {
+		
+		}
+		
+		
+		.form .plus h4 {
+			margin: 3px 10px 15px 0;
+			float: left;
+			}
+			
+			.b_upgrade {
+				background: url(b_upgrade_trial.png) left top no-repeat;
+				width: 176px;
+				height: 21px;
+				float: left;
+				}				
+			
+		.form .plus .vert label {
+			font: normal 12px/14px helvetica, arial, sans-serif;
+			text-transform: inherit;
+			padding-top: 3px;
+			}
+			
+		.form .plus .vert {
+			width: 115px;
+			height: 60px;
+			}
+		
+	.form input.colorpicker {
+		width: 60px;
+		margin-bottom: 0; /* fixes color picker alignment */
+		}
+		
+	.form .error {
+		margin: 7px 0px 20px 0;
+		}
+		
+	.form .radio input {
+
+		}
+		
+	.form .radio label {
+		float: left;
+		display: block;
+		margin: 0;
+		padding: 0;
+		text-align: left;
+		}
+
+
+.opacity {
+	/* for IE */
+	filter:alpha(opacity=70);
+	/* CSS3 standard */
+	opacity:0.7;
+	}
+
 			
 			
 
