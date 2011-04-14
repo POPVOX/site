@@ -92,6 +92,10 @@
 		.form .vert select.c2 {
 			width: 140px;
 			}
+
+.block1 {
+	padding: 15px;
+	}
 			
 .form .block2 {
 	width: 620px;
@@ -106,8 +110,8 @@
 
 .form .block3 {
 	width: 620px;
-	height: 120px;
 	background: url("../master/bg_hr.png") repeat-x left bottom;
+	padding-bottom: 10px;
 	margin: 30px 0 20px;
 	}
 	
@@ -135,7 +139,8 @@
 			
 		.form .block3 .vert label {
 			float: left;
-			width: 60px;
+			width: auto;
+			padding-right: .9em;
 			text-transform: inherit;
 			font-weight: normal;
 			margin-top: 3px;
@@ -181,7 +186,11 @@
 			margin: 3px 10px 15px 0;
 			float: left;
 			}
-			
+			.form .plus h4 .small {
+				font-size: 11px;
+				font-family: georgia;
+				font-style: italic;
+				}		
 			.b_upgrade {
 				background: url(b_upgrade_trial.png) left top no-repeat;
 				width: 176px;
@@ -222,7 +231,7 @@
 		}
 
 
-.opacity {
+.disabled {
 	/* for IE */
 	filter:alpha(opacity=70);
 	/* CSS3 standard */

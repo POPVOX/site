@@ -29,10 +29,11 @@ function account_changed() {
 	if ($('#serviceaccount').val() != "")
 		permissions = accounts[$('#serviceaccount').val()].permissions;
 		
-	pro_enabled = (permissions.indexOf("commentstream_theme") >= 0);
+	plus_enabled = (permissions.indexOf("commentstream_theme") >= 0);
 	
-	$('.pro input').attr("disabled", pro_enabled ? '' : '1')
-	$(".miniColors").miniColors('disabled', !pro_enabled);
+	if (plus_enabled) $('.plus .panel').removeClass("disabled"); else $('.plus .panel').addClass("disabled");
+	$('.plus input').attr("disabled", plus_enabled ? '' : '1')
+	$(".miniColors").miniColors('disabled', !plus_enabled);
 	
 	update_preview();
 }
@@ -81,10 +82,10 @@ function update_preview() {
 		for (var e in clrs)
 			opts += "&" + clrs[e] + "=" + $('#color_' + clrs[e]).val().replace("#", "");
 		
-		if ($('#commentstream_scrollmode_scroll')[0].checked)
+		/*if ($('#commentstream_scrollmode_scroll')[0].checked)
 			opts += "&scroll=bar";
 		else
-			opts += "&scroll=animate";
+			opts += "&scroll=animate";*/
 		
 		account = accounts[$('#serviceaccount').val()].key
 	}
@@ -124,7 +125,7 @@ var minicolors_opts = {
 		{% if accounts|length > 0 %}
 		{% comment %}This goes outside of the form so that the select doesn't trigger a preview update.{% endcomment %}
 
-		<div class="block1">
+		<div class="block1" style="text-align: center">
 			<label for="serviceaccount">Service Account:</label>
 			<select id="serviceaccount" onchange="account_changed()">
 				<option value="">- Free Services Only -</option>
@@ -174,7 +175,7 @@ var minicolors_opts = {
 			</div><!-- e: block -->	
 			
 			<div class="block3">
-				<h4>Basic </h4><p class="free">(free)</p>
+				<!--<h4>Basic </h4><p class="free">(free)</p>-->
 				<h5 class="clear">Widget Dimensions</h5>
 				<div class="vert">
 					<label for="commentstream_width">Width (px)</label>
@@ -184,6 +185,7 @@ var minicolors_opts = {
 					<label for="commentstream_height">Height (px)</label>
 					<input id="commentstream_height" type="text" value="" class="c2"/>
 				</div>
+				<!--
 				<div class="vert">
 					<p class="or">or</p>
 				</div>
@@ -191,16 +193,18 @@ var minicolors_opts = {
 					<input class="auto" type="radio" name="" value="auto"/>
 					<label class="auto" for="auto">Auto</label>
 				</div>
+				-->
 				<div class="vert last">
 					<p><small>Widget size does not update in preview.</small></p>
 				</div>
+				<div class="clear"> </div>
 			</div><!-- e: block2 -->
 			
 			<div class="plus">
-				<h4>PLUS</h4><p class="b_upgrade btn"><a href="#">upgrade</a></p>
+				<h4>PLUS <span class="small">contact us for details</span></h4> <!--<p class="b_upgrade btn"><a href="#">upgrade</a>--></p>
 				<div class="clear"> </div>
 				
-				<div class="opacity">
+				<div class="panel">
 					<h5>Widget Colors</h5>
 					
 					<div class="vert">
@@ -235,7 +239,7 @@ var minicolors_opts = {
 						<script>$('#color_fg').miniColors(minicolors_opts);</script>
 					</div>
 				
-				</div><!-- e: opacity -->
+				</div><!-- e: panel -->
 				<div class="clear"> </div>
 				
 <!--			<h4>Animation</h4>
