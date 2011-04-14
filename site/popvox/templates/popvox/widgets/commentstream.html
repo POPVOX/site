@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="/media/widget/widget_comment.css" type="text/css" media="screen" />
 
 	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
+	{% if request.ua.ua_family == "Firefox" %}<script>jQuery.fx.off = true</script>{% endif %}
 	
 	<style>
 	{% if request.GET.iframe %}
@@ -24,8 +25,51 @@
 		overflow: hidden;
 	}
 	{% endif %}
+
+	{% if request.ua.ua_family == "Firefox" and request.ua.os_family != "Mac OSX" %}
+	#comment_widget h1, #comment_widget h2 {
+		text-shadow: none;
+	}
+	{% endif %}
+	
+	#comment_widget.blue {
+		background: #FCF6EC;
+		color: #202020;
+		float: left;
+		margin-left: 20px;
+		}
+		
+		#comment_widget.blue #widget_top {
+			background: #42727A url("comments_widget_head_grad.png") left top repeat-x;
+			border: #000;
+			}
+			
+			#comment_widget.blue #widget_body {
+				background: #FCF6EC url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;
+				}
+				
+			#comment_widget.blue h1,
+			#comment_widget.blue h2 {
+				text-shadow: 0 -1px 1px #000;
+				}
+				
+			#comment_widget.blue h3 a {	
+				color: #680000;
+				}
+			
+			#comment_widget.blue p {
+				color: #020202;
+				font-family: Palatino Georgia;
+				font-size: 13px;
+				}
+				
+			#comment_widget.blue .comment {
+				border-bottom: 1px dotted #B6B3B2;
+				}
+
+	
 	</style>
-<!--	
+	
 	<script>
 	var scroll_delay = 15000;
 	
@@ -56,7 +100,7 @@
 			});
 	}
 	</script>
--->
+
 </head>
 <body>
 	<div id="wrap">

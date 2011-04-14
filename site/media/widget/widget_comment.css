@@ -3,7 +3,7 @@
 
 
 	#wrap {
-		background: url(bg_temp_widget.jpg) right top no-repeat;
+		/*background: url(bg_temp_widget.jpg) right top no-repeat;*/
 		}
 	
 	#comment_widget {
@@ -149,7 +149,7 @@
 /* testing */
 
 #comment_widget.float_left {
-	width: 220px;
+	
 	}
 	
 #comment_widget.wide {

@@ -95,7 +95,7 @@ function update_preview() {
 	{% endif %}
 		
 	function make_code(host, width, height) {
-		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + '" width="' + width + '" height="' + height + '" border="0"> </iframe>';
+		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
 	}
 
 	var prv = make_code("", 240, 350);
@@ -145,7 +145,7 @@ var minicolors_opts = {
 			<div class="block2">
 				<div class="vert">
 					<label for="commentstream_bills">Related to these bills</label>
-					<input id="commentstream_bills" type="text" value="supporting H.R. 724" class="c2"/>
+					<input id="commentstream_bills" type="text" value="supporting S. 724" class="c2"/>
 					<!--<script>$('#commentstream_bills').input_default("supporting H.R. 1234");</script>-->
 				</div>
 				<div class="vert">
