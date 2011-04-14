@@ -32,41 +32,40 @@
 	}
 	{% endif %}
 	
-	#comment_widget.blue {
-		background: #FCF6EC;
-		color: #202020;
-		float: left;
-		margin-left: 20px;
+	{% if "commentstream_theme" in permissions %}
+	#comment_widget #widget_top {
+		background: #{{request.GET.sbg}} url("comments_widget_head_grad.png") left top repeat-x;
+		color: #{{request.GET.sfg}};
+		border: #000;
 		}
 		
-		#comment_widget.blue #widget_top {
-			background: #42727A url("comments_widget_head_grad.png") left top repeat-x;
-			border: #000;
-			}
-			
-			#comment_widget.blue #widget_body {
-				background: #FCF6EC url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;
-				}
-				
-			#comment_widget.blue h1,
-			#comment_widget.blue h2 {
-				text-shadow: 0 -1px 1px #000;
-				}
-				
-			#comment_widget.blue h3 a {	
-				color: #680000;
-				}
-			
-			#comment_widget.blue p {
-				color: #020202;
-				font-family: Palatino Georgia;
-				font-size: 13px;
-				}
-				
-			#comment_widget.blue .comment {
-				border-bottom: 1px dotted #B6B3B2;
-				}
-
+	#comment_widget #widget_body {
+		background: #{{request.GET.bg}} url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;
+		}
+		
+	#comment_widget h1,
+	#comment_widget h2 {
+		text-shadow: none;
+		color: #{{request.GET.sfg}};
+		}
+		
+	#comment_widget p.share a {	
+		color: #{{request.GET.lnk}};
+		}
+	
+	#comment_widget p {
+		color: #{{request.GET.fg}};
+		}
+		
+	#comment_widget .comment {
+		border-bottom: none;
+		}
+		
+	#comment_widget #widget_foot, #comment_widget #widget_foot p a {
+		background: #{{request.GET.sbg}};
+		color: #{{request.GET.sfg}};
+		}
+	{% endif %}
 	
 	</style>
 	
@@ -86,9 +85,8 @@
 	function scroll_comments() {
 		var nodes = $("#widget_body .widget_item");
 		if (nodes.length <= 1) return;
-		
 		var node = nodes[0];
-		$(node).animate({ opacity: 0, height: 0}, 3000,
+		$(node).animate({ {% if request.ua.ua_family != "IE" %}opacity: 0,{% endif %} height: 0}, 3000,
 			// called after animation completes
 			function() {
 				// move node to the end

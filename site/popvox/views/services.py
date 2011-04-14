@@ -24,24 +24,29 @@ def widget_config(request):
 
 def validate_widget_request(request):
 	api_key = request.GET.get("api_key", "")
+
+	try:
+		host = urlparse.urlparse(request.META.get("HTTP_REFERER", "http://www.example.org/")).hostname
+	except:
+		host = "example.com"
+
 	if not api_key:
-		return []
+		if host == "popvox.com":
+			return ["commentstream_theme"]
+		
+		return [] # no permissions
 	
 	# Validate the key
 	try:
 		account = ServiceAccount.objects.get(api_key=api_key)
 	except ServiceAccount.DoesNotExist:
-		return None
+		return None # invalid info
 		
 	# Validate the referrer.
-	try:
-		host = urlparse.urlparse(request.META.get("HTTP_REFERER", "http://www.example.org/")).hostname
-		if host.startswith("www."):
-			host = host[4:]
-		if host != "popvox.com" and host not in account.hosts.split("\n"):
-			return None
-	except:
-		return None
+	if host.startswith("www."):
+		host = host[4:]
+	if host != "popvox.com" and host not in account.hosts.split("\n"):
+		return None # invalid call from other site
 	
 	return [p.name for p in account.permissions.all()]
 
