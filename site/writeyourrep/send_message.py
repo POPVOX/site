@@ -12,6 +12,8 @@ from writeyourrep.models import *
 
 from popvox.govtrack import getMemberOfCongress, statenames
 
+import socket
+socket.setdefaulttimeout(10) # ten seconds
 cookiejar = cookielib.CookieJar()
 http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
 http.addheaders = [('User-agent', "POPVOX.com Message Delivery <info@popvox.com>")]
@@ -684,11 +686,11 @@ def send_message_webform(di, msg, deliveryrec):
 			# For each value we have coming in from the message, also
 			# try any of its mapped synonyms in the database.
 			for q in postdata[k]:
-				alts.append(q)
+				alts.append((q, -1))
 				for rec in Synonym.objects.filter(term1 = q):
-					alts.append(rec.term2)
-			alts.sort(key = lambda x : x in ("other", "others", "miscellaneous", "other - not listed", "optionally select an issue", "general concerns")) # put these at the end
-			for q in alts:
+					alts.append((rec.term2, 0 if not rec.last_resort else 1))
+			alts.sort(key = lambda x : x[1]) # put last_resort at the end
+			for q, l_r in alts:
 				if q.lower() in field_options[k]:
 					postdata[k] = field_options[k][q.lower()]
 					break

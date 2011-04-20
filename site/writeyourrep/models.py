@@ -64,6 +64,7 @@ class DeliveryRecord(models.Model):
 class Synonym(models.Model):
 	term1 = models.CharField(max_length=64, db_index=True)
 	term2 = models.CharField(max_length=64)
+	last_resort = models.BooleanField(default=False)
 	created = models.DateTimeField(auto_now_add=True)
 	auto = models.BooleanField(default=False)
 	class Meta:
@@ -75,6 +76,7 @@ class Synonym(models.Model):
 class SynonymRequired(models.Model):
 	term1set = models.TextField(verbose_name="Keyword in Comment")
 	term2set = models.TextField(verbose_name="Options in Webform")
+	last_resort = models.BooleanField(default=False)
 	created = models.DateTimeField(auto_now_add=True)
 	def __unicode__(self):
 		return self.term1set + " => " + self.term2set

@@ -1,5 +1,6 @@
 from models import *
 from django.contrib import admin
+from django.db import IntegrityError
 
 class EndpointAdmin(admin.ModelAdmin):
 	list_display = ("govtrackid", "method", "mocname")
@@ -29,7 +30,7 @@ class DeliveryRecordAdmin(admin.ModelAdmin):
 	make_formparsefail.short_description = "Mark as Form Parse Fail"
 	
 class SynonymAdmin(admin.ModelAdmin):
-	list_display = ("created", "term1", "term2", "auto")
+	list_display = ("created", "term1", "term2", "last_resort", "auto")
 
 class SynonymRequiredAdmin(admin.ModelAdmin):
 	list_display = ("created", "term1set", "term2set")
@@ -37,16 +38,23 @@ class SynonymRequiredAdmin(admin.ModelAdmin):
 		t1 = form.cleaned_data["term1set"].strip()
 		t2 = form.cleaned_data["term2set"].strip()
 		if not "\n" in t1 and not "\n" in t2:
-			s = Synonym()
-			s.term1 = t1
-			s.term2 = t2
-			s.save()
+			try:
+				s = Synonym()
+				s.term1 = t1
+				s.term2 = t2
+				s.last_resort = obj.last_resort
+				s.save()
+			except IntegrityError:
+				pass
 			
-			# Delete any SynonymRequired object that can
-			# use this synonym too. This will include obj.
-			for sr in SynonymRequired.objects.filter(term1set__contains=t1, term2set__contains=t2):
-				if t1 in sr.term1set.strip().split("\n") and t2 in sr.term2set.strip().split("\n"):
-					sr.delete()
+			if not obj.last_resort:
+				# Delete any SynonymRequired object that can
+				# use this synonym too.
+				for sr in SynonymRequired.objects.filter(term1set__contains=t1, term2set__contains=t2).exclude(id=obj.id):
+					if t1 in sr.term1set.strip().split("\n") and t2 in sr.term2set.strip().split("\n"):
+						sr.delete()
+			
+			obj.delete()
 
 		else:
 			obj.save()

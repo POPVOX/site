@@ -76,7 +76,7 @@ for comment in UserComment.objects.filter(
 		if len(b2) > 0 and comment.bill.title_no_number() == b2[0].title_no_number():
 			topterm = b2[0].topterm
 		
-	if topterm != None and topterm.name != "Private Legislation":
+	if topterm != None and topterm.name != "Private Legislation" and topterm.name != "Native Americans":
 		msg.topicarea = (topterm.name, "legislation")
 	else:
 		msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title, "legislation")
@@ -209,7 +209,7 @@ for comment in UserComment.objects.filter(
 			if len(comment.address.zipcode) == 5:
 				continue
 			
-			sys.stdin.readline()
+			#sys.stdin.readline()
 			continue
 		
 		# If we got this far, a delivery attempt was made although it
