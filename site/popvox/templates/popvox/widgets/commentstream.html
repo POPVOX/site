@@ -123,7 +123,7 @@
 				<p>
 					<span class="username">{{item.user.username}}</span>
 					from
-					{{item.address.statename}}{% if item.address.congressionaldistrict > 0 %}&rsquo;s {{item.address.congressionaldistrict|ordinal}} district{% endif %}
+					{{item.address.statename}}{% if item.address.congressionaldistrict > 0 %}&rsquo;s {{item.address.congressionaldistrict|ordinal_html}} district{% endif %}
 				</p>
 	
 				<div class="comment">

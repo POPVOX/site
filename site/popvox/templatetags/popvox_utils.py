@@ -239,3 +239,19 @@ def rawtext(key):
 	finally:
 		context.pop()
 
+@register.filter
+def ordinal_html(num):
+	num = int(num)
+	if num % 100 >= 11 and num % 100 <= 13:
+		suffix = "th"
+	elif num % 10 == 1:
+		suffix = "st"
+	elif num % 10 == 2:
+		suffix = "nd"
+	elif num % 10 == 3:
+		suffix = "rd"
+	else:
+		suffix = "th"
+	
+	return mark_safe(str(num) + "<sup>" + suffix + "</sup>")
+	
