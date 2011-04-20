@@ -86,12 +86,16 @@
 		var nodes = $("#widget_body .widget_item");
 		if (nodes.length <= 1) return;
 		var node = nodes[0];
-		$(node).animate({ {% if request.ua.ua_family != "IE" %}opacity: 0,{% endif %} height: 0}, 3000,
+		$(node).animate({
+			{% if request.ua.ua_family != "IE" %}opacity: 0,{% endif %}
+			height: 0,
+			"margin-bottom": 0
+		}, 3000,
 			// called after animation completes
 			function() {
 				// move node to the end
 				node.parentNode.appendChild(node);
-				$(node).css({ opacity: 100, height: "auto" }); // reset
+				$(node).css({ opacity: 100, height: "auto", "margin-bottom": "10px" }); // reset
 				
 				// next
 				window.setTimeout("scroll_comments()", scroll_delay);

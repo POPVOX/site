@@ -60,7 +60,7 @@
 			}
 			
 		.widget_item {
-			margin-bottom: 10px;
+			margin-bottom: 10px; /* repeated in the HTML animation code */
 			border-bottom: 1px dotted #B4B4B6;
 			clear: both;
 			}
