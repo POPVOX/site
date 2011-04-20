@@ -93,7 +93,7 @@ def loadpeople():
 			else:
 				px["party"] = "?"
 			
-			if role.getAttribute("current") == "1":
+			if role.getAttribute("current") == "1" and role.getAttribute("type") in ("sen", "rep"):
 				px["current"] = True
 				px["type"] = role.getAttribute("type")
 				px["state"] = role.getAttribute("state")
