@@ -76,7 +76,7 @@
 			$('#widget_top').css("height", ($('#widget_top h2').height() + 35) + "px");
 			
 			{% if request.GET.iframe %}
-			$('#widget_body').css("height", ($(window).height() - $('#widget_top').height() - $('#widget_foot').height() - 15) + "px");
+			$('#widget_body').css("height", ($(window).height() - $('#widget_top').height() - $('#widget_foot').height() - 25) + "px");
 			{% endif %}
 			
 			if (scroll_delay) window.setTimeout("scroll_comments()", scroll_delay);
@@ -131,6 +131,13 @@
 					</div>
 				</div><!-- e: comment -->
 				</div><!-- e: widget_item -->
+				
+				{% empty %}
+				
+					<div class="comment">
+						<p>There are no comments to display.</p>
+					</div>
+				
 				{% endfor %}
 			</div><!-- e: body -->
 			

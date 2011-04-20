@@ -40,6 +40,8 @@ function account_changed() {
 	update_preview();
 }
 
+var last_preview_html = "";
+
 function update_preview() {
 	var widgettype = "commentstream";
 	var opts = "";
@@ -99,7 +101,8 @@ function update_preview() {
 	}
 
 	var prv = make_code("", 240, 350);
-	if ($('#preview').html() != prv) $('#preview').html(prv);
+	if (last_preview_html != prv) $('#preview').html(prv);
+	last_preview_html = prv;
 
 	$('#code').val(make_code("https://www.popvox.com", width, height));
 }
