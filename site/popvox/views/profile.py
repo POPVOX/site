@@ -374,7 +374,7 @@ def register_validation(request):
 		
 		if not request.user.orgroles.all().exists():
 			# not sure where to put this status
-			status["fullname"] = "You cannot register an organization under an invidual or legislative staff account. Contact POPVOX staff for assistance."
+			status["fullname"] = "You cannot register an organization under an invidual or legislative staff account. Log out to register the organization under a new email address or contact POPVOX staff for assistance."
 		
 	else:
 		password = validate_password(request.POST["password"], fielderrors = status)
@@ -387,6 +387,8 @@ def register_validation(request):
 		else:
 			# for leg staff and org staff, we'll use the email address for the username
 			# too, since we never actually use it for anything but Django needs it.
+			# TODO: The username field is quite a bit shorter than the email field
+			# which could result in a uniqueness clash.
 			username = email
 			
 		if request.POST["mode"] != "legstaff" and legstaffemailcheck(email):
