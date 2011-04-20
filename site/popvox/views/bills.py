@@ -1285,7 +1285,7 @@ POPVOX
 			
 	return HttpResponseRedirect(comment.url())
 
-def get_default_statistics_context(user):
+def get_default_statistics_context(user, individuals=True):
 	default_state = None
 	default_district = None
 	if user.is_authenticated():
@@ -1295,7 +1295,7 @@ def get_default_statistics_context(user):
 				default_state = member["state"]
 				if member["type"] == "rep":
 					default_district = member["district"]
-		else:
+		elif individuals:
 			addresses = user.postaladdress_set.order_by("-created")
 			if len(addresses) > 0:
 				default_state = addresses[0].state
@@ -1309,7 +1309,7 @@ def billreport(request, congressnumber, billtype, billnumber):
 		import home
 		home.annotate_track_status(request.user.userprofile, [bill])
 
-	default_state, default_district = get_default_statistics_context(request.user)
+	default_state, default_district = get_default_statistics_context(request.user, individuals=False)
 					
 	orgs_support = { }
 	orgs_oppose = { }

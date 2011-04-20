@@ -131,8 +131,8 @@
 				c_pro = $('#comments_pro');
 				c_con = $('#comments_con');
 				
-				if (!res.pro_more) $('#comments_pro_more').hide();
-				if (!res.con_more) $('#comments_con_more').hide();
+				if (!res.pro_more) $('#comments_pro_more').hide(); else $('#comments_pro_more').show();
+				if (!res.con_more) $('#comments_con_more').hide(); else $('#comments_con_more').show();
 				
 				if (!is_more) {
 					c_pro.html("");
@@ -371,7 +371,7 @@
 					<select id="options_district" size="1" onchange="report_district = this.value; update()">
 					</select>
 					{% if default_state %}
-						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show All Comments</a>
+						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
 						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = '{{default_state}}'; update(false); report_district = '{{default_district}}'; showdata(); return false;">Show My {% if default_district %}District{% else %}State{% endif %}</a>
 					{% endif %}
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>

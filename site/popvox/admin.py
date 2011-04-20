@@ -20,7 +20,7 @@ class UserLegStaffRoleAdmin(admin.ModelAdmin):
 
 class UserCommentAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user", "bill", "address")
-	readonly_fields = ("user","bill","address")
+	readonly_fields = ("user","bill","address", "delivery_attempts")
 	search_fields = ("user__username", "user__email")
 	list_display = ['created', 'user', 'bill', 'message', 'address', 'delivery_status']
 

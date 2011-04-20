@@ -367,7 +367,7 @@ class Org(models.Model):
 	def is_admin(self, user):
 		if user.is_anonymous():
 			return False
-		return user.is_superuser or len(UserOrgRole.objects.filter(user=user, org=self)) > 0
+		return user.is_superuser or user.is_staff or len(UserOrgRole.objects.filter(user=user, org=self)) > 0
  
 	def set_default_slug(self):
 		import string
@@ -827,6 +827,12 @@ class PostalAddress(models.Model):
 	def __unicode__(self):
 		return unicode(self.user) + ": " + self.firstname +  " " + self.lastname + "\n" + self.address1 + ("\n" + self.address2 if self.address2 != "" else "") + "\n" + self.city + ", " + self.state + " " + self.zipcode + " (CD" + str(self.congressionaldistrict) + ")"
 	
+	def save(self, *args, **kwargs):
+		# After saving a PostalAddress, update the state and district of any related
+		# UserComments.
+		super(PostalAddress, self).save(*args, **kwargs)
+		self.usercomments.all().update(state=self.state, congressionaldistrict=self.congressionaldistrict)
+		
 	def load_from_form(self, request, validate=True):
 		self.nameprefix = request.POST["useraddress_prefix"]
 		self.firstname = request.POST["useraddress_firstname"]
@@ -935,7 +941,7 @@ class UserComment(models.Model):
 	
 	message = models.TextField(blank=True, null=True)
 
-	address = models.ForeignKey(PostalAddress, db_index=True) # current address at time of writing
+	address = models.ForeignKey(PostalAddress, db_index=True, related_name="usercomments") # current address at time of writing
 
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now_add=True)
@@ -966,7 +972,7 @@ class UserComment(models.Model):
 			ordering = ["-created"]
 			unique_together = (("user", "bill"),)
 	def __unicode__(self):
-		return self.user.username + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()
+		return self.user.username + " -- " + self.bill.displaynumber() + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()
 
 	def get_absolute_url(self):
 		return self.bill.url() + "/comment/" + str(self.id)

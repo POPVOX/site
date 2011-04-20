@@ -154,7 +154,10 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 	if ext_filter != None:
 		for s in suggestions:
 			if s["type"] not in ("tracked", "sponsor") and isinstance(s["bills"], QuerySet):
-				s["bills"] = ext_filter(s["bills"])
+				try:
+					s["bills"] = ext_filter(s["bills"])
+				except: # can't filter hot-in-your-district because it's got a slice
+					pass
 		
 	if counts_only:
 		def count(x):
@@ -277,7 +280,7 @@ def get_legstaff_district_bills(user):
 	# by bill w/in this district.
 	localbills = Bill.objects.filter(**f1) \
 		.annotate(num_comments=Count("usercomments")) \
-		.filter(num_comments__gt = 15) \
+		.filter(num_comments__gt = 2) \
 		.order_by("-num_comments") \
 		[0:15]
 	

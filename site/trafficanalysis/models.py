@@ -31,11 +31,7 @@ class Session(models.Model):
 		ordering = ["-end"]
 		
 	def set_ua(self, request):
-		if not "HTTP_USER_AGENT" in request.META:
-			return None
-		ua = uas_parser.parse(request.META["HTTP_USER_AGENT"])
-		self.ua = base64.b64encode(cPickle.dumps(ua))
-		return ua
+		self.ua = base64.b64encode(cPickle.dumps(request.ua))
 	def get_ua(self):
 		return cPickle.loads(base64.b64decode(self.ua))
 			

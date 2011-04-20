@@ -105,9 +105,9 @@ ADMIN_MEDIA_PREFIX = '/admin_media/'
 SECRET_KEY = '#hk(--a8dq@6$z%476=mmf7*rgg-x204xm5@t5^jcco6x#)u2r'
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
-CACHE_MIDDLEWARE_SECONDS = 60*60 # one hour
-CACHE_MIDDLEWARE_KEY_PREFIX = "pv_sitecache_"
-CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
+#CACHE_MIDDLEWARE_SECONDS = 60*60 # one hour
+#CACHE_MIDDLEWARE_KEY_PREFIX = "pv_sitecache_"
+#CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 AUTH_PROFILE_MODULE = 'popvox.UserProfile'
 LOGIN_URL = "/accounts/login"

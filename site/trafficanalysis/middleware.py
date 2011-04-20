@@ -7,8 +7,17 @@ class TrafficAnalysisMiddleware:
 		return None
 	
 	def process_response(self, request, response):
+		return response # skip all of this
+
 		# Can't do traffic analysis if there is no session state.
 		if getattr(request, "session", None) == None:
+			return response
+		
+		# Assume the ua has been set in the request handler and ignore
+		# requests from robots.
+		if getattr(request, "ua", None) == None:
+			return response
+		if request.ua["typ"] == "Robot":
 			return response
 		
 		# Don't record AJAX requests unless the view has has a goal object
@@ -45,9 +54,7 @@ class TrafficAnalysisMiddleware:
 		if request.user.is_authenticated():
 			session.user = request.user
 			
-		ua = session.set_ua(request)
-		if ua != None and ua["typ"] == "Robot":
-			return response
+		session.set_ua(request)
 		
 		# Append the new path entry at the end of the session and save.
 		pe = PathEntry(request, response)
