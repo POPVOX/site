@@ -3,12 +3,15 @@
 {% block title %}Message Delivery Status Report{% endblock%}
 {% block content %}
 	<h1>Message Delivery Status Report</h1>
+	
+	<p>{{delivered_pct}}% of {{total_count}} messages have been delivered; {{delivered_electronically_pct}}% of deliveries are electronic.</p>
 
 	<table>
 	{% for moc in report %}
 	<tr valign="top">
 		<td style="padding-bottom: .5em"><a href="{{moc.url}}">{{moc.name}}</a></td>
 		<td>{{moc.delivery_status}}</td>
+		<td>{{moc.breaks}}</td>
 	</tr>
 	{% endfor %}
 	</table>

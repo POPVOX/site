@@ -658,32 +658,30 @@ def waiting_for_reintroduction(request):
 def delivery_status_report(request):
 	from writeyourrep.models import Endpoint, DeliveryRecord
 	report = []
-	for moc in popvox.govtrack.getMembersOfCongress():
-		moc = dict(moc)
+	totals = [0, 0, 0]
+	for moc in sorted(popvox.govtrack.getMembersOfCongress(), key = lambda m : m["type"] == "rep"):
+		moc = dict(moc) # clone
 		report.append(moc)
 		
 		try:
 			ep = Endpoint.objects.get(govtrackid=moc["id"])
 		except Endpoint.DoesNotExist:
-			ep = None
-			
-		if ep == None or (ep.method == Endpoint.METHOD_NONE and ep.tested):
-			moc["delivery_status"] = "Cannot Deliver Messages"
+			moc["delivery_status"] = "No Endpoint Defined"
 			continue
 			
 		d = DeliveryRecord.objects.filter(target=ep, next_attempt__isnull=True)
-		d_success = d.filter(failure_reason__in=(
-			DeliveryRecord.FAILURE_NO_FAILURE,
-			DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE
-			)).exclude(method=Endpoint.METHOD_INPERSON)
 		d_delivered = d.filter(success=True)
+		d_delivered_electronically = d_delivered.exclude(method=Endpoint.METHOD_INPERSON)
 			
 		d = d.count()
 		if d == 0:
-			moc["delivery_status"] = "Either no messages or no delivery method...."
+			moc["delivery_status"] = "No messages/No method?"
 			continue
 		
-		ratio = float(d_success.count()) / float(d)
+		d_delivered = d_delivered.count()
+		d_delivered_electronically = d_delivered_electronically.count()
+		
+		ratio = float(d_delivered_electronically) / float(d)
 		ratio = int(100.0*(1.0-ratio))
 		
 		if ratio <= 1:
@@ -691,12 +689,22 @@ def delivery_status_report(request):
 		elif ratio < 5:
 			moc["delivery_status"] = "OK! (Mostly)"
 		else:
-			moc["delivery_status"] = "%s%% of Messages Failing (are hand-delivered)" % ratio
+			moc["delivery_status"] = "%s%% fail" % ratio
 
-		moc["delivery_status"] += " %d/%d/%d" % (d_success.count(), d_delivered.count(), d)
+		moc["breaks"]  = " %d electronically/%d delivered/%d written" % (d_delivered_electronically, d_delivered, d)
+		
+		if ep.method == Endpoint.METHOD_NONE and ep.tested:
+			moc["delivery_status"] = "No Electronic Method"
+			
+		totals[0] += d_delivered_electronically
+		totals[1] += d_delivered
+		totals[2] += d
 
 	return render_to_response('popvox/delivery_status_report.html', {
 		"report": report,
+		"delivered_pct": int(float(totals[1])/float(totals[2])*100.0),
+		"delivered_electronically_pct": int(float(totals[0])/float(totals[1])*100.0),
+		"total_count": totals[2],
 		}, context_instance=RequestContext(request))
 	
 def get_legstaff_undelivered_messages(user):
