@@ -155,11 +155,11 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		# offline delivery.
 		try:
 			ucodr = UserCommentOfflineDeliveryRecord.objects.get(comment=comment, target=MemberOfCongress.objects.get(id=gid))
-			if ucodr.batch != None:
+			if ucodr.batch != None and comment.message != None:
 				held_for_offline += 1
 				continue
 			else:
-				ucodr.delete() # will recreate if needed
+				ucodr.delete() # will recreate if needed, and delete records for messages whose content has been removed
 		except UserCommentOfflineDeliveryRecord.DoesNotExist:
 			pass
 		

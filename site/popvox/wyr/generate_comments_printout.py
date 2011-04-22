@@ -45,11 +45,24 @@ def create_tex(tex, serial):
 	outfile.write_esc = lambda x : outfile.write(escape_latex(x))
 	
 	outfile.write(r"\documentclass[twocolumn,notitlepage]{report}" + "\n")
-	outfile.write(r"\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}" + "\n")
+	outfile.write(r"\usepackage[top=1in, bottom=4.35in, left=.85in, right=.85in]{geometry}" + "\n")
 	outfile.write(r"\pagestyle{myheadings}" + "\n")
 	outfile.write(r"\usepackage{fontspec}" + "\n")
 	outfile.write(r"\setromanfont{Linux Libertine O}" + "\n")
 	outfile.write(r"\usepackage{pdfpages}")
+	
+	outfile.write(r"\usepackage{graphicx}" + "\n")
+	outfile.write(r"\makeatletter" + "\n")
+	outfile.write(r"\AddToShipoutPicture{" + "\n")
+	outfile.write(r"            \setlength{\@tempdimb}{0in}" + "\n")
+	outfile.write(r"            \setlength{\@tempdimc}{0in}" + "\n")
+	outfile.write(r"            \setlength{\unitlength}{1pt}" + "\n")
+	outfile.write(r"            \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){" + "\n")
+	outfile.write(r"        \includegraphics{" + os.path.abspath(os.path.dirname(__file__) + "/coverletter.pdf") + r"}" + "\n")
+	outfile.write(r"            }" + "\n")
+	outfile.write(r"}" + "\n")
+	outfile.write(r"\makeatother" + "\n")
+	
 	outfile.write(r"\begin{document}" + "\n")
 	
 	targets = []
@@ -78,12 +91,12 @@ def create_tex(tex, serial):
 		target_errors = {}
 		targets2.append( (govtrack_id, batch_no, target_errors) )
 		
-		if getMemberOfCongress(govtrack_id)["type"] == "sen":
-			hs = "senate"
-		elif getMemberOfCongress(govtrack_id)["type"] == "rep":
-			hs = "house"
-		else:
-			raise ValueError()
+		#if getMemberOfCongress(govtrack_id)["type"] == "sen":
+		#	hs = "senate"
+		#elif getMemberOfCongress(govtrack_id)["type"] == "rep":
+		#	hs = "house"
+		#else:
+		#	raise ValueError()
 		###outfile.write(r"\includepdf[noautoscale]{" + os.path.abspath(os.path.dirname(__file__) + "/coverletter_" + hs + ".pdf") + r"}" + "\n")
 		
 		header = getMemberOfCongress(govtrack_id)["name"] + "\t" + "(batch " + batch_no + ")"
