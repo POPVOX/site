@@ -1,7 +1,7 @@
 #!runscript
 # REMOTEDB=1 DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/send_comments.py
 
-import sys
+import os, sys
 import datetime
 
 from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, OrgCampaign, Bill, MemberOfCongress
@@ -17,7 +17,7 @@ mocs_require_phone_number = (
 	412231,400266,412321,300070,400105,300018,400361,300040,400274,412308,
 	400441,400111,412189,400240,412492,412456,412330,412398,412481,412292,
 	400046,300054,300093,412414,400222,400419,400321,400124,400185,400216,
-	412265,412287,400141,412427,400247,400640)
+	412265,412287,400141,412427,400247,400640,412427,400435)
 
 stats_only = (len(sys.argv) < 2 or sys.argv[1] != "send")
 success = 0
@@ -26,20 +26,26 @@ needs_attention = 0
 held_for_offline = 0
 pending = 0
 target_counts = { }
-gid_only = None
-if len(sys.argv) == 4 and sys.argv[2] == "only":
-	gid_only = int(sys.argv[3])
 
 # it would be nice if we could skip comment records that we know we
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
-for comment in UserComment.objects.filter(
-	#message__isnull=False,
+comments_iter = UserComment.objects.filter(
 	bill__congressnumber=CURRENT_CONGRESS,
 	status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
-	updated__lt=datetime.datetime.now()-datetime.timedelta(days=1.5), # let users revise
-	).order_by('created').select_related("bill").iterator():
+	updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), # let users revise
+	)
+
+if "COMMENT" in os.environ:
+	comments_iter = comments_iter.filter(id=int(os.environ["COMMENT"]))
+if "TARGET" in os.environ:
+	m = getMemberOfCongress(int(os.environ["TARGET"]))
+	comments_iter = comments_iter.filter(state=m["state"])
+	if m["type"] == "rep":
+		comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
+	
+for comment in comments_iter.order_by('created').select_related("bill").iterator():
 	
 	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
@@ -67,8 +73,10 @@ for comment in UserComment.objects.filter(
 	if comment.message != None:
 		msg.message = comment.message + \
 			"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
+		msg.message_personal = "yes"
 	else:
 		msg.message = ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a personal response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
+		msg.message_personal = "no"
 		
 	topterm = comment.bill.topterm
 	if topterm == None:
@@ -126,7 +134,8 @@ for comment in UserComment.objects.filter(
 	
 	# Begin delivery.
 	for gid in govtrackrecipientids:
-		if gid_only != None and gid != gid_only: continue
+		if "TARGET" in os.environ and gid != int(os.environ["TARGET"]):
+			continue
 
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
@@ -171,6 +180,7 @@ for comment in UserComment.objects.filter(
 		# If the delivery resulted in a FAILURE_DISTRICT_DISAGREEMENT then don't retry
 		# for a week.
 		if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT \
+		   and "COMMENT" not in os.environ \
 		   and datetime.datetime.now() - last_delivery_attempt.created < datetime.timedelta(days=7):
 			needs_attention += 1
 			mark_for_offline("district-disagr")

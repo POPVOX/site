@@ -9,7 +9,7 @@
 	<table>
 	{% for moc in report %}
 	<tr valign="top">
-		<td style="padding-bottom: .5em"><a href="{{moc.url}}">{{moc.name}}</a></td>
+		<td style="padding-bottom: .5em"><a href="{{moc.url}}">{{moc.name}}</a> [<a href="/admin/writeyourrep/endpoint/{{moc.endpoint}}/">EP</a>]</td>
 		<td>{{moc.delivery_status}}</td>
 		<td>{{moc.breaks}}</td>
 	</tr>

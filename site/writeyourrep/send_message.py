@@ -5,12 +5,15 @@ import cookielib
 import urlparse
 import html5lib
 import xml.sax.saxutils
+from time import clock, sleep
 
 from django.core.mail import send_mail
 
 from writeyourrep.models import *
 
 from popvox.govtrack import getMemberOfCongress, statenames
+
+last_connect_time = { }
 
 import socket
 socket.setdefaulttimeout(10) # ten seconds
@@ -19,16 +22,25 @@ http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
 http.addheaders = [('User-agent', "POPVOX.com Message Delivery <info@popvox.com>")]
 def urlopen(url, data, method, deliveryrec):
 	if method.upper() == "POST":
-		deliveryrec.trace += "POST " + url + "\n"
-		deliveryrec.trace += urllib.urlencode(data) + "\n"
-		ret = http.open(url, urllib.urlencode(data))
+		deliveryrec.trace += unicode("POST " + url + "\n")
+		if not isinstance(data, (str, unicode)):
+			for k, v in data.items():
+				if type(k) == str: k = k.decode("utf8", "replace")
+				if type(v) == str: v = v.decode("utf8", "replace")
+				deliveryrec.trace += "\t" + k + "=" + v + "\n"
+			data = urllib.urlencode(data)
+		else:
+			deliveryrec.trace += unicode(data) + u"\n"
+		ret = http.open(url, data)
 	else:
+		if not isinstance(data, (str, unicode)):
+			data = urllib.urlencode(data)
 		if len(data) > 0:
-			url = url + ("?" if not "?" in url else "&") + urllib.urlencode(data)
-		deliveryrec.trace += "GET " + url + "\n"
+			url = url + ("?" if not "?" in url else "&") + data
+		deliveryrec.trace += unicode("GET " + url + "\n")
 		ret = http.open(url)
-	deliveryrec.trace += str(ret.getcode()) + " " + ret.geturl() + "\n"
-	deliveryrec.trace += "".join(ret.info().headers) + "\n"
+	deliveryrec.trace += unicode(ret.getcode()) + unicode(" " + ret.geturl() + "\n")
+	deliveryrec.trace += unicode("".join(ret.info().headers) + "\n")
 	return ret
 
 class Message:
@@ -235,6 +247,8 @@ common_fieldnames = {
 	"msg": "message",
 	"body": "message",
 	"claim": "message",
+	
+	"textmodified": "message_personal",
 
 	"messagesubject": "subjectline",
 	"email_subject": "subjectline",
@@ -259,6 +273,7 @@ common_fieldnames = {
 	"category_select": "topicarea",
 	"contact[issue_id]": "topicarea",
 	"topic_radio": "topicarea",
+	"subject1_select": "topicarea",
 	
 	"responserequested": "response_requested",
 	"responserequest": "response_requested",
@@ -279,7 +294,8 @@ common_fieldnames = {
 
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
-skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation",
+skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
+	"dummy_zip",
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey", "affl_del",
 	"speech", "authfailmsg",
 	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
@@ -324,6 +340,8 @@ custom_overrides = {
 	'107_response_radio': '1NR',
 	'118_enews_subscribe_radio': '',
 	'122_thall_radio': '',
+	'140_phonetype_radio': 'voice',
+	'140_contact_pref_radio': "no response necessary",
 	'156_fp_fld2parts-fullname_text': '', # parse bug
 	'157_newsletter_radio': 'noAction',
 	'174_textmodified_hidden': 'yes',
@@ -342,6 +360,7 @@ custom_overrides = {
 	"661_subject_hidden": "",
 	"661_reqresponse_radio": "on",
 	"690_aff2_radio": "",
+	"694_newsletter_radio": "No",
 	"732_field_1807499f-bb47-4a2b-81af-4d6c2497c5e5_radio": " ",
 	"748_messagetype_radio": "express an opinion or share your views with me",
 	"757_add2_text": "",
@@ -350,6 +369,12 @@ custom_overrides = {
 	"776_formfield1234567894_text": "",
 	"791_typeofresponse_select": "email",
 	"805_issue_radio": "",
+	"830_contactform:cd:rblformat_radio": "html",
+	"869_aff1req_text": "",
+}
+
+custom_additional_fields = {
+	757: { "zip4": "zip4" },
 }
 
 class WebformParseException(Exception):
@@ -422,7 +447,7 @@ def parse_webform(webformurl, webform, webformid, id):
 	fieldlabels = { }
 				
 	for field in form.getElementsByTagName("input") + form.getElementsByTagName("select") + form.getElementsByTagName("textarea"):
-		if field.getAttribute("type").lower() == "image":
+		if field.getAttribute("type").lower() in ("image", "button"):
 			continue
 		if field.getAttribute("name").strip() == "":
 			continue
@@ -443,10 +468,14 @@ def parse_webform(webformurl, webform, webformid, id):
 					opttext = opt.firstChild.data.lower()
 					opttext = re.sub("^\W+", "", opttext)
 					opttext = re.sub("\s+$", "", opttext)
+					opttext = re.sub("\s+", " ", opttext)
 					if opttext == "" or "select" in opttext or "=" in opttext or opttext[0] == "-":
 						continue
 				
 				options[opttext] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext
+				
+			if len(options) == 0:
+				raise WebformParseException("Select %s has no options at %s." % (field.getAttribute("name"), webformurl))
 				
 		elif field.getAttribute("type") == "checkbox":
 			# just ignore checkboxes --- they should be to subscribe
@@ -509,14 +538,6 @@ def parse_webform(webformurl, webform, webformid, id):
 
 		if ax.startswith("ctl00$") and ax.endswith("$zip"): ax = "zip5"
 		if id == 636 and ax == "zipcode": ax = "zip5"
-		#if ax == "ctl00$ctl01$zip": ax = "zip5"
-		#if ax == "ctl00$ctl04$zip": ax = "zip5"
-		#if ax == "ctl00$ctl05$zip": ax = "zip5" # 171
-		#if ax == "ctl00$ctl06$zip": ax = "zip5"
-		#if ax == "ctl00$ctl08$zip": ax = "zip5" # 191
-		#if ax == "ctl00$ctl09$zip": ax = "zip5" # 191
-		#if ax == "ctl00$ctl10$zip": ax = "zip5" # 173
-		#if ax == "ctl00$ctl105$zip": ax = "zip5"
 		
 		ax = ax.replace("ctl00$contentplaceholderdefault$newslettersignup_1$", "")
 		
@@ -593,6 +614,10 @@ def parse_webform(webformurl, webform, webformid, id):
 		if v == "address1" and not "address2" in field_map.values():
 			v = "address_combined"
 		field_map[k] = v
+		
+	if id in custom_additional_fields:
+		for htmlattr, msgfield in custom_additional_fields[id].items():
+			field_map[htmlattr] = msgfield
 
 	return field_map, field_options, field_default, formaction, formmethod
 
@@ -603,11 +628,24 @@ def send_message_webform(di, msg, deliveryrec):
 		raise WebformParseException("Webform URL should specify a # and the id, name, .class, or @action of the form")
 		
 	webformurl, webformid = di.webform.split("#")
-	
-	webform = urlopen(webformurl, {}, "GET", deliveryrec).read()
-	
 	webform_stages = webformid.split(',')
-	
+
+	# enforce a delay between hits to the same target
+	if webform_stages[0].startswith("delay:"):
+		delay_secs = float(webform_stages.pop(0)[len("delay:"):])
+		if deliveryrec.target.id in last_connect_time:
+			current_delay = clock() - last_connect_time[deliveryrec.target.id]
+			if current_delay < delay_secs:
+				sleep(int(delay_secs - current_delay + 1.0))
+
+	# Some webforms require a form POST just to get to the form.
+	if webform_stages[0].startswith("post:"):
+		postdata = webform_stages.pop(0)[len("post:"):]
+		sleep(5)
+		webform = urlopen(webformurl, postdata, "POST", deliveryrec).read()
+	else:
+		webform = urlopen(webformurl, {}, "GET", deliveryrec).read()
+
 	# Some webforms are in two stages: first enter your zipcode to verify,
 	# and then enter the rest of the info. To signal this, we'll give a pair
 	# of form IDs.
@@ -643,7 +681,7 @@ def send_message_webform(di, msg, deliveryrec):
 			or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
 			or "The zip code entered indicates that you reside outside the" in webform\
 			or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform:
-			deliveryrec.trace += "\n" + webform.decode("utf8", "replace") + "\n\n"
+			deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
 			raise DistrictDisagreementException()
 			
 
@@ -651,7 +689,7 @@ def send_message_webform(di, msg, deliveryrec):
 	try:
 		field_map, field_options, field_default, formaction, formmethod = parse_webform(webformurl, webform, webformid, di.id)
 	except:
-		deliveryrec.trace += "\n" + webform.decode('utf8', 'replace') + "\n\n"
+		deliveryrec.trace += u"\n" + webform.decode('utf8', 'replace') + u"\n\n"
 		raise
 			
 	# Make sure that we've found the equivalent of all of the fields
@@ -672,6 +710,12 @@ def send_message_webform(di, msg, deliveryrec):
 	for k, v in field_map.items():
 		postdata[k] = getattr(msg, v)
 		
+		# Make sure that if there were options given for a prefix that they accept our
+		# prefixes Pastor and Dr. We'll deal with the wrath of an unexpected response.
+		if v == "prefix" and field_options[k] != None: field_options[k]["pastor"] = "Pastor"
+		if v == "prefix" and field_options[k] != None: field_options[k]["dr."] = "Dr."
+		
+		# Make sure that if there were options given for a suffix that we accept a blank suffix.
 		if v == "suffix" and field_options[k] != None: field_options[k][""] = ""
 		
 		if field_options[k] == None or k in select_override_validate:
@@ -684,7 +728,7 @@ def send_message_webform(di, msg, deliveryrec):
 				postdata[k] = [postdata[k]]
 			alts = []
 			# For each value we have coming in from the message, also
-			# try any of its mapped synonyms in the database.
+				# try any of its mapped synonyms in the database.
 			for q in postdata[k]:
 				alts.append((q, -1))
 				for rec in Synonym.objects.filter(term1 = q):
@@ -707,10 +751,10 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id == 736:
+	if di.id in (121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 600, 611, 641, 665, 678, 709, 730, 736, 788, 791, 811, 861):
+		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
-			for badword in ("select","insert","update","delete","drop","--","alter","xp_","execute","declare","information_schema","table_cursor"):
-				postdata[k] = postdata[k].replace(badword, badword[0] + "." + badword[1:] + ".") # the final period is for when "--" repeats
+			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
 
 	# Debugging...
 	if False:
@@ -732,7 +776,7 @@ def send_message_webform(di, msg, deliveryrec):
 		try:
 			doc, form, formaction, formmethod = find_webform(ret, webformid_stage2, formaction)
 		except WebformParseException:
-			deliveryrec.trace += "\n" + webform.decode('utf8', 'replace') + "\n\n"
+			deliveryrec.trace += u"\n" + webform.decode('utf8', 'replace') + u"\n\n"
 			raise
 					
 		postdata = { }
@@ -760,25 +804,32 @@ def send_message_webform(di, msg, deliveryrec):
 	 or "Your zip code indicates that you live outside" in ret \
 	 or "The zip code entered indicates that you reside outside the" in ret\
 	 or "This authentication has failed" in ret\
-	 or "You might not be in my district" in ret:
-		deliveryrec.trace += "\n" + ret + "\n\n"
+	 or "You might not be in my district" in ret\
+	 or "The zip code you entered was either not found or not in our District" in ret\
+	 or "Zip Code Split Between Multiple Districts" in ret:
+		deliveryrec.trace += u"\n" + ret + u"\n\n"
 		raise DistrictDisagreementException()
 		
 	if "experiencing technical difficulties" in ret:
-		deliveryrec.trace += "\n" + ret + "\n\n"
+		deliveryrec.trace += u"\n" + ret + u"\n\n"
 		raise IOError("The site reports it is experiencing technical difficulties.")
 	
 	if "&success=true" in ret_url:
 		return
+		
+	re_red_error = re.compile('<span id=".*_(.*Error)"><font color="Red">(.*?)</font></span>')
+	m = re_red_error.search(ret)
+	if m:
+		raise WebformParseException("Form-reported " + m.group(1) + ": " + m.group(2))
 	
 	if di.webformresponse == None or di.webformresponse.strip() == "":
-		deliveryrec.trace += "\n" + ret + "\n\n"
+		deliveryrec.trace += u"\n" + ret + u"\n\n"
 		raise SubmissionSuccessUnknownException("Webform's webformresponse text is not set.")
 
 	if di.webformresponse in ret:
 		return
 		
-	deliveryrec.trace += "\n" + ret + "\n\n"
+	deliveryrec.trace += u"\n" + ret + u"\n\n"
 	raise SubmissionSuccessUnknownException("Success message not found in result.")
 
 def send_message_housewyr(msg, deliveryrec):
@@ -842,7 +893,7 @@ def send_message_housewyr(msg, deliveryrec):
 	# Submit the address, then the comment....
 	
 	webformurl = writerep_house_gov
-	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message|Thanks for your e-mail message|I will be responding to your email in specific detail|Thank you for your message|Your message has been received|Thank you for taking the time to contact me|Thank you for contacting me by email")):
+	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message|Thanks for your e-mail message|I will be responding to your email in specific detail|Thank you for your message|Your message has been received|Thank you for taking the time to contact me|Thank you for contacting me by email|Thank you for contacting me through Write Your Representative|Thank you for contacting me and my staff!|<h2>Thank you for writing.</h2>|Thank you again for your comments")):
 		field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, ret, formname, "housewyr")
 		
 		postdata = { }
@@ -865,7 +916,7 @@ def send_message_housewyr(msg, deliveryrec):
 			if rt in ret:
 				break
 		else: # not found
-			deliveryrec.trace += "\n" + ret + "\n\n"
+			deliveryrec.trace += u"\n" + ret + u"\n\n"
 			raise SubmissionSuccessUnknownException("Success message not found in result.")
 					
 	# Success.
@@ -924,7 +975,7 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 	deliveryrec.target = moc
 	deliveryrec.method = moc.method
 	deliveryrec.success = False
-	deliveryrec.trace = loginfo + u" to " + getMemberOfCongress(govtrackrecipientid)["sortkey"] + u" (" + unicode(govtrackrecipientid) + u")\n" + msg.xml() + u"\n\n"
+	deliveryrec.trace = unicode(loginfo) + u" to " + getMemberOfCongress(govtrackrecipientid)["sortkey"] + u" (" + unicode(govtrackrecipientid) + u")\n" + unicode(msg.xml()) + u"\n\n"
 	deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
 	deliveryrec.save()
 
@@ -937,7 +988,7 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 	
 	# Generate some additional fields.
 	msg.name = msg.firstname + " " + msg.lastname
-	msg.address_combined = msg.address1 + "; " + msg.address2
+	msg.address_combined = msg.address1 + ("" if msg.address2 == "" else "; " + msg.address2)
 	if len(msg.zipcode.split("-")) != 2:
 		msg.zip5 = msg.zipcode
 		msg.zip4 = ""
@@ -955,7 +1006,7 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 				deliveryrec.success = True
 				deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
 			except SelectOptionNotMappable, e: # is a type of WebformParseException so must go first
-				deliveryrec.trace += str(e) + "\n"
+				deliveryrec.trace += unicode(e) + u"\n"
 				deliveryrec.failure_reason = DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE
 				
 				sr = SynonymRequired()
@@ -965,7 +1016,7 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 					sr.save()
 				
 			except WebformParseException, e:
-				deliveryrec.trace += str(e) + "\n"
+				deliveryrec.trace += unicode(e) + u"\n"
 				deliveryrec.failure_reason = DeliveryRecord.FAILURE_FORM_PARSE_FAILURE
 				
 		elif method == Endpoint.METHOD_HOUSE_WRITEREP:
@@ -985,7 +1036,7 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 				moc.save()
 				
 		elif method == Endpoint.METHOD_SMTP:
-			deliveryrec.trace += "sending email to " + moc.webform + "\n\n"
+			deliveryrec.trace += u"sending email to " + unicode(moc.webform) + u"\n\n"
 			deliveryrec.trace += msg.text()
 			
 			send_mail(
@@ -1000,24 +1051,26 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 			
 	# exceptions common to all delivery types
 	except DistrictDisagreementException, e:
-		deliveryrec.trace += str(e) + "\n"
+		deliveryrec.trace += unicode(e) + u"\n"
 		deliveryrec.failure_reason = DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT
 	
 	except IOError, e:
-		deliveryrec.trace += str(e) + "\n"
+		deliveryrec.trace += unicode(e) + u"\n"
 		deliveryrec.failure_reason = DeliveryRecord.FAILURE_HTTP_ERROR
 	
 	except SubmissionSuccessUnknownException, e:
-		deliveryrec.trace += str(e) + "\n"
+		deliveryrec.trace += unicode(e) + u"\n"
 		deliveryrec.failure_reason = DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE
 		
 	except Exception, e:
-		deliveryrec.trace += str(e) + "\n"
+		deliveryrec.trace += unicode(e) + u"\n"
 		deliveryrec.failure_reason = DeliveryRecord.FAILURE_UNHANDLED_EXCEPTION
 		import traceback
 		traceback.print_exc()
 		
 	deliveryrec.save()
+	
+	last_connect_time[deliveryrec.target.id] = clock()
 
 	return deliveryrec
 	

@@ -1099,7 +1099,8 @@ class UserComment(models.Model):
 class UserCommentOfflineDeliveryRecord(models.Model):
 	comment = models.ForeignKey(UserComment)
 	target = models.ForeignKey(MemberOfCongress, db_index=True)
-	batch = models.IntegerField(blank=True, null=True)
+	failure_reason = models.CharField(max_length=16)
+	batch = models.CharField(max_length=20, blank=True, null=True)
 	failure_reason = models.CharField(max_length=16)
 	class Meta:
 		unique_together = (("target", "comment"),)

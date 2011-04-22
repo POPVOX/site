@@ -669,6 +669,8 @@ def delivery_status_report(request):
 			moc["delivery_status"] = "No Endpoint Defined"
 			continue
 			
+		moc["endpoint"] = ep.id
+			
 		d = DeliveryRecord.objects.filter(target=ep, next_attempt__isnull=True)
 		d_delivered = d.filter(success=True)
 		d_delivered_electronically = d_delivered.exclude(method=Endpoint.METHOD_INPERSON)
@@ -676,30 +678,29 @@ def delivery_status_report(request):
 		d = d.count()
 		if d == 0:
 			moc["delivery_status"] = "No messages/No method?"
-			continue
-		
-		d_delivered = d_delivered.count()
-		d_delivered_electronically = d_delivered_electronically.count()
-		
-		ratio = float(d_delivered_electronically) / float(d)
-		ratio = int(100.0*(1.0-ratio))
-		
-		if ratio <= 1:
-			moc["delivery_status"] = "OK!"
-		elif ratio < 5:
-			moc["delivery_status"] = "OK! (Mostly)"
 		else:
-			moc["delivery_status"] = "%s%% fail" % ratio
-
-		moc["breaks"]  = " %d electronically/%d delivered/%d written" % (d_delivered_electronically, d_delivered, d)
+			d_delivered = d_delivered.count()
+			d_delivered_electronically = d_delivered_electronically.count()
+			
+			ratio = float(d_delivered_electronically) / float(d)
+			ratio = int(100.0*(1.0-ratio))
+			
+			if ratio <= 1:
+				moc["delivery_status"] = "OK!"
+			elif ratio < 5:
+				moc["delivery_status"] = "OK! (Mostly)"
+			else:
+				moc["delivery_status"] = "%s%% fail" % ratio
+	
+			moc["breaks"]  = " %d electronically/%d delivered/%d written" % (d_delivered_electronically, d_delivered, d)
 		
+			totals[0] += d_delivered_electronically
+			totals[1] += d_delivered
+			totals[2] += d
+
 		if ep.method == Endpoint.METHOD_NONE and ep.tested:
 			moc["delivery_status"] = "No Electronic Method"
 			
-		totals[0] += d_delivered_electronically
-		totals[1] += d_delivered
-		totals[2] += d
-
 	return render_to_response('popvox/delivery_status_report.html', {
 		"report": report,
 		"delivered_pct": int(float(totals[1])/float(totals[2])*100.0),

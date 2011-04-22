@@ -23,9 +23,8 @@ buildings = {
 	"russell": "senate"
 	}
 
-def create_tex(tex):
-	batch_max = UserCommentOfflineDeliveryRecord.objects.aggregate(Max("batch"))["batch__max"]
-	if batch_max == None: batch_max = 0
+def create_tex(tex, serial):
+	batch_max = 0
 
 	outfile_ = open(tex, "w")
 	
@@ -70,11 +69,11 @@ def create_tex(tex):
 		else:
 			# Don't create a new batch for this target if there are fewer than three messages to
 			# deliver and they were all written in the last two weeks.
-			#if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
+			#if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch_number=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch_number=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
 			#	continue
 			
 			batch_max += 1
-			batch_no = batch_max
+			batch_no = serial + ":" + str(batch_max)
 			
 		target_errors = {}
 		targets2.append( (govtrack_id, batch_no, target_errors) )
@@ -87,7 +86,7 @@ def create_tex(tex):
 			raise ValueError()
 		###outfile.write(r"\includepdf[noautoscale]{" + os.path.abspath(os.path.dirname(__file__) + "/coverletter_" + hs + ".pdf") + r"}" + "\n")
 		
-		header = getMemberOfCongress(govtrack_id)["name"] + "\t" + "(batch #" + str(batch_no) + ")"
+		header = getMemberOfCongress(govtrack_id)["name"] + "\t" + "(batch " + batch_no + ")"
 		outfile.write(r"\markboth{")
 		outfile.write_esc(header)
 		outfile.write(r"}{")
@@ -172,11 +171,11 @@ def create_tex(tex):
 			outfile.write(r"\clearpage" + "\n")
 
 	outfile.write(r"\clearpage" + "\n")
-	outfile.write(r"\markboth{Hit Sheet}{Hit Sheet}" + "\n")
+	outfile.write(r"\markboth{Hit Sheet " + serial + "r}{Hit Sheet " + serial + r"}" + "\n")
 	outfile.write(r"\noindent ")
 	for govtrack_id, batch_no, target_errors in targets2:
 		p = getMemberOfCongress(govtrack_id)
-		outfile.write_esc("#" + str(batch_no))
+		outfile.write_esc("#" + batch_no[len(serial)+1:])
 		outfile.write(r" --- ")
 		outfile.write_esc(p["lastname"] + " " + p["state"] + (str(p["district"]) if p["district"]!=None else ""))
 		outfile.write(r"  --- ")
@@ -206,7 +205,7 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 	for ucodr in recs:
 		dr = DeliveryRecord()
 		dr.target = Endpoint.objects.get(govtrackid=ucodr.target.id)
-		dr.trace = "comment #" + unicode(ucodr.comment.id) + " delivered via paper copy"
+		dr.trace = "comment #" + unicode(ucodr.comment.id) + " delivered via paper copy\nbatch " + ucodr.batch + "\n"
 		dr.success = True
 		dr.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
 		dr.method = Endpoint.METHOD_INPERSON
@@ -224,23 +223,24 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 
 		ucodr.delete()
 		
-else:
+elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
+	serial = datetime.datetime.now().strftime("%Y-%m-%dT%H%M")
 	path = tempfile.mkdtemp()
 	try:
 		tex = path + '/comments.tex'
-		create_tex(tex)
+		create_tex(tex, serial)
 		
 		subprocess.call(["xelatex", tex], cwd=path)
 		
 		# don't make this file publicly accessible!
-		#subprocess.call(["cp", tex.replace(".tex", ".pdf"), 'httproot/files/messages_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + '.pdf'])
+		#subprocess.call(["cp", tex.replace(".tex", ".pdf"), 'httproot/files/messages_' + serial + '.pdf'])
 		
 		with open(tex.replace(".tex", ".pdf"), 'rb') as f:
 			msg = EmailMultiAlternatives("User Messages Delivery PDF",
 				"",
 				SERVER_EMAIL,
 				["josh@popvox.com"])
-			msg.attach('messages_' + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + '.pdf', f.read(), "application/pdf")
+			msg.attach('messages_' + serial + '.pdf', f.read(), "application/pdf")
 			msg.send()
 			
 		#print "Done."
