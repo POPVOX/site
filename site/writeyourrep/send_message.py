@@ -31,6 +31,7 @@ def urlopen(url, data, method, deliveryrec):
 			data = urllib.urlencode(data)
 		else:
 			deliveryrec.trace += unicode(data) + u"\n"
+		deliveryrec.trace += "\tcookies: " + unicode(cookiejar) + "\n"
 		ret = http.open(url, data)
 	else:
 		if not isinstance(data, (str, unicode)):
@@ -38,6 +39,7 @@ def urlopen(url, data, method, deliveryrec):
 		if len(data) > 0:
 			url = url + ("?" if not "?" in url else "&") + data
 		deliveryrec.trace += unicode("GET " + url + "\n")
+		deliveryrec.trace += "\tcookies: " + unicode(cookiejar) + "\n"
 		ret = http.open(url)
 	deliveryrec.trace += unicode(ret.getcode()) + unicode(" " + ret.geturl() + "\n")
 	deliveryrec.trace += unicode("".join(ret.info().headers) + "\n")
@@ -135,7 +137,7 @@ common_fieldnames = {
 	"city": "city",
 	"state": "state",
 	"zipcode": "zipcode",
-	#"county": "county",
+	"county": "county",
 	"message": "message",
 	"subjectline": "subjectline",
 	"response_requested": "response_requested",
@@ -234,7 +236,7 @@ common_fieldnames = {
 	"valid-email": "email",
 	"email2": "email",
 	"fromemail": "email",
-
+	
 	"messagebody": "message",
 	"comment": "message",
 	"yourmessage": "message",
@@ -301,7 +303,6 @@ skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title
 	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
 	"org")
 
-select_override_validate = ("county",)
 radio_choices = {
 	"reason": "legsitemail",
 	"newslettersignup": "0",
@@ -321,9 +322,21 @@ radio_choices = {
 
 custom_mapping = {
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
+	"624_phone_prefix_text" : "phone_areacode",
+	"624_phone_first_text" : "phone_prefix",
+	"624_phone_second_text" : "phone_line",
 	"666_daytime-phone_text": "phone",
 	"757_name_text": "firstname",
 	"789_phone8_text": "phone",
+	"817_areacode_text" : "phone_areacode",
+	"817_phone3_text" : "phone_prefix",
+	"817_phone4_text" : "phone_line",
+	"832_phone1_text" : "phone_areacode",
+	"832_phone2_text" : "phone_prefix",
+	"832_phone3_text" : "phone_line",
+	"864_phone_prefix_text" : "phone_areacode",
+	"864_phone_first_text" : "phone_prefix",
+	"864_phone_second_text" : "phone_line",
 }
 
 custom_overrides = {
@@ -359,6 +372,7 @@ custom_overrides = {
 	"645_authfailmsg_hidden": "/andrews/AuthFailMsg.htm",
 	"661_subject_hidden": "",
 	"661_reqresponse_radio": "on",
+	"689_field_07c7727a-6c47-4ff9-a890-c904fa4d408f_radio": "express an opinion or share your views with me",
 	"690_aff2_radio": "",
 	"694_newsletter_radio": "No",
 	"732_field_1807499f-bb47-4a2b-81af-4d6c2497c5e5_radio": " ",
@@ -711,14 +725,15 @@ def send_message_webform(di, msg, deliveryrec):
 		postdata[k] = getattr(msg, v)
 		
 		# Make sure that if there were options given for a prefix that they accept our
-		# prefixes Pastor and Dr. We'll deal with the wrath of an unexpected response.
+		# prefixes. We'll deal with the wrath of an unexpected response.
+		if v == "prefix" and field_options[k] != None: field_options[k]["reverend"] = "Reverend"
 		if v == "prefix" and field_options[k] != None: field_options[k]["pastor"] = "Pastor"
 		if v == "prefix" and field_options[k] != None: field_options[k]["dr."] = "Dr."
 		
 		# Make sure that if there were options given for a suffix that we accept a blank suffix.
 		if v == "suffix" and field_options[k] != None: field_options[k][""] = ""
 		
-		if field_options[k] == None or k in select_override_validate:
+		if field_options[k] == None:
 			if type(postdata[k]) == tuple or type(postdata[k]) == list:
 				# take first preferred value
 				postdata[k] = postdata[k][0]
@@ -994,8 +1009,9 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 		msg.zip4 = ""
 	else:
 		msg.zip5, msg.zip4 = msg.zipcode.split("-")
-	if msg.prefix == "Reverend":
-		msg.prefix = ('Reverend', 'Mr.') # fallback
+	msg.phone_areacode = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[0:3]
+	msg.phone_prefix = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[3:6]
+	msg.phone_line = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[6:10]
 
 	# Begin the delivery attempt.
 	try:

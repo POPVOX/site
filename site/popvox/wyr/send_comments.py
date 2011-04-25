@@ -39,6 +39,8 @@ comments_iter = UserComment.objects.filter(
 
 if "COMMENT" in os.environ:
 	comments_iter = comments_iter.filter(id=int(os.environ["COMMENT"]))
+if "ADDR" in os.environ:
+	comments_iter = comments_iter.filter(address__id=int(os.environ["ADDR"]))
 if "TARGET" in os.environ:
 	m = getMemberOfCongress(int(os.environ["TARGET"]))
 	comments_iter = comments_iter.filter(state=m["state"])
@@ -67,6 +69,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 	msg.city = comment.address.city
 	msg.state = comment.address.state
 	msg.zipcode = comment.address.zipcode
+	msg.county = comment.address.county # may be None!
 	msg.phone = comment.address.phonenumber
 	msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
 	msg.billnumber = comment.bill.displaynumber()
@@ -136,6 +139,11 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 	for gid in govtrackrecipientids:
 		if "TARGET" in os.environ and gid != int(os.environ["TARGET"]):
 			continue
+	
+		if gid in (412246,) and msg.county == None:
+			print "Normalize Address", comment.address.id
+			comment.address.normalize()
+			msg.county = comment.address.county
 
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
@@ -181,6 +189,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		# for a week.
 		if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT \
 		   and "COMMENT" not in os.environ \
+		   and "ADDR" not in os.environ \
 		   and datetime.datetime.now() - last_delivery_attempt.created < datetime.timedelta(days=7):
 			needs_attention += 1
 			mark_for_offline("district-disagr")

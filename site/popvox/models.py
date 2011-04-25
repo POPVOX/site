@@ -815,6 +815,8 @@ class PostalAddress(models.Model):
 	cdyne_return_code = models.IntegerField(blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
 	timezone = models.CharField(max_length=4, blank=True, null=True)
+	county = models.CharField(max_length=64, blank=True, null=True)
+	cdyne_response = models.TextField(blank=True, null=True)
 
 	#class Meta:
 	#		ordering = ["nameprefix"]
@@ -906,6 +908,11 @@ class PostalAddress(models.Model):
 			self.timezone = "MST" # UTC-7
 		if self.state in ("CA", "NV", "OR", "WA"):
 			self.timezone = "PST" # UTC-8
+		self.save()
+		
+	def normalize(self):
+		from writeyourrep.addressnorm import verify_adddress
+		verify_adddress(self, validate=False)
 		self.save()
 		
 class UserComment(models.Model):

@@ -8,14 +8,14 @@ last_response = None
 class AddressVerificationError(ValueError):
 	pass
 
-def verify_adddress(address):
+def verify_adddress(address, validate=True):
 	global last_response
 
 	# import here so we can set env variables in the __main__ code
 	from settings import CDYNE_LICENSE_KEY
 	from popvox.govtrack import stateapportionment
 
-	if address.state.lower() != "ak" and "pobox" in address.address1.replace(" ", "").lower():
+	if validate and address.state.lower() != "ak" and "pobox" in address.address1.replace(" ", "").lower():
 		raise AddressVerificationError("Please enter the address of your residence so that we can determine your Congressional district. We cannot find your district based on a PO Box.")
 
 	
@@ -46,6 +46,8 @@ def verify_adddress(address):
 	last_response = ret
 	
 	if ret["ReturnCode"] not in (100, 101, 102, 103):
+		if not validate:
+			return
 		raise AddressVerificationError("We couldn't determine the Congressional district at that address. Make sure you haven't abbreviated the name of your street or city.")
 	
 	address.cdyne_return_code = ret["ReturnCode"]
@@ -57,7 +59,7 @@ def verify_adddress(address):
 	# Correct fields...
 	def nrml(x):
 		return x.lower().replace(".", "").replace("#", "")
-	for a, b in [('address1', 'PrimaryDeliveryLine'), ('address2', 'SecondaryDeliveryLine'), ('city', 'PreferredCityName'), ('state', 'StateAbbreviation'), ('zipcode', 'ZipCode'), ('county', 'County')]:
+	for a, b in [('address1', 'PrimaryDeliveryLine'), ('address2', 'SecondaryDeliveryLine'), ('city', 'PreferredCityName'), ('state', 'StateAbbreviation'), ('zipcode', 'ZipCode')]:
 		if hasattr(address, a) and nrml(getattr(address, a)) != nrml(ret[b]):
 			setattr(address, a, ret[b])
 	
@@ -72,7 +74,8 @@ def verify_adddress(address):
 	address.latitude = float(ret["GeoLocationInfo"]["AvgLatitude"])
 	address.longitude = float(ret["GeoLocationInfo"]["AvgLongitude"])
 	address.timezone = ret["GeoLocationInfo"]["TimeZone"]
-
+	address.county = ret["County"]
+	address.cdyne_response = json.dumps(ret)
 
 if __name__ == "__main__":
 	from popvox.models import PostalAddress

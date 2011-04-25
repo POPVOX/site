@@ -45,7 +45,7 @@ def create_tex(tex, serial):
 	outfile.write_esc = lambda x : outfile.write(escape_latex(x))
 	
 	outfile.write(r"\documentclass[twocolumn,notitlepage]{report}" + "\n")
-	outfile.write(r"\usepackage[top=1in, bottom=4.35in, left=.85in, right=.85in]{geometry}" + "\n")
+	outfile.write(r"\usepackage[top=1in, bottom=4in, left=.85in, right=.85in]{geometry}" + "\n")
 	outfile.write(r"\pagestyle{myheadings}" + "\n")
 	outfile.write(r"\usepackage{fontspec}" + "\n")
 	outfile.write(r"\setromanfont{Linux Libertine O}" + "\n")
@@ -82,8 +82,8 @@ def create_tex(tex, serial):
 		else:
 			# Don't create a new batch for this target if there are fewer than three messages to
 			# deliver and they were all written in the last two weeks.
-			#if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch_number=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch_number=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
-			#	continue
+			if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
+				continue
 			
 			batch_max += 1
 			batch_no = serial + ":" + str(batch_max)
