@@ -124,7 +124,7 @@ function billsearch_endorse_oppose(pos) {
 			</p>
 			<div id="billsearch_endorse_oppose_camdiv" style="{% if not cam and not lastviewedcampaign %}display: none{% endif %}">
 				<select id="billsearch_endorse_oppose_cam">
-					{% for campaign in org.orgcampaign_set.all %}{% if not campaign.default %}<option value="{{campaign.slug}}" {% if camaign.id == cam.id or campaign.id == lastviewedcampaign.id %}selected="1"{% endif %}>{{ campaign.name }}</option>{% endif %}{% endfor %}
+					{% for campaign in org.orgcampaign_set.all %}{% if not campaign.default %}<option value="{{campaign.slug}}" {% if campaign.id == cam.id or campaign.id == lastviewedcampaign.id %}selected="1"{% endif %}>{{ campaign.name }}</option>{% endif %}{% endfor %}
 					<option value="_new_">&lt; Create a New Campaign... &gt;</option>
 				</select>
 			</div>

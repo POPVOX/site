@@ -4,7 +4,7 @@
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block head %}
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+	<script type="text/javascript" src="https://maps-api-ssl.google.com/maps/api/js?v=3&sensor=false"></script>
 	<script type="text/javascript">
 		function createDistrictsOverlay(outlines_only, opacity, state, district) {
 			return {
@@ -48,11 +48,14 @@
 			map = new google.maps.Map(document.getElementById("map_canvas"),
 			myOptions);
 			
+			{% if request.ua.ua_family != "IE" %}
+			// overlays are on http:, which causes warnings in some browsers
 			overlayWMS = new google.maps.ImageMapType(createDistrictsOverlay(false, .2, "{{useraddress.state|escapejs}}", null));
 			map.overlayMapTypes.insertAt(0, overlayWMS);			
 
 			overlayWMS = new google.maps.ImageMapType(createDistrictsOverlay(true, .7, "{{useraddress.state|escapejs}}", null));
 			map.overlayMapTypes.insertAt(0, overlayWMS);
+			{% endif %}
 			
 			var marker = new google.maps.Marker({
 				  position: myOptions.center, 

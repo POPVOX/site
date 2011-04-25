@@ -128,16 +128,16 @@ if not DEBUG:
 
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.cache.UpdateCacheMiddleware',
+#    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'jquery.middleware.SessionFromPostMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
+#    'django.middleware.cache.FetchFromCacheMiddleware',
     'trafficanalysis.middleware.TrafficAnalysisMiddleware',
-    'popvox.middleware.IE6BlockMiddleware',
+    'popvox.middleware.IE6BlockMiddleware', # gets cached if site-wide cache is on!
     'popvox.middleware.AdserverTargetsMiddleware',
 )
 if DEBUG:

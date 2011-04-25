@@ -59,6 +59,14 @@ $(function() {
 	font-style: normal;
 	font-size: 12px;
 }
+
+.rightcol small {
+	font-style: normal;
+}
+.userrichtextcontent small a {
+	color: #AA7733;
+	border-bottom: 1px solid #BBAA88;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -94,23 +102,11 @@ $(function() {
 			<div class="col_6 col_top">
 				{% comment %}{% rawtext "bills_left" %}{% endcomment %}
 				
+				{% comment %}
 				<div class="category_icon_container">
 					<div class="category_icon category_icon_health"> </div>
 					<h2>Health</h2>
 					<ul>
-					<li><a href="/bills/us/112/s756">Medicare DATA</a>
-						<small>provides public availability of Medicare claims data (S. 756)</small></li>
-					</ul>
-					<div class="clear"> </div>
-				</div>
-				<div class="category_icon_container">
-					<div class="category_icon category_icon_money"> </div>
-					<h2>Economy and Public Finance</h2>
-					<ul>
-					<li><a href="/bills/us/112/hr1519">Paycheck Fairness Act</a>
-						<small>provides remedies to victims of discrimination in the payment of wages on the basis of sex (H.R. 1519, also <a href="/bills/us/112/s797">S. 797</a>)</small></li>
-					<li><a href="/bills/us/112/hr3">No Taxpayer Funding for Abortion Act</a>
-						<small>prohibits taxpayer funded abortions and provides for conscience protections (H.R. 3)</small></li>
 					</ul>
 					<div class="clear"> </div>
 				</div>
@@ -129,18 +125,40 @@ $(function() {
 					</ul>
 					<div class="clear"> </div>
 				</div>
+				{% endcomment %}
 				<div class="category_icon_container">
 					<div class="category_icon category_icon_environment"> </div>
 					<h2>Environment</h2>
 					<ul>
+					<li><a href="/bills/us/112/s847">Safe Chemicals Act</a>
+						<small>updates the Toxic Substances Control Act of 1976 (S. 847)</small></li>
 					<li><a href="/bills/us/112/hr1380">The NAT GAS Act</a>
 						<small>provides tax incentives for using natural gas as a fuel (H.R. 1380)</small></li>
-					<li><a href="/bills/us/112/s230">S. 230</a>/<a href="/bills/us/112/hr521">H.R. 521</a>
-						<small>deem genetically-engineered fish to be unsafe</small></li>
+					<li><a href="/bills/us/112/s587">FRAC Act</a>
+						<small>amends the Safe Drinking Water Act to repeal a certain exemption for hydraulic fracturing (S. 587, also <a href="/bills/us/112/hr1084">H.R. 1084</a>)</small></li>				
+					<li><a href="/bills/us/112/hr332">Military Environmental Responsibility Act</a>
+						<small>requires the DOD to fully comply with federal and state environmental laws (H.R. 332)</small></li>
+					<li><a href="/bills/us/112/hr1204">BREATHE Act</a>
+						<small>eliminates exemptions from the Clean Air Act for oil and gas development (H.R. 1204)</small></li>
+					<li><a href="/bills/us/112/hjres9">Disapproving the EPA ruling related to the National Emission Standards</a>
+						<small>for Hazardous Air Pollutants to exempt cement plants (H.J.Res. 9)</small></li>
+					<li><a href="/bills/us/112/s231">Prohibits the EPA from taking action under the Clean Air Act</a>
+						<small>related to stationary sources like coal-fired electric plants (S. 231)</small></li>
 					</ul>
 					<div class="clear"> </div>
 				</div>
 				{% comment %}
+				<div class="category_icon_container">
+					<div class="category_icon category_icon_money"> </div>
+					<h2>Labor and Finance</h2>
+					<ul>
+					<li><a href="/bills/us/112/s756">Medicare DATA</a>
+						<small>provides public availability of Medicare claims data (S. 756)</small></li>
+					<li><a href="/bills/us/112/hr1519">Paycheck Fairness Act</a>
+						<small>provides remedies to victims of discrimination in the payment of wages on the basis of sex (H.R. 1519, also <a href="/bills/us/112/s797">S. 797</a>)</small></li>
+					</ul>
+					<div class="clear"> </div>
+				</div>
 				<div class="category_icon_container">
 					<div class="category_icon category_icon_immigration"> </div>
 					<h2>Immigration</h2>
@@ -168,15 +186,19 @@ $(function() {
 			<div class="col_3 col_top col_last rightcol" style="margin-top: -15px">
 				<h3>Other Highlights</h3>
 				<ul>
-					<li><a href="/bills/us/112/hr1174">Internet Gambling Regulation, Consumer Protection, and Enforcement Act</a> permits the licensing of Internet gambling (H.R. 1174)</li>
+					<li><a href="/bills/us/112/hr1174">Internet Gambling Regulation, Consumer Protection, and Enforcement Act</a>
+						<small>permits the licensing of Internet gambling (H.R. 1174)</small></li>
 
-					<li>FRAC Act <a href="/bills/us/112/s587">S. 587</a>/<a href="/bills/us/112/hr1084">H.R. 1084</a>
-						<small>amends the Safe Drinking Water Act to repeal a certain exemption for hydraulic fracturing.</small></li>				
-				
-					<li>Respect for Marriage Act <a href="/bills/us/112/hr1116">H.R. 1116</a>/<a href="/bills/us/112/s598">S. 598</a></li>
+					<li><a href="/bills/us/112/hr1116">Respect for Marriage Act</a>
+						<small>repeals the Defense of Marriage Act returning regulation of marriage to the states (H.R. 1116, also <a href="/bills/us/112/s598">S. 598</a>)</small></li>
 
+					{% comment %}
 					<li><a href="/bills/us/112/s565">Startup Visa bill</a>
 						<small>for entrepreneurs who've received significant investment to establish a business in the U.S. (S. 565)</small></li>
+						
+					<li><a href="/bills/us/112/hr3">No Taxpayer Funding for Abortion Act</a>
+						<small>prohibits taxpayer funded abortions and provides for conscience protections (H.R. 3)</small></li>
+					{% endcomment %}
 				</ul>
 				<p>These bills come from a combination of news alerts and what POPVOX hears from Hill contacts. To suggest a bill email us at <a href="mailto:info@popvox.com">info@popvox.com</a>.</p>
 			
