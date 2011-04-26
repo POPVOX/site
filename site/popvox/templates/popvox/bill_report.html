@@ -536,14 +536,20 @@
 			<div class="comments"> 
 				<h3 class="no_rule">Supporting Comments</h3>
 				<div id="comments_pro">Loading...</div>
-				<a id="comments_pro_more" href="#" class="b_more_comments" onclick="return more_comments()">more comments</a>
+				<ul class="clear">
+					<li><a id="comments_pro_more" href="#" class="b_more_comments" onclick="return more_comments()">more comments</a></li>
+					<li><a class="b_add_your_comment btn" href="{{bill.url}}" class="b_more_comments">add your comment</a></li>
+				</ul>
 			</div> 
 		</div> 
 		<div class="col_6 col_last rule"> 
 			<div class="comments"> 
 				<h3 class="no_rule">{% if not bill.isAlive %}Archived {% endif %}Opposing Comments</h3>
 				<div id="comments_con">Loading...</div>
-				<a id="comments_con_more" href="#" class="b_more_comments" onclick="return more_comments()">more comments</a>
+				<ul class="clear">
+					<li><a id="comments_con_more" href="#" class="b_more_comments" onclick="return more_comments()">more comments</a></li>
+					<li><a class="b_add_your_comment btn" href="{{bill.url}}" class="b_more_comments">add your comment</a></li>
+				</ul>
 			</div> 
 		</div> 
 	</div><!-- e: section -->

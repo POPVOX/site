@@ -359,7 +359,7 @@ function getshorturl() {
 						<p>More Info: <a href="{{cam.url}}">{{cam.name}}</a></p>
 					{% endfor %}
 					{% for doc in org.documents %}
-						{% if forloop.first %}<ul class="bullets">{% endif %}
+						{% if forloop.first %}<ul class="bullets doc">{% endif %}
 						<li><a href="{{bill.url}}/docs/{{org.object.slug}}/{{doc.doctype}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
 						{% if forloop.last %}</ul>{% endif %}
 					{% endfor %}

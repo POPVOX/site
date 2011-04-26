@@ -550,6 +550,10 @@ dd {
 			background: url(b_doc.png) left top no-repeat;
 			padding-left: 25px;
 			}
+			
+		.bullets.doc li a {
+			color: #CC6A11;
+			}			
 		
 	.bullets li a {
 		color: #606060;
@@ -1146,9 +1150,22 @@ look in master/_map_style.css
 		background-position: center bottom;
 		cursor: pointer;
 		}
-		
+
+.comments ul.clear {
+	width: 460px;
+	height: 40px;
+	display: block;
+	text-align: center;
+	
+	background: yellow;
+	}
+	
+	.comments ul.clear li {
+		width: 140px;
+		float: left;
+		}
+			
 .b_more_comments {
-	clear: both;  
 	height: 22px;
 	margin: 0 0 0 140px !important;
 	position: relative;
@@ -1164,6 +1181,17 @@ look in master/_map_style.css
 		text-decoration: none;
 		border: 0;
 		}
+		
+.b_add_your_comment {
+	height: 22px;
+	margin: 0 0 0 140px !important;
+	position: relative;
+	width: 137px;
+	background: url(b_add_your_comment.png) center top no-repeat;
+	text-indent: -9999em;
+	display: block;
+	}
+
 
 	
 	
