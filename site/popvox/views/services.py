@@ -56,6 +56,14 @@ def widget_render(request, widgettype):
 	if permissions == None:
 		return HttpResponseForbidden()
 	
+	if widgettype == "commentstream":
+		return widget_render_commentstream(request, permissions)
+	if widgettype == "writecongress":
+		return widget_render_writecongress(request, permissions)
+
+	raise Http404()
+
+def widget_render_commentstream(request, permissions):
 	comments = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED)).order_by("-created")
 	
 	title1 = "Recent Comments from"
@@ -113,7 +121,7 @@ def widget_render(request, widgettype):
 				
 	comments = comments[0:50]
 	
-	return render_to_response('popvox/widgets/' + widgettype + '.html', {
+	return render_to_response('popvox/widgets/commentstream.html', {
 		'title1': title1,
 		'title2': title2,
 		'comments': comments,
@@ -122,3 +130,8 @@ def widget_render(request, widgettype):
 		"permissions": permissions,
 		}, context_instance=RequestContext(request))
 
+
+def widget_render_writecongress(request, permissions):
+	return render_to_response('popvox/widgets/writecongress.html', {
+		"permissions": permissions,
+		}, context_instance=RequestContext(request))
