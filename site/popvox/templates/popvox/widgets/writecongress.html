@@ -1,0 +1,268 @@
+{% load humanize %}
+{% load popvox_utils %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head profile="http://gmpg.org/xfn/11">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /><!--[if lte IE 7]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
+		
+	<title>write congress widget // POPVOX // your new political monkey</title>
+	
+	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="/media/widget/widget_writecongress.css" type="text/css" media="screen" />
+
+	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
+	{% if request.ua.ua_family == "Firefox" %}<script>jQuery.fx.off = true</script>{% endif %}
+	
+	<style>
+	{% if request.GET.iframe %}
+	body {
+		padding: 0;
+		margin: 0;
+		overflow: hidden;
+	}
+	#widget_body {
+		overflow: hidden;
+	}
+	{% endif %}
+
+	{% if request.ua.ua_family == "Firefox" and request.ua.os_family != "Mac OSX" %}
+	#comment_widget h1, #comment_widget h2 {
+		text-shadow: none;
+	}
+	{% endif %}
+	
+	{% if "commentstream_theme" in permissions %}
+	#comment_widget #widget_top {
+		background: #{{request.GET.sbg}} url("comments_widget_head_grad.png") left top repeat-x;
+		color: #{{request.GET.sfg}};
+		border: #000;
+		}
+		
+	#comment_widget #widget_body {
+		background: #{{request.GET.bg}} url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;
+		}
+		
+	#comment_widget h1,
+	#comment_widget h2 {
+		text-shadow: none;
+		color: #{{request.GET.sfg}};
+		}
+		
+	#comment_widget p.share a {	
+		color: #{{request.GET.lnk}};
+		}
+	
+	#comment_widget p {
+		color: #{{request.GET.fg}};
+		}
+		
+	#comment_widget .comment {
+		border-bottom: none;
+		}
+		
+	#comment_widget #widget_foot, #comment_widget #widget_foot p a {
+		background: #{{request.GET.sbg}};
+		color: #{{request.GET.sfg}};
+		}
+	{% endif %}
+	
+	</style>
+</head>
+<body>
+	<div id="wrap" class="login w420">
+		<div id="comment_widget" class="float_left">
+			<div id="widget_top">
+				<h1>Tell Congress that you support H.R. 234</h1>
+				<ul>
+					<li class="one_active">login</li>
+					<li class="two">write</li>
+					<li class="three">send</li>
+					<li class="four">share</li>
+				</ul>
+			</div>
+			
+			<div id="widget_body">
+				<form id="login" class="form" action="#" method="post" name="login"><br />
+					<h3>Sign in or create account</h3>
+					
+					<input id="email" name="email" value="email" size="25" maxlength="40" type="text"><span class="check">check</span><br />
+					
+					<input name="password" value="password" size="25" maxlength="40" type="text"><br />
+
+					<input name="password_again" value="password again" size="25" maxlength="40" type="text"><br />
+					
+					<input value="next" id="b_next" class="btn" onclick="ValidateForm();return false;" type="button">
+				</form><div class="clear"> </div>
+				
+				
+			</div><!-- e: body -->
+			
+			<div id="widget_foot">
+				<p><a href="http://www.popvox.com" target="_blank">powered by popvox.com</a></p>
+			</div>
+			
+		</div><!-- e: widget -->
+	</div><!-- e: wrap -->
+
+
+
+<div class="spacer"></div>
+
+
+
+	<div id="wrap" class="write">
+		<div id="comment_widget" class="float_left">
+			<div id="widget_top">
+				<h1>Tell Congress that you support H.R. 234</h1>
+				<ul>
+					<li class="one_complete">login</li>
+					<li class="two_active">write</li>
+					<li class="three">send</li>
+					<li class="four">share</li>
+				</ul>
+			</div>
+			
+			<div id="widget_body">
+				<div class="why">
+					<h3>Why should I support H.R. 234?</h3>
+					<a href="#" class="expand btn">expand</a>
+				</div><div class="clear"> </div>
+				<div class="reason">
+					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				</div>
+								
+				<h3>Write a Personal Message?</h3>
+				<h4 class="support">I support H.R. 234 because...</h4>
+
+				<form id="msg" class="form" action="#" method="post" name="msg">
+
+					<textarea class="half" name="message" maxlength="250" type="text"></textarea><br /> 
+					
+<!--					<input value="Send My Support Without a Message" id="b_send_no_msg" onclick="ValidateForm();return false;" type="button">-->
+					<input value="Preview" id="b_preview" onclick="ValidateForm();return false;" type="button">
+					<div class="clear"> </div>
+				</form>
+				<div id="tips">
+					<h3>Tips</h3>
+					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+					<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+					<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+				</div>
+				
+				<div class="clear"> </div>
+				
+				
+			</div><!-- e: body -->
+
+			<div id="widget_foot">
+				<p><a href="http://www.popvox.com" target="_blank">powered by popvox.com</a></p>
+			</div>
+			
+		</div><!-- e: widget -->
+	</div><!-- e: wrap -->
+	
+	
+<div class="spacer"></div>
+
+
+
+	<div id="wrap" class="w420 preview">
+		<div id="comment_widget" class="float_left">
+			<div id="widget_top">
+				<h1>Tell Congress that you support H.R. 234</h1>
+				<ul>
+					<li class="one_complete">login</li>
+					<li class="two_complete">write</li>
+					<li class="three_active">send</li>
+					<li class="four">share</li>
+				</ul>
+			</div>
+			
+			<div id="widget_body">
+								
+				<h3>Preview your message</h3>
+
+				<div id="msg_preview">
+					<p class="greeting">Dear Congressperson:</p>
+					<p class="support"><span></span>I support H.R. 234 because the Statutory Debt Ceiling is supposed to indicate that you are spending too much money... living beyond your means. The intent of the debt ceiling is to REDUCE spending before you reach the limit. If, or when, the ceiling is reached, it is imperative that essential service providers be paid, and all non-essential services be suspended. Why do we have NON-ESSENTIAL services? This phrase indicates that the government has grown to be too large, and needs trimming, thus reducing the cost of operations.</p>
+					<p class="signature">Bob Smith<br />Jackson, TN</p>
+					
+				</div>	
+				
+				<p id="b_send_to_congress"><a class="btn" href="#">Send your message to Congress</a></p>
+				<div class="address">
+					<p>Bob Smith<br />
+						35 Morningside Dr.<br />
+						Jackson, TN 38301<br />
+						<a href="#">edit address</a>
+					</p>
+				</div>			
+				<div class="clear"> </div>
+				
+				
+			</div><!-- e: body -->
+
+			<div id="widget_foot">
+				<p><a href="http://www.popvox.com" target="_blank">powered by popvox.com</a></p>
+			</div>
+			
+		</div><!-- e: widget -->
+	</div><!-- e: wrap -->
+	
+<div class="spacer"></div>
+
+
+
+	<div id="wrap" class="w420 share">
+		<div id="comment_widget" class="float_left">
+			<div id="widget_top">
+				<h1>Tell Congress that you support H.R. 234</h1>
+				<ul>
+					<li class="one_complete">login</li>
+					<li class="two_complete">write</li>
+					<li class="three_complete">send</li>
+					<li class="four_active">share</li>
+				</ul>
+			</div>
+			
+			<div id="widget_body">
+								
+				<h3 class="congrats">Congratulations, you sent your message to Congress!</h3>
+
+				<div id="social_share">
+					<h3>Tell your friends to {support} this bill</h3>
+					<ul class="social_share_btns">
+						<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')" title="Facebook">facebook</a></li>
+						<li><a class="btn social_twitter" href="#" target="_blank" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
+						<li><a class="btn social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
+						<li><a class="btn social_link" href="#" onclick="return share_tab('link')" title="Get a Short URL">get a link</a></li>
+					</ul>	
+					<div class="clear"> </div>				
+				</div>	
+				
+				<h3 class="support">These bills also need your support</h3>
+				<p class="temp_bills"></p>
+
+				<h3 class="oppose">These bills also need your opposition</h3>
+				<p class="temp_bills"></p>
+				
+				<div class="search">
+					<h3>Search bills on POPVOX</h3>
+					<p>search by bill number or issue area</p>
+					<form id="search" class="form" action="#" method="post" name="login">
+						<input name="search" value="" size="25" maxlength="40" type="text"><br />
+					</form><div class="clear"> </div>
+				</div>
+				
+			</div><!-- e: body -->
+
+			<div id="widget_foot">
+				<p><a href="http://www.popvox.com" target="_blank">powered by popvox.com</a></p>
+			</div>
+			
+		</div><!-- e: widget -->
+	</div><!-- e: wrap -->	
+</body>
+</html>
