@@ -29,11 +29,12 @@
 			border: 1px solid #8C582D;
 			border-bottom: 1px solid #cb8452;
 			height: 70px;
-			background: #CC6A11 url(comments_widget_head_grad.png) left top repeat-x;
+			background: #CC6A11 url(comments_widget_head_grad.png) left bottom repeat-x;
 			}
 
 			#comment_widget h1 {
-				font: normal 14px/18px helvetica, arial, sans-serif;
+				font: 12px/18px helvetica,arial,sans-serif;
+				xfont: normal 14px/18px helvetica, arial, sans-serif;
 				color: #fff;
 				text-transform: uppercase;
 				text-shadow: 0px -1px 1px #8c4607;
@@ -51,8 +52,11 @@
 				
 				#comment_widget h2 a {
 					color: #fff;
-					text-shadow: 0px -1px 1px #8c4607;
+					text-decoration: none;
 					}
+					#comment_widget h2 a:hover {
+						text-decoration: underline;
+						}
 
 /* widget body */			
 		#widget_body {

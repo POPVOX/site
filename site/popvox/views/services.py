@@ -70,12 +70,12 @@ def widget_render_commentstream(request, permissions):
 	title2 = "POPVOX Nation to Congress"
 
 	show_bill_number = True
-	url = SITE_ROOT_URL
+	url = None
 	
 	if "state" in request.GET:
 		comments = comments.filter(state=request.GET["state"])
-		title1 = "Recent Comments"
-		title2 = "in " + statenames[request.GET["state"]]
+		title1 = "Comments Sent to Congress"
+		title2 = "from " + statenames[request.GET["state"]]
 		#url = SITE_ROOT_URL + "/activity#state=" + request.GET["state"]
 
 	cx = []
@@ -98,19 +98,19 @@ def widget_render_commentstream(request, permissions):
 					cx.append(comments.filter(bill=b, position=position))
 			except:
 				# invalid bill
-				title1 = "Recent Comments"
+				title1 = "Comments sent to Congress"
 				title2 = "Invalid bill number."
 			
 		if len(cx) == 1: # the bills have to be processed first
 			show_bill_number = False
-			title1 = "Recent Comments on"
+			title1 = "Comments sent to Congress"
 			title2 = b.title
 			url = SITE_ROOT_URL + b.url()
 
 	if "issue" in request.GET:
 		ix = IssueArea.objects.get(id=request.GET["issue"])
 		cx.append(comments.filter(bill__topterm=ix))
-		title1 = "Recent Comments on"
+		title1 = "Comments sent to Congress"
 		title2 = ix.name
 		#url = SITE_ROOT_URL + ix.url()
 

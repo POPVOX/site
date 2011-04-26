@@ -7,7 +7,24 @@
 <script type="text/javascript" src="/media/js/jquery.miniColors.js"></script>
 
 <style>
-
+.form .plus h4 a {
+    background: none repeat scroll 0 0 #ACACB0;
+    color: #FFFFFF;
+    font-family: georgia;
+    font-size: 11px;
+    font-style: italic;
+    margin-top: -3px; 
+    margin-left: 10px;
+    padding: 2px 5px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+}
+.form .plus h4 a:hover {
+	border-bottom: none;
+	background: #b36015;
+	}
 </style>
 
 <link rel="stylesheet" href="/media/widget/widget.css" type="text/css" media="screen" />
@@ -75,8 +92,8 @@ function update_preview() {
 	var state = $('#commentstream_state').val();
 	if (state) opts += "&state=" + state;
 	
-	var width = $('#size_width').val() || 240;
-	var height = $('#size_height').val() || 350;
+	var width = $('#commentstream_width').val() || 240;
+	var height = $('#commentstream_height').val() || 350;
 	
 	var account = "";
 	
@@ -208,7 +225,7 @@ var minicolors_opts = {
 			</div><!-- e: block2 -->
 			
 			<div class="plus">
-				<h4>PLUS <span class="small">contact us for details</span></h4> <!--<p class="b_upgrade btn"><a href="#">upgrade</a>--></p>
+				<h4>PLUS <span class="small"><a href="mailto:info@popvox.com">contact us for details</a></span></h4> <!--<p class="b_upgrade btn"><a href="#">upgrade</a>--></p>
 				<div class="clear"> </div>
 				
 				<div class="panel">

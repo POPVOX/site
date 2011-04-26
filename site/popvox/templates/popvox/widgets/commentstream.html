@@ -7,12 +7,12 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /><!--[if lte IE 7]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
 		
-	<title>comment stream widget - {{title1}} {{title2}} // POPVOX // your new political monkey</title>
+	<title>comment stream widget - {{title1}} {{title2}} // POPVOX</title>
 	
 	<link rel="stylesheet" href="/media/widget/widget_comment.css" type="text/css" media="screen" />
 
 	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
-	{% if request.ua.ua_family == "Firefox" %}<script>jQuery.fx.off = true</script>{% endif %}
+	{% comment %}{% if request.ua.ua_family == "Firefox" %}<script>jQuery.fx.off = true</script>{% endif %}{% endcomment %}
 	
 	<style>
 	{% if request.GET.iframe %}
@@ -70,7 +70,7 @@
 	</style>
 	
 	<script>
-	var scroll_delay = 15000;
+	var scroll_delay = 9000;
 	
 	$(function() {
 			$('#widget_top').css("height", ($('#widget_top h2').height() + 35) + "px");
@@ -87,10 +87,10 @@
 		if (nodes.length <= 1) return;
 		var node = nodes[0];
 		$(node).animate({
-			{% if request.ua.ua_family != "IE" %}opacity: 0,{% endif %}
+			{% if request.ua.ua_family != "IE" and request.ua.ua_family != "Firefox" %}opacity: 0,{% endif %}
 			height: 0,
 			"margin-bottom": 0
-		}, 3000,
+		}, 1500,
 			// called after animation completes
 			function() {
 				// move node to the end
@@ -109,7 +109,11 @@
 		<div id="comment_widget" class="float_left">
 			<div id="widget_top">
 				<h1>{{title1}}</h1>
-				<h2><a href="https://www.popvox.com{{item.bill.url}}" target="_blank">{{title2|truncatewords:7}}</a></h2>
+				{% if url %}
+					<h2><a href="{{url}}" target="_blank">{{title2|truncatewords:10}}</a></h2>
+				{% else %}
+					<h2>{{title2|truncatewords:10}}</h2>
+				{% endif %}
 			</div>
 			
 			<div id="widget_body">
