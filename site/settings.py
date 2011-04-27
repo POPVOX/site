@@ -12,7 +12,7 @@ if not DEBUG:
 	# If the site is accessed from multiple domains, then this is going to be
 	# a problem since we filter redirects to this path to make sure we aren't
 	# redirecting just anywhere.
-	SITE_ROOT_URL = "http://www.popvox.com"
+	SITE_ROOT_URL = "http://www.popvox.com" # doubles as openid2 authentication realm, which means if we change it, then people's Google logins will invalidate
 	SITE_SHORT_ROOT_URL = "http://pvox.co"
 	DATADIR = os.path.dirname(__file__) + "/data/"
 	SESSION_COOKIE_SECURE = True

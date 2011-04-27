@@ -95,8 +95,14 @@ def external_start(request, login_associate, provider):
 		validate_next(request.GET["next"]) # raises exception on error
 		request.session["oauth_finish_next"] = request.GET["next"]
 		
-		# must match the URL used in external_return's call to finish_authentication
-	callback = request.build_absolute_uri(reverse(external_return, args=[login_associate, provider]))
+	if providers.providers[provider]["method"] =="openid2":
+		# the callback must match the realm, which is always SITE_ROOT_URL
+		callback = SITE_ROOT_URL + reverse(external_return, args=[login_associate, provider])
+	else:
+		# be nicer and build the callback URL from the HttpRequest, in case we are not
+		# hosting SITE_ROOT_URL (i.e. debugging).
+		callback = request.build_absolute_uri(reverse(external_return, args=[login_associate, provider]))
+	request.session["oauth_finish_url"] = callback
 
 	scope = request.GET.get("scope", None)
 	mode = request.GET.get("mode", None)
@@ -110,8 +116,9 @@ def external_return(request, login_associate, provider):
 		(provider, auth_token, profile) = finish_authentication(
 			request,
 			provider,
-			request.build_absolute_uri(reverse(external_return, args=[login_associate, provider]))
+			request.session["oauth_finish_url"]
 			)
+		del request.session["oauth_finish_url"]
 	except providers.UserCancelledAuthentication:
 		request.goal = { "goal": "oauth-cancel" }
 		return HttpResponseRedirect(request.session["oauth_finish_next"] if "oauth_finish_next" in request.session else reverse(loginform))
