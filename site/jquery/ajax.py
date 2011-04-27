@@ -58,7 +58,8 @@ def json_response(f):
 			return HttpResponse(simplejson.dumps({ "status": "fail", "msg": m, "field": getattr(e, "source_field", None) }), mimetype="application/json")
 		except Exception, e:
 			if DEBUG:
-				print e
+				import traceback
+				traceback.print_exc()
 			else:
 				sys.stderr.write(unicode(e) + "\n")
 				raise

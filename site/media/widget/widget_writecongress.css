@@ -17,16 +17,32 @@ body {
 		}
 		
 #wrap {
-	background: #efefef url(http://sodiumhalogen.com/client_view/popvox/wid get_writecongress/widget_writerep-2b.jpg) left top no-repeat;
-	width: 1200px;
-/*	width: 420px;*/
+	/*background: #efefef url(http://sodiumhalogen.com/client_view/popvox/wid get_writecongress/widget_writerep-2b.jpg) left top no-repeat;*/
 	padding: 20px;
 	font-family: helvetica, arial, sans-serif;
 	}
 	
 #wrap.w420 {
-	background: url(http://sodiumhalogen.com/up/widg et_writerep_8fe3.jpg) left top no-repeat;
+	/*background: url(http://sodiumhalogen.com/up/widg et_writerep_8fe3.jpg) left top no-repeat;*/
 	width: 420px;
+	}
+#wrap.w420 .widget_body {
+	width: 420px;
+	}
+#wrap.w420 .widget_panel {
+	width: 420px;
+	}
+	
+#widget_body {
+	overflow: hidden;
+	}
+.widget_panel {
+	position: absolute;
+	left: 25px;
+	top: 110px;
+	height: 500px;
+	}
+#panel_holder {
 	}
 	
 #widget_top h1 {
@@ -51,47 +67,47 @@ body {
 		text-indent: -9999em;
 		}
 		
-		#widget_top ul li.one_active {
+		#widget_top ul li.tab_1.active {
 			background: url(bg_bar_one.png) left top no-repeat;
 			}
 			
-			#widget_top ul li.one_complete {
+			#widget_top ul li.tab_1.complete {
 				background: url(bg_bar_one.png) left -29px no-repeat;
 				}
 
-		#widget_top ul li.two {
+		#widget_top ul li.tab_2 {
 			background: url(bg_bar_two.png) left top no-repeat;
 			}
 
-			#widget_top ul li.two_active {
+			#widget_top ul li.tab_2.active {
 				background: url(bg_bar_two.png) left -29px no-repeat;
 				}
 			
-			#widget_top ul li.two_complete {
+			#widget_top ul li.tab_2.complete {
 				background: url(bg_bar_two.png) left -58px no-repeat;
 				}
 
-		#widget_top ul li.three {
+		#widget_top ul li.tab_3 {
 			background: url(bg_bar_three.png) left top no-repeat;
 			}
 			
-			#widget_top ul li.three_active {
+			#widget_top ul li.tab_3.active {
 				background: url(bg_bar_three.png) left -29px no-repeat;
 				}
 				
-			#widget_top ul li.three_complete {
+			#widget_top ul li.tab_3.complete {
 				background: url(bg_bar_three.png) left -58px no-repeat;
 				}
 
-		#widget_top ul li.four {
+		#widget_top ul li.tab_4 {
 			background: url(bg_bar_four.png) left top no-repeat;
 			}
 			
-			#widget_top ul li.four_active {
+			#widget_top ul li.tab_4.active {
 				background: url(bg_bar_four.png) left -29px no-repeat;
 				}
 				
-			#widget_top ul li.four_complete {
+			#widget_top ul li.tab_4.complete {
 				background: url(bg_bar_four.png) left -58px no-repeat;
 				}
 
@@ -111,7 +127,7 @@ body {
 	
 	/* form */
 	
-		#login {
+		.widget_panel {
 			width: 350px; 
 			}
 			
@@ -122,7 +138,12 @@ body {
 			padding: 3px 5px;
 			width: 448px;
 			}
-			
+		.form input.default, .form textarea.default {
+			color: #777;
+			}
+		.form input[disabled], .form textarea[disabled] {
+			background-color: #eee;
+			}
 	
 		
 		.form input {
@@ -159,28 +180,28 @@ body {
 		#b_next {
 			width: 81px;
 			height: 22px;
-			background: url(../master/b_next.png);
+			background-image: url(../master/b_next.png);
 			display: block;
 			text-indent: -9999em;
 			margin: 0 0 0 220px;
 			border: none;
 			float: left;
 			}
-			
-			#b_next:hover {
-				background-position: left bottom;
-				}
-				
+
 			.btn {
 				text-indent: -9999em;
+				background-color: inherit;
 				}
 				
-			.btn:hover, .btn.force_hover_state {
+			.btn:hover {
 				background-position: left bottom;
 				border: none;
 				cursor: pointer;
 				} 
-
+			.btn.disabled {
+				background-position: left bottom;
+				cursor: default;
+				} 
 
 
 /* 2 write */
@@ -285,17 +306,13 @@ body {
 		
 /* 3. preview */
 
-	.preview {
-		height: 800px;
-		}
-		
-		.preview h3 {
+		#panel_preview h3 {
 			padding: 15px 0 0;
 			border: 1px solid #d1d1cf;
 			border-width: 1px 0 ;
 			}
 				
-		.preview p {
+		#panel_preview p {
 			line-height: 18px;
 			}
 		
@@ -439,14 +456,6 @@ body {
 		height: 10px;
 		}
 		
-				/* delete me */
-				.temp_bills {
-					background: url("temp_bills.jpg") no-repeat scroll -20px top;
-					width: 459px;
-					height: 149px;
-					margin-bottom: 20px;
-					}	
-		
 	.search {
 		border-top: 1px solid #d1d1cf;
 		padding-top: 20px;
@@ -474,10 +483,10 @@ body {
 			
 /* foot */			
 #widget_foot {
-	clear: both;
-	margin-top: 20px;
+	margin-top: 300px;
 	}			
 
 	#widget_foot a {
 		color: #CC6A11;
 		}		
+		

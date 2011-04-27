@@ -95,17 +95,23 @@ def external_start(request, login_associate, provider):
 		validate_next(request.GET["next"]) # raises exception on error
 		request.session["oauth_finish_next"] = request.GET["next"]
 		
-	callback = SITE_ROOT_URL + reverse(external_return, args=[login_associate, provider])
+		# must match the URL used in external_return's call to finish_authentication
+	callback = request.build_absolute_uri(reverse(external_return, args=[login_associate, provider]))
 
 	scope = request.GET.get("scope", None)
-	return HttpResponseRedirect( providers.methods[providers.providers[provider]["method"]]["get_redirect"](request, provider, callback, scope))
+	mode = request.GET.get("mode", None)
+	
+	return HttpResponseRedirect( providers.methods[providers.providers[provider]["method"]]["get_redirect"](request, provider, callback, scope, mode))
 		
 def external_return(request, login_associate, provider):
 	try:
-		(provider, auth_token, profile) = \
-			providers.methods[providers.providers[provider]["method"]] \
-			["finish_authentication"] \
-			(request, provider, SITE_ROOT_URL + reverse(external_return, args=[login_associate, provider]))
+		finish_authentication = providers.methods[providers.providers[provider]["method"]]["finish_authentication"]
+		
+		(provider, auth_token, profile) = finish_authentication(
+			request,
+			provider,
+			request.build_absolute_uri(reverse(external_return, args=[login_associate, provider]))
+			)
 	except providers.UserCancelledAuthentication:
 		request.goal = { "goal": "oauth-cancel" }
 		return HttpResponseRedirect(request.session["oauth_finish_next"] if "oauth_finish_next" in request.session else reverse(loginform))

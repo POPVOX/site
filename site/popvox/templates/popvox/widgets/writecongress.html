@@ -13,7 +13,7 @@
 	<link rel="stylesheet" href="/media/widget/widget_writecongress.css" type="text/css" media="screen" />
 
 	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
-	{% if request.ua.ua_family == "Firefox" %}<script>jQuery.fx.off = true</script>{% endif %}
+	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
 	
 	<style>
 	{% if request.GET.iframe %}
@@ -69,200 +69,343 @@
 	{% endif %}
 	
 	</style>
+	
+	<script>
+		$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); });
+	
+		var panel_width = 420;
+		var current_panel = 1;
+		
+		function show_panel(idx) {
+			$("#progress li").removeClass("active");
+			$("#progress li").removeClass("complete");
+			for (var i = 1; i < idx; i++)
+				$("#progress li.tab_" + i).addClass("complete");
+			$("#progress li.tab_" + idx).addClass("active");
+			
+			var cur = $($("#panel_holder .widget_panel")[current_panel-1]);
+			var next = $($("#panel_holder .widget_panel")[idx-1]);
+			
+			var left = cur.css("left");
+			
+			cur.animate(
+				{left: -panel_width},
+				function() {
+					cur.hide(); // if we don't hide it, then the user can tab through to its controls which causes scrolling
+					current_panel = idx;
+				}
+			);
+			
+			next.show();
+			next.css({ left: panel_width });
+			next.animate({left: left});
+		}
+		
+		var email_status = null;
+		
+		function check_email() {
+			$("#panel_login .error").text("");
+			
+			var email = $('#email').val();
+			if (email.indexOf("@") == -1) return false;
+			
+			$.ajax({
+					url: window.location.pathname,
+					data: {
+						action: "check-email",
+						email: email
+					},
+					type: "POST",
+					dataType: "json",
+					success: function(data, textStatus, jqXHR) {
+						email_status = data.status;
+						if (data.status == "invalid-email") {
+							$("#panel_login .error").text("That's not a valid email address.");
+							$('#unregistered input, #registered_password input').attr("disabled", "1");
+							$('#panel_login .check').hide();
+							$('#b_next').addClass("disabled");
+						} else {
+							$('#panel_login .check').show();
+							$('#unregistered input, #registered_password input').attr("disabled", "");
+							$('#b_next').removeClass("disabled");
+							if (data.status == "not-registered") {
+								$('#unregistered').show();
+								$('#registered, #registered_password, #registered_sso, #registered_sso_password').hide();
+								$('#b_next').show();
+							} else {
+								$('#unregistered').hide();
+								$('#registered').show();
+								if (data.has_password) $('#registered_password, #b_next').show(); else $('#registered_password, #b_next').hide();
+								if (data.sso_methods.length > 0) $('#registered_sso').show(); else $('#registered_sso').hide();
+								if (data.has_password && data.sso_methods.length > 0) $('#registered_sso_password').show(); else $('#registered_sso_password').hide();
+								
+								$('#registered_sso .singlesignon li a').hide();
+								for (var i = 0; i < data.sso_methods.length; i++)
+									$('#registered_sso .singlesignon li a.social_' + data.sso_methods[i]).show();
+							}
+						}
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#panel_login .error").text("We're having some technical difficulty. Please try again soon.");
+					}
+				});
+			
+			return false;
+		}
+		
+		var identity = null;
+		
+		function do_login() {
+			if (identity) {
+				show_panel(2);
+				return false;
+			}
+			
+			if ($("#b_next").hasClass("disabled")) return false;
+			
+			var data;
+			
+			if (email_status != "registered") {
+				// creating an account later on, but collectinig this information now
+				if ($("#firstname").hasClass("default")) { alert("Enter your first name to continue."); return false; }
+				if ($("#lastname").hasClass("default")) { alert("Enter your last name to continue."); return false; }
+				if ($("#zipcode").hasClass("default")) { alert("Enter your zip code to continue."); return false; }
+				
+				// in principle it would be nice to log the user out here if he is logged in
+				// but logged out in the UI, but in testing I'd rather not
+				
+				identity = {
+					email: $("#email").val(),
+					firstname: $("#firstname").val(),
+					lastname: $("#lastname").val(),
+					zipcode: $("#zipcode").val()
+					};
+					
+				show_panel(2);
+			} else {
+				// only used if logging in with password
+				if ($("#password").hasClass("default")) { alert("Enter your password to log in."); return false; }
+			
+				$.ajax({
+						url: window.location.pathname,
+						data: {
+							action: "login",
+							email: $("#email").val(),
+							password: $("#password").val()
+							},
+						type: "POST",
+						dataType: "json",
+						success: function(data, textStatus, jqXHR) {
+							if (data.status == "error") {
+								$("#panel_login .error").text(data.message);
+							} else {
+								identity = data.identity;
+								show_panel(2);
+							}
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							$("#panel_login .error").text("We're having some technical difficulty. Please try again soon.");
+						}
+					});
+		
+			}
+
+			return false;
+		}
+		
+		{% if identity %}
+		$(function() {
+			identity = {{identity|safe}};
+			$('#email, #unregistered').hide();
+			$('#loggedinalready').show();
+			$('#b_next').removeClass("disabled");
+		});
+		{% endif %}
+		
+		function logout() {
+			identity = null;
+			$('#email, #unregistered').show();
+			$('#loggedinalready').hide();
+			$('#b_next').addClass("disabled");
+			return false;
+		}
+	</script>
 </head>
 <body>
-	<div id="wrap" class="login w420">
-		<div id="comment_widget" class="float_left">
+	<div id="wrap" class="w420">
+		<div class="float_left">
 			<div id="widget_top">
 				<h1>Tell Congress that you support H.R. 234</h1>
-				<ul>
-					<li class="one_active">login</li>
-					<li class="two">write</li>
-					<li class="three">send</li>
-					<li class="four">share</li>
+				<ul id="progress">
+					<li class="tab_1 active">login</li>
+					<li class="tab_2">write</li>
+					<li class="tab_3">send</li>
+					<li class="tab_4">share</li>
 				</ul>
 			</div>
 			
 			<div id="widget_body">
-				<form id="login" class="form" action="#" method="post" name="login"><br />
-					<h3>Sign in or create account</h3>
-					
-					<input id="email" name="email" value="email" size="25" maxlength="40" type="text"><span class="check">check</span><br />
-					
-					<input name="password" value="password" size="25" maxlength="40" type="text"><br />
-
-					<input name="password_again" value="password again" size="25" maxlength="40" type="text"><br />
-					
-					<input value="next" id="b_next" class="btn" onclick="ValidateForm();return false;" type="button">
-				</form><div class="clear"> </div>
 				
-				
-			</div><!-- e: body -->
+				<div id="panel_holder">
 			
-			<div id="widget_foot">
-				<p><a href="http://www.popvox.com" target="_blank">powered by popvox.com</a></p>
-			</div>
-			
-		</div><!-- e: widget -->
-	</div><!-- e: wrap -->
+					<div id="panel_login" class="widget_panel">
+						<form class="form" action="#" onsubmit="return false;"><br />
+							<h3>Tell Congress who you are</h3>
+							
+							<input id="email" name="email" value="" size="25" maxlength="40" type="text"><span class="check" style="display: none">check</span><br />
 
+							<div id="registered" style="display: none" class="clear">
+								<p>You&rsquo;ve created a POPVOX account already. We&rsquo;ll need you to log in.</p>
+							</div>
+							<div id="registered_sso" style="display: none" class="clear">
+								{% with request.path as singlesignon_next %}
+								{% with "&mode=compact" as singlesignon_params %}
+									{% include "registration/login_singlesignon.html" %}
+								{% endwith %}
+								{% endwith %}
+							</div>
+							<div id="registered_sso_password" style="display: none" class="clear">
+								<p>Or use your POPVOX password:</p>
+							</div>
+							<div id="registered_password" style="display: none" class="clear">
+								<input id="password" value="" size="25" maxlength="40" type="password"><br />
+								<p>forgot your password?</p>
+							</div>
+		
+							<div id="unregistered">
+								<input id="firstname" value="" size="25" maxlength="40" type="text"><br />
+								<input id="lastname" value="" size="25" maxlength="40" type="text"><br />
+								<input id="zipcode" value="" size="25" maxlength="40" type="text"><br />
+							</div>
 
-
-<div class="spacer"></div>
-
-
-
-	<div id="wrap" class="write">
-		<div id="comment_widget" class="float_left">
-			<div id="widget_top">
-				<h1>Tell Congress that you support H.R. 234</h1>
-				<ul>
-					<li class="one_complete">login</li>
-					<li class="two_active">write</li>
-					<li class="three">send</li>
-					<li class="four">share</li>
-				</ul>
-			</div>
-			
-			<div id="widget_body">
-				<div class="why">
-					<h3>Why should I support H.R. 234?</h3>
-					<a href="#" class="expand btn">expand</a>
-				</div><div class="clear"> </div>
-				<div class="reason">
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-				</div>
-								
-				<h3>Write a Personal Message?</h3>
-				<h4 class="support">I support H.R. 234 because...</h4>
-
-				<form id="msg" class="form" action="#" method="post" name="msg">
-
-					<textarea class="half" name="message" maxlength="250" type="text"></textarea><br /> 
+							<div id="loggedinalready">
+								<p>Welcome back {{screenname}}. Click Next to get started.</p>
+								<p><a href="#" onclick="return logout();">Not you?</a>
+							</div>
+							
+							<input value="next" id="b_next" class="btn disabled" onclick="return do_login();" type="button">
+							
+							<p class="clear error"> </p>
+						</form>
+						
+						<script>
+							$('#email').input_default("enter your email address");
+							$('#password').input_default("password");
+							$('#firstname').input_default("first name");
+							$('#lastname').input_default("last name");
+							$('#zipcode').input_default("zip code");
+							$('#firstname, #lastname, #zipcode').attr("disabled", "1");
+							$("#email").keyup_delayed(check_email);
+						</script>
+						
+					</div> <!-- e: panel_login -->
 					
-<!--					<input value="Send My Support Without a Message" id="b_send_no_msg" onclick="ValidateForm();return false;" type="button">-->
-					<input value="Preview" id="b_preview" onclick="ValidateForm();return false;" type="button">
+					<div id="panel_write" class="widget_panel" style="display: none">
+						<div id="panel_write_why_reason">
+						<div class="why">
+							<h3>Why should I support H.R. 234?</h3>
+							<a href="#" class="expand btn" onclick="return false;">expand</a>
+						</div><div class="clear"> </div>
+						<div class="reason" style="display: none">
+							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+						</div>
+						</div>
+						<script>
+							$('#panel_write_why_reason').hover(
+								function() { $('#panel_write .reason').slideDown(); },
+								function() { $('#panel_write .reason').slideUp(); } );
+						</script>
+										
+						<h3>Write a Personal Message?</h3>
+						<h4 class="support">I support H.R. 234 because...</h4>
+		
+						<form id="msg" class="form" action="#" onsubmit="return false;">
+		
+							<textarea class="half" name="message" maxlength="250" type="text"></textarea><br /> 
+							
+		<!--					<input value="Send My Support Without a Message" id="b_send_no_msg" type="button">-->
+							<input value="Preview" id="b_preview" type="button" onclick="show_panel(3); return false;">
+							<div class="clear"> </div>
+						</form>
+						<div id="tips">
+							<h3>Tips</h3>
+							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+							<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+							<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+						</div>
+						
+						<div class="clear"> </div>
+						
+						
+					</div><!-- e: panel_write -->
+					
+					<div id="panel_preview" class="widget_panel" style="display: none">
+										
+						<h3>Preview your message</h3>
+		
+						<div id="msg_preview">
+							<p class="greeting">Dear Congressperson:</p>
+							<p class="support"><span></span>I support H.R. 234 because the Statutory Debt Ceiling is supposed to indicate that you are spending too much money... living beyond your means. The intent of the debt ceiling is to REDUCE spending before you reach the limit. If, or when, the ceiling is reached, it is imperative that essential service providers be paid, and all non-essential services be suspended. Why do we have NON-ESSENTIAL services? This phrase indicates that the government has grown to be too large, and needs trimming, thus reducing the cost of operations.</p>
+							<p class="signature">Bob Smith<br />Jackson, TN <br /><a href="#">revise message</a></p>
+							
+						</div>	
+						
+						<p id="b_send_to_congress"><a class="btn" href="#" onclick="show_panel(4); return false;">Send your message to Congress</a></p>
+						<div class="address">
+							<p>Bob Smith<br />
+								35 Morningside Dr.<br />
+								Jackson, TN 38301<br />
+								<a href="#">edit address</a>
+							</p>
+						</div>			
+						<div class="clear"> </div>
+						
+						
+					</div><!-- e: panel_preview -->
+					
+					
+					<div id="panel_share" class="widget_panel" style="display: none">
+										
+						<h3 class="congrats">Congratulations, we sent your message to Congress!</h3>
+		
+						<div id="social_share">
+							<h3>Tell your friends to {support} this bill</h3>
+							<ul class="social_share_btns">
+								<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')" title="Facebook">facebook</a></li>
+								<li><a class="btn social_twitter" href="#" target="_blank" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
+								<li><a class="btn social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
+								<li><a class="btn social_link" href="#" onclick="return share_tab('link')" title="Get a Short URL">get a link</a></li>
+							</ul>	
+							<div class="clear"> </div>				
+						</div>	
+						
+						<h3 class="support">These bills also need your support</h3>
+						<p class="temp_bills"></p>
+		
+						<h3 class="oppose">These bills also need your opposition</h3>
+						<p class="temp_bills"></p>
+						
+						<div class="search">
+							<h3>Search bills on POPVOX</h3>
+							<p>search by bill number or issue area</p>
+							<form id="search" class="form" action="#" method="post" name="login">
+								<input name="search" value="" size="25" maxlength="40" type="text"><br />
+							</form><div class="clear"> </div>
+						</div>
+						
+					</div><!-- e: panel_share -->
+					
 					<div class="clear"> </div>
-				</form>
-				<div id="tips">
-					<h3>Tips</h3>
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-					<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-					<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-				</div>
 				
-				<div class="clear"> </div>
-				
+				</div> <!-- e: panel_holder -->
 				
 			</div><!-- e: body -->
-
+			
 			<div id="widget_foot">
 				<p><a href="http://www.popvox.com" target="_blank">powered by popvox.com</a></p>
 			</div>
 			
 		</div><!-- e: widget -->
 	</div><!-- e: wrap -->
-	
-	
-<div class="spacer"></div>
-
-
-
-	<div id="wrap" class="w420 preview">
-		<div id="comment_widget" class="float_left">
-			<div id="widget_top">
-				<h1>Tell Congress that you support H.R. 234</h1>
-				<ul>
-					<li class="one_complete">login</li>
-					<li class="two_complete">write</li>
-					<li class="three_active">send</li>
-					<li class="four">share</li>
-				</ul>
-			</div>
-			
-			<div id="widget_body">
-								
-				<h3>Preview your message</h3>
-
-				<div id="msg_preview">
-					<p class="greeting">Dear Congressperson:</p>
-					<p class="support"><span></span>I support H.R. 234 because the Statutory Debt Ceiling is supposed to indicate that you are spending too much money... living beyond your means. The intent of the debt ceiling is to REDUCE spending before you reach the limit. If, or when, the ceiling is reached, it is imperative that essential service providers be paid, and all non-essential services be suspended. Why do we have NON-ESSENTIAL services? This phrase indicates that the government has grown to be too large, and needs trimming, thus reducing the cost of operations.</p>
-					<p class="signature">Bob Smith<br />Jackson, TN</p>
-					
-				</div>	
-				
-				<p id="b_send_to_congress"><a class="btn" href="#">Send your message to Congress</a></p>
-				<div class="address">
-					<p>Bob Smith<br />
-						35 Morningside Dr.<br />
-						Jackson, TN 38301<br />
-						<a href="#">edit address</a>
-					</p>
-				</div>			
-				<div class="clear"> </div>
-				
-				
-			</div><!-- e: body -->
-
-			<div id="widget_foot">
-				<p><a href="http://www.popvox.com" target="_blank">powered by popvox.com</a></p>
-			</div>
-			
-		</div><!-- e: widget -->
-	</div><!-- e: wrap -->
-	
-<div class="spacer"></div>
-
-
-
-	<div id="wrap" class="w420 share">
-		<div id="comment_widget" class="float_left">
-			<div id="widget_top">
-				<h1>Tell Congress that you support H.R. 234</h1>
-				<ul>
-					<li class="one_complete">login</li>
-					<li class="two_complete">write</li>
-					<li class="three_complete">send</li>
-					<li class="four_active">share</li>
-				</ul>
-			</div>
-			
-			<div id="widget_body">
-								
-				<h3 class="congrats">Congratulations, you sent your message to Congress!</h3>
-
-				<div id="social_share">
-					<h3>Tell your friends to {support} this bill</h3>
-					<ul class="social_share_btns">
-						<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')" title="Facebook">facebook</a></li>
-						<li><a class="btn social_twitter" href="#" target="_blank" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
-						<li><a class="btn social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
-						<li><a class="btn social_link" href="#" onclick="return share_tab('link')" title="Get a Short URL">get a link</a></li>
-					</ul>	
-					<div class="clear"> </div>				
-				</div>	
-				
-				<h3 class="support">These bills also need your support</h3>
-				<p class="temp_bills"></p>
-
-				<h3 class="oppose">These bills also need your opposition</h3>
-				<p class="temp_bills"></p>
-				
-				<div class="search">
-					<h3>Search bills on POPVOX</h3>
-					<p>search by bill number or issue area</p>
-					<form id="search" class="form" action="#" method="post" name="login">
-						<input name="search" value="" size="25" maxlength="40" type="text"><br />
-					</form><div class="clear"> </div>
-				</div>
-				
-			</div><!-- e: body -->
-
-			<div id="widget_foot">
-				<p><a href="http://www.popvox.com" target="_blank">powered by popvox.com</a></p>
-			</div>
-			
-		</div><!-- e: widget -->
-	</div><!-- e: wrap -->	
 </body>
 </html>

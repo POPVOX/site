@@ -81,7 +81,7 @@ function clear_default_fields(form) {
 // even if there are multiple keyup events between the
 // first and the time the event handler is called.
 jQuery.fn.keyup_delayed = function(callback, delay) {
-  if (!delay) delay = 500;
+  if (!delay) delay = 450;
   return this.each(function(){
 	var last_press = null;
 	jQuery(this).keyup(function() {
