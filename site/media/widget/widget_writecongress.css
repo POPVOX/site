@@ -37,11 +37,17 @@ body {
 	}
 .widget_panel {
 	position: absolute;
-	left: 25px;
-	top: 110px;
+	left: 0px;
+	top: 0px;
 	height: 500px;
 	}
 #panel_holder {
+	position: absolute;
+	left: 25px;
+	top: 110px;
+	width: 420px;
+	height: 500px;
+	overflow: hidden;
 	}
 	
 #widget_top h1 {
@@ -404,23 +410,23 @@ body {
 				float: left;
 				}
 				
-			#msg_preview p.support {
-				background: url("bg_endorsed_bubl_l.png") no-repeat scroll 40px 5px transparent;
-				margin-bottom: 15px;
-				padding: 0 40px;
+			#msg_preview p.support span {
+				background: url("bg_endorsed_bubl_l.png") no-repeat scroll 0px 0px transparent;
 				}
 				
-			#msg_preview p.oppose {
-				background: url("bg_opposed_bubl_l.png") no-repeat scroll 40px 5px transparent;
-				margin-bottom: 15px;
-				padding: 0 40px;
+			#msg_preview p.oppose span {
+				background: url("bg_opposed_bubl_l.png") no-repeat scroll 0px 0px transparent;
 				}
 			
 			#msg_preview p.signature {
 				text-align: right;
 				background: url(bg_preview_msg_btm.png) left bottom no-repeat;
-				padding: 0 40px 40px;
+				padding-bottom: 40px;
 				height: 50px;
+				}
+				
+			#msg_preview p {
+				padding: 0 40px 5px;
 				}
 				
 		.preview .address {
@@ -553,6 +559,7 @@ body {
 			
 /* foot */			
 #widget_foot {
+	margin-top: 500px;
 	}			
 
 	#widget_foot a {

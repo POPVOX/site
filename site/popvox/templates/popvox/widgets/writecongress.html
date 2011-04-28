@@ -92,7 +92,7 @@
 			var left = cur.css("left");
 			
 			cur.animate(
-				{left: -panel_width},
+				{left: idx>current_panel ? -panel_width : panel_width},
 				function() {
 					cur.hide(); // if we don't hide it, then the user can tab through to its controls which causes scrolling
 					current_panel = idx;
@@ -100,8 +100,10 @@
 			);
 			
 			next.show();
-			next.css({ left: panel_width });
+			next.css({ left: idx>current_panel ? panel_width : -panel_width });
 			next.animate({left: left});
+			
+			return false;
 		}
 		
 		var email_status = null;
@@ -115,33 +117,49 @@
 			$.ajax({
 					url: window.location.pathname,
 					data: {
+						bill: {{bill.id}},
 						action: "check-email",
 						email: email
 					},
 					type: "POST",
 					dataType: "json",
 					success: function(data, textStatus, jqXHR) {
+						if (data.status == "fail") {
+							$("#panel_login .error").text(data.msg);
+							return;
+						}
+						
 						email_status = data.status;
+
+						$('#unregistered input, #registered_password input').attr("disabled", "1");
+						$('#panel_login .check').hide();
+						$('#b_next').addClass("disabled");
+						
 						if (data.status == "invalid-email") {
 							$("#panel_login .error").text("That's not a valid email address.");
-							$('#unregistered input, #registered_password input').attr("disabled", "1");
-							$('#panel_login .check').hide();
-							$('#b_next').addClass("disabled");
+						} else if (data.status == "staff-cant-do-this") {
+							$("#panel_login .error").text("That's a staff account. Use a different email address for personal comments to Congress.");
+						} else if (data.status == "already-commented") {
+							$("#panel_login .error").text("You've already left a comment on this bill. Thanks!");
 						} else {
 							$('#panel_login .check').show();
 							$('#unregistered input, #registered_password input').attr("disabled", "");
 							$('#b_next').removeClass("disabled");
 							if (data.status == "not-registered") {
 								$('#unregistered').show();
-								$('#registered, #registered_password, #registered_sso, #registered_sso_password').hide();
+								$('#registered_password, #registered_sso').hide();
 								$('#b_next').show();
 							} else {
 								$('#unregistered').hide();
-								$('#registered').show();
-								if (data.has_password) $('#registered_password, #b_next').show(); else $('#registered_password, #b_next').hide();
-								if (data.sso_methods.length > 0) $('#registered_sso').show(); else $('#registered_sso').hide();
-								if (data.has_password && data.sso_methods.length > 0) $('#registered_sso_password').show(); else $('#registered_sso_password').hide();
 								
+								$('#registered_password, #b_next, #registered_sso').hide();
+								
+								if (data.has_password) {
+									$('#registered_password, #b_next').show();
+								} else if (data.sso_methods.length > 0) {
+									$('#registered_sso').show();
+								} // had better be one or the other, but give preference to password
+								  
 								$('#registered_sso .singlesignon li a').hide();
 								for (var i = 0; i < data.sso_methods.length; i++)
 									$('#registered_sso .singlesignon li a.social_' + data.sso_methods[i]).show();
@@ -194,8 +212,8 @@
 					type: "POST",
 					dataType: "json",
 					success: function(data, textStatus, jqXHR) {
-						if (data.status == "error") {
-							$("#panel_login .error").text(data.message);
+						if (data.status == "fail") {
+							$("#panel_login .error").text(data.msg);
 						} else {
 							$("#panel_login .error").text("");
 							identity = data.identity;
@@ -251,12 +269,15 @@
 			
 		}
 		
+		var recipients;
+		
 		function do_address() {
 			$.ajax({
 					url: window.location.pathname,
 					data: {
+						bill: {{bill.id}},
 						action: "address",
-						id: identity.id,
+						id: identity.id ? identity.id : undefined,
 						email: identity.email,
 						useraddress_prefix: $("#useraddress_prefix").val(),
 						useraddress_firstname: identity.firstname,
@@ -272,11 +293,15 @@
 					type: "POST",
 					dataType: "json",
 					success: function(data, textStatus, jqXHR) {
-						if (data.status == "error") {
-							$("#panel_login .error").text(data.message);
+						if (data.status == "fail") {
+							$("#panel_login .error").text(data.msg);
 						} else {
 							$("#panel_login .error").text("");
 							identity = data.identity;
+							recipients = data.recipients;
+							if (recipients.length > 0)
+								$('#msg_preview .greeting').text("Dear " + recipients.join(", ") + ":")
+														
 							show_panel(2);
 						}
 					},
@@ -286,6 +311,20 @@
 				});
 			
 				return false;
+		}
+		
+		function do_preview() {
+			// convert message text into a nicely paragraphed html preview
+			var msghtml = "";
+			var lines = $('#message').val().replace("\r", "\n").replace("\n\n", "\n").split("\n");
+			for (var i = 0; i < lines.length; i++)
+				msghtml += "<p>" + $('<div/>').text(lines[i]).html() + "</p>";
+			
+			$('#msg_preview .message').html(msghtml);
+			$('#panel_preview .address .name, #msg_preview .name').text(identity.firstname + " " + identity.lastname);
+			$('#msg_preview .location').text(identity.city + ", " + identity.state);
+			$('#panel_preview .address .citystatezip').text(identity.city + ", " + identity.state + " " + identity.zipcode);
+			show_panel(3); 
 		}
 		
 		// debuggging
@@ -323,21 +362,16 @@
 							<div id="login">
 								<input id="email" name="email" value="" size="25" maxlength="40" type="text"><span class="check" style="display: none">check</span><br />
 	
-								<div id="registered" style="display: none" class="clear">
-									<p>You&rsquo;ve created a POPVOX account already. We&rsquo;ll need you to log in.</p>
-								</div>
 								<div id="registered_sso" style="display: none" class="clear">
+									<p>You&rsquo;ve created a POPVOX account already. We&rsquo;ll need you to log in.</p>
 									{% with request.path as singlesignon_next %}
 									{% with "&mode=compact" as singlesignon_params %}
 										{% include "registration/login_singlesignon.html" %}
 									{% endwith %}
 									{% endwith %}
 								</div>
-								<div id="registered_sso_password" style="display: none" class="clear">
-									<p>Or use your POPVOX password:</p>
-								</div>
 								<div id="registered_password" style="display: none" class="clear">
-									<label for="password">password</label>
+									<p>Enter your POPVOX.com password:</p>
 									<input id="password" value="" size="25" maxlength="40" type="password"><br />
 									<p>forgot your password?</p>
 								</div>
@@ -436,16 +470,17 @@
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
 		
-							<textarea class="half" id="message" maxlength="250" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
+							<textarea class="half" id="message" maxlength="500" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
 							
 		<!--					<input value="Send My Support Without a Message" id="b_send_no_msg" type="button">-->
-							<input value="Preview" id="b_preview" type="button" onclick="show_panel(3); return false;">
+							<input value="Preview" id="b_preview" type="button" onclick="return do_preview();">
 							<div class="clear"> </div>
 						</form>
 						<div id="tips">
 							<h3>Tips</h3>
 							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents.</p>
-							<p id="messagetip"></p>
+							<p id="messagetip" style="color: black"></p>
+							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
 						</div>
 						<script>$('#message').textchange(function() { validate('message'); });</script>
 						
@@ -461,16 +496,16 @@
 						<div id="msg_preview">
 							<p class="greeting">Dear Congressperson:</p>
 							<p class="{{verb}}"><span></span> <div class="message"> </div></p>
-							<p class="signature">Bob Smith<br />Jackson, TN <br /><a href="#">revise message</a></p>
+							<p class="signature"><span class="name">Bob Smith</span><br /><span class="location">Jackson, TN</span> <br /><a href="#" onclick="return show_panel(2);">revise message</a></p>
 							
 						</div>	
 						
 						<p id="b_send_to_congress"><a class="btn" href="#" onclick="show_panel(4); return false;">Send your message to Congress</a></p>
 						<div class="address">
-							<p>Bob Smith<br />
-								35 Morningside Dr.<br />
-								Jackson, TN 38301<br />
-								<a href="#">edit address</a>
+							<p><span class="name">Bob Smith</span><br />
+								<span class="address1">35 Morningside Dr.</span><br />
+								<span class="citystatezip">Jackson, TN 38301</span><br />
+								<a href="#" onclick="return show_panel(1);">edit address</a>
 							</p>
 						</div>			
 						<div class="clear"> </div>

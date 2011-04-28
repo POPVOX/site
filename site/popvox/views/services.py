@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
 from popvox.models import *
-from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS
+from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS, getMemberOfCongress
 
 from widgets import do_not_track_compliance
 
@@ -143,14 +143,36 @@ def widget_render_commentstream(request, permissions):
 
 def widget_render_writecongress(request, permissions):
 	if request.META["REQUEST_METHOD"] == "GET":
+		if not "bill" in request.GET:
+			raise Http404()
+		try:
+			bill = bill_from_url("/bills/" + request.GET["bill"])
+		except:
+			raise Http404("Invalid bill")
+		position = request.GET["position"]
+		if not position in ("support", "oppose"):
+			raise Http404("Invalid position")
+			
+		u = request.user
+		if not request.user.is_authenticated():
+			u = None
+			
+		# these checks are repeated below when checking emails
+		elif u.userprofile.is_org_admin() or u.userprofile.is_leg_staff():
+			u = None
+		elif not u.postaladdress_set.all().exists():
+			u = None
+		elif u.comments.filter(bill=bill).exists():
+			u = None
+		
 		return render_to_response('popvox/widgets/writecongress.html', {
 			"permissions": permissions,
-			"screenname": None if not request.user.is_authenticated() else request.user.username,
-			"identity": None if not request.user.is_authenticated() else json.dumps(widget_render_writecongress_get_identity(request.user)),
+			"screenname": None if u == None else request.user.username,
+			"identity": None if u == None else json.dumps(widget_render_writecongress_get_identity(request.user)),
 			
 			"org": Org.objects.get(slug="demo"),
-			"verb": "support",
-			"bill": { "id": 3, "displaynumber": "H.R. 1234" },
+			"verb": position,
+			"bill": bill,
 			
 			"useraddress_prefixes": PostalAddress.PREFIXES,
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
@@ -172,6 +194,15 @@ def widget_render_writecongress_action(request):
 		except User.DoesNotExist:
 			return { "status": "not-registered" }
 			
+		# these checks are repeated above when checking the logged in user
+		if u.userprofile.is_org_admin() or u.userprofile.is_leg_staff():
+			return { "status": "staff-cant-do-this" }
+		if not u.postaladdress_set.all().exists():
+			return { "status": "not-registered" } # if the user is registered but has no address info, pretend they are not registered
+
+		if u.comments.filter(bill=bill).exists():
+			return { "status": "already-commented" }
+
 		sso = u.singlesignon.all()
 		
 		return {
@@ -182,9 +213,11 @@ def widget_render_writecongress_action(request):
 
 	if request.POST["action"] == "newuser":
 		try:
-			email = validate_email(request.POST["email"])
+			# although this should be for new users only (and then we would take out for_login=True),
+			# we also force any registered user who doesn't have an address record to go this route
+			email = validate_email(request.POST["email"], for_login=True)
 		except ValidationError as e:
-			return { "status": "error", "message": validation_error_message(e) }
+			return { "status": "fail", "msg": validation_error_message(e) }
 			
 		from writeyourrep.district_lookup import get_state_for_zipcode
 		
@@ -195,9 +228,9 @@ def widget_render_writecongress_action(request):
 			"state": get_state_for_zipcode(request.POST["zipcode"].strip()),
 			"zipcode": request.POST["zipcode"].strip(),
 			}
-		if not re.search("[A-Za-z]", identity["firstname"]): return { "status": "error", "message": "Enter your first name." }
-		if not re.search("[A-Za-z]", identity["lastname"]): return { "status": "error", "message": "Enter your last name." }
-		if identity["state"] == None: return { "status": "error", "message": "That's not a ZIP code within a U.S. congressional district. Please enter the ZIP code where you vote." } 
+		if not re.search("[A-Za-z]", identity["firstname"]): return { "status": "fail", "msg": "Enter your first name." }
+		if not re.search("[A-Za-z]", identity["lastname"]): return { "status": "fail", "msg": "Enter your last name." }
+		if identity["state"] == None: return { "status": "fail", "msg": "That's not a ZIP code within a U.S. congressional district. Please enter the ZIP code where you vote." } 
 		
 		# if user is logged in, log him out
 		logout(request)
@@ -214,14 +247,14 @@ def widget_render_writecongress_action(request):
 			email = validate_email(request.POST["email"], for_login=True)
 			password = validate_password(request.POST["password"])
 		except ValidationError as e:
-			return { "status": "error", "message": validation_error_message(e) }
+			return { "status": "fail", "msg": validation_error_message(e) }
 		
 		user = authenticate(email=email, password=password)
 		
 		if user == None:
-			return { "status": "error", "message": "That's not the right password, sorry!" }
+			return { "status": "fail", "msg": "That's not the right password, sorry!" }
 		elif not user.is_active:
-			return { "status": "error", "message": "Your account has been disabled." }
+			return { "status": "fail", "msg": "Your account has been disabled." }
 		else:
 			login(request, user)
 			
@@ -243,17 +276,28 @@ def widget_render_writecongress_action(request):
 			else:
 				p.congressionaldistrict = 1
 		except Exception as e:
-			return { "status": "error", "message": validation_error_message(e) }
+			return { "status": "fail", "msg": validation_error_message(e) }
 
 		if "id" in request.POST and request.POST["id"] != "":
 			user = User.objects.get(id=request.POST["id"])
 		else:
 			user = User()
 			user.email = request.POST["email"]
+		
+		if p.congressionaldistrict == None:
+			recipients = []
+		else:
+			cx = UserComment()
+			cx.bill = Bill.objects.get(id=request.POST["bill"])
+			cx.address = p
+			recipients = cx.get_recipients()
+			if type(recipients) == str:
+				recipients = []
 
 		return {
 			"status": "success",
 			"identity": widget_render_writecongress_get_identity(user, address=p),
+			"recipients": [m["name"] for m in recipients],
 			}
 
 def widget_render_writecongress_get_identity(user, address=None):

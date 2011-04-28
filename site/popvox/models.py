@@ -1034,7 +1034,8 @@ class UserComment(models.Model):
 		return self.shares().aggregate(models.Sum("hits"))["hits__sum"]
 
 	def get_recipients(self):
-		if "@popvox.com" in self.user.email: return "Delivery is blocked for @popvox.com accounts."
+		if hasattr(self, "user") and "@popvox.com" in self.user.email:
+			return "Delivery is blocked for @popvox.com accounts."
 		
 		ch = self.bill.getChamberOfNextVote()
 		if ch == None:
