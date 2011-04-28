@@ -213,7 +213,7 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 		b = []
 		for c in sys.argv[2:]:
 			b.extend(re.split(r"\s+", c))
-		b = [int(c) for c in b if c.strip() != ""]
+		b = [c for c in b if c.strip() != ""]
 		recs = recs.filter(batch__in = b)
 	for ucodr in recs:
 		dr = DeliveryRecord()
@@ -261,4 +261,13 @@ elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
 	finally:
 		#print path
 		shutil.rmtree(path)
+
+else:
+	print UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False).count(), "messages printed"
+	
+	batches = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False).values_list("batch", flat=True).distinct()
+	batches = list(batches)
+	batches.sort(key = lambda x : (x.split(":")[0], int(x.split(":")[1])))
+	for b in batches:
+		print b
 		
