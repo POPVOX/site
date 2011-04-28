@@ -1,6 +1,5 @@
-/* @override https://popvox.com:777/media/widget/widget.css */
-
-/* css widget - no mokeys were harmed in the making of this code. (except that weird, small one. but you'll hardly notice the limp.) */
+/* css for Write Congress Widget - April 2011 
+no mokeys were harmed in the making of this code. (except that weird, small one. but you'll hardly notice the limp.) */
 
 body {
 	font-size: 13px;
@@ -34,7 +33,7 @@ body {
 	}
 	
 #widget_body {
-	overflow: hidden;
+/*	overflow: hidden;*/
 	}
 .widget_panel {
 	position: absolute;
@@ -125,12 +124,54 @@ body {
 	
 /* 1 start */	
 	
-	/* form */
-	
 		.widget_panel {
 			width: 350px; 
 			}
 			
+		#loggedinalready {
+			width: 280px;
+			margin-top: -10px;
+			}
+			
+			#loggedinalready p {
+				margin-bottom: 10px;
+				}
+				
+				#loggedinalready p strong {
+					font-weight: bold;
+					}
+					
+			#loggedinalready a {
+				color: #CC6A11;
+				font-weight: bold;
+				}
+				
+		#registered {
+			width: 280px;
+			}
+			
+		.singlesignon .social_facebook {
+			background: url(../icons/sm/facebook-login.png) left top no-repeat;
+			width: 150px;
+			height: 22px;
+			}
+		
+		.singlesignon .social_twitter {
+			background: url(../icons/sm/twitter-login.png) left top no-repeat;
+			width: 150px;
+			height: 22px;
+			}
+			
+		.singlesignon .social_twitter {
+			background: url(../icons/sm/twitter-login.png) left top no-repeat;
+			width: 150px;
+			height: 22px;
+			}
+			
+			
+				
+	/* form */
+	
 		.form input, .form textarea, .form file, .form .field {
 			font: normal 12px/18px helvetica, arial, sans-serif;
 			border: 1px solid #BFC4C8;
@@ -216,10 +257,19 @@ body {
 				background-position: left bottom;
 				cursor: default;
 				} 
+				
+		p.error {
+			color: red;
+			margin-top: 10px;
+			}
 
 
 /* 2 write */
 
+	#panel_write {
+		display: block;
+		}
+		
 	.why {
 		clear: both;
 		display: block;
@@ -438,7 +488,7 @@ body {
 			}
 	
 		.social_facebook {
-			background: url(../icons/sm/b_icon_facebook.png) left top no-repeat;
+			background: url(../icons/sm/icon_facebook.png) left top no-repeat;
 			}
 		
 		.social_twitter {
@@ -497,7 +547,6 @@ body {
 			
 /* foot */			
 #widget_foot {
-	margin-top: 300px;
 	}			
 
 	#widget_foot a {
