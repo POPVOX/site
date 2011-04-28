@@ -15,10 +15,11 @@ from registration.helpers import validate_email, validate_password
 
 from jquery.ajax import json_response, validation_error_message
 
-from settings import SITE_ROOT_URL
+from settings import DEBUG, SITE_ROOT_URL
 
 import urlparse
 import json
+import re
 
 def widget_config(request):
 	# Collect all of the ServiceAccounts that the user has access to.
@@ -144,8 +145,11 @@ def widget_render_writecongress(request, permissions):
 	if request.META["REQUEST_METHOD"] == "GET":
 		return render_to_response('popvox/widgets/writecongress.html', {
 			"permissions": permissions,
-			"screenname": None if not request.user.is_authenticated else request.user.username,
-			"identity": None if not request.user.is_authenticated else json.dumps(widget_render_writecongress_get_identity(request.user))
+			"screenname": None if not request.user.is_authenticated() else request.user.username,
+			"identity": None if not request.user.is_authenticated() else json.dumps(widget_render_writecongress_get_identity(request.user)),
+			"org": Org.objects.get(slug="demo"),
+			"useraddress_prefixes": PostalAddress.PREFIXES,
+			"useraddress_suffixes": PostalAddress.SUFFIXES,
 			}, context_instance=RequestContext(request))
 	else:
 		return widget_render_writecongress_action(request)
@@ -172,6 +176,35 @@ def widget_render_writecongress_action(request):
 			"sso_methods": [s.provider for s in sso],
 			}
 
+	if request.POST["action"] == "newuser":
+		try:
+			email = validate_email(request.POST["email"])
+		except ValidationError as e:
+			return { "status": "error", "message": validation_error_message(e) }
+			
+		from writeyourrep.district_lookup import get_state_for_zipcode
+		
+		identity = {
+			"email": email,
+			"firstname": request.POST["firstname"].strip(),
+			"lastname": request.POST["lastname"].strip(),
+			"state": get_state_for_zipcode(request.POST["zipcode"].strip()),
+			"zipcode": request.POST["zipcode"].strip(),
+			}
+		if not re.search("[A-Za-z]", identity["firstname"]): return { "status": "error", "message": "Enter your first name." }
+		if not re.search("[A-Za-z]", identity["lastname"]): return { "status": "error", "message": "Enter your last name." }
+		if identity["state"] == None: return { "status": "error", "message": "That's not a ZIP code within a U.S. congressional district. Please enter the ZIP code where you vote." } 
+		
+		# if user is logged in, log him out
+		logout(request)
+		
+		# TODO: Record the information for the org, and store a record id for later.
+		
+		return {
+			"status": "success",
+			"identity": identity,
+			}
+
 	if request.POST["action"] == "login":
 		try:
 			email = validate_email(request.POST["email"], for_login=True)
@@ -188,20 +221,50 @@ def widget_render_writecongress_action(request):
 		else:
 			login(request, user)
 			
+			# TODO: Record the information for the org, and store a record id for later.
+			
 			return {
 				"status": "success",
 				"identity": widget_render_writecongress_get_identity(user),
 				}
 
-def widget_render_writecongress_get_identity(user):
-	try:
-		pa = user.postaladdress_set.all().order_by("-created")[0]
-	except:
-		pa = object()
+	if request.POST["action"] == "address":
+		p = PostalAddress()
+		try:
+			p.load_from_form(request)
+			
+			if not DEBUG:
+				from writeyourrep.addressnorm import verify_adddress
+				verify_adddress(p, validate=False) # we'll catch any problems later on
+			else:
+				p.congressionaldistrict = 1
+		except Exception as e:
+			return { "status": "error", "message": validation_error_message(e) }
+
+		if "id" in request.POST and request.POST["id"] != "":
+			user = User.objects.get(id=request.POST["id"])
+		else:
+			user = User()
+			user.email = request.POST["email"]
+
+		return {
+			"status": "success",
+			"identity": widget_render_writecongress_get_identity(user, address=p),
+			}
+
+def widget_render_writecongress_get_identity(user, address=None):
+	if address == None:
+		try:
+			pa = user.postaladdress_set.all().order_by("-created")[0]
+		except:
+			pa = object()
+	else:
+		pa = address
 	
 	return {
-		"id": user.id,
-		"screenname": user.username,
+		"id": getattr(user, "id", ""),
+		"email": getattr(user, "email", ""),
+		"screenname": getattr(user, "username", ""),
 		"nameprefix": getattr(pa, "nameprefix", ""),
 		"firstname": getattr(pa, "firstname", ""),
 		"lastname": getattr(pa, "lastname", ""),

@@ -109,6 +109,14 @@ jQuery.fn.textchange = function(callback) {
   });
 }
 
+jQuery.fn.set_text = function(text) {
+  return this.each(function(){
+	jQuery(this).val(text);
+	jQuery(this).removeClass("default");
+	jQuery(this).keyup();
+  });
+}
+
 jQuery.fn.inline_edit = function(callback, createeditor) {
 	return this.each(function(){
 		var inline = jQuery(this);

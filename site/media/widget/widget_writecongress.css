@@ -164,9 +164,23 @@ body {
 				border-radius: 3px;
 				}
 			
-			.form #email {
+			#email {
 				float: left;
 				}
+			
+			#addressform input {
+				margin-bottom: 5px;
+				width: 230px;
+				}
+			#addressform span {
+				display: inline-block;
+				margin-bottom: 5px;
+				}
+		
+		.form label {
+			display: inline-block;
+			width: 100px;
+			}
 				
 			.form .check {
 				background: url(bg_check.gif) left top no-repeat;

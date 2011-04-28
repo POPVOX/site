@@ -7,7 +7,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /><!--[if lte IE 7]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
 		
-	<title>write congress widget // POPVOX // your new political monkey</title>
+	<title>write congress widget // POPVOX</title>
 	
 	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="/media/widget/widget_writecongress.css" type="text/css" media="screen" />
@@ -156,11 +156,6 @@
 		var identity = null;
 		
 		function do_login() {
-			if (identity) {
-				show_panel(2);
-				return false;
-			}
-			
 			if ($("#b_next").hasClass("disabled")) return false;
 			
 			var data;
@@ -171,49 +166,45 @@
 				if ($("#lastname").hasClass("default")) { alert("Enter your last name to continue."); return false; }
 				if ($("#zipcode").hasClass("default")) { alert("Enter your zip code to continue."); return false; }
 				
-				// in principle it would be nice to log the user out here if he is logged in
-				// but logged out in the UI, but in testing I'd rather not
-				
-				// secondly, we want to record this information for the org that owns
-				// the widget.
-				
-				identity = {
+				data = {
+					action: "newuser",
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
 					lastname: $("#lastname").val(),
 					zipcode: $("#zipcode").val()
 					};
-					
-				show_panel(2);
+				
 			} else {
 				// only used if logging in with password
 				if ($("#password").hasClass("default")) { alert("Enter your password to log in."); return false; }
 			
-				$.ajax({
-						url: window.location.pathname,
-						data: {
-							action: "login",
-							email: $("#email").val(),
-							password: $("#password").val()
-							},
-						type: "POST",
-						dataType: "json",
-						success: function(data, textStatus, jqXHR) {
-							if (data.status == "error") {
-								$("#panel_login .error").text(data.message);
-							} else {
-								identity = data.identity;
-								show_panel(2);
-							}
-						},
-						error: function(jqXHR, textStatus, errorThrown) {
-							$("#panel_login .error").text("We're having some technical difficulty. Please try again soon.");
-						}
-					});
-		
+				data = {
+					action: "login",
+					email: $("#email").val(),
+					password: $("#password").val()
+					};
 			}
 
-			return false;
+			$.ajax({
+					url: window.location.pathname,
+					data: data,
+					type: "POST",
+					dataType: "json",
+					success: function(data, textStatus, jqXHR) {
+						if (data.status == "error") {
+							$("#panel_login .error").text(data.message);
+						} else {
+							$("#panel_login .error").text("");
+							identity = data.identity;
+							show_address();
+						}
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#panel_login .error").text("We're having some technical difficulty. Please try again soon.");
+					}
+				});
+			
+				return false;
 		}
 		
 		{% if identity %}
@@ -222,6 +213,7 @@
 			$('#email, #unregistered').hide();
 			$('#loggedinalready').show();
 			$('#b_next').removeClass("disabled");
+			show_address();
 		});
 		{% endif %}
 		
@@ -232,6 +224,77 @@
 			$('#b_next').addClass("disabled");
 			return false;
 		}
+		
+		function show_address() {
+			$('#login').hide();
+			$('#addressform').show();
+			$('#useraddress_firstname').text(identity.firstname);
+			$('#useraddress_lastname').text(identity.lastname);
+			$('#useraddress_state').text(identity.state);
+			$('#useraddress_zipcode').text(identity.zipcode);
+			$('#useraddress_prefix').val(identity.nameprefix);
+			$('#useraddress_suffix').val(identity.namesuffix);
+			$('#useraddress_address1').val(identity.address1);
+			$('#useraddress_address2').val(identity.address2);
+			$('#useraddress_city').val(identity.city);
+			$('#useraddress_phonenumber').val(identity.phonenumber);
+			
+			// debugging
+			if (!identity.nameprefix) {
+				$('#useraddress_prefix').set_text("Mr.");
+				$('#useraddress_address1').set_text("100 Debug Noname Street");
+				$('#useraddress_city').set_text("Nowherevill Debug");
+				$('#useraddress_phonenumber').set_text("(123) 456-7890 ext. Debug");
+			}
+			
+		}
+		
+		function do_address() {
+			$.ajax({
+					url: window.location.pathname,
+					data: {
+						action: "address",
+						id: identity.id,
+						email: identity.email,
+						useraddress_prefix: $("#useraddress_prefix").val(),
+						useraddress_firstname: identity.firstname,
+						useraddress_lastname: identity.lastname,
+						useraddress_suffix: $("#useraddress_suffix").val(),
+						useraddress_address1: $("#useraddress_address1").val(),
+						useraddress_address2: $("#useraddress_address2").val(),
+						useraddress_city: $("#useraddress_city").val(),
+						useraddress_state: identity.state,
+						useraddress_zipcode: identity.zipcode,
+						useraddress_phonenumber: $("#useraddress_phonenumber").val()
+					},
+					type: "POST",
+					dataType: "json",
+					success: function(data, textStatus, jqXHR) {
+						if (data.status == "error") {
+							$("#panel_login .error").text(data.message);
+						} else {
+							$("#panel_login .error").text("");
+							identity = data.identity;
+							show_panel(2);
+						}
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#panel_login .error").text("We're having some technical difficulty. Please try again soon.");
+					}
+				});
+			
+				return false;
+		}
+		
+		// debuggging
+		{% if not identity %}
+		$(function() {
+			$('#email').set_text("debug@example.org");
+			$('#firstname').set_text("John");
+			$('#lastname').set_text("Debug");
+			$('#zipcode').set_text("19104");
+		});
+		{% endif %}
 	</script>
 </head>
 <body>
@@ -255,45 +318,90 @@
 						<form class="form" action="#" onsubmit="return false;"><br />
 							<h3>Tell Congress who you are</h3>
 							
-							<input id="email" name="email" value="" size="25" maxlength="40" type="text"><span class="check" style="display: none">check</span><br />
-
-							<div id="registered" style="display: none" class="clear">
-								<p>You&rsquo;ve created a POPVOX account already. We&rsquo;ll need you to log in.</p>
-							</div>
-							<div id="registered_sso" style="display: none" class="clear">
-								{% with request.path as singlesignon_next %}
-								{% with "&mode=compact" as singlesignon_params %}
-									{% include "registration/login_singlesignon.html" %}
-								{% endwith %}
-								{% endwith %}
-							</div>
-							<div id="registered_sso_password" style="display: none" class="clear">
-								<p>Or use your POPVOX password:</p>
-							</div>
-							<div id="registered_password" style="display: none" class="clear">
-								<input id="password" value="" size="25" maxlength="40" type="password"><br />
-								<p>forgot your password?</p>
-							</div>
-		
-							<div id="unregistered">
-								<input id="firstname" value="" size="25" maxlength="40" type="text"><br />
-								<input id="lastname" value="" size="25" maxlength="40" type="text"><br />
-								<input id="zipcode" value="" size="25" maxlength="40" type="text"><br />
-							</div>
-
-							<div id="loggedinalready">
-								<p>Welcome back {{screenname}}. Click Next to get started.</p>
-								<p><a href="#" onclick="return logout();">Not you?</a>
+							<div id="login">
+								<input id="email" name="email" value="" size="25" maxlength="40" type="text"><span class="check" style="display: none">check</span><br />
+	
+								<div id="registered" style="display: none" class="clear">
+									<p>You&rsquo;ve created a POPVOX account already. We&rsquo;ll need you to log in.</p>
+								</div>
+								<div id="registered_sso" style="display: none" class="clear">
+									{% with request.path as singlesignon_next %}
+									{% with "&mode=compact" as singlesignon_params %}
+										{% include "registration/login_singlesignon.html" %}
+									{% endwith %}
+									{% endwith %}
+								</div>
+								<div id="registered_sso_password" style="display: none" class="clear">
+									<p>Or use your POPVOX password:</p>
+								</div>
+								<div id="registered_password" style="display: none" class="clear">
+									<label for="password">password</label>
+									<input id="password" value="" size="25" maxlength="40" type="password"><br />
+									<p>forgot your password?</p>
+								</div>
+			
+								<div id="unregistered">
+									<input id="firstname" value="" size="25" maxlength="40" type="text"><br />
+									<input id="lastname" value="" size="25" maxlength="40" type="text"><br />
+									<input id="zipcode" value="" size="25" maxlength="40" type="text"><br />
+								</div>
 							</div>
 							
-							<input value="next" id="b_next" class="btn disabled" onclick="return do_login();" type="button">
+							<div id="loggedinalready" style="display: none">
+								<p>Welcome back {{screenname}}. Check your address and then click Next to get started. <a href="#" onclick="return logout();">Not you?</a>
+							</div>
+							
+							<div id="addressform" style="display: none">
+								<p>Provide the address of your residence where you intend to vote. Please understand that we cannot deliver your message to your Representative and Senators without your complete contact information.</p>
+							
+								<label for="useraddress_prefix">Prefix</label>
+								<select class="c2" id="useraddress_prefix">
+									{% for prefix in useraddress_prefixes %}
+									<option value="{{prefix}}" {% if useraddress.nameprefix == prefix %}selected{% endif %}>{{prefix}}{% if not prefix %}(select){% endif %}</option>
+									{% endfor %}
+								</select><br />
+								
+								<label for="useraddress_firstname">First Name</label>
+								<span id="useraddress_firstname">...</span><br />
+								
+								<label for="useraddress_lastname">Last Name</label>
+								<span id="useraddress_lastname">...</span><br />
+								
+								<label for="useraddress_suffix">Suffix</label>
+								<select class="c2" id="useraddress_suffix">
+									{% for suffix in useraddress_suffixes %}
+									<option value="{{suffix}}" {% if useraddress.namesuffix == suffix %}selected{% endif %}>{{suffix}}{% if not suffix %}(none){% endif %}</option>
+									{% endfor %}
+								</select><br />
+								
+								<label for="useraddress_address1">Address Line 1</label>
+								<input class="c3" id="useraddress_address1" type="text" value=""/><br />
+								
+								<label for="useraddress_address2">Address Line 2</label>
+								<input class="c3" id="useraddress_address2" type="text" value=""/><br />
+								
+								<label for="useraddress_city">City</label>
+								<input class="c2" id="useraddress_city" type="text" value=""/><br />
+								
+								<label for="useraddress_state">State</label>
+								<span id="useraddress_state">...</span><br />
+								
+								<label for="useraddress_zipcode">ZIP Code</label>
+								<span id="useraddress_zipcode">...</span><br />
+								
+								<label for="useraddress_phonenumber">Phone Number</label>
+								<input class="c2" id="useraddress_phonenumber" type="text" value=""/><br />
+							</div>
+
+							<input value="next" id="b_next" class="btn disabled" onclick="return (!identity ? do_login() : do_address());" type="button">
 							
 							<p class="clear error"> </p>
+								
+							<p style="margin-top: 1em">Your letter will be sent to Congress <b>and</b> posted anonymously on POPVOX.com. {% if org %}We&rsquo;ll also provide a copy to {{org.name}}.{% endif %}</p>
 						</form>
 						
 						<script>
 							$('#email').input_default("enter your email address");
-							$('#password').input_default("password");
 							$('#firstname').input_default("first name");
 							$('#lastname').input_default("last name");
 							$('#zipcode').input_default("zip code");
