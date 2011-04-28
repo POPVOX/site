@@ -147,7 +147,11 @@ def widget_render_writecongress(request, permissions):
 			"permissions": permissions,
 			"screenname": None if not request.user.is_authenticated() else request.user.username,
 			"identity": None if not request.user.is_authenticated() else json.dumps(widget_render_writecongress_get_identity(request.user)),
+			
 			"org": Org.objects.get(slug="demo"),
+			"verb": "support",
+			"bill": { "id": 3, "displaynumber": "H.R. 1234" },
+			
 			"useraddress_prefixes": PostalAddress.PREFIXES,
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
 			}, context_instance=RequestContext(request))
