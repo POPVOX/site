@@ -150,10 +150,15 @@ body {
 			width: 280px;
 			}
 			
-		.singlesignon .social_facebook {
-			background: url(../icons/sm/facebook-login.png) left top no-repeat;
+		.singlesignon li a {
 			width: 150px;
 			height: 22px;
+			display: block;
+			text-indent: -9999em;			
+			}
+			
+		.singlesignon .social_facebook {
+			background: url(../icons/sm/facebook-login.png) left top no-repeat;
 			}
 		
 		.singlesignon .social_twitter {
@@ -162,11 +167,18 @@ body {
 			height: 22px;
 			}
 			
-		.singlesignon .social_twitter {
-			background: url(../icons/sm/twitter-login.png) left top no-repeat;
+		.singlesignon .social_google {
+			background: url(../icons/sm/google-login.png) left top no-repeat;
 			width: 150px;
 			height: 22px;
 			}
+			
+		.singlesignon .social_linkedin {
+			background: url(../icons/sm/linkedin-login.png) left top no-repeat;
+			width: 150px;
+			height: 22px;
+			}
+		
 			
 			
 				
