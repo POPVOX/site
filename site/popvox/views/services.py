@@ -20,6 +20,7 @@ from settings import DEBUG, SITE_ROOT_URL
 import urlparse
 import json
 import re
+from itertools import chain
 
 def widget_config(request):
 	# Collect all of the ServiceAccounts that the user has access to.
@@ -143,16 +144,34 @@ def widget_render_commentstream(request, permissions):
 
 def widget_render_writecongress(request, permissions):
 	if request.META["REQUEST_METHOD"] == "GET":
-		if not "bill" in request.GET:
-			raise Http404()
-		try:
-			bill = bill_from_url("/bills/" + request.GET["bill"])
-		except:
-			raise Http404("Invalid bill")
-		position = request.GET["position"]
-		if not position in ("support", "oppose"):
-			raise Http404("Invalid position")
+		# Get bill, position, org, orgcampaignposition, and reason.
+		ocp = None
+		org = None
+		reason = None
+		if "ocp" not in request.GET:
+			if not "bill" in request.GET:
+				raise Http404()
+			try:
+				bill = bill_from_url("/bills/" + request.GET["bill"])
+			except:
+				raise Http404("Invalid bill")
+			position = request.GET["position"]
+			if not position in ("support", "oppose"):
+				raise Http404("Invalid position")
+		else:
+			# ocp argument specifies the OrgCampaignPosition, which has all of the
+			# information we need.
+			ocp = get_object_or_404(OrgCampaignPosition, id=request.GET["ocp"], position__in=("+", "-"), campaign__visible=True, campaign__org__visible=True)
+			org = ocp.campaign.org
+			bill = ocp.bill
+			position = "support" if ocp.position == "+" else "oppose"
+			reason = ocp.comment
 			
+		if not bill.isAlive():
+			raise Http404("Bill is not alive.")
+			
+		# Get the user, but null out of the user is not allowed to comment so he can log in
+		# as someone else.
 		u = request.user
 		if not request.user.is_authenticated():
 			u = None
@@ -165,14 +184,47 @@ def widget_render_writecongress(request, permissions):
 		elif u.comments.filter(bill=bill).exists():
 			u = None
 		
+		# get the target URL for the share function, which can be overridden
+		# in the url GET parameter, or it comes from the HTTP referrer, or
+		# else it falls back to a long form URL for the bill.
+		url = request.GET.get("url",
+			request.META.get("HTTP_REFERER",
+				SITE_ROOT_URL + bill.url()))
+		
+		# compute suggestions for further action
+		suggestions = {
+			"+": ["support", "These bills also need your support", []],
+			"-": ["oppose", "These bills also need your opposition", []],
+			"0": ["neutral", "You may be interested in weighing in on these bills", []] }
+		if org == None:
+			# compute by bill similarity
+			other_bills = [bs for bs in
+				chain(( (s.bill2, s.similarity) for s in bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in bill.similar_bills_two.all().select_related("bill1")))
+				if bs[0].isAlive() and bs[0].id != bill.id]
+			other_bills.sort(key = lambda bs : -bs[1])
+			other_bills = [bs[0] for bs in other_bills[0:3]]
+			suggestions["0"][2] = other_bills
+		else:
+			for ocp in OrgCampaignPosition.objects.filter(campaign__org=org, campaign__visible=True).exclude(bill=bill):
+				if len(suggestions[ocp.position][2]) < 2 and ocp.bill.isAlive():
+					suggestions[ocp.position][2].append(ocp.bill)
+			if len(suggestions["+"][2]) + len(suggestions["-"][2]) >= 4:
+				suggestions["0"] = []
+		
+		# Render.
 		return render_to_response('popvox/widgets/writecongress.html', {
 			"permissions": permissions,
 			"screenname": None if u == None else request.user.username,
 			"identity": None if u == None else json.dumps(widget_render_writecongress_get_identity(request.user)),
 			
-			"org": Org.objects.get(slug="demo"),
+			"ocp": ocp,
+			"org": org,
+			"reason": reason,
 			"verb": position,
 			"bill": bill,
+			"url": url,
+			
+			"suggestions": suggestions.values(),
 			
 			"useraddress_prefixes": PostalAddress.PREFIXES,
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
@@ -183,6 +235,8 @@ def widget_render_writecongress(request, permissions):
 
 @json_response
 def widget_render_writecongress_action(request):
+	
+	########################################
 	if request.POST["action"] == "check-email":
 		try:
 			email = validate_email(request.POST["email"], for_login=True)
@@ -210,7 +264,8 @@ def widget_render_writecongress_action(request):
 			"has_password": u.has_usable_password(),
 			"sso_methods": [s.provider for s in sso],
 			}
-
+			
+	########################################
 	if request.POST["action"] == "newuser":
 		try:
 			# although this should be for new users only (and then we would take out for_login=True),
@@ -235,13 +290,23 @@ def widget_render_writecongress_action(request):
 		# if user is logged in, log him out
 		logout(request)
 		
-		# TODO: Record the information for the org, and store a record id for later.
+		# Record the information for the org, and store a record id for later.
+		if "ocp" in request.POST:
+			ocpar = OrgCampaignPositionActionRecord()
+			ocpar.ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
+			ocpar.firstname = identity["firstname"]
+			ocpar.lastname = identity["lastname"]
+			ocpar.zipcode = identity["zipcode"]
+			ocpar.email = identity["email"]
+			ocpar.save()
+			identity["ocpar"] = ocpar.id
 		
 		return {
 			"status": "success",
 			"identity": identity,
 			}
 
+	########################################
 	if request.POST["action"] == "login":
 		try:
 			email = validate_email(request.POST["email"], for_login=True)
@@ -258,13 +323,12 @@ def widget_render_writecongress_action(request):
 		else:
 			login(request, user)
 			
-			# TODO: Record the information for the org, and store a record id for later.
-			
 			return {
 				"status": "success",
 				"identity": widget_render_writecongress_get_identity(user),
 				}
-
+	
+	########################################
 	if request.POST["action"] == "address":
 		p = PostalAddress()
 		try:
@@ -294,9 +358,26 @@ def widget_render_writecongress_action(request):
 			if type(recipients) == str:
 				recipients = []
 
+		identity = widget_render_writecongress_get_identity(user, address=p)
+
+		# Record the information for the org, and store a record id for later.
+		# If the user was a new user, then the record was created in the 
+		# first step. Otherwise, we create the record only at this point.
+		if "ocp" in request.POST and (not "ocpar" in request.POST or request.POST["ocpar"] == ""):
+			ocpar = OrgCampaignPositionActionRecord()
+			ocpar.ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
+			ocpar.firstname = identity["firstname"]
+			ocpar.lastname = identity["lastname"]
+			ocpar.zipcode = identity["zipcode"]
+			ocpar.email = identity["email"]
+			ocpar.save()
+			identity["ocpar"] = ocpar.id
+		elif "ocpar" in request.POST:
+			identity["ocpar"] = request.POST["ocpar"]
+
 		return {
 			"status": "success",
-			"identity": widget_render_writecongress_get_identity(user, address=p),
+			"identity": identity,
 			"recipients": [m["name"] for m in recipients],
 			}
 

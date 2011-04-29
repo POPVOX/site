@@ -45,12 +45,21 @@ class ServiceAccountAdmin(admin.ModelAdmin):
 	readonly_fields = ("api_key",)
 	search_fields = ["user__username", "user__email", "org__name"]
 
+class OrgCampaignPositionActionRecordAdmin(admin.ModelAdmin):
+	raw_id_fields = ("ocp",)
+	readonly_fields = ("ocp",)
+	search_fields = ["firstname", "lastname", "zipcode", "email"]
+	list_display = ["created", "info", "zipcode", "email"]
+
+	def info(self, obj):
+		return obj.ocp.campaign.org.slug + " " + obj.ocp.bill.displaynumber()
+
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
 admin.site.register(Org, OrgAdmin)
 admin.site.register(OrgCampaign)
 admin.site.register(OrgCampaignPosition)
-admin.site.register(OrgCampaignPositionActionRecord)
+admin.site.register(OrgCampaignPositionActionRecord, OrgCampaignPositionActionRecordAdmin)
 admin.site.register(OrgContact)
 admin.site.register(Bill)
 admin.site.register(UserProfile, UserProfileAdmin)

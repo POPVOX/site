@@ -564,6 +564,35 @@ body {
 		padding: 20px 30px;
 		height: 10px;
 		}
+	
+	.chart_info {
+		float: right;
+		width: 200px;
+		margin-bottom: 15px;
+		}
+		
+	p.chart_stats strong {
+		font-weight: bold;
+		}
+		
+	p.chart_stats span.users {
+		font-size: 12px;
+		font-style: italic;
+		font-family: georgia, serif;
+		margin-left: 23px;
+		}
+		
+		p.chart_stats span.bg_support {
+			background: url(../master/bg_support.png) left top no-repeat;
+			padding-left: 23px;
+			margin-top: 0px;
+			}
+
+		p.chart_stats span.bg_oppose {
+			background: url(../master/bg_oppose.png) left top no-repeat;
+			padding-left: 23px;
+			font-weight: normal;
+			}
 		
 	.search {
 		border-top: 1px solid #d1d1cf;

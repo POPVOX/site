@@ -15,6 +15,9 @@
 	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
 	
+	<script type="text/javascript" src="/media/js/highcharts.js"></script>
+	<script type="text/javascript" src="/media/js/charts.js"></script>
+	
 	<script>var bill_display_number = "{{bill.displaynumber|escapejs}}";</script>
 	<script src="/media/js/lettertips.js"> </script>
 
@@ -188,6 +191,7 @@
 				if ($("#zipcode").hasClass("default")) { alert("Enter your zip code to continue."); return false; }
 				
 				data = {
+					{% if ocp %}ocp: {{ocp.id}},{% endif %}
 					action: "newuser",
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
@@ -276,6 +280,7 @@
 					url: window.location.pathname,
 					data: {
 						bill: {{bill.id}},
+						{% if ocp %}ocp: {{ocp.id}},{% endif %}
 						action: "address",
 						id: identity.id ? identity.id : undefined,
 						email: identity.email,
@@ -288,7 +293,8 @@
 						useraddress_city: $("#useraddress_city").val(),
 						useraddress_state: identity.state,
 						useraddress_zipcode: identity.zipcode,
-						useraddress_phonenumber: $("#useraddress_phonenumber").val()
+						useraddress_phonenumber: $("#useraddress_phonenumber").val(),
+						ocpar: identity.ocpar
 					},
 					type: "POST",
 					dataType: "json",
@@ -336,6 +342,46 @@
 			$('#zipcode').set_text("19104");
 		});
 		{% endif %}
+		
+		function share_simple_open(url1, url2) {
+			a = function() {
+				if (!window.open(url1,"sharer","toolbar=0,status=0,resizable=1,width=626,height=436"))
+					document.location.href=url2;
+			}
+			if (/Firefox/.test(navigator.userAgent))
+				setTimeout(a,0);
+			else
+				a();
+			return false;
+		}
+		function facebook_share_simple(targeturl, text) {
+			// based on share bookmarklet: http://www.facebook.com/share_options.php
+			var f="http://www.facebook.com/share";
+			var p=".php?src=bm&v=4&i=1299162093&u=" + encodeURIComponent(targeturl) + "&t=" + encodeURIComponent(text);
+			share_simple_open(f+"r"+p, f+p);
+		}
+		function twitter_share_simple(targeturl, text, hashtag) {
+			if (text.indexOf(hashtag) == -1)
+				text += " " + hashtag;
+			text += " " + targeturl;
+			var p1 = "http://twitter.com/intent/tweet?text=" + encodeURIComponent(text);
+			var p2 = "http://twitter.com/home?status=" + encodeURIComponent(text);
+			share_simple_open(p1, p2);
+		}
+		function link_share(targeturl, text, hashtag) {
+			$('#social_share .link').html("Copy and paste the following address to share this page with others: <tt>" + $('<div/>').text(targeturl).html() + "</tt>");
+			$('#social_share .link').slideDown();
+			return false;
+		}
+		function do_share(method) {
+			var f;
+			if (method == "facebook") f = facebook_share_simple;
+			if (method == "twitter") f = twitter_share_simple;
+			if (method == "email") f = email_share;
+			if (method == "link") f = link_share;
+			f("{{url|escapejs}}", "{{verb|capfirst}} {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
+			return false;
+		}
 	</script>
 </head>
 <body>
@@ -450,13 +496,14 @@
 					</div> <!-- e: panel_login -->
 					
 					<div id="panel_write" class="widget_panel" style="display: none">
+						{% if reason %}
 						<div id="panel_write_why_reason">
 						<div class="why">
 							<h3>Why should I {{verb}} {{bill.displaynumber}}?</h3>
 							<a href="#" class="expand btn" onclick="return false;">expand</a>
 						</div><div class="clear"> </div>
 						<div class="reason" style="display: none">
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+							<p>{{reason}}</p>
 						</div>
 						</div>
 						<script>
@@ -464,6 +511,7 @@
 								function() { $('#panel_write .reason').slideDown(); },
 								function() { $('#panel_write .reason').slideUp(); } );
 						</script>
+						{% endif %}
 										
 						<h3 class="write">Write a Personal Message?</h3>
 						<h4 class="{{verb}}">I {{verb}} {{bill.displaynumber}} because...</h4>
@@ -521,25 +569,43 @@
 						<div id="social_share">
 							<h3>Tell your friends to {{verb}} this bill</h3>
 							<ul class="social_share_btns">
-								<li><a class="btn social_facebook" href="#" onclick="return share_tab('facebook')" title="Facebook">facebook</a></li>
-								<li><a class="btn social_twitter" href="#" target="_blank" onclick="return share_tab('twitter')" title="Twitter">twitter</a></li>
-								<li><a class="btn social_email" href="#" onclick="return share_tab('email')" title="Email">email</a></li>
-								<li><a class="btn social_link" href="#" onclick="return share_tab('link')" title="Get a Short URL">get a link</a></li>
+								<li><a class="btn social_facebook" href="#" onclick="return do_share('facebook')" title="Facebook">facebook</a></li>
+								<li><a class="btn social_twitter" href="#" target="_blank" onclick="return do_share('twitter')" title="Twitter">twitter</a></li>
+								<li><a class="btn social_email" href="#" onclick="return do_share('email')" title="Email">email</a></li>
+								<li><a class="btn social_link" href="#" onclick="return do_share('link')" title="Get a Short URL">get a link</a></li>
 							</ul>	
-							<div class="clear"> </div>				
+							<div class="clear"> </div>
+							<p class="link" style="display: none"></p>
 						</div>	
 						
-						<h3 class="support">These bills also need your support</h3>
-						<p class="temp_bills"></p>
-		
-						<h3 class="oppose">These bills also need your opposition</h3>
-						<p class="temp_bills"></p>
+						{% for class, text, list in suggestions %}
+							{% if list|length > 0 %}
+								<h3 class="{{class}}">{{text}}</h3>
+								
+								{% for bill in list %}
+									{% bill_statistics bill as stats %}
+									{% with "1" as chart_no_links %}
+									{% with "1" as chart_no_clear %}
+									{% with "{bg: 'white'}" as chart_opts %}
+									{% with "50" as chart_size %}
+										{% include "popvox/bill_statistics_pie_simple.html" %}
+									{% endwith %}
+									{% endwith %}
+									{% endwith %}
+									{% endwith %}
+									
+									<p><a href="{{bill.url}}" target="_blank">{{bill.title|truncatewords:12}}</a></p>
+									
+									<div class="clear"> </div>
+								{% endfor %}
+							{% endif %}
+						{% endfor %}
 						
 						<div class="search">
 							<h3>Search bills on POPVOX</h3>
 							<p>search by bill number or issue area</p>
-							<form id="search" class="form" action="#" method="post" name="login">
-								<input name="search" value="" size="25" maxlength="40" type="text"><br />
+							<form id="search" class="form" action="https://www.popvox.com/bills/search" method="get" target="_blank">
+								<input name="q" value="" size="25" maxlength="40" type="text"><br />
 							</form><div class="clear"> </div>
 						</div>
 						

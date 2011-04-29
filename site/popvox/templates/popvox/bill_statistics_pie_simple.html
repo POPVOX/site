@@ -1,10 +1,10 @@
 {% if stats.total %}
 	<div class="chart_info">
 		<div style="float: left; width: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px; margin-right: 15px">
-			<a href="{{bill.url}}/report">
-				<div id="chart-container{{chart_id}}" style="width: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px; height: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px"></div>
-				<script>bill_chart('chart-container{{chart_id}}', {{stats.pro_pct}}, {{stats.con_pct}} {% if chart_opts %}, {{chart_opts}}{% endif %});</script>
-			</a>
+			{% if not chart_no_links %}<a href="{{bill.url}}/report">{% endif %}
+				<div id="chart-container-{{bill.id}}{{chart_id}}" style="width: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px; height: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px"></div>
+				<script>bill_chart('chart-container-{{bill.id}}{{chart_id}}', {{stats.pro_pct}}, {{stats.con_pct}} {% if chart_opts %}, {{chart_opts}}{% endif %});</script>
+			{% if not chart_no_links %}</a>{% endif %}
 		</div>
 		 <div style="float: left; width: 110px">
 			<p class="chart_stats">
@@ -13,12 +13,15 @@
 				<span class="bg_oppose">{{ stats.con_pct }}% Oppose </span><br />
 				<span class="users">({{stats.total}} user{{stats.total|pluralize}})</span>
 			</p>
+			{% if not chart_no_links %}
 			 <p class="view_report">
 				<span><a href="{{bill.url}}/report">View Report &amp; Comments</a></span>
 			</p>
+			{% endif %}
 		</div>
 	</div>
 {% endif %}
+{% if not chart_no_links %}
 {% if not stats.total and stats.pro_reintro %}
 	<div class="no_pie">
 		<p>{{stats.pro_reintro}} individuals support the reintroduction of {{bill.displaynumber}}. <a href="{{bill.url}}/report">View report</a></p>
@@ -26,8 +29,11 @@
 {% endif %}
 {% if not stats.total and not stats.pro_reintro %}
 	<div class="no_pie">
-		<p>Too few constituents have commented on {{bill.displaynumber}} to display statistics.<br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+		<p>Too few constituents have commented on {{bill.displaynumber}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 	</div>
 {% endif %}
+{% endif %}
+{% if not chart_no_clear %}
 <div class="clear"> </div>
+{% endif %}
 
