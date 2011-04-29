@@ -199,7 +199,7 @@ def widget_render_writecongress_action(request):
 			return { "status": "staff-cant-do-this" }
 		if not u.postaladdress_set.all().exists():
 			return { "status": "not-registered" } # if the user is registered but has no address info, pretend they are not registered
-
+		bill = Bill.objects.get(id=request.POST["bill"])
 		if u.comments.filter(bill=bill).exists():
 			return { "status": "already-commented" }
 

@@ -465,7 +465,7 @@
 								function() { $('#panel_write .reason').slideUp(); } );
 						</script>
 										
-						<h3>Write a Personal Message?</h3>
+						<h3 class="write">Write a Personal Message?</h3>
 						<h4 class="{{verb}}">I {{verb}} {{bill.displaynumber}} because...</h4>
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
@@ -473,7 +473,7 @@
 							<textarea class="half" id="message" maxlength="500" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
 							
 		<!--					<input value="Send My Support Without a Message" id="b_send_no_msg" type="button">-->
-							<input value="Preview" id="b_preview" type="button" onclick="return do_preview();">
+							<a class="back" href="#">back</a><input value="Preview" id="b_preview" type="button" onclick="return do_preview();">
 							<div class="clear"> </div>
 						</form>
 						<div id="tips">
@@ -510,7 +510,7 @@
 						</div>			
 						<div class="clear"> </div>
 						
-							<p style="margin-top: 1em">Your letter will be sent to Congress <b>and</b> posted anonymously on POPVOX.com. {% if org %}We&rsquo;ll also provide a copy to {{org.name}}.{% endif %}</p>
+							<p class="note">Your letter will be sent to Congress <b>and</b> posted anonymously on POPVOX.com. {% if org %}We&rsquo;ll also provide a copy to {{org.name}}.{% endif %}</p>
 					</div><!-- e: panel_preview -->
 					
 					

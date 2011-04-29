@@ -1,3 +1,5 @@
+/* @override https://popvox.com:777/media/widget/widget_writecongress.css */
+
 /* css for Write Congress Widget - April 2011 
 no mokeys were harmed in the making of this code. (except that weird, small one. but you'll hardly notice the limp.) */
 
@@ -41,14 +43,14 @@ body {
 	position: absolute;
 	left: 0px;
 	top: 0px;
-	height: 500px;
+	height: 600px;
 	}
 #panel_holder {
 	position: absolute;
 	left: 25px;
 	top: 110px;
 	width: 420px;
-	height: 500px;
+	height: 700px;
 	overflow: hidden;
 	}
 	
@@ -132,9 +134,7 @@ body {
 	
 /* 1 start */	
 	
-		.widget_panel {
-			width: 350px; 
-			}
+		
 			
 		#loggedinalready {
 			width: 280px;
@@ -198,7 +198,7 @@ body {
 	
 		.form input, .form textarea, .form file, .form .field {
 			font: normal 12px/18px helvetica, arial, sans-serif;
-			border: 1px solid #BFC4C8;
+			border: 1px solid #a7a599;
 			margin-bottom: 12px;
 			padding: 3px 5px;
 			width: 448px;
@@ -207,7 +207,7 @@ body {
 			color: #777;
 			}
 		.form input[disabled], .form textarea[disabled] {
-			background-color: #eee;
+			color: #a7a599;
 			}
 	
 		
@@ -294,6 +294,12 @@ body {
 		display: block;
 		}
 		
+		#panel_write h3.write {
+			border-top: 1px solid #D1D1CF;
+			padding-top: 15px;
+			}
+
+		
 	.why {
 		clear: both;
 		display: block;
@@ -331,9 +337,8 @@ body {
 	.reason {
 		clear: both;
 		display: block;
-		margin-bottom: 25px;
+		margin-bottom: 15px;
 		padding-bottom: 10px;
-		border-bottom: 1px solid #D1D1CF;
 		}
 		
 		.reason p {
@@ -389,7 +394,13 @@ body {
 			
 		#b_preview:hover {
 			background-position: left bottom;
+			cursor: pointer;
 			}
+			
+	a.back {
+		color: #CC6A11;
+		line-height: 25px;
+		}
 		
 		
 /* 3. preview */
@@ -403,6 +414,12 @@ body {
 		#panel_preview p {
 			line-height: 18px;
 			}
+			
+			#panel_preview p.note {
+				font: italic normal 11px/16px georgia, serif;
+				margin: 20px 5px 0 0;
+				}
+			
 		
 		#msg_preview {
 			background: url(bg_preview_msg.png) left top repeat-y;
@@ -440,6 +457,10 @@ body {
 			#msg_preview p {
 				padding: 0 40px 5px;
 				}
+				
+				p.signature a {
+					color: #CC6A11;
+					}
 				
 		.preview .address {
 			margin-left: 10px;
@@ -512,7 +533,7 @@ body {
 			}
 	
 		.social_facebook {
-			background: url(../icons/sm/icon_facebook.png) left top no-repeat;
+			background: url(../icons/sm/b_icon_facebook.png) left top no-repeat;
 			}
 		
 		.social_twitter {
@@ -571,10 +592,27 @@ body {
 			
 /* foot */			
 #widget_foot {
-	margin-top: 500px;
+	margin-top: 300px;
+	border-top: 1px solid #d1d1cf;
+	padding: 10px 30%;
+	text-align: center;
 	}			
 
 	#widget_foot a {
 		color: #CC6A11;
-		}		
+		background: url(../icons/sm/logo_pv_small_o.png) right top no-repeat;
+		display: block;
+		width: 140px;
+		height: 22px;
+		font-weight: bold;
+		margin: 0;
+		text-align: left;
+		}
+		
+		#widget_foot a span {
+			display: none;
+			}
+		
+		
+		
 		
