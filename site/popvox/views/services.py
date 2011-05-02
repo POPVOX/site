@@ -212,7 +212,7 @@ def widget_render_writecongress(request, permissions):
 				suggestions["0"] = []
 		
 		# Render.
-		return render_to_response('popvox/widgets/writecongress.html', {
+		response = render_to_response('popvox/widgets/writecongress.html', {
 			"permissions": permissions,
 			"screenname": None if u == None else request.user.username,
 			"identity": None if u == None else json.dumps(widget_render_writecongress_get_identity(request.user)),
@@ -230,7 +230,19 @@ def widget_render_writecongress(request, permissions):
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
 			}, context_instance=RequestContext(request))
 	else:
-		return widget_render_writecongress_action(request)
+		response = widget_render_writecongress_action(request)
+
+	# add a P3P compact policy so that IE will accept third-party cookies.
+	# apparently the actual policy doesn't matter as long as one is sent,
+	# but we're setting the following policy;
+	#  access: ident-contact
+	#  purpose: current, admin, develop, tailoring, individual-analysis, individual-decision, contact
+	#  recipient: ours, same (i.e. Congress), public
+	#  retention: business-practices
+	#  data: 
+	response["P3P"] = 'CP="IDC CUR ADM DEV TAI IVA IVD CON OUR SAM PUB BUS"'
+
+	return response
 
 
 @json_response
