@@ -5,6 +5,13 @@ from django.template import RequestContext
 
 import recaptcha.client.captcha
 
+# due to changes on April 21, 2011, we must use a different api server
+if recaptcha.client.captcha.API_SSL_SERVER== "https://api-secure.recaptcha.net":
+	# these won't work in newer recaptcha lib because it creates the full path differently
+	recaptcha.client.captcha.API_SSL_SERVER="https://www.google.com/recaptcha/api"
+	recaptcha.client.captcha.API_SERVER="http://www.google.com/recaptcha/api"
+	recaptcha.client.captcha.VERIFY_SERVER="www.google.com/recaptcha/api"
+
 from jquery.ajax import validation_error_message
 from emailverification.utils import send_email_verification
 
