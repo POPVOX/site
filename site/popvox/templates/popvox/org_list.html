@@ -31,10 +31,15 @@ function showlist(elem, issueslug) {
 				var last_homestate = "??";
 				var distinct_state_count = 0;
 				var states_list = $("<p style='margin-top: 1em'>Jump to: </p>");
+				var states_list_count = 0;
 				for (orgx in ret.orgs) {
 					var org = ret.orgs[orgx];
 					if (org.homestate != last_homestate) {
 						if (org.homestate != null) {
+							if (states_list_count > 0)
+								states_list.append($('<span style="padding: 0 .5em">|</span>'));
+							states_list_count++;
+							
 							var a = $("<a style=\"text-decoration: underline\">" + org.homestate + "</a> ");
 							a.attr('href', '#' + org.homestate);
 							states_list.append(a);
@@ -184,7 +189,7 @@ function toggle_categories() {
 		<div class="col_3 col_last">
 			{% if user.is_anonymous %}
 			<div class="hr2"> </div>
-			<p><small>Don&rsquo;t see your organization on POPVOX? Any U.S. nonprofit can <a href="/accounts/register/orgstaff">get listed</a>.</small></p>
+			<p><small>Don&rsquo;t see your organization on POPVOX? Any U.S. advocacy organization can <a href="/accounts/register/orgstaff">get listed</a>.</small></p>
 			{% endif %}
 		</div>
 
