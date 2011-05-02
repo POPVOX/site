@@ -570,10 +570,10 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	
 	# We will require a captcha for this comment if the user is creating many comments
 	# in a short period of time and if we are not editing an existing comment.
-	require_captcha = True
-	if not request.user.is_anonymous():
-		require_captcha = request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
-		and not request.user.comments.filter(bill = bill).exists()
+	require_captcha = False
+	#if not request.user.is_anonymous() and request.user.id not in (1, 59):
+	#	require_captcha = request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
+	#	and not request.user.comments.filter(bill = bill).exists()
 	
 	if not "submitmode" in request.POST and position_original != "/finish":
 		message = None
