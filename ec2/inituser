@@ -1,6 +1,6 @@
 export PORT=$1
 
-git clone /mnt/persistent/sources.git sources
+git clone git://$DISK/sources.git sources
 
 #########
 
