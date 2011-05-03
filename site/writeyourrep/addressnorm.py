@@ -45,6 +45,10 @@ def verify_adddress(address, validate=True):
 	
 	last_response = ret
 	
+	return verify_adddress_cached(address, ret, validate)
+
+def verify_adddress_cached(address, ret, validate=True):
+
 	if ret["ReturnCode"] not in (100, 101, 102, 103):
 		if not validate:
 			return

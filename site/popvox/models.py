@@ -593,6 +593,7 @@ class OrgCampaignPositionActionRecord(models.Model):
 	zipcode = models.CharField(max_length=16)
 	email = models.EmailField()
 	created = models.DateTimeField(auto_now_add=True)
+	completed_comment = models.ForeignKey("UserComment", blank=True, null=True)
 	class Meta:
 		ordering = ['created']
 

@@ -228,6 +228,14 @@ body {
 				-khtml-border-radius: 3px;
 				border-radius: 3px;
 				}
+				
+		.form small {
+			display: block;
+			margin: -8px 0 17px 104px;
+			width: 268px;
+			font-size: 11px;
+			font-style: italic;
+			}
 			
 			#email {
 				float: left;
@@ -452,6 +460,13 @@ body {
 				background: url(bg_preview_msg_btm.png) left bottom no-repeat;
 				padding-bottom: 40px;
 				height: 50px;
+				}
+				
+			#msg_preview .scrolled {
+				width: 400px;
+				height: 125px;
+				overflow: auto;
+				margin-bottom: 10px;
 				}
 				
 			#msg_preview p {

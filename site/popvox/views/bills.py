@@ -842,67 +842,19 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		# Set the user's comment on this bill.
 		
 		request.goal = { "goal": "comment-submit" }
-		
-		# If a comment exists, update that record.
-		comment = None
-		for c in request.user.comments.filter(bill = bill):
-			if comment == None:
-				comment = c
-			else:
-				# If we see more than one, we'll update the first and delete the rest.
-				c.delete()
-		
-		# If we're not updating an existing comment record, then create a new one.
-		if comment == None:
-			comment = UserComment()
-			comment.user = request.user
-			comment.bill = bill
-			comment.position = position
-			
-			# If the user came by a short URL to this bill, store the owner of
-			# the short URL as the referrer on the comment.
-			if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill.id and len(request.session["comment-referrer"]) == 3:
-				comment.referrer = request.session["comment-referrer"][1]
-				if request.session["comment-referrer"][2] != None:
-					import shorturl.models
-					surl = shorturl.models.Record.objects.get(id=request.session["comment-referrer"][2])
-					surl.increment_completions()
-				del request.session["comment-referrer"]
-		
-		# We're updating an existing record.
-		else:
-			if comment.position != position:
-				comment.position = position
-				# When the user switches sides, any comment diggs he previously left on the
-				# other side must be cleared.
-				comment.my_diggs.all().delete()
-			
-		comment.message = message
 
-		if address_record.id == None: # (parsed from form, not from a fixed record)
-			# If the user gives the same address as one on file for the user,
-			# reuse the record.... but overwrite it with new info because
-			# the user might have updated something non-meaningful or
-			# we might have gotten new address info from the address
-			# normalization.
-			for addr in request.user.postaladdress_set.all():
-				if address_record.equals(addr):
-					address_record.id = addr.id
-					break
-			
-			address_record.save()
-			
-		comment.address = address_record
-		comment.updated = datetime.now()
-		comment.state = address_record.state
-		comment.congressionaldistrict = address_record.congressionaldistrict
+		# If the user came by a short URL to this bill, store the owner of
+		# the short URL as the referrer on the comment.
+		referrer = None
+		if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill.id and len(request.session["comment-referrer"]) == 3:
+			referrer = request.session["comment-referrer"][1]
+			if request.session["comment-referrer"][2] != None:
+				import shorturl.models
+				surl = shorturl.models.Record.objects.get(id=request.session["comment-referrer"][2])
+				surl.increment_completions()
+			del request.session["comment-referrer"]
 
-		if comment.status in (UserComment.COMMENT_REJECTED, UserComment.COMMENT_REJECTED_STOP_DELIVERY):
-			comment.status = UserComment.COMMENT_REJECTED_REVISED
-		else:
-			comment.status = UserComment.COMMENT_NOT_REVIEWED
-
-		comment.save()
+		save_user_comment(request.user, bill, position, referrer, message, address_record)
 			
 		# Clear the session state set in the preview. Don't clear until the end
 		# because if the user is redirected back to ../finish we need the session
@@ -961,6 +913,60 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	
 	else:
 		raise Http404()
+
+def save_user_comment(user, bill, position, referrer, message, address_record):
+	# If a comment exists, update that record.
+	comment = None
+	for c in user.comments.filter(bill = bill):
+		if comment == None:
+			comment = c
+		else:
+			# If we see more than one, we'll update the first and delete the rest.
+			c.delete()
+	
+	# If we're not updating an existing comment record, then create a new one.
+	if comment == None:
+		comment = UserComment()
+		comment.user = user
+		comment.bill = bill
+		comment.position = position
+		comment.referrer = referrer
+	
+	# We're updating an existing record.
+	else:
+		if comment.position != position:
+			comment.position = position
+			# When the user switches sides, any comment diggs he previously left on the
+			# other side must be cleared.
+			comment.my_diggs.all().delete()
+		
+	comment.message = message
+
+	if address_record.id == None: # (parsed from form, not from a fixed record)
+		# If the user gives the same address as one on file for the user,
+		# reuse the record.... but overwrite it with new info because
+		# the user might have updated something non-meaningful or
+		# we might have gotten new address info from the address
+		# normalization.
+		for addr in user.postaladdress_set.all():
+			if address_record.equals(addr):
+				address_record.id = addr.id
+				break
+		
+		address_record.save()
+		
+	comment.address = address_record
+	comment.updated = datetime.now()
+	comment.state = address_record.state
+	comment.congressionaldistrict = address_record.congressionaldistrict
+
+	if comment.status in (UserComment.COMMENT_REJECTED, UserComment.COMMENT_REJECTED_STOP_DELIVERY):
+		comment.status = UserComment.COMMENT_REJECTED_REVISED
+	else:
+		comment.status = UserComment.COMMENT_NOT_REVIEWED
+
+	comment.save()
+	
 
 def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	bill = getbill(congressnumber, billtype, billnumber)

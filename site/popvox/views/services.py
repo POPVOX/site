@@ -155,8 +155,12 @@ def widget_render_writecongress(request, permissions):
 				bill = bill_from_url("/bills/" + request.GET["bill"])
 			except:
 				raise Http404("Invalid bill")
-			position = request.GET["position"]
-			if not position in ("support", "oppose"):
+			position_verb = request.GET["position"]
+			if position_verb == "support":
+				position = "+"
+			elif position_verb == "oppose":
+				position = "-"
+			else:
 				raise Http404("Invalid position")
 		else:
 			# ocp argument specifies the OrgCampaignPosition, which has all of the
@@ -164,7 +168,8 @@ def widget_render_writecongress(request, permissions):
 			ocp = get_object_or_404(OrgCampaignPosition, id=request.GET["ocp"], position__in=("+", "-"), campaign__visible=True, campaign__org__visible=True)
 			org = ocp.campaign.org
 			bill = ocp.bill
-			position = "support" if ocp.position == "+" else "oppose"
+			position = ocp.position
+			position_verb = "support" if position == "+" else "oppose"
 			reason = ocp.comment
 			
 		if not bill.isAlive():
@@ -220,8 +225,9 @@ def widget_render_writecongress(request, permissions):
 			"ocp": ocp,
 			"org": org,
 			"reason": reason,
-			"verb": position,
+			"verb": position_verb,
 			"bill": bill,
+			"position": position,
 			"url": url,
 			
 			"suggestions": suggestions.values(),
@@ -311,7 +317,6 @@ def widget_render_writecongress_action(request):
 			ocpar.zipcode = identity["zipcode"]
 			ocpar.email = identity["email"]
 			ocpar.save()
-			identity["ocpar"] = ocpar.id
 		
 		return {
 			"status": "success",
@@ -343,6 +348,7 @@ def widget_render_writecongress_action(request):
 	########################################
 	if request.POST["action"] == "address":
 		p = PostalAddress()
+		p.cdyne_response = None
 		try:
 			p.load_from_form(request)
 			
@@ -370,27 +376,83 @@ def widget_render_writecongress_action(request):
 			if type(recipients) == str:
 				recipients = []
 
-		identity = widget_render_writecongress_get_identity(user, address=p)
-
-		# Record the information for the org, and store a record id for later.
-		# If the user was a new user, then the record was created in the 
-		# first step. Otherwise, we create the record only at this point.
-		if "ocp" in request.POST and (not "ocpar" in request.POST or request.POST["ocpar"] == ""):
-			ocpar = OrgCampaignPositionActionRecord()
-			ocpar.ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
-			ocpar.firstname = identity["firstname"]
-			ocpar.lastname = identity["lastname"]
-			ocpar.zipcode = identity["zipcode"]
-			ocpar.email = identity["email"]
-			ocpar.save()
-			identity["ocpar"] = ocpar.id
-		elif "ocpar" in request.POST:
-			identity["ocpar"] = request.POST["ocpar"]
+		# Record the information for the org, and store a record id for later if we
+		# don't already have a record for this email address (which we might have
+		# created in the newuser step).
+		if "ocp" in request.POST:
+			ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
+			if not OrgCampaignPositionActionRecord.objects.filter(ocp=ocp, email=request.POST["email"]).exists():
+				identity = json.loads(request.POST["identity"])
+				ocpar = OrgCampaignPositionActionRecord()
+				ocpar.ocp = ocp
+				ocpar.firstname = identity["firstname"]
+				ocpar.lastname = identity["lastname"]
+				ocpar.zipcode = identity["zipcode"]
+				ocpar.email = identity["email"]
+				ocpar.save()
 
 		return {
 			"status": "success",
-			"identity": identity,
+			"identity": widget_render_writecongress_get_identity(user, address=p),
 			"recipients": [m["name"] for m in recipients],
+			"cdyne_response": json.dumps(p.cdyne_response),
+			}
+
+	########################################
+	if request.POST["action"] == "submit":
+		identity = json.loads(request.POST["identity"])
+		cdyne_response = json.loads(request.POST["cdyne_response"])
+		
+		# Validate address fields.
+		p = PostalAddress()
+		try:
+			p.load_from_form(request)
+		except Exception as e:
+			return { "status": "fail", "msg": validation_error_message(e) }
+
+		bill = Bill.objects.get(id=request.POST["bill"])
+		referrer = None
+		if "ocp" in request.POST:
+			referrer = OrgCampaignPosition.objects.get(id=request.POST["ocp"]).campaign
+			if referrer.default: # instead of org default campaign, use org
+				referrer = referrer.org
+		message = request.POST["message"]
+		if len(message.strip()) < 8:
+			message = None
+
+		# if the user is logged in and the address's congressional district
+		# was determined, then we can save the comment immediately.
+		if identity["id"] != "":
+			user = User.objects.get(id=identity["id"])
+			
+			# Normalize address/get district.
+			from writeyourrep.addressnorm import verify_adddress_cached
+			try:
+				verify_adddress_cached(p, cdyne_response)
+			except Exception as e:
+				pass
+			
+			if hasattr(p, "congressionaldistrict"):
+				save_user_comment(user, bill, request.POST["position"], referrer, message, p)
+
+				return {
+					"status": "submitted",
+					}
+
+			# The user is logged in but the address failed, so we have to have
+			# him finish his comment. Since we don't need to create an account
+			# for the user, we can redirect the user directly to the page to finish
+			# the comment.
+			return {
+				"status": "address-fail",
+				}
+				
+		# We're going to have to confirm the user's email address, get
+		# them to choose a screen name, and if their address did not
+		# give a good address they'll have to pick their location on a map.
+		
+		return {
+			"status": "confirm-email",
 			}
 
 def widget_render_writecongress_get_identity(user, address=None):
