@@ -1,29 +1,25 @@
 #!/bin/sh
 
-# us-east-1a
-# AMI:  ami-ac07f2c5
-# ubuntu-images-us/ubuntu-lucid-10.04-amd64-server-20100923.manifest.xml
-# Large (m1.large)
-# Keypair: josh
-# Security Group: Web+SSH
-# Associate Elastic IP: 75.101.150.60
-# Attach EBS vol-6c010f05 on /dev/sdf
-#
-#  The IP address has to be in the DNS...
+# scp tauberer@tauberer.dyndns.org:dev/popvox/main/ec2/sysinit .
 
-# mysql root password: qsg;5TtC
+# master server:  sudo DISK=localhost DB=localhost CRON=yes bash sysinit
+# testing server:   sudo DISK=localhost DB=localhost CRON=no bash sysinit
 
-# Basic system setup
-ssh-keygen -q -t rsa -b 2048 -N "" -f .ssh/id_rsa
+# us-east-1a / attach EBS volume on /dev/sdf
+
+# set mysql root password to: qsg;5TtC
+
+# disabling nfs until we really need it
+NFS_GRANT="127.0.0.1/255.255.255.0"
 
 # Packages
-sudo apt-get update
-sudo apt-get upgrade -y
+apt-get update
+apt-get upgrade -y
 
-sudo tasksel install lamp-server
-sudo tasksel install unzip
+tasksel install lamp-server
+tasksel install unzip
 
-sudo apt-get install -y \
+apt-get install -y \
  nfs-common nfs-kernel-server \
  sendmail-bin rdiff-backup \
  git-core subversion mercurial \
@@ -32,68 +28,85 @@ sudo apt-get install -y \
  memcached python-memcache \
  texlive-latex-base texlive-latex-recommended fontconfig ttf-linux-libertine
 
-# Custom packages
-DJANGO=python-django_1.2.5-1ubuntu1_all.deb
-wget http://launchpadlibrarian.net/64542273/$DJANGO
-sudo dpkg -i $DJANGO
-rm $DJANGO
+## Custom packages
+#DJANGO=python-django_1.2.5-1ubuntu1_all.deb
+#wget http://launchpadlibrarian.net/64542273/$DJANGO
+#dpkg -i $DJANGO
+#rm $DJANGO
+apt-get install python-django
    # in /usr/share/pyshared/django/middleware/csrf.py I've manually disabled strict referrer checking
 
-# Persistent storage disk
-mkdir /mnt/persistent
-if [[ "$DISK" == "localhost" ]] then
-	echo "/dev/sdg        /mnt/persistent auto,noatime" >> /etc/fstab;
+# Persistent storage area.
+mkdir -p /mnt/persistent
+if [[ "$DISK" == "localhost" ]]; then
+	# Mount the EBS disk.
+	echo "/dev/sdf        /mnt/persistent auto noatime" >> /etc/fstab;
 	mount -a;
 	
-	echo 'RPCMOUNTDOPTS="–manage-gids -p 34642"' >> /etc/default/nfs-kernel-server # assign fixed mountd point
+	# Grant anyone read-only access to the disk via NFS (who can make it past the security group).
+	echo "/mnt/persistent $NFS_GRANT(ro,no_root_squash,no_subtree_check)" >> /etc/exports;
+	exportfs  -a;
+	/etc/init.d/portmap start;
+	/etc/init.d/nfs start;
+		
 else
 	echo "$DISK:/mnt/persistent      /mnt/persistent  nfs" >> /etc/fstab;
-	service start portmap
+	service start portmap;
 	mount -a;
-	fi
+fi
 
 # Source code
 	
-if [[ "$DISK" == "localhost" ]] then
-	# Startup scripts. Copy into /etc/rc.local
-	git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/; 
+if [[ "$DISK" == "localhost" ]]; then
+	# Startup scripts. Copy into /etc/rc.local. (Because rc.local has an exit at the end, we can't simply
+	# append to the file. Solution?). Run git as the ubuntu user (which makes permissions of the
+	# persistent disk).
+	su ubuntu -c "git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/";
 fi
 
 # Users
 
 GIT_DIR=/mnt/persistent/sources.git git show master:ec2/inituser > inituser
 
-sudo useradd -m --shell /bin/bash www
-sudo su www -c "cd; sh /home/ubuntu/inituser 443"
-if [[ "$DISK" == "localhost" ]] then
-	crontab /home/www/sources/scripts/crontab;
+useradd -m --shell /bin/bash www
+su www -c "cd; sh /home/ubuntu/inituser 443"
+ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/www.conf
 
-	sudo useradd -m --shell /bin/bash josh;
-	sudo su josh -c "cd; sh /home/ubuntu/inituser 444";
+#useradd -m --shell /bin/bash josh;
+#su josh -c "cd; sh /home/ubuntu/inituser 444";
 
-	sudo useradd -m --shell /bin/bash william;
-	sudo su william -c "cd; sh /home/ubuntu/inituser 555";
+#useradd -m --shell /bin/bash william;
+#su william -c "cd; sh /home/ubuntu/inituser 555";
+
+# Cron jobs run as the ubuntu user.
+if [[ "$CRON" == "yes" ]]; then
+	crontab -u ubuntu /home/www/sources/scripts/crontab;
 fi
 
 # Mysql
-if [[ "$DB" == "MASTER" ]] then
-	sudo service mysql stop;
+if [[ "$DB" == "localhost" ]]; then
+	# "bind" the persistent mysql directory to /var/lib/mysql and trash the system-provided contents
+	service mysql stop;
 	rm -rf /var/lib/mysql/;
 	mkdir /var/lib/mysql;
 	#mount --bind /mnt/persistent/mysql/ /var/lib/mysql;
 	echo "/mnt/persistent/mysql/  /var/lib/mysql  none bind" >> /etc/fstab;
 	mount -a;
+	
+	# make mysql listen on all interfaces to support additional servers
 	echo "[mysqld]" > /etc/mysql/conf.d/local.cnf;
 	echo "bind-address            = 0.0.0.0" >> /etc/mysql/conf.d/local.cnf;
-	sudo service mysql start;
+	
+	service mysql start;
+	
+	# grant anyone access (obviously we don't 
 	mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
 fi
 
 # Apache
-sudo a2dissite default
-sudo a2enmod proxy proxy_http ssl expires # we use proxy to pass the blog through to occams
-sudo sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
-sudo ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
-sudo /etc/init.d/apache2 restart
+a2dissite default
+a2enmod proxy proxy_http ssl expires # we use proxy to pass the blog through to occams
+sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
+/etc/init.d/apache2 restart
 
 

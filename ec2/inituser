@@ -20,3 +20,8 @@ cd
 
 mkdir logs
 
+if [[ "$DB" != "localhost" ]]; then
+	# Set slave configuration.
+	echo "REMOTEDB=$DB" >> ./slave;
+	fi
+
