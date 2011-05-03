@@ -20,15 +20,17 @@ ssh-keygen -q -t rsa -b 2048 -N "" -f .ssh/id_rsa
 sudo apt-get update
 sudo apt-get upgrade -y
 
-sudo tasksel install lamp-server unzip
+sudo tasksel install lamp-server
+sudo tasksel install unzip
 
 sudo apt-get install -y \
-	sendmail-bin rdiff-backup \
-	git-core subversion mercurial \
-	libapache2-mod-wsgi python-flup \
-	python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml \
-	memcached python-memcache \
-	texlive-latex-base texlive-latex-recommended fontconfig ttf-linux-libertine
+ nfs-common nfs-kernel-server \
+ sendmail-bin rdiff-backup \
+ git-core subversion mercurial \
+ libapache2-mod-wsgi python-flup \
+ python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml \
+ memcached python-memcache \
+ texlive-latex-base texlive-latex-recommended fontconfig ttf-linux-libertine
 
 # Custom packages
 DJANGO=python-django_1.2.5-1ubuntu1_all.deb
@@ -38,8 +40,24 @@ rm $DJANGO
    # in /usr/share/pyshared/django/middleware/csrf.py I've manually disabled strict referrer checking
 
 # Persistent storage disk
-echo "/dev/sdg        /mnt/persistent auto" >> /etc/fstab
-mount -a
+mkdir /mnt/persistent
+if [[ "$DISK" == "localhost" ]] then
+	echo "/dev/sdg        /mnt/persistent auto,noatime" >> /etc/fstab;
+	mount -a;
+	
+	echo 'RPCMOUNTDOPTS="–manage-gids -p 34642"' >> /etc/default/nfs-kernel-server # assign fixed mountd point
+else
+	echo "$DISK:/mnt/persistent      /mnt/persistent  nfs" >> /etc/fstab;
+	service start portmap
+	mount -a;
+	fi
+
+# Source code
+	
+if [[ "$DISK" == "localhost" ]] then
+	# Startup scripts. Copy into /etc/rc.local
+	git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/; 
+fi
 
 # Users
 
@@ -47,22 +65,29 @@ GIT_DIR=/mnt/persistent/sources.git git show master:ec2/inituser > inituser
 
 sudo useradd -m --shell /bin/bash www
 sudo su www -c "cd; sh /home/ubuntu/inituser 443"
-crontab /home/www/sources/scripts/crontab
+if [[ "$DISK" == "localhost" ]] then
+	crontab /home/www/sources/scripts/crontab;
 
-sudo useradd -m --shell /bin/bash josh
-sudo su josh -c "cd; sh /home/ubuntu/inituser 444"
+	sudo useradd -m --shell /bin/bash josh;
+	sudo su josh -c "cd; sh /home/ubuntu/inituser 444";
 
-sudo useradd -m --shell /bin/bash william
-sudo su william -c "cd; sh /home/ubuntu/inituser 555"
+	sudo useradd -m --shell /bin/bash william;
+	sudo su william -c "cd; sh /home/ubuntu/inituser 555";
+fi
 
 # Mysql
-sudo service mysql stop
-rm -rf /var/lib/mysql/
-mkdir /var/lib/mysql
-#mount --bind /mnt/persistent/mysql/ /var/lib/mysql
-echo "/mnt/persistent/mysql/  /var/lib/mysql  none bind" >> /etc/fstab
-mount -a
-sudo service mysql start
+if [[ "$DB" == "MASTER" ]] then
+	sudo service mysql stop;
+	rm -rf /var/lib/mysql/;
+	mkdir /var/lib/mysql;
+	#mount --bind /mnt/persistent/mysql/ /var/lib/mysql;
+	echo "/mnt/persistent/mysql/  /var/lib/mysql  none bind" >> /etc/fstab;
+	mount -a;
+	echo "[mysqld]" > /etc/mysql/conf.d/local.cnf;
+	echo "bind-address            = 0.0.0.0" >> /etc/mysql/conf.d/local.cnf;
+	sudo service mysql start;
+	mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
+fi
 
 # Apache
 sudo a2dissite default
@@ -71,6 +96,4 @@ sudo sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.co
 sudo ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
 sudo /etc/init.d/apache2 restart
 
-# Startup scripts. Copy into /etc/rc.local
-git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/ 
 
