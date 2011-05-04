@@ -13,7 +13,6 @@ def verify_adddress(address, validate=True):
 
 	# import here so we can set env variables in the __main__ code
 	from settings import CDYNE_LICENSE_KEY
-	from popvox.govtrack import stateapportionment
 
 	if validate and address.state.lower() != "ak" and "pobox" in address.address1.replace(" ", "").lower():
 		raise AddressVerificationError("Please enter the address of your residence so that we can determine your Congressional district. We cannot find your district based on a PO Box.")
@@ -48,6 +47,7 @@ def verify_adddress(address, validate=True):
 	return verify_adddress_cached(address, ret, validate)
 
 def verify_adddress_cached(address, ret, validate=True):
+	from popvox.govtrack import stateapportionment
 
 	if ret["ReturnCode"] not in (100, 101, 102, 103):
 		if not validate:
