@@ -1,0 +1,103 @@
+{% load humanize %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<title>Top Bills - POPVOX</title> 
+
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				background-color: #E8E5DF;
+			}
+		</style> 
+		
+		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
+		<script type="text/javascript" src="/media/js/highcharts.js"></script>
+		<script>
+		
+var chart;
+
+var categories =  [{% for bill, sup, opp, ratio in bills %}"{{bill.displaynumber|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+var titles =  [{% for bill, sup, opp, ratio in bills %}"{{bill.title|truncatewords:20|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+var data_support = [{% for bill, sup, opp, ratio in bills %}{{sup}}{% if not forloop.last %},{% endif %}{% endfor %}];
+var data_oppose = [{% for bill, sup, opp, ratio in bills %}{{opp}}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+$(document).ready(function() {
+   chart = new Highcharts.Chart({
+      chart: {
+         renderTo: 'container',
+         defaultSeriesType: 'column',
+         backgroundColor: "#E8E5DF"
+      },
+      title: {
+         text: 'Most Commented-On Bills in Congress'
+      },
+      /*subtitle: {
+         text: '...'
+      },*/
+      xAxis: [{
+         categories: categories
+         //reversed: false
+      }/*, { // mirror axis on right side
+         opposite: true,
+         reversed: false,
+         categories: categories,
+         linkedTo: 0
+      }*/],
+      yAxis: {
+         title: {
+            text: "Comments"
+         },
+         labels: {
+            /*formatter: function(){
+               return Math.abs(this.value);
+            }*/
+         },
+         min: 0,
+         max: {{max}}
+      },
+      
+      plotOptions: {
+         series: {
+            stacking: 'normal'
+         },
+         column: {
+         	 groupPadding: .1,
+         	 borderWidth: 1,
+         	 shadow: false
+         }
+      },
+      
+      tooltip: {
+         formatter: function(){
+         	 var sup = data_support[this.point.x];
+         	 var opp = data_oppose[this.point.x];
+         	 
+         	 return '<b>'+ titles[this.point.x] +'</b><br/>'+
+            	'Support: '+ sup + ' (' + Math.round(sup/(sup+opp)*100) +  '%)<br/>' + 
+                'Oppose: '+ opp + ' (' + Math.round(opp/(sup+opp)*100) +  '%)';
+         }
+      },
+      
+      series: [{
+         name: 'Support',
+         data: data_support
+      }, {
+         name: 'Oppose',
+         data: data_oppose
+      }],
+      
+      colors: ["#CC6A11", "#FFCC33"]
+   });
+   
+   
+});
+
+		</script>
+	</head>
+	<body>
+		<div id="container"> </div>
+	</body>
+</html>
+

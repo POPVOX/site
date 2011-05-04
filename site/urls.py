@@ -89,6 +89,7 @@ urlpatterns = patterns('',
 	
 	(r'^widgets/js/bill.js$', 'popvox.views.widgets.bill_js'),
 	(r'^widgets/bill-comment-map$', "popvox.views.widgets.commentmapus"),
+	(r'^widgets/top-bills$', "popvox.views.widgets.top_bills"),
 		
 	(r'^services/widgets$', "popvox.views.services.widget_config"),
 	(r'^services/widgets/w/(?P<widgettype>commentstream|writecongress)$', "popvox.views.services.widget_render"),

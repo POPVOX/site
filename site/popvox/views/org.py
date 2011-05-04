@@ -2,7 +2,6 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpRespons
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.views.generic.simple import direct_to_template
-from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django import forms
 from django.contrib import messages

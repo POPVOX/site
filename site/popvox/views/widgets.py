@@ -1,10 +1,12 @@
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
+from django.views.decorators.cache import cache_page
+from django.db.models import Count
 
 from popvox.models import *
 from popvox.views.bills import bill_comments
-from popvox.govtrack import statenames, ordinate
+from popvox.govtrack import statenames, ordinate, CURRENT_CONGRESS
 
 from settings import SITE_ROOT_URL
 
@@ -18,6 +20,7 @@ def do_not_track_compliance(f):
 		return f(request, *args, **kwargs)
 	return g
 		
+@cache_page(60 * 60 * 2) # two hours
 @do_not_track_compliance
 def bill_js(request):
 	try:
@@ -30,6 +33,8 @@ def bill_js(request):
 		"bill": bill
 	}, context_instance=RequestContext(request))
 
+@cache_page(60 * 60 * 2) # two hours
+@do_not_track_compliance
 def commentmapus(request):
 	bill = get_object_or_404(Bill, id=request.GET["bill"])
 	
@@ -81,5 +86,41 @@ def commentmapus(request):
 		"data": count.items(),
 		"min_sz_num": int(float(max_count)/5.0)+1,
 		"max_sz_num": max_count,
+	}, context_instance=RequestContext(request))
+
+#@cache_page(60 * 60 * 2) # two hours
+@do_not_track_compliance
+def top_bills(request):
+	congressnumber = CURRENT_CONGRESS
+	
+	# Select bills with the most number of recent comments.
+	bills = []
+	max_count = 0
+	max_sup = 0
+	max_opp = 0
+	for b in Bill.objects.filter(congressnumber = CURRENT_CONGRESS) \
+		.annotate(Count('usercomments')).order_by('-usercomments__count') \
+		[0:15]:
+		
+		if b.usercomments__count == 0:
+			break
+			
+		sup = b.usercomments.filter(position="+").count()
+		opp = b.usercomments.filter(position="-").count()
+		
+		bills.append( (b, sup, opp, float(sup)/float(sup+opp)) )
+		
+		max_count = max(max_count, sup+opp)
+		max_sup = max(max_sup, sup)
+		max_opp = max(max_opp, opp)
+		
+	# sort by %support
+	bills.sort(key = lambda b : b[3])
+		
+	return render_to_response('popvox/widgets/top_bills.html', {
+		"bills": bills,
+		"max": max_count,
+		"max_sup": max_sup,
+		"max_opp": max_opp,
 	}, context_instance=RequestContext(request))
 
