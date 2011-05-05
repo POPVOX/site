@@ -25,8 +25,6 @@
 	
 	<script>var bill_display_number = "{{bill.displaynumber|escapejs}}";</script>
 	<script src="/media/js/lettertips.js"> </script>
-	
-	/* http://jscrollpane.kelvinluck.com/ */
 
 	<style>
 	{% if request.GET.iframe %}
@@ -86,15 +84,23 @@
 	<script>
 		$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); });
 	
+		var working = false;
+		$('html').ajaxStart(function() { working = true; });
+		$('html').ajaxStop(function() { working = false; });
+	
 		var panel_width = 420;
 		var current_panel = 1;
-		
+		var sliding = false;
 		function show_panel(idx) {
+			if (sliding) return;
+			sliding = true;
+			
 			$("#progress li").removeClass("active");
 			$("#progress li").removeClass("complete");
-			for (var i = 1; i < idx; i++)
+			var tab_index = (idx == 1 ? idx : idx-1);
+			for (var i = 1; i < tab_index; i++)
 				$("#progress li.tab_" + i).addClass("complete");
-			$("#progress li.tab_" + idx).addClass("active");
+			$("#progress li.tab_" + tab_index).addClass("active");
 			
 			var cur = $($("#panel_holder .widget_panel")[current_panel-1]);
 			var next = $($("#panel_holder .widget_panel")[idx-1]);
@@ -106,6 +112,7 @@
 				function() {
 					cur.hide(); // if we don't hide it, then the user can tab through to its controls which causes scrolling
 					current_panel = idx;
+					sliding = false;
 				}
 			);
 			
@@ -116,9 +123,12 @@
 			return false;
 		}
 		
+		var demo = {% if not request.GET.demo %}false{% else %}true{% endif %};
 		var email_status = null;
 		
 		function check_email() {
+			if (working) return;
+			
 			$("#panel_login .error").text("");
 			
 			var email = $('#email').val();
@@ -143,7 +153,7 @@
 
 						$('#unregistered input, #registered_password input').attr("disabled", "1");
 						$('#panel_login .check').hide();
-						$('#b_next').addClass("disabled");
+						$('#panel_login .next').addClass("disabled");
 						
 						if (data.status == "invalid-email") {
 							$("#panel_login .error").text("That's not a valid email address.");
@@ -154,18 +164,18 @@
 						} else {
 							$('#panel_login .check').show();
 							$('#unregistered input, #registered_password input').attr("disabled", "");
-							$('#b_next').removeClass("disabled");
+							$('#panel_login .next').removeClass("disabled");
 							if (data.status == "not-registered") {
 								$('#unregistered').show();
 								$('#registered_password, #registered_sso').hide();
-								$('#b_next').show();
+								$('#panel_login .next').show();
 							} else {
 								$('#unregistered').hide();
 								
-								$('#registered_password, #b_next, #registered_sso').hide();
+								$('#registered_password, #panel_login .next, #registered_sso').hide();
 								
 								if (data.has_password) {
-									$('#registered_password, #b_next').show();
+									$('#registered_password, #panel_login .next').show();
 								} else if (data.sso_methods.length > 0) {
 									$('#registered_sso').show();
 								} // had better be one or the other, but give preference to password
@@ -187,7 +197,10 @@
 		var identity = null;
 		
 		function do_login() {
-			if ($("#b_next").hasClass("disabled")) return false;
+			if (working) return;
+			if (identity) return show_address();
+			
+			if ($("#panel_login .next").hasClass("disabled")) return false;
 			
 			var data;
 			
@@ -199,6 +212,7 @@
 				
 				data = {
 					{% if ocp %}ocp: {{ocp.id}},{% endif %}
+					demo: demo,
 					action: "newuser",
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
@@ -208,7 +222,7 @@
 				
 			} else {
 				// only used if logging in with password
-				if ($("#password").hasClass("default")) { alert("Enter your password to log in."); return false; }
+				if ($("#password").hasClass("default") || $('#password').val() == "") { alert("Enter your password to log in."); return false; }
 			
 				data = {
 					action: "login",
@@ -242,23 +256,24 @@
 		{% if identity %}
 		$(function() {
 			identity = {{identity|safe}};
+			$('#login').hide();
 			$('#loggedinalready').show();
-			$('#b_next').removeClass("disabled");
-			show_address();
+			$('#panel_login .next').removeClass("disabled");
 		});
 		{% endif %}
 		
 		function logout() {
+			if (working) return;
 			identity = null;
 			$('#login').show();
-			$('#loggedinalready, #addressform').hide();
-			$('#b_next').addClass("disabled");
+			$('#loggedinalready').hide();
+			$('#panel_login .next').addClass("disabled");
 			return false;
 		}
 		
 		function show_address() {
-			$('#login').hide();
-			$('#addressform').show();
+			show_panel(2);
+			
 			$('#useraddress_firstname').text(identity.firstname);
 			$('#useraddress_lastname').text(identity.lastname);
 			$('#useraddress_state').text(identity.state);
@@ -270,13 +285,14 @@
 			$('#useraddress_city').val(identity.city);
 			$('#useraddress_phonenumber').val(identity.phonenumber);
 			
-			// debugging
+			{% if request.GET.debug %}
 			if (!identity.nameprefix) {
 				$('#useraddress_prefix').set_text("Mr.");
 				$('#useraddress_address1').set_text("100 Debug Noname Street");
 				$('#useraddress_city').set_text("Nowherevill Debug");
-				$('#useraddress_phonenumber').set_text("(123) 456-7890 ext. Debug");
+				$('#useraddress_phonenumber').set_text("(123) 456-7890 x12");
 			}
+			{% endif %}
 			
 		}
 		
@@ -284,13 +300,16 @@
 		var cdyne_response;
 		
 		function do_address() {
+			if (working) return;
+			
 			$.ajax({
 					url: window.location.pathname,
 					data: {
+						demo: demo,
 						bill: {{bill.id}},
 						{% if ocp %}ocp: {{ocp.id}},{% endif %}
 						action: "address",
-						id: identity.id ? identity.id : undefined,
+						userid: identity.id ? identity.id : undefined,
 						email: identity.email,
 						useraddress_prefix: $("#useraddress_prefix").val(),
 						useraddress_firstname: identity.firstname,
@@ -307,19 +326,22 @@
 					dataType: "json",
 					success: function(data, textStatus, jqXHR) {
 						if (data.status == "fail") {
-							$("#panel_login .error").text(data.msg);
+							$("#panel_addressform .error").text(data.msg);
 						} else {
-							$("#panel_login .error").text("");
+							$("#panel_addressform .error").text("");
 							identity = data.identity;
 							recipients = data.recipients;
+							cdyne_response = data.cdyne_response;
 							if (recipients.length > 0)
-								$('#msg_preview .greeting').text("Dear " + recipients.join(", ") + ":")
+								$('#msg_preview .greeting').text("Dear " + recipients.join(", ") + ":"); // escape?
+							else
+								$('#msg_preview .greeting').text("Dear Congressperson");
 														
-							show_panel(2);
+							show_panel(3);
 						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						$("#panel_login .error").text("We're having some technical difficulty. Please try again soon.");
+						$("#panel_addressform .error").text("We're having some technical difficulty. Please try again soon.");
 					}
 				});
 			
@@ -327,30 +349,94 @@
 		}
 		
 		function do_preview() {
+			if (working) return;
+			
 			// convert message text into a nicely paragraphed html preview
 			var msghtml = "";
-			var lines = $('#message').val().replace("\r", "\n").replace("\n\n", "\n").split("\n");
-			for (var i = 0; i < lines.length; i++)
-				msghtml += "<p>" + $('<div/>').text(lines[i]).html() + "</p>";
+			if (!$('#message').hasClass("default")) {
+				var lines = $('#message').val().replace("\r", "\n").replace("\n\n", "\n").split("\n");
+				for (var i = 0; i < lines.length; i++)
+					msghtml += "<p>" + $('<div/>').text(lines[i]).html() + "</p>";
+			} else {
+				msghtml = "<p><i>I {{verb}} {{bill.displaynumber}}.</i></p>";
+			}
 			
 			$('#msg_preview .message').html(msghtml);
 			$('#panel_preview .address .name, #msg_preview .name').text(identity.firstname + " " + identity.lastname);
 			$('#msg_preview .location').text(identity.city + ", " + identity.state);
 			$('#panel_preview .address .citystatezip').text(identity.city + ", " + identity.state + " " + identity.zipcode);
-			show_panel(3);
+			show_panel(4);
 			
 			$('#msg_preview .scrolled').jScrollPane();
+			
+			return false;
 		}
 		
-		// debuggging
-		{% if not identity %}
-		$(function() {
-			$('#email').set_text("debug@example.org");
-			$('#firstname').set_text("John");
-			$('#lastname').set_text("Debug");
-			$('#zipcode').set_text("19104");
-		});
-		{% endif %}
+		function do_send() {
+			if (working) return;
+			
+			$.ajax({
+					url: window.location.pathname,
+					data: {
+						demo: demo,
+						bill: {{bill.id}},
+						position: "{{position}}",
+						{% if ocp %}ocp: {{ocp.id}},{% endif %}
+						action: "submit",
+						userid: identity.id ? identity.id : undefined,
+						email: identity.email,
+						useraddress_prefix: $("#useraddress_prefix").val(),
+						useraddress_firstname: identity.firstname,
+						useraddress_lastname: identity.lastname,
+						useraddress_suffix: $("#useraddress_suffix").val(),
+						useraddress_address1: $("#useraddress_address1").val(),
+						useraddress_address2: $("#useraddress_address2").val(),
+						useraddress_city: $("#useraddress_city").val(),
+						useraddress_state: identity.state,
+						useraddress_zipcode: identity.zipcode,
+						useraddress_phonenumber: $("#useraddress_phonenumber").val(),
+						message: !$('#message').hasClass("default") ? $('#message').val() : "",
+						cdyne_response: cdyne_response
+					},
+					type: "POST",
+					dataType: "json",
+					success: function(data, textStatus, jqXHR) {
+						if (data.status == "fail") {
+							$("#panel_preview .error").text(data.msg);
+						} else {
+							$("#panel_preview .error").text("");
+							
+							if (data.status == "submitted") {
+								$('h3.congrats').text('Your message will be sent!')
+								$('h4.congrats').text('Thank you for taking the time to share your opinion.');
+							} else if (data.status == "confirm-address") {
+								$('h3.congrats').text('Check your email!');
+								$('h4.congrats').text('We need to confirm your address before delivering your message.');
+							} else if (data.status == "confirm-email") {
+								$('h3.congrats').text('Check your email!');
+								$('h4.congrats').text('We need to confirm your email address before delivering your message.');
+								
+							} else if (data.status == "demo-submitted") {
+								$('h3.congrats').text('Your message will (NOT) be sent!')
+								$('h4.congrats').text('This widget is in demo mode. No information was saved.');
+							} else if (data.status == "demo-confirm-address") {
+								$('h3.congrats').text('[DEMO] Check your email! [DEMO]');
+								$('h4.congrats').text('We need to confirm your address before delivering your message.');
+							} else if (data.status == "demo-confirm-email") {
+								$('h3.congrats').text('[DEMO] Check your email! [DEMO]');
+								$('h4.congrats').text('We need to confirm your email address before delivering your message.');
+							}
+							
+							show_panel(5);
+						}
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#panel_preview .error").text("We're having some technical difficulty. Please try again soon.");
+					}
+				});
+
+			return false;
+		}
 		
 		function share_simple_open(url1, url2) {
 			a = function() {
@@ -378,7 +464,7 @@
 			share_simple_open(p1, p2);
 		}
 		function link_share(targeturl, text, hashtag) {
-			$('#social_share .link').html("Copy and paste the following address to share this page with others: <tt>" + $('<div/>').text(targeturl).html() + "</tt>");
+			$('#social_share .link').html("<p>Copy and paste the following address to share this page with others:</p> <p><tt>" + $('<div/>').text(targeturl).html() + "</tt></p>");
 			$('#social_share .link').slideDown();
 			return false;
 		}
@@ -392,9 +478,16 @@
 			return false;
 		}
 		
+		// debuggging
+		{% if request.GET.debug and not identity %}
 		$(function() {
-			
+			$('#email').set_text("debug@popvox.com");
+			$('#firstname').set_text("John");
+			$('#lastname').set_text("Debug");
+			$('#zipcode').set_text("19104");
 		});
+		{% endif %}
+		
 	</script>
 </head>
 <body>
@@ -432,7 +525,7 @@
 								<div id="registered_password" style="display: none" class="clear">
 									<p>Enter your POPVOX.com password:</p>
 									<input id="password" value="" size="25" maxlength="40" type="password"><br />
-									<p>forgot your password?</p>
+									<p><a href="https://www.popvox.com/registration/reset-password" target="_blank">forgot your password?</a></p>
 								</div>
 			
 								<div id="unregistered">
@@ -442,15 +535,37 @@
 								</div>
 							</div>
 							
-							<div id="loggedinalready" style="display: none">
-								<p>Welcome back <strong>{{screenname}}</strong>.<br />
-									Check your address and then click Next to get started.</p>
+							<div id="loggedinalready" style="display: none; margin-top: 1em;">
+								<p>Welcome back <strong>{{displayname}}</strong>.</p>
 								<p><a href="#" onclick="return logout();">Not you?</a>
 							</div>
 							
-							<div id="addressform" style="display: none">
+							<input value="next" class="btn next disabled" onclick="return do_login();" type="button">
+							
+							<p class="clear error" style="margin-top: 3em"> </p>
+							
+							{% if request.GET.demo %}
+							<p class="clear" style="margin-top: 2em; font-style: italic">(This widget is in demo mode. No information will be recorded.)</p>
+							{% endif %}
+						</form>
+						
+						<script>
+							$('#email').input_default("enter your email address");
+							$('#firstname').input_default("first name");
+							$('#lastname').input_default("last name");
+							$('#zipcode').input_default("zip code");
+							$('#firstname, #lastname, #zipcode').attr("disabled", "1");
+							$("#email").keyup_delayed(check_email);
+						</script>
+						
+					</div> <!-- e: panel_login -->
+
+					<div id="panel_addressform" class="widget_panel" style="display: none">
+						<form class="form" action="#" onsubmit="return false;"><br />
+							<h3>Tell Congress who you are</h3>
+							
 								<p>Provide the address of your residence where you intend to vote.<br />
-								We cannot deliver your message to Congress without your complete contact information.</p>
+								Congressional offices only accept mail with complete contact information.</p>
 							
 								<label for="useraddress_prefix">Prefix</label>
 								<select class="c2" id="useraddress_prefix">
@@ -488,27 +603,15 @@
 								<span id="useraddress_zipcode">...</span><br />
 								
 								<label for="useraddress_phonenumber">Phone Number</label>
-								<input class="c2" id="useraddress_phonenumber" type="text" value=""/><br />
+								<input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/><br />
 								<small>We only use your phone number when required on a Congressional message submission form.</small>
-							</div>
-
-							<input value="next" id="b_next" class="btn disabled" onclick="return (!identity ? do_login() : do_address());" type="button">
-							
-							<p class="clear error"> </p>
 								
+								<p class="clear error"> </p>
 						</form>
 						
-						<script>
-							$('#email').input_default("enter your email address");
-							$('#firstname').input_default("first name");
-							$('#lastname').input_default("last name");
-							$('#zipcode').input_default("zip code");
-							$('#firstname, #lastname, #zipcode').attr("disabled", "1");
-							$("#email").keyup_delayed(check_email);
-						</script>
-						
-					</div> <!-- e: panel_login -->
-					
+						<input value="next" class="btn next" onclick="return do_address();" type="button">
+					</div>
+							
 					<div id="panel_write" class="widget_panel" style="display: none">
 						{% if reason %}
 						<div id="panel_write_why_reason">
@@ -534,6 +637,8 @@
 		
 							<textarea class="half" id="message" maxlength="500" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
 							
+							<a href="#" class="back" onclick="return working ? false : show_panel(2);">back</a>
+							
 		<!--					<input value="Send My Support Without a Message" id="b_send_no_msg" type="button">-->
 							<input value="Preview" id="b_preview" type="button" onclick="return do_preview();">
 							<div class="clear"> </div>
@@ -544,7 +649,10 @@
 							<p id="messagetip" style="color: black"></p>
 							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
 						</div>
-						<script>$('#message').textchange(function() { validate('message'); });</script>
+						<script>
+							$('#message').input_default();
+							$('#message').textchange(function() { validate('message'); });
+						</script>
 						
 						<div class="clear"> </div>
 						
@@ -561,25 +669,27 @@
 							<div class="scrolled">
 							<p class="{{verb}}"><span></span> <div class="message"> </div></p>
 							</div>
-							<p class="signature"><span class="name">Bob Smith</span><br /><span class="location">Jackson, TN</span> <br /><a href="#" onclick="return show_panel(2);">revise message</a></p>
+							<p class="signature"><span class="name">Bob Smith</span><br /><span class="location">Jackson, TN</span> <br /><a href="#" onclick="return working ? false : show_panel(3);">revise message</a></p>
 							
 						</div>	
 						
-						<p id="b_send_to_congress"><a class="btn" href="#" onclick="show_panel(4); return false;">Send your message to Congress</a></p>
+						<p id="b_send_to_congress"><a class="btn" href="#" onclick="return do_send();">Send your message to Congress</a></p>
 						<div class="address">
 							<p><span class="name">Bob Smith</span><br />
 								<span class="address1">35 Morningside Dr.</span><br />
 								<span class="citystatezip">Jackson, TN 38301</span><br />
-								<a href="#" onclick="return show_panel(1);">edit address</a>
+								<a href="#" onclick="return working ? false : show_panel(2);">edit address</a>
 							</p>
-						</div>			
-						<div class="clear"> </div>
+						</div>
+						
+						<p class="clear error"> </p>
 					</div><!-- e: panel_preview -->
 					
 					
 					<div id="panel_share" class="widget_panel" style="display: none">
 										
 						<h3 class="congrats">Congratulations, we sent your message to Congress!</h3>
+						<h4 class="congrats">More information on what happened!</h4>
 		
 						<div id="social_share">
 							<h3>Tell your friends to {{verb}} this bill</h3>

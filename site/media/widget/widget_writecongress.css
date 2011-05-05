@@ -121,12 +121,14 @@ body {
 				}
 
 	
-	h3 {
+	h3, h4 {
 		float: none;
 		display: block;
 		margin: 0;
 		padding: 0;
 		text-align: left;
+		}
+	h3 {
 		text-transform: uppercase;
 		font-weight: bold;
 		height: 25px;
@@ -182,11 +184,11 @@ body {
 			background: url(../icons/sm/linkedin-login.png) left top no-repeat;
 			}
 			
-		#addressform p {
+		#panel_addressform p {
 			margin-bottom: 10px;
 			}
 			
-			#addressform label {
+			#panel_addressform label {
 				height: 35px;
 				}
 				
@@ -241,11 +243,11 @@ body {
 				float: left;
 				}
 			
-			#addressform input {
+			#panel_addressform form input {
 				margin-bottom: 5px;
 				width: 230px;
 				}
-			#addressform span {
+			#panel_addressform span {
 				display: inline-block;
 				margin-bottom: 5px;
 				}
@@ -264,7 +266,7 @@ body {
 			    text-indent: -9999em;
 				}
 			
-		#b_next {
+		.btn.next {
 			width: 81px;
 			height: 22px;
 			background-image: url(../master/b_next.png);
@@ -274,6 +276,9 @@ body {
 			border: none;
 			float: left;
 			}
+			#panel_addressform .next {
+				margin-left: 285px;
+				}
 
 			.btn {
 				text-indent: -9999em;
@@ -330,12 +335,12 @@ body {
 			display: block;
 			}
 	
-	h4 {
+	#panel_write h4 {
 		font: italic normal 18px/24px georgia, serif;
 		margin-bottom: 10px;
 		}
 		
-		h4.support {
+		#panel_write h4.support {
 			background: url(../master/bg_endorsed_bubl.png) left top no-repeat;
 			height: 32px;
 		    margin-top: -5px;
@@ -517,10 +522,22 @@ body {
 		}
 		
 	h3.congrats {
+		height: auto;
+		text-align: center;
+		font-size: 15px;
 		color: #CC6A11;
 		padding-top: 15px;
+		margin-bottom: 5px;
+		border-top: 1px solid #d1d1cf;
+		border-width: 1px 0 ;
+		}	
+	h4.congrats {
+		text-align: center;
+		font-size: 12px;
+		color: #333;
+		padding-bottom: 15px;
 		margin-bottom: 15px;
-		border: 1px solid #d1d1cf;
+		border-bottom: 1px solid #d1d1cf;
 		border-width: 1px 0 ;
 		}	
 	

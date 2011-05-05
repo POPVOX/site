@@ -834,17 +834,17 @@ class PostalAddress(models.Model):
 		super(PostalAddress, self).save(*args, **kwargs)
 		self.usercomments.all().update(state=self.state, congressionaldistrict=self.congressionaldistrict)
 		
-	def load_from_form(self, request, validate=True):
-		self.nameprefix = request.POST["useraddress_prefix"]
-		self.firstname = request.POST["useraddress_firstname"]
-		self.lastname = request.POST["useraddress_lastname"]
-		self.namesuffix = request.POST["useraddress_suffix"]
-		self.address1 = request.POST["useraddress_address1"]
-		self.address2 = request.POST["useraddress_address2"]
-		self.city = request.POST["useraddress_city"]
-		self.state = request.POST["useraddress_state"].upper()
-		self.zipcode = request.POST["useraddress_zipcode"]
-		self.phonenumber = request.POST["useraddress_phonenumber"]
+	def load_from_form(self, fields, validate=True):
+		self.nameprefix = fields["useraddress_prefix"]
+		self.firstname = fields["useraddress_firstname"]
+		self.lastname = fields["useraddress_lastname"]
+		self.namesuffix = fields["useraddress_suffix"]
+		self.address1 = fields["useraddress_address1"]
+		self.address2 = fields["useraddress_address2"]
+		self.city = fields["useraddress_city"]
+		self.state = fields["useraddress_state"].upper()
+		self.zipcode = fields["useraddress_zipcode"]
+		self.phonenumber = fields["useraddress_phonenumber"]
 		if not validate:
 			return
 		if self.nameprefix.strip() == "":
@@ -1055,6 +1055,19 @@ class UserComment(models.Model):
 			govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
 			
 		return govtrackrecipients
+		
+	def get_recipients_display(self):
+		recips = self.get_recipients()
+		if not type(recips) == list:
+			return "[" + recips + "]"
+		
+		recips = [m["name"] for m in recips]
+		if len(recips) > 1:
+			recips[-1] = "and " + recips[-1]
+		if len(recips) <= 2:
+			return " ".join(recips)
+		else:
+			return ", ".join(recips)
 	
 	def delivery_status(self):
 		recips = self.get_recipients()

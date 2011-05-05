@@ -485,7 +485,14 @@ def account_profile_update(request, field, value, validate_only):
 			request.user.username = value
 			request.user.save()
 		return { "status": "success", "value": value }
-		
+
+	elif field == "password":
+		value = validate_password(value)
+		if not validate_only:
+			request.user.set_password(value)
+			request.user.save()
+		return { "status": "success", "value": value }
+
 	elif field == "email":
 		value = validate_email(value, skip_if_this_user = request.user)
 		if request.user.userprofile.is_leg_staff() and not legstaffemailcheck(value):

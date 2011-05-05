@@ -491,6 +491,8 @@ just follow this link:
 
 <URL>
 
+If the link is not clickable, please copy and paste it into your web browser.
+
 All the best,
 
 POPVOX"""
@@ -595,7 +597,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		# If we're coming from a customized org action page...
 		if "orgcampaignposition" in request.POST:
 			billpos = get_object_or_404(OrgCampaignPosition, id=request.POST["orgcampaignposition"])
-			request.session["comment-referrer"] = (bill.id, billpos.campaign, None)
+			request.session["comment-referrer"] = (bill.id, billpos.campaign, None, billpos.id if "share_with_org" in request.POST else None)
 			request.session["comment-default-address"] = (request.POST["name_first"], request.POST["name_last"], request.POST["zip"], request.POST["email"])
 			if "share_with_org" in request.POST:
 				rec = OrgCampaignPositionActionRecord()
@@ -669,18 +671,22 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			message = request.POST.get("message", None)
 		else:
 			# User is returning from a login. Get the message info from the saved session.
+			# OR user is coming from the last stage of the write congress widget
 			message = request.session[pending_comment_session_key]["message"]
 
 		request.goal = { "goal": "comment-addressform" }
 		
 		if address_record == None and "comment-default-address" in request.session:
-			import writeyourrep.district_lookup
-			address_record = PostalAddress()
-			address_record.firstname = request.session["comment-default-address"][0]
-			address_record.lastname = request.session["comment-default-address"][1]
-			address_record.zipcode = request.session["comment-default-address"][2]
-			address_record.state = writeyourrep.district_lookup.get_state_for_zipcode(address_record.zipcode)
-			del request.session["comment-default-address"]
+			if type(request.session["comment-default-address"]) == PostalAddress:
+				address_record = request.session["comment-default-address"]
+			else:
+				import writeyourrep.district_lookup
+				address_record = PostalAddress()
+				address_record.firstname = request.session["comment-default-address"][0]
+				address_record.lastname = request.session["comment-default-address"][1]
+				address_record.zipcode = request.session["comment-default-address"][2]
+				address_record.state = writeyourrep.district_lookup.get_state_for_zipcode(address_record.zipcode)
+				del request.session["comment-default-address"]
 			
 		return render_to_response('popvox/billcomment_address.html', {
 				'bill': bill,
@@ -699,7 +705,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		
 		address_record = PostalAddress()
 		address_record.user = request.user
-		address_record.load_from_form(request, validate=False)
+		address_record.load_from_form(request.POST, validate=False)
 		
 		def http_rest_json(url, args=None, method="GET"):
 			if method == "GET" and args != None:
@@ -792,7 +798,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			if address_record_fixed == None:
 				address_record = PostalAddress()
 				address_record.user = request.user
-				address_record.load_from_form(request) # throws ValueError, KeyError
+				address_record.load_from_form(request.POST) # throws ValueError, KeyError
 				
 			# We don't display a captcha when we are editing an existing comment
 			# or if the user has not left many comments yet.
@@ -846,15 +852,22 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		# If the user came by a short URL to this bill, store the owner of
 		# the short URL as the referrer on the comment.
 		referrer = None
-		if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill.id and len(request.session["comment-referrer"]) == 3:
+		ocp = None
+		if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill.id and len(request.session["comment-referrer"]) >= 3:
+			
 			referrer = request.session["comment-referrer"][1]
+			
 			if request.session["comment-referrer"][2] != None:
 				import shorturl.models
 				surl = shorturl.models.Record.objects.get(id=request.session["comment-referrer"][2])
 				surl.increment_completions()
+				
+			if len(request.session["comment-referrer"]) >= 4:
+				ocp = OrgCampaignPosition.objects.get(id=request.session["comment-referrer"][3], bill=bill, campaign=referrer)
+				
 			del request.session["comment-referrer"]
 
-		save_user_comment(request.user, bill, position, referrer, message, address_record)
+		save_user_comment(request.user, bill, position, referrer, message, address_record, ocp)
 			
 		# Clear the session state set in the preview. Don't clear until the end
 		# because if the user is redirected back to ../finish we need the session
@@ -914,7 +927,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	else:
 		raise Http404()
 
-def save_user_comment(user, bill, position, referrer, message, address_record):
+def save_user_comment(user, bill, position, referrer, message, address_record, ocp):
 	# If a comment exists, update that record.
 	comment = None
 	for c in user.comments.filter(bill = bill):
@@ -953,6 +966,9 @@ def save_user_comment(user, bill, position, referrer, message, address_record):
 				address_record.id = addr.id
 				break
 		
+		address_record.user = user
+		if getattr(address_record, "created", None) == None: # I think because of pickling in the write congress
+			address_record.created = datetime.now()                 # widget this gets set as null which causes exception
 		address_record.save()
 		
 	comment.address = address_record
@@ -967,7 +983,21 @@ def save_user_comment(user, bill, position, referrer, message, address_record):
 
 	comment.save()
 	
-
+	if ocp != None:
+		# Update the OrgCampaignPositionActionRecord to track that the comment was
+		# completed.
+		ocpar, created = OrgCampaignPositionActionRecord.objects.get_or_create(
+			ocp = ocp,
+			email = user.email,
+			defaults={
+				"firstname": address_record.firstname,
+				"lastname": address_record.lastname,
+				"zipcode": address_record.zipcode } )
+		ocpar.completed_comment = comment
+		ocpar.save()
+		
+	return comment
+				
 def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	bill = getbill(congressnumber, billtype, billnumber)
 	

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, time
 from django.core.cache import cache
+from django.db import connection
 
 import urllib
 
@@ -50,3 +51,24 @@ def cache_page_postkeyed(duration, vary_by_user=False):
 		return g
 	return f
 
+
+def require_lock(*tables):
+	def _lock(func):
+		def _do_lock(*args, **kwargs):
+			cursor = connection.cursor()
+			cursor.execute("LOCK TABLES %s" %', '.join([t + " WRITE" for t in tables]))
+			try:
+				return func(*args, **kwargs)
+			finally:
+				try:
+					cursor.execute("UNLOCK TABLES")
+				except:
+					pass
+				
+				try:
+					cursor.close()
+				except:
+					pass
+		
+		return _do_lock
+	return _lock
