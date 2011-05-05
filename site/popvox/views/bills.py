@@ -1595,6 +1595,7 @@ def uploaddoc1(request):
 		
 	return types, whose, docs
 
+@login_required
 def uploaddoc(request, congressnumber, billtype, billnumber):
 	types, whose, docs = uploaddoc1(request)
 		
@@ -1611,6 +1612,7 @@ def uploaddoc(request, congressnumber, billtype, billnumber):
 		'bill': bill,
 		}, context_instance=RequestContext(request))
 
+@login_required
 @json_response
 def getdoc(request):
 	types, whose, docs = uploaddoc1(request)
@@ -1625,6 +1627,7 @@ def getdoc(request):
 	except:
 		return { "status": "doesnotexist" }
 
+@login_required
 @json_response
 def uploaddoc2(request):
 	types, whose, docs = uploaddoc1(request)

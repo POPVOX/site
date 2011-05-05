@@ -155,8 +155,16 @@
 						elem.find("h4 span.location").text("")
 					elem.find("h4 span.date nobr").text(c.date);
 					elem.find(".share a").attr("href", c.share);
-					elem.find("p").text(c.msg)
-					elem.find("p").html(elem.find("p").html().replace("\n", "<br/><br/>"))
+
+					elem.find("p").text('');
+					var msgpars = c.msg.split("\n");
+					for (var j = 0; j < msgpars.length; j++) {
+						var par = $('<div/>');
+						par.text(msgpars[j]);
+						elem.find("p").append(par);
+					}
+					//elem.find("p").html(elem.find("p").html().replace("\n", "<br/><br/>"))
+
 					if (c.verb != "supported" && c.verb != "opposed")
 						elem.find(".verb").text(c.verb + " this bill");
 					elem.find(".endorse_oppose_image").addClass((c.pos == "+") ? "endorse" : "oppose")

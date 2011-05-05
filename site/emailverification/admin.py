@@ -4,15 +4,12 @@ from django.contrib import admin
 class RecordAdmin(admin.ModelAdmin):
 	readonly_fields = ("email", "code", "searchkey", "action")
 	search_fields = ["email"]
-	list_display = ["created", "email", "code"]
+	list_display = ["created", "email", "link", "description"]
 
-	actions = ['get_url']
-	def get_url(self, request, queryset):
-		from django.http import HttpResponse
-		r = HttpResponse(mimetype="text/plain")
-		for obj in queryset:
-			r.write(obj.email + "\t" + obj.url() + "\n")
-		return r
-	get_url.short_description = "Get Link URL"
+	def link(self, obj):
+		return obj.url()
+
+	def description(self, obj):
+		return unicode(obj.get_action())
 
 admin.site.register(Record, RecordAdmin)

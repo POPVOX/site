@@ -116,7 +116,7 @@ try:
 		client = create_oauth1_client("linkedin", access_token)
 		resp, content = client.request("https://api.linkedin.com/v1/people/~:(id,first-name,last-name)", "GET")
 		if resp['status'] != '200':
-			raise Exception("OAuth Failed: Invalid response from Google on loading profile information.")
+			raise Exception("OAuth Failed: Invalid response from LinkedIn on loading profile information.")
 		
 		profile = { }
 		xml = minidom.parseString(content)
