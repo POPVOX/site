@@ -88,10 +88,11 @@ def commentmapus(request):
 		"max_sz_num": max_count,
 	}, context_instance=RequestContext(request))
 
-#@cache_page(60 * 60 * 2) # two hours
+@cache_page(60 * 60 * 2) # two hours
 @do_not_track_compliance
 def top_bills(request):
 	congressnumber = CURRENT_CONGRESS
+	count = 12
 	
 	# Select bills with the most number of recent comments.
 	bills = []
@@ -100,7 +101,7 @@ def top_bills(request):
 	max_opp = 0
 	for b in Bill.objects.filter(congressnumber = CURRENT_CONGRESS) \
 		.annotate(Count('usercomments')).order_by('-usercomments__count') \
-		[0:15]:
+		[0:count]:
 		
 		if b.usercomments__count == 0:
 			break
@@ -115,7 +116,7 @@ def top_bills(request):
 		max_opp = max(max_opp, opp)
 		
 	# sort by %support
-	bills.sort(key = lambda b : b[3])
+	bills.sort(key = lambda b : b[3], reverse=True)
 		
 	return render_to_response('popvox/widgets/top_bills.html', {
 		"bills": bills,
