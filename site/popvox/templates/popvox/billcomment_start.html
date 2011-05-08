@@ -50,7 +50,7 @@ function validate_form() {
 	{% if position == "0" %}
 		<p>You are about to clear your position on this bill.</p>
 
-		<form name="clearcomment method="post">
+		<form name="clearcomment" method="post">
 		{% csrf_token %}
 		<p><input id="submitcomment_clear" type="submit" name="submitmode" value="Clear Comment >"/></p>
 		</form>

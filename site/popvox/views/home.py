@@ -538,9 +538,7 @@ def activity_getinfo(request):
 		q = UserComment.objects.filter(
 			message__isnull=False, 
 			status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED),
-			diggs__diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE,
 			**filters) \
-			.annotate(appreciates=Count('diggs')) \
 			.select_related("user", "bill", "address") \
 			.order_by('-created')
 
@@ -548,6 +546,17 @@ def activity_getinfo(request):
 			total_count = q.count()
 	
 		q = q[0:count]
+
+		# batch load all of the appreciations
+		c_id = {}
+		for c in q:
+			c_id[c.id] = c
+			c.appreciates = 0 # in case comment has none, see next comment
+		for c in UserComment.objects.filter(
+			id__in=c_id.keys(), # putting a filter on diggs eliminates comments without any diggs
+			diggs__diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE) \
+			.annotate(appreciates=Count('diggs')):
+			c_id[c.id].appreciates = c.appreciates
 		
 		items.extend(q)
 	
