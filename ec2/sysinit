@@ -108,11 +108,12 @@ if [[ "$DB" == "localhost" ]]; then
 	mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
 fi
 
-# Apache, which handles WSGI deployment of Django. The alternative is
-# to run Django via FastCGI, which requires more config.
+# Apache, which handles private WSGI deployment of Django, oughttabealaw.com, and
+# the popvox domains on https: which includes proxying through to the blog on occams.
+# The alternative is to run Django via FastCGI via Nginx directly, which requires more config.
 ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/www.conf
 a2dissite default
-a2enmod proxy proxy_http # we use proxy to pass the blog through to occams
+a2enmod proxy proxy_http
 sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
 /etc/init.d/apache2 restart
 
