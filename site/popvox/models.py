@@ -984,7 +984,7 @@ class UserComment(models.Model):
 	def verb(self, tense="present"):
 		# the verb used to describe the comment depends on when the comment
 		# was left in the stages of a bill's progress.
-		if self.created.date() <= govtrack.getCongressDates(self.bill.congressnumber)[1].date():
+		if self.created.date() <= govtrack.getCongressDates(self.bill.congressnumber)[1]:
 			# comment was (first) left before the end of the Congress in which the
 			# bill was introduced
 			if self.position == "+":
@@ -1121,7 +1121,7 @@ class UserComment(models.Model):
 			return "This comment was rejected by POPVOX staff for violating our acceptable language policy. You have revised the comment, and POPVOX staff will review it soon."
 		return None
 
-	def appreciates(self):
+	def appreciates_count(self):
 		return UserCommentDigg.objects.filter(comment=self, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE).count()
 
 class UserCommentOfflineDeliveryRecord(models.Model):

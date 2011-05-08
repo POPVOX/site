@@ -10,6 +10,7 @@ from django.views.decorators.cache import cache_page
 from django.template.defaultfilters import truncatewords
 from django.utils.html import strip_tags
 from django.db.models import Count
+from django.core.cache import cache
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
 
@@ -257,6 +258,22 @@ def bill_comments(bill, **filterargs):
 	return bill.usercomments.filter(**filter_null_args(filterargs))\
 		.select_related("user")
 
+def bill_statistics_cache(f):
+	def g(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
+		cache_key = ("bill_statistics_cache:%d,%s,%s" % (bill.id, shortdescription, want_timeseries)) 
+		
+		ret = cache.get(cache_key)
+		if ret != None:
+			return ret
+		
+		ret = f(bill, shortdescription, longdescription, want_timeseries, **filterargs)
+		
+		cache.set(cache_key, ret, 60*60*2) # two hours
+
+		return ret
+	return g
+
+@bill_statistics_cache # the arguments must match in the decorator!
 def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
 	# If any of the filters is None, meaning it is based on demographic info
 	# that the user has not set, return None for the whole statistic group.
@@ -307,11 +324,11 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		firstcommentdate = bill.usercomments.filter(created__lte=enddate).defer("message").order_by('created')[0].created.date()
 		lastcommentdate = bill.usercomments.filter(created__lte=enddate).defer("message").order_by('-created')[0].updated.date()
 		
-		# Compute a bin size (i.e. number of days per point) that approximates
-		# ten comments per day, but with a minimum size of one day.
+		# Compute a bin size (i.e. number of days per point). Try to have 30 bins,
+		# unless that subdivides a day into multiple bins, which would be weird.
 		binsize = 1
 		if firstcommentdate < lastcommentdate:
-			binsize = int((lastcommentdate - firstcommentdate).days / float(all_comments.count()) * 10.0)
+			binsize = int((lastcommentdate - firstcommentdate).days / 30)
 		if binsize < 1:
 			binsize = 1
 		
@@ -323,10 +340,11 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 				bins[days] = { "+": 0, "-": 0 }
 			bins[days][c.position] += 1
 		ndays = (lastcommentdate - firstcommentdate).days + 1
+		days = sorted(bins.keys())
 		time_series = {
-			"xaxis": [(firstcommentdate + timedelta(x)).strftime("%x") for x in xrange(0, ndays)],
-			"pro": [sum([bins[y]["+"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
-			"con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in xrange(0, ndays)],
+			"xaxis": [(firstcommentdate + timedelta(x)).strftime("%x") for x in days],
+			"pro": [sum([bins[y]["+"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in days],
+			"con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in days],
 			}
 			
 	return {
@@ -1423,8 +1441,13 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	limit = int(request.REQUEST.get("count", "50"))
 	
 	def fetch(p):
+		cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
+		ret = cache.get(cache_key)
+		if ret != None: return ret
+		
 		q = bill_comments(bill, position=p, state=state, congressionaldistrict=district)\
 			.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))\
+			.only("id", "created", "updated", "message", "position", "state", "congressionaldistrict", "bill__id", "bill__congressnumber", "bill__billtype", "bill__billnumber", "user__username")\
 			.order_by("-created")
 		limited = False
 		if q.count() > limit:
@@ -1432,6 +1455,9 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 			limited = True
 		else:
 			q = q[start:]
+			
+		cache.set(cache_key, (q,limited), 60*2) # cache results for two minutes
+			
 		return q, limited
 	
 	pro_comments, pro_limited = fetch("+")
@@ -1462,10 +1488,12 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	# Functions for formatting comments.
 	
 	t = re.escape(bill.title).replace(":", ":?")
+	re_because = re.compile(r"I (support|oppose) " + t + r" because[\s\.:]*(\S)") # remove common text
+	re_because_repl = lambda x : x.group(2).upper()
+	re_whitespace = re.compile(r"\n+\W*$") # remove trailing non-textual characters
 	def msg(m):
-		m = re.sub(r"I (support|oppose) " + t + r" because[\s\.:]*(\S)",
-			lambda x : x.group(2).upper(), m)
-		m = re.sub(r"\n+\W*$", "", m)
+		m = re_because.sub(re_because_repl, m)
+		m = re_whitespace.sub("", m)
 		return m
 
 	from django.contrib.humanize.templatetags.humanize import ordinal
@@ -1477,6 +1505,15 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 		if c.congressionaldistrict > 0:
 			return statenames[c.state] + "'s " + ordinal(c.congressionaldistrict) + " District"
 		return statenames[c.state] + " At Large"
+
+	bill_end_congress = govtrack.getCongressDates(bill.congressnumber)[1]
+	def verb(c):
+		if c.created.date() <= bill_end_congress:
+			if c.position == "+": return "supported"
+			return "opposed"
+		else:
+			if c.position == "+": return "supported the reintroduction of"
+			return "opposed the reintroduction of"
 
 	# Appreciation
 
@@ -1509,6 +1546,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 			
 	# Return.
 	
+	bill_url = bill.url()
+	
 	debug_info = None
 	if DEBUG:
 		from django.db import connection
@@ -1533,8 +1572,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 				"location": location(c),
 				"date": formatDateTime(c.updated),
 				"pos": c.position,
-				"share": c.url(),
-				"verb": c.verb(tense="past"),
+				"share": bill_url + "/comment/" + str(c.id), #c.url(),
+				"verb": verb(c), #c.verb(tense="past"),
 				"appreciates": num_appreciations[c.id] if c.id in num_appreciations else 0,
 				"appreciated": c.id in user_appreciated,
 				} for c in comments ],

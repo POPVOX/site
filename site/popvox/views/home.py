@@ -535,13 +535,20 @@ def activity_getinfo(request):
 			filters["bill"] = bill
 			format = "_bill"
 		
-		q = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED), **filters).select_related("user", "bill", "address").order_by('-created')
+		q = UserComment.objects.filter(
+			message__isnull=False, 
+			status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED),
+			diggs__diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE,
+			**filters) \
+			.annotate(appreciates=Count('diggs')) \
+			.select_related("user", "bill", "address") \
+			.order_by('-created')
 
 		if format == "_bill":
 			total_count = q.count()
 	
 		q = q[0:count]
-	
+		
 		items.extend(q)
 	
 	if state == None and district == None and format != "_bill":
