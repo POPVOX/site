@@ -4,7 +4,7 @@ from models import *
 
 import settings
 
-def send_email_verification(email, searchkey, action):
+def send_email_verification(email, searchkey, action, send_email=True):
 	r = Record()
 	r.email = email
 	r.set_code()
@@ -21,8 +21,10 @@ def send_email_verification(email, searchkey, action):
 	if hasattr(action, "get_from_address"):
 		fromaddr = action.get_from_address()
 
-	send_mail(emailsubject, emailbody, fromaddr,
-		[email], fail_silently=False)
+	if send_email:
+		send_mail(emailsubject, emailbody, fromaddr,
+			[email], fail_silently=False)
 	
 	r.save()
 
+	return r

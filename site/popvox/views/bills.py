@@ -528,6 +528,8 @@ POPVOX"""
 
 @csrf_protect
 def billcomment(request, congressnumber, billtype, billnumber, position):
+	benchmarking = (request.META.get("REMOTE_ADDR", "") == "10.122.63.164")
+
 	position_original = position
 	if position_original == None:
 		position_original = ""
@@ -844,6 +846,9 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				except: # XML is missing district info, so coordinate is not even in a district
 					raise ValueError("You moved the marker to a location outside of the state indicated in your address.")
 				
+			elif benchmarking:
+				address_record.congressionaldistrict = -1
+
 			elif address_record_fixed == None:
 				# Now do verification against CDYNE to get congressional district.
 				# Do this after the CAPTCHA to prevent any abuse.
@@ -942,9 +947,14 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"message": request.POST["message"]
 				}
 			
-			send_email_verification(email, None, axn)
+			r = send_email_verification(email, None, axn, send_email=not benchmarking)
 			
 			request.goal = { "goal": "comment-register-start" }
+
+			# for benchmarking, we want to get the activation link directly
+			if benchmarking:
+				return HttpResponse(r.url(), mimetype="text/plain")
+
 			return HttpResponseRedirect("/accounts/register/check_inbox?email=" + urllib.quote(email))
 	
 	else:

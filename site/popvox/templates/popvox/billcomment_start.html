@@ -50,9 +50,9 @@ function validate_form() {
 	{% if position == "0" %}
 		<p>You are about to clear your position on this bill.</p>
 
-		<form method="post">
+		<form name="clearcomment method="post">
 		{% csrf_token %}
-		<p><input id="submitcomment" type="submit" name="submitmode" value="Clear Comment >"/></p>
+		<p><input id="submitcomment_clear" type="submit" name="submitmode" value="Clear Comment >"/></p>
 		</form>
 	{% endif %}
 	
@@ -74,14 +74,14 @@ function validate_form() {
 		</div>
 		
 		<div id="nomessage_container"  {% if message %}style="display: none"{% endif %}>
-		<form method="post">
+		<form name="nocomment" method="post">
 		{% csrf_token %}
 		<p>
 			<input class="b_back btn" type="button" value="Cancel" onclick="document.location = '{{bill.url|escapejs}}';"/>
 			{% if user.is_authenticated %}
 			<input class="b_next btn" type="submit" name="submitmode" value="Next >"/>
 			{% else %}
-			<input class="b_next btn" id="submitcomment" type="submit" name="submitmode" value="Preview >"/>
+			<input class="b_next btn" id="submitcomment_nocomment" type="submit" name="submitmode" value="Preview >"/>
 			{% endif %}
 		</p>
 		</form>
@@ -94,7 +94,7 @@ function validate_form() {
 		{% if user.is_authenticated %}Privacy Note: Your comment will be shared with others on POPVOX who will see your name as <strong>{{user.username}}</strong>, and with your Members of Congress who will see your full name and address.{% endif %}
 		</p>
 		
-		<form method="post" onsubmit="return validate_form()">
+		<form name="yescomment" method="post" onsubmit="return validate_form()">
 		{% csrf_token %}
 
 		<div id="messagetipcontainer" class="tip mar_top" style="display: none">
@@ -117,7 +117,7 @@ function validate_form() {
 		
 		<p>
 			<input class="b_back btn" type="button" value="Cancel" onclick="if ($('#message').hasClass('default') || confirm('Are you sure you want to cancel and discard your comment?')) document.location = '{{bill.url|escapejs}}';"/>
-			<input class="b_preview btn" id="submitcomment" type="submit" name="submitmode" value="Preview >"/>
+			<input class="b_preview btn" id="submitcomment_yescomment" type="submit" name="submitmode" value="Preview >"/>
 		</p>
 	
 		{% comment %}<p>During the testing phase of POPVOX we are not yet sending comments to Members of Congress, but they will be able to find your message here.</p>{% endcomment %}
