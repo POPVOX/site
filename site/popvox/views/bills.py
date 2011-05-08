@@ -24,7 +24,7 @@ from popvox.models import *
 from registration.helpers import captcha_html, validate_captcha
 from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, open_govtrack_file, statenames, getStateReps
 from emailverification.utils import send_email_verification
-from utils import formatDateTime, cache_page_postkeyed
+from utils import formatDateTime, cache_page_postkeyed, csrf_protect_if_logged_in
 
 from settings import DEBUG, SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET, SITE_ROOT_URL
 
@@ -170,7 +170,8 @@ def bills(request):
 	return render_to_response('popvox/bill_list.html', {
 		'trending_bills': popular_bills2,
 		}, context_instance=RequestContext(request))
-	
+
+@csrf_protect_if_logged_in
 def billsearch(request):
 	if not "q" in request.GET or request.GET["q"].strip() == "":
 		return HttpResponseRedirect("/bills")
@@ -336,7 +337,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		"timeseries": time_series,
 		"pro_reintro": pro_reintro}
 	
-@csrf_protect
+@csrf_protect_if_logged_in
 def bill(request, congressnumber, billtype, billnumber):
 	bill = getbill(congressnumber, billtype, billnumber)
 	
@@ -450,7 +451,6 @@ def bill(request, congressnumber, billtype, billnumber):
 		users_tracking_this_bill = bill.trackedby.filter(allow_mass_mails=True, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().select_related("user")
 		users_commented_on_this_bill = UserProfile.objects.filter(allow_mass_mails=True, user__comments__bill=bill).distinct().select_related("user")
 	
-	request.session.set_test_cookie() # tested in bill_uservote.html on the client side
 	return render_to_response('popvox/bill.html', {
 			'bill': bill,
 			"canvote": (request.user.is_anonymous() or (not request.user.userprofile.is_leg_staff() and not request.user.userprofile.is_org_admin())),
@@ -576,6 +576,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	#if not request.user.is_anonymous() and request.user.id not in (1, 59):
 	#	require_captcha = request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
 	#	and not request.user.comments.filter(bill = bill).exists()
+	
+	if len(request.POST) > 0: request.session.delete_test_cookie()
 	
 	if not "submitmode" in request.POST and position_original != "/finish":
 		message = None
@@ -998,6 +1000,7 @@ def save_user_comment(user, bill, position, referrer, message, address_record, o
 		
 	return comment
 				
+@csrf_protect_if_logged_in
 def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	bill = getbill(congressnumber, billtype, billnumber)
 	
@@ -1054,7 +1057,6 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	if comment.status > UserComment.COMMENT_ACCEPTED and (not request.user.is_authenticated() or (not request.user.is_staff and not request.user.is_superuser)):
 		comment_rejected = True
 
-	request.session.set_test_cookie() # tested in bill_uservote.html on the client side
 	return render_to_response(
 			'popvox/billcomment_share.html' if commentid == None else 'popvox/billcomment_view.html', {
 			'bill': bill,
@@ -1078,6 +1080,7 @@ def send_mail2(subject, message, from_email, recipient_list, fail_silently=False
 		headers = {"From": from_email})
 	msg.send(fail_silently=fail_silently)
 
+@csrf_protect
 @json_response
 def billshare_share(request):
 	try:
@@ -1406,8 +1409,6 @@ def can_appreciate(request, bill):
 			return comments[0]
 	return False
 
-@csrf_exempt
-@cache_page_postkeyed(60*2, True) # two minutes; don't cache for logged in users
 @json_response
 def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	# Get report information.
@@ -1555,6 +1556,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 		}
 	}
 
+@csrf_protect
 @json_response
 def comment_digg(request):
 	bill = get_object_or_404(Bill, id=request.POST["bill"])
@@ -1625,6 +1627,7 @@ def uploaddoc1(request):
 		
 	return types, whose, docs
 
+@csrf_protect
 @login_required
 def uploaddoc(request, congressnumber, billtype, billnumber):
 	types, whose, docs = uploaddoc1(request)
@@ -1657,6 +1660,7 @@ def getdoc(request):
 	except:
 		return { "status": "doesnotexist" }
 
+@csrf_protect
 @login_required
 @json_response
 def uploaddoc2(request):

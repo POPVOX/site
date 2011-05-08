@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta, time
 from django.core.cache import cache
 from django.db import connection
+from django.views.decorators.csrf import csrf_protect
 
 import urllib
+from datetime import datetime, timedelta, time
 
 def formatDateTime(d, withtime=True, tz="EST"):
 	if d.time() == time.min:
@@ -72,3 +73,15 @@ def require_lock(*tables):
 		
 		return _do_lock
 	return _lock
+	
+def csrf_protect_if_logged_in(f):
+	f_protected = csrf_protect(f)
+	
+	def g(request, *args, **kwargs):
+		if request.user.is_authenticated():
+			return f_protected(request, *args, **kwargs)
+		else:
+			return f(request, *args, **kwargs)
+			
+	return g
+

@@ -267,7 +267,7 @@ function ajax(url, postdata, actions) {
 	}
 	
 	$.ajax({ 
-		type:"POST",
+		type: (!actions.method ? "POST" : actions.method),
 		url: url,
 		data: postdata,
 		complete:

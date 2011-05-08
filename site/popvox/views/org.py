@@ -21,6 +21,7 @@ from datetime import datetime
 from popvox.models import *
 from popvox.views.bills import getissueareas
 from popvox import govtrack
+from utils import csrf_protect_if_logged_in
 
 from emailverification.utils import send_email_verification
 
@@ -33,6 +34,7 @@ def orgs(request):
 		#'recent': Org.objects.filter(visible=True).order_by('-updated')[0:30],
 		}, context_instance=RequestContext(request))
 
+@csrf_protect_if_logged_in
 def org(request, orgslug):
 	org = get_object_or_404(Org, slug=orgslug)
 	if org.is_admin(request.user):
@@ -63,16 +65,7 @@ def org(request, orgslug):
 		
 		}, context_instance=RequestContext(request))
 
-@login_required
-def org_help(request, orgslug):
-	org = get_object_or_404(Org, slug=orgslug)
-	if not org.is_admin(request.user):
-		return HttpResponseForbidden("You do not have permission to view this page.")
-	
-	set_last_campaign_viewed(request, org)
-
-	return render_to_response('popvox/org_help.html', {'org': org}, context_instance=RequestContext(request))
-
+@csrf_protect
 @login_required
 def org_edit(request, orgslug):
 	org = get_object_or_404(Org, slug=orgslug)
@@ -86,17 +79,16 @@ def org_edit(request, orgslug):
 		"states": govtrack.statelist,
 		}, context_instance=RequestContext(request))
 	
-@csrf_exempt
 @json_response
 def org_search(request):
 	ret = ""
 	if "term" in request.REQUEST:
 		limit = 15 # int(request.REQUEST["limit"])
 		q = Org.objects.filter(visible = True, name__icontains=request.REQUEST["term"])[0:limit]
-	elif "issue" in request.POST:
+	elif "issue" in request.REQUEST:
 		ix = IssueArea.objects.get(slug=request.REQUEST["issue"])
 		q = ix.orgs()
-	elif "state" in request.POST:
+	elif "state" in request.REQUEST:
 		q = Org.objects.filter(visible=True, homestate=request.REQUEST["state"])
 	else:
 		return ret # googlebot
@@ -106,11 +98,12 @@ def org_search(request):
 	
 	ret.sort(key = lambda x : (x["homestate"], x["label"].replace("The ", "")))
 	
-	if "format" in request.POST:
+	if "format" in request.REQUEST:
 		ret = { "status": "success", "orgs":  ret }
 		
 	return ret
 	
+@csrf_protect
 @ajaxmultifieldupdate(["org"])
 def org_update_fields(request, field, value, validate_only):
 	org = get_object_or_404(Org, slug=request.POST["org"])
@@ -239,6 +232,7 @@ def org_update_fields(request, field, value, validate_only):
 	else:
 		raise Exception("Bad request: Invalid field: " + field)
 	
+@csrf_protect
 @json_response
 @ajax_fieldupdate_request
 def org_update_field(request, field, value, validate_only):
@@ -302,8 +296,7 @@ def org_update_field(request, field, value, validate_only):
 	else:
 		raise Exception("Bad request: Invalid field: " + field)
 
-
-@csrf_exempt
+@csrf_exempt # problem
 @json_response
 def org_update_logo(request, orgslug):
 	org = get_object_or_404(Org, slug=orgslug)
@@ -367,6 +360,7 @@ def org_update_logo_2(org, imagedata):
 	
 	return buf.getvalue()
 
+@csrf_protect
 @json_response
 def org_add_staff_contact(request):
 	org = get_object_or_404(Org, slug=request.POST["org"])
@@ -422,6 +416,7 @@ def create_new_campaign(org):
 	cam.save()
 	return cam
 
+@csrf_protect
 @login_required
 @json_response
 def org_support_oppose(request):
@@ -503,6 +498,7 @@ POPVOX
 
 	return { "status": "success", "camurl": cam.url() }
 		
+@csrf_protect
 @login_required
 def org_newcampaign(request, orgslug):
 	org = get_object_or_404(Org, slug=orgslug)
@@ -511,6 +507,7 @@ def org_newcampaign(request, orgslug):
 	cam = create_new_campaign(org)
 	return HttpResponseRedirect(cam.url() + "/_edit")
 
+@csrf_protect_if_logged_in
 def orgcampaign(request, orgslug, campaignslug):
 	cam = get_object_or_404(OrgCampaign, org__slug=orgslug, slug=campaignslug)
 	if not cam.org.is_admin(request.user):
@@ -521,6 +518,7 @@ def orgcampaign(request, orgslug, campaignslug):
 	
 	return render_to_response('popvox/campaign.html', {'cam': cam, 'admin': cam.org.is_admin(request.user)}, context_instance=RequestContext(request))
 
+@csrf_protect
 @login_required
 def orgcampaign_edit(request, orgslug, camslug):
 	cam = get_object_or_404(OrgCampaign, org__slug=orgslug, slug=camslug)
@@ -529,6 +527,7 @@ def orgcampaign_edit(request, orgslug, camslug):
 	set_last_campaign_viewed(request, cam)
 	return render_to_response('popvox/campaign_edit.html', {'cam': cam}, context_instance=RequestContext(request))
 
+@csrf_protect
 @ajaxmultifieldupdate(["org", "cam"])
 def orgcampaign_updatefields(request, field, value, validate_only):
 	cam = get_object_or_404(OrgCampaign, org__slug=request.POST["org"], slug=request.POST["cam"])
@@ -576,6 +575,7 @@ def orgcampaign_updatefields(request, field, value, validate_only):
 	else:
 		raise Exception("Bad request: Invalid field.")
 
+@csrf_protect
 @json_response
 @ajax_fieldupdate_request
 def orgcampaign_updatefield(request, field, value, validate_only):
@@ -689,6 +689,7 @@ def action(request, orgslug, billposid):
 		"num": num,
 		}, context_instance=RequestContext(request))
 
+@csrf_protect
 @json_response
 def orgcampaignpositionactionupdate(request):
 	billpos = get_object_or_404(OrgCampaignPosition, id=request.POST["id"])
@@ -828,6 +829,7 @@ the request will be approved.
 
 To ignore the request, just ignore this email.""" % (self.org.name, self.sender.userprofile.fullname, self.sender.email, self.org.name, self.coalition.name, self.message)
 
+@csrf_protect
 @json_response
 def coalitionrequest(request, join_or_invite):
 	myorg = get_object_or_404(Org, id=request.POST["myorg"])

@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_protect
 import django.core.urlresolvers
 
 from jquery.ajax import json_response, validation_error_message, ajaxmultifieldupdate, ajax_fieldupdate_request
@@ -360,10 +361,8 @@ def legstaffemailcheck(value):
 		return False
 	return True
 
-from popvox import printexceptions
-
+@csrf_protect
 @json_response
-@printexceptions
 def register_validation(request):
 	status = { }
 	
@@ -467,7 +466,7 @@ def register_validation(request):
 
 	return { "status": "success" }
 		
-
+@csrf_protect
 @login_required
 def account_profile(request):
 	return render_to_response('registration/profile.html', {
@@ -476,6 +475,7 @@ def account_profile(request):
 		},
 		context_instance=RequestContext(request))
 
+@csrf_protect
 @ajaxmultifieldupdate([])
 @login_required
 def account_profile_update(request, field, value, validate_only):
@@ -591,6 +591,7 @@ def account_profile_update(request, field, value, validate_only):
 	else:
 		raise Exception("Bad request: Invalid field.")
 
+@csrf_protect
 @json_response
 @ajax_fieldupdate_request
 @login_required
@@ -625,6 +626,7 @@ def switch_to_demo_account(request, acct):
 	
 	return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/home"))
 
+@csrf_protect
 @json_response
 @login_required
 def trackbill(request):

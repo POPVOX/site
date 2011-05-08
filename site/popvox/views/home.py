@@ -331,6 +331,7 @@ def compute_prompts(user):
 	
 	return targets
 
+@csrf_protect
 @login_required
 def home(request):
 	user = request.user
@@ -374,7 +375,7 @@ def home(request):
 			   'cams': cams,
 			   'feed': govtrack.loadfeed(feed),
 			   "tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
-			   "adserver-targets": ["org_admin_home"],
+			   "adserver_targets": ["org_admin_home"],
 			   },
 			context_instance=RequestContext(request))
 	else:
@@ -382,10 +383,11 @@ def home(request):
 			{ 
 			"suggestions": compute_prompts(user)[0:4],
 			"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
-		     "adserver-targets": ["user_home"],
+		     "adserver_targets": ["user_home"],
 			    },
 			context_instance=RequestContext(request))
 
+@csrf_protect
 @login_required
 def docket(request):
 	prof = request.user.get_profile()
@@ -406,7 +408,7 @@ def docket(request):
 						),
 			"suggestions": get_legstaff_suggested_bills(request.user),
 			"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
-			"adserver-targets": ["leg_staff_home"],
+			"adserver_targets": ["leg_staff_home"],
 		},
 		context_instance=RequestContext(request))
 
@@ -451,6 +453,7 @@ def home_suggestions(request):
 		    },
 		context_instance=RequestContext(request))
 
+@csrf_protect
 @login_required
 def reports(request):
 	if request.user.userprofile.is_leg_staff():
@@ -493,7 +496,6 @@ def activity(request):
 			"count_orgs": Org.objects.filter(createdbyus=False).count(),
 		}, context_instance=RequestContext(request))
 
-@csrf_exempt	
 def activity_getinfo(request):
 	format = ""
 	
@@ -521,7 +523,7 @@ def activity_getinfo(request):
 	total_count = None
 	bill = None
 
-	if request.POST.get("comments", "true") != "false":
+	if request.REQUEST.get("comments", "true") != "false":
 		filters = { }
 		if state != None:
 			filters["state"] = state
@@ -742,8 +744,8 @@ def get_legstaff_undelivered_messages(user):
 			usercommentofflinedeliveryrecord__batch__isnull=False
 		)
 		
+@csrf_protect
 @user_passes_test(lambda u : u.is_authenticated() and u.userprofile.is_leg_staff())
-@transaction.commit_on_success
 def legstaff_download_messages(request):
 	msgs = get_legstaff_undelivered_messages(request.user)
 	if msgs == None: # no access to messages

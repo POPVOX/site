@@ -58,7 +58,7 @@
 		// Post report info and then update.
 		$('#loadingstatus').text("Loading...");
 		$.ajax({
-			type:"POST",
+			type:"GET",
 			url: "/ajax/activity",
 			data: {
 				state: report_state,

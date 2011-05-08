@@ -53,7 +53,6 @@ urlpatterns = patterns('',
 	(r'^ajax/issues/chooser_list$', "popvox.views.bills.issuearea_chooser_list"),
 	
 	(r'^orgs/([\w\-]+)$', "popvox.views.org.org"),
-	(r'^orgs/([\w\-]+)/_help$', "popvox.views.org.org_help"),
 	(r'^orgs/([\w\-]+)/_edit$', "popvox.views.org.org_edit"),
 	(r'^orgs/([\w\-]+)/_newcampaign$', "popvox.views.org.org_newcampaign"),
 	(r'^orgs/([\w\-]+)/([\w\-]+)$', "popvox.views.org.orgcampaign"),

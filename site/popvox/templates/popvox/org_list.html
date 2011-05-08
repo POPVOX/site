@@ -22,6 +22,7 @@ function showlist(elem, issueslug) {
 		'ajax/orgs/search',
 		data,
 		{
+			method: "GET",
 			statusfield: "orglist_status",
 			success: function(ret) {
 				$('#orglistloading').hide();
