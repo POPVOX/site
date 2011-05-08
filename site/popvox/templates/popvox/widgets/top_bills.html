@@ -19,7 +19,7 @@
 var chart;
 
 var categories =  [{% for bill, sup, opp, ratio in bills %}"{{bill.displaynumber|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
-var titles =  [{% for bill, sup, opp, ratio in bills %}"{{bill.title|truncatewords:20|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+var titles =  [{% for bill, sup, opp, ratio in bills %}"{{bill.title|truncatewords:16|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
 var data_support = [{% for bill, sup, opp, ratio in bills %}{{sup}}{% if not forloop.last %},{% endif %}{% endfor %}];
 var data_oppose = [{% for bill, sup, opp, ratio in bills %}{{opp}}{% if not forloop.last %},{% endif %}{% endfor %}];
 
