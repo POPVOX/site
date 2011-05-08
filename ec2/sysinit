@@ -6,25 +6,23 @@
 # testing server:   sudo DISK=localhost DB=localhost CRON=no bash sysinit
 
 # us-east-1a / attach EBS volume on /dev/sdf
-
-# set mysql root password to: qsg;5TtC
+# last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
 
 # disabling nfs until we really need it
 NFS_GRANT="127.0.0.1/255.255.255.0"
+MYSQL_PASSWORD="qsg;5TtC"
 
 # Packages
 add-apt-repository ppa:nginx/stable
 apt-get update
 apt-get upgrade -y
 
-tasksel install lamp-server
-tasksel install unzip
-
 apt-get install -y \
+ unzip \
  nfs-common nfs-kernel-server \
  sendmail-bin rdiff-backup \
  git-core subversion mercurial \
- libapache2-mod-wsgi nginx-full \
+ apache2 apache2-mpm-worker libapache2-mod-wsgi nginx-full mysql-server \
  python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml \
  memcached python-memcache \
  python-mechanize python-matplotlib \
@@ -42,8 +40,9 @@ apt-get install python-django
 mkdir -p /mnt/persistent
 if [[ "$DISK" == "localhost" ]]; then
 	# Mount the EBS disk.
-	echo "/dev/sdf        /mnt/persistent auto noatime" >> /etc/fstab;
+	echo "/dev/xvdf        /mnt/persistent auto noatime" >> /etc/fstab;
 	mount -a;
+	chown -R mysql.mysql /mnt/persistent/mysql
 	
 	# Grant anyone read-only access to the disk via NFS (who can make it past the security group).
 	echo "/mnt/persistent $NFS_GRANT(ro,no_root_squash,no_subtree_check)" >> /etc/exports;
@@ -104,7 +103,10 @@ if [[ "$DB" == "localhost" ]]; then
 	
 	service mysql start;
 	
-	# grant anyone access (obviously we don't 
+	# set a root password
+	sudo mysqladmin -u root password "$MYSQL_PASSWORD";
+	
+	# grant anyone access with username 'slave' and the same password 
 	mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
 fi
 
