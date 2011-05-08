@@ -1,42 +1,42 @@
 function bill_chart(container, pro_pct, con_pct, opts) {
 	$(function() {
       new Highcharts.Chart({
-         chart: {
-		  backgroundColor: (!opts || !opts.bg) ? "#e8e5df" : opts.bg,
-            renderTo: container,
-		  margin: [0,0,0,0]
-         },
-	    tooltip: {
-		    enabled: false, //opts && opts.small,
-		    formatter: function() {
-			    return this.point.name + "<br>" + this.y + "%"
-			}
-	    },
-	 credits: { enabled: false },
-	 plotOptions: {
-		    pie: {
-		    animation: false,
-		  //enableMouseTracking: false,
-		  stickyTracking: false,
-		  dataLabels: {
-			enabled: false,
+		chart: {
+			backgroundColor: (!opts || !opts.bg) ? "#e8e5df" : opts.bg,
+			renderTo: container,
+			margin: [0,0,0,0]
+		},
+		tooltip: {
+			enabled: false, //opts && opts.small,
 			formatter: function() {
-			    return "";
-			},
-			color: 'white',
-			style: {
-			   font: '13px Trebuchet MS, Verdana, sans-serif'
+				return this.point.name + "<br>" + this.y + "%"
 			}
-		  }
-		    }
-	    },
-	    colors: ["#FF9900", "#FFCC33"],
-         title: { text: null },
-	    legend: { enabled: false },
-         series: [{
-		  type: "pie",
-		  data: [["Support", pro_pct], ["Oppose", con_pct]]
-         }]
+		},
+		credits: { enabled: false },
+		plotOptions: {
+			pie: {
+				animation: false,
+				//enableMouseTracking: false,
+				stickyTracking: false,
+				dataLabels: {
+					enabled: false,
+					formatter: function() {
+						return "";
+					},
+					color: 'white',
+					style: {
+						font: '13px Trebuchet MS, Verdana, sans-serif'
+					}
+				}
+			}
+		},
+		colors: ["#FF9900", "#FFCC33"],
+		title: { text: null },
+		legend: { enabled: false },
+		series: [{
+			type: "pie",
+			data: [["Support", pro_pct], ["Oppose", con_pct]]
+		}]
       });
    });
 }

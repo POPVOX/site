@@ -84,7 +84,7 @@ jQuery.fn.keyup_delayed = function(callback, delay) {
   if (!delay) delay = 450;
   return this.each(function(){
 	var last_press = null;
-	jQuery(this).keyup(function() {
+	jQuery(this).textchange(function() {
 		last_press = (new Date()).getTime();
 		jQuery(this).delay(delay);
 		jQuery(this).queue(function(next) { if (last_press != null && ((new Date()).getTime() - last_press > delay*.75)) { callback(); last_press = null; } next(); } );
@@ -103,9 +103,13 @@ jQuery.fn.keydown_enter = function(callback) {
 
 jQuery.fn.textchange = function(callback) {
   return this.each(function(){
-	jQuery(this).keyup(callback);
-	jQuery(this).bind("paste", callback);
-	jQuery(this).bind("cut", callback);
+    var n = jQuery(this);
+	n.keyup(callback);
+	n.change(callback);
+	n.bind("paste", callback);
+	n.bind("cut", callback);
+	n.bind("onpropertychange", callback);
+	n.attr('AutoComplete', 'off'); // because it won't trigger this event
   });
 }
 

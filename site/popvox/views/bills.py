@@ -595,7 +595,10 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	#	require_captcha = request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
 	#	and not request.user.comments.filter(bill = bill).exists()
 	
-	if len(request.POST) > 0: request.session.delete_test_cookie()
+	try:
+		if len(request.POST) > 0: request.session.delete_test_cookie()
+	except:
+		pass
 	
 	if not "submitmode" in request.POST and position_original != "/finish":
 		message = None

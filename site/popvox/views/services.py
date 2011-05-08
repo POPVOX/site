@@ -11,7 +11,7 @@ from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS, getMemberOf
 
 from widgets import do_not_track_compliance
 from bills import save_user_comment
-from utils import require_lock
+from utils import require_lock, csrf_protect_if_logged_in
 
 from registration.helpers import validate_email, validate_password
 from emailverification.utils import send_email_verification
@@ -147,6 +147,7 @@ def widget_render_commentstream(request, permissions):
 		}, context_instance=RequestContext(request))
 
 
+@csrf_protect_if_logged_in
 def widget_render_writecongress(request, permissions):
 	if request.META["REQUEST_METHOD"] == "GET":
 		# Get bill, position, org, orgcampaignposition, and reason.
@@ -362,6 +363,10 @@ def widget_render_writecongress_action(request):
 			# password later on, we rely on the log-in state to ensure that the
 			# submitter is the user he claims to be at the point of submitting the
 			# comment.
+			
+			# The trouble is, now that the user is logged in future calls are going
+			# to require a CSRF token which was not provided on the original
+			# GET request. Thus, the HTML page must reload.
 			
 			login(request, user)
 			

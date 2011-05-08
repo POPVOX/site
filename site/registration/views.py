@@ -80,6 +80,8 @@ class EmailPasswordLoginBackend(ModelBackend):
 def validate_next(next):
 	if "#" in next: # chop off fragment
 		next = next[0:next.index("#")]
+	if "?" in next: # chop off query string
+		next = next[0:next.index("?")]
 	if next[0:len(SITE_ROOT_URL)] == SITE_ROOT_URL:
 		next = next[len(SITE_ROOT_URL):]
 	func, args, kwargs = resolve(next) # validate that it's on our site. raises a Http404, though maybe wrapping it in a 403 would be better
