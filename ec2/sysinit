@@ -24,7 +24,7 @@ apt-get install -y \
  nfs-common nfs-kernel-server \
  sendmail-bin rdiff-backup \
  git-core subversion mercurial \
- libapache2-mod-wsgi python-flup nginx-full \
+ libapache2-mod-wsgi nginx-full \
  python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml \
  memcached python-memcache \
  python-mechanize python-matplotlib \
@@ -72,12 +72,16 @@ GIT_DIR=/mnt/persistent/sources.git git show master:ec2/inituser > inituser
 
 useradd -m --shell /bin/bash www
 su www -c "cd; sh /home/ubuntu/inituser"
+sudo ln -s /home/www/httpd.conf /etc/apache2/conf.d/www.conf
+sudo ln -s /home/www/nginx.conf /etc/nginx/conf.d/www.conf
 
 #useradd -m --shell /bin/bash josh;
-#su josh -c "cd; sh /home/ubuntu/inituser 444";
+#su josh -c "cd; sh /home/ubuntu/inituser";
+#sudo ln -s /home/josh/httpd.conf /etc/apache2/conf.d/josh.conf
+#sudo ln -s /home/josh/nginx.conf /etc/nginx/conf.d/josh.conf
 
 #useradd -m --shell /bin/bash william;
-#su william -c "cd; sh /home/ubuntu/inituser 555";
+#su william -c "cd; sh /home/ubuntu/inituser";
 
 # Cron jobs run as the ubuntu user.
 if [[ "$CRON" == "yes" ]]; then
@@ -116,5 +120,5 @@ sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
 # to Apache. It also handles SSL processing, so behind Nginx is all
 # plain HTTP.
 rm /etc/nginx/sites-enabled/default
-sudo ln -s /home/www/sources/nginx.conf /etc/nginx/local.conf
+sudo ln -s /home/www/sources/nginx.conf /etc/nginx/conf.d/local.conf
 
