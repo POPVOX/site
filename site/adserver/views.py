@@ -13,7 +13,9 @@ from adselection import show_banner
 def banner(request, formatid):
 	# To comply with Do-Not-Track, we should not set a session cookie.
 	# To prevent this, we'll clear the session state ahead of time.
-	if request.META.get("DNT", "0") == "1":
+	# But not if a DNT=0 query string parameter is set.
+	if request.GET.get("DNT", "1") == "1" and \
+		request.META.get("DNT", "0") == "1":
 		delattr(request, "session")
 		
 	format = get_object_or_404(Format, id=formatid)

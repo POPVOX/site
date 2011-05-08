@@ -279,18 +279,15 @@ def show_banner(format, request, context, targets, path):
 		
 	# Prepare the list of ads we've served to this user recently. Prune the list
 	# of ads not seen in two days, which is the maximum.
-	adserver_trail = None
-	if hasattr(request, "session"):
-		if not "adserver_trail" in request.session or type(request.session["adserver_trail"]) == list:
-			request.session["adserver_trail"] = { }
-		adserver_trail = request.session["adserver_trail"]
-		for bannerid, last_impression_date in adserver_trail.items():
-			if now - last_impression_date > timedelta(days=2):
-				del adserver_trail[bannerid]
+	adserver_trail = getattr(request, "adserver_trail", {})
+	for bannerid, last_impression_date in adserver_trail.items():
+		if now - last_impression_date > timedelta(days=2):
+			del adserver_trail[bannerid]
+	request.adserver_trail = adserver_trail
 	
 	# Besides the targets specified in the template tag, additionally apply
-	# templates stored in the session key and context variable
-	# "adserver-targets", which must be string or Target instances.
+	# templates stored in the request object and context variable as
+	# "adserver_targets", which must be string or Target instances.
 	def make_target2(field):
 		if type(field) == str:
 			try:
@@ -299,10 +296,10 @@ def show_banner(format, request, context, targets, path):
 				raise Exception("There is no ad target with the key " + field)
 		else:
 			return field
-	if hasattr(request, "session") and "adserver-targets" in request.session:
-		targets += [make_target2(t) for t in request.session["adserver-targets"]]
-	if "adserver-targets" in  context:
-		targets += [make_target2(t) for t in context["adserver-targets"]]
+	if hasattr(request, "adserver_targets"):
+		targets += [make_target2(t) for t in request.adserver_targets]
+	if "adserver_targets" in  context:
+		targets += [make_target2(t) for t in context["adserver_targets"]]
 	targets = set(targets)
 	
 	# Find the best banner to run here.
@@ -358,7 +355,7 @@ def show_banner(format, request, context, targets, path):
 		last_impression_clear_time = now
 	
 	# Record that this ad was shown.
-	if adserver_trail != None and (b.order.period == None or b.order.period != 0):
+	if b.order.period == None or b.order.period != 0:
 		adserver_trail[b.id] = now
 	
 	# Parse the template. If the banner has HTML override code, use that instead.
