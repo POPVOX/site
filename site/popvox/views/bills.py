@@ -1372,6 +1372,7 @@ def get_default_statistics_context(user, individuals=True):
 				default_district = addresses[0].congressionaldistrict
 	return default_state, default_district
 
+@csrf_protect_if_logged_in
 def billreport(request, congressnumber, billtype, billnumber):
 	bill = getbill(congressnumber, billtype, billnumber)
 
@@ -1543,7 +1544,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 	# if the user appreciated it.
 	user_appreciated = set()
 	if request.user.is_authenticated():
-		for c in UserCommentDigg.objects.filter(diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user):
+		for c in UserComment.objects.filter(diggs__diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, diggs__user=request.user):
 			user_appreciated.add(c.id)
 	
 	# Pre-load the count of num_appreciations.
