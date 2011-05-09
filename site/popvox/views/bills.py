@@ -260,7 +260,7 @@ def bill_comments(bill, **filterargs):
 
 def bill_statistics_cache(f):
 	def g(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
-		cache_key = ("bill_statistics_cache:%d,%s,%s" % (bill.id, shortdescription, want_timeseries)) 
+		cache_key = ("bill_statistics_cache:%d,%s,%s" % (bill.id, shortdescription.replace(" ", ""), want_timeseries)) 
 		
 		ret = cache.get(cache_key)
 		if ret != None:
@@ -528,7 +528,7 @@ POPVOX"""
 
 @csrf_protect
 def billcomment(request, congressnumber, billtype, billnumber, position):
-	benchmarking = (request.META.get("REMOTE_ADDR", "") == "10.122.63.164")
+	from settings import BENCHMARKING
 
 	position_original = position
 	if position_original == None:
@@ -846,7 +846,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				except: # XML is missing district info, so coordinate is not even in a district
 					raise ValueError("You moved the marker to a location outside of the state indicated in your address.")
 				
-			elif benchmarking:
+			elif BENCHMARKING:
 				address_record.congressionaldistrict = -1
 
 			elif address_record_fixed == None:
@@ -947,12 +947,12 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				"message": request.POST["message"]
 				}
 			
-			r = send_email_verification(email, None, axn, send_email=not benchmarking)
+			r = send_email_verification(email, None, axn, send_email=not BENCHMARKING)
 			
 			request.goal = { "goal": "comment-register-start" }
 
-			# for benchmarking, we want to get the activation link directly
-			if benchmarking:
+			# for BENCHMARKING, we want to get the activation link directly
+			if BENCHMARKING:
 				return HttpResponse(r.url(), mimetype="text/plain")
 
 			return HttpResponseRedirect("/accounts/register/check_inbox?email=" + urllib.quote(email))

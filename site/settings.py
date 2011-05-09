@@ -226,4 +226,5 @@ CDYNE_LICENSE_KEY = "b9033636-528a-444c-bfed-4cee41f8f84a"
 
 STOCKPHOTO_URL = "/about/photos"
 
+BENCHMARKING = False
 

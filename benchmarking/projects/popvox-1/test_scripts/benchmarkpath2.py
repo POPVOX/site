@@ -1,9 +1,16 @@
 #! /usr/bin/python
+
+# TODO:
+# Assertions to check more page outputs.
+# Randomize the bill.
+# Clean up code.
+
 import mechanize
 import time
 import re
 import random
 
+server_hostname = "10.90.167.123"
 
 class Transaction(object):
     def __init__(self):
@@ -20,37 +27,37 @@ class Transaction(object):
         # start the timer
         start_timer = time.time()
         # open the front page
-        resp = br.open('https://ec2-50-17-164-57.compute-1.amazonaws.com/')
+        resp = br.open('https://%s/' % server_hostname)
         resp.read()
         # stop the timer
         latency = time.time() - start_timer
         
         # store the custom timer
-        self.custom_timers['Load_Front_Page2'] = latency
+        self.custom_timers['01. Front Page'] = latency
         
         # verify responses are valid
         assert (resp.code == 200), 'Bad HTTP Response'
         assert ("Your Message in the Language of Congress" in resp.get_data()), 'Front Page Text Assertion Failed'
 
         # think-time
-        #time.sleep(1)
+        #time.sleep(5)
         
         # start the timer
         start_timer = time.time()
         # click on bills page
-        clicky = br.open('https://ec2-50-17-164-57.compute-1.amazonaws.com/bills')
+        clicky = br.open('https://%s/bills' % server_hostname)
         clicky.read()
         #stop the timer
         latency = time.time() - start_timer
 
         # store the custom timer
-        self.custom_timers['Load_Bills_Page'] = latency
+        self.custom_timers['02. Bills Page'] = latency
         
         assert (clicky.code == 200), 'Bad HTTP Response'
         assert ("With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress" in clicky.get_data()), 'Bills Page Text Assertion Failed'
         
         # think-time
-        #time.sleep(2)
+        #time.sleep(5)
         
         #choose a bill
         billpage = br.find_link(text_regex=re.compile("Act$"), nr=random.randint(0,7))
@@ -63,7 +70,7 @@ class Transaction(object):
         latency = time.time() - start_timer
         
         # store the custom timer
-        self.custom_timers['Load_Bill_Page'] = latency
+        self.custom_timers['03. Bill Page'] = latency
         
         assert (clicky.code == 200), 'Bad HTTP Response'
         assert ('your position on' in clicky.get_data()), 'Text Assertion Failed'
@@ -77,16 +84,16 @@ class Transaction(object):
         start_timer = time.time()
         #click on bill
         if position == 0:
-            clicky = br.open('https://ec2-50-17-164-57.compute-1.amazonaws.com/bills/us/112/hr1380/comment/support')
+            clicky = br.open('https://%s/bills/us/112/hr1380/comment/support' % server_hostname)
         else:
-            clicky = br.open('https://ec2-50-17-164-57.compute-1.amazonaws.com/bills/us/112/hr1380/comment/oppose')
+            clicky = br.open('https://%s/bills/us/112/hr1380/comment/oppose' % server_hostname)
         clicky.read()
         #stop the timer
         latency = time.time() - start_timer
         
         # store the custom timer
-        self.custom_timers['Load_Comment_Page'] = latency
-        
+        self.custom_timers['04. Comment Start'] = latency
+
         #choose whether or not to leave a comment
         comment = random.randint(0,3)
         #select the appropriate radio button
@@ -104,7 +111,7 @@ class Transaction(object):
             This is the story of the last of the Babylon stations. The year is 2259. The name of the place is Babylon 5. """
             
             # think-time
-            #time.sleep(2)
+            #time.sleep(15)
         
             # start the timer
             start_timer = time.time()
@@ -114,11 +121,13 @@ class Transaction(object):
             latency = time.time() - start_timer
         
             # store the custom timer
-            self.custom_timers['Leave_Comment'] = latency
+            self.custom_timers['05. Comment Preview (Msg)'] = latency
             
         #Go on without leaving a comment    
         else:
             br.select_form("nocomment")
+            #time.sleep(2)
+
             # start the timer
             start_timer = time.time()
             clicky = br.submit()
@@ -127,11 +136,8 @@ class Transaction(object):
             latency = time.time() - start_timer
         
             # store the custom timer
-            self.custom_timers['Leave_No_Comment'] = latency
+            self.custom_timers['05. Comment Preview (No Msg)'] = latency
             
-        # think-time
-        time.sleep(2)
-        
         #Register
         br.select_form("commentform")
         br.form.set_all_readonly(False)
@@ -161,7 +167,7 @@ class Transaction(object):
         br.form[ca+"password"] = password
         
         # think-time
-        time.sleep(2)
+        #time.sleep(10)
         
         # start the timer
         start_timer = time.time()
@@ -172,17 +178,17 @@ class Transaction(object):
         latency = time.time() - start_timer
         
         # store the custom timer
-        self.custom_timers['Create_Account'] = latency
+        self.custom_timers['06. Create Account (generates email)'] = latency
 
         #Get Account code link
         popcode = br.response().read()
         #br.find_link(text_regex=re.compile("^http://www.popvox.com/emailverif/code/"), nr=0)
         #replace popvox link with test site link
         popurl = re.compile('http://www.popvox.com')
-        testcode = popurl.sub('https://ec2-50-17-164-57.compute-1.amazonaws.com', popcode)
+        testcode = popurl.sub('https://' + server_hostname, popcode)
         
         # think-time
-        #time.sleep(2)
+        #time.sleep(10)
         
         # start the timer
         start_timer = time.time()
@@ -193,7 +199,7 @@ class Transaction(object):
         latency = time.time() - start_timer
         
         # store the custom timer
-        self.custom_timers['Account_Gencode'] = latency
+        self.custom_timers['07. Follow Email Link'] = latency
         
         #Fill out the address form
         br.select_form("commentform")
@@ -251,7 +257,7 @@ class Transaction(object):
         br.form[ua+"phonenumber"] = "202-456-2121"
         
         # think-time
-        #time.sleep(2)
+        #time.sleep(30)
         
         # start the timer
         start_timer = time.time()
@@ -262,20 +268,20 @@ class Transaction(object):
         latency = time.time() - start_timer
         
         # store the custom timer
-        self.custom_timers['Load_Finish'] = latency
+        self.custom_timers['08. Submit Address'] = latency
         
         # think-time
-        #time.sleep(1)
+        #time.sleep(5)
         
         # start the timer
         start_timer = time.time()
         # open the front page
-        resp = br.open('https://ec2-50-17-164-57.compute-1.amazonaws.com/')
+        resp = br.open('https://%s/' % server_hostname)
         resp.read()
         # stop the timer
         latency = time.time() - start_timer
         
         # store the custom timer
-        self.custom_timers['Load_Front_Page3'] = latency
+        self.custom_timers['09. Return to Front Page'] = latency
 
         print "done"
