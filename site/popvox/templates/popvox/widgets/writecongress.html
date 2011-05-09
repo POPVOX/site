@@ -51,8 +51,9 @@
 		border: #000;
 		}
 		
-	#comment_widget #widget_body {
+	body {
 		background: #{{request.GET.bg}} url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;
+		color: #{{request.GET.fg}};
 		}
 		
 	#comment_widget h1,
@@ -61,14 +62,10 @@
 		color: #{{request.GET.sfg}};
 		}
 		
-	#comment_widget p.share a {	
+	a, a:hover, .address a, a.back {	
 		color: #{{request.GET.lnk}};
 		}
 	
-	#comment_widget p {
-		color: #{{request.GET.fg}};
-		}
-		
 	#comment_widget .comment {
 		border-bottom: none;
 		}
@@ -242,9 +239,12 @@
 						} else {
 							$("#panel_login .error").text("");
 							identity = data.identity;
-							//show_address();
 							// see note in the python code: because we're logged in, we must reload to get a CSRF token
-							window.location.reload();
+							if (email_status == "registered") {
+								window.location.reload();
+							} else {
+								show_address();
+							}
 						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
@@ -729,6 +729,7 @@
 							{% endif %}
 						{% endfor %}
 						
+						{% if not ocp %}
 						<div class="search">
 							<h3>Search bills on POPVOX</h3>
 							<p>search by bill number or issue area</p>
@@ -736,6 +737,7 @@
 								<input name="q" value="" size="25" maxlength="40" type="text"><br />
 							</form><div class="clear"> </div>
 						</div>
+						{% endif %}
 						
 					</div><!-- e: panel_share -->
 					

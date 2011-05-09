@@ -189,6 +189,8 @@ function update_preview() {
 		can_change_height = false;
 	}
 	
+	{% if user.is_staff %}opts += "&debug=1";{% endif %}
+	
 	var width = $('#widget_width').val() || default_width;
 	var height = (can_change_height && $('#widget_height').val()) || default_height;
 	
@@ -374,13 +376,13 @@ var minicolors_opts = {
 			
 					<div class="vert">
 						<input id="color_bg" type="text" value="#eeeeee" class="colorpicker"/>
-						<label for="color_bg">comment background</label>
+						<label for="color_bg">main background</label>
 						<script>$('#color_bg').miniColors(minicolors_opts);</script>
 					</div>
 					
 					<div class="vert">
 						<input id="color_fg" type="text" value="#404045" class="colorpicker"/>
-						<label for="color_fg">comment text</label>
+						<label for="color_fg">main text</label>
 						<script>$('#color_fg').miniColors(minicolors_opts);</script>
 					</div>
 				

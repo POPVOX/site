@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
+from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.forms import ValidationError
@@ -166,22 +166,25 @@ def widget_render_writecongress(request, permissions):
 		reason = None
 		if "ocp" not in request.GET:
 			if not "bill" in request.GET:
-				raise Http404()
+				return HttpResponseBadRequest("Invalid URL.")
 			try:
 				bill = bill_from_url("/bills/" + request.GET["bill"])
 			except:
-				raise Http404("Invalid bill")
-			position_verb = request.GET["position"]
+				return HttpResponseBadRequest("No bill with that number exists.")
+			position_verb = request.GET.get("position", "")
 			if position_verb == "support":
 				position = "+"
 			elif position_verb == "oppose":
 				position = "-"
 			else:
-				raise Http404("Invalid position")
+				return HttpResponseBadRequest("Invalid URL.")
 		else:
 			# ocp argument specifies the OrgCampaignPosition, which has all of the
 			# information we need.
-			_ocp = get_object_or_404(OrgCampaignPosition, id=request.GET["ocp"], position__in=("+", "-"), campaign__visible=True, campaign__org__visible=True)
+			try:
+				_ocp = OrgCampaignPosition.objects.get(id=request.GET["ocp"], position__in=("+", "-"), campaign__visible=True, campaign__org__visible=True)
+			except OrgCampaignPosition.DoesNotExist:
+				return HttpResponseBadRequest("The campaign for the bill has become hidden or the widget URL is invalid")
 			bill = _ocp.bill
 			position = _ocp.position
 			position_verb = "support" if position == "+" else "oppose"
@@ -194,7 +197,7 @@ def widget_render_writecongress(request, permissions):
 				reason = ocp.comment
 			
 		if not bill.isAlive():
-			raise Http404("Bill is not alive.")
+			return HttpResponseBadRequest("This letter-writing widget has been turned off because the bill is no longer open for comments.")
 			
 		# Get the user, but null out of the user is not allowed to comment so he can log in
 		# as someone else.
@@ -266,7 +269,7 @@ def widget_render_writecongress(request, permissions):
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
 			}, context_instance=RequestContext(request))
 	else:
-		response = widget_render_writecongress_action(request)
+		response = widget_render_writecongress_action(request, permissions)
 
 	# add a P3P compact policy so that IE will accept third-party cookies.
 	# apparently the actual policy doesn't matter as long as one is sent,
@@ -282,7 +285,7 @@ def widget_render_writecongress(request, permissions):
 
 
 @json_response
-def widget_render_writecongress_action(request):
+def widget_render_writecongress_action(request, permissions):
 	
 	########################################
 	if request.POST["action"] == "check-email":
@@ -337,8 +340,9 @@ def widget_render_writecongress_action(request):
 		if not re.search("[A-Za-z]", identity["lastname"]): return { "status": "fail", "msg": "Enter your last name." }
 		if identity["state"] == None: return { "status": "fail", "msg": "That's not a ZIP code within a U.S. congressional district. Please enter the ZIP code where you vote." } 
 		
-		# if user is logged in, log him out
-		logout(request)
+		# if user is logged in, log him out; but not in demo mode to not destroy people's logins
+		if request.POST["demo"] != "true":
+			logout(request)
 		
 		# Record the information for the org. This also occurs at the point of checking
 		# the address.
