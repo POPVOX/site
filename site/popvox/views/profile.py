@@ -332,6 +332,7 @@ sorry for the inconvenience.)"""
 			
 		return redirect
 
+@csrf_protect
 def register(request, regtype):
 	# regtype can be "/orgstaff" or "/legstaff". Show the appropriate template.
 	# In either case they go through the same process.
