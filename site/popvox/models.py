@@ -348,7 +348,7 @@ class Org(models.Model):
 	
 	coalitionmembers = models.ManyToManyField("Org", blank=True, related_name="ispartofcoalition", verbose_name="Coalition members")
 
-	api_key = models.CharField(max_length=16, blank=True, null=True, db_index=True) # cannot be unique when orgs start off null
+	api_key = models.CharField(max_length=16, blank=True, null=True, db_index=True) # cannot be unique when orgs start off null; private!
 	
 	class Meta:
 			verbose_name = "organization"
@@ -364,6 +364,12 @@ class Org(models.Model):
 		return self.orgcampaign_set.filter(visible=True).order_by("-default", "name")
 	def all_campaigns(self):
 		return self.orgcampaign_set.order_by("-default", "name")
+		
+	def positions(self):
+		return OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org=self).order_by("-campaign__default", "campaign__name", "order", "-updated")
+	def positions_can_comment(self):
+		return [p for p in self.positions() if p.position in ("+", "-") and p.bill.isAlive() or p.bill.died()]
+		
 	def is_admin(self, user):
 		if user.is_anonymous():
 			return False
@@ -1176,6 +1182,9 @@ class ServiceAccount(models.Model):
 	notes = models.TextField(blank=True)
 	hosts = models.TextField(blank=True, help_text="Restrict the widget to appearing on sites at these domain names. Put domain names each on a separate line. You do not need to include the www.")
 	
+	# this is a public key used in the URLs of widgets to identify this service account,
+	# and it should be matched against a referrer URL to verify it is being used with
+	# permission of the owner
 	api_key = models.CharField(max_length=16, blank=True, unique=True, db_index=True)
 	
 	def __unicode__(self):
@@ -1191,7 +1200,6 @@ class ServiceAccount(models.Model):
 
 	def has_permission(self, name):
 		return self.permissions.filter(name=name).exists()
-	
 
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people

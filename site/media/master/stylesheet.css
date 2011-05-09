@@ -3991,11 +3991,14 @@ input.default, textarea.default {
 	padding: 3px 4px;
 	}
 	
-.form input, .form file, .form select {
+.form input, .form file {
 	height: 18px;
 	}
+.form select {
+	height: 22px;
+	}
 
-.form input:hover, .form textarea:hover {
+.form input:hover, .form textarea:hover, .form select:hover {
 		border: 1px solid #44555D;
 		}
 	
@@ -4004,6 +4007,8 @@ input.default, textarea.default {
 	}
 
 .form select {
+	border: 1px solid #BFC4C8;
+	background-color: white;
 	font: normal 11px/18px helvetica, arial, sans-serif;
 	width: 448px;
 	margin-bottom: 16px;

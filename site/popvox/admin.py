@@ -70,6 +70,7 @@ admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
 admin.site.register(PostalAddress, PostalAddressAdmin)
 admin.site.register(PositionDocument)
 admin.site.register(ServiceAccount, ServiceAccountAdmin)
+admin.site.register(ServiceAccountPermission)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html']

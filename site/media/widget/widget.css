@@ -21,7 +21,7 @@
 	margin-right: 20px;
 	}
 	
-	.config_pane p {
+	#widget_description {
 		font-weight: bold;
 		}
 	
@@ -95,12 +95,14 @@
 			}
 
 .block1 {
-	padding: 15px;
+	text-align: right;
+	font-size: 10px;
+	}
+.block1 select {
+	font-size: 10px;
 	}
 			
 .form .block2 {
-	width: 620px;
-	height: 155px;
 	background: url("../master/bg_hr.png") repeat-x left bottom;
 	margin-top: 10px;
 	}	

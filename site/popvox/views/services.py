@@ -42,11 +42,14 @@ def validate_widget_request(request):
 
 	try:
 		host = urlparse.urlparse(request.META.get("HTTP_REFERER", "http://www.example.org/")).hostname
+		if host.startswith("www."):
+			host = host[4:]
 	except:
 		host = "example.com"
 
 	if not api_key:
-		if host == "popvox.com":
+		# so that we can use our own widgets on our site without an API key
+		if host == "popvox.com" or host.endswith(".popvox.com"):
 			return ["commentstream_theme"]
 		
 		return [] # no permissions
@@ -56,11 +59,18 @@ def validate_widget_request(request):
 		account = ServiceAccount.objects.get(api_key=api_key)
 	except ServiceAccount.DoesNotExist:
 		return None # invalid info
+	
+	# Get the permitted referring hostnames.
+	permitted_hosts = [s.strip() for s in account.hosts.split("\n") if s.strip() != ""]
+	if len(permitted_hosts) == 0 and account.org != None and account.org.website != "":
+		# the default host is the domain of the org's configured website
+		website_hostname = urlparse.urlparse(account.org.website).hostname
+		if website_hostname.startswith("www."):
+			website_hostname = website_hostname[4:]
+		permitted_hosts = [website_hostname]
 		
 	# Validate the referrer.
-	if host.startswith("www."):
-		host = host[4:]
-	if host != "popvox.com" and host not in account.hosts.split("\n"):
+	if host != "popvox.com" and not host.endswith(".popvox.com") and host not in permitted_hosts:
 		return None # invalid call from other site
 	
 	return [p.name for p in account.permissions.all()]
@@ -171,12 +181,17 @@ def widget_render_writecongress(request, permissions):
 		else:
 			# ocp argument specifies the OrgCampaignPosition, which has all of the
 			# information we need.
-			ocp = get_object_or_404(OrgCampaignPosition, id=request.GET["ocp"], position__in=("+", "-"), campaign__visible=True, campaign__org__visible=True)
-			org = ocp.campaign.org
-			bill = ocp.bill
-			position = ocp.position
+			_ocp = get_object_or_404(OrgCampaignPosition, id=request.GET["ocp"], position__in=("+", "-"), campaign__visible=True, campaign__org__visible=True)
+			bill = _ocp.bill
+			position = _ocp.position
 			position_verb = "support" if position == "+" else "oppose"
-			reason = ocp.comment
+			if "writecongress_ocp" in permissions:
+				# We'll let the caller use an OCP id to get the bill and position, but
+				# don't tie this request to the org if the account doesn't have the
+				# writecongress_ocp permission.
+				ocp = _ocp
+				org = ocp.campaign.org
+				reason = ocp.comment
 			
 		if not bill.isAlive():
 			raise Http404("Bill is not alive.")
@@ -260,7 +275,7 @@ def widget_render_writecongress(request, permissions):
 	#  purpose: current, admin, develop, tailoring, individual-analysis, individual-decision, contact
 	#  recipient: ours, same (i.e. Congress), public
 	#  retention: business-practices
-	#  data: 
+	#  data: (none)
 	response["P3P"] = 'CP="IDC CUR ADM DEV TAI IVA IVD CON OUR SAM PUB BUS"'
 
 	return response
@@ -286,9 +301,8 @@ def widget_render_writecongress_action(request):
 			return { "status": "staff-cant-do-this" }
 		if not u.postaladdress_set.all().exists():
 			return { "status": "not-registered" } # if the user is registered but has no address info, pretend they are not registered
-		bill = Bill.objects.get(id=request.POST["bill"])
-		if u.comments.filter(bill=bill).exists():
-			return { "status": "already-commented" }
+		if u.comments.filter(bill=request.POST["bill"]).exists():
+			return { "status": "already-commented" } # TODO: Privacy??
 
 		sso = u.singlesignon.all()
 		if not u.has_usable_password() and sso.count() == 0:
@@ -328,7 +342,7 @@ def widget_render_writecongress_action(request):
 		
 		# Record the information for the org. This also occurs at the point of checking
 		# the address.
-		if "ocp" in request.POST and request.POST["demo"] != "true":
+		if "ocp" in request.POST and request.POST["demo"] != "true" and "writecongress_ocp" in permissions:
 			ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
 			if not OrgCampaignPositionActionRecord.objects.filter(ocp=ocp, email=identity["email"]).exists():
 				ocpar = OrgCampaignPositionActionRecord()
@@ -387,8 +401,8 @@ def widget_render_writecongress_action(request):
 		except Exception as e:
 			return { "status": "fail", "msg": validation_error_message(e) }
 
-		if "userid" in request.POST and request.POST["userid"] != "":
-			user = User.objects.get(id=request.POST["userid"])
+		if request.user.is_authenticated() and request.user.id == request.POST.get("userid", None):
+			user = request.user
 		else:
 			user = User()
 			user.email = request.POST["email"]
@@ -404,7 +418,7 @@ def widget_render_writecongress_action(request):
 				recipients = []
 
 		# Record the information for the org. This also occurs at the point of new user login.
-		if "ocp" in request.POST and request.POST["demo"] != "true":
+		if "ocp" in request.POST and request.POST["demo"] != "true" and "writecongress_ocp" in permissions:
 			ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
 			if not OrgCampaignPositionActionRecord.objects.filter(ocp=ocp, email=request.POST["email"]).exists():
 				ocpar = OrgCampaignPositionActionRecord()
@@ -434,14 +448,17 @@ def widget_render_writecongress_action(request):
 			return { "status": "fail", "msg": validation_error_message(e) }
 
 		bill = Bill.objects.get(id=request.POST["bill"])
-		referrer, ocp, message = widget_render_writecongress_getsubmitparams(request.POST)
+		referrer, ocp, message = widget_render_writecongress_getsubmitparams(request.POST, permissions)
 		
+		# We use the same object for any of the reasons why we might need to send
+		# a follow-up email.
 		axn = WriteCongressEmailVerificationCallback()
 		axn.post = request.POST
+		axn.permissions = permissions
 
 		# if the user is logged in and the address's congressional district
 		# was determined, then we can save the comment immediately.
-		if "userid" in request.POST and request.POST["userid"] != "" and request.user.is_authenticated() and requets.user.id == int(request.POST["userid"]):
+		if request.user.is_authenticated() and request.user.id == request.POST.get("userid", None):
 			user = request.user
 			
 			# Normalize address/get district.
@@ -503,10 +520,10 @@ def widget_render_writecongress_get_identity(user, address=None):
 		"congressionaldistrict": getattr(pa, "congressionaldistrict", ""),
 		}
 
-def widget_render_writecongress_getsubmitparams(post):
+def widget_render_writecongress_getsubmitparams(post, permissions):
 	referrer = None
 	ocp = None
-	if "ocp" in post:
+	if "ocp" in post and "writecongress_ocp" in permissions:
 		ocp = OrgCampaignPosition.objects.get(id=post["ocp"])
 		referrer = ocp.campaign
 		if referrer.default: # instead of org default campaign, use org
@@ -519,6 +536,7 @@ def widget_render_writecongress_getsubmitparams(post):
 
 class WriteCongressEmailVerificationCallback:
 	post = None
+	permissions = None
 	
 	def email_subject(self):
 		return "Finish Your Letter to Congress"
@@ -593,9 +611,9 @@ POPVOX""" % (self.post["useraddress_firstname"], )
 		
 		# Create the comment record.
 		else:
-			# Fill in the address. By now it really must validate.
+			# Fill in the address.
 			p = PostalAddress()
-			p.load_from_form(self.post, validate=False)
+			p.load_from_form(self.post, validate=False) # by now it really must validate
 			cdyne_response = json.loads(self.post["cdyne_response"])
 			if cdyne_response != None:
 				from writeyourrep.addressnorm import verify_adddress_cached
@@ -603,7 +621,7 @@ POPVOX""" % (self.post["useraddress_firstname"], )
 			
 			if getattr(p, "congressionaldistrict", None) != None:
 				# We have everything we need to save the comment.
-				referrer, ocp, message = widget_render_writecongress_getsubmitparams(self.post)
+				referrer, ocp, message = widget_render_writecongress_getsubmitparams(self.post, self.permissions)
 				comment = save_user_comment(user, bill, self.post["position"], referrer, message, p, ocp)
 	
 				if not user_is_new:

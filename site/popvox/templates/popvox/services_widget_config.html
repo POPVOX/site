@@ -35,17 +35,51 @@ var accounts = [
 	{
 		name: "{{account|escapejs}}",
 		key: "{{account.api_key|escapejs}}",
-		permissions: {% templatetag openbrace %}{% for p in account.permissions.all %}"{{p.name|escapejs}}": true{% if not forloop.last %},{% endif %}{% endfor %}}
+		permissions: {% templatetag openbrace %}{% for p in account.permissions.all %}"{{p.name|escapejs}}": true{% if not forloop.last %}, {% endif %}{% endfor %}},
+		bill_positions: [{% for p in account.org.positions_can_comment %}
+				{% templatetag openbrace %} id: {{p.id}},
+				campaign: {% if p.campaign.default %}null{% else %}"{{p.campaign.name|truncatewords:3|escapejs}}"{% endif %},
+					position: "{{p.position}}",
+					bill: "{{p.bill.title|truncatewords:6|escapejs}}" {% templatetag closebrace %}{% if not forloop.last %},{% endif %}{% endfor %} ]
 	}{% if not forloop.last %},{% endif %}
 	{% endfor %}
 ];
+
+var widgettype;
+
+function change_widget(tab) {
+	widgettype = tab.getAttribute("widget");
+	
+	$('ul.tabs li a').removeClass("active");
+	$(tab).addClass("active");
+	
+	$('.widget_opts').hide();
+	$('.' + widgettype + '_opts').show();
+	$('.config_pane').attr('style', '');
+	$('.preview_pane').attr('style', '');
+	
+	if (widgettype == "commentstream") {
+		$('#widget_description').html("The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.");
+	}
+
+	if (widgettype == "writecongress") {
+		$('#widget_description').html("The Write Congress Widget can be placed on your website to power letter-writing calls to action.");
+		$('.config_pane').attr('style', 'width: 400px');
+		$('.preview_pane').attr('style', 'width: 460px');
+	}
+	
+	update_preview();
+	
+	return false;
+}
 
 function account_changed() {
 	var permissions = [];
 	
 	{% if accounts|length > 0 %}
-	if ($('#serviceaccount').val() != "")
-		permissions = accounts[$('#serviceaccount').val()].permissions;
+	var acct_idx = $('#serviceaccount').val();
+	if (acct_idx != "")
+		permissions = accounts[acct_idx].permissions;
 	{% endif %}
 		
 	plus_enabled = permissions["commentstream_theme"];
@@ -54,46 +88,109 @@ function account_changed() {
 	$('.plus input').attr("disabled", plus_enabled ? '' : '1')
 	$(".miniColors").miniColors('disabled', !plus_enabled);
 	
+	$('#writecongress_bill_1').hide();
+	$('#writecongress_bill_2').show();
+	$('#writecongress_bill_position').text('');
+	{% if accounts|length > 0 %}
+	if (acct_idx != "") {
+		$('#writecongress_bill_1').show();
+		$('#writecongress_bill_2').hide();
+		$('#writecongress_bill_position').text('');
+		for (var j = 0; j < accounts[acct_idx].bill_positions.length; j++) {
+			var opt = $('<option/>');
+			opt.attr('value', accounts[acct_idx].bill_positions[j].id);
+			opt.text(
+				(accounts[acct_idx].bill_positions[j].campaign ? accounts[acct_idx].bill_positions[j].campaign + ": " : "") 
+				+ (accounts[acct_idx].bill_positions[j].position == "+" ? "Support " : "Oppose ")
+				+ accounts[acct_idx].bill_positions[j].bill
+				);
+			$('#writecongress_bill_position').append(opt);
+		}
+	}
+	{% endif %}
+	
 	update_preview();
 }
 
 var last_preview_html = "";
 
 function update_preview() {
-	var widgettype = "commentstream";
 	var opts = "";
+	var default_width;
+	var default_height;
+	var can_change_height = true;
 	
-	var bills = [];
-	if (!$('#commentstream_bills').hasClass("default")) bills = $('#commentstream_bills').val().split(/,\s*/);
-	if (bills[0] == "") bills = [];
-	$('#commentstream_bills_error').hide();
-	for (var i = 0; i < bills.length; i++) {
-		var bill_re = /^(supporting|opposing)?(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
-		var match = bill_re.exec(bills[i].replace(/\s/g, "").replace(/\./g, ""));
-		if (!match) {
-			$('#commentstream_bills_error').text("I didn't understand <" + bills[i] + ">. Example bill numbers are H.R. 1, S. 2, H.Res. 3, etc. Precede a bill number with \"supporting\" or \"opposing\" to show only show supporting or opposing comments. Separate multiple bills with commas.");
-			$('#commentstream_bills_error').show();
-			return;
+	if (widgettype == "commentstream") {
+		var bills = [];
+		if (!$('#commentstream_bills').hasClass("default")) bills = $('#commentstream_bills').val().split(/,\s*/);
+		if (bills[0] == "") bills = [];
+		$('#commentstream_bills_error').hide();
+		for (var i = 0; i < bills.length; i++) {
+			var bill_re = /^(supporting|opposing)?(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
+			var match = bill_re.exec(bills[i].replace(/\s/g, "").replace(/\./g, ""));
+			if (!match) {
+				$('#commentstream_bills_error').text("I didn't understand <" + bills[i] + ">. Example bill numbers are H.R. 1, S. 2, H.Res. 3, etc. Precede a bill number with \"supporting\" or \"opposing\" to show only show supporting or opposing comments. Separate multiple bills with commas.");
+				$('#commentstream_bills_error').show();
+				return;
+			}
+			
+			var support_oppose = match[1];
+			var billtype = match[2].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
+			var billnumber = match[3];
+			var congressnumber = match[5]; // possibly undefined, GovTrack style prev congress search
+			if (!congressnumber) congressnumber = {{current_congress}};
+			
+			bills[i] = "us/" + congressnumber + "/" + billtype + billnumber + (support_oppose ? ":" + support_oppose : "");
+		}
+		if (bills.length > 0) opts += "&bills=" + bills;
+		
+		var ix = $('#commentstream_issuearea').val();
+		if (ix) opts += "&issue=" + ix;
+		
+		var state = $('#commentstream_state').val();
+		if (state) opts += "&state=" + state;
+		
+		default_width = 240;
+		default_height = 350;
+	}
+	
+	if (widgettype == "writecongress") {
+		var acct_idx = "";
+		{% if accounts|length > 0 %}
+		acct_idx = $('#serviceaccount').val();
+		{% endif %}
+		
+		if (acct_idx == "") {
+			$('#writecongress_bill_error').hide();
+			var bill_re = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
+			var match = bill_re.exec($('#writecongress_bill').val().replace(/\s/g, "").replace(/\./g, ""));
+			if (!match) {
+				$('#writecongress_bill_error').text("Example bill numbers are H.R. 1, S. 2, H.Res. 3, etc.");
+				$('#writecongress_bill_error').show();
+				return;
+			}
+			
+			var support_oppose = match[0];
+			var billtype = match[1].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
+			var billnumber = match[2];
+			var congressnumber = match[4]; // possibly undefined, GovTrack style prev congress search
+			if (!congressnumber) congressnumber = {{current_congress}};
+			
+			bill = "us/" + congressnumber + "/" + billtype + billnumber;
+			
+			opts += "&bill=" + bill;
+			opts += "&position=" + $('#writecongress_position').val();
+		} else {
+			opts += "&ocp=" + $('#writecongress_bill_position').val();
 		}
 		
-		var support_oppose = match[1];
-		var billtype = match[2].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
-		var billnumber = match[3];
-		var congressnumber = match[5]; // possibly undefined, GovTrack style prev congress search
-		if (!congressnumber) congressnumber = {{current_congress}};
-		
-		bills[i] = "us/" + congressnumber + "/" + billtype + billnumber + (support_oppose ? ":" + support_oppose : "");
+		default_width = 460;
+		default_height = 773;
+		can_change_height = false;
 	}
-	if (bills.length > 0) opts += "&bills=" + bills;
 	
-	var ix = $('#commentstream_issuearea').val();
-	if (ix) opts += "&issue=" + ix;
-	
-	var state = $('#commentstream_state').val();
-	if (state) opts += "&state=" + state;
-	
-	var width = $('#commentstream_width').val() || 240;
-	var height = $('#commentstream_height').val() || 350;
+	var width = $('#widget_width').val() || default_width;
+	var height = (can_change_height && $('#widget_height').val()) || default_height;
 	
 	var account = "";
 	
@@ -113,21 +210,22 @@ function update_preview() {
 	}
 	{% endif %}
 		
-	function make_code(host, width, height) {
-		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+	function make_code(host, width, height, demo) {
+		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + (demo ? "&demo=1" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
 	}
 
-	var prv = make_code("", 240, 350);
+	var prv = make_code("", default_width, default_height, true);
 	if (last_preview_html != prv) $('#preview').html(prv);
 	last_preview_html = prv;
 
-	$('#code').val(make_code("https://www.popvox.com", width, height));
+	$('#code').val(make_code("https://www.popvox.com", width, height, false));
 }
 
 $(function() {
 	$('.form input[type=text]').keyup_delayed(function() { update_preview(); });
 	$('.form select').change(function() { update_preview(); });
 	$('.form input[type=radio]').click(function() { update_preview(); });
+	change_widget($('ul.tabs li a')[0]);
 	account_changed();
 });
 
@@ -142,27 +240,32 @@ var minicolors_opts = {
 <div class="content widgetizer">
 
 	<h1>POPVOX Widgets</h1>
+
+	{% if accounts|length > 0 %}
+	{% comment %}This goes outside of the form so that the select doesn't trigger a preview update.{% endcomment %}
+
+	<div class="block1">
+		<label for="serviceaccount">Service Account:</label>
+		<select id="serviceaccount" onchange="account_changed()">
+			<option value="">- Free Services Only -</option>
+			{% for account in accounts %}
+				<option value="{{forloop.counter0}}" {% if forloop.first %}selected="1"{% endif %}>{{account}}</option>
+			{% endfor %}
+		</select>
+	</div>
+	{% endif %}
+	
+	<ul class="tabs">
+		<li><a href="#" onclick="return change_widget(this);" widget="writecongress">Write Congress</a></li>
+		<li><a href="#" onclick="return change_widget(this);" widget="commentstream">Comment Stream</a></li>
+	</ul>
 	
 	<div class="config_pane">
-		<p>The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.</p>
-		
-		{% if accounts|length > 0 %}
-		{% comment %}This goes outside of the form so that the select doesn't trigger a preview update.{% endcomment %}
-
-		<div class="block1" style="text-align: center">
-			<label for="serviceaccount">Service Account:</label>
-			<select id="serviceaccount" onchange="account_changed()">
-				<option value="">- Free Services Only -</option>
-				{% for account in accounts %}
-					<option value="{{forloop.counter0}}" {% if forloop.first %}selected="1"{% endif %}>{{account}}</option>
-				{% endfor %}
-			</select>
-		</div>
-		{% endif %}
+		<p id="widget_description"></p>
 	
 		<form class="form">
 		
-			<div class="block2">
+			<div class="block2 widget_opts commentstream_opts">
 				<div class="vert">
 					<label for="commentstream_bills">Related to these bills</label>
 					<input id="commentstream_bills" type="text" value="supporting S. 724" class="c2"/>
@@ -198,16 +301,34 @@ var minicolors_opts = {
 				<div class="clear "> </div>
 			</div><!-- e: block -->	
 			
+			<div class="block2 widget_opts writecongress_opts">
+				<div class="vert" id="writecongress_bill_1">
+					<label>Letters are about this bill</label>
+					<select id="writecongress_bill_position" size="1" style="width: 400px"></select>
+					<div><p><small>(You may choose from the bills endorsed or opposed in your legislative agenda which are pending Congressional action or await reintroduction.)</small></p></div>
+				</div>
+				
+				<div class="vert" id="writecongress_bill_2">
+					<label for="writecongress_bill">Letters are about this bill</label>
+					<select id="writecongress_position" size="1" style="width: 10em"><option value="support">supporting</option> <option value="oppose">opposing</option></select>
+					<input id="writecongress_bill" type="text" value="S. 724" style="width: 8em"/>
+				</div>
+	
+				<div class="clear"> </div>
+		
+				<div id="writecongress_bill_error" class="error"> </div>
+			</div><!-- e: block -->	
+
 			<div class="block3">
 				<!--<h4>Basic </h4><p class="free">(free)</p>-->
 				<h5 class="clear">Widget Dimensions</h5>
 				<div class="vert">
-					<label for="commentstream_width">Width (px)</label>
-					<input id="commentstream_width" type="text" value="" class="c2"/>
+					<label for="widget_width">Width (px)</label>
+					<input id="widget_width" type="text" value="" class="c2"/>
 				</div>
-				<div class="vert">
-					<label for="commentstream_height">Height (px)</label>
-					<input id="commentstream_height" type="text" value="" class="c2"/>
+				<div class="vert widget_opts commentstream_opts">
+					<label for="widget_height">Height (px)</label>
+					<input id="widget_height" type="text" value="" class="c2"/>
 				</div>
 				<!--
 				<div class="vert">
@@ -283,12 +404,11 @@ var minicolors_opts = {
 	<div class="preview_pane">
 		<h3 class="no_rule">Preview</h3>
 
+		<p>Copy and paste the following HTML code into your website:</p>
+		<textarea id="code" rows="4" style="width: 100%; margin-bottom: 15px;"> </textarea>
+		
 		<div id="preview">
 		</div>
-	
-		<p style="margin-top: 15px">Copy and paste the following HTML code into your website:</p>
-		
-		<textarea id="code" style="width: 100%; height: 15em"> </textarea>
 	</div>
 </div><!-- e: content -->
 
