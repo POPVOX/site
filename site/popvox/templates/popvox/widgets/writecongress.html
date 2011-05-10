@@ -365,6 +365,7 @@
 			
 			$('#msg_preview .message').html(msghtml);
 			$('#panel_preview .address .name, #msg_preview .name').text(identity.firstname + " " + identity.lastname);
+			$('#panel_preview .address .address1').text(identity.address1);
 			$('#msg_preview .location').text(identity.city + ", " + identity.state);
 			$('#panel_preview .address .citystatezip').text(identity.city + ", " + identity.state + " " + identity.zipcode);
 			show_panel(4);
@@ -638,7 +639,7 @@
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
 		
-							<textarea class="half" id="message" maxlength="500" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
+							<textarea class="half" id="message" maxlength="1024" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
 							
 							<a href="#" class="back" onclick="return working ? false : show_panel(2);">back</a>
 							

@@ -286,6 +286,7 @@ def widget_render_writecongress(request, permissions):
 
 @json_response
 def widget_render_writecongress_action(request, permissions):
+	from settings import BENCHMARKING
 	
 	########################################
 	if request.POST["action"] == "check-email":
@@ -400,8 +401,9 @@ def widget_render_writecongress_action(request, permissions):
 		try:
 			p.load_from_form(request.POST)
 			
-			from writeyourrep.addressnorm import verify_adddress
-			verify_adddress(p, validate=False) # we'll catch any problems later on
+			if not BENCHMARKING:
+				from writeyourrep.addressnorm import verify_adddress
+				verify_adddress(p, validate=False) # we'll catch any problems later on
 		except Exception as e:
 			return { "status": "fail", "msg": validation_error_message(e) }
 
@@ -481,16 +483,24 @@ def widget_render_writecongress_action(request, permissions):
 			# him finish his comment. Since we don't need to create an account
 			# for the user, we can redirect the user directly to the page to finish
 			# the comment.
-			if request.POST["demo"] == "true": return { "status": "demo-confirm-address", }
-			send_email_verification(request.POST["email"], None, axn)
-			return { "status": "confirm-address" }
+			status = "confirm-address"
+
+		else:
+			# We're going to have to confirm the user's email address, get
+			# them to choose a screen name, and if their address did not
+			# give a good address they'll have to pick their location on a map.
+			status = "confirm-email"
+
+		if request.POST["demo"] == "true": return { "status": "demo-" + status, }
+
+		r = send_email_verification(request.POST["email"], None, axn, send_email=not BENCHMARKING)
+
+		# for BENCHMARKING, we want to get the activation link directly
+		if BENCHMARKING:
+			return HttpResponse(r.url(), mimetype="text/plain")
+
+		return { "status": status }
 				
-		# We're going to have to confirm the user's email address, get
-		# them to choose a screen name, and if their address did not
-		# give a good address they'll have to pick their location on a map.
-		if request.POST["demo"] == "true": return { "status": "demo-confirm-email", }
-		send_email_verification(request.POST["email"], None, axn)
-		return { "status": "confirm-email", }
 	
 	######
 	return {

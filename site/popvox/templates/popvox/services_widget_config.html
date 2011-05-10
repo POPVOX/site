@@ -55,8 +55,11 @@ function change_widget(tab) {
 	
 	$('.widget_opts').hide();
 	$('.' + widgettype + '_opts').show();
-	$('.config_pane').attr('style', '');
-	$('.preview_pane').attr('style', '');
+
+	//$('.config_pane').attr('style', '');
+	//$('.preview_pane').attr('style', '');
+	$('.config_pane').animate({width: '570px'});
+	$('.preview_pane').animate({width: '290px'});
 	
 	if (widgettype == "commentstream") {
 		$('#widget_description').html("The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.");
@@ -64,11 +67,15 @@ function change_widget(tab) {
 
 	if (widgettype == "writecongress") {
 		$('#widget_description').html("The Write Congress Widget can be placed on your website to power letter-writing calls to action.");
-		$('.config_pane').attr('style', 'width: 400px');
-		$('.preview_pane').attr('style', 'width: 460px');
+
+		//$('.config_pane').attr('style', 'width: 400px');
+		//$('.preview_pane').attr('style', 'width: 460px');
+		$('.config_pane').animate({width: '400px'});
+		$('.preview_pane').animate({width: '460px'});
 	}
 	
-	update_preview();
+	//update_preview();
+	window.setTimeout("update_preview()", 600);
 	
 	return false;
 }
@@ -304,10 +311,12 @@ var minicolors_opts = {
 			</div><!-- e: block -->	
 			
 			<div class="block2 widget_opts writecongress_opts">
+				<p>Comments submitted through the widget will be sent to Congress and posted anonymously on POPVOX. Users will create a POPVOX account if they don&rsquo;t already have one. With a Pro account you will have access to the information submitted by users of your widget, and letters to Congress will mention your organization.</p>
+				
 				<div class="vert" id="writecongress_bill_1">
 					<label>Letters are about this bill</label>
 					<select id="writecongress_bill_position" size="1" style="width: 400px"></select>
-					<div><p><small>(You may choose from the bills endorsed or opposed in your legislative agenda which are pending Congressional action or await reintroduction.)</small></p></div>
+					<div><p><small>You may choose from the bills endorsed or opposed in your legislative agenda which are pending Congressional action or await reintroduction.</small></p></div>
 				</div>
 				
 				<div class="vert" id="writecongress_bill_2">
@@ -319,8 +328,8 @@ var minicolors_opts = {
 				<div class="clear"> </div>
 		
 				<div id="writecongress_bill_error" class="error"> </div>
-			</div><!-- e: block -->	
-
+			</div><!-- e: block -->
+			
 			<div class="block3">
 				<!--<h4>Basic </h4><p class="free">(free)</p>-->
 				<h5 class="clear">Widget Dimensions</h5>
