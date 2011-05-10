@@ -60,6 +60,7 @@ function change_widget(tab) {
 	//$('.preview_pane').attr('style', '');
 	$('.config_pane').animate({width: '570px'});
 	$('.preview_pane').animate({width: '290px'});
+	$('.preview_pane iframe').hide();
 	
 	if (widgettype == "commentstream") {
 		$('#widget_description').html("The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.");
@@ -228,6 +229,8 @@ function update_preview() {
 	last_preview_html = prv;
 
 	$('#code').val(make_code("https://www.popvox.com", width, height, false));
+
+	$('.preview_pane iframe').show();
 }
 
 $(function() {
@@ -418,7 +421,7 @@ var minicolors_opts = {
 
 		<div class="xxhide">
 			<p>Copy and paste the following HTML code into your website:</p>
-			<textarea id="code" rows="4" style="width: 440px; margin-bottom: 15px; padding: 10px;"> </textarea>
+			<textarea id="code" rows="4" style="width: 100%; margin-bottom: 15px; padding: 10px;"> </textarea>
 		</div>
 		<div id="preview">
 		</div>
