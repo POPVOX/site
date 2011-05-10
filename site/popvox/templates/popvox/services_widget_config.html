@@ -50,8 +50,8 @@ var widgettype;
 function change_widget(tab) {
 	widgettype = tab.getAttribute("widget");
 	
-	$('ul.tabs li a').removeClass("active");
-	$(tab).addClass("active");
+	$('ul.tabs li').removeClass("active");
+	$(tab.parentNode).addClass("active");
 	
 	$('.widget_opts').hide();
 	$('.' + widgettype + '_opts').show();
@@ -265,8 +265,8 @@ var minicolors_opts = {
 	{% endif %}
 	
 	<ul class="tabs">
-		<li><a href="#" onclick="return change_widget(this);" widget="writecongress">Write Congress</a></li>
-		<li><a href="#" onclick="return change_widget(this);" widget="commentstream">Comment Stream</a></li>
+		<li><a href="#" onclick="return change_widget(this);" widget="writecongress"><span>Write Congress</span></a></li>
+		<li><a href="#" onclick="return change_widget(this);" widget="commentstream"><span>Comment Stream</span></a></li>
 	</ul>
 	
 	<div class="config_pane">
@@ -413,11 +413,13 @@ var minicolors_opts = {
 	</div>
 	
 	<div class="preview_pane">
+		<!--<a class="b_copy_code btn" href="#">Copy Code</a>-->
 		<h3 class="no_rule">Preview</h3>
 
-		<p>Copy and paste the following HTML code into your website:</p>
-		<textarea id="code" rows="4" style="width: 100%; margin-bottom: 15px;"> </textarea>
-		
+		<div class="xxhide">
+			<p>Copy and paste the following HTML code into your website:</p>
+			<textarea id="code" rows="4" style="width: 440px; margin-bottom: 15px; padding: 10px;"> </textarea>
+		</div>
 		<div id="preview">
 		</div>
 	</div>

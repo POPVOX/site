@@ -14,6 +14,16 @@
 
 */	
 
+/* colors 
+
+#CC6A11 orange
+#8c4607 orangedk
+#c6c5b9 mid 
+#75747c grey
+#cb1919 error_red
+#e8e5de site_bg	 
+
+*/
 
 			/* ----Global Layout---- */
 
@@ -814,6 +824,53 @@ table.form_fields td {
 		
 
 /* ----bill list---- */
+.widgetizer {
+	background: url(tab_highlight.png) left 102px no-repeat;
+	min-height: 300px;
+	height: auto !important;
+	height: 300px;
+	}
+
+ul.tabs {
+	background: url(tab_shadow_r.png) right top repeat-x;
+	height: 40px;
+	margin-bottom: 30px;
+	}
+
+	.tabs li {
+		float: left;
+		display: block;
+		background: url(tab_bg.png) left top no-repeat;
+		height: 40px;
+		}
+		
+		.tabs li a {
+			background: url(tab_bg.png) left top no-repeat;
+			color: #fff;
+			font-size: 12px;
+			font-weight: bold;
+			}
+		
+		.tabs li span {
+			background: url(tab_r.png) right top no-repeat;
+			margin: 0;
+			display: block;
+			padding: 19px 15px 8px;
+			text-transform: uppercase;
+			}
+			
+	.tabs li:hover, .tabs li.active {
+		background: url(tab_active_bg.png) left top no-repeat;
+		}
+		
+		.tabs li:hover a, .tabs li.active a {
+			background: url(tab_active_bg.png) left top no-repeat;
+			color: #CC6A11;
+			}		
+				
+		.tabs li:hover span, .tabs li.active span {
+			background: url(tab_active_r.png) right top no-repeat;
+			}
 
 .hot_bills {
 	background: url(bg_bill_hot.png) left no-repeat;

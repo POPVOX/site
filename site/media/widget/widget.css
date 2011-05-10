@@ -234,6 +234,32 @@
 		}
 
 
+.b_copy_code {
+	width: 86px;
+	height: 22px;
+	background: url(b_copy_code.png);
+	display: block;
+	text-indent: -9999em;
+	margin: 0;
+	border: none;
+	float: right;
+	}
+	
+#code {
+	padding: 10px;
+	border: 1px solid #c2bfb6;
+	color: #404045;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-khtml-border-radius: 2px;
+	border-radius: 2px;
+	}
+
+.hide {
+	display: none;
+	}
+
+
 .disabled {
 	color: #666;
 	}
