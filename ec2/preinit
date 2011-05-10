@@ -1,0 +1,6 @@
+#!/bin/bash
+export CODE=10.122.63.164
+sudo apt-get -y install git
+git clone --bare git://$CODE/sources.git sources.git
+GIT_DIR=sources.git git show master:ec2/sysinit > sysinit
+GIT_DIR=sources.git git show master:ec2/inituser > inituser

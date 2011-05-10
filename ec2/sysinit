@@ -1,12 +1,15 @@
 #!/bin/sh
 
 # scp tauberer@tauberer.dyndns.org:dev/popvox/main/ec2/sysinit .
-
-# master server:  sudo DISK=localhost DB=localhost CRON=yes bash sysinit
-# testing server:   sudo DISK=localhost DB=localhost CRON=no bash sysinit
-
-# us-east-1a / attach EBS volume on /dev/sdf
+#
+# master server:  sudo DISK=localhost DB=localhost CODE=localhost CRON=yes bash sysinit
+# testing server: sudo DISK=localhost DB=localhost CODE=XXXXX     CRON=no  bash sysinit
+#
+# if DB is localhost, then DISK has to be localhost too!
+# the master server should be assocated with the elastic IP address tied to popvox.com
+#
 # last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
+# if disk is local: us-east-1a / attach EBS volume on /dev/sdf
 
 # disabling nfs until we really need it
 NFS_GRANT="127.0.0.1/255.255.255.0"
@@ -56,35 +59,11 @@ else
 	mount -a;
 fi
 
-# Source code
-	
-if [[ "$DISK" == "localhost" ]]; then
-	# Startup scripts. Copy into /etc/rc.local. (Because rc.local has an exit at the end, we can't simply
-	# append to the file. Solution?). Run git as the ubuntu user (which makes permissions of the
-	# persistent disk).
+# Start the git daemon when this machine is hosting the source code.
+# Copy into /etc/rc.local. (Because rc.local has an exit at the end, we can't simply append
+# to the file. Solution?). Run git as the ubuntu user which matches permissions of /mnt/persistent.
+if [[ "$CODE" == "localhost" ]]; then
 	su ubuntu -c "git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/";
-fi
-
-# Users
-
-GIT_DIR=/mnt/persistent/sources.git git show master:ec2/inituser > inituser
-
-useradd -m --shell /bin/bash www
-su www -c "cd; sh /home/ubuntu/inituser"
-sudo ln -s /home/www/httpd.conf /etc/apache2/conf.d/www.conf
-sudo ln -s /home/www/nginx.conf /etc/nginx/conf.d/www.conf
-
-#useradd -m --shell /bin/bash josh;
-#su josh -c "cd; sh /home/ubuntu/inituser";
-#sudo ln -s /home/josh/httpd.conf /etc/apache2/conf.d/josh.conf
-#sudo ln -s /home/josh/nginx.conf /etc/nginx/conf.d/josh.conf
-
-#useradd -m --shell /bin/bash william;
-#su william -c "cd; sh /home/ubuntu/inituser";
-
-# Cron jobs run as the ubuntu user.
-if [[ "$CRON" == "yes" ]]; then
-	crontab -u ubuntu /home/www/sources/scripts/crontab;
 fi
 
 # Mysql
@@ -104,7 +83,7 @@ if [[ "$DB" == "localhost" ]]; then
 	service mysql start;
 	
 	# set a root password
-	sudo mysqladmin -u root password "$MYSQL_PASSWORD";
+	mysqladmin -u root password "$MYSQL_PASSWORD";
 	
 	# grant anyone access with username 'slave' and the same password 
 	mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
@@ -113,15 +92,51 @@ fi
 # Apache, which handles private WSGI deployment of Django, oughttabealaw.com, and
 # the popvox domains on https: which includes proxying through to the blog on occams.
 # The alternative is to run Django via FastCGI via Nginx directly, which requires more config.
-ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/www.conf
 a2dissite default
 a2enmod proxy proxy_http
 sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
-/etc/init.d/apache2 restart
 
 # Nginx which handles static content and caching as a reverse-proxy
 # to Apache. It also handles SSL processing, so behind Nginx is all
 # plain HTTP.
 rm /etc/nginx/sites-enabled/default
-sudo ln -s /home/www/sources/nginx.conf /etc/nginx/conf.d/local.conf
+
+# Deployments
+
+# get the inituser script
+if [[ "$CODE" == "localhost" ]]; then
+	GIT_DIR=/mnt/persistent/sources.git git show master:ec2/inituser > inituser
+else
+	git clone --bare git://$CODE/sources.git sources.git
+	GIT_DIR=sources.git git show master:ec2/inituser > inituser
+fi
+
+useradd -m --shell /bin/bash www
+su www -c "cd; sh /home/ubuntu/inituser"
+ln -s /home/www/httpd.conf /etc/apache2/conf.d/www.conf
+ln -s /home/www/nginx.conf /etc/nginx/conf.d/www.conf
+
+#useradd -m --shell /bin/bash josh;
+#su josh -c "cd; sh /home/ubuntu/inituser";
+#ln -s /home/josh/httpd.conf /etc/apache2/conf.d/josh.conf
+#ln -s /home/josh/nginx.conf /etc/nginx/conf.d/josh.conf
+
+#useradd -m --shell /bin/bash william;
+#su william -c "cd; sh /home/ubuntu/inituser";
+#ln -s /home/william/httpd.conf /etc/apache2/conf.d/william.conf
+#ln -s /home/william/nginx.conf /etc/nginx/conf.d/william.conf
+
+# Cron jobs run as the ubuntu user.
+if [[ "$CRON" == "yes" ]]; then
+	crontab -u ubuntu /home/www/sources/scripts/crontab;
+fi
+
+#  Master config files.
+ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/www.conf
+ln -s /home/www/sources/nginx.conf /etc/nginx/conf.d/local.conf
+
+# Finish.
+service apache2 restart
+service nginx restart
+
 
