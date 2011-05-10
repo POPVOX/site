@@ -3,6 +3,7 @@
 # scp tauberer@tauberer.dyndns.org:dev/popvox/main/ec2/sysinit .
 #
 # master server:  sudo DISK=localhost DB=localhost CODE=localhost CRON=yes bash sysinit
+# slave server:   sudo DISK=$MASTER   DB=$MASTER   CODE=$MASTER   CRON=no  bash sysinit
 # testing server: sudo DISK=localhost DB=localhost CODE=XXXXX     CRON=no  bash sysinit
 #
 # if DB is localhost, then DISK has to be localhost too!
@@ -26,7 +27,7 @@ apt-get install -y \
  sendmail-bin rdiff-backup \
  git-core subversion mercurial \
  apache2 apache2-mpm-worker libapache2-mod-wsgi nginx-full mysql-server \
- python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml \
+ python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml sphinxsearch \
  memcached python-memcache \
  python-mechanize python-matplotlib \
  texlive-latex-base texlive-latex-recommended fontconfig ttf-linux-libertine
@@ -132,10 +133,12 @@ if [[ "$CRON" == "yes" ]]; then
 fi
 
 #  Master config files.
+ln -s /home/www/sources/site/popvox/db/sphinx.conf /etc/sphinxsearch/
 ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/www.conf
 ln -s /home/www/sources/nginx.conf /etc/nginx/conf.d/local.conf
 
 # Finish.
+searchd
 service apache2 restart
 service nginx restart
 

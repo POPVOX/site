@@ -38,7 +38,7 @@
 	{% endif %}
 	
 	{% if status == "callfail" %}
-	<p>The search function had an internal error.</p>
+	<p>The search function had an internal error. {% if debug %}({{ errormsg }}){% endif %}</p>
 	{% endif %}
 	
 	<table width="100%">

@@ -14,6 +14,7 @@ from django.core.cache import cache
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
 
+import os
 import re
 from xml.dom import minidom
 import urllib
@@ -177,36 +178,31 @@ def billsearch(request):
 	if not "q" in request.GET or request.GET["q"].strip() == "":
 		return HttpResponseRedirect("/bills")
 	q = request.GET["q"].strip()
-	congressnumber = ""
-	if "congressnumber" in request.GET:
-		congressnumber = "&session=" + request.GET["congressnumber"]
-	# TODO: Cache this?
+
+	from sphinxapi import SphinxClient, SPH_MATCH_EXTENDED
+	c = SphinxClient()
+	c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
+	c.SetMatchMode(SPH_MATCH_EXTENDED)
+	if "congressnumber" in request.GET and request.GET["congressnumber"].isdigit():
+		c.SetFilter("congressnumber", [int(request.GET["congressnumber"])])
+	else:
+		c.SetFilter("congressnumber", [CURRENT_CONGRESS])
+	ret = c.Query(q)
 	bills = []
-	status = None
-	try:
-		search_response = minidom.parse(urlopen("http://www.govtrack.us/congress/billsearch_api.xpd?q=" + urllib.quote(q) + congressnumber))
-		search_response = search_response.getElementsByTagName("result")
-	except:
+	status = "ok"
+	error = None
+	if ret == None:
+		error = c.GetLastError()
 		search_response = []
 		status = "callfail"
-	for billxml in search_response:
-		if len(bills) == 100:
-			status = "overflow"
-			break
-		try:
-			bills.append({
-				"congressnumber": int(billxml.getElementsByTagName("congress")[0].firstChild.data),
-				"billtype": billxml.getElementsByTagName("bill-type")[0].firstChild.data,
-				"billnumber": int(billxml.getElementsByTagName("bill-number")[0].firstChild.data)
-				})
-		except:
-			# Ignore invalid data from the API.
-			pass
+	else:
+		for b in ret["matches"]:
+			bills.append(b["id"])
+			if len(bills) == 100:
+				status = "overflow"
+				break
 
-	if "startup" in q and "visa" in q:
-		bills.append({"congressnumber": 112, "billtype": "s", "billnumber": 565})
-
-	bills = getbillsfromhash(bills)
+	bills = Bill.objects.filter(id__in=bills)
 	if request.user.is_authenticated():
 		import home
 		home.annotate_track_status(request.user.userprofile, bills)
@@ -216,7 +212,7 @@ def billsearch(request):
 			return HttpResponseRedirect(bills[0].url() + "/report")
 		else:
 			return HttpResponseRedirect(bills[0].url())
-	return render_to_response('popvox/billsearch.html', {'bills': bills, "q": q, "congressnumber": request.GET.get("congressnumber", ""), "status": status}, context_instance=RequestContext(request))
+	return render_to_response('popvox/billsearch.html', {'bills': bills, "q": request.GET["q"].strip(), "congressnumber": request.GET.get("congressnumber", ""), "status": status, "errormsg": error}, context_instance=RequestContext(request))
 
 def getbill(congressnumber, billtype, billnumber):
 	if int(congressnumber) < 1 or int(congressnumber) > 1000: 
