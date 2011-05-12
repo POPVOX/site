@@ -56,15 +56,13 @@ function change_widget(tab) {
 	$('.widget_opts').hide();
 	$('.' + widgettype + '_opts').show();
 
-	//$('.config_pane').attr('style', '');
-	//$('.preview_pane').attr('style', '');
-	$('.config_pane').animate({width: '570px'});
-	$('.preview_pane').animate({width: '290px'});
 	$('.preview_pane iframe').hide();
 	
 	if (widgettype == "commentstream") {
 		$('#widget_description').html("The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.");
 		$('#code').css({width: "230px"});
+		$('.config_pane').animate({width: '630px'});
+		$('.preview_pane').animate({width: '250px'});
 	}
 
 	if (widgettype == "writecongress") {
@@ -129,6 +127,7 @@ function update_preview() {
 	var default_width;
 	var default_height;
 	var can_change_height = true;
+	var supports_bg = true;
 	
 	if (widgettype == "commentstream") {
 		var bills = [];
@@ -197,9 +196,8 @@ function update_preview() {
 		default_width = 460;
 		default_height = 773;
 		can_change_height = false;
+		supports_bg = false;
 	}
-	
-	{% if user.is_staff %}opts += "&debug=1";{% endif %}
 	
 	var width = $('#widget_width').val() || default_width;
 	var height = (can_change_height && $('#widget_height').val()) || default_height;
@@ -211,7 +209,8 @@ function update_preview() {
 		// Only apply these configuration options if they are permitted.
 		var clrs = ["sbg", "sfg", "lnk", "bg", "fg"];
 		for (var e in clrs)
-			opts += "&" + clrs[e] + "=" + $('#color_' + clrs[e]).val().replace("#", "");
+			if (clrs[e] != "bg" || supports_bg)
+				opts += "&" + clrs[e] + "=" + $('#color_' + clrs[e]).val().replace("#", "");
 		
 		/*if ($('#commentstream_scrollmode_scroll')[0].checked)
 			opts += "&scroll=bar";
@@ -223,7 +222,7 @@ function update_preview() {
 	{% endif %}
 		
 	function make_code(host, width, height, demo) {
-		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + (demo ? "&demo=1" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + (demo ? "&demo=1{% if user.is_staff %}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
 	}
 
 	var prv = make_code("", default_width, default_height, true);
@@ -270,8 +269,8 @@ var minicolors_opts = {
 	{% endif %}
 	
 	<ul class="tabs">
-		<li><a href="#" onclick="return change_widget(this);" widget="writecongress"><span>Write Congress</span></a></li>
 		<li><a href="#" onclick="return change_widget(this);" widget="commentstream"><span>Comment Stream</span></a></li>
+		<li><a href="#" onclick="return change_widget(this);" widget="writecongress"><span>Write Congress</span></a></li>
 	</ul>
 	
 	<div class="config_pane">

@@ -52,7 +52,7 @@
 		}
 		
 	body {
-		background: #{{request.GET.bg}} url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;
+		/*background: #{{request.GET.bg}} url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;*/
 		color: #{{request.GET.fg}};
 		}
 		
@@ -485,8 +485,7 @@
 			$('#lastname').set_text("Debug");
 			$('#zipcode').set_text("19104");
 		});
-		{% endif %}
-		
+		{% endif %}		
 	</script>
 </head>
 <body>
@@ -540,7 +539,11 @@
 								<p><a href="#" onclick="return logout();">Not you?</a>
 							</div>
 							
-							<input value="next" class="btn next disabled" onclick="return do_login();" type="button">
+							<input value="next" class="btn next disabled" onclick="return do_login();" type="button"/>
+							<script>$('#panel_login .next').hover(
+								function() { if ($('#email').hasClass("default")) { $('#email').css({'font-weight': 'bold', 'color': 'red'}); } },
+								function() { $('#email').css({'font-weight': '', 'color': ''}); }
+							);</script>
 							
 							<p class="clear error" style="margin-top: 3em"> </p>
 							
