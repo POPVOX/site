@@ -179,6 +179,24 @@ def billsearch(request):
 		return HttpResponseRedirect("/bills")
 	q = request.GET["q"].strip()
 
+	bill_number_re = re.compile(r"(hr|s|hconres|sconres|hjres|sjres|hres|sres)(\d+)(/(\d+))?", re.I)
+	m = bill_number_re.match(q.replace(" ", "").replace(".", ""))
+	if m != None:
+		cn = CURRENT_CONGRESS
+		if "congressnumber" in request.GET and request.GET["congressnumber"].isdigit():
+			cn = int(request.GET["congressnumber"])
+		if m.group(3) != None:
+			cn = int(m.group(4))
+		try:
+			b = bill_from_url("/bills/us/%d/%s%d" % (cn, m.group(1).lower(), int(m.group(2))))
+			if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
+				return HttpResponseRedirect(b.url() + "/report")
+			else:
+				return HttpResponseRedirect(b.url())
+		except:
+			pass
+			
+
 	from sphinxapi import SphinxClient, SPH_MATCH_EXTENDED
 	c = SphinxClient()
 	c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)

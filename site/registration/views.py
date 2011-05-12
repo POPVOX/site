@@ -90,8 +90,7 @@ def validate_next(request, next):
 	# our domain but to a page that will re-load the widget. Sooooo... we'll allow
 	# unrestricted next= if the referer is on our domain. (nb. <base target="_top"/>)
 	try:
-		if urlparse.urlparse(request.META.get("HTTP_REFERER", "http://www.example.org/")).hostname
-		== urlparse.urlparse(SITE_ROOT_URL).hostname:
+		if urlparse.urlparse(request.META.get("HTTP_REFERER", "http://www.example.org/")).hostname == urlparse.urlparse(SITE_ROOT_URL).hostname:
 			return
 	except: # invalid referrer header
 		pass
