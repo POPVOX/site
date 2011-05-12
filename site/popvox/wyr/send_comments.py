@@ -78,7 +78,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
 		msg.message_personal = "yes"
 	else:
-		msg.message = ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a personal response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
+		msg.message = ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
 		msg.message_personal = "no"
 		
 	topterm = comment.bill.topterm
@@ -91,7 +91,11 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		msg.topicarea = (topterm.name, "legislation")
 	else:
 		msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title, "legislation")
+	
+	# TODO: Make this yes when they wrote a personal message!
 	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","")
+	
+	
 	if comment.position == "+":
 		msg.support_oppose = ('i support',)
 	else:
@@ -140,7 +144,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		if "TARGET" in os.environ and gid != int(os.environ["TARGET"]):
 			continue
 	
-		if gid in (412246,) and msg.county == None:
+		if gid in (412246,) and msg.county == None and comment.address.cdyne_response == None:
 			print "Normalize Address", comment.address.id
 			comment.address.normalize()
 			msg.county = comment.address.county

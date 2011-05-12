@@ -47,6 +47,8 @@ def verify_adddress(address, validate=True):
 	return verify_adddress_cached(address, ret, validate)
 
 def verify_adddress_cached(address, ret, validate=True):
+	address.cdyne_response = json.dumps(ret)
+
 	from popvox.govtrack import stateapportionment
 
 	if ret["ReturnCode"] not in (100, 101, 102, 103):
@@ -79,7 +81,6 @@ def verify_adddress_cached(address, ret, validate=True):
 	address.longitude = float(ret["GeoLocationInfo"]["AvgLongitude"])
 	address.timezone = ret["GeoLocationInfo"]["TimeZone"]
 	address.county = ret["County"]
-	address.cdyne_response = json.dumps(ret)
 
 if __name__ == "__main__":
 	from popvox.models import PostalAddress

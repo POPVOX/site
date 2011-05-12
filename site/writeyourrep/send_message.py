@@ -1,6 +1,7 @@
 import re
 import urllib
 import urllib2
+from httplib import HTTPException
 import cookielib
 import urlparse
 import html5lib
@@ -18,9 +19,17 @@ last_connect_time = { }
 import socket
 socket.setdefaulttimeout(10) # ten seconds
 cookiejar = cookielib.CookieJar()
-http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
-http.addheaders = [('User-agent', "POPVOX.com Message Delivery <info@popvox.com>")]
+#proxy_handler = urllib2.ProxyHandler({'http': 'http://localhost:8080/'})
+http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar)) # , proxy_handler
+http_last_url = ""
+
 def urlopen(url, data, method, deliveryrec):
+	global http_last_url
+	http.addheaders = [
+		('User-agent', "POPVOX.com Message Delivery <info@popvox.com>"),
+		('Referer', http_last_url)
+		]
+	
 	if method.upper() == "POST":
 		deliveryrec.trace += unicode("POST " + url + "\n")
 		if not isinstance(data, (str, unicode)):
@@ -41,8 +50,12 @@ def urlopen(url, data, method, deliveryrec):
 		deliveryrec.trace += unicode("GET " + url + "\n")
 		deliveryrec.trace += "\tcookies: " + unicode(cookiejar) + "\n"
 		ret = http.open(url)
+	
 	deliveryrec.trace += unicode(ret.getcode()) + unicode(" " + ret.geturl() + "\n")
 	deliveryrec.trace += unicode("".join(ret.info().headers) + "\n")
+	
+	http_last_url = url
+	
 	return ret
 
 class Message:
@@ -479,14 +492,14 @@ def parse_webform(webformurl, webform, webformid, id):
 				opttext = ""
 				opt.normalize()
 				if opt.firstChild != None:
-					opttext = opt.firstChild.data.lower()
+					opttext = opt.firstChild.data
 					opttext = re.sub("^\W+", "", opttext)
 					opttext = re.sub("\s+$", "", opttext)
 					opttext = re.sub("\s+", " ", opttext)
 					if opttext == "" or "select" in opttext or "=" in opttext or opttext[0] == "-":
 						continue
 				
-				options[opttext] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext
+				options[opttext.lower()] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext
 				
 			if len(options) == 0:
 				raise WebformParseException("Select %s has no options at %s." % (field.getAttribute("name"), webformurl))
@@ -723,6 +736,8 @@ def send_message_webform(di, msg, deliveryrec):
 	postdata = { }
 	for k, v in field_map.items():
 		postdata[k] = getattr(msg, v)
+		if postdata[k] == None:
+			raise WebformParseException("Message is missing field %s." % v)
 		
 		# Make sure that if there were options given for a prefix that they accept our
 		# prefixes. We'll deal with the wrath of an unexpected response.
@@ -955,6 +970,7 @@ def cache_webforms():
 
 def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 	cookiejar.clear()
+	http_last_url = ""
 	
 	# Check for delivery information.
 	
@@ -1069,6 +1085,10 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 	except DistrictDisagreementException, e:
 		deliveryrec.trace += unicode(e) + u"\n"
 		deliveryrec.failure_reason = DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT
+	
+	except HTTPException, e:
+		deliveryrec.trace += unicode(e) + u"\n"
+		deliveryrec.failure_reason = DeliveryRecord.FAILURE_HTTP_ERROR
 	
 	except IOError, e:
 		deliveryrec.trace += unicode(e) + u"\n"
