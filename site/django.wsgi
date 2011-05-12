@@ -12,4 +12,8 @@ if os.path.exists("/home/www/slave"):
 #os.environ["SITE_DOWN"] = "1"
 
 import django.core.handlers.wsgi
-application = django.core.handlers.wsgi.WSGIHandler()
+_application = django.core.handlers.wsgi.WSGIHandler()
+def application(environ, start_response):
+	os.environ['HTTPS'] = 'on'
+	return _application(environ, start_response)
+

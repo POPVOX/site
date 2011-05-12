@@ -97,7 +97,7 @@ def external_start(request, login_associate, provider):
 		validate_next(request.GET["next"]) # raises exception on error
 		request.session["oauth_finish_next"] = request.GET["next"]
 		
-	if providers.providers[provider]["method"] =="openid2":
+	if providers.providers[provider]["method"] =="openid2" or True:
 		# the callback must match the realm, which is always SITE_ROOT_URL
 		callback = SITE_ROOT_URL + reverse(external_return, args=[login_associate, provider])
 	else:
@@ -108,8 +108,10 @@ def external_start(request, login_associate, provider):
 
 	scope = request.GET.get("scope", None)
 	mode = request.GET.get("mode", None)
-	
-	return HttpResponseRedirect( providers.methods[providers.providers[provider]["method"]]["get_redirect"](request, provider, callback, scope, mode))
+
+	response = HttpResponseRedirect( providers.methods[providers.providers[provider]["method"]]["get_redirect"](request, provider, callback, scope, mode))
+	response['Cache-Control'] = 'no-store'
+	return response
 		
 def external_return(request, login_associate, provider):
 	try:
