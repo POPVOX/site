@@ -46,7 +46,15 @@ def validate_widget_request(request):
 		if host.startswith("www."):
 			host = host[4:]
 	except:
-		host = "example.com"
+		# if there's no referer or parsing failed...
+		if not api_key:
+			return []
+			
+		# The user must send a referrer header because we're charging people
+		# so the widget had better reside on their server. Maybe we had better
+		# start tracking IP addrs too.
+		else:
+			return None
 
 	if not api_key:
 		# so that we can use our own widgets on our site without an API key
@@ -443,16 +451,16 @@ def widget_render_writecongress_action(request, permissions):
 		try:
 			p.load_from_form(request.POST)
 		except Exception as e:
-			return { "status": "fail", "msg": validation_error_message(e) }
+			return { "status": "fail", "msg": "Address error: " + validation_error_message(e) }
 
 		bill = Bill.objects.get(id=request.POST["bill"])
 		referrer, ocp, message = widget_render_writecongress_getsubmitparams(request.POST, permissions)
 		
 		# if the user is logged in and the address's congressional district
 		# was determined, then we can save the comment immediately.
-		if request.user.is_authenticated() and request.user.id == request.POST.get("userid", None):
+		if request.user.is_authenticated() and str(request.user.id) == request.POST.get("userid", None):
 			user = request.user
-		elif "email" in request.POST and "password" in request.POST:
+		elif request.POST.get("userid", None) != None and "email" in request.POST and "password" in request.POST:
 			user = authenticate(email=validate_email(request.POST["email"], for_login=True), password=validate_password(request.POST["password"])) # may return none on fail
 			if user != None:
 				# log the user in case he returns to another widget later, but this will spoil any
@@ -603,7 +611,18 @@ POPVOX""" % (self.post["useraddress_firstname"], )
 			
 		return user, user_is_new
 	
-	@csrf_protect # because writecongress_followup calls back to set username/password
+	# do a lot of currying to make get_response in the shape of view(request)
+	# so it can be wrapped in @csrf_protect.
+	def csrf_protect_me(f):
+		def g(self, request, vrec):
+			@csrf_protect
+			def h(request):
+				return f(self, request, vrec)
+			
+			return h(request)
+		return g
+	
+	@csrf_protect_me # because writecongress_followup calls back to set username/password
 	def get_response(self, request, vrec):
 		user, user_is_new = self.create_user()
 		
