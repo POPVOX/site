@@ -46,6 +46,8 @@ if "TARGET" in os.environ:
 	comments_iter = comments_iter.filter(state=m["state"])
 	if m["type"] == "rep":
 		comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
+if "LAST_ERR_SR" in os.environ:
+	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE)
 	
 for comment in comments_iter.order_by('created').select_related("bill").iterator():
 	
@@ -193,6 +195,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		# for a week.
 		if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT \
 		   and "COMMENT" not in os.environ \
+		   and "TARGET" not in os.environ \
 		   and "ADDR" not in os.environ \
 		   and datetime.datetime.now() - last_delivery_attempt.created < datetime.timedelta(days=7):
 			needs_attention += 1

@@ -16,6 +16,10 @@ for sr in SynonymRequired.objects.all():
 	if SynonymRequired.objects.filter(term1set=sr.term1set, term2set=sr.term2set).exclude(id=sr.id).exists():
 		sr.delete()
 		continue
+	if sr.term1set.endswith("\nlegislation") and len(sr.term2set.strip().split("\n")) == 1:
+		sr.term1set = sr.term1set.replace("\nlegislation", "")
+	if sr.term1set.startswith("#") and len(sr.term2set.strip().split("\n")) == 1:
+		sr.term1set = sr.term1set.strip().split("\n")[0]
 	if len(sr.term1set.strip().split("\n")) == 1 and len(sr.term2set.strip().split("\n")) == 1:
 		s = Synonym()
 		s.term1 = sr.term1set.strip()

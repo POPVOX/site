@@ -239,12 +239,7 @@
 						} else {
 							$("#panel_login .error").text("");
 							identity = data.identity;
-							// see note in the python code: because we're logged in, we must reload to get a CSRF token
-							if (email_status == "registered") {
-								window.location.reload();
-							} else {
-								show_address();
-							}
+							show_address();
 						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
@@ -388,6 +383,7 @@
 						action: "submit",
 						userid: identity.id ? identity.id : undefined,
 						email: identity.email,
+						password: $("#password").val(), // resend
 						useraddress_prefix: $("#useraddress_prefix").val(),
 						useraddress_firstname: identity.firstname,
 						useraddress_lastname: identity.lastname,

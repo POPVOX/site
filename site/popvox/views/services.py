@@ -2,6 +2,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpRespons
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.forms import ValidationError
+from django.views.decorators.csrf import csrf_protect
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -378,16 +379,9 @@ def widget_render_writecongress_action(request, permissions):
 		elif not user.is_active:
 			return { "status": "fail", "msg": "Your account has been disabled." }
 		else:
-			# It is important to log the user in here. Since we don't re-send the
-			# password later on, we rely on the log-in state to ensure that the
-			# submitter is the user he claims to be at the point of submitting the
-			# comment.
-			
-			# The trouble is, now that the user is logged in future calls are going
-			# to require a CSRF token which was not provided on the original
-			# GET request. Thus, the HTML page must reload.
-			
-			login(request, user)
+			# We can't log the user in because then future requests will require
+			# a CSRF token, and we didn't set it on the main page load. So we'll
+			# have to pass the password with future requests.
 			
 			return {
 				"status": "success",
@@ -407,12 +401,6 @@ def widget_render_writecongress_action(request, permissions):
 		except Exception as e:
 			return { "status": "fail", "msg": validation_error_message(e) }
 
-		if request.user.is_authenticated() and request.user.id == request.POST.get("userid", None):
-			user = request.user
-		else:
-			user = User()
-			user.email = request.POST["email"]
-		
 		if p.congressionaldistrict == None:
 			recipients = []
 		else:
@@ -435,6 +423,10 @@ def widget_render_writecongress_action(request, permissions):
 				ocpar.email = request.POST["email"]
 				ocpar.save()
 
+		user = User()
+		user.id = request.POST.get("userid", None)
+		user.email = request.POST["email"]
+		
 		return {
 			"status": "success",
 			"identity": widget_render_writecongress_get_identity(user, address=p),
@@ -456,17 +448,21 @@ def widget_render_writecongress_action(request, permissions):
 		bill = Bill.objects.get(id=request.POST["bill"])
 		referrer, ocp, message = widget_render_writecongress_getsubmitparams(request.POST, permissions)
 		
-		# We use the same object for any of the reasons why we might need to send
-		# a follow-up email.
-		axn = WriteCongressEmailVerificationCallback()
-		axn.post = request.POST
-		axn.permissions = permissions
-
 		# if the user is logged in and the address's congressional district
 		# was determined, then we can save the comment immediately.
 		if request.user.is_authenticated() and request.user.id == request.POST.get("userid", None):
 			user = request.user
+		elif "email" in request.POST and "password" in request.POST:
+			user = authenticate(email=validate_email(request.POST["email"], for_login=True), password=validate_password(request.POST["password"])) # may return none on fail
+			if user != None:
+				# log the user in case he returns to another widget later, but this will spoil any
+				# future requests back to this view because it will now require a CSRF token
+				# which was not set when the page was loaded.
+				login(request, user)
+		else:
+			user = None
 			
+		if user != None:
 			# Normalize address/get district.
 			from writeyourrep.addressnorm import verify_adddress_cached
 			try:
@@ -493,6 +489,9 @@ def widget_render_writecongress_action(request, permissions):
 
 		if request.POST["demo"] == "true": return { "status": "demo-" + status, }
 
+		axn = WriteCongressEmailVerificationCallback()
+		axn.post = request.POST
+		axn.permissions = permissions
 		r = send_email_verification(request.POST["email"], None, axn, send_email=not BENCHMARKING)
 
 		# for BENCHMARKING, we want to get the activation link directly
@@ -520,7 +519,6 @@ def widget_render_writecongress_get_identity(user, address=None):
 	return {
 		"id": getattr(user, "id", ""),
 		"email": getattr(user, "email", ""),
-		"screenname": getattr(user, "username", ""),
 		"nameprefix": getattr(pa, "nameprefix", ""),
 		"firstname": getattr(pa, "firstname", ""),
 		"lastname": getattr(pa, "lastname", ""),
@@ -605,6 +603,7 @@ POPVOX""" % (self.post["useraddress_firstname"], )
 			
 		return user, user_is_new
 	
+	@csrf_protect # because writecongress_followup calls back to set username/password
 	def get_response(self, request, vrec):
 		user, user_is_new = self.create_user()
 		
