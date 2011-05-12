@@ -62,7 +62,7 @@
 			border: 1px solid #B4B4B6;
 			border-width: 1px 1px 0;
 			border-top: 1px solid #8C582D;
-			background: #fff url(bg_widget_comment_body_grad.png) left top repeat-x;
+			background: #fff url(bg_widget_comment_body_grad.png) left bottom repeat-x;
 			margin: 0 0 -10px;
 			padding: 10px 10px 1px;
 			}

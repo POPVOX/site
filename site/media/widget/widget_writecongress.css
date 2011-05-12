@@ -1,5 +1,3 @@
-/* @override https://popvox.com:777/media/widget/widget_writecongress.css */
-
 /* css for Write Congress Widget - April 2011 
 no mokeys were harmed in the making of this code. (except that weird, small one. but you'll hardly notice the limp.) */
 
@@ -34,6 +32,8 @@ body {
 	width: 420px;
 	}
 	
+
+	
 #widget_body {
 /*	overflow: hidden;*/
 	height: 300px;
@@ -54,14 +54,46 @@ body {
 	overflow: hidden;
 	}
 	
-#widget_top h1 {
-	font-size: 20px;
-	height: 42px;
-	}
+	#panel_holder p.bill_name {
+		margin-bottom: 20px;
+		border: 1px solid #D1D1CF;
+		border-width: 1px 0;
+		font-size: 15px;
+		margin: 10px 10px 15px 0;
+		padding: 5px;
+		}
+		
+		#panel_holder p.bill_name span {
+			font: italic normal 12px/18px georgia, serif;
+			}
 	
+	#panel_share {
+		text-align: left;
+		}
+		
+	#panel_share h3.neutral {
+		margin-top: 20px;
+		}
+	
+	#panel_share p {
+		padding-top: 5px;
+		}
+		
+	#panel_share p a {
+		color: #CC6A11;
+		}
+		
 #widget_top {
 	height: 90px;
 	}
+		
+	#widget_top h1 {
+		font-size: 20px;
+		height: 42px;
+		margin: 30px 0 10px 5px;
+		}
+	
+
 	
 #widget_top ul {
 	background: url(bg_bar.png) right 4px repeat-x;
@@ -367,7 +399,7 @@ body {
 		
 		#msg.form textarea {
 			width: 99%;
-			height: 260px;
+			height: 360px;
 			}
 			
 	#tips {
@@ -442,7 +474,7 @@ body {
 			
 			#msg_preview p.greeting {
 				background: url(bg_preview_msg_top.png) left top no-repeat;
-				height: 30px;
+				height: 35px;
 				padding: 70px 40px 0;
 				} 
 			
@@ -453,11 +485,11 @@ body {
 				}
 				
 			#msg_preview p.support span {
-				background: url("bg_endorsed_bubl_l.png") no-repeat scroll 0px 0px transparent;
+				background: url("bg_endorsed_bubl_l.png") no-repeat scroll 0px 8px transparent;
 				}
 				
 			#msg_preview p.oppose span {
-				background: url("bg_opposed_bubl_l.png") no-repeat scroll 0px 0px transparent;
+				background: url("bg_opposed_bubl_l.png") no-repeat scroll 0px 8px transparent;
 				}
 			
 			#msg_preview p.signature {
@@ -469,7 +501,7 @@ body {
 				
 			#msg_preview .scrolled {
 				width: 400px;
-				height: 125px;
+				height: 235px;
 				overflow: auto;
 				margin-bottom: 10px;
 				}

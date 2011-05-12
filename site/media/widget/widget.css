@@ -1,5 +1,3 @@
-/* @override https://popvox.com:777/media/widget/widget.css */
-
 /* css widget - no mokeys were harmed in the making of this code. (except that weird, small one. but you'll hardly notice the limp.) */
 
 
@@ -112,7 +110,7 @@
 		}
 
 .form .block3 {
-	width: 620px;
+	width: 640px;
 	background: url("../master/bg_hr.png") repeat-x left bottom;
 	padding-bottom: 10px;
 	margin: 30px 0 20px;
@@ -253,6 +251,11 @@
 	-webkit-border-radius: 2px;
 	-khtml-border-radius: 2px;
 	border-radius: 2px;
+	}
+
+.bill_name {
+	padding: 0 0 20px 0;
+	font-weight: bold;
 	}
 
 .hide {

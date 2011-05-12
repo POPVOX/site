@@ -494,13 +494,15 @@
 	<div id="wrap" class="w420">
 		<div class="float_left">
 			<div id="widget_top">
-				<h1>Tell Congress that you {{verb}} {{bill.displaynumber}}</h1>
 				<ul id="progress">
 					<li class="tab_1 active">login</li>
 					<li class="tab_2">write</li>
 					<li class="tab_3">send</li>
 					<li class="tab_4">share</li>
 				</ul>
+
+				<h1>Tell Congress that you {{verb}} {{bill.displaynumber}}</h1>
+
 			</div>
 			
 			<div id="widget_body">
@@ -508,6 +510,7 @@
 				<div id="panel_holder">
 			
 					<div id="panel_login" class="widget_panel">
+						<p class="bill_name"><span>Official Title:</span> {{bill.title|truncatewords:15}}</p>
 						<form class="form" action="#" onsubmit="return false;"><br />
 							<h3>Tell Congress who you are</h3>
 							
@@ -548,7 +551,7 @@
 							<p class="clear error" style="margin-top: 3em"> </p>
 							
 							{% if request.GET.demo %}
-							<p class="clear" style="margin-top: 2em; font-style: italic">(This widget is in demo mode. No information will be recorded.)</p>
+							<p class="clear alert" style="margin-top: 2em; font-style: italic">(This widget is in demo mode. No information will be recorded.)</p>
 							{% endif %}
 						</form>
 						

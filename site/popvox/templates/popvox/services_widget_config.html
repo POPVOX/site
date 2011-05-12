@@ -61,8 +61,8 @@ function change_widget(tab) {
 	if (widgettype == "commentstream") {
 		$('#widget_description').html("The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.");
 		$('#code').css({width: "230px"});
-		$('.config_pane').animate({width: '630px'});
-		$('.preview_pane').animate({width: '250px'});
+		$('.config_pane').animate({width: '640px'});
+		$('.preview_pane').animate({width: '240px'});
 	}
 
 	if (widgettype == "writecongress") {
@@ -328,9 +328,8 @@ var minicolors_opts = {
 					<select id="writecongress_position" size="1" style="width: 10em"><option value="support">supporting</option> <option value="oppose">opposing</option></select>
 					<input id="writecongress_bill" type="text" value="S. 724" style="width: 8em"/>
 				</div>
-	
 				<div class="clear"> </div>
-		
+										
 				<div id="writecongress_bill_error" class="error"> </div>
 			</div><!-- e: block -->
 			
@@ -422,7 +421,7 @@ var minicolors_opts = {
 
 		<div class="xxhide">
 			<p>Copy and paste the following HTML code into your website:</p>
-			<textarea id="code" rows="4" style="width: 100%; margin-bottom: 15px; padding: 10px;"> </textarea>
+			<textarea id="code" rows="4" style="width: 230px; margin-bottom: 15px; padding: 5px;"> </textarea>
 		</div>
 		<div id="preview">
 		</div>
