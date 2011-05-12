@@ -7,6 +7,8 @@ from django.contrib.auth.backends import ModelBackend
 from django.template import RequestContext
 from django.contrib import messages
 
+import urlparse
+
 from jquery.ajax import json_response, validation_error_message
 from emailverification.utils import send_email_verification
 
@@ -40,7 +42,7 @@ def loginform(request):
 					login(request, user)
 					if "next" in request.POST:
 						try:
-							validate_next(request.POST["next"]) # raises exception on error
+							validate_next(request, request.POST["next"]) # raises exception on error
 							return HttpResponseRedirect(request.POST["next"])
 						except Exception, e:
 							#print e
@@ -77,7 +79,25 @@ class EmailPasswordLoginBackend(ModelBackend):
 			pass
 		return None
 
-def validate_next(next):
+def validate_next(request, next):
+	# We must not allow anyone to use the redirection that occurs in logins
+	# to create an open redirector to spoof URLs.
+	
+	# The easiest thing to do would be to only allow local URLs to be redirected
+	# to, however if we're operating in an iframe then we may want to open
+	# a OAuth lijnk a link with target=_top (otherwise Chrome loses the referer
+	# header which happens to be important to me) and a next= that is off
+	# our domain but to a page that will re-load the widget. Sooooo... we'll allow
+	# unrestricted next= if the referer is on our domain. (nb. <base target="_top"/>)
+	try:
+		if urlparse.urlparse(request.META.get("HTTP_REFERER", "http://www.example.org/")).hostname
+		== urlparse.urlparse(SITE_ROOT_URL).hostname:
+			return
+	except: # invalid referrer header
+		pass
+
+	# Check that the page is a local page by running it through URLConf's reverse.
+	
 	if "#" in next: # chop off fragment
 		next = next[0:next.index("#")]
 	if "?" in next: # chop off query string
@@ -94,7 +114,7 @@ def external_start(request, login_associate, provider):
 		login_associate = "login"
 
 	if "next" in request.GET:
-		validate_next(request.GET["next"]) # raises exception on error
+		validate_next(request, request.GET["next"]) # raises exception on error
 		request.session["oauth_finish_next"] = request.GET["next"]
 		
 	if providers.providers[provider]["method"] =="openid2" or True:

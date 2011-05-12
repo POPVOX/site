@@ -6,7 +6,9 @@
 <head profile="http://gmpg.org/xfn/11">
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /><!--[if lte IE 7]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
-		
+
+	<base target="_top"/> <!-- important for single sign-on, Chrome loses track of the referer if we stay in the iframe -->		
+
 	<title>write congress widget // POPVOX</title>
 	
 	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
@@ -514,10 +516,8 @@
 	
 								<div id="registered_sso" style="display: none" class="clear">
 									<p>You&rsquo;ve created a POPVOX account already. We&rsquo;ll need you to log in.</p>
-									{% with request.get_full_path as singlesignon_next %}
-									{% with "&mode=compact" as singlesignon_params %}
+									{% with request.META.HTTP_REFERER as singlesignon_next %}
 										{% include "registration/login_singlesignon.html" %}
-									{% endwith %}
 									{% endwith %}
 								</div>
 								<div id="registered_password" style="display: none" class="clear">
