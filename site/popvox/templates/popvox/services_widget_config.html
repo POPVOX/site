@@ -64,6 +64,7 @@ function change_widget(tab) {
 	
 	if (widgettype == "commentstream") {
 		$('#widget_description').html("The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area.");
+		$('#code').css({width: "230px"});
 	}
 
 	if (widgettype == "writecongress") {
@@ -73,6 +74,7 @@ function change_widget(tab) {
 		//$('.preview_pane').attr('style', 'width: 460px');
 		$('.config_pane').animate({width: '400px'});
 		$('.preview_pane').animate({width: '460px'});
+		$('#code').css({width: "450px"});
 	}
 	
 	//update_preview();

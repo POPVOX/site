@@ -5,7 +5,7 @@ CURRENT_CONGRESS = 112
 from django.core.cache import cache
 from django.core.cache.backends.filebased import CacheClass as FileBasedCache
 
-import os.path
+import os, os.path
 from urllib import urlencode
 from xml.dom import minidom
 from datetime import datetime
@@ -32,7 +32,7 @@ def open_govtrack_file(fn):
 	import settings
 	if settings.DEBUG:
 		try:
-			print fn
+			print "opening", fn
 		except:
 			pass # wsgi prevents
 	return open(settings.DATADIR + "govtrack/" + fn)
@@ -63,7 +63,7 @@ def loadpeople():
 	if people != None:
 		return
 		
-	cache = FileBasedCache("/tmp/popvox/cache", { })
+	cache = FileBasedCache("/tmp/popvox%s/cache" % ("_" + os.environ["USER"] if "USER" in os.environ else ""), { })
 		
 	people = cache.get("govtrack_people")
 	people_list = cache.get("govtrack_people_list")
