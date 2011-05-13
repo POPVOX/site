@@ -78,11 +78,20 @@ def validate_widget_request(request):
 			website_hostname = website_hostname[4:]
 		permitted_hosts = [website_hostname]
 		
-	# Validate the referrer.
-	if host != "popvox.com" and not host.endswith(".popvox.com") and host not in permitted_hosts:
-		return None # invalid call from other site
+	perms = [p.name for p in account.permissions.all()]
 	
-	return [p.name for p in account.permissions.all()]
+	# Validate the referrer.
+	if host == "popvox.com" or host.endswith(".popvox.com"):
+		return perms # ajax calls, demos on our site
+	if host in permitted_hosts:
+		return perms
+
+	# Permission passed through a session in case we lose the referer.
+	if api_key == request.session.get("services_widgets_active_apikey", "---"):
+		del request.session["services_widgets_active_apikey"]
+		return perms
+
+	return None # invalid call from other site
 
 def widget_render(request, widgettype):
 	permissions = validate_widget_request(request)
@@ -321,6 +330,18 @@ def widget_render_writecongress_action(request, permissions):
 		if not u.has_usable_password() and sso.count() == 0:
 			# no way to log in!
 			return { "status": "not-registered" }
+			
+		# In order to do single-sign-on login, we have to redirect away from the widget
+		# and then come back, and in that process Chrome loses the referer header
+		# which means the API key will become invalid. (An alternative would be to
+		# launch single-sign-on with target=_top, and redirect back after login to the
+		# containing page, but if third-party cookies are disabled the widget won't
+		# remember the login, so that doesn't work.)
+		#
+		# To keep the API key valid, we just have to set a session cookie that permits
+		# the user through, since only we can set our own cookies.
+		if "api_key" in request.GET:
+			request.session["services_widgets_active_apikey"] = request.GET["api_key"]
 		
 		return {
 			"status": "registered",
