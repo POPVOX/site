@@ -9,7 +9,7 @@ import re
 import os, os.path
 
 from popvox.models import MemberOfCongress, CongressionalCommittee, Bill, IssueArea
-from govtrack import CURRENT_CONGRESS, getBillTitle, parse_govtrack_date, getMemberOfCongress
+from popvox.govtrack import CURRENT_CONGRESS, getBillTitle, parse_govtrack_date, getMemberOfCongress
 
 from settings import DATADIR
 
