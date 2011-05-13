@@ -86,11 +86,6 @@ def validate_widget_request(request):
 	if host in permitted_hosts:
 		return perms
 
-	# Permission passed through a cookie in case we lose the referer.
-	if api_key == request.COOKIES.get("services_widgets_active_apikey", "---"):
-		request.delete_cookie("services_widgets_active_apikey")
-		return perms
-
 	return None # invalid call from other site
 
 def widget_render(request, widgettype):
@@ -326,31 +321,29 @@ def widget_render_writecongress_action(request, permissions):
 		if u.comments.filter(bill=request.POST["bill"]).exists():
 			return { "status": "already-commented" } # TODO: Privacy??
 
-		sso = u.singlesignon.all()
-		if not u.has_usable_password() and sso.count() == 0:
+		# In order to do single-sign-on login, we have to redirect away from the widget
+		# and then come back. This messes up the referer header in Chrome, making
+		# API key validation problematic, and also messs up cookies set by XHR if
+		# third-party cookies are disabled (tested in Chrome). With third-party cookies
+		# enabled, we could pass a simple cookie forward instructing us to trust the
+		# API key once the user returns, since the referrer header will be junked. However
+		# with third-party cookies disabled, it doesn't work (at least if we set the cookie
+		# in XHR) and also Google login itself doesn't work. (Facebook login does work
+		# but the cookie problem remains.)
+		# 
+		# I don't see a way to reliably do single sign on (we can't tell if third-party cookies
+		# are enabled), so it is hereby disabled.
+		
+		#sso = u.singlesignon.all()
+
+		if not u.has_usable_password(): # and sso.count() == 0:
 			# no way to log in!
 			return { "status": "not-registered" }
-			
-		# In order to do single-sign-on login, we have to redirect away from the widget
-		# and then come back, and in that process Chrome loses the referer header
-		# which means the API key will become invalid. (An alternative would be to
-		# launch single-sign-on with target=_top, and redirect back after login to the
-		# containing page, but if third-party cookies are disabled the widget won't
-		# remember the login, so that doesn't work.)
-		#
-		# To keep the API key valid, we just have to set a session cookie that permits
-		# the user through, since only we can set our own cookies. We don't use the
-		# Django session object because it will be cleared if the user is already logged
-		# in because the registration module will first log the user out.
-		#
-		# Of course, Google kept to an iframe won't work anyway without third-party
-		# cookies enabled.
-		
+
 		return {
 			"status": "registered",
 			"has_password": u.has_usable_password(),
-			"sso_methods": [s.provider for s in sso],
-			"__setcookie__services_widgets_active_apikey": request.GET.get("api_key", ""),
+			"sso_methods": [], #[s.provider for s in sso],
 			}
 			
 	########################################
@@ -415,6 +408,9 @@ def widget_render_writecongress_action(request, permissions):
 			# We can't log the user in because then future requests will require
 			# a CSRF token, and we didn't set it on the main page load. So we'll
 			# have to pass the password with future requests.
+			
+			# Another reason not to log the user in is if the user is on a shared
+			# computer, they won't realize they've logged into something.
 			
 			return {
 				"status": "success",
