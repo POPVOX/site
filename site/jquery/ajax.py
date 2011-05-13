@@ -48,7 +48,12 @@ def json_response(f):
 			ret = f(*args, **kwargs)
 			if isinstance(ret, HttpResponse):
 				return ret
-			return HttpResponse(simplejson.dumps(ret), mimetype="application/json")
+			resp = HttpResponse(simplejson.dumps(ret), mimetype="application/json")
+			if type(ret) == dict:
+				for k, v in ret.items():
+					if k.startswith("__setcookie__"):
+						resp.set_cookie(k[len("__setcookie__"):], v)
+			return resp
 		except ValueError, e:
 			sys.stderr.write(unicode(e) + "\n")
 			return HttpResponse(simplejson.dumps({ "status": "fail", "msg": unicode(e) }), mimetype="application/json")

@@ -132,7 +132,7 @@
 			if (email.indexOf("@") == -1) return false;
 			
 			$.ajax({
-					url: window.location.pathname,
+					url: window.location.pathname+window.location.search,
 					data: {
 						bill: {{bill.id}},
 						action: "check-email",
@@ -229,7 +229,7 @@
 			}
 
 			$.ajax({
-					url: window.location.pathname,
+					url: window.location.pathname+window.location.search,
 					data: data,
 					type: "POST",
 					dataType: "json",
@@ -306,7 +306,7 @@
 			if (working) return;
 			
 			$.ajax({
-					url: window.location.pathname,
+					url: window.location.pathname+window.location.search,
 					data: {
 						demo: demo,
 						bill: {{bill.id}},
@@ -380,7 +380,7 @@
 			if (working) return;
 			
 			$.ajax({
-					url: window.location.pathname,
+					url: window.location.pathname+window.location.search,
 					data: {
 						demo: demo,
 						bill: {{bill.id}},

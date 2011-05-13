@@ -86,9 +86,9 @@ def validate_widget_request(request):
 	if host in permitted_hosts:
 		return perms
 
-	# Permission passed through a session in case we lose the referer.
-	if api_key == request.session.get("services_widgets_active_apikey", "---"):
-		del request.session["services_widgets_active_apikey"]
+	# Permission passed through a cookie in case we lose the referer.
+	if api_key == request.COOKIES.get("services_widgets_active_apikey", "---"):
+		request.delete_cookie("services_widgets_active_apikey")
 		return perms
 
 	return None # invalid call from other site
@@ -339,14 +339,18 @@ def widget_render_writecongress_action(request, permissions):
 		# remember the login, so that doesn't work.)
 		#
 		# To keep the API key valid, we just have to set a session cookie that permits
-		# the user through, since only we can set our own cookies.
-		if "api_key" in request.GET:
-			request.session["services_widgets_active_apikey"] = request.GET["api_key"]
+		# the user through, since only we can set our own cookies. We don't use the
+		# Django session object because it will be cleared if the user is already logged
+		# in because the registration module will first log the user out.
+		#
+		# Of course, Google kept to an iframe won't work anyway without third-party
+		# cookies enabled.
 		
 		return {
 			"status": "registered",
 			"has_password": u.has_usable_password(),
 			"sso_methods": [s.provider for s in sso],
+			"__setcookie__services_widgets_active_apikey": request.GET.get("api_key", ""),
 			}
 			
 	########################################
