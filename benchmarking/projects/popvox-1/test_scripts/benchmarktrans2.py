@@ -1,16 +1,16 @@
 #! /usr/bin/python
 
 # TODO:
-# Assertions to check more page outputs.
-# Randomize the bill.
-# Clean up code.
+# Assertions to check more page outputs (done)
+# Randomize the bill. (done)
+# Clean up code. (done)
 
 import mechanize
 import time
 import re
 import random
 
-server_hostname = "10.90.167.123"
+server_hostname = "10.252.243.223"
 
 class Transaction(object):
     def __init__(self):
@@ -21,78 +21,83 @@ class Transaction(object):
         br = mechanize.Browser()
         # don't bother with robots.txt
         br.set_handle_robots(False)
-        # add a custom header so that sites allow the request
+        # add a custom header
         br.addheaders = [('User-agent', 'Mozilla/5.0 Compatible')]
+
         
-        # start the timer
+
+        #-----FRONT PAGE-----#
+        
+        # open the front page, time it, verify response
         start_timer = time.time()
-        # open the front page
-        resp = br.open('https://%s/' % server_hostname)
-        resp.read()
-        # stop the timer
+        clicky = br.open('https://%s/' % server_hostname)
+        clicky.read()
         latency = time.time() - start_timer
         
-        # store the custom timer
         self.custom_timers['01. Front Page'] = latency
         
-        # verify responses are valid
-        assert (resp.code == 200), 'Bad HTTP Response'
-        assert ("Your Message in the Language of Congress" in resp.get_data()), 'Front Page Text Assertion Failed'
-
-        # think-time
-        #time.sleep(5)
+        assert (clicky.code == 200), 'Bad HTTP Response on front page'
+        assert ("Your Message in the Language of Congress" in clicky.get_data()), 'Front Page Text Assertion Failed'
         
-        # start the timer
+
+
+        #-----BILLS PAGE-----#
+        
+        # Click through to the Bills page, time it, verify response
         start_timer = time.time()
-        # click on bills page
         clicky = br.open('https://%s/bills' % server_hostname)
         clicky.read()
-        #stop the timer
         latency = time.time() - start_timer
-
-        # store the custom timer
+        
         self.custom_timers['02. Bills Page'] = latency
         
-        assert (clicky.code == 200), 'Bad HTTP Response'
+        assert (clicky.code == 200), 'Bad HTTP Response on bills page'
         assert ("With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress" in clicky.get_data()), 'Bills Page Text Assertion Failed'
-        
-        # think-time
-        #time.sleep(5)
-        
+
         #choose a bill
         billpage = br.find_link(text_regex=re.compile("Act$"), nr=random.randint(0,7))
-        # start the timer
+        
+
+
+        #-----BILL PAGE-----#
+        
+        # click on bill, time it, verify response
         start_timer = time.time()
-        #click on bill
         clicky = br.follow_link(billpage)
         clicky.read()
-        #stop the timer
         latency = time.time() - start_timer
         
-        # store the custom timer
         self.custom_timers['03. Bill Page'] = latency
         
-        assert (clicky.code == 200), 'Bad HTTP Response'
-        assert ('your position on' in clicky.get_data()), 'Text Assertion Failed'
+        assert (clicky.code == 200), 'Bad HTTP Response on bill page'
+        assert ('your position on' in clicky.get_data()), 'Bill page Text Assertion Failed'
+
         
-        # think-time
-        #time.sleep(2)
+
+        #-----WEIGH IN-----#
         
         #choose support or oppose
         position = random.randint(0,1)
-        # start the timer
+
+        #Click on  Support or oppose, time it, verify response
         start_timer = time.time()
-        #click on bill
         if position == 0:
-            clicky = br.open('https://%s/bills/us/112/hr1380/comment/support' % server_hostname)
+            billpage = billpage.url+"/comment/support"
+            clicky = br.open(billpage)
         else:
-            clicky = br.open('https://%s/bills/us/112/hr1380/comment/oppose' % server_hostname)
+            billpage = billpage.url+"/comment/oppose"
+            clicky = br.open(billpage)
         clicky.read()
-        #stop the timer
         latency = time.time() - start_timer
         
-        # store the custom timer
         self.custom_timers['04. Comment Start'] = latency
+
+        assert (clicky.code == 200), 'Bad HTTP Response on Comment Start'
+        assert ('Tell Congress Why You' in clicky.get_data()), 'Comment start Text Assertion Failed'
+
+
+
+        #-----COMMENT-----#
 
         #choose whether or not to leave a comment
         comment = random.randint(0,3)
@@ -108,159 +113,163 @@ class Transaction(object):
             
             This is the story of the last of the Babylon stations. The year is 2259. The name of the place is Babylon 5. """
         
-            # start the timer
+            # submit comment, time it
             start_timer = time.time()
             clicky = br.submit()
             clicky.read()
-            #stop the timer
             latency = time.time() - start_timer
         
-            # store the custom timer
             self.custom_timers['05. Comment Preview (Msg)'] = latency
+
             
         #Go on without leaving a comment    
         else:
             br.select_form("nocomment")
 
-            # start the timer
+            # submit, time it
             start_timer = time.time()
             clicky = br.submit()
-            #stop the timer
             latency = time.time() - start_timer
-        
-            # store the custom timer
-            self.custom_timers['05. Comment Preview (No Msg)'] = latency
             
-        #Register
+            self.custom_timers['05. Comment Preview (No Msg)'] = latency
+
+        #verify response
+        assert (clicky.code == 200), 'Bad HTTP Response on Comment preview'
+        assert ('not done until you register or sign in' in clicky.get_data()), 'comment preview Text Assertion Failed'
+
+
+        #-----REGISTER-----#
+        
         br.select_form("commentform")
         br.form.set_all_readonly(False)
         br.form["submitmode"] = "Create Account >"
         ca = "createacct_"
         
-        #generate usernme
+        #usernme
         username = ""
         for i in range(8):
             username += random.choice('abcdefghijklmnopqrstuvwxyz')
-        #set username
         br.form[ca+"username"] = username
         
-        #generate email
+        #email
         email = ""
         for i in range(5):
             email += random.choice('abcdefghijklmnopqrstuvwxyz')
         email += "@popvox.com"
-        #set email
         br.form[ca+"email"] = email
         
-        #generate password
+        #password
         password = ""
         for i in range(10):
             password += random.choice('abcdefghijklmnopqrstuvwxyz')
-        #set password
         br.form[ca+"password"] = password
         
-        # start the timer
+        # submit registration, time it, verify
         start_timer = time.time()
-        #submit form
         clicky = br.submit()
         clicky.read()
-        # stop the timer
         latency = time.time() - start_timer
         
-        # store the custom timer
         self.custom_timers['06. Create Account (generates email)'] = latency
+
 
         #Get Account code link
         popcode = br.response().read()
         popurl = re.compile('http://www.popvox.com')
         testcode = popurl.sub('https://' + server_hostname, popcode)
+
+
         
-        # start the timer
+        #-----CONFIRM REGISTRATION-----#
+        
         start_timer = time.time()
-        #open testcode url
         clicky = br.open(testcode)
         clicky.read()
-        # stop the timer
         latency = time.time() - start_timer
         
-        # store the custom timer
         self.custom_timers['07. Follow Email Link'] = latency
+
+        #verify response
+        assert (clicky.code == 200), 'Bad HTTP Response on Email Link'
+        assert ('Tell Congress Who You Are' in clicky.get_data()), 'email link Text Assertion Failed'
+
+
         
-        #Fill out the address form
+        ##-----SET ADDRESS-----#
+        
         br.select_form("commentform")
         ua = "useraddress_"
         
-        #set prefix
+        #prefix
         br.form[ua+"prefix"] = ["Dr."]
         
-        #generate first name
+        #first name
         firstname = ""
         for i in range(5):
             firstname += random.choice('abcdefghijklmnopqrstuvwxyz')
-        #set firstname
         br.form[ua+"firstname"] = firstname
         
-        #generate last name
+        #last name
         lastname = ""
         for i in range(8):
             lastname += random.choice('abcdefghijklmnopqrstuvwxyz')
-        #set lastname
         br.form[ua+"lastname"] = lastname
         
-        #set suffix
+        #suffix
         br.form[ua+"suffix"] = ["III"]
         
-        #generate address1
+        #address1
         address1 = ""
         for i in range(8):
             address1 += random.choice('abcdefghijklmnopqrstuvwxyz')
         address1 += " Street"
-        #set address1
         br.form[ua+"address1"] = address1
         
-        #generate address2
+        #address2
         address2 = "Apt. "
         address2 += str(random.randint(1,2000))
-        #set address2
         br.form[ua+"address2"] = address2
         
-        #generate city
+        #city
         city = ""
         for i in range(8):
             city += random.choice('abcdefghijklmnopqrstuvwxyz')
-        #set city
         br.form[ua+"city"] = city
         
         #set state
         br.form[ua+"state"] = ["CA"]
         
-        #set zipcode
+        #zipcode
         zipcode = random.randint(10000,99999)
         br.form[ua+"zipcode"] = str(zipcode)
         
-        #set phone number
+        #phone number
         br.form[ua+"phonenumber"] = "202-456-2121"
         
-        # start the timer
+        # submit, time, verify
         start_timer = time.time()
-        #submit form
         clicky = br.submit()
         clicky.read()
-        # stop the timer
         latency = time.time() - start_timer
-        
-        # store the custom timer
+    
         self.custom_timers['08. Submit Address'] = latency
+
+        #verify
+        assert (clicky.code == 200), 'Bad HTTP Response on Submit Address'
+        assert ('What Others Think' in clicky.get_data()), 'Submit Address Text Assertion Failed'
+
         
-        # start the timer
+
+        #-----RETURN TO FRONTPAGE-----#
+        
+        # click, time, verify
         start_timer = time.time()
-        # open the front page
-        resp = br.open('https://%s/' % server_hostname)
-        resp.read()
-        # stop the timer
+        clicky = br.open('https://%s/' % server_hostname)
+        clicky.read()
         latency = time.time() - start_timer
         
-        # store the custom timer
         self.custom_timers['09. Return to Front Page'] = latency
 
-        print "done"
+        #verify
+        assert (clicky.code == 200), 'Bad HTTP Response on Front Page 2'
+        assert ("Your Message in the Language of Congress" in clicky.get_data()), 'Front Page 2 Text Assertion Failed'
