@@ -92,7 +92,7 @@ urlpatterns = patterns('',
 		
 	(r'^services/widgets$', "popvox.views.services.widget_config"),
 	(r'^services/widgets/w/(?P<widgettype>commentstream|writecongress)$', "popvox.views.services.widget_render"),
-	(r'^services/widgets/w/account/(?P<account_key>.{16})/(?P<widgetconfig_id>\d+)/(?P<widgettype>commentstream|writecongress)$', "popvox.views.services.widget_render"),
+	(r'^services/widgets/w/account/(?P<api_key>.{16})/(?P<widgettype>commentstream|writecongress)$', "popvox.views.services.widget_render"), # separate URL prefix aids caching vary by referrer for API key validation
 
 	(r'^ajax/district-lookup$', 'writeyourrep.district_lookup.district_lookup'),
 

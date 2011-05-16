@@ -594,12 +594,14 @@ class OrgCampaignPositionActionRecord(models.Model):
 	# for bills when the user accepts to send their
 	# info back to the org.
 	ocp = models.ForeignKey(OrgCampaignPosition, related_name="actionrecords")
-	firstname = models.CharField(max_length=64)
-	lastname = models.CharField(max_length=64)
-	zipcode = models.CharField(max_length=16)
+	firstname = models.CharField(max_length=64, blank=True)
+	lastname = models.CharField(max_length=64, blank=True)
+	zipcode = models.CharField(max_length=16, blank=True)
 	email = models.EmailField()
 	created = models.DateTimeField(auto_now_add=True)
 	completed_comment = models.ForeignKey("UserComment", blank=True, null=True)
+	completed_stage = models.CharField(max_length=16, blank=True, null=True)
+	request_dump = models.TextField(blank=True, null=True)
 	class Meta:
 		ordering = ['created']
 
@@ -832,7 +834,11 @@ class PostalAddress(models.Model):
 	SUFFIXES = 	('', 'Jr.', 'Sr.', 'I', 'II', 'III')
 	
 	def __unicode__(self):
-		return unicode(self.user) + ": " + self.firstname +  " " + self.lastname + "\n" + self.address1 + ("\n" + self.address2 if self.address2 != "" else "") + "\n" + self.city + ", " + self.state + " " + self.zipcode + " (CD" + str(self.congressionaldistrict) + ")"
+		try:
+			user = unicode(self.user) + ": "
+		except:
+			user = "" # un-initialized, raises DoesNotExist
+		return user + self.firstname +  " " + self.lastname + "\n" + self.address1 + ("\n" + self.address2 if self.address2 != "" else "") + "\n" + self.city + ", " + self.state + " " + self.zipcode + " (CD" + str(self.congressionaldistrict) + ")"
 	
 	def save(self, *args, **kwargs):
 		# After saving a PostalAddress, update the state and district of any related

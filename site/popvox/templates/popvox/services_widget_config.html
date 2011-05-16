@@ -222,7 +222,7 @@ function update_preview() {
 	{% endif %}
 		
 	function make_code(host, width, height, demo) {
-		return '<iframe src="' + host + '/services/widgets/w/' + widgettype + '?iframe=1' + (account ? "&api_key=" + account : "") + opts + (demo ? "&demo=1{% if user.is_staff %}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+		return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + (demo ? "&demo=1{% if user.is_staff %}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
 	}
 
 	var prv = make_code("", default_width, default_height, true);

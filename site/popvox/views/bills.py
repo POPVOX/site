@@ -691,7 +691,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				'bill': bill,
 				"position": position,
 				"message": message,
-				"email": request.session["comment-default-address"][3] if "comment-default-address" in request.session else "",
+				"email": request.session["comment-default-address"][3] if "comment-default-address" in request.session and type(request.session["comment-default-address"]) == tuple else "",
 				"singlesignon_next": reverse(billcomment, args=[congressnumber, billtype, billnumber, "/finish"])
 			}, context_instance=RequestContext(request))
 		
@@ -725,7 +725,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				address_record.lastname = request.session["comment-default-address"][1]
 				address_record.zipcode = request.session["comment-default-address"][2]
 				address_record.state = writeyourrep.district_lookup.get_state_for_zipcode(address_record.zipcode)
-				del request.session["comment-default-address"]
+			del request.session["comment-default-address"]
 			
 		return render_to_response('popvox/billcomment_address.html', {
 				'bill': bill,
@@ -905,7 +905,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				surl.increment_completions()
 				
 			if len(request.session["comment-referrer"]) >= 4:
-				ocp = OrgCampaignPosition.objects.get(id=request.session["comment-referrer"][3], bill=bill, campaign=referrer)
+				ocp = OrgCampaignPosition.objects.get(id=request.session["comment-referrer"][3], bill=bill)
 				
 			del request.session["comment-referrer"]
 

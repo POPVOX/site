@@ -48,7 +48,7 @@ body {
 #panel_holder {
 	position: absolute;
 	left: 25px;
-	top: 110px;
+	top: 70px;
 	width: 420px;
 	height: 700px;
 	overflow: hidden;
@@ -84,13 +84,12 @@ body {
 		}
 		
 #widget_top {
-	height: 90px;
+	height: 40px;
 	}
 		
-	#widget_top h1 {
+	h1 {
 		font-size: 20px;
-		height: 42px;
-		margin: 30px 0 10px 5px;
+		margin: 10px 0 20px 5px;
 		}
 	
 
@@ -153,10 +152,9 @@ body {
 				}
 
 	
-	h3, h4 {
+	h3 {
 		float: none;
 		display: block;
-		margin: 0;
 		padding: 0;
 		text-align: left;
 		}
@@ -164,7 +162,11 @@ body {
 		text-transform: uppercase;
 		font-weight: bold;
 		height: 25px;
+		margin-top: 15px;
 		}	
+	h4 {
+		margin: 0;
+		}
 	
 /* 1 start */	
 	
@@ -271,6 +273,12 @@ body {
 			font-style: italic;
 			}
 			
+		.optional {
+			font-size: 10px;
+			font-style: italic;
+			color: #777;
+			}
+			
 			#email {
 				float: left;
 				}
@@ -304,7 +312,7 @@ body {
 			background-image: url(../master/b_next.png);
 			display: block;
 			text-indent: -9999em;
-			margin: 0 0 0 220px;
+			margin: 0 0 1em 220px;
 			border: none;
 			float: left;
 			}
@@ -338,13 +346,7 @@ body {
 	#panel_write {
 		display: block;
 		}
-		
-		#panel_write h3.write {
-			border-top: 1px solid #D1D1CF;
-			padding-top: 15px;
-			}
-
-		
+			
 	.why {
 		clear: both;
 		display: block;
@@ -370,13 +372,14 @@ body {
 	#panel_write h4 {
 		font: italic normal 18px/24px georgia, serif;
 		margin-bottom: 10px;
+		height: 32px;
+		padding: 2px 0 0 46px;
 		}
-		
 		#panel_write h4.support {
 			background: url(../master/bg_endorsed_bubl.png) left top no-repeat;
-			height: 32px;
-		    margin-top: -5px;
-		    padding: 2px 0 0 46px;
+			}
+		#panel_write h4.oppose {
+			background: url(../master/bg_opposed_bubl.png) left top no-repeat;
 			}
 		
 	.reason {
@@ -451,6 +454,7 @@ body {
 /* 3. preview */
 
 		#panel_preview h3 {
+			margin: 0;
 			padding: 15px 0 0;
 			border: 1px solid #d1d1cf;
 			border-width: 1px 0 ;
@@ -493,15 +497,15 @@ body {
 				}
 			
 			#msg_preview p.signature {
-				text-align: right;
 				background: url(bg_preview_msg_btm.png) left bottom no-repeat;
+				padding-left: 200px;
 				padding-bottom: 40px;
 				height: 50px;
 				}
 				
 			#msg_preview .scrolled {
 				width: 400px;
-				height: 235px;
+				height: 200px;
 				overflow: auto;
 				margin-bottom: 10px;
 				}
@@ -510,6 +514,18 @@ body {
 				padding: 0 40px 5px;
 				}
 				
+			#msg_preview .write_a_personal_message {
+				clear: both;
+				padding-top: 20px;
+				font-family: helvetica, arial, sans-serif;
+				font-size: 14px;
+				color: black;
+				}
+			#msg_preview .write_a_personal_message a {
+				color: #CC6A11;
+				text-decoration: underline;
+			}
+			
 				p.signature a {
 					color: #CC6A11;
 					}

@@ -9,6 +9,8 @@
 
 	<title>write congress widget // POPVOX</title>
 	
+	<!-- {{permissions}} -->
+	
 	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="/media/widget/widget_writecongress.css" type="text/css" media="screen" />
 
@@ -120,7 +122,6 @@
 			return false;
 		}
 		
-		var demo = {% if not request.GET.demo %}false{% else %}true{% endif %};
 		var email_status = null;
 		
 		function check_email() {
@@ -132,8 +133,10 @@
 			if (email.indexOf("@") == -1) return false;
 			
 			$.ajax({
-					url: window.location.pathname+window.location.search,
+					url: window.location.pathname,
 					data: {
+						{% if request.GET.demo %}demo: true,{% endif %}
+						{% if ocp %}ocp: {{ocp.id}},{% endif %}
 						bill: {{bill.id}},
 						action: "check-email",
 						email: email
@@ -149,7 +152,7 @@
 						email_status = data.status;
 
 						$('#unregistered input, #registered_password input').attr("disabled", "1");
-						$('#panel_login .check').hide();
+						//$('#panel_login .check').hide();
 						$('#panel_login .next').addClass("disabled");
 						
 						if (data.status == "invalid-email") {
@@ -159,7 +162,7 @@
 						} else if (data.status == "already-commented") {
 							$("#panel_login .error").text("You've already left a comment on this bill. Thanks!");
 						} else {
-							$('#panel_login .check').show();
+							//$('#panel_login .check').show();
 							$('#unregistered input, #registered_password input').attr("disabled", "");
 							$('#panel_login .next').removeClass("disabled");
 							if (data.status == "not-registered") {
@@ -193,6 +196,24 @@
 		
 		var identity = null;
 		
+		function warn_missing_data(items) {
+			// collapse the non-null items
+			var r = Array();
+			for (var i = 0; i < items.length; i++)
+				if (items[i] != null)
+					r[r.length] = items[i];
+			if (r.length == 0) return false;
+			
+			if (r.length > 1)
+				r[r.length-1] = "and " + r[r.length-1];
+			if (r.length > 2)
+				for (var i = 0; i < r.length - 1; i++)
+					r[i] += ",";
+			
+			alert("Enter " + r.join(" ") + " to continue.");
+			return true;
+		}
+		
 		function do_login() {
 			if (working) return;
 			if (identity) return show_address();
@@ -203,13 +224,15 @@
 			
 			if (email_status != "registered") {
 				// creating an account later on, but collectinig this information now
-				if ($("#firstname").hasClass("default")) { alert("Enter your first name to continue."); return false; }
-				if ($("#lastname").hasClass("default")) { alert("Enter your last name to continue."); return false; }
-				if ($("#zipcode").hasClass("default")) { alert("Enter your zip code to continue."); return false; }
+				if (warn_missing_data([
+					$("#firstname").hasClass("default") || $("#firstname").val()=="" ? "your first name" : null,
+					$("#lastname").hasClass("default") || $("#lastname").val()=="" ? "your last name" : null,
+					$("#zipcode").hasClass("default") || $("#zipcode").val()=="" ? "your zip code" : null
+					])) return;
 				
 				data = {
+					{% if request.GET.demo %}demo: true,{% endif %}
 					{% if ocp %}ocp: {{ocp.id}},{% endif %}
-					demo: demo,
 					action: "newuser",
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
@@ -222,6 +245,8 @@
 				if ($("#password").hasClass("default") || $('#password').val() == "") { alert("Enter your password to log in."); return false; }
 			
 				data = {
+					{% if request.GET.demo %}demo: true,{% endif %}
+					{% if ocp %}ocp: {{ocp.id}},{% endif %}
 					action: "login",
 					email: $("#email").val(),
 					password: $("#password").val()
@@ -229,7 +254,7 @@
 			}
 
 			$.ajax({
-					url: window.location.pathname+window.location.search,
+					url: window.location.pathname,
 					data: data,
 					type: "POST",
 					dataType: "json",
@@ -306,11 +331,11 @@
 			if (working) return;
 			
 			$.ajax({
-					url: window.location.pathname+window.location.search,
+					url: window.location.pathname,
 					data: {
-						demo: demo,
-						bill: {{bill.id}},
+						{% if request.GET.demo %}demo: true,{% endif %}
 						{% if ocp %}ocp: {{ocp.id}},{% endif %}
+						bill: {{bill.id}},
 						action: "address",
 						userid: identity.id ? identity.id : undefined,
 						email: identity.email,
@@ -338,7 +363,7 @@
 							if (recipients.length > 0)
 								$('#msg_preview .greeting').text("Dear " + recipients.join(", ") + ":"); // escape?
 							else
-								$('#msg_preview .greeting').text("Dear Congressperson");
+								$('#msg_preview .greeting').text("Dear Congressperson,");
 														
 							show_panel(3);
 						}
@@ -360,15 +385,16 @@
 				var lines = $('#message').val().replace("\r", "\n").replace("\n\n", "\n").split("\n");
 				for (var i = 0; i < lines.length; i++)
 					msghtml += "<p>" + $('<div/>').text(lines[i]).html() + "</p>";
+				$('#msg_preview .write_a_personal_message').hide();
 			} else {
 				msghtml = "<p><i>I {{verb}} {{bill.displaynumber}}.</i></p>";
+				$('#msg_preview .write_a_personal_message').show();
 			}
 			
 			$('#msg_preview .message').html(msghtml);
-			$('#panel_preview .address .name, #msg_preview .name').text(identity.firstname + " " + identity.lastname);
-			$('#panel_preview .address .address1').text(identity.address1);
-			$('#msg_preview .location').text(identity.city + ", " + identity.state);
-			$('#panel_preview .address .citystatezip').text(identity.city + ", " + identity.state + " " + identity.zipcode);
+			$('#msg_preview .name').text(identity.firstname + " " + identity.lastname);
+			$('#msg_preview .address1').text(identity.address1);
+			$('#msg_preview .citystatezip').text(identity.city + ", " + identity.state + " " + identity.zipcode);
 			show_panel(4);
 			
 			$('#msg_preview .scrolled').jScrollPane();
@@ -380,12 +406,12 @@
 			if (working) return;
 			
 			$.ajax({
-					url: window.location.pathname+window.location.search,
+					url: window.location.pathname,
 					data: {
-						demo: demo,
+						{% if request.GET.demo %}demo: true,{% endif %}
+						{% if ocp %}ocp: {{ocp.id}},{% endif %}
 						bill: {{bill.id}},
 						position: "{{position}}",
-						{% if ocp %}ocp: {{ocp.id}},{% endif %}
 						action: "submit",
 						userid: identity.id ? identity.id : undefined,
 						email: identity.email,
@@ -491,7 +517,7 @@
 			$('#lastname').set_text("Debug");
 			$('#zipcode').set_text("19104");
 		});
-		{% endif %}		
+		{% endif %}
 	</script>
 </head>
 <body>
@@ -504,9 +530,6 @@
 					<li class="tab_3">send</li>
 					<li class="tab_4">share</li>
 				</ul>
-
-				<h1>Tell Congress that you {{verb}} {{bill.displaynumber}}</h1>
-
 			</div>
 			
 			<div id="widget_body">
@@ -514,6 +537,8 @@
 				<div id="panel_holder">
 			
 					<div id="panel_login" class="widget_panel">
+						<h1>Tell Congress that you {{verb}} {{bill.displaynumber}}</h1>
+
 						<p class="bill_name"><span>Official Title:</span> {{bill.title|truncatewords:15}}</p>
 						<form class="form" action="#" onsubmit="return false;"><br />
 							<h3>Tell Congress who you are</h3>
@@ -556,11 +581,12 @@
 								function() { $('#email').css({'font-weight': '', 'color': ''}); }
 							);</script>
 							
-							<p class="clear error" style="margin-top: 3em"> </p>
+							<p class="clear error"> </p>
 							
 							{% if request.GET.demo %}
 							<p class="clear alert" style="margin-top: 2em; font-style: italic">(This widget is in demo mode. No information will be recorded.)</p>
 							{% endif %}
+							
 						</form>
 						
 						<script>
@@ -575,7 +601,7 @@
 					</div> <!-- e: panel_login -->
 
 					<div id="panel_addressform" class="widget_panel" style="display: none">
-						<form class="form" action="#" onsubmit="return false;"><br />
+						<form class="form" action="#" onsubmit="return false;">
 							<h3>Tell Congress who you are</h3>
 							
 								<p>Provide the address of your residence where you intend to vote.<br />
@@ -599,13 +625,15 @@
 									{% for suffix in useraddress_suffixes %}
 									<option value="{{suffix}}" {% if useraddress.namesuffix == suffix %}selected{% endif %}>{{suffix}}{% if not suffix %}(none){% endif %}</option>
 									{% endfor %}
-								</select><br />
+								</select>
+								<span class="optional">optional</span><br />
 								
 								<label for="useraddress_address1">Address Line 1</label>
 								<input class="c3" id="useraddress_address1" type="text" value=""/><br />
 								
 								<label for="useraddress_address2">Address Line 2</label>
-								<input class="c3" id="useraddress_address2" type="text" value=""/><br />
+								<input class="c3" id="useraddress_address2" type="text" value=""/>
+								<span class="optional">optional</span><br />
 								
 								<label for="useraddress_city">City</label>
 								<input class="c2" id="useraddress_city" type="text" value=""/><br />
@@ -624,6 +652,8 @@
 						</form>
 						
 						<input value="next" class="btn next" onclick="return do_address();" type="button">
+						
+						<p class="clear optional">All fields except where noted are required. We ask for only as much information as Congressional offices have told us they require.</p>
 					</div>
 							
 					<div id="panel_write" class="widget_panel" style="display: none">
@@ -644,7 +674,7 @@
 						</script>
 						{% endif %}
 										
-						<h3>Write a Personal Message?</h3>
+						<h3>Write a Personal Message</h3>
 						<h4 class="{{verb}}">I {{verb}} {{bill.displaynumber}} because...</h4>
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
@@ -658,8 +688,10 @@
 							<div class="clear"> </div>
 						</form>
 						<div id="tips">
+							<h3>A message is optional</h3>
+							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. To skip this step, just click Preview.</p>
+							
 							<h3>Tips</h3>
-							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents.</p>
 							<p id="messagetip" style="color: black"></p>
 							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
 						</div>
@@ -681,19 +713,24 @@
 						<div id="msg_preview">
 							<p class="greeting">Dear Congressperson:</p>
 							<div class="scrolled">
-							<p class="{{verb}}"><span></span> <div class="message"> </div></p>
+								<p class="{{verb}}"><span></span> <div class="message"> </div></p>
+								<p class="write_a_personal_message">
+								Members of Congress only respond to personal messages.
+								Consider <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and writing a personal message.<p>
 							</div>
-							<p class="signature"><span class="name">Bob Smith</span><br /><span class="location">Jackson, TN</span> <br /><a href="#" onclick="return working ? false : show_panel(3);">revise message</a></p>
+							<p class="signature">
+								<span class="name">Bob Smith</span><br />
+								<span class="address1">35 Morningside Dr.</span><br />
+								<span class="citystatezip">Jackson, TN 38301</span><br />
+								<a href="#" onclick="return working ? false : show_panel(2);">edit address</a> | <a href="#" onclick="return working ? false : show_panel(3);">revise message</a>
+							</p>
 							
 						</div>	
 						
 						<p id="b_send_to_congress"><a class="btn" href="#" onclick="return do_send();">Send your message to Congress</a></p>
+						
 						<div class="address">
-							<p><span class="name">Bob Smith</span><br />
-								<span class="address1">35 Morningside Dr.</span><br />
-								<span class="citystatezip">Jackson, TN 38301</span><br />
-								<a href="#" onclick="return working ? false : show_panel(2);">edit address</a>
-							</p>
+							
 						</div>
 						
 						<p class="clear error"> </p>
