@@ -125,7 +125,7 @@
 		var email_status = null;
 		
 		function check_email() {
-			if (working) return;
+			if (working || $('#email').attr('disabled') == '1') return;
 			
 			$("#panel_login .error").text("");
 			
@@ -191,6 +191,20 @@
 					}
 				});
 			
+			return false;
+		}
+		
+		function forgot_password() {
+			// rather than sending the user off to get his password, which would result
+			// in him getting logged in and then causing CSRF problems here, we just
+			// let him go through by entering his information from scratch and confirming
+			// his email at the end like normal
+			if (working) return;
+			email_status = "not-registered";
+			$('#email').attr('disabled', '1');
+			$('#unregistered').show();
+			$('#registered_password, #registered_sso').hide();
+			$('#panel_login .next').show();
 			return false;
 		}
 		
@@ -559,7 +573,7 @@
 								<div id="registered_password" style="display: none" class="clear">
 									<p>Enter your POPVOX.com password:</p>
 									<input id="password" value="" size="25" maxlength="40" type="password"><br />
-									<p><a href="https://www.popvox.com/registration/reset-password" target="_blank">forgot your password?</a></p>
+									<p><a href="#" onclick="return forgot_password()">forgot your password?</a></p>
 								</div>
 			
 								<div id="unregistered">

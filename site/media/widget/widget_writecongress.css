@@ -9,7 +9,10 @@ body {
 	color: #404045;
 	}
 
-
+a {
+	color: #CC6A11;
+	}
+	
 	.spacer {
 		display: block;
 		height: 50px;
@@ -77,10 +80,6 @@ body {
 	
 	#panel_share p {
 		padding-top: 5px;
-		}
-		
-	#panel_share p a {
-		color: #CC6A11;
 		}
 		
 #widget_top {
@@ -186,7 +185,6 @@ body {
 					}
 					
 			#loggedinalready a {
-				color: #CC6A11;
 				font-weight: bold;
 				}
 				
@@ -522,14 +520,9 @@ body {
 				color: black;
 				}
 			#msg_preview .write_a_personal_message a {
-				color: #CC6A11;
 				text-decoration: underline;
 			}
 			
-				p.signature a {
-					color: #CC6A11;
-					}
-				
 		.preview .address {
 			margin-left: 10px;
 			}
@@ -559,7 +552,6 @@ body {
 			}
 			
 			.address a {
-				color: #CC6A11;
 				text-decoration: underline;
 				}
 			
@@ -708,7 +700,6 @@ body {
 	}			
 
 	#widget_foot a {
-		color: #CC6A11;
 		background: url(../icons/sm/logo_pv_small_o.png) right top no-repeat;
 		display: block;
 		width: 140px;
