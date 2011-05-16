@@ -82,6 +82,8 @@
 	
 	<script>
 		$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); });
+
+		var technical_difficulties = "We're having some technical difficulty. Please try again. If the problem persists, please reload the page."; // might be csrf if they logged in at pv while doing this
 	
 		var working = false;
 		$('html').ajaxStart(function() { working = true; });
@@ -187,7 +189,7 @@
 						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						$("#panel_login .error").text("We're having some technical difficulty. Please try again soon.");
+						$("#panel_login .error").text(technical_difficulties);
 					}
 				});
 			
@@ -282,7 +284,7 @@
 						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						$("#panel_login .error").text("We're having some technical difficulty. Please try again soon.");
+						$("#panel_login .error").text(technical_difficulties);
 					}
 				});
 			
@@ -377,13 +379,13 @@
 							if (recipients.length > 0)
 								$('#msg_preview .greeting').text("Dear " + recipients.join(", ") + ":"); // escape?
 							else
-								$('#msg_preview .greeting').text("Dear Congressperson,");
+								$('#msg_preview .greeting').text("Dear Member of Congress,");
 														
 							show_panel(3);
 						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						$("#panel_addressform .error").text("We're having some technical difficulty. Please try again soon.");
+						$("#panel_addressform .error").text(technical_difficulties);
 					}
 				});
 			
@@ -476,7 +478,7 @@
 						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						$("#panel_preview .error").text("We're having some technical difficulty. Please try again soon.");
+						$("#panel_preview .error").text(technical_difficulties);
 					}
 				});
 
@@ -576,7 +578,7 @@
 									<p><a href="#" onclick="return forgot_password()">forgot your password?</a></p>
 								</div>
 			
-								<div id="unregistered">
+								<div id="unregistered" class="clear">
 									<input id="firstname" value="" size="25" maxlength="40" type="text"><br />
 									<input id="lastname" value="" size="25" maxlength="40" type="text"><br />
 									<input id="zipcode" value="" size="25" maxlength="40" type="text"><br />
@@ -598,7 +600,7 @@
 							<p class="clear error"> </p>
 							
 							{% if request.GET.demo %}
-							<p class="clear alert" style="margin-top: 2em; font-style: italic">(This widget is in demo mode. No information will be recorded.)</p>
+							<p class="clear alert" style="margin-top: 2em; font-style: italic">(This widget preview is in demo mode. No information will be recorded.)</p>
 							{% endif %}
 							
 						</form>
@@ -693,7 +695,8 @@
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
 		
-							<textarea class="half" id="message" maxlength="1024" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
+								<!-- 1200 is hard-coded in lettertips.js -->
+							<textarea class="half" id="message" maxlength="1200" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
 							
 							<a href="#" class="back" onclick="return working ? false : show_panel(2);">back</a>
 							

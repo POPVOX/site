@@ -7,6 +7,7 @@ body {
 	margin: 0px;
 	text-align: left;
 	color: #404045;
+	background-color: white;
 	}
 
 a {
@@ -230,6 +231,9 @@ a {
 				
 	/* form */
 	
+		.form input, .form select, .form span {
+			vertical-align: top; /* IE7 */
+		}
 		.form input, .form textarea, .form file, .form .field {
 			font: normal 12px/18px helvetica, arial, sans-serif;
 			border: 1px solid #a7a599;
@@ -310,6 +314,7 @@ a {
 			background-image: url(../master/b_next.png);
 			display: block;
 			text-indent: -9999em;
+			font-size: 0; /* IE 7 */
 			margin: 0 0 1em 220px;
 			border: none;
 			float: left;
@@ -320,7 +325,7 @@ a {
 
 			.btn {
 				text-indent: -9999em;
-				background-color: inherit;
+				background-color: white; /* IE8 with inherit yields a grey */
 				}
 				
 			.btn:hover {
@@ -400,7 +405,7 @@ a {
 		
 		#msg.form textarea {
 			width: 99%;
-			height: 360px;
+			height: 310px; /* a little less because of the reason box, which is a little too big in IE7 */
 			}
 			
 	#tips {
@@ -499,6 +504,7 @@ a {
 				padding-left: 200px;
 				padding-bottom: 40px;
 				height: 50px;
+				width: 500px; /* prevent wrap */
 				}
 				
 			#msg_preview .scrolled {

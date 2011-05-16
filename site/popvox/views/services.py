@@ -557,6 +557,7 @@ def widget_render_writecongress_action(request):
 			return { "status": status }
 
 		axn = WriteCongressEmailVerificationCallback()
+		axn.ocp = ocp
 		axn.post = request.POST
 		r = send_email_verification(request.POST["email"], None, axn, send_email=not BENCHMARKING)
 
@@ -614,9 +615,10 @@ def widget_render_writecongress_getsubmitparams(post):
 
 class WriteCongressEmailVerificationCallback:
 	post = None
+	ocp = None
 	
 	def email_subject(self):
-		return "Finish Your Letter to Congress"
+		return "Finish Your Letter to Congress" + (" - " + self.ocp.campaign.org.name + " Needs Your Help" if self.ocp else "")
 	
 	def email_body(self):
 		return """%s,
