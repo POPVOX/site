@@ -41,7 +41,7 @@ class AdserverTargetsMiddleware:
 # cache can resume caching for the client.
 class StandardCacheMiddleware:
 	def process_response(self, request, response):
-		if not "Cache-Control" in response and request.method == "GET":
+		if not "Cache-Control" in response and request.method == "GET" and response.status_code == 200:
 			patch_vary_headers(response, ["Cookie"])
 			
 			session = getattr(request, "session", None)
@@ -53,7 +53,8 @@ class StandardCacheMiddleware:
 				response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
 				
 				if settings.DEBUG:
-					response["X-Django-Session"] = repr(session.items())
+					import re
+					response["X-Django-Session"] = re.sub(r"\s+", " ", repr(session.items()))
 					
 		# If no CSRF cookie was set, we want to clear the client's cookie for the sake of being able
 		# to cache future requests. But this can also occur on page-internal resources which then
