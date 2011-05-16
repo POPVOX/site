@@ -5,7 +5,7 @@
 # master server:  sudo DISK=localhost DB=localhost CRON=yes bash sysinit
 # testing server:   sudo DISK=localhost DB=localhost CRON=no bash sysinit
 
-# us-east-1a / attach EBS volume on /dev/sdf
+# us-east-1a / attach EBS volume on /dev/sdf (xvdf)
 
 # set mysql root password to: qsg;5TtC
 
@@ -40,7 +40,7 @@ apt-get install python-django
 mkdir -p /mnt/persistent
 if [[ "$DISK" == "localhost" ]]; then
 	# Mount the EBS disk.
-	echo "/dev/sdf        /mnt/persistent auto noatime" >> /etc/fstab;
+	echo "/dev/xvdf        /mnt/persistent auto noatime" >> /etc/fstab;
 	mount -a;
 	
 	# Grant anyone read-only access to the disk via NFS (who can make it past the security group).
@@ -100,7 +100,7 @@ if [[ "$DB" == "localhost" ]]; then
 	service mysql start;
 	
 	# grant anyone access (obviously we don't 
-	mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
+	mysql mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
 fi
 
 # Apache
