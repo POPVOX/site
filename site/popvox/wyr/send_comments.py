@@ -1,7 +1,6 @@
 #!runscript
-# REMOTEDB=1 DEBUG=1 PYTHONPATH=. DJANGO_SETTINGS_MODULE=settings python popvox/send_comments.py
 
-import os, sys
+import os, os.path, sys
 import datetime
 
 from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, OrgCampaign, Bill, MemberOfCongress
@@ -50,6 +49,7 @@ if "LAST_ERR_SR" in os.environ:
 	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE)
 	
 for comment in comments_iter.order_by('created').select_related("bill").iterator():
+	if os.path.exists("/tmp/break"): break
 	
 	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
@@ -75,12 +75,16 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 	msg.phone = comment.address.phonenumber
 	msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
 	msg.billnumber = comment.bill.displaynumber()
+
+	msg.message = comment.updated.strftime("%x") + ". "
 	if comment.message != None:
-		msg.message = comment.message + \
+		msg.message += comment.message + \
 			"\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
+		if comment.created < datetime.datetime.now()-datetime.timedelta(days=16):
+			msg.message += "\npopvox holds letters on bills until they are pending a vote in your chamber"
 		msg.message_personal = "yes"
 	else:
-		msg.message = ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
+		msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
 		msg.message_personal = "no"
 		
 	topterm = comment.bill.topterm

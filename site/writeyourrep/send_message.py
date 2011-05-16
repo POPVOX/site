@@ -264,6 +264,7 @@ common_fieldnames = {
 	"claim": "message",
 	
 	"textmodified": "message_personal",
+	"modified": "message_personal",
 
 	"messagesubject": "subjectline",
 	"email_subject": "subjectline",
@@ -356,7 +357,6 @@ custom_overrides = {
 	"18_prefix2_select": "Yes",
 	"29_subject_radio": "CRNR", # no response requested
 	"38_subsubject_select": "Other",
-	"44_modified_hidden": "1",
 	"44_nl_radio": "no",
 	"44_nl_format_radio": "text",
 	"68_modified_hidden": "1",
@@ -451,7 +451,8 @@ def find_webform(htmlstring, webformid, webformurl):
 			form.getAttribute("name") == webformid or \
 			webformid in ["." + x for x in form.getAttribute("class").split()] or \
 			webformid[0] == "@" and webformid[1:] in form.getAttribute("action") or \
-			webformid == "@@":
+			webformid == "@@" or\
+			webformid == "@@empty" and form.getAttribute("action")=="":
 			if form.getAttribute("action") != "":
 				formaction = urlparse.urljoin(webformurl, form.getAttribute("action"))
 			else:
