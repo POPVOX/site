@@ -19,8 +19,14 @@ cd
 
 mkdir logs
 
+# Set local settings.
 if [[ "$DB" != "localhost" ]]; then
 	# Set slave configuration.
 	echo "REMOTEDB=$DB" >> ./slave;
 	fi
 
+# Configure the www user as me for git.
+if [[ "$USER" == "www" ]]; then
+	git config --global user.email josh@popvox.com
+	git config --global user.name "Josh Tauberer"
+	fi
