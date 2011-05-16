@@ -11,10 +11,14 @@
 #
 # last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
 # if disk is local: us-east-1a / attach EBS volume on /dev/sdf (which to Ubuntu is /dev/xvdf)
+#
+# Although it seems like we allow MySQL, NFS, and Git from any Amazon EC2 instance,
+# we obviously have a strict firewall in place to allow only connections from within
+# the security group for non-public services. Only SSH, HTTP, and HTTPS should be exposed 
+# outside of the security group.
 
-# disabling nfs until we really need it
-NFS_GRANT="127.0.0.1/255.255.255.0"
 MYSQL_PASSWORD="qsg;5TtC"
+NFS_GRANT="10.0.0.0/0.0.0.0"
 
 # Packages
 add-apt-repository ppa:nginx/stable
@@ -22,7 +26,7 @@ apt-get update
 apt-get upgrade -y
 
 apt-get install -y \
- unzip \
+ unzip elinks \
  nfs-common nfs-kernel-server \
  sendmail-bin rdiff-backup \
  git-core subversion mercurial \
@@ -113,19 +117,9 @@ else
 fi
 
 useradd -m --shell /bin/bash www
-su www -c "cd; sh /home/ubuntu/inituser"
+su www -c "cd; DB=$DB CODE=$CODE bash /home/ubuntu/inituser"
 ln -s /home/www/httpd.conf /etc/apache2/conf.d/www.conf
 ln -s /home/www/nginx.conf /etc/nginx/conf.d/www.conf
-
-#useradd -m --shell /bin/bash josh;
-#su josh -c "cd; sh /home/ubuntu/inituser";
-#ln -s /home/josh/httpd.conf /etc/apache2/conf.d/josh.conf
-#ln -s /home/josh/nginx.conf /etc/nginx/conf.d/josh.conf
-
-#useradd -m --shell /bin/bash william;
-#su william -c "cd; sh /home/ubuntu/inituser";
-#ln -s /home/william/httpd.conf /etc/apache2/conf.d/william.conf
-#ln -s /home/william/nginx.conf /etc/nginx/conf.d/william.conf
 
 # Cron jobs run as the ubuntu user.
 if [[ "$CRON" == "yes" ]]; then
@@ -134,7 +128,7 @@ fi
 
 #  Master config files.
 ln -s /home/www/sources/site/popvox/db/sphinx.conf /etc/sphinxsearch/
-ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/www.conf
+ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
 ln -s /home/www/sources/nginx.conf /etc/nginx/conf.d/local.conf
 
 # Finish.
