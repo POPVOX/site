@@ -61,16 +61,8 @@ def require_lock(*tables):
 			try:
 				return func(*args, **kwargs)
 			finally:
-				try:
-					cursor.execute("UNLOCK TABLES")
-				except:
-					pass
-				
-				try:
-					cursor.close()
-				except:
-					pass
-		
+				cursor.execute("UNLOCK TABLES")
+				cursor.close()
 		return _do_lock
 	return _lock
 	

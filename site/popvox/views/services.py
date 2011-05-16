@@ -639,7 +639,9 @@ Thanks again,
 
 POPVOX""" % (self.post["useraddress_firstname"], )
 
-	@require_lock("auth_user", "popvox_userprofile") # prevent race conditions
+	#@require_lock("auth_user", "popvox_userprofile") # prevent race conditions
+	# The lock is too expensive. Making the requests operate in serial is an
+	# enormous hit to the site's overall throughput. We'll take our chances.
 	def create_user(self):
 		# Get or create the User object.		
 		user_is_new = False

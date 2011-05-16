@@ -147,8 +147,8 @@ class Order(models.Model):
 			"rate_limit_sum": "sum(ratelimit_sum)",
 			}).values("firstdate", "cost", "impressions", "rate_limit_sum")
 		
-		if len(impr_info) == 0: # no impressions yet
-			return 0.0, 0.0, 0.0, 0L, 0.0
+		if len(impr_info) == 0 or impr_info[0]["firstdate"] == None: # no impressions yet
+			return 0.0, 0.0, 0L, 0.0
 			
 		# Compute the fraction of the number of days from midnight on the
 		# earliest impression day in this range (since we don't have a time)
