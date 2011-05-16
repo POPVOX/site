@@ -1023,7 +1023,9 @@ def save_user_comment(user, bill, position, referrer, message, address_record, o
 	comment.state = address_record.state
 	comment.congressionaldistrict = address_record.congressionaldistrict
 
-	if comment.status in (UserComment.COMMENT_REJECTED, UserComment.COMMENT_REJECTED_STOP_DELIVERY):
+	if user.email.endswith("@popvox.com") or user.email.endswith(".popvox.com"):
+		comment.status = UserComment.COMMENT_REJECTED_STOP_DELIVERY
+	elif comment.status in (UserComment.COMMENT_REJECTED, UserComment.COMMENT_REJECTED_STOP_DELIVERY):
 		comment.status = UserComment.COMMENT_REJECTED_REVISED
 	else:
 		comment.status = UserComment.COMMENT_NOT_REVIEWED
