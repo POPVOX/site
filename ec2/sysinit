@@ -10,7 +10,7 @@
 # the master server should be assocated with the elastic IP address tied to popvox.com
 #
 # last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
-# if disk is local: us-east-1a / attach EBS volume on /dev/sdf
+# if disk is local: us-east-1a / attach EBS volume on /dev/sdf (which to Ubuntu is /dev/xvdf)
 
 # disabling nfs until we really need it
 NFS_GRANT="127.0.0.1/255.255.255.0"
@@ -87,7 +87,7 @@ if [[ "$DB" == "localhost" ]]; then
 	mysqladmin -u root password "$MYSQL_PASSWORD";
 	
 	# grant anyone access with username 'slave' and the same password 
-	mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
+	mysql mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
 fi
 
 # Apache, which handles private WSGI deployment of Django, oughttabealaw.com, and
