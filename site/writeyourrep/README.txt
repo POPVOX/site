@@ -97,20 +97,20 @@ Running Message Delivery
 To start delivery of messages, run:
 
 	cd sources/site
-	popvox/wyr/send_comments send
+	popvox/wyr/send_comments.py send
 	
 Some environment variable settings can help with debugging:
 
-	COMMENT=XXXXXXX popvox/wyr/send_comments send
+	COMMENT=XXXXXXX popvox/wyr/send_comments.py send
 	send only messages for the given comment ID (might send to two senators, for instance)
 
-	TARGET=XXXXXXX popvox/wyr/send_comments send
+	TARGET=XXXXXXX popvox/wyr/send_comments.py send
 	send only messages to the given target by GovTrack Member of Congress ID (not the Endpoint ID).
 	
-	ADDR=XXXXXXX popvox/wyr/send_comments send
+	ADDR=XXXXXXX popvox/wyr/send_comments.py send
 	send only messages with the given PostalAddress ID
 	
-	LAST_ERR_SR=1 popvox/wyr/send_comments send
+	LAST_ERR_SR=1 popvox/wyr/send_comments.py send
 	send only messages that had a previous synonym required failure
 	
 Field Name Configuration
