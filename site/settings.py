@@ -30,7 +30,7 @@ EMAIL_HOST_PASSWORD = "qsg;5TtC"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
-MANAGERS = [ ('POPVOX Team', 'team@popvox.com') ]
+MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 
 SEND_BROKEN_LINK_EMAILS = False
 CSRF_FAILURE_VIEW = 'views.csrf_failure_view'

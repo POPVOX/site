@@ -156,6 +156,6 @@ email = EmailMessage(
 	'constituent.mail.automated@popvox.com',
 	['Harkin_Intake@harkin.senate.gov'], # TO
 	['josh@popvox.com', 'daniel@citizencontact.com'], # BCC
-	headers = {'Reply-To': 'team@popvox.com'})
+	headers = {'Reply-To': 'info@popvox.com'})
 email.send()
 
