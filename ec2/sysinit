@@ -116,10 +116,7 @@ else
 	GIT_DIR=sources.git git show master:ec2/inituser > inituser
 fi
 
-useradd -m --shell /bin/bash www
-su www -c "cd; DB=$DB CODE=$CODE bash /home/ubuntu/inituser"
-ln -s /home/www/httpd.conf /etc/apache2/conf.d/www.conf
-ln -s /home/www/nginx.conf /etc/nginx/conf.d/www.conf
+DB=$DB CODE=$CODE bash createuser www
 
 # Cron jobs run as the ubuntu user.
 if [[ "$CRON" == "yes" ]]; then

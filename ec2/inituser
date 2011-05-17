@@ -1,4 +1,12 @@
+# This script is executed as the user.
+
 git clone git://$CODE/sources.git sources
+
+#########
+
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+egrep "(^|,)$USER[, ]" sources/ec2/authorized_keys | sed "s/[^ ]* //" > ~/.ssh/authorized_keys
 
 #########
 
