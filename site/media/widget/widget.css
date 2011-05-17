@@ -142,7 +142,7 @@
 			float: left;
 			width: auto;
 			padding-right: .9em;
-			text-transform: inherit;
+			text-transform: none;
 			font-weight: normal;
 			margin-top: 3px;
 			}
@@ -201,12 +201,12 @@
 			
 		.form .plus .vert label {
 			font: normal 12px/14px helvetica, arial, sans-serif;
-			text-transform: inherit;
+			text-transform: none;
 			padding-top: 3px;
 			}
 			
 		.form .plus .vert {
-			width: 115px;
+			width: 125px;
 			height: 60px;
 			}
 		
