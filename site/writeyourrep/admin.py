@@ -39,7 +39,7 @@ class SynonymRequiredAdmin(admin.ModelAdmin):
 		t1 = form.cleaned_data["term1set"].strip()
 		t2 = form.cleaned_data["term2set"].strip()
 		
-		t1 = t1.split("\n")
+		t1 = [t.strip() for t in t1.split("\n")]
 		if len(t1) > 0 and t1[0].startswith("#"): t1 = [t1[0]] # no need for the rest
 		if len(t1) > 0 and t1[-1] == "legislation": t1.pop() # no need for this one
 		t1 = "\n".join(t1)
