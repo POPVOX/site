@@ -1,20 +1,10 @@
 {% load popvox_utils %}
 <div id="billsearch_endorse_oppose_uservote">
 	{% if not user_position %}
-		<input id="billsearch_endorse_oppose_submit_support" class="submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
-		<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="window.location = '{{bill.url|escapejs}}/comment/oppose'"/>
+		<a id="billsearch_endorse_oppose_submit_support" href="{{bill.url}}/comment/support">Support</a>
+		<a id="billsearch_endorse_oppose_submit_oppose" href="{{bill.url}}/comment/support">Oppose</a>
 	{% else %}
-		<p style="margin: 0"><strong>You Chose:</strong></p>
-
-		<div style="margin-bottom: 1em">
-		{% if user_position.position == "+" %}
-			<input id="billsearch_endorse_oppose_submit_support" class="submit nohover" type="button" value="Support"/>
-		{% else %}
-			<input id="billsearch_endorse_oppose_submit_oppose" class="submit nohover" type="button" value="Oppose"/>
-		{% endif %}
-		</div>
-		
-		<p>You submitted a comment on this bill {{user_position.updated|date2}}. {% if user_position.message %}You wrote:{% endif %}</p>
+		<p>You submitted a comment {% if user_position.position == "+" %}supporting{% else %}opposing{% endif %} this bill {{user_position.updated|date2}}. {% if user_position.message %}You wrote:{% endif %}</p>
 		{% if user_position.message %}
 		<p>&ldquo;{{user_position.message|truncatewords:30}}&rdquo;</p>
 		{% endif %}

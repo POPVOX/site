@@ -698,11 +698,12 @@ table.form_fields td {
 #billsearch_endorse_oppose_submit_endorse,
 #billsearch_endorse_oppose_submit_support,
 #billsearch_endorse_oppose_submit_oppose {
-	border: 0;
+	display: block;
+	float: left;
 	text-indent: -9999em;
 	width: 182px;
 	height: 47px;
-	margin-top: 10px;	
+	margin-top: 10px;
 	}
 
 	#billsearch_endorse_oppose_submit_endorse {
@@ -722,6 +723,7 @@ table.form_fields td {
 	#billsearch_endorse_oppose_submit_oppose:hover {
 		background-position: left top;
 		cursor: pointer;
+		border: none;
 		}
 	#billsearch_endorse_oppose_submit_endorse.nohover:hover,
 	#billsearch_endorse_oppose_submit_support.nohover:hover,
