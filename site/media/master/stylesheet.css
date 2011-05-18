@@ -71,6 +71,7 @@ body.grid {
 		float: right;
 		padding: 0;
 		height: 42px;	
+		width: 506px;
 		}
 		
 		#nav li{
@@ -231,8 +232,6 @@ body.grid {
 		float: left;
 		margin: 2px 0 0 10px;
 		border: none;
-		/* JL text-indent: -9000px; 
-		text-transform: capitalize; */
 		}
 		
 		#search_head .submit_search {
@@ -242,6 +241,8 @@ body.grid {
 			margin: -13px 0 0 2px;
 			border: 0;
 			float: left;
+			text-indent: -9999px;
+			text-transform: capitalize;
 			}
 			
 			#search_head .submit_search:hover {
@@ -3240,6 +3241,7 @@ ul#issuearealist {
 			text-indent: -9999em;
 			width: 60px;
 			outline: none;
+			text-transform: capitalize;
 			}
 			
 			#subscribe_button:hover {
@@ -5184,5 +5186,6 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat; }
 .blog .date span {
 	color: #c4c2c0;
 	}
+
 	
-	
+
