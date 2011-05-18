@@ -2,7 +2,7 @@
 <div id="billsearch_endorse_oppose_uservote">
 	{% if not user_position %}
 		<a id="billsearch_endorse_oppose_submit_support" href="{{bill.url}}/comment/support">Support</a>
-		<a id="billsearch_endorse_oppose_submit_oppose" href="{{bill.url}}/comment/support">Oppose</a>
+		<a id="billsearch_endorse_oppose_submit_oppose" href="{{bill.url}}/comment/oppose">Oppose</a>
 	{% else %}
 		<p>You submitted a comment {% if user_position.position == "+" %}supporting{% else %}opposing{% endif %} this bill {{user_position.updated|date2}}. {% if user_position.message %}You wrote:{% endif %}</p>
 		{% if user_position.message %}
