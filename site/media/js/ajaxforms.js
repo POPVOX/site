@@ -84,10 +84,13 @@ jQuery.fn.keyup_delayed = function(callback, delay) {
   if (!delay) delay = 450;
   return this.each(function(){
 	var last_press = null;
-	jQuery(this).textchange(function() {
+	var n = jQuery(this);
+	n.textchange(function() {
 		last_press = (new Date()).getTime();
-		jQuery(this).delay(delay);
-		jQuery(this).queue(function(next) { if (last_press != null && ((new Date()).getTime() - last_press > delay*.75)) { callback(); last_press = null; } next(); } );
+		n.delay(delay);
+		n.queue(function(next) { if (last_press != null && ((new Date()).getTime() - last_press > delay*.75)) { callback.call(n[0]); last_press = null; } next(); } );
+			// callback is called with .call(n[0]) to set 'this' back to the original this, rather than the window
+			// element, which seems to be what is set on any delayed callback?
 	});
   });
 }

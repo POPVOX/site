@@ -130,6 +130,9 @@ function update_preview() {
 	var supports_bg = true;
 	
 	if (widgettype == "commentstream") {
+		if (this && this.id=="commentstream_issuearea" && $('#commentstream_issuearea').val() != "") $('#commentstream_bills').val("");
+		if (this && this.id=="commentstream_bills" && $('#commentstream_bills').val() != "") $('#commentstream_issuearea').val("");
+		
 		var bills = [];
 		if (!$('#commentstream_bills').hasClass("default")) bills = $('#commentstream_bills').val().split(/,\s*/);
 		if (bills[0] == "") bills = [];
@@ -235,9 +238,9 @@ function update_preview() {
 }
 
 $(function() {
-	$('.form input[type=text]').keyup_delayed(function() { update_preview(); });
-	$('.form select').change(function() { update_preview(); });
-	$('.form input[type=radio]').click(function() { update_preview(); });
+	$('.form input[type=text]').keyup_delayed(update_preview);
+	$('.form select').change(update_preview);
+	$('.form input[type=radio]').click(update_preview);
 	change_widget($('ul.tabs li a')[0]);
 	account_changed();
 });
@@ -290,7 +293,7 @@ var minicolors_opts = {
 				<div class="vert">
 					<label for="commentstream_issuearea">Related to this subject</label>
 					<select id="commentstream_issuearea" class="c3">
-						<option value="">(All)</option>
+						<option value="">(Select)</option>
 						{% for ix in issueareas %}
 							<option value="{{ix.id}}">{{ix.name}}</option>
 						{% endfor %}
