@@ -944,6 +944,7 @@ class UserComment(models.Model):
 	COMMENT_REJECTED = 2
 	COMMENT_REJECTED_STOP_DELIVERY = 3
 	COMMENT_REJECTED_REVISED = 4
+	COMMENT_HOLD = 5
 
 	user = models.ForeignKey(User, related_name="comments", db_index=True) # user authoring the comment
 	bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True)
@@ -958,7 +959,7 @@ class UserComment(models.Model):
 
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now_add=True)
-	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed -- Displayed'), (COMMENT_ACCEPTED, 'Reviewed & Accepted -- Displayed'), (COMMENT_REJECTED, 'Rejected -- Not Displayed'), (COMMENT_REJECTED_STOP_DELIVERY, 'Rejected -- Not Displayed / Not Deliverable'), (COMMENT_REJECTED_REVISED, 'Rejected+Revised by User - Not Displayed')], default=COMMENT_NOT_REVIEWED)
+	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed (Default)'), (COMMENT_ACCEPTED, 'Reviewed & Accepted'), (COMMENT_REJECTED, 'Rejected -- Still Deliver'), (COMMENT_REJECTED_STOP_DELIVERY, 'Rejected -- Stop Delivery'), (COMMENT_REJECTED_REVISED, 'Rejected-then-Revised - Waiting Approval'), (COMMENT_HOLD, 'Hold Delivery')], default=COMMENT_NOT_REVIEWED)
 
 	# repeated from the address for better indexing
 	state = models.CharField(max_length=2)
@@ -1131,6 +1132,8 @@ class UserComment(models.Model):
 			return "This comment has been rejected by POPVOX staff for violating our acceptable language policy and it will not be delivered to Congress. We encourage you to revise your comment so that it keeps a civil tone. We will review your comment after it has been revised."
 		if self.status == UserComment.COMMENT_REJECTED_REVISED:
 			return "This comment was rejected by POPVOX staff for violating our acceptable language policy. You have revised the comment, and POPVOX staff will review it soon."
+		if self.status == UserComment.COMMENT_HOLD:
+			return "Your comment is being held. We've probably informed you via email."
 		return None
 
 	def appreciates_count(self):

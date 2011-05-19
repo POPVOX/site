@@ -22,8 +22,19 @@ class UserCommentAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user", "bill", "address")
 	readonly_fields = ("user","bill","address", "delivery_attempts")
 	search_fields = ("user__username", "user__email")
-	list_display = ['created', 'user', 'bill', 'message', 'address', 'delivery_status']
-
+	list_display = ['created', 'user', 'position', 'bill', 'message_trunc', 'address', 'status_info']
+	actions = ['set_status_hold']
+	def message_trunc(self, obj):
+		return obj.message[0:15] if obj.message != None else None
+	def status_info(self, obj):
+		if obj.status == UserComment.COMMENT_NOT_REVIEWED:
+			return obj.delivery_status()
+		else:
+			return obj.review_status()
+	def set_status_hold(self, request, queryset):
+		queryset.update(status=UserComment.COMMENT_HOLD)
+	set_status_hold.short_description = "Set Review Status to Hold Comments for Delivery"
+		
 class UserCommentDiggAdmin(admin.ModelAdmin):
 	list_display = ['created', 'user', 'comment', 'diggtype']
 
