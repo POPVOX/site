@@ -1,92 +1,70 @@
-{% extends "master.html" %}
-{% load registration_providers %}
-{% block title %}Finish Your Letter to Congress{% endblock%}
-{% block disable_login_redirect %}{% endblock %}
-{% block content %}
-	<div class="content">
-	<h1>Finish Your Letter to Congress</h1>
+{% comment %} This is the lightbox that appears on the comment share page when we need to ask the user to set a screen name and password.{% endcomment %}
+<div style="display: none">
+	<div id="writecongress_followup" class="colorbox" style="width: 540px">
+		<h1>Set Up Your POPVOX Account</h1>
 	
-		<div class="col_9">
-			{% if user_is_new %}
-				{% if comment %}
-					<p>Thanks! We&rsquo;ll be sending your letter to {{comment.get_recipients_display}}.</p>
-					<p>To check on the status of your letter and to weigh in on other legislation, we recommend you finish creating a POPVOX account.</p>
-				{% else %}
-					<p>Welcome to POPVOX! Unfortunately we had trouble locating your address to find your congressional district.</p>
-					<p>First, please complete your POPVOX account:</p>
-				{% endif %}
-				
-				<form class="form" onsubmit="return do_submit(false);">
-					{% csrf_token %}
-					<label for="email">email address</label>
-					<input type="text" class="c3" id="email" name="email" value="{{post.email}}" disabled="1"/>
-					<small>Your email address will only be used to send you notifications about your account including to help you recover a lost password. It will not be shown publicly or shared with third parties.</small>
-					
-					<label for="password">password</label>
-					<input type="password" class="c3" id="password"/><br />
+		<p>Thank you for sharing your opinion using the Write Congress tool from POPVOX.</p>
 		
-					<label for="password2">password again</label>
-					<input type="password" class="c3" id="password2"/><br />
-					<div id="errorlabel_password" class="error"> </div>
+		<p>At this time you can set up your POPVOX account which will let you revise and track the status of your comments on legislation before Congress.</p>
 		
-					<p>Some people prefer to keep their political activity and opinions anonymous on POPVOX, but many of our users choose a POPVOX screen name that reflects something important to them. You may revise your screen name now or at a later time:</p>
+		<form class="form" onsubmit="return do_submit_screename_password(false);">
+			{% csrf_token %}
+			<label for="email">email address</label>
+			<input type="text" class="c3" id="email" name="email" value="{{user.email}}" disabled="1"/>
+			<small>Your email address will not be shown publicly or shared with third parties.</small>
 			
-					<label for="username">screen name</label>
-					<input type="text" size="20" id="username" name="username" value="{{username}}"/>
-					<small>Your screen name is how you are known publicly on POPVOX when you leave a public comment on legislation. Screen names must be at least five characters and cannot contain spaces.</small>
-					<div id="errorlabel_username" class="error"> </div>
-					
-					<p id="errorlabel" class="error" style="display: block">{{error}}</p>
-					
-					<input id="submitbutton"	 type="submit" class="submit" value="Continue"/>
-					
-					<input type="button" class="submit" value="Skip" onclick="window.location=redirect;" style="clear: none; margin-left: 0px;"/>
-				</form>
-				
-				<script>
-				$('#username, #password, #password2').keyup_delayed(function() { do_submit(true) });
-				
-				var redirect = '{{bill.url}}/comment/{% if comment %}share{% else %}finish{% endif %}'
-				
-				function do_submit(validate) {
-					if ($('#password').val() != $('#password2').val() && (!validate || $('#password2').val() != "")) {
-						$('#errorlabel_password').show();
-						$('#errorlabel_password').text("The two password fields don't match.");
-						return false;
-					}
-					
-					ajaxform("/ajax/accounts/profile/updatefields",
-						{ "validate": (validate ? "validate" : "") },
-						{
-							"username": "#username",
-							"password": "#password",
-						},
-						{
-							statusfield: "errorlabel",
-							savebutton: "submitbutton",
-							success: function(res) {
-								if (!validate)
-									document.location = redirect;
-							}
-						}
-						);
-				
-					return false;	
-				}
-				</script>
-			{% else %}
+			<label for="password">password</label>
+			<input type="password" class="c3" id="password"/><br />
+
+			<label for="password2">password again</label>
+			<input type="password" class="c3" id="password2"/><br />
+			<div id="errorlabel_password" class="error"> </div>
+
+			<label for="username">screen name</label>
+			<input type="text" size="20" id="username" name="username" value="{{user.username}}"/>
+			<small>your screen name is how you are known to others visiting POPVOX</small>
+			<div id="errorlabel_username" class="error"> </div>
 			
-				<p>Welcome to POPVOX! Unfortunately we had trouble locating your address to find your congressional district.</p> 
-				
-				<p>On the next screen we will confirm your address. If we can not find your address, we will ask you to locate it on a map.</p>
-				
-				<form class="form" onsubmit="return false">
-					<input type="button" class="submit" value="Continue" onclick="window.location='{{bill.url}}/comment/finish';" style="clear: none; margin-left: 0px;"/>
-				</form>
-			{% endif %}
+			<p id="errorlabel" class="error" style="display: block">{{error}}</p>
 			
-		</div>
-	
+			<input id="submitbutton" type="submit" class="submit" value="Continue"/>
+			
+			<input type="button" class="submit" value="Skip" onclick="$.colorbox.close();"/>
+		</form>
 	</div>
-{% endblock %}
+</div>
+		
+<script>
+$('#username, #password, #password2').keyup_delayed(function() { do_submit(true) });
+
+function do_submit_screename_password(validate) {
+	if ($('#password').val() != $('#password2').val() && (!validate || $('#password2').val() != "")) {
+		$('#errorlabel_password').show();
+		$('#errorlabel_password').text("The two password fields don't match.");
+		return false;
+	}
+	
+	ajaxform("/ajax/accounts/profile/updatefields",
+		{ "validate": (validate ? "validate" : "") },
+		{
+			"username": "#username",
+			"password": "#password",
+		},
+		{
+			statusfield: "errorlabel",
+			savebutton: "submitbutton",
+			success: function(res) {
+				if (!validate)
+					$.colorbox.close();
+			}
+		}
+		);
+
+	return false;	
+}
+
+$(function() {
+	$.colorbox({inline: true, href:"#writecongress_followup", width: 620, height: 550, transition: "none" })
+});
+</script>
 

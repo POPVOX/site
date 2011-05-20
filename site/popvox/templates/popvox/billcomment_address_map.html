@@ -81,13 +81,21 @@
 {% block content %}
 <div class="content">
 
-	{% with "address" as billcomment_progress_step %}
-	{% include "popvox/billcomment_progress.html" %}
-	{% endwith %}
+	{% if mode != "widget_writecongress" %}
+		{% with "address" as billcomment_progress_step %}
+		{% include "popvox/billcomment_progress.html" %}
+		{% endwith %}
+	{% else %}
+		<div class="col_3">
+			<p>Thank you for sharing your opinion using the Write Congress tool from POPVOX.</p>
+			
+			<p>We need more information from you.</p>
+		</div>
+	{% endif %}
 
 	<div class="tab_pane">
 	
-	<form method="post" id="commentform">
+	<form method="post" id="commentform" action="{{bill.url}}/comment/{% if position == "+" %}support{% else %}oppose{% endif %}">
 	
 	{% csrf_token %}
 	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
@@ -97,13 +105,19 @@
 	
 	<h1>Find Your Congressional District</h1>
 	
-		<div class="col_3">
-			<div style="font-size: 12.5px; color: #666">
-			<div>{{useraddress.prefix}} {{useraddress.firstname}} {{useraddress.lastname}} {% if useraddress.suffix %}, {{useraddress.suffix}}{% endif %}</div>
+		<div class="col_3" style="padding-top: 0">
+			{% if mode != "widget_writecongress" %}
+				<p>We couldn't locate your Congressional district using this address.</p>
+			{% else %}
+				<p>We couldn't locate your Congressional district based on the address you entered earlier. We need your help to determine where you live.</p>
+			{% endif %}
+		
+			<div style="font-size: 12px; color: #666">
+			{% comment %}<div>{{useraddress.prefix}} {{useraddress.firstname}} {{useraddress.lastname}} {% if useraddress.suffix %}, {{useraddress.suffix}}{% endif %}</div>{% endcomment %}
 			<div>{{useraddress.address1}}</div>
 			<div>{{useraddress.address2}}</div>
 			<div>{{useraddress.city}}, {{useraddress.state}} {{useraddress.zipcode}}</div>
-			<div>{{useraddress.phonenumber}}</div>
+			{% comment %}<div>{{useraddress.phonenumber}}</div>{% endcomment %}
 			</div>
 			
 			<h3>Find Your Home</h3>

@@ -5012,6 +5012,10 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat; }
 	width: 75px;
 }
 
+.colorbox .form input[type=text], .colorbox .form small {
+	width: 300px;
+}
+
 .howitworks p {
 	line-height: 140%;
 	margin-bottom: 1em;

@@ -559,6 +559,8 @@ def widget_render_writecongress_action(request):
 		axn = WriteCongressEmailVerificationCallback()
 		axn.ocp = ocp
 		axn.post = request.POST
+		axn.password = User.objects.make_random_password()
+		
 		r = send_email_verification(request.POST["email"], None, axn, send_email=not BENCHMARKING)
 
 		# for BENCHMARKING, we want to get the activation link directly
@@ -616,6 +618,7 @@ def widget_render_writecongress_getsubmitparams(post):
 class WriteCongressEmailVerificationCallback:
 	post = None
 	ocp = None
+	password = None
 	
 	def email_subject(self):
 		return "Finish Your Letter to Congress" + (" - " + self.ocp.campaign.org.name + " Needs Your Help" if self.ocp else "")
@@ -623,7 +626,7 @@ class WriteCongressEmailVerificationCallback:
 	def email_body(self):
 		return """%s,
 
-Thank you for sharing your opinion using the POPVOX Write Congress tool.
+Thank you for sharing your opinion using the Write Congress tool from POPVOX.
 
 POPVOX ensures your letter to Congress is most effective by verifying your
 email address before submitting it to your representatives. We may also
@@ -631,19 +634,24 @@ need additional information from you.
 
 To finish your letter to Congress, just follow this link:
 
-<URL>
+     <URL>
 
-If the link is not clickable, please copy and paste it into your web browser.
+If the link is not clickable, please copy and paste it into your web browser.%s
 
 Thanks again,
 
-POPVOX""" % (self.post["useraddress_firstname"], )
+POPVOX""" % (self.post["useraddress_firstname"], ("""
+	
+We've also created an account for you at POPVOX so you can revised
+your comment and check on its status.
+
+     Your POPVOX password is: """ + self.password) if not User.objects.filter(email=self.post["email"]).exists() else "")
 
 	#@require_lock("auth_user", "popvox_userprofile") # prevent race conditions
 	# The lock is too expensive. Making the requests operate in serial is an
 	# enormous hit to the site's overall throughput. We'll take our chances.
 	def create_user(self):
-		# Get or create the User object.		
+		# Get or create the User object.
 		user_is_new = False
 		try:
 			if "userid" in self.post and self.post["userid"] != "":
@@ -665,7 +673,7 @@ POPVOX""" % (self.post["useraddress_firstname"], )
 				if not User.objects.filter(username=username).exists():
 					break
 			
-			user = User.objects.create_user(username, self.post["email"])
+			user = User.objects.create_user(username, self.post["email"], password=self.password)
 			user.save()
 			
 			user_is_new = True
@@ -691,18 +699,18 @@ POPVOX""" % (self.post["useraddress_firstname"], )
 		user = authenticate(user_object = user)
 		login(request, user)
 		
-		# if a comment on the bill exists in the indicated account....
-		comment = None
+		if user_is_new:
+			# The next time the user gets to the bill share page (which might be
+			# right now) we will ask them to provide a new screen name and
+			# set a password.
+			request.session["follow_up"] = "widget-screenname-password"
+		
+		# if a comment on the bill does not exist in the indicated account....
 		bill = Bill.objects.get(id=self.post["bill"])
 		if user.comments.filter(bill=bill).exists():
-			# And if they are already fully registered, then redirect them to their comment share page.
-			if not user_is_new:
-				return HttpResponseRedirect(bill.url() + "/comment/share")
-		
-			# We'll need them to finish registration, but afterwards send them along to the share page.
-			comment = user.comments.get(bill=bill)
-		
-		# Create the comment record.
+			# the session state will be used if we need to pop-up a lightbox
+			# to get more info
+			return HttpResponseRedirect(bill.url() + "/comment/share")
 		else:
 			# Fill in the address.
 			p = PostalAddress()
@@ -712,19 +720,19 @@ POPVOX""" % (self.post["useraddress_firstname"], )
 				from writeyourrep.addressnorm import verify_adddress_cached
 				verify_adddress_cached(p, cdyne_response, validate=False)
 
+			# Get the comment details.
 			referrer, ocp, message = widget_render_writecongress_getsubmitparams(self.post)
 
+			# If the address was OK, save the comment now.
 			if getattr(p, "congressionaldistrict", None) != None:
-				# We have everything we need to save the comment.
 				comment = save_user_comment(user, bill, self.post["position"], referrer, message, p, ocp)
-	
-				if not user_is_new:
-					# The user had an account and all we needed to do was post the comment, so
-					# show the user the pie chart page.
-					return HttpResponseRedirect(bill.url() + "/comment/share")
-					
-			else:
 				
+				# the session state will be used if we need to pop up a lightbox
+				return HttpResponseRedirect(bill.url() + "/comment/share")
+	
+			# Otherwise prepare session state for later and take the user
+			# to the drag-your-home map.
+			else:
 				from bills import pending_comment_session_key
 				request.session[pending_comment_session_key] = {
 					"bill": bill.url(),
@@ -734,15 +742,21 @@ POPVOX""" % (self.post["useraddress_firstname"], )
 				request.session["comment-default-address"] = p
 				if ocp != None:
 					request.session["comment-referrer"] = (bill.id, referrer, None, ocp.id)
-	
-		# Now let the user choose a screen name and password, and then send them to the pie chart
-		# or the address verifcation step.
-		
-		return render_to_response('popvox/widgets/writecongress_followup.html', {
-			"user_is_new": user_is_new,
-			"username": user.username,
-			"post": self.post,
-			"bill": bill,
-			"comment": comment,
-			}, context_instance=RequestContext(request))
+				elif "comment-referrer" in request.session:
+					del request.session["comment-referrer"]
 			
+				from writeyourrep.district_metadata import get_viewport
+				bounds = get_viewport(p)
+				
+				return render_to_response('popvox/billcomment_address_map.html', {
+					'bill': bill,
+					"position": self.post["position"],
+					"message": message,
+					"useraddress": p,
+					"useraddress_prefixes": PostalAddress.PREFIXES,
+					"useraddress_suffixes": PostalAddress.SUFFIXES,
+					"useraddress_states": statelist,
+					"bounds": bounds,
+					"mode": "widget_writecongress",
+					}, context_instance=RequestContext(request))
+

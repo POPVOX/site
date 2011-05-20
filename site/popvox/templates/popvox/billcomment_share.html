@@ -13,9 +13,18 @@
 <div class="content">
 	{% bill_statistics bill as stats %}
 
-	{% with "share" as billcomment_progress_step %}
-	{% include "popvox/billcomment_progress.html" %}
-	{% endwith %}
+	{% if request.session.follow_up != "widget-screenname-password" %}
+		{% with "share" as billcomment_progress_step %}
+		{% include "popvox/billcomment_progress.html" %}
+		{% endwith %}
+	{% else %}
+		<div class="col_3">
+			<p>Thank you for sharing your opinion using the Write Congress tool from POPVOX.</p>
+			<p>Your comment on {{bill.display_number}} has been saved.</p>
+		</div>
+		
+		{% include "popvox/widgets/writecongress_followup.html" %}
+	{% endif %}
 
 	<div class="tab_pane share_some_pie">
 		<div class="col_5">
@@ -30,16 +39,16 @@
 			{% endif %}
 		
 			{% if not stats %}
-				<p class="tip_inline">You are one of the first people to comment on {{bill.displaynumber}}. But you can build support or opposition for this bill by sharing your {% if comment.message %}comment{% else %}position{% endif %} with others.</p>
+				<p class="tip_inline">You are one of the first people to comment on {{bill.displaynumber}}. Build support or opposition for this bill by sharing your {% if comment.message %}comment{% else %}position{% endif %} with others.</p>
 			{% endif %}
 			{% if stats and stats.total <= 50 %}
-				<p class="tip_inline">You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}. But it will take more people than that to get the attention of your Members of Congress. Spread the word with the tools below.</p>
+				<p class="tip_inline">You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}.</p>
 			{% endif %}
 			{% if stats and stats.total > 50 and stats.total <= 200 %}
-				<p class="tip_inline">You nudged the pie chart in your direction by about one percent! This bill is starting to get attention in {{stats.longdescription}} but it will take more people than that to get traction in Congress. Spread the word about {{bill.displaynumber}} with the tools below.</p>
+				<p class="tip_inline">You nudged the pie chart in your direction by about one percent! This bill is starting to get attention in {{stats.longdescription}} but it will take more people than that to get traction in Congress.</p>
 			{% endif %}
 			{% if stats and stats.total > 200 %}
-				<p class="tip_inline">This bill is becoming popular in {{stats.longdescription}} and you nudged the pie chart in your direction. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}} with the tools below.</p>
+				<p class="tip_inline">This bill is becoming popular in {{stats.longdescription}}. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}}.</p>
 			{% endif %}
 		</div>
 		

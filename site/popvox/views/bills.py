@@ -33,7 +33,6 @@ from settings import DEBUG, SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOK
 popular_bills_cache = None
 popular_bills_cache_2 = None
 issue_areas = None
-state_bounds = { }
 
 def getissueareas():
 	# Gets the issue areas in batch.
@@ -746,56 +745,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		address_record.user = request.user
 		address_record.load_from_form(request.POST, validate=False)
 		
-		def http_rest_json(url, args=None, method="GET"):
-			if method == "GET" and args != None:
-				url += "?" + urllib.urlencode(args).encode("utf8")
-			req = urllib2.Request(url)
-			r = urllib2.urlopen(req)
-			return json.load(r, "utf8")
-		
-		bounds = None
-		
-		from math import log, sqrt
-		
-		# First try Google Geocoding on the zipcode to get an approximate location
-		# and a recommended bounding box (which we zoom out a bit).
-		try:
-			info = http_rest_json(
-				"http://maps.googleapis.com/maps/api/geocode/json", {
-				"address": address_record.zipcode, #address_string(),
-				"region": "us",
-				"sensor": "false"
-				  })
-			info = info["results"][0]["geometry"]
-			bounds = info["location"]["lng"], info["location"]["lat"], \
-				round(0 - log(sqrt(
-						(info["viewport"]["northeast"]["lat"]-info["viewport"]["southwest"]["lat"])
-						*(info["viewport"]["northeast"]["lng"]-info["viewport"]["southwest"]["lng"])
-					)/24902.0))
-		except:
-			pass
-		
-		# If Google Geocoding fails, fall back on a default coordinate and zoom
-		# level for the whole state.
-		if bounds == None:
-			if address_record.state in state_bounds:
-				bounds = state_bounds[address_record.state]
-				
-			else:
-				try:
-					info = http_rest_json(
-						"http://www.govtrack.us/perl/wms/list-regions.cgi",
-						{
-						"dataset": "http://www.rdfabout.com/rdf/usgov/us/states",
-						"uri": "http://www.rdfabout.com/rdf/usgov/geo/us/" + address_record.state.lower(),
-						"fields": "coord,area",
-						"format": "json"
-						  })["regions"][0]
-	
-					bounds = info["long"], info["lat"], round(1.5 - log(sqrt(info["area"])/24902.0))
-					state_bounds[address_record.state] = bounds
-				except:
-					pass
+		from writeyourrep.district_metadata import get_viewport
+		bounds = get_viewport(address_record)
         
 		return render_to_response('popvox/billcomment_address_map.html', {
 			'bill': bill,
@@ -1103,6 +1054,10 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	comment_rejected = False
 	if comment.status > UserComment.COMMENT_ACCEPTED and (not request.user.is_authenticated() or (not request.user.is_staff and not request.user.is_superuser)):
 		comment_rejected = True
+
+	# ADD ME IN
+	#if "follow_up" in request.session:
+	#	del request.session["follow_up"]
 
 	return render_to_response(
 			'popvox/billcomment_share.html' if commentid == None else 'popvox/billcomment_view.html', {
