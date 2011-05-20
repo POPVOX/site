@@ -782,7 +782,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 600, 611, 641, 665, 678, 709, 730, 736, 788, 791, 811, 861):
+	if di.id in (121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 600, 607, 611, 641, 665, 678, 709, 730, 736, 788, 791, 811, 861):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
