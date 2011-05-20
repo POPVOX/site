@@ -44,7 +44,7 @@ def wraplines(value, arg):
 	
 	arg0 = re.sub(r" .*", "", arg)
 	
-	return mark_safe("".join(["<" + arg + ">" + urlify(cgi.escape(line)) + "</" + arg0 + ">" for line in value.split("\n") if line.strip() != ""]))
+	return mark_safe("".join(["<" + arg + ">" + urlify(cgi.escape(line)) + "</" + arg0 + ">" for line in value.replace("\r", "\n").split("\n") if line.strip() != ""]))
 
 @register.filter
 @stringfilter
