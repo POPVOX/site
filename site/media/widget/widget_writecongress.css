@@ -222,7 +222,8 @@ a {
 			}
 			
 			#panel_addressform label {
-				height: 35px;
+				height: 30px;
+				padding-top: 5px;
 				}
 				
 		
@@ -291,7 +292,15 @@ a {
 				}
 			#panel_addressform span {
 				display: inline-block;
-				margin-bottom: 5px;
+				margin: 5px 0;
+				}
+				
+			#useraddress_phonenumber {
+				margin-bottom: 10px;
+				}
+				
+			.form small.mrg_top_0 {
+				margin-top: 0;
 				}
 		
 		.form label {
@@ -315,7 +324,7 @@ a {
 			display: block;
 			text-indent: -9999em;
 			font-size: 0; /* IE 7 */
-			margin: 0 0 1em 220px;
+			margin: 0 0 15px 220px;
 			border: none;
 			float: left;
 			}
@@ -501,9 +510,9 @@ a {
 			
 			#msg_preview p.signature {
 				background: url(bg_preview_msg_btm.png) left bottom no-repeat;
-				padding-left: 200px;
+				padding: 10px 0 65px 200px;
 				padding-bottom: 40px;
-				height: 50px;
+				height: 80px;
 				width: 500px; /* prevent wrap */
 				}
 				
@@ -695,6 +704,22 @@ a {
 			border: none;
 			height: 18px;
 			}	
+
+.b_continue {
+	background: url("b_continue.png") repeat scroll 0 0 transparent;
+	display: block;
+	height: 22px;
+	text-indent: -9999em;
+	width: 72px;
+	}
+	
+.b_do_later {
+	background: url("b_do_later.png") repeat scroll 0 0 transparent;
+	display: block;
+	height: 22px;
+	text-indent: -9999em;
+	width: 72px;
+	}
 	
 			
 /* foot */			

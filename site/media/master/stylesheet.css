@@ -4034,7 +4034,12 @@ input.default, textarea.default {
 	margin-bottom: 12px;
 	padding: 3px 5px;
 	width: 448px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	border-radius: 3px;
 	}
+
 	.form input[type='checkbox'] {
 		float: left;
 		margin: 5px 5px 5px 0;

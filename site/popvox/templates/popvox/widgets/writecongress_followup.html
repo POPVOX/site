@@ -2,10 +2,10 @@
 <div style="display: none">
 	<div id="writecongress_followup" class="colorbox" style="width: 540px">
 		<h1>Set Up Your POPVOX Account</h1>
-	
-		<p>Thank you for sharing your opinion using the Write Congress tool from POPVOX.</p>
+
+		<p>Thank you for using POPVOX&rsquo;s Write Congress tool to voice your comment.</p>
 		
-		<p>At this time you can set up your POPVOX account which will let you revise and track the status of your comments on legislation before Congress.</p>
+		<p>Setting up a POPVOX account let&rsquo;s you add to your comment, track the status of a bill and see what the rest of the nation thinks.</p>
 		
 		<form class="form" onsubmit="return do_submit_screename_password(false);">
 			{% csrf_token %}
@@ -22,14 +22,14 @@
 
 			<label for="username">screen name</label>
 			<input type="text" size="20" id="username" name="username" value="{{user.username}}"/>
-			<small>your screen name is how you are known to others visiting POPVOX</small>
+			<small>Other POPVOX users will know you by your screen name.</small>
 			<div id="errorlabel_username" class="error"> </div>
 			
 			<p id="errorlabel" class="error" style="display: block">{{error}}</p>
 			
-			<input id="submitbutton" type="submit" class="submit" value="Continue"/>
+			<input class="submit b_continue" id="submitbutton" type="submit" value="Continue"/>
 			
-			<input type="button" class="submit" value="Skip" onclick="$.colorbox.close();"/>
+			<input class="submit b_do_later" type="button" value="I'll do this later" onclick="$.colorbox.close();"/>
 		</form>
 	</div>
 </div>
