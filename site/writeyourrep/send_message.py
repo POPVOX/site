@@ -290,6 +290,7 @@ common_fieldnames = {
 	"contact[issue_id]": "topicarea",
 	"topic_radio": "topicarea",
 	"subject1_select": "topicarea",
+	"whatisyourgeneraltopic_select": "topicarea",
 	
 	"responserequested": "response_requested",
 	"responserequest": "response_requested",
@@ -782,7 +783,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 600, 607, 611, 641, 665, 678, 709, 730, 736, 788, 791, 811, 861):
+	if di.id in (121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 588, 600, 607, 611, 641, 665, 678, 709, 730, 736, 788, 791, 811, 837, 861, 869):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -1029,6 +1030,7 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 	msg.phone_areacode = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[0:3]
 	msg.phone_prefix = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[3:6]
 	msg.phone_line = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[6:10]
+	if govtrackrecipientid == 400633 and len(msg.phone) > 0 and msg.phone[0] == '1': msg.phone = msg.phone[1:]
 
 	# Begin the delivery attempt.
 	try:

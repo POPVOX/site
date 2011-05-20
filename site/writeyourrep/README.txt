@@ -112,6 +112,9 @@ Some environment variable settings can help with debugging:
 	
 	LAST_ERR_SR=1 popvox/wyr/send_comments.py send
 	send only messages that had a previous synonym required failure
+
+	LAST_ERR_TIMEOUT=1 popvox/wyr/send_comments.py send
+	send only messages that had a previous HTTP timeout failure
 	
 Field Name Configuration
 ==============

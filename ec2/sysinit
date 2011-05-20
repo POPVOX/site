@@ -34,7 +34,7 @@ apt-get install -y \
  python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml sphinxsearch \
  memcached python-memcache \
  python-mechanize python-matplotlib \
- texlive-latex-base texlive-latex-recommended fontconfig ttf-linux-libertine
+ texlive-latex-base texlive-latex-recommended texlive-xetex fontconfig ttf-linux-libertine
 
 ## Custom packages
 #DJANGO=python-django_1.2.5-1ubuntu1_all.deb
