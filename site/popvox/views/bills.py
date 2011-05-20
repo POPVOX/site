@@ -801,15 +801,11 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				address_record.longitude = float(request.POST["longitude"])
 				
 				# But we have to convert the coordinate to a district...
-				url = "http://www.govtrack.us/perl/district-lookup.cgi?" + urllib.urlencode({"lat": address_record.latitude, "long": address_record.longitude })
-				ret = minidom.parse(urllib2.urlopen(urllib2.Request(url)))
-				try:
-					state = ret.getElementsByTagName("state")[0].firstChild.data
-					if state != address_record.state:
-						raise ValueError("You moved the marker to a location outside of the state indicated in your address.")
-					address_record.congressionaldistrict = ret.getElementsByTagName("district")[0].firstChild.data
-				except: # XML is missing district info, so coordinate is not even in a district
+				from writeyourrep.district_lookup import district_lookup_coordinate
+				ret = district_lookup_coordinate(address_record.longitude, address_record.latitude,)
+				if ret == None or ret[0] != address_record.state:
 					raise ValueError("You moved the marker to a location outside of the state indicated in your address.")
+				address_record.congressionaldistrict = ret[1]
 				
 			elif BENCHMARKING:
 				address_record.congressionaldistrict = -1

@@ -1,3 +1,8 @@
+#!runscript
+
+import sys
+sys.path.append('../libs/primary-maps-2008')
+
 import pickle
 import base64
 
@@ -20,18 +25,24 @@ statefips = {
 	
 cursor = connection.cursor()
 cursor.execute("DROP TABLE IF EXISTS congressionaldistrictpolygons")
-cursor.execute("CREATE TABLE congressionaldistrictpolygons (state VARCHAR(2), district TINYINT, swlong DOUBLE, swlat DOUBLE, nelong DOUBLE, nelat DOUBLE, pointspickle LONGTEXT)")
-cursor.execute("CREATE INDEX swlong  ON congressionaldistrictpolygons (swlong)")
-cursor.execute("CREATE INDEX nwlong ON congressionaldistrictpolygons (nelong)")
+cursor.execute("CREATE TABLE congressionaldistrictpolygons (state VARCHAR(2), district TINYINT, bbox POLYGON NOT NULL, pointspickle LONGTEXT)")
+cursor.execute("CREATE SPATIAL INDEX bbox_index ON congressionaldistrictpolygons (bbox)")
 
-for st in statefips.keys():
-	shpRecords = shpUtils.loadShapefile(settings.DATADIR + "gis/tl_2009_%02d_cd111.shp" % st)
-	for district in shpRecords["features"]:
-		state = statefips[int(district["info"]["STATEFP"])]
-		cd = int(district["info"]["CD111FP"])
-		if cd in (98, 99):
-			cd = 0
-		for part in district["shape"]["parts"]:
-			print state, cd
-			cursor.execute("INSERT INTO congressionaldistrictpolygons VALUES(%s, %s, %s, %s, %s, %s, %s)", [state, cd, part["bounds"][0][0], part["bounds"][0][1], part["bounds"][1][0], part["bounds"][1][1], base64.b64encode(pickle.dumps(part["points"]))])
+shpRecords = shpUtils.loadShapefile("/mnt/persistent/gis/tl_2010_us_cd111.shp")
+for district in shpRecords["features"]:
+	state = statefips[int(district["info"]["STATEFP10"])]
+	cd = int(district["info"]["CD111FP"])
+	if cd in (98, 99):
+		cd = 0
+	for part in district["shape"]["parts"]:
+		print state, cd, part["bounds"]
+		cursor.execute("INSERT INTO congressionaldistrictpolygons VALUES(%s, %s, GeomFromText('POLYGON((%s %s, %s %s, %s %s, %s %s, %s %s))'), %s)",
+			[state, cd,
+				# the point order matters for district_metadata: 1: southwest 2: ... 3: northeast 4: ...
+			 part["bounds"][0][0], part["bounds"][0][1],
+			 part["bounds"][1][0], part["bounds"][0][1],
+			 part["bounds"][1][0], part["bounds"][1][1],
+			 part["bounds"][0][0], part["bounds"][1][1],
+			 part["bounds"][0][0], part["bounds"][0][1],
+			 base64.b64encode(pickle.dumps(part["points"]))])
 

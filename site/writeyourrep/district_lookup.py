@@ -4,7 +4,7 @@ from django.db import connection
 
 from jquery.ajax import json_response, ajax_fieldupdate_request
 
-import pickle
+import cPickle
 import base64
 from xml.dom import minidom
 from urllib import urlopen, urlencode, quote_plus
@@ -23,75 +23,101 @@ def district_lookup(request):
 	remoteapi = getattr(settings, "DISTRICT_LOOKUP_API", None)
 	if remoteapi != None:
 		import simplejson
-		return simplejson.loads(urlopen(remoteapi, urlencode(request.POST)).read())
+		return simplejson.loads(urlopen(remoteapi, urlencode(request.REQUEST)).read())
 	
-	if "zipcode" in request.POST:
+	if "zipcode" in request.REQUEST:
 		# take only the digits in the zipcode
-		zipcode = "".join([ d for d in request.POST["zipcode"] if d.isdigit() ])
+		zipcode = "".join([ d for d in request.REQUEST["zipcode"] if d.isdigit() ])
 		if len(zipcode) in (5, 9):
-			cursor = connection.cursor()
-			
-			# Get the first record that is lexicographically equal to or preceding
-			# the supplied zipcode.
-			cursor.execute("SELECT state, district, zip9 FROM zipcodes WHERE zip9 <= %s ORDER BY zip9 DESC LIMIT 1", [zipcode])
-			rows = cursor.fetchall()
-			
-			if len(rows) == 1:
-				# If the resulting row matches the zipcode exactly, then we have an exact
-				# match record, but that's rare since most zipcodes aren't actually
-				# in the database.
-				#	
-				# If the resulting row is not an exact match, then this zipcode is not
-				# in the database. Either a more precise ZIP+9 prefix is in the database
-				# (if zipcode is 5-digit) or a less precise ZIP+9 prefix is in the database.
-				# If a more precise ZIP code is in the database, then the ZIP code spans
-				# multiple districts and we are free to return a not-found. If a less precise
-				# ZIP code is in the database then it is going to be the lexicographically
-				# preceding one.
-				if rows[0][2] == zipcode[0:len(rows[0][2])]:
-					return { "status": "success", "method": "zipcode", "state": rows[0][0], "district": rows[0][1] }
-					
-	lat = request.POST.get("lat", None)
-	lng = request.POST.get("lng", None)
-	fromaddress = False
-					
-	if "address" in request.POST:
-		addr = request.POST["address"].strip()
+			ret = district_lookup_zipcode(zipcode)
+			if ret != None:
+				return { "status": "success", "method": "zipcode", "state": ret[0], "district": ret[1] }
+
+	if "address" in request.REQUEST:
+		addr = request.REQUEST["address"].strip()
 		
 		addr = addr.replace("\r", "\n")
 		addr = addr.replace("\n\n", "\n")
 		
-		# Use the Google API to geocode. Note that we have to display the
-		# result on a map to satisfy TOS and it is rate limited to 2,500 per day.
-		data = minidom.parse(urlopen("http://maps.googleapis.com/maps/api/geocode/xml?address=" + quote_plus(addr.encode('utf-8')) + "&region=us&sensor=false"))
-		if data.getElementsByTagName("status")[0].firstChild.data == "ZERO_RESULTS":
-			return { "status": "fail", "msg": "Sorry I couldn't find your congressional district." }
-		elif data.getElementsByTagName("status")[0].firstChild.data == "OVER_QUERY_LIMIT":
-			return { "status": "fail", "msg": "Sorry, district lookups are unavailable at this time." }
-		elif data.getElementsByTagName("status")[0].firstChild.data == "OK":
-			r = data.getElementsByTagName("location")
-			if len(r) == 1:
-				lat = r[0].getElementsByTagName("lat")[0].firstChild.data
-				lng = r[0].getElementsByTagName("lng")[0].firstChild.data
-				fromaddress = True
-			
+		ret = district_lookup_address(addr)
+		if ret != None:
+			return { "status": "success", "method": "address", "state": ret[2], "district": ret[3], "latitude": ret[0], "longitude": ret[1] }
+		
+	lat = request.REQUEST.get("lat", None)
+	lng = request.REQUEST.get("lng", None)
 	if lat != None and lng != None:
-		# Find all of the districts whose bounding box contains the point.
-		cursor = connection.cursor()
-		cursor.execute("SELECT state, district, pointspickle FROM congressionaldistrictpolygons WHERE swlong <= %s and nelong >= %s and swlat <= %s and nelat >= %s", [lng, lng, lat, lat])
-		rows = cursor.fetchall()
-		
-		# If there's just one row, that must be the right district.
-		if len(rows) == 1:
-			return { "status": "success", "method": "coordinate", "state": rows[0][0], "district": rows[0][1] }
+		ret = district_lookup_coordinate(lng, lat)
+		if ret != None:
+			return { "status": "success", "method": "coordinate", "state": ret[0], "district": ret[1] }
+
+	return { "status": "fail", "msg": "District lookup failed." }
+
+def district_lookup_zipcode(zipcode):
+	cursor = connection.cursor()
 			
-		# Otherwise, we need to do a point-in-polygon test for each polygon.
-		for row in rows:
-			poly = pickle.loads(base64.b64decode(row[2]))
-			if point_in_poly(float(lng), float(lat), poly):
-				return { "status": "success", "method": "coordinate" if not fromaddress else "address", "state": row[0], "district": row[1], "lat": lat, "lng": lng }
-		
-	return { "status": "fail", "msg": "Sorry I couldn't find your congressional district." }
+	# Get the first record that is lexicographically equal to or preceding
+	# the supplied zipcode.
+	cursor.execute("SELECT state, district, zip9 FROM zipcodes WHERE zip9 <= %s ORDER BY zip9 DESC LIMIT 1", [zipcode])
+	rows = cursor.fetchall()
+			
+	if len(rows) == 1:
+		# If the resulting row matches the zipcode exactly, then we have an exact
+		# match record, but that's rare since most zipcodes aren't actually
+		# in the database.
+		#	
+		# If the resulting row is not an exact match, then this zipcode is not
+		# in the database. Either a more precise ZIP+9 prefix is in the database
+		# (if zipcode is 5-digit) or a less precise ZIP+9 prefix is in the database.
+		# If a more precise ZIP code is in the database, then the ZIP code spans
+		# multiple districts and we are free to return a not-found. If a less precise
+		# ZIP code is in the database then it is going to be the lexicographically
+		# preceding one.
+		if rows[0][2] == zipcode[0:len(rows[0][2])]:
+			return rows[0][0], rows[0][1]
+
+	return None
+
+def district_lookup_address(addr):
+	# Use the Google API to geocode. Note that we have to display the
+	# result on a map to satisfy TOS and it is rate limited to 2,500 per day.
+	data = minidom.parse(urlopen("http://maps.googleapis.com/maps/api/geocode/xml?address=" + quote_plus(addr.encode('utf-8')) + "&region=us&sensor=false"))
+	if data.getElementsByTagName("status")[0].firstChild.data == "ZERO_RESULTS":
+		return None #{ "status": "fail", "msg": "Sorry I couldn't find your congressional district." }
+	elif data.getElementsByTagName("status")[0].firstChild.data == "OVER_QUERY_LIMIT":
+		return None #{ "status": "fail", "msg": "Sorry, district lookups are unavailable at this time." }
+	elif data.getElementsByTagName("status")[0].firstChild.data == "OK":
+		r = data.getElementsByTagName("location")
+		if len(r) == 1:
+			lat = r[0].getElementsByTagName("lat")[0].firstChild.data
+			lng = r[0].getElementsByTagName("lng")[0].firstChild.data
+			ret = district_lookup_coordinate(lng, lat)
+			if ret == None:
+				return None
+			return lat, lng, ret[0], ret[1]
+	return None
+
+def district_lookup_coordinate(lng, lat):
+	# Find all of the districts whose bounding box contains the point.
+	cursor = connection.cursor()
+	cursor.execute("SELECT state, district FROM congressionaldistrictpolygons WHERE MBRContains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])
+	rows = cursor.fetchall()
+
+	# If there's just one distinct state/district pair, that must be the right district. There
+	# can be multiple polygons for the same district.
+	rets = set((row[0], row[1]) for row in rows)
+	if len(rets) == 1:
+		return rows[0]
+			
+	# Otherwise, we need to do a point-in-polygon test for each polygon.
+	# Most times the point will be in a unique bounding box and we won't get this far, so we delay pulling the polygon itself until this point.
+	cursor.execute("SELECT state, district, pointspickle FROM congressionaldistrictpolygons WHERE MBRContains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])
+	rows = cursor.fetchall()
+	for row in rows:
+		poly = cPickle.loads(base64.b64decode(row[2]))
+		if point_in_poly(float(lng), float(lat), poly):
+			return row[0], row[1]
+
+	return None
 
 def point_in_poly(x, y, poly):
     # ray casting method
@@ -127,6 +153,8 @@ def get_state_for_zipcode(zipcode):
 	if len(rows) == 1 and rows[0][2] == zipcode[0:len(rows[0][2])]:
 		return rows[0][0]
 
+	# This zipcode is split between districts, or doesn't occur in the database. But since zipcodes don't
+	# span states, we can return the state of the first zipcode entry that this zipcode is a prefix of.
 	# Get the first record that is lexicographically after the supplied zipcode which this
 	# zipcode is a prefix of.
 	cursor.execute("SELECT state, district, zip9 FROM zipcodes WHERE zip9 > %s ORDER BY zip9  LIMIT 1", [zipcode])
@@ -136,3 +164,4 @@ def get_state_for_zipcode(zipcode):
 
 	return None
 
+	
