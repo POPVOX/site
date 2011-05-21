@@ -636,7 +636,7 @@ To finish your letter to Congress, just follow this link:
 
      <URL>
 
-If the link is not clickable, please copy and paste it into your web browser.%s
+     If the link is not clickable, please copy and paste it into your web browser.%s
 
 Thanks again,
 

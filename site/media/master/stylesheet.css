@@ -5016,17 +5016,6 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat; }
 	width: 300px;
 }
 
-.howitworks p {
-	line-height: 140%;
-	margin-bottom: 1em;
-}
-.howitworks h2 {
-	font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
-	margin: 1.25em 0 .5em;
-	border-bottom: 1px solid #AAA;
-	color: #555;
-}
-
 .tooltip {
 	display:none;
 	background:transparent url(/media/master/tooltip_bg.png);
