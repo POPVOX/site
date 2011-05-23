@@ -638,17 +638,13 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			request.session["comment-referrer"] = (bill.id, billpos.campaign, None, billpos.id if "share_with_org" in request.POST else None)
 			request.session["comment-default-address"] = (request.POST["name_first"], request.POST["name_last"], request.POST["zip"], request.POST["email"])
 			if "share_with_org" in request.POST:
-				rec = OrgCampaignPositionActionRecord()
-				rec.ocp = billpos
-				rec.firstname = request.POST["name_first"]
-				rec.lastname = request.POST["name_last"]
-				rec.zipcode = request.POST["zip"]
-				rec.email = request.POST["email"]
-				try:
-					rec.save()
-				except Exception, e:
-					# Hmm.
-					pass
+				rec, created = OrgCampaignPositionActionRecord.objects.get_or_create(
+					ocp = billpos,
+					email = request.POST["email"],
+					defaults={
+						"firstname": request.POST["name_first"],
+						"lastname": request.POST["name_last"],
+						"zipcode": request.POST["zip"] } )
 	
 		request.session.set_test_cookie() # tested in on the client side
 		return render_to_response('popvox/billcomment_start.html', {
@@ -1614,12 +1610,14 @@ def getbillshorturl(request):
 			
 		owner = pos.campaign
 		bill = pos.bill
-	else:
+	elif "billid" in request.POST:
 		if request.user.is_authenticated():
 			owner = request.user
 		else:
 			owner = None
 		bill = get_object_or_404(Bill, id=request.POST["billid"])
+	else:
+		raise Http404()
 	
 	import shorturl
 	surl, created = shorturl.models.Record.objects.get_or_create(owner=owner, target=bill)
