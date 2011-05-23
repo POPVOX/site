@@ -1,9 +1,9 @@
 {% comment %} This is the lightbox that appears on the comment share page when we need to ask the user to set a screen name and password.{% endcomment %}
 <div style="display: none">
-	<div id="writecongress_followup" class="colorbox" style="width: 540px">
+	<div id="writecongress_followup" class="colorbox" style="width: 500px">
 		<h1>Set Up Your POPVOX Account</h1>
 
-		<p>Thank you for using POPVOX&rsquo;s Write Congress tool to voice your comment.</p>
+		<h2>Thank you for using POPVOX&rsquo;s Write Congress tool to voice your comment.</h2>
 		
 		<p>Setting up a POPVOX account let&rsquo;s you add to your comment, track the status of a bill and see what the rest of the nation thinks.</p>
 		
@@ -20,16 +20,16 @@
 			<input type="password" class="c3" id="password2"/><br />
 			<div id="errorlabel_password" class="error"> </div>
 
-			<label for="username">screen name</label>
-			<input type="text" size="20" id="username" name="username" value="{{user.username}}"/>
-			<small>Other POPVOX users will know you by your screen name.</small>
+			<label class="username" for="username">screen name</label>
+			<input type="text" size="20" id="username" class="username" name="username" value="{{user.username}}"/>
+			<small class="pad_btm_20">Other POPVOX users will know you by your screen name.</small>
 			<div id="errorlabel_username" class="error"> </div>
 			
 			<p id="errorlabel" class="error" style="display: block">{{error}}</p>
 			
+			<input class="submit b_do_later" type="button" value="I'll do this later" onclick="$.colorbox.close();"/>
 			<input class="submit b_continue" id="submitbutton" type="submit" value="Continue"/>
 			
-			<input class="submit b_do_later" type="button" value="I'll do this later" onclick="$.colorbox.close();"/>
 		</form>
 	</div>
 </div>

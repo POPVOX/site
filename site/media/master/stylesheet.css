@@ -5021,6 +5021,75 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat; }
 	width: 300px;
 }
 
+
+.colorbox .form label {
+	width: 100px;
+	}
+	
+.colorbox .form small {
+	margin-left: 120px;
+	}
+
+#writecongress_followup {
+	padding: 20px;
+	}
+	
+#writecongress_followup .form {
+	margin-top: 20px;
+	}
+
+#writecongress_followup small {
+	margin-bottom: 10px;
+	}
+
+	#writecongress_followup small.pad_btm_20 {
+		margin-bottom: 20px;
+		}
+	
+.form input.c3#password2 {
+	margin-bottom: 20px;
+	}
+	
+	.form .submit.b_continue {
+		background: url("b_continue.png") no-repeat left top;
+		display: block;
+	    float: left;
+	    width: 97px;
+	    height: 22px;
+	    border: 0;
+	    text-indent: -9999em;
+	    margin: 0 0 0 120px;
+	    }
+
+	.form .submit.b_do_later {
+		background: url("b_do_later.png") no-repeat left top;
+		display: block;
+	    float: right;
+	    width: 140px;
+	    height: 22px;
+	    margin: 0 135px 0 0;
+	    border: 0;
+	    text-indent: -9999em;
+	    }
+	    
+	    .form .submit.b_continue:hover,
+	    .form .submit.b_do_later:hover {
+	    	cursor: pointer;
+	    	background-position: left bottom;
+	    	} 
+
+
+.howitworks p {
+	line-height: 140%;
+	margin-bottom: 1em;
+}
+.howitworks h2 {
+	font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	margin: 1.25em 0 .5em;
+	border-bottom: 1px solid #AAA;
+	color: #555;
+}
+
 .tooltip {
 	display:none;
 	background:transparent url(/media/master/tooltip_bg.png);
