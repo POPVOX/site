@@ -93,11 +93,14 @@ urlpatterns = patterns('',
 	(r'^services/widgets$', "popvox.views.services.widget_config"),
 	(r'^services/widgets/w/(?P<widgettype>commentstream|writecongress)$', "popvox.views.services.widget_render"),
 	(r'^services/widgets/w/account/(?P<api_key>.{16})/(?P<widgettype>commentstream|writecongress)$', "popvox.views.services.widget_render"), # separate URL prefix aids caching vary by referrer for API key validation
+	(r'^ajax/services/setopt$', "popvox.views.services.service_account_set_option"),
+	
 
 	(r'^ajax/district-lookup$', 'writeyourrep.district_lookup.district_lookup'),
 
 	(r'^embed/org/check_api_key', 'popvox.views.embed.org_check_api_key'),
 	(r'^embed/salsa/org/legagenda', 'popvox.views.embed.salsa_legagenda'),
+	(r'^embed/fb_page', 'popvox.views.embed.facebook_page'),
 	
 	(r'^wyr/', include('writeyourrep.urls')),
 	(r'^ajax/phone_number_twilio/', include('phone_number_twilio.urls')),

@@ -699,17 +699,10 @@ class UserProfile(models.Model):
 			self.save()
 			
 	def service_accounts(self):
-		accounts = []
-		try:
-			accounts.append(self.user.serviceaccount)
-		except ServiceAccount.DoesNotExist:
-			pass
+		ret = ServiceAccount.objects.filter(user = self.user)
 		for role in self.user.orgroles.all():
-			try:
-				accounts.append(role.org.serviceaccount)
-			except ServiceAccount.DoesNotExist:
-				pass
-		return accounts
+			ret |= ServiceAccount.objects.filter(org = role.org)
+		return ret
 		
 	
 def user_saved_callback(sender, instance, created, **kwargs):
@@ -1190,25 +1183,54 @@ class ServiceAccount(models.Model):
 	permissions = models.ManyToManyField(ServiceAccountPermission, blank=True)
 	notes = models.TextField(blank=True)
 	hosts = models.TextField(blank=True, help_text="Restrict the widget to appearing on sites at these domain names. Put domain names each on a separate line. You do not need to include the www.")
+	fb_page_id = models.CharField(max_length=24, blank=True, null=True, unique=True, db_index=True, help_text="The numeric ID of the Facebook Page that widgets may appear on for this account.")
 	
 	# this is a public key used in the URLs of widgets to identify this service account,
 	# and it should be matched against a referrer URL to verify it is being used with
 	# permission of the owner
 	api_key = models.CharField(max_length=16, blank=True, unique=True, db_index=True)
-	
+
+	# this is a private key
+	secret_key = models.CharField(max_length=16, blank=True, unique=True, db_index=True)
+
+	options = PickledObjectField(default={})
+
 	def __unicode__(self):
 		if self.user: return unicode(self.user)
 		if self.org: return unicode(self.org)
 		return "Anonymous ServiceAccount"
 		
 	def save(self, *args, **kwargs):
+		# initialize keys
 		if not self.api_key:
 			import random
 			self.api_key = ''.join(random.choice(("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")) for x in range(16))
+		if not self.secret_key:
+			import random
+			self.secret_key = ''.join(random.choice(("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")) for x in range(16))
+		
 		super(ServiceAccount, self).save(*args, **kwargs)
 
 	def has_permission(self, name):
 		return self.permissions.filter(name=name).exists()
+		
+	def getopt(self, key, default=None):
+		if self.options == None or type(self.options) == str: # not initialized (null or empty string)
+			return default
+		if key in self.options:
+			return self.options[key]
+		else:
+			return default
+			
+	def setopt(self, key, value, save=True):
+		if self.options == None or type(self.options) == str: # not initialized (null or empty string)
+			self.options = { }
+		if value != None:
+			self.options[key] = value
+		elif key in self.options:
+			del self.options[key]
+		if save:
+			self.save()
 
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people

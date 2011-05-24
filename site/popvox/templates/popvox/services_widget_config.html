@@ -33,18 +33,22 @@
 var accounts = [
 	{% for account in accounts %}
 	{
+		id: {{account.id}},
 		name: "{{account|escapejs}}",
-		key: "{{account.api_key|escapejs}}",
+		api_key: "{{account.api_key|escapejs}}",
+		secret_key: "{{account.secret_key|escapejs}}",
 		permissions: {% templatetag openbrace %}{% for p in account.permissions.all %}"{{p.name|escapejs}}": true{% if not forloop.last %}, {% endif %}{% endfor %}},
 		bill_positions: [{% for p in account.org.positions_can_comment %}
 				{% templatetag openbrace %} id: {{p.id}},
 				campaign: {% if p.campaign.default %}null{% else %}"{{p.campaign.name|truncatewords:3|escapejs}}"{% endif %},
 					position: "{{p.position}}",
-					bill: "{{p.bill.title|truncatewords:6|escapejs}}" {% templatetag closebrace %}{% if not forloop.last %},{% endif %}{% endfor %} ]
+					bill: "{{p.bill.title|truncatewords:6|escapejs}}" {% templatetag closebrace %}{% if not forloop.last %},{% endif %}{% endfor %} ],
+		has_fb_page: {% if account.fb_page_id %}true{% else %}false{% endif %}
 	}{% if not forloop.last %},{% endif %}
 	{% endfor %}
 ];
 
+var current_account;
 var widgettype;
 
 function change_widget(tab) {
@@ -56,6 +60,7 @@ function change_widget(tab) {
 	$('.widget_opts').hide();
 	$('.' + widgettype + '_opts').show();
 
+	$('.preview_pane').show();
 	$('.preview_pane iframe').hide();
 	
 	if (widgettype == "commentstream") {
@@ -67,14 +72,17 @@ function change_widget(tab) {
 
 	if (widgettype == "writecongress") {
 		$('#widget_description').html("The Write Congress Widget can be placed on your website to power letter-writing calls to action.");
-
-		//$('.config_pane').attr('style', 'width: 400px');
-		//$('.preview_pane').attr('style', 'width: 460px');
+		$('#code').css({width: "450px"});
 		$('.config_pane').animate({width: '400px'});
 		$('.preview_pane').animate({width: '460px'});
-		$('#code').css({width: "450px"});
 	}
 	
+	if (widgettype == "integration") {
+		$('#widget_description').html("POPVOX widgets can be integrated into several other services.");
+		$('.preview_pane').hide();
+		$('.config_pane').animate({width: '640px'});
+	}
+
 	//update_preview();
 	window.setTimeout("update_preview()", 600);
 	
@@ -83,14 +91,23 @@ function change_widget(tab) {
 
 function account_changed() {
 	var permissions = [];
+	var fb_enabled = false;
 	
+	$('.secret_key').text("<not available with a free account>");
+	
+	current_account = null;
 	{% if accounts|length > 0 %}
 	var acct_idx = $('#serviceaccount').val();
-	if (acct_idx != "")
+	if (acct_idx != "") {
+		current_account = accounts[acct_idx].id;
 		permissions = accounts[acct_idx].permissions;
+		fb_enabled = accounts[acct_idx].has_fb_page;
+		$('.secret_key').text(accounts[acct_idx].secret_key);
+	}
 	{% endif %}
 		
 	plus_enabled = permissions["commentstream_theme"];
+	fb_enabled &= permissions["fb_page"];
 	
 	if (plus_enabled) $('.plus .panel').removeClass("disabled"); else $('.plus .panel').addClass("disabled");
 	$('.plus input').attr("disabled", plus_enabled ? '' : '1')
@@ -117,10 +134,16 @@ function account_changed() {
 	}
 	{% endif %}
 	
+	if (!fb_enabled)
+		$('#fb_page').hide();
+	else
+		$('#fb_page').show();
+	
 	update_preview();
 }
 
 var last_preview_html = "";
+var fb_code = "";
 
 function update_preview() {
 	var opts = "";
@@ -220,12 +243,12 @@ function update_preview() {
 		else
 			opts += "&scroll=animate";*/
 		
-		account = accounts[$('#serviceaccount').val()].key
+		account = accounts[$('#serviceaccount').val()].api_key
 	}
 	{% endif %}
 		
 	function make_code(host, width, height, demo) {
-		return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + (demo ? "&demo=1{% if user.is_staff %}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+		return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + "&user_info=" + (demo ? "&demo=1{% if user.is_staff %}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
 	}
 
 	var prv = make_code("", default_width, default_height, true);
@@ -234,7 +257,43 @@ function update_preview() {
 
 	$('#code').val(make_code("https://www.popvox.com", width, height, false));
 
+	fb_code = make_code("https://www.popvox.com", "520", height, false);
+	
 	$('.preview_pane iframe').show();
+
+	$('#fb_page a').show();
+	$('#fb_page span').hide();
+}
+
+function set_fb_page_code() {
+	$('#fb_page a').hide();
+	$('#fb_page span').show();
+	$('#fb_page span').text("Saving...");
+
+	$.ajax({
+			url: "/ajax/services/setopt",
+			data: {
+				account: current_account,
+				name: "fb_page_code",
+				value: $('#code').val()
+			},
+			type: "POST",
+			dataType: "json",
+			success: function(data, textStatus, jqXHR) {
+				if (data.status == "fail") {
+					$('#fb_page a').show();
+					$('#fb_page span').text(data.msg);
+				} else {
+					$('#fb_page span').text("Your Facebook tab has been updated.");
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$('#fb_page a').show();
+				$('#fb_page span').text("We're having technical difficulties.");
+			}
+		});
+
+	return false;
 }
 
 $(function() {
@@ -274,6 +333,8 @@ var minicolors_opts = {
 	<ul class="tabs">
 		<li><a href="#" onclick="return change_widget(this);" widget="commentstream"><span>Comment Stream</span></a></li>
 		<li><a href="#" onclick="return change_widget(this);" widget="writecongress"><span>Write Congress</span></a></li>
+		
+		<li><a href="#" onclick="return change_widget(this);" widget="integration"><span>Integrations</span></a></li>
 	</ul>
 	
 	<div class="config_pane">
@@ -336,7 +397,7 @@ var minicolors_opts = {
 				<div id="writecongress_bill_error" class="error"> </div>
 			</div><!-- e: block -->
 			
-			<div class="block3">
+			<div class="block3 widget_opts commentstream_opts writecongress_opts">
 				<!--<h4>Basic </h4><p class="free">(free)</p>-->
 				<h5 class="clear">Widget Dimensions</h5>
 				<div class="vert">
@@ -362,7 +423,7 @@ var minicolors_opts = {
 				<div class="clear"> </div>
 			</div><!-- e: block2 -->
 			
-			<div class="plus">
+			<div class="plus widget_opts commentstream_opts writecongress_opts">
 				<h4>PLUS <span class="small"><a href="mailto:info@popvox.com">contact us for details</a></span></h4> <!--<p class="b_upgrade btn"><a href="#">upgrade</a>--></p>
 				<div class="clear"> </div>
 				
@@ -415,6 +476,21 @@ var minicolors_opts = {
 					<label for="commentstream_scrollmode_animate">Animate</label>
 				</div>
 -->			</div>
+
+				<div class="widget_opts integration_opts">
+					<h2>Facebook</h2>
+					<p>With a service plan, any POPVOX widget can be embedded into a &ldquo;POPVOX&rdquo; tab on a Facebook Page. Facebook allows you to include a single POPVOX tab with a single widget on your page. To add a POPVOX tab:</p>
+					<ul class="bullets">
+						<li>Visit the <a href="http://www.facebook.com/apps/application.php?id=150910028257528">POPVOX Facebook App</a> page.</li>
+						<li>Click <em>Add to My Page</em> in the lower left list of links.</li>
+						<li>Visit your page and click on the new POPVOX tab.</li>
+						<li>When prompted, enter your service account secret password <b class="secret_key">xxxx</b>. Do not share this password.</li>
+						<li>You&rsquo;ll then return to this page to publish a widget to your Facebook page.</li>
+					</ul>
+					
+					<h2>Salsa and Convio</h2>
+					<p>Coming soon.</p>
+				</div>
 		</form><!-- e: form -->
 	</div>
 	
@@ -422,10 +498,15 @@ var minicolors_opts = {
 		<!--<a class="b_copy_code btn" href="#">Copy Code</a>-->
 		<h3 class="no_rule">Preview</h3>
 
-		<div class="xxhide">
+		<div>
 			<p>Copy and paste the following HTML code into your website:</p>
 			<textarea id="code" rows="4" style="width: 230px; margin-bottom: 15px; padding: 5px;"> </textarea>
 		</div>
+		
+		<div id="fb_page">
+			<p><b>Facebook Page:</b> <a href="#" onclick="return set_fb_page_code()">Publish</a> <span style="display: none">Saving...</span></p>
+		</div>
+		
 		<div id="preview">
 		</div>
 	</div>

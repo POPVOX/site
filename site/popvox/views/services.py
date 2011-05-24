@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.forms import ValidationError
 from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -17,7 +18,7 @@ from utils import require_lock, csrf_protect_if_logged_in
 from registration.helpers import validate_email, validate_password
 from emailverification.utils import send_email_verification
 
-from jquery.ajax import json_response, validation_error_message
+from jquery.ajax import json_response, validation_error_message, ajax_fieldupdate_request
 
 from settings import DEBUG, SITE_ROOT_URL
 
@@ -26,7 +27,9 @@ import json
 import re
 import random
 from itertools import chain
+from base64 import urlsafe_b64decode
 
+@csrf_protect_if_logged_in
 def widget_config(request):
 	# Collect all of the ServiceAccounts that the user has access to.
 	
@@ -37,6 +40,24 @@ def widget_config(request):
 		"states": statelist,
 		"current_congress": CURRENT_CONGRESS,
 		}, context_instance=RequestContext(request))
+
+@csrf_protect
+@json_response
+@ajax_fieldupdate_request
+@login_required
+def service_account_set_option(request, field, value, validate_only):
+	acct = request.user.userprofile.service_accounts().filter(id=request.POST["account"])
+	if len(acct) == 0:
+		raise Http404()
+	acct = acct[0]
+	
+	if field == "fb_page_code":
+		if validate_only:
+			return { "status": "success" }
+		acct.setopt("fb_page_code", value)
+		return { "status": "success" }
+	else:
+		raise Exception("Bad request: Invalid field.")
 
 def validate_widget_request(request, api_key):
 	if not api_key:
@@ -261,6 +282,11 @@ def widget_render_writecongress(request, account, permissions):
 			if len(suggestions["+"][2]) + len(suggestions["-"][2]) >= 2:
 				suggestions["0"] = []
 		
+		# user_info encoded json object passed from Facebook integration.
+		user_info = {}
+		if request.GET.get("user_info", "").strip() != "":
+			user_info = json.loads(urlsafe_b64decode(request.GET["user_info"].encode("ascii").replace(".", "=")))
+		
 		# Render.
 		response = render_to_response('popvox/widgets/writecongress.html', {
 			"permissions": permissions,
@@ -276,6 +302,8 @@ def widget_render_writecongress(request, account, permissions):
 			"url": url,
 			
 			"suggestions": suggestions.values(),
+			
+			"user_info": user_info, 
 			
 			"useraddress_prefixes": PostalAddress.PREFIXES,
 			"useraddress_suffixes": PostalAddress.SUFFIXES,

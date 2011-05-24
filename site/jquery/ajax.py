@@ -69,11 +69,11 @@ def json_response(f):
 	
 def ajax_fieldupdate_request(f):
 	"""Simplifies AJAX request views to update a single field."""
-	def g(request):
+	def g(request, *args, **kwargs):
 		if request.POST == None or "name" not in request.POST or "value" not in request.POST or not request.user.is_authenticated():
 			raise ValueError("Bad call: Missing required field. " + repr(request.POST))
 			
-		return f(request, request.POST["name"], request.POST["value"].strip(), "validate" in request.POST and request.POST["validate"] == "validate")
+		return f(request, request.POST["name"], request.POST["value"].strip(), "validate" in request.POST and request.POST["validate"] == "validate", *args, **kwargs)
 	return g
 
 def ajaxmultifieldupdate(globalargs=[]):

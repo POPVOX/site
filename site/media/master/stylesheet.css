@@ -572,7 +572,7 @@ dd {
 			color: #CC6A11;
 			}			
 		
-	.bullets li a {
+	.bullets.plainlinks li a {
 		color: #606060;
 		}
 

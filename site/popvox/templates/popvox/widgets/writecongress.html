@@ -526,14 +526,19 @@
 		}
 		
 		// debuggging
-		{% if request.GET.debug and not identity %}
 		$(function() {
+			{% if request.GET.debug and not identity %}
 			$('#email').set_text("debug@popvox.com");
 			$('#firstname').set_text("John");
 			$('#lastname').set_text("Debug");
 			$('#zipcode').set_text("19104");
+			{% endif %}
+
+			{% if user_info.email and not identity %}$('#email').set_text("{{user_info.email|escapejs}}");{% endif %}
+			{% if user_info.first_name and not identity %}$('#firstname').set_text("{{user_info.first_name|escapejs}}");{% endif %}
+			{% if user_info.last_name and not identity %}$('#lastname').set_text("{{user_info.last_name|escapejs}}");{% endif %}
+			
 		});
-		{% endif %}
 	</script>
 </head>
 <body>
