@@ -28,9 +28,9 @@ if len(sys.argv) == 2:
 for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	m = fre.search(fn)
 	
-	if os.stat(fn).st_mtime < updatetime:
+	if os.stat(fn).st_mtime < updatetime - 1000000:
 		continue
-	
+
 	billsession, billtype, billnumber = m.group(1), m.group(2), m.group(3)
 	
 	try:
@@ -45,6 +45,8 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 		
 	# Title.
 	bill.title = getBillTitle(bill, dom, "short")
+
+	print bill
 
 	# Status.
 	bill.current_status = dom.getElementsByTagName('state')[0].firstChild.data
