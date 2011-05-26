@@ -225,6 +225,10 @@ function update_preview() {
 		supports_bg = false;
 	}
 	
+	if (widgettype == "integrations") {
+		return;
+	}
+	
 	var width = $('#widget_width').val() || default_width;
 	var height = (can_change_height && $('#widget_height').val()) || default_height;
 	

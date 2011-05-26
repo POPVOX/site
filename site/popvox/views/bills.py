@@ -1074,7 +1074,7 @@ def send_mail2(subject, message, from_email, recipient_list, fail_silently=False
 		headers = {"From": from_email})
 	msg.send(fail_silently=fail_silently)
 
-@csrf_protect
+@csrf_protect_if_logged_in # getting a link doesn't require being logged in
 @json_response
 def billshare_share(request):
 	try:
