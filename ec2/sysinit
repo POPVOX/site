@@ -97,8 +97,10 @@ fi
 # Apache, which handles private WSGI deployment of Django, oughttabealaw.com, and
 # the popvox domains on https: which includes proxying through to the blog on occams.
 # The alternative is to run Django via FastCGI via Nginx directly, which requires more config.
+# We proxy *to* our https: site in order to allow Facebook embedding over http.
 a2dissite default
-a2enmod proxy proxy_http
+a2enmod proxy proxy_http ssl
+sed -i "s/Listen 443/#Listen 443/" /etc/apache2/ports.conf
 sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
 
 # Nginx which handles static content and caching as a reverse-proxy
