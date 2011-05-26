@@ -62,8 +62,8 @@ class DeliveryRecord(models.Model):
 		return ("OK " if self.success else "FAIL ") + self.created.strftime("%x") + " " + unicode(self.get_failure_reason_display()) + " " + self.trace[0:30] + "..."
 	
 class Synonym(models.Model):
-	term1 = models.CharField(max_length=64, db_index=True)
-	term2 = models.CharField(max_length=64)
+	term1 = models.CharField(max_length=128, db_index=True)
+	term2 = models.CharField(max_length=128)
 	last_resort = models.BooleanField(default=False)
 	created = models.DateTimeField(auto_now_add=True)
 	auto = models.BooleanField(default=False)
