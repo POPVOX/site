@@ -144,7 +144,7 @@ window.fbAsyncInit = function() {
 		user_info = urlsafe_b64encode(json.dumps({
 			"first_name": user_info["first_name"],
 			"last_name": user_info["last_name"],
-			"email": user_info["email"] if not "facebook" in user_info["email"] else "",
+			"email": user_info["email"],
 			}).encode("ascii")).replace("=", ".")
 		resp = resp.replace("&user_info=", "&user_info=" + user_info)
 

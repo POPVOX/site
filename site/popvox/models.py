@@ -134,6 +134,9 @@ class Bill(models.Model):
 	num_cosponsors = models.IntegerField()
 	latest_action = models.TextField()
 	
+	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase.")
+	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
+	
 	class Meta:
 			ordering = ['congressnumber', 'billtype', 'billnumber']
 			unique_together = (("congressnumber", "billtype", "billnumber"),)
@@ -164,6 +167,11 @@ class Bill(models.Model):
 		return govtrack.getBillNumber(self, False)
 	def title_no_number(self):
 		return self.title[self.title.index(":")+2:]
+	def title_or_streetname(self):
+		if not self.street_name:
+			return self.title
+		else:
+			return self.displaynumber() + ": " + self.street_name[0].upper() + self.street_name[1:]
 	def shorttitle(self):
 		return govtrack.getBillTitle(self, self.govtrack_metadata(), "short")
 	def officialtitle(self):

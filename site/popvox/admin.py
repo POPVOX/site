@@ -1,6 +1,12 @@
 from models import *
 from django.contrib import admin
 
+class BillAdmin(admin.ModelAdmin):
+	list_display = ("congressnumber", "billtype", "billnumber", "title", "street_name")
+	list_display_links = ("title",)
+	search_fields = ("title", "street_name")
+	readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "title", "current_status", "current_status_date", "num_cosponsors", "latest_action")
+
 class UserProfileAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user",)
 	readonly_fields = ("user","tracked_bills","antitracked_bills")
@@ -72,7 +78,7 @@ admin.site.register(OrgCampaign)
 admin.site.register(OrgCampaignPosition)
 admin.site.register(OrgCampaignPositionActionRecord, OrgCampaignPositionActionRecordAdmin)
 admin.site.register(OrgContact)
-admin.site.register(Bill)
+admin.site.register(Bill, BillAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)
 admin.site.register(UserCommentDigg, UserCommentDiggAdmin)

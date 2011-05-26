@@ -1,8 +1,8 @@
 {% extends "master.html" %}
 {% load humanize %}
 {% load popvox_utils %}
-{% block title %}{{ bill.title }}{% endblock%}
-{% block description %}Weigh in and send your message to Congress about {{ bill.title }}{% endblock %}
+{% block title %}{% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock%}
+{% block description %}Weigh in and send your message to Congress about {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock %}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block head %}
@@ -50,22 +50,13 @@ function getshorturl() {
 		{% if bill.died %}
 			<div class="alert_dead">
 				<div class="col_6">
-					<h2 class="shadow_up">{{bill.displaynumber_nosession}} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned.</h2>
+					<h2 class="shadow_up">{% if not bill.street_name %}{{bill.displaynumber_nosession}}{% else %}{{bill.street_name|capfirst}} ({{bill.displaynumber_nosession}}){% endif %} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned.</h2>
 					<h2 class="shadow_up">It has not yet been reintroduced.</h2>
+					<input id="b_reintroduce" class="btn submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'" style="margin: 15px 0 15px 100px"/>
 					<p>You can increase the chances that the bill is revived in the new Congress by showing support for reintroduction.</p>
-					<ul>
-						<li><a href="{{bill.url}}/report">Archived Commments</a></li>
-						{% comment %}
-						<li><a href="#">Comments in Support of Reintroduction</a></li>
-						{% endcomment %}
-					</ul>
 				</div>
 				<div class="col_6 col_last">
-					<h2 class="shadow_up">Help get {{bill.displaynumber_nosession}} reintroduced:</h2>
-					<p class="mar_top_neg">I support reintroduction of this bill.<br />You will be notified upon reintroduction.</p>
-					<input id="b_reintroduce" class="btn submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'"/>
-						
-					<p>Just want to be notified when this bill is reintroduced?</p>
+					<p style="margin-top: 80px">Just want to be notified when this bill is reintroduced?</p>
 					{% if user.is_authenticated %}
 					<div class="track_as_notify">
 						{% with "+" as tracktype %}
@@ -75,6 +66,14 @@ function getshorturl() {
 					{% else %}
 						<p><input type="button" class="b_login btn" onclick="window.location='/accounts/login?next={{bill.url}}'" value="Join or Login"/></p>
 					{% endif %}
+					<div class="clear"> </div>
+
+					<ul style="margin-top: 30px">
+						<li><a href="{{bill.url}}/report">Archived Commments</a></li>
+						{% comment %}
+						<li><a href="#">Comments in Support of Reintroduction</a></li>
+						{% endcomment %}
+					</ul>
 				</div>
 			</div><!-- e: alert_dead -->
 		{% else %}
@@ -92,7 +91,7 @@ function getshorturl() {
 		</a>
 		
 		{% if not user.userprofile.is_leg_staff %}
-		<h1>What&rsquo;s your position on {{bill.displaynumber}}?</h1>
+		<h1>What&rsquo;s your position on {% if not bill.street_name %}{{bill.displaynumber}}{% else %}{{bill.street_name}}{% endif %}?</h1>
 		{% else %}
 		<h1>Bill Status and Org Positions</h1>
 		{% endif %}
@@ -107,7 +106,13 @@ function getshorturl() {
 				{% endwith %}
 			</div>
 			{% endif %}
-			<h3 class="no_rule">{{ bill.title }}</h3>
+			
+			<h3 class="no_rule">
+				{% if user.userprofile.is_leg_staff and bill.street_name %}
+				<em>{{ bill.street_name|capfirst }}</em><br/>
+				{% endif %}
+				{{ bill.title }}
+			</h3>
 			{% if bill.officialtitle %}
 			<p><strong>Summary: </strong>{{ bill.officialtitle }} (<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>)</p>
 			{% else %}
