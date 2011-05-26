@@ -194,14 +194,14 @@
 					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
 				{% endif %}
+				<div id="search_head">
+					<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
+						<input type="text" value="" name="q" class="search" id="master_billsearch_q"><br />
+						<input type="submit" value="Search" class="submit_search btn">
+						<script>$('#master_billsearch_q').input_default("bill number or keywords");</script>
+					</form>
+				</div>
 			</ul>
-			<div id="search_head">
-				<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
-					<input type="text" value="" name="q" class="search" id="master_billsearch_q"><br />
-					<input type="submit" value="Search" class="submit_search btn">
-					<script>$('#master_billsearch_q').input_default("bill number or keywords");</script>
-				</form>
-			</div>
 			{% endblock %}
 			<div id="whoami">
 				<p>
