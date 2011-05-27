@@ -4,15 +4,123 @@
 {% block description %}Learn about how POPVOX works through frequently asked questions.{% endblock %}
 {% block head %}
 <style>
+	.active {
+		font-weight: bold;
+		}
+	.search_clear {
+		float: right;
+		width: 30px;
+		}
 </style>
+<script>
+	function split_tags(tag_string) {
+		// splits on comma and then removes whitespace on the edges
+		var spl = tag_string.split(",");
+		var ret = { };
+		for (var i = 0; i < spl.length; i++) {
+			tag = spl[i].replace(/\s+$/, "").replace(/^\s+/, "");
+			ret[tag] = 1;
+		}
+		return ret;
+	}
+
+	function populate_categories_tags() {
+		$('.faq_category').each(function() {
+			var tag = $("<div class='item'/>");
+			var tag_a = $("<a/>");
+			var tag_s = $("<span/>");
+			tag.append(tag_a);
+			tag.append(tag_s);
+			tag_a.text($(this).find("h2").text());
+			tag_a.attr("href", "#");
+			tag_a.click(function(e) { return show_cat_tag('categories', $(e.target.parentNode)); });
+			tag_s.text("(" + $(this).find(".faq_item").length + ")");
+			$('#categories').append(tag);
+		});
+		
+		var all_tags = { };
+		var tag_count_max = 0;
+		
+		$('.faq_item').each(function() {
+			for (var tag in split_tags(this.getAttribute("tags"))) {
+				if (!all_tags[tag]) all_tags[tag] = 0;
+				all_tags[tag] += 1;
+				tag_count_max = Math.max(all_tags[tag], tag_count_max);
+			}
+		});
+		
+		// write out tags in descending order of number of questions with that tag
+		for (var i = tag_count_max; i > 0; i--) {
+			for (var j in all_tags) {
+				if (all_tags[j] == i) {
+					var tag = $("<div class='item'/>");
+					var tag_a = $("<a/>");
+					var tag_s = $("<span/>");
+					tag.append(tag_a);
+					tag.append(tag_s);
+					tag_a.text(j);
+					tag_a.attr("href", "#");
+					tag_a.click(function(e) { return show_cat_tag('tags', $(e.target.parentNode)); });
+					tag_s.text("(" + all_tags[j] + ")");
+					$('#tags').append(tag);
+				}
+			}
+		}
+	}
+	
+	function show_cat_tag(cattag, item) {
+		var is_active = item ? item.hasClass("active") : true;
+		$('#' + cattag + ' div.item').removeClass("active");
+		if (item) item.toggleClass("active", !is_active);
+		$('#' + cattag + ' div.search_clear a').text(is_active ? "" : "clear");
+		do_search();
+		return false;
+	}
+	
+	function do_search() {
+		// hide and show each faq item
+		var q = $('#searchbox').hasClass("default") ? "" : $('#searchbox').val().toLowerCase();
+		var cat = $('#categories .active a').text();
+		var tag = $('#tags .active a').text();
+		
+		var has_any_item = false;
+		
+		$('.faq_category').each(function() {
+			var has_item = false; 
+			$(this).find('.faq_item').each(function() {
+					var show =
+						      (q == "" || $(this).text().toLowerCase().indexOf(q) >= 0)
+						&& (cat == "" || $(this.parentNode).find("h2").text() == cat)
+						&& (tag == "" || tag in split_tags(this.getAttribute('tags')))
+						;
+					if (show) has_item = true;
+					$(this).toggle(show);
+					return 0;
+			});
+			$(this).toggle(has_item);
+			if (has_item) has_any_item = true;
+		});
+		
+		$('#faq_none').toggle(!has_any_item);
+	}
+	
+	$(function() {
+			populate_categories_tags();
+			
+			$('#searchbox').input_default("search questions and answers");
+			$('#searchbox').textchange(do_search);
+	});
+	
+</script>
 {% endblock %}
 {% block content %}
 
 <div class="content">
-	<div class="col_9 col_top">
+<div class="col_12 col_top">
+
+	<h1>h1 h1 h1</h1>
 	
-		<h1>h1 h1 h1</h1>
-		
+	<div class='col_9'>
 		<p>Here are some questions frequently asked by real POPVOX users, and our answers to them. If you have a question, please email us at info@popvox.com. Chances are that other POPVOX users are thinking about the same question, so do us a favor and let us know!</p>
 		
 		<div class="faq_category">
@@ -29,7 +137,40 @@
 				<p>For confusing, long-winded titles like these, POPVOX may display a popular “street” name for the bill instead. The street name comes either from Congress’s own research team, the Congressional Research Service, or a tag assigned by the POPVOX team based on use in the media or by the public. Our tagging system is still a work in progress, and we will unveil new search tools soon.</p>
 			</div>
 		</div>
+		
+		<div class="faq_category">
+			
+			<h2>Orgs</h2>
+			
+			<div class="faq_item" tags="stuff, i love POPVOX">
+				<a name="otheranchor"><h3>Test 2</h3></a>
+				
+				<p>Test 2</p>
+			</div>
+		</div>		
 	</div>
+	
+	<div id="search" class="col_3 col_last">
+		<form onsubmit="return false;">
+			<input id="searchbox" type="text"/>
+		</form>
+		
+		<div id="categories">
+			<h2>Categories</h2>
+			<div class="search_clear"><a href="#" onclick="return show_cat_tag('categories', null)"></a></div>
+		</div>
+		
+		<div id="tags">
+			<h2>Tags</h2>
+			<div class="search_clear"><a href="#" onclick="return show_cat_tag('tags', null)"></a></div>
+		</div>
+		
+		<div id="faq_none" style="display: none">
+			<p>There aren't any questions that match your search. Sorry!</p>
+		</div>
+	</div>
+	
+</div>
 </div>
 
 {% endblock %}
