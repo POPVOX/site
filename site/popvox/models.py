@@ -605,7 +605,7 @@ class OrgCampaignPositionActionRecord(models.Model):
 	firstname = models.CharField(max_length=64, blank=True)
 	lastname = models.CharField(max_length=64, blank=True)
 	zipcode = models.CharField(max_length=16, blank=True)
-	email = models.EmailField()
+	email = models.EmailField(db_index=True)
 	created = models.DateTimeField(auto_now_add=True)
 	completed_comment = models.ForeignKey("UserComment", blank=True, null=True)
 	completed_stage = models.CharField(max_length=16, blank=True, null=True)
@@ -737,7 +737,12 @@ class UserProfile(models.Model):
 		return ServiceAccount.objects.filter(user = self.user) \
 			| ServiceAccount.objects.filter(org__admins__user = self.user)
 		return ret
-		
+	
+	def matching_ocpar_orgs(self):
+		orgs = set()
+		for ocpar in OrgCampaignPositionActionRecord.objects.filter(email=self.user.email):
+			orgs.add(ocpar.ocp.campaign.org)
+		return orgs
 	
 def user_saved_callback(sender, instance, created, **kwargs):
 	if created:
