@@ -2,10 +2,11 @@ from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
-from django.template import Context, Template, Variable, TemplateSyntaxError
+from django.template import Context, Template, Variable, TemplateSyntaxError, Library
 
 import cgi
 import re
+import random
 from datetime import timedelta
 
 from popvox.models import Bill, RawText
@@ -254,4 +255,37 @@ def ordinal_html(num):
 		suffix = "th"
 	
 	return mark_safe(str(num) + "<sup>" + suffix + "</sup>")
-	
+
+# based on http://djangosnippets.org/snippets/1907/
+class ObfuscatedEmailNode(template.Node):
+	character_set = '+-.0123456789@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'
+	def __init__(self, context_var):
+		self.char_list = list(self.character_set)
+		random.shuffle(self.char_list)
+		self.key = ''.join(self.char_list)
+		self.context_var = template.Variable(context_var)# context_var
+	def render(self, context):
+		email_address = self.context_var.resolve(context)
+		
+		cipher_text = ''
+		id = 'e' + str(random.randrange(1,999999999))
+		
+		for a in email_address:
+			cipher_text += self.key[ self.character_set.find(a) ] if a in self.character_set else a
+			
+		script = 'var a="'+self.key+'";var b=a.split("").sort().join("");var c="'+cipher_text+'";var d="";'
+		script += 'for(var e=0;e<c.length;e++){if(a.indexOf(c.charAt(e))>=0) d+=b.charAt(a.indexOf(c.charAt(e))); else d+=c.charAt(e);}'
+		script += 'document.write("<a href=\\"mailto:"+d+"\\">"+d+"</a>")'
+		
+		script = "eval(\""+ script.replace("\\","\\\\").replace('"','\\"') + "\")"
+		script = '<script type="text/javascript">/*<![CDATA[*/'+script+'/*]]>*/</script>'
+		
+		return '<noscript>[javascript protected email address]</noscript>'+ script
+def obfuscated_email(parser, token):
+	"""{% obfuscated_email user.email %}"""
+	tokens = token.contents.split()
+	if len(tokens)!=2:
+		raise template.TemplateSyntaxError("%r tag accept one argument, the email address" % tokens[0])
+	return ObfuscatedEmailNode(tokens[1])
+register.tag('obfuscated_email', obfuscated_email)
+

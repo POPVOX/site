@@ -1,7 +1,16 @@
 {% extends "master.html" %}
+{% load popvox_utils %}
 {% block title %}POPVOX - About{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
+{% block head %}
+<style>
+p.email {
+	margin-bottom: 31px;
+    margin-top: -12px;
+}
+</style>
+{% endblock %}
 {% block content %}
 
 <div class="content about_team">
@@ -16,13 +25,15 @@
 				<img class="team_img" src="/media/photos/marci.jpg" alt="Marci Harris" width="125" height="150"/> 
 				<h3>Marci Harris</h3> 
 				<h4>Chief Executive Officer</h4> 
+				<p class="email">{% obfuscated_email "marci@popvox.com" %}</p>
 				<p>Marci Harris began public service work as Tornado Recovery Coordinator for Jackson, Tenn., working with private and public organizations and state, local and federal agencies to marshall resources and rebuild. In 2007, she became Tax, Trade, and Health Counsel to Pete Stark, then-Chairman of the Health Subcommittee of Ways and Means, and was Committee lead for Medicare Program Integrity and Physician Payments Sunshine provisions of the House health reform bill. She left the Hill in February 2010 to build POPVOX.  She holds a J.D. from the University of Memphis and an LL.M from American University’s Washington College of Law.</p>
 			</div> 
 			
 			<div class="col_4_5 col_last "> 
 				<img class="team_img" src="/media/photos/rachna.jpg" alt="Rachna Choudhry" width="125" height="150"/> 
 				<h3>Rachna Choudhry</h3> 
-				<h4>Chief Marketing Officer</h4> 
+				<h4>Chief Marketing Officer</h4>
+				<p class="email">{% obfuscated_email "rachna@popvox.com" %}</p>
 				<p>Rachna Choudhry is responsible for our outreach to advocacy organizations and trade associations, marketing to individual users and assists with outreach to Congressional staff.  She is based in Washington, DC. Rachna comes to POPVOX with a background in federal lobbying, issue advocacy and social media strategy for a variety of national issue-based and advocacy organizations. Most recently, she worked as a lobbyist for the National Partnership for Women & Families where she promoted policies that addressed the needs of working women. She earned a Master of Public Policy from Georgetown University and a Political Science degree from UCLA.</p> 
 			</div> 
 			<div class="clear"> </div> 
@@ -31,6 +42,7 @@
 				<img class="team_img" src="/media/photos/josh.jpg" alt="Joshua Tauberer" width="125" height="150"/> 
 				<h3>Joshua Tauberer</h3> 
 				<h4>Chief Technology Officer</h4>
+				<p class="email">{% obfuscated_email "josh@popvox.com" %}</p>
 				<p><a href="http://razor.occams.info">Joshua Tauberer</a> has been transforming government data into people-empowering applications for the last 8 years. His award-winning website <a href="http://www.govtrack.us">GovTrack.us</a>, launched in 2004, tracks the U.S. Congress and spurred the national open government data community. He is a member of the Advisory Committee on Transparency to the Congressional Transparency Caucus and is published in <a href="http://www.amazon.com/Open-Government-Collaboration-Transparency-Participation/dp/0596804350"> Open Government: Collaboration, Transparency, and Participation in Practice</a> (2010, O’Reilly Media). He holds a Ph.D. from the University of Pennsylvania.</p>
 			</div> 
 			
@@ -48,8 +60,15 @@
 				<img class="team_img" src="/media/photos/william.jpg" width="125" height="150"/> 
 				<h3>William Donnell</h3> 
 				<h4>Lead Designtist</h4> 
-				<p>William Donnell, Lead Designtist, is in charge of user experience, user interface and overall design for the site. William uses his nine years of experience running the award-winning <a href="http://sodiumhalogen.com/">Sodium Halogen</a> design shop in Jackson, Tenn., to make sure that POPVOX.com is intuitive, functional and visually appealing. As the team member with the least amount of background in the political arena, William champions the perspective of the average citizen.</p> 
+				<p>William Donnell, Lead Designtist, was a founding member of our team and is in charge of user experience, user interface and overall design for the site. William uses his nine years of experience running the award-winning <a href="http://sodiumhalogen.com/">Sodium Halogen</a> design shop in Jackson, Tenn., to make sure that POPVOX.com is intuitive, functional and visually appealing. As the team member with the least amount of background in the political arena, William champions the perspective of the average citizen.</p> 
 			</div> 
+			
+			<div class="col_4_5 rule"> 
+				<img class="team_img" src="/media/photos/annalee.jpg" width="125" height="150"/> 
+				<h3>Annalee Flower Horne</h3> 
+				<h4>Technology Assistant</h4> 
+				 
+			</div>
 		</div><!-- e: section --> 
 	</div> <!-- e: col_9 -->
 	
@@ -72,6 +91,13 @@
 				<li><a href="/jobs">Job Opportunities</a></li>
 				<li><a href="/legal">Privacy Policy and Terms of Service</a></li>
 			</ul>
+		</div>
+	</div>
+
+	<div class="col_12 col_top">
+		<div class="section team_2"> 
+			<h3 class="no_rule">Staff</h3>
+			<p>Shane Aday, designer. And our interns Dion, Josh, Wesley, and Peter!</p>
 		</div>
 	</div>
 	

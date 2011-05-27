@@ -4,6 +4,16 @@
 {% block title %}POPVOX Report -- {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock%}
 {%block nav_orgadmin_class_reports%}active{%endblock%}
 {% block head %}
+<style>
+h2 span {
+	display: block;
+	font-size: 16px;
+    font-style: italic;
+    font-weight: normal;
+    font-family: Georgia;
+    margin-bottom: 15px;
+	}
+</style>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
@@ -346,7 +356,10 @@
 				{% if not bill.street_name %}
 					<h2>{{ bill.title|truncatewords:30 }}</h2> 
 				{% else %}
-					<h2>{{bill.street_name|capfirst}} ({{bill.displaynumber}})</h2>
+					<h2>
+						{{bill.street_name|capfirst}} ({{bill.displaynumber}})
+						<span>{{ bill.title_no_number|truncatewords:30 }}</span>
+					</h2>
 				{% endif %}
 				{% if bill.sponsor %}
 				<div id="sponsor">
@@ -574,7 +587,7 @@
 		</div>
 	{% endfor %}
 	
-	<pre id="debug_info"> </pre>
+	<p id="debug_info" style="width: 800px"> </p>
 	
 	</div>
 {% endblock %}
