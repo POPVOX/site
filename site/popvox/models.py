@@ -707,9 +707,8 @@ class UserProfile(models.Model):
 			self.save()
 			
 	def service_accounts(self):
-		ret = ServiceAccount.objects.filter(user = self.user)
-		for role in self.user.orgroles.all():
-			ret |= ServiceAccount.objects.filter(org = role.org)
+		return ServiceAccount.objects.filter(user = self.user) \
+			| ServiceAccount.objects.filter(org__admins__user = self.user)
 		return ret
 		
 	

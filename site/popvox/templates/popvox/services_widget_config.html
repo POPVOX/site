@@ -2,11 +2,95 @@
 {% load popvox_utils %}
 {% block title %}POPVOX Services: Widgets{% endblock%}
 {% block head %}
-
 <link rel="stylesheet" media="screen" type="text/css" href="/media/css/jquery.miniColors.css" />
 <script type="text/javascript" src="/media/js/jquery.miniColors.js"></script>
+<script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
 
 <style>
+/* splash tab */
+
+#wTop .left {
+	width: 150px;
+	float: left;
+	padding: 20px;
+	}
+
+#wTop .right {
+	border: none;
+	padding: 20px 20px 20px 0;
+	}
+	#wTop .right p {
+		font-size: 18px;
+		line-height: 150%;
+		font-weight: bold;
+		}
+
+.wBottom {
+	background: #D4D1CA;
+	clear: both;
+	padding: 20px;
+	}
+
+#splash h3 {
+	margin-top: 0;
+	padding-top: 0;
+	background-image: none;
+	line-height: 150%;
+	}
+
+.left {
+	width: 150px;
+	float: left;
+	}
+
+.right {
+	width: 729px;
+	float: right;
+	border-left: #404040 1px solid;
+	padding-left: 20px;
+	}
+
+	.right h3 {
+		margin-top: 0;
+		padding-top: 0;
+		}
+
+ul#wSelect {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	}
+
+.blob {
+	clear: both;
+	margin: 30px 0 20px 0;
+	background: #D4D1CA; 
+	padding: 20px 0;
+	}
+
+	.blob h3 {
+		padding: 20px;
+		margin: 0;
+		}
+
+	.blob p {
+		padding: 0 20px;
+		margin: 0 0 10px 0px;
+		}
+	
+	.blob .left {
+		width: 400px;
+		float: left;
+		}
+		
+	.blob .right {
+		width: 400px;
+		float: right;
+		border: none;
+		}
+
+/* configuration forms */
+
 .form .plus h4 a {
     background: none repeat scroll 0 0 #ACACB0;
     color: #FFFFFF;
@@ -30,6 +114,15 @@
 <link rel="stylesheet" href="/media/widget/widget.css" type="text/css" media="screen" />
 
 <script>
+function splash_tab(tab) {
+	$('#wSelect>li').removeClass("active");
+	$(tab.parentNode).addClass("active");
+	$('#splash .wBottom .right>div').each(function() {
+		$(this).toggle(this.getAttribute("tab") == tab.getAttribute("tab"));
+	});
+	return false;
+}
+
 var accounts = [
 	{% for account in accounts %}
 	{
@@ -52,10 +145,18 @@ var current_account;
 var widgettype;
 
 function change_widget(tab) {
-	widgettype = tab.getAttribute("widget");
-	
+	widgettype = tab.getAttribute("href").substr(1);
 	$('ul.tabs li').removeClass("active");
 	$(tab.parentNode).addClass("active");
+	
+	if (widgettype == "splash") {
+		$('.config_pane, .preview_pane').hide();
+		$('#splash').show();
+		return;
+	} else {
+		$('.config_pane, .preview_pane').show();
+		$('#splash').hide();
+	}
 	
 	$('.widget_opts').hide();
 	$('.' + widgettype + '_opts').show();
@@ -225,7 +326,7 @@ function update_preview() {
 		supports_bg = false;
 	}
 	
-	if (widgettype == "integrations") {
+	if (widgettype == "integrations" || widgettype == "splash") {
 		return;
 	}
 	
@@ -300,11 +401,26 @@ function set_fb_page_code() {
 	return false;
 }
 
+$(window).bind("hashchange", function() {
+	open_tab();
+});
+function open_tab() {
+	$('ul.tabs li a').each(function() {
+			if (this.getAttribute("href") == window.location.hash)
+				change_widget(this);
+	});
+}
+
 $(function() {
 	$('.form input[type=text]').keyup_delayed(update_preview);
 	$('.form select').change(update_preview);
 	$('.form input[type=radio]').click(update_preview);
+	
+	splash_tab($('#wSelect li a')[0]);
+	
 	change_widget($('ul.tabs li a')[0]);
+	open_tab(); // open from URL fragment
+	
 	account_changed();
 });
 
@@ -335,12 +451,70 @@ var minicolors_opts = {
 	{% endif %}
 	
 	<ul class="tabs">
-		<li><a href="#" onclick="return change_widget(this);" widget="commentstream"><span>Comment Stream</span></a></li>
-		<li><a href="#" onclick="return change_widget(this);" widget="writecongress"><span>Write Congress</span></a></li>
-		
-		<li><a href="#" onclick="return change_widget(this);" widget="integration"><span>Integrations</span></a></li>
-	</ul>
+		<li><a href="#splash"><span>What Are They?</span></a></li>
 	
+		<li><a href="#commentstream"><span>Comment Stream</span></a></li>
+		<li><a href="#writecongress"><span>Write Congress</span></a></li>
+		
+		<li><a href="#integration"><span>Integrations</span></a></li>
+	</ul>
+
+	<div id="splash">
+		<div id="wTop">
+			<div class="left">
+				<img src="/media/widget/widgetpage_cogs.png" />
+			</div>
+			<div class="right">
+				<p>The POPVOX team is very excited to share with you our newest features: widgets that enable you to embed issue-based content and advocacy tools on to your own websites! Together, these widgets will keep your site content fresh and motivate your activists to take action!
+				</p>
+			</div>
+			<div class="clear"> </div>
+		</div><!---end of wTop--->
+		
+		<div class="wBottom">
+			<h3>Features Overview</h3>
+	
+			<div class="left">
+				<ul id="wSelect">
+				  <li><a href="#" onclick="return splash_tab(this);" tab="commentstream">comment stream</a></li>
+				  <li><a href="#" onclick="return splash_tab(this);" tab="writecongress">write congress</a></li>
+				</ul>
+			</div><!---end of left--->
+			
+			<div class="right">
+				<div tab="commentstream">
+				  <p>As you know, messages sent to Congress through POPVOX.com are also public on our site for others to read, and for organizations to help inform their campaigns. With the POPVOX <b>Comment Stream</b>, organizations and blogs can now embed a running stream of comments filtered bill number, position (supporting or opposing), issue area or geographic location.</p>
+				  <p><a href="#commentstream">Start using this widget now</a></p>
+				</div>
+			
+				<div tab="writecongress">
+					<p>POPVOX&rsquo;s <b>Write Congress</b> widget enables organizations and individuals to embed a powerful advocacy tool onto their own sites. Visitors on your own site can learn about a bill, read your call to action &mdash; and then write a message to their Members of Congress. And since it&rsquo;s powered by POPVOX:</p>
+							
+					<ul class="bullets">
+						<li>constituent information is verified for Congressional offices</li>
+						<li>messages from your activists are quantified and aggregated with other messages to show true grassroots power</li>
+						<li>activists can be assured that their messages are delivered to Congress, and receive a confirmation when their message is sent.</li>
+					</ul>
+					
+					<p>With a Plus account, the widget integrates into your existing campaign tools.</p>
+					
+					<p><a href="#writecongress">Start using this widget now</a></p>
+				</div>
+			</div><!--end of right-->
+			<div class="clear"> </div>
+		</div><!--end of wbottom-->
+		
+		<div class="blob">
+		  <h3>GET STARTED AND HARNESS THE POWER OF POPVOX ON YOUR SITE</h3>
+	
+		  <p class="left">The POPVOX widgets are easy to load into any site that allows you to paste HTML code and embed iframes, including WordPress. Click on the tab of the widget you want, complete the information to customize a widget and copy and paste the HTML code onto your own website.</p>
+	
+		  <p class="right">A basic version of each widget is available at no charge. Organizations that want to fully customize the widgets to fit the look and design of their own sites, or to integrate the widget with other campaign tools, are able to do so for a monthly fee with a Plus account. Please contact Rachna at <a href="mailto:rachna@popvox.com">rachna@popvox.com</a> for details.</p><br />
+		  
+		  <div class="clear"> </div>
+		</div>
+	</div><!-- e:splash -->
+
 	<div class="config_pane">
 		<p id="widget_description"></p>
 	
