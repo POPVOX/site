@@ -9,23 +9,74 @@ from settings import FACEBOOK_APP_SECRET
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 import hmac, hashlib
 import json, re
-import urllib, urllib2
+import urllib, urllib2, urlparse
 
-def org_check_api_key(request):
+def check_api_key(request):
 	api_key = request.GET.get("api_key", "")
 	try:
-		org = Org.objects.get(api_key=api_key)
-		return HttpResponse("Great! That is the correct integration key for " + org.name + ".", mimetype="text/plain")
-	except Org.DoesNotExist:
-		return HttpResponse("That is not a correct organization integration key.", mimetype="text/plain")
+		acct = ServiceAccount.objects.get(secret_key=api_key)
+		
+		if "salsa_node_url" in request.GET:
+			if not acct.has_permission("salsa"):
+				return HttpResponse("The service account for " + unicode(acct) + " does not have permission to use Salsa integration.", mimetype="text/plain")
+			
+			# configure Salsa integration callback
+			salsa = acct.getopt("salsa", {})
+			salsa["node"] = urlparse.urlparse(request.GET["salsa_node_url"]).hostname
+			salsa["org_id"] = request.GET["salsa_org_id"]
+			acct.setopt("salsa", salsa)
+		
+		return HttpResponse("Great! That is the correct service account secret password for " + unicode(acct) + ".", mimetype="text/plain")
+	except ServiceAccount.DoesNotExist:
+		return HttpResponse("That is not a correct service account secret password.", mimetype="text/plain")
 
 def salsa_legagenda(request):
 	api_key = request.GET.get("api_key", "")
-	org = get_object_or_404(Org, api_key=api_key)
-	return render_to_response("popvox/embed/salsa_legagenda.html", {
-		"org": org,
-	}, context_instance=RequestContext(request))
-	
+	try:
+		acct = ServiceAccount.objects.get(secret_key=api_key)
+		return render_to_response("popvox/embed/salsa_legagenda.html", {
+			"org": acct.org,
+		}, context_instance=RequestContext(request))
+	except ServiceAccount.DoesNotExist:
+		return HttpResponse("POPVOX integration has not been set up.", mimetype="text/plain")
+
+def salsa_action(request):
+	api_key = request.GET.get("api_key", "")
+	try:
+		acct = ServiceAccount.objects.get(secret_key=api_key)
+		if not acct.has_permission("salsa"):
+			return HttpResponse("The service account for " + unicode(acct) + " does not have permission to use Salsa integration.", mimetype="text/plain")
+		
+		# construct the iframe code...
+		m = re.search(r"^\[popvox_ocp_(\d+)\]", request.GET["action"])
+		if not m:
+			return HttpResponse("It looks like you edited the Reference Name of the action. Don't do that! If you know what it used to be, you'll need to put it back. Otherwise you'll need to create a new action from the POPVOX Salsa package configuration page.", mimetype="text/plain")
+		
+		return HttpResponse("""
+<iframe src="https://www.popvox.com/services/widgets/w/account/%s/writecongress?iframe=1&ocp=%s" width="460" height="773" border="0" frameBorder="0"> </iframe>
+			""" % (acct.api_key, m.group(1)), mimetype="text/plain")
+	except ServiceAccount.DoesNotExist:
+		return HttpResponse("POPVOX integration has not been set up.", mimetype="text/plain")
+
+def get_writecongress_bills(request):
+	api_key = request.GET.get("api_key", "")
+	try:
+		acct = ServiceAccount.objects.get(secret_key=api_key)
+		
+		if acct.org == None:
+			return HttpResponse("This service account is not linked to a POPVOX organization profile.", mimetype="text/plain")
+		
+		ret = []
+		for p in acct.org.positions_can_comment():
+			ret.append({
+				'id': str(p.id),
+				'name': ("" if p.campaign.default else p.campaign.name + ": ") + ("Support" if p.position == "+" else "Oppose") + " " + p.bill.title,
+				'salsa_action_id': "popvox_ocp_" + str(p.id),
+			})
+		return HttpResponse(json.dumps(ret), mimetype="text/plain")
+	except ServiceAccount.DoesNotExist:
+		return HttpResponse("POPVOX integration has not been set up.", mimetype="text/plain")
+
 def b64_pad(s):
 	m = 4 - (len(s) % 4)
 	for i in xrange(m):
@@ -86,7 +137,7 @@ def facebook_page(request, fbargs):
 <head><style>body { font-family: sans-serif; }</style></head>
 <body>
 <h1>Configure POPVOX Tab</h1>
-<p>In order to activate the POPVOX tab, please enter your POPVOX service account secret password found on the integrations tab of the <a href=\"https://www.popvox.com/services/widgets\"  target=\"_blank\">POPVOX widget configuration page</a>.</p>
+<p>In order to activate the POPVOX tab, please enter your POPVOX service account secret password found on the integrations tab of the <a href=\"https://www.popvox.com/services/widgets#integration\"  target=\"_blank\">POPVOX widget configuration page</a>.</p>
 <form method="post">
 	<input type="hidden" name="signed_request" value="%s"/>
 	<div>Service Account Secret Password:</div>

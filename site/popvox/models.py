@@ -23,6 +23,8 @@ import govtrack
 
 from writeyourrep.models import DeliveryRecord
 
+from popvox import http_rest_json
+
 class MailListUser(models.Model):
 	email = models.EmailField(db_index=True, unique=True)
 	def __unicode__(self):
@@ -356,8 +358,6 @@ class Org(models.Model):
 	
 	coalitionmembers = models.ManyToManyField("Org", blank=True, related_name="ispartofcoalition", verbose_name="Coalition members")
 
-	api_key = models.CharField(max_length=16, blank=True, null=True, db_index=True) # cannot be unique when orgs start off null; private!
-	
 	class Meta:
 			verbose_name = "organization"
 			ordering = ['name']
@@ -612,6 +612,33 @@ class OrgCampaignPositionActionRecord(models.Model):
 	request_dump = models.TextField(blank=True, null=True)
 	class Meta:
 		ordering = ['created']
+
+def ocpar_saved_callback(sender, instance, created, **kwargs):
+	# Save data back to CRM.
+	try:
+		ocp = instance.ocp
+		acct = ocp.campaign.org.serviceaccount
+		url = "http://%s/o/%s/p/d/popvox/public/api/add_supporter.sjs" % (
+			acct.getopt("salsa", None)["node"],
+			acct.getopt("salsa", None)["org_id"])
+		data = {
+			"api_key": acct.secret_key,
+			"action_id": "popvox_ocp_" + str(ocp.id),
+			"action_name": ocp.bill.title,
+			"supporter_email": instance.email,
+			"supporter_firstname": instance.firstname,
+			"supporter_lastname": instance.lastname,
+			"supporter_zip": instance.zipcode,
+			"tracking_code": "popvox_ocpar_" + str(instance.id),
+			}
+		if instance.completed_comment != None:
+			data["supporter_zip"] = instance.completed_comment.address.zipcode
+			data["supporter_state"] = instance.completed_comment.address.state
+			data["supporter_district"] = instance.completed_comment.address.state + ("%02d" % instance.completed_comment.address.congressionaldistrict)
+		ret = http_rest_json(url, data)
+	except:
+		pass
+django.db.models.signals.post_save.connect(ocpar_saved_callback, sender=OrgCampaignPositionActionRecord)
 
 class UserProfile(models.Model):
 	"""A user profile extends the basic user model provided by Django."""

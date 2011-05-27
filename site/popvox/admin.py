@@ -59,7 +59,7 @@ class OrgAdmin(admin.ModelAdmin):
 
 class ServiceAccountAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user", "org")
-	readonly_fields = ("api_key",)
+	readonly_fields = ("api_key", "secret_key")
 	search_fields = ["user__username", "user__email", "org__name"]
 
 class OrgCampaignPositionActionRecordAdmin(admin.ModelAdmin):

@@ -94,13 +94,18 @@ def validate_widget_request(request, api_key):
 
 	# Get the permitted referring hostnames.
 	permitted_hosts = [s.strip() for s in account.hosts.split("\n") if s.strip() != ""]
+	
 	if len(permitted_hosts) == 0 and account.org != None and account.org.website != "":
 		# the default host is the domain of the org's configured website
 		website_hostname = urlparse.urlparse(account.org.website).hostname
 		if website_hostname.startswith("www."):
 			website_hostname = website_hostname[4:]
 		permitted_hosts = [website_hostname]
-		
+	
+	salsa = account.getopt("salsa", {})
+	if "node" in salsa:
+		permitted_hosts.append(salsa["node"])
+
 	# Validate the referrer. 
 	if host in permitted_hosts:
 		return (account, perms)
