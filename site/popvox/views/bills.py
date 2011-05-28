@@ -179,7 +179,7 @@ def billsearch(request):
 	q = request.GET["q"].strip()
 
 	bill_number_re = re.compile(r"(hr|s|hconres|sconres|hjres|sjres|hres|sres)(\d+)(/(\d+))?", re.I)
-	m = bill_number_re.match(q.replace(" ", "").replace(".", ""))
+	m = bill_number_re.match(q.replace(" ", "").replace(".", "").replace("-", ""))
 	if m != None:
 		cn = CURRENT_CONGRESS
 		if "congressnumber" in request.GET and request.GET["congressnumber"].isdigit():
