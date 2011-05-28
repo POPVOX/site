@@ -7,6 +7,7 @@
 {% block navattributes %}id="head_r"{% endblock %}
 {% block navbarlinks %}{% if user.is_authenticated %}<li><a href="/home">Home</a></li>{% endif %}{% endblock %}
 {% block disable_login_redirect %}{% endblock %}
+{% block finalscript %}<script>mpmetrics.track('splash page');</script>{% endblock %}
 {% block head %}
 <script>
 {% comment %}
