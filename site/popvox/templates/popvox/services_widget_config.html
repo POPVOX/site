@@ -10,33 +10,52 @@
 /* splash tab */
 
 #wTop .left {
-	width: 150px;
+	width: 160px;
 	float: left;
-	padding: 20px;
+	padding: 0 0px 20px 30px;
 	}
 
 #wTop .right {
 	border: none;
-	padding: 20px 20px 20px 0;
+	padding: 0px 20px 20px 0;
 	}
 	#wTop .right p {
 		font-size: 18px;
-		line-height: 150%;
+		line-height: 30px;
 		font-weight: bold;
 		}
 
 .wBottom {
-	background: #D4D1CA;
+	background: #DFDCD5;
 	clear: both;
 	padding: 20px;
 	}
+	
+	.wBottom p, .wBottom ul.bullets li, .blob p {
+		font: normal 16px/24px helvetica, arial, sans-serif;
+		}
+		
+.wBottom img {
+	width: 170px;
+	height: 266px;
+	float: right;
+	margin-left: 15px;
+	}
 
 #splash h3 {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	text-transform: uppercase;
 	margin-top: 0;
 	padding-top: 0;
 	background-image: none;
 	line-height: 150%;
 	}
+
+	.wBottom h3 {
+		margin-bottom: 10px;
+		}
 
 .left {
 	width: 150px;
@@ -46,7 +65,7 @@
 .right {
 	width: 729px;
 	float: right;
-	border-left: #404040 1px solid;
+	border-left: #8C8C8C 1px solid;
 	padding-left: 20px;
 	}
 
@@ -61,10 +80,38 @@ ul#wSelect {
 	margin: 0;
 	}
 
+	ul#wSelect li {
+		margin-bottom: 4px;
+		padding: 5px;
+		width: 120px;
+		font-weight: bold;
+		}
+		
+	ul#wSelect li.active {
+		background: #CC6A11;
+		-moz-border-radius: 6px;
+		border-radius: 6px;
+		}
+	
+		ul#wSelect li.active a {
+			color: white;
+			border: none;
+			font-weight: bold;
+			}
+		
+			ul#wSelect li a:hover {
+				text-decoration: none;
+				}
+	
+a.start {
+	font-size: 24px;
+	font-weight: bold;
+	}
+				
 .blob {
 	clear: both;
 	margin: 30px 0 20px 0;
-	background: #D4D1CA; 
+	background: #DFDCD5; 
 	padding: 20px 0;
 	}
 
@@ -287,7 +334,7 @@ function update_preview() {
 		if (state) opts += "&state=" + state;
 		
 		default_width = 240;
-		default_height = 350;
+		default_height = 376;
 	}
 	
 	if (widgettype == "writecongress") {
@@ -476,19 +523,23 @@ var minicolors_opts = {
 	
 			<div class="left">
 				<ul id="wSelect">
-				  <li><a href="#" onclick="return splash_tab(this);" tab="commentstream">comment stream</a></li>
-				  <li><a href="#" onclick="return splash_tab(this);" tab="writecongress">write congress</a></li>
+				  <li><a href="#" onclick="return splash_tab(this);" tab="commentstream">Comment Stream</a></li>
+				  <li><a href="#" onclick="return splash_tab(this);" tab="writecongress">Write Congress</a></li>
 				</ul>
 			</div><!---end of left--->
 			
 			<div class="right">
 				<div tab="commentstream">
+				  <img src="/media/widget/commentstream_thumbnail.png" alt="Preview Image"/>
 				  <p>As you know, messages sent to Congress through POPVOX.com are also public on our site for others to read, and for organizations to help inform their campaigns. With the POPVOX <b>Comment Stream</b>, organizations and blogs can now embed a running stream of comments filtered bill number, position (supporting or opposing), issue area or geographic location.</p>
-				  <p><a href="#commentstream">Start using this widget now</a></p>
+				  <p><a href="#commentstream" class="start">Start Using This Widget Now...</a></p>
 				</div>
 			
 				<div tab="writecongress">
-					<p>POPVOX&rsquo;s <b>Write Congress</b> widget enables organizations and individuals to embed a powerful advocacy tool onto their own sites. Visitors on your own site can learn about a bill, read your call to action &mdash; and then write a message to their Members of Congress. And since it&rsquo;s powered by POPVOX:</p>
+				    <img src="/media/widget/writecongress_thumbnail.png" alt="Preview Image" style="border: 2px solid #CC6A11;"/>
+					<p>POPVOX&rsquo;s <b>Write Congress</b> widget enables organizations and individuals to embed a powerful advocacy tool onto their own sites. Visitors on your own site can learn about a bill, read your call to action &mdash; and then write a message to their Members of Congress.</p>
+					
+					<p>And since it&rsquo;s powered by POPVOX:</p>
 							
 					<ul class="bullets">
 						<li>constituent information is verified for Congressional offices</li>
@@ -498,7 +549,7 @@ var minicolors_opts = {
 					
 					<p>With a Plus account, the widget integrates into your existing campaign tools.</p>
 					
-					<p><a href="#writecongress">Start using this widget now</a></p>
+					<p><a href="#writecongress" class="start">Start Using This Widget Now...</a></p>
 				</div>
 			</div><!--end of right-->
 			<div class="clear"> </div>
