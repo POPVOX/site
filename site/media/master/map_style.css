@@ -21,7 +21,7 @@ body {
 }
 
 #mapdots {
-	background: url(/media/gis/map_background.png) no-repeat;
+	background: url(/media/gis/map_background_cds.png) no-repeat;
 	position: absolute;
 	top: 23px;
 	left: 0;
