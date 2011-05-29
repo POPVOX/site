@@ -59,7 +59,7 @@ def commentmapus(request):
 	
 	import widgets_usmap
 	mapscale = 720.0 / widgets_usmap.map_scale[0]
-	xoffset = 5
+	xoffset = 8
 	yoffset = 196
 	
 	for district in count:
