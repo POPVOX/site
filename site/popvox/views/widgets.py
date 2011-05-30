@@ -36,27 +36,40 @@ def bill_js(request):
 @cache_page(60 * 60 * 2) # two hours
 @do_not_track_compliance
 def commentmapus(request):
-	bill = get_object_or_404(Bill, id=request.GET["bill"])
-	
-	# TODO: put this in the database
 	count = { }
-	comments = bill_comments(bill).defer("message")
-	for comment in comments:
-		district = comment.state + str(comment.congressionaldistrict)
-		if not district in count:
-			count[district] = { "+": 0, "-": 0 } 
-		count[district][comment.position] += 1
-
 	max_count = 0
-	for district in count:
-		max_count = max(max_count, count[district]["+"] + count[district]["-"])
+	bill = None
+
+	if "bill" in request.GET:
+		bill = get_object_or_404(Bill, id=request.GET["bill"])
+		
+		# TODO: put this in the database
+		comments = bill_comments(bill).defer("message")
+		for comment in comments:
+			district = comment.state + str(comment.congressionaldistrict)
+			if not district in count:
+				count[district] = { "+": 0, "-": 0 } 
+			count[district][comment.position] += 1
 	
-	def chartcolor(sentiment, countpct):
-		return "dot_clr_%d dot_sz_%d" % (
-			int(sentiment*4.9999) + 1,
-			int(countpct*4.9999) + 1
-			)
+		max_count = 0
+		for district in count:
+			max_count = max(max_count, count[district]["+"] + count[district]["-"])
+		
+		def chartcolor(sentiment, countpct):
+			return "dot_clr_%d dot_sz_%d" % (
+				int(sentiment*4.9999) + 1,
+				int(countpct*4.9999) + 1
+				)
 	
+	elif "file" in request.GET:
+		
+		if request.GET["file"] == "cd_clusters":
+			import csv, os.path
+			for row in csv.reader(open(os.path.dirname(__file__) + "/../analysis/cd_clusters.txt")):
+				if row[0] == "cd": continue
+				count[row[0]] = {}
+				count[row[0]]["class"] = ("dot_clr_%d dot_sz_%d" % ([1,5,3][int(row[1])-1], [3,3,1][int(row[1])-1]))
+
 	import widgets_usmap
 	mapscale = 720.0 / widgets_usmap.map_scale[0]
 	xoffset = 8
@@ -67,10 +80,11 @@ def commentmapus(request):
 		if not district in widgets_usmap.district_locations:
 			continue
 
-		count[district]["sentiment"] = float(count[district]["+"])/float(count[district]["+"] + count[district]["-"])
-		count[district]["count"] = count[district]["+"] + count[district]["-"]
-		
-		count[district]["class"] = chartcolor(count[district]["sentiment"], float(count[district]["+"] + count[district]["-"]) / float(max_count))
+		if "bill" in request.GET:
+			count[district]["sentiment"] = float(count[district]["+"])/float(count[district]["+"] + count[district]["-"])
+			count[district]["count"] = count[district]["+"] + count[district]["-"]
+			
+			count[district]["class"] = chartcolor(count[district]["sentiment"], float(count[district]["+"] + count[district]["-"]) / float(max_count))
 			
 		count[district]["coord"] = { "left": int(widgets_usmap.district_locations[district][0]*mapscale)-xoffset,  "top": int(widgets_usmap.district_locations[district][1]*mapscale)-yoffset }
 		
