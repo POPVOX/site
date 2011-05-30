@@ -113,12 +113,9 @@ Delivery:
 		
 		return ret
 		
-	def xml(self):
-			import re
-			return re.sub(
-				r"%(\w+)",
-				lambda m : xml.sax.saxutils.escape(unicode(getattr(self, m.group(1)))),
-u"""<APP>CUSTOM
+	def xml(self, template=None):
+		if template == None:
+			template = u"""<APP>CUSTOM
 <PREFIX>%prefix</PREFIX>
 <FIRST>%firstname</FIRST>
 <LAST>%lastname</LAST>
@@ -133,7 +130,11 @@ u"""<APP>CUSTOM
 <TOPIC>%campaign_id</TOPIC>
 <RSP>Y</RSP>
 <MSG>%message</MSG>
-</APP>""")
+</APP>"""
+		return re.sub(
+			r"%(\w+)",
+			lambda m : xml.sax.saxutils.escape(unicode(getattr(self, m.group(1)))),
+			template)
 
 # Here are some common aliases for the field names we use.
 # Don't include spaces, all lowercase.
@@ -1072,13 +1073,43 @@ def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
 				
 		elif method == Endpoint.METHOD_SMTP:
 			deliveryrec.trace += u"sending email to " + unicode(moc.webform) + u"\n\n"
-			deliveryrec.trace += msg.text()
+			deliveryrec.trace += u"from: " + msg.email + u"\n"
+			deliveryrec.trace += u"subject: " + msg.subjectline + u"\n\n"
+			
+			if moc.template == None or moc.template.strip() == "":
+				msg_body = msg.text()
+			elif moc.template.strip() == "@IQ":
+				if "no" in msg.response_requested:
+					msg.response_yn = "N"
+				elif "yes" in msg.response_requested:
+					msg.response_yn = "Y"
+				else:
+					raise Exception("Response_requested does not seem to be either yes or no.")
+				
+				msg_body = msg.xml("""<APP>CUSTOM
+<PREFIX>%prefix</PREFIX>
+<FIRST>%firstname</FIRST>
+<LAST>%lastname</LAST>
+<SUFFIX>%suffix</SUFFIX>
+<ADDR1>%address1</ADDR1>
+<ADDR2>%address2</ADDR2>
+<CITY>%city</CITY>
+<STATE>%state</STATE>
+<ZIP>%zipcode</ZIP>
+<PHONE>%phone</PHONE>
+<EMAIL>%email</EMAIL>
+<RSP>%response_yn</RSP>
+<MSG>%message</MSG>
+<TOPIC>%campaign_id</TOPIC>
+</APP>""")
+				
+			deliveryrec.trace += msg_body
 			
 			send_mail(
 				msg.subjectline,
-				msg.text(),
+				msg_body,
 				msg.email,
-				[moc.webform],
+				[moc.webform, "josh@popvox.com"],
 				fail_silently=False)
 
 			deliveryrec.success = True
