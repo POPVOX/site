@@ -685,7 +685,7 @@ def delivery_status_report(request):
 		report.append(moc)
 		
 		try:
-			ep = Endpoint.objects.get(govtrackid=moc["id"])
+			ep = Endpoint.objects.get(govtrackid=moc["id"], office=moc["office_id"])
 		except Endpoint.DoesNotExist:
 			moc["delivery_status"] = "No Endpoint Defined"
 			continue
@@ -773,6 +773,7 @@ def legstaff_download_messages(request):
 	from datetime import datetime
 
 	member_id = request.user.legstaffrole.member.id
+	office_id = getMemberOfCongress(member_id)["office_id"]
 	
 	date_format = "%Y-%m-%d %H:%M:%S.%f"
 	
@@ -781,6 +782,7 @@ def legstaff_download_messages(request):
 		DeliveryRecord.objects.filter(
 				next_attempt__success=True,
 				next_attempt__target__govtrackid=member_id,
+				next_attempt__target__office=office_id,
 				next_attempt__method=Endpoint.METHOD_STAFFDOWNLOAD,
 				next_attempt__created = request.POST["date"]
 				).update(next_attempt=None)
@@ -789,6 +791,7 @@ def legstaff_download_messages(request):
 		DeliveryRecord.objects.filter(
 				success=True,
 				target__govtrackid=member_id,
+				target__office=office_id,
 				method=Endpoint.METHOD_STAFFDOWNLOAD,
 				created = request.POST["date"]
 				).delete()
@@ -802,6 +805,7 @@ def legstaff_download_messages(request):
 			msgs = UserComment.objects.filter(
 				delivery_attempts__success=True,
 				delivery_attempts__target__govtrackid=member_id,
+				delivery_attempts__target__office=office_id,
 				delivery_attempts__method=Endpoint.METHOD_STAFFDOWNLOAD,
 				delivery_attempts__created = request.POST["date"]
 				).select_related("address")
@@ -859,7 +863,7 @@ def legstaff_download_messages(request):
 
 			if is_new:
 				dr = DeliveryRecord()
-				dr.target = Endpoint.objects.get(govtrackid=member_id)
+				dr.target = Endpoint.objects.get(govtrackid=member_id, office=office_id)
 				dr.trace = """comment #%d delivered via staff download by %s
 				
 email: %s
@@ -891,6 +895,7 @@ UA: %s
 	delivered_message_dates = DeliveryRecord.objects.filter(
 				success=True,
 				target__govtrackid=member_id,
+				target__office=office_id,
 				method=Endpoint.METHOD_STAFFDOWNLOAD).values_list("created", flat=True).distinct().order_by('-created')
 	delivered_message_dates = [(d, d.strftime(date_format)) for d in delivered_message_dates]
 

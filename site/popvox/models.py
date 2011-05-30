@@ -1080,15 +1080,14 @@ class UserComment(models.Model):
 		return self.shares().aggregate(models.Sum("hits"))["hits__sum"]
 
 	def get_recipients(self):
-		if hasattr(self, "user") and ("@popvox.com" in self.user.email or "@g.popvox.com" in self.user.email):
-			return "Delivery is blocked for @popvox.com accounts."
-		
 		ch = self.bill.getChamberOfNextVote()
 		if ch == None:
 			return "The comment will not be delivered because the bill is not pending a vote in Congress."
 			
 		d = self.address.state + str(self.address.congressionaldistrict)
 		
+		# Get the recipients according to the user's current representation in the House or
+		# Senate, depending on where the next action for the bill is.
 		govtrackrecipients = []
 		if ch == "s":
 			# send to all of the senators for the state
@@ -1098,6 +1097,11 @@ class UserComment(models.Model):
 				govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
 		else:
 			govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
+			
+		# Remove recipients for whom we've already delivered to another Member in the same
+		# office, because of e.g. a resignation followed by a replacement.
+		govtrackrecipients = [g for g in govtrackrecipients if
+			not self.delivery_attempts.filter(success = True, target__office=g["office_id"]).exists()]
 			
 		return govtrackrecipients
 		
@@ -1115,15 +1119,10 @@ class UserComment(models.Model):
 			return ", ".join(recips)
 	
 	def delivery_status(self):
-		recips = self.get_recipients()
-		if not type(recips) == list:
-			return recips
-			
-		if len(recips) == 0:
-			return "The comment cannot be delivered at this time because the Congressional office(s) that represents you is/are currently vacant."
-			
-		recips = [g["id"] for g in recips]
+		recips_ = self.get_recipients()
+		recips = [g["id"] for g in recips_] if type(recips_) == list else []
 		
+		# Group successful deliveries by date, and unsuccessful deliveries uniquely by target.
 		retd = { }
 		for d in self.delivery_attempts.filter(next_attempt__isnull = True):
 			if d.target.govtrackid in recips:
@@ -1132,12 +1131,12 @@ class UserComment(models.Model):
 				if not d.created.strftime("%x") in retd:
 					retd[d.created.strftime("%x")] = []
 				retd[d.created.strftime("%x")].append(d.target.govtrackid)
-			else:
-				retd[d.target.govtrackid] = "We had trouble delivering your message to " + govtrack.getMemberOfCongress(d.target.govtrackid)["name"] + " but we will try again. "
-				
-		retk = list(retd.keys())
-		retk.sort()
+			elif self.message != None: # don't talk about failures
+				retd[govtrack.getMemberOfCongress(d.target.govtrackid)["sortkey"]] = "We had trouble delivering your message to " + govtrack.getMemberOfCongress(d.target.govtrackid)["name"] + " but we will try again. "
 		
+		# Serialize into text for the user.
+		retk = list(retd.keys())
+		retk.sort(key = lambda x : (type(x) != str, x))
 		ret = ""
 		for k in retk:
 			if type(k) == str:
@@ -1145,8 +1144,16 @@ class UserComment(models.Model):
 			else:
 				ret += retd[k]
 				
+		# If we had nothing
+		if ret == "" and len(recips) == 0:
+			if type(recips_) == str:
+				return recips_
+			return "The comment cannot be delivered at this time because the Congressional office(s) that represents you is/are currently vacant."
+			
+		# Don't pre-sage these deliveries because if we can't deliver electronically we don't bother.
+		# But we can report what was delivered.
 		if self.message == None:
-			return ""
+			return ret
 		
 		if len(recips) > 0:
 			ret += "Your comment is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."

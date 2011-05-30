@@ -3,13 +3,14 @@ from django.contrib import admin
 from django.db import IntegrityError
 
 class EndpointAdmin(admin.ModelAdmin):
-	list_display = ("govtrackid", "method", "mocname", "webformresponse")
+	list_display = ("govtrackid", "method", "office", "mocname", "webformresponse")
 	list_filter = ("method", "tested")
 	search_fields = ["govtrackid"]
+	readonly_fields = ("govtrackid", "office")
 
 class DeliveryRecordAdmin(admin.ModelAdmin):
 	raw_id_fields = ("target", "next_attempt")
-	readonly_fields = ("created", "target", "next_attempt", "method") #, "trace") #, "success", "failure_reason")
+	readonly_fields = ("created", "next_attempt", "method") #, "trace") #, "success", "failure_reason")
 	date_hierarchy = "created"
 	list_display = ("created", "target", "success", "failure_reason", "method")
 	list_filter = ("success", "failure_reason", "created", "method")

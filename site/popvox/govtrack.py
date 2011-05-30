@@ -98,6 +98,7 @@ def loadpeople():
 				px["type"] = role.getAttribute("type")
 				px["state"] = role.getAttribute("state")
 				px["district"] = int(role.getAttribute("district")) if role.getAttribute("type") == "rep" else None
+				px["class"] = int(role.getAttribute("class")) if role.getAttribute("type") == "sen" else None
 				px["address"] = role.getAttribute("address")
 				px["url"] = role.getAttribute("url")
 			
@@ -107,10 +108,12 @@ def loadpeople():
 					senators[role.getAttribute("state")].append(int(node.getAttribute("id")))
 					senators[role.getAttribute("state")].sort(key = lambda x : people[x]["sortkey"])
 					px["sortkey"] += " (Senate)"
+					px["office_id"] = ("%s-S%d" % (px["state"], px["class"]))
 				
 				if role.getAttribute("type") == "rep":
 					congresspeople[role.getAttribute("state")+role.getAttribute("district")] = int(node.getAttribute("id"))
 					px["sortkey"] += " (House)"
+					px["office_id"] = ("%s-H%02d" % (px["state"], px["district"]))
 
 	people_list = [ ]
 	people_list.extend([p for p in people.values() if p["current"]])

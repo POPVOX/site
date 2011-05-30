@@ -85,9 +85,11 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		if comment.created < datetime.datetime.now()-datetime.timedelta(days=16):
 			msg.message += "\npopvox holds letters on bills until they are pending a vote in your chamber"
 		msg.message_personal = "yes"
+		msg.response_requested = ("yes",)
 	else:
 		msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
 		msg.message_personal = "no"
+		msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","")
 		
 	topterm = comment.bill.topterm
 	if topterm == None:
@@ -99,10 +101,6 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		msg.topicarea = (topterm.name, "legislation")
 	else:
 		msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title, "legislation")
-	
-	# TODO: Make this yes when they wrote a personal message!
-	msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","")
-	
 	
 	if comment.position == "+":
 		msg.support_oppose = ('i support',)
@@ -216,13 +214,20 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			mark_for_offline("missing-info")
 			continue
 
+		endpoints = Endpoint.objects.filter(govtrackid=gid, office=getMemberOfCongress(gid)["office_id"])
+
 		# If we know we have no delivery method for this target, fail fast.
-		if Endpoint.objects.filter(govtrackid = gid, method = Endpoint.METHOD_NONE, tested=True).exists():
+		if endpoints.filter(method = Endpoint.METHOD_NONE, tested=True).exists():
 			failure += 1
 			mark_for_offline("bad-webform")
 			continue
 				#or not Endpoint.objects.filter(govtrackid = gid).exclude(method = Endpoint.METHOD_NONE).exists() \
 
+		if len(endpoints) == 0:
+			failure += 1
+			mark_for_offline("no-method")
+			continue
+				
 		# Send the comment.
 		
 		if stats_only:
@@ -230,9 +235,9 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			mark_for_offline("not-attempted")
 			continue
 		
-		delivery_record = send_message(msg, gid, last_delivery_attempt, u"comment #" + unicode(comment.id))
+		delivery_record = send_message(msg, endpoints[0], last_delivery_attempt, u"comment #" + unicode(comment.id))
 		if delivery_record == None:
-			print gid, comment.address.zipcode, Endpoint.objects.filter(govtrackid=gid)
+			print gid, comment.address.zipcode, endpoints[0]
 			mark_for_offline("no-method")
 			if not gid in target_counts: target_counts[gid] = 0
 			target_counts[gid] += 1

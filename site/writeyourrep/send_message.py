@@ -959,51 +959,26 @@ def send_message_housewyr(msg, deliveryrec):
 	
 	return True
 
-# download a cache of all of the webforms (at least the first-stage page)
-def cache_webforms():
-	for moc in Endpoint.objects.filter(method=Endpoint.METHOD_WEBFORM):
-		print moc.id
-		webformurl = moc.webform
-		if "#" in webformurl:
-			webformurl, webformid = moc.webform.split("#")
-		(filename, headers) = http.retrieve(webformurl, filename="writeyourrep/cache/" + str(moc.id) + ".html")
-		fn = open(filename, "a")
-		fn.write("\n<!-- " + webformurl + "-->\n")
-		fn.close()
-
-def send_message(msg, govtrackrecipientid, previous_attempt, loginfo):
+def send_message(msg, moc, previous_attempt, loginfo):
 	cookiejar.clear()
 	http_last_url = ""
 	
 	# Check for delivery information.
 	
+	method = moc.method
+	govtrackrecipientid = moc.govtrackid
 	mm = getMemberOfCongress(govtrackrecipientid)
 	if "current" not in mm or mm["type"] not in ('sen', 'rep'):
 		raise Exception("Recipient is not currently in office as a senator or representative.")
 
-	# Get an endpoint record for this member of congress. If none is
-	# in the database, create a record but set the method to none. If
-	# this is for a representative, we'll still try the House Write Your Rep
-	# form.
-	try:
-		moc = Endpoint.objects.get(govtrackid = govtrackrecipientid)
-		method = moc.method
-	except Endpoint.DoesNotExist:
-		# If we don't have an endpoint record and this is for a representative,
-		# then try using the House's Write Your Rep generic form. If it
-		# succeeds, we'll save this endpoint for later.
-		moc = Endpoint()
-		moc.govtrackid = govtrackrecipientid
-		moc.method = Endpoint.METHOD_NONE
-		moc.save()
-		method = Endpoint.METHOD_NONE
-		
 	if moc.method == Endpoint.METHOD_NONE:
 		if mm["type"] == "rep":
 			method = Endpoint.METHOD_HOUSE_WRITEREP
 
 	if method == Endpoint.METHOD_NONE:
 		return None
+		
+	# Create a new DeliveryRecord as a trace of what we are about to do.
 
 	deliveryrec = DeliveryRecord()
 	deliveryrec.target = moc

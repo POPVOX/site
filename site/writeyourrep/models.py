@@ -14,7 +14,8 @@ class Endpoint(models.Model):
 	
 	METHOD_CHOICES = [(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP"), (METHOD_INPERSON, "In-Person Delivery"), (METHOD_STAFFDOWNLOAD, "Staff Download")]
 	
-	govtrackid = models.IntegerField(db_index=True, unique=True)
+	govtrackid = models.IntegerField(help_text="Do not change the GovTrack ID, i.e. the person, once it is set. An Endpoint is for a particular person in a particular office.")
+	office = models.CharField(max_length=6, help_text="Identify the office that this person is currently serving, e.g. CA-H01 for CA's 1st district congressman, TX-S3 for the Texas Senate office that is Class 3. The office identifier is used to prevent re-submission of a comment to the same office when the person serving in that office changes (i.e. resignation followed by replacement). Do not change the office field once it is set. An Endpoint is for a particular person in a particular office.")
 
 	method = models.IntegerField(choices=METHOD_CHOICES)
 	
@@ -24,12 +25,21 @@ class Endpoint(models.Model):
 	tested = models.BooleanField(default=False)
 	
 	template = models.TextField(blank=True, null=True)
+	
+	class Meta:
+		unique_together = [('govtrackid', 'office')]
 
 	def __unicode__(self):
-		ret = str(self.id) + " " + str(self.govtrackid) + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["name"] + " " + self.get_method_display()
+		ret = str(self.id) + " " + str(self.govtrackid) + " " + self.office + " " + popvox.govtrack.getMemberOfCongress(self.govtrackid)["name"] + " " + self.get_method_display()
 		if self.method == Endpoint.METHOD_NONE and self.tested:
 			ret += " (Tested)"
 		return ret
+
+	def save(self, *args, **kwargs):
+		import re
+		if not re.match(r"[A-Z][A-Z]-(H\d\d|S\d)", self.office):
+			raise ValueError("Invalid office.")
+		super(Endpoint, self).save(*args, **kwargs)
 
 	def mocname(self):
 		return popvox.govtrack.getMemberOfCongress(self.govtrackid)["sortkey"]
