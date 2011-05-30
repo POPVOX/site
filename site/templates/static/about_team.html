@@ -9,18 +9,20 @@ p.email {
 	margin-bottom: 31px;
     margin-top: -12px;
 }
+h3 {
+	background: none;
+}
 </style>
 {% endblock %}
 {% block content %}
 
 <div class="content about_team">
-	<div class="col_9 col_top">
-		<p class="float_right">For inquiries, please <a href="/about/contact">contact us</a>.</p>
+	<div class="col_9 col_top team">
 		<h1 class="rule_btm">The Team</h1>
 
 		<h3 class="no_rule">Founders</h3>
 
-		<div class="section team"> 
+		<div class="section"> 
 			<div class="col_4_5 "> 
 				<img class="team_img" src="/media/photos/marci.jpg" alt="Marci Harris" width="125" height="150"/> 
 				<h3>Marci Harris</h3> 
@@ -53,23 +55,42 @@ p.email {
 				<p>Tim O'Reilly is the founder and CEO of O'Reilly Media, Inc., a book publisher and the host of conferences on technology topics, including the Web 2.0 Summit, the Web 2.0 Expo, the Gov 2.0 Summit, and the Gov 2.0 Expo. Since 1978, Tim has led the company&rsquo;s pursuit of its core goal: to be a catalyst for technology change by capturing and transmitting the knowledge of innovators. <span style="font-size: 75%; color: #666">(Photo by <a href="www.briansolis.com">Brian Solis</a>.)</span></p> 
 			</div> 
 			<div class="clear"> </div> 
-
-			<h3 class="no_rule">Senior Staff</h3>
+		</div>
 		
-			<div class="col_4_5 rule"> 
+		<div class="col_12 rule team">
+
+			<h3 class="no_rule">Staff</h3>
+		
+			<div class="col_4"> 
 				<img class="team_img" src="/media/photos/william.jpg" width="125" height="150"/> 
 				<h3>William Donnell</h3> 
 				<h4>Lead Designtist</h4> 
 				<p>William Donnell, Lead Designtist, was a founding member of our team and is in charge of user experience, user interface and overall design for the site. William uses his nine years of experience running the award-winning <a href="http://sodiumhalogen.com/">Sodium Halogen</a> design shop in Jackson, Tenn., to make sure that POPVOX.com is intuitive, functional and visually appealing. As the team member with the least amount of background in the political arena, William champions the perspective of the average citizen.</p> 
 			</div> 
 			
-			<div class="col_4_5 rule"> 
+			<div class="col_4"> 
+				<img class="team_img" src="/media/photos/ben.jpg" width="125" height="150"/> 
+				<h3>Ben Harris</h3> 
+				<h4>CFO</h4> 
+				<p>Ben, a former restauranteur, manages our books.</p>
+			</div>
+
+			<div class="col_4 col_last"> 
 				<img class="team_img" src="/media/photos/annalee.jpg" width="125" height="150"/> 
 				<h3>Annalee Flower Horne</h3> 
 				<h4>Technology Assistant</h4> 
-				 
+				<p>Annalee Flower Horne came to POPVOX from Capitol Hill, where she served as
+				a staff assistant to a congressman. There, her responsibilities
+				included managing the congressman&rsquo;s website and sorting the office&rsquo;s
+				incoming email &mdash; a task that really made her appreciate POPVOX&rsquo;s mission. She
+				joined POPVOX in May 2011.</p>
 			</div>
 		</div><!-- e: section --> 
+
+		<div class="section team_2"> 
+			<h3 class="no_rule">Interns</h3>
+			<p>Dion, Josh, Wesley, and Peter.</p>
+		</div>
 	</div> <!-- e: col_9 -->
 	
 	<div class="col_3 col_top col_last">
@@ -94,14 +115,7 @@ p.email {
 		</div>
 	</div>
 
-	<div class="col_12 col_top">
-		<div class="section team_2"> 
-			<h3 class="no_rule">Staff</h3>
-			<p>Shane Aday, designer. And our interns Dion, Josh, Wesley, and Peter!</p>
-		</div>
-	</div>
-	
-	<div class="col_12 col_top">
+	<div class="col_12 col_top team">
 		<div class="section team_2"> 
 			<h3 class="no_rule">Advisors</h3>
 

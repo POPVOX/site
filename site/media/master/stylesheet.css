@@ -2980,8 +2980,7 @@ ul#issuearealist {
 	padding: 0;
 	}
 	
-.team .col_4_5 h4,
-.team_2 .col_4 h4 {
+.team h4 {
 	font: normal 16px/28px helvetica, arial, sans-serif;
 	margin: 0 0 10px;
 	}
