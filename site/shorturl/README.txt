@@ -26,9 +26,14 @@ Installation:
 
 Symlink this directory as "shorturl" in your PYTHONPATH somewhere.
 
-In your settings.py, add 'shorturl' in your apps list. In your urls.py, add:
+In your settings.py:
 
-	(r'^w/', include('shorturl.urls')),
+	* Add 'shorturl' in your apps list.
+	* Add 'shorturl.middleware.ShorturlMiddleware' to your middleware (which cleans out
+	  the shorturl session key on the first request after the key is set, which
+	  means on the view the user is redirected to immediately after hitting
+	  the shorturl).
+	* In your urls.py, add: (r'^w/', include('shorturl.urls')),
 
 "w/" specifies a prefix of your choosing on your site where the shorturls live. (I
 think of "w" as a short mnemonic of "www".)
@@ -36,9 +41,9 @@ think of "w" as a short mnemonic of "www".)
 Back in settings.py, your settings must have set either SITE_ROOT_URL or
 SITE_SHORT_ROOT_URL, e.g.:
 
-SITE_ROOT_URL = "http://www.djangoproject.com"
-    or
-SITE_SHORT_ROOT_URL = "http://djangoproject.com/w"
+	SITE_ROOT_URL = "http://www.djangoproject.com"
+		or
+	SITE_SHORT_ROOT_URL = "http://djangoproject.com/w"
 
 Neither should not end in a slash. Note that SITE_SHORT_ROOT_URL has
 precedence and if you use it, you must include the "w" in the path. That let's
@@ -48,11 +53,11 @@ address and forward them to your Django site from some other location
 For instance, if you set up a redirect in Apache on the domain shortdomain.com
 as:
 
-Redirect / http://www.djangoproject.com/w/
+	Redirect / http://www.djangoproject.com/w/
 
 then you would set: 
 
-SITE_SHORT_ROOT_URL = "http://short.com"
+	SITE_SHORT_ROOT_URL = "http://short.com"
 
 so that the shorturl app knows how to generate the proper URLs.
 
@@ -66,14 +71,14 @@ Usage:
 
 To create a shorturl:
 
-import shorturl
-
-rec, created = shorturl.models.Record.objects.get_or_create(
-	target=modelobject,
-	owner=request.user if request.user.is_authenticated() else None
-	)
-
-url = rec.url()
+	import shorturl
+	
+	rec, created = shorturl.models.Record.objects.get_or_create(
+		target=modelobject,
+		owner=request.user if request.user.is_authenticated() else None
+		)
+	
+	shorturl = rec.url()
 
 modelobject is some object instance of a Django model. If your site is a blog, this might
 be a Post instance. The target argument is required and it must support the
@@ -87,7 +92,7 @@ request user if the user is logged in, else None.
 As with get_or_create, rec is the new shorturl record object and created is a boolean
 indicating whether this is a new instance or if it was already in the database.
 
-rec.url() gives the fully qualified absolute URL. It would be:
+rec.url() gives the fully qualified absolute short URL. It would be:
 
   "http://www.djangoproject.com/w/ABCDEF"
      if you used SITE_ROOT_URL, or
@@ -116,8 +121,50 @@ method than to increment the field yourself and then save the record --- this do
 update in one SQL statement to make sure there are no race conditions. What you do
 with completions, if anything, is up to you.
 
-The rec object also supports rec.set_meta(obj) and obj will be pickled and stored in the
-record in the database, and can be retrieved with rec.meta().
-
 Note that on shorturl.Record.objects, get_or_create() will fill in owner=None if
 not set.
+
+SimpleRedirect
+----------------------
+
+The normal use of this app is to create a redirect to a model object, which knows its
+own URL via get_absolute_url(). The SimpleRedirect model can be used to create
+arbitrary redirects. To use this model:
+
+	import shorturl
+	
+	rec = shorturl.models.Record.objects.create(
+		target=shorturl.models.SimpleRedirect.objects.create(url=destination_url)
+		)
+	
+	shorturl = rec.url()
+
+(The owner field of the Record instance is still available.)
+
+The SimpleRedirect model includes the ability to store arbitrary metadata in pickled form.
+Use sr.set_meta(obj) and obj will be pickled and stored in the record in the database,
+and can be retrieved with sr.meta(). For instance:
+
+	sr = shorturl.models.SimpleRedirect(url=destination_url)
+	sr.set_meta({ "mixpanel_event": "url_opened", "mixpanel_properties": { "myproperty": "myvalue" }})
+	sr.save()
+	rec = shorturl.models.Record.objects.create(target=sr)
+	shorturl = rec.url()
+
+The only chance you'll have to inspect the metadata is on the request that occurs following
+the redirect to sr.url. At that point, the "shorturl" session key should be set and will refer to
+the shorturl.models.Record instance. So then:
+
+	if hasattr(request, "session") and "shorturl" in request.session:
+		target = request.session["shorturl"].target
+		if type(target) == shorturl.models.SimpleRedirect:
+			print target.meta()
+	
+Because you may want to use metadata with a redirect to a model, a model target
+is also supported on the SimpleRedirect:
+
+	sr = shorturl.models.SimpleRedirect(target=my_model_instance)
+
+As previously, my_model_instance must have get_absolute_url() defined.
+
+

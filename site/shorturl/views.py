@@ -17,6 +17,7 @@ def redirect(request, code):
 	rec.increment_hits()
 	if hasattr(request, "session"):
 		request.session["shorturl"] = rec
-		
+		request.just_added_shorturl = True
+	
 	return HttpResponsePermanentRedirect(url)
 

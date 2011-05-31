@@ -135,6 +135,7 @@ MIDDLEWARE_CLASSES = (
     'trafficanalysis.middleware.TrafficAnalysisMiddleware',
     'popvox.middleware.IE6BlockMiddleware',
     'popvox.middleware.AdserverTargetsMiddleware',
+    'shorturl.middleware.ShorturlMiddleware',
 )
 if DEBUG:
 	MIDDLEWARE_CLASSES = [m for m in MIDDLEWARE_CLASSES if not "cache" in m]

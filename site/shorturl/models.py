@@ -51,8 +51,6 @@ class Record(models.Model):
 	owner_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
 	owner = generic.GenericForeignKey('owner_content_type', 'owner_object_id')
 
-	meta_pickled = models.TextField(blank=True)
-	
 	hits = models.PositiveIntegerField(default=0)
 	completions = models.PositiveIntegerField(default=0)
 	
@@ -84,12 +82,6 @@ class Record(models.Model):
 			if i == 10:
 				raise Exception("URL space is full.")
 
-	def set_meta(self, meta):
-		self.meta_pickled = base64.encodestring(pickle.dumps(action))
-		
-	def meta(self):
-		return pickle.loads(base64.decodestring(self.meta_pickled))
-
 	def increment_hits(self):
 		self.hits = models.F('hits') + 1
 		self.save()
@@ -105,4 +97,27 @@ class Record(models.Model):
 		
 	def get_absolute_url(self):
 		return reverse("shorturl.views.redirect", args=[self.code])
+
+class SimpleRedirect(models.Model):
+	url = models.CharField(max_length=128, blank=True, null=True)
+	target_content_type = models.ForeignKey(ContentType, blank=True, null=True, related_name="simpleshorturlsto")
+	target_object_id = models.PositiveIntegerField(blank=True, null=True)
+	target = generic.GenericForeignKey('target_content_type', 'target_object_id')
+	meta_pickled = models.TextField(blank=True)
+	created = models.DateTimeField(auto_now_add=True)
+
+	def get_absolute_url(self):
+		return self.url
+
+	def set_meta(self, meta):
+		if meta == None:
+			self.meta_pickled = ""
+		else:
+			self.meta_pickled = base64.encodestring(pickle.dumps(meta))
+		
+	def meta(self):
+		if self.meta_pickled == "":
+			return None
+		return pickle.loads(base64.decodestring(self.meta_pickled))
+
 
