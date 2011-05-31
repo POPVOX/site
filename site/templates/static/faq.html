@@ -1,4 +1,5 @@
 {% extends "master.html" %}
+{% load adserver_tags %}
 {% block title %}POPVOX Frequently Asked Questions{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}Learn about how POPVOX works through frequently asked questions.{% endblock %}
@@ -7,20 +8,11 @@
 	.active {
 		font-weight: bold;
 		}
-	.search_clear {
-		float: right;
-		width: 30px;
+	
+	#searchbox.error {
+		color: red;
 		}
 		
-/* ----faq---- */
-
-			/* temp */
-			
-			.faq {
-				background: url(http://sod iumhalogen.com/up/junk_3d99.jpg) -40px -120px no-repeat;
-				height: 880px;
-				}
-
 .faq .col_9 {
 	padding-top: 0;
 	}
@@ -31,10 +23,7 @@
 	}	
 
 .faq h1 {
-	margin: 0 0 15px;
-	font-size: 36px;
-	height: 48px;
-	background: url("bg_rule.gif") repeat-x left bottom;
+	background: url("/media/master/bg_rule.gif") repeat-x left bottom;
 	}
 	
 .faq h2 {
@@ -94,7 +83,7 @@
 	margin: 0 0 10px 15px;
 	}
 	
-.faq .b_expand {
+.faq .b_expand, .faq .b_collapse {
 	float: right;
 	font-weight: bold;
 	font-size: 11px;
@@ -102,7 +91,7 @@
 	height: 16px;
 	}
 	
-	.faq .b_expand:hover {
+	.faq .b_expand:hover, .faq .b_collapse:hover {
 		color: #fff;
 		background: #CC6A11;
 		cursor: pointer;
@@ -120,6 +109,7 @@
 	background: #CC6A11;
 	color: #fff;
 	font: bold 11px/11px helvetica, arial, sans-serif;
+	cursor: pointer;
 	}			
 
 
@@ -128,7 +118,7 @@
 /* temp */
 			.faq .ad {				
 				background: #d4d1ca;
-				height: 66px;
+				/*height: 66px;*/
 				margin-bottom: 15px;
 				}
 				
@@ -167,13 +157,13 @@
 				border-radius: 12px;
 				}
 				
-	.faq #tags.sub ul li {
+	#tags li {
 		margin: 8px 0;
 		height: 13px;
 		text-transform: lowercase;
 		}
 		
-	.faq #tags.sub ul li a {
+	#tags li a {
 		margin: 0 0 3px 0;
 		padding: 3px;
 		background: #CC6A11;
@@ -183,102 +173,151 @@
 		
 </style>
 <script>
-	function split_tags(tag_string) {
-		// splits on comma and then removes whitespace on the edges
-		var spl = tag_string.split(",");
-		var ret = { };
-		for (var i = 0; i < spl.length; i++) {
-			tag = spl[i].replace(/\s+$/, "").replace(/^\s+/, "");
-			ret[tag] = 1;
-		}
-		return ret;
-	}
-
 	function populate_categories_tags() {
 		$('.faq_category').each(function() {
-			var tag = $("<div class='item'/>");
-			var tag_a = $("<a/>");
+			var tag = $("<li/>");
+			var tag_a = $("<a href=\"#\"/>");
+			var tag_n = $("<span class=\"name\"/>");
 			var tag_s = $("<span/>");
 			tag.append(tag_a);
-			tag.append(tag_s);
-			tag_a.text($(this).find("h2").text());
-			tag_a.attr("href", "#");
-			tag_a.click(function(e) { return show_cat_tag('categories', $(e.target.parentNode)); });
-			tag_s.text("(" + $(this).find(".faq_item").length + ")");
+			tag_a.append(tag_n);
+			tag_n.text($(this).find("h2").text());
+			tag_a.append(tag_s);
+			tag_s.text(" (" + $(this).find(".faq_item").length + ")");
 			$('#categories').append(tag);
+			tag_a.click(function(e) { return show_cat_tag('categories', tag); });
 		});
 		
 		var all_tags = { };
 		var tag_count_max = 0;
 		
-		$('.faq_item').each(function() {
-			for (var tag in split_tags(this.getAttribute("tags"))) {
-				if (!all_tags[tag]) all_tags[tag] = 0;
-				all_tags[tag] += 1;
-				tag_count_max = Math.max(all_tags[tag], tag_count_max);
-			}
+		$('.faq_item ul.tags li').each(function() {
+			var tag = $(this).text();
+			if (!all_tags[tag]) all_tags[tag] = 0;
+			all_tags[tag] += 1;
+			tag_count_max = Math.max(all_tags[tag], tag_count_max);
 		});
 		
 		// write out tags in descending order of number of questions with that tag
 		for (var i = tag_count_max; i > 0; i--) {
 			for (var j in all_tags) {
 				if (all_tags[j] == i) {
-					var tag = $("<div class='item'/>");
-					var tag_a = $("<a/>");
-					var tag_s = $("<span/>");
-					tag.append(tag_a);
-					tag.append(tag_s);
-					tag_a.text(j);
-					tag_a.attr("href", "#");
-					tag_a.click(function(e) { return show_cat_tag('tags', $(e.target.parentNode)); });
-					tag_s.text("(" + all_tags[j] + ")");
-					$('#tags').append(tag);
+					var f = function() {
+						var tag = $("<li/>");
+						var tag_a = $("<a href=\"#\"/>");
+						var tag_n = $("<span class=\"name\"/>");
+						var tag_s = $("<span/>");
+						tag.append(tag_a);
+						tag_a.append(tag_n);
+						tag_a.append(tag_s);
+						tag_n.text(j);
+						tag_s.text(" (" + all_tags[j] + ")");
+						$('#tags').append(tag);
+						tag_a.click(function(e) { return show_cat_tag('tags', tag); });
+					}();
 				}
 			}
 		}
 	}
 	
 	function show_cat_tag(cattag, item) {
-		var is_active = item ? item.hasClass("active") : true;
-		$('#' + cattag + ' div.item').removeClass("active");
-		if (item) item.toggleClass("active", !is_active);
-		$('#' + cattag + ' div.search_clear a').text(is_active ? "" : "clear");
+		var is_active = item.hasClass("active");
+		$('#' + cattag + ' li').removeClass("active");
+		item.toggleClass("active", !is_active);
 		do_search();
 		return false;
 	}
 	
-	function do_search() {
+	function do_search(count_only) {
+		// If no items match the result, don't hide them all. Just
+		// indicate an error.
+		if (!count_only) {
+			if (!do_search(true)) {
+				$('#searchbox').addClass("error")
+				return false;
+			}
+			
+			$('#searchbox').removeClass("error")
+		}
+		
 		// hide and show each faq item
 		var q = $('#searchbox').hasClass("default") ? "" : $('#searchbox').val().toLowerCase();
-		var cat = $('#categories .active a').text();
-		var tag = $('#tags .active a').text();
+		var cat = $('#categories .active a span.name').text();
+		var tag = $('#tags .active a span.name').text();
 		
 		var has_any_item = false;
 		
 		$('.faq_category').each(function() {
 			var has_item = false; 
 			$(this).find('.faq_item').each(function() {
+					var matches_tag = false;
+					$(this).find('ul.tags li').each(function() {
+						if (tag == $(this).text()) matches_tag = true; 
+					});
+							
 					var show =
 						      (q == "" || $(this).text().toLowerCase().indexOf(q) >= 0)
 						&& (cat == "" || $(this.parentNode).find("h2").text() == cat)
-						&& (tag == "" || tag in split_tags(this.getAttribute('tags')))
+						&& (tag == "" || matches_tag)
 						;
 					if (show) has_item = true;
-					$(this).toggle(show);
+					if (!count_only) $(this).toggle(show);
 					return 0;
 			});
-			$(this).toggle(has_item);
+			if (!count_only) $(this).toggle(has_item);
 			if (has_item) has_any_item = true;
 		});
 		
-		$('#faq_none').toggle(!has_any_item);
+		if (!count_only) {
+			$('h2').removeClass('c_first');
+			$('h2:visible:first').addClass('c_first');
+		}
+		
+		return has_any_item;
 	}
 	
 	$(function() {
 			populate_categories_tags();
 			
-			$('#searchbox').input_default("faq search");
-			$('#searchbox').textchange(do_search);
+			$('#searchbox').input_default("search faq");
+			$('#searchbox').textchange(function() { do_search(false); });
+			
+			$('h2:first').addClass('c_first');
+			
+			$('.faq_item').each(function() {
+					var p = $(this).find('p');
+					if (p.length > 1) {
+						$(p[0]).append('<a class="b_expand">read more [+]</a>');
+						$(p[p.length-1]).append('<a class="b_collapse">collapse [-]</a>');
+						$('.faq_item').find('p:not(:first)').hide();
+					}
+			});
+			
+			$('.b_expand').each(function() {
+				var node = this;
+				$(node).click(function() {
+					$(node).fadeOut();
+					$(node.parentNode.parentNode).find('p').fadeIn();
+				});
+			});
+
+			$('.b_collapse').each(function() {
+				var node = this;
+				$(node).click(function() {
+					$(node.parentNode.parentNode).find('p:not(:first)').fadeOut();
+					$(node.parentNode.parentNode).find('.b_expand').fadeIn();
+				});
+			});
+			
+			$('.tags li').each(function() {
+				$(this).click(function() {
+					var tag = $(this).text();
+					$('#tags li a').each(function() {
+						if ($(this).find('span.name').text() == tag)
+							$(this).click();
+					});
+				});
+			});
 	});
 	
 </script>
@@ -290,117 +329,51 @@
 
 	<div class="col_9">
 		
-		<h1>FAQ</h1>
+		<h1>Frequently Asked Questions</h1>
 
-		<div class="faq_category">
-			
-			<div id="search_faq">
-				<form onsubmit="return false;">
-					<input id="searchbox" type="text" />
-				</form>
-			</div>
-			<h2 class="c_bills c_first">Bills</h2>
-			
-			<div class="faq_item" tags="bills, biased, i love POPVOX">
-				<a name="billtitles"><h3>Where do the bill titles come from? Some seem so biased.</h3></a>
-				<img class="img_r" src="https://william.popvox.com/media/master/faq_thumb.jpg" alt="faq_thumb" width="102" height="71" />
-				<p>The titles listed on each bill page are the official titles of the legislation.  The Congressional sponsor of the bill picks the bill's title.  Some official titles are short and sound like a traditional title (i.e., the “Fairness in Taxation Act”) while others are long descriptions of what the bill actually does: "S. 797: A bill to amend the Fair Labor Standards Act of 1938 to provide more effective remedies to victims of discrimination in the payment of wages on the basis ...", (commonly known as the Paycheck Fairness Act.) (link to: https://www.popvox.com/bills/us/112/s797)</p>
-				<p>Remember the 2010 Tax Cut Extension? Well, officially, it was “the Senate amendment to the House amendment to the Senate amendment to H.R. 4853.″ Seriously. (See http://www.popvox.com/blog/2010/12/16/the-tax-cut-extension-or-senate-amendment-to-the-house-amendment-to-the-senate-amendment-to-h-r-4853/)</p>
-				<p>For confusing, long-winded titles like these, POPVOX may display a popular “street” name for the bill instead. The street name comes either from Congress’s own research team, the Congressional Research Service, or a tag assigned by the POPVOX team based on use in the media or by the public. Our tagging system is still a work in progress, and we will unveil new search tools soon. <a class="b_expand">expand [+]</a></p>
-				<ul class="tags">
-					<li>bills</li>
-					<li>biased</li>
-					<li>stuff</li>
-				</ul><div class="clear"> </div>
-			</div>
-			
-			<div class="faq_item" tags="bills, biased, i love POPVOX">
-				<a name="billtitles"><h3>Where do the bill titles come from? Some seem so biased.</h3></a>
-				<img class="img_r" src="https://william.popvox.com/media/master/faq_thumb.jpg" alt="faq_thumb" width="102" height="71" />
-				<p>The titles listed on each bill page are the official titles of the legislation.  The Congressional sponsor of the bill picks the bill's title.  Some official titles are short and sound like a traditional title (i.e., the “Fairness in Taxation Act”) while others are long descriptions of what the bill actually does: "S. 797: A bill to amend the Fair Labor Standards Act of 1938 to provide more effective remedies to victims of discrimination in the payment of wages on the basis ...", (commonly known as the Paycheck Fairness Act.) (link to: https://www.popvox.com/bills/us/112/s797)</p>
-				<p>Remember the 2010 Tax Cut Extension? Well, officially, it was “the Senate amendment to the House amendment to the Senate amendment to H.R. 4853.″ Seriously. (See http://www.popvox.com/blog/2010/12/16/the-tax-cut-extension-or-senate-amendment-to-the-house-amendment-to-the-senate-amendment-to-h-r-4853/)</p>
-				<p>For confusing, long-winded titles like these, POPVOX may display a popular “street” name for the bill instead. The street name comes either from Congress’s own research team, the Congressional Research Service, or a tag assigned by the POPVOX team based on use in the media or by the public. Our tagging system is still a work in progress, and we will unveil new search tools soon. <a class="b_expand">expand [+]</a></p>
-				<ul class="tags">
-					<li>bills</li>
-					<li>biased</li>
-					<li>stuff</li>
-				</ul><div class="clear"> </div>
-			</div>
-			
-		<p class="hide">Here are some questions frequently asked by real POPVOX users, and our answers to them. If you have a question, please email us at info@popvox.com. Chances are that other POPVOX users are thinking about the same question, so do us a favor and let us know!<a class="b_expand">collapse [+]</a></p>
+		<div id="search_faq">
+			<form onsubmit="return false;">
+				<input id="searchbox" type="text" />
+			</form>
 		</div>
-		
+
 		<div class="faq_category">
 			
-			<h2 class="c_orgs">Orgs</h2>
+			<h2 class="c_bills">About Bills in Congress</h2>
 			
-			<div class="faq_item" tags="bills, biased, i love POPVOX">
+			<div class="faq_item">
 				<a name="billtitles"><h3>Where do the bill titles come from? Some seem so biased.</h3></a>
-				<img class="img_r" src="https://william.popvox.com/media/master/faq_thumb.jpg" alt="faq_thumb" width="102" height="71" />
-				<p>The titles listed on each bill page are the official titles of the legislation.  The Congressional sponsor of the bill picks the bill's title.  Some official titles are short and sound like a traditional title (i.e., the “Fairness in Taxation Act”) while others are long descriptions of what the bill actually does: "S. 797: A bill to amend the Fair Labor Standards Act of 1938 to provide more effective remedies to victims of discrimination in the payment of wages on the basis ...", (commonly known as the Paycheck Fairness Act.) (link to: https://www.popvox.com/bills/us/112/s797)</p>
+				<img class="img_r" src="/media/master/faq_thumb.jpg" alt="faq_thumb" width="102" height="71" />
+				<p>The titles listed on each bill page are the official titles of the legislation.  The Congressional sponsor of the bill picks the bill's title.  Some official titles are short and sound like a traditional title (i.e., the “Fairness in Taxation Act”) while others are long descriptions of what the bill actually does: "S. 797: A bill to amend the Fair Labor Standards Act of 1938 to provide more effective remedies to victims of discrimination in the payment of wages on the basis ...", (commonly known as the <a href="/bills/us/112/s797">Paycheck Fairness Act</a>.)</p>
 				<p>Remember the 2010 Tax Cut Extension? Well, officially, it was “the Senate amendment to the House amendment to the Senate amendment to H.R. 4853.″ Seriously. (See http://www.popvox.com/blog/2010/12/16/the-tax-cut-extension-or-senate-amendment-to-the-house-amendment-to-the-senate-amendment-to-h-r-4853/)</p>
-				<p>For confusing, long-winded titles like these, POPVOX may display a popular “street” name for the bill instead. The street name comes either from Congress’s own research team, the Congressional Research Service, or a tag assigned by the POPVOX team based on use in the media or by the public. Our tagging system is still a work in progress, and we will unveil new search tools soon. <a class="b_expand">expand [+]</a></p>
+				<p>For confusing, long-winded titles like these, POPVOX may display a popular “street” name for the bill instead. The street name comes either from Congress’s own research team, the Congressional Research Service, or a tag assigned by the POPVOX team based on use in the media or by the public. Our tagging system is still a work in progress, and we will unveil new search tools soon.</p>
 				<ul class="tags">
-					<li>bills</li>
-					<li>biased</li>
-					<li>stuff</li>
+					<li>tag 1</li>
+					<li>tag 2</li>
+					<li>tag 3</li>
 				</ul><div class="clear"> </div>
-			</div>
-
-			<div class="faq_item" tags="bills, biased, i love POPVOX">
-				<a name="billtitles"><h3>Where do the bill titles come from? Some seem so biased.</h3></a>
-				<img class="img_r" src="https://william.popvox.com/media/master/faq_thumb.jpg" alt="faq_thumb" width="102" height="71" />
-				<p>The titles listed on each bill page are the official titles of the legislation.  The Congressional sponsor of the bill picks the bill's title.  Some official titles are short and sound like a traditional title (i.e., the “Fairness in Taxation Act”) while others are long descriptions of what the bill actually does: "S. 797: A bill to amend the Fair Labor Standards Act of 1938 to provide more effective remedies to victims of discrimination in the payment of wages on the basis ...", (commonly known as the Paycheck Fairness Act.) (link to: https://www.popvox.com/bills/us/112/s797)</p>
-				<p>Remember the 2010 Tax Cut Extension? Well, officially, it was “the Senate amendment to the House amendment to the Senate amendment to H.R. 4853.″ Seriously. (See http://www.popvox.com/blog/2010/12/16/the-tax-cut-extension-or-senate-amendment-to-the-house-amendment-to-the-senate-amendment-to-h-r-4853/)</p>
-				<p>For confusing, long-winded titles like these, POPVOX may display a popular “street” name for the bill instead. The street name comes either from Congress’s own research team, the Congressional Research Service, or a tag assigned by the POPVOX team based on use in the media or by the public. Our tagging system is still a work in progress, and we will unveil new search tools soon. <a class="b_expand">expand [+]</a></p>
-				<ul class="tags">
-					<li>bills</li>
-					<li>biased</li>
-					<li>stuff</li>
-				</ul><div class="clear"> </div>
-			</div>
-		</div>		
+			</div> <!-- end of item -->
+		</div> <!-- end of category -->
 	</div>
 	
 	<div class="col_3 col_last col_top">
 		
-		<div class="ad">ad</div>
+		<div class="ad">{% show_ad std180x150 "rightbar_slot1" %}</div>
 		
-		<div id="categories" class="sub">
+		<div class="sub">
 			<h2>Categories</h2>
-			<ul>
-				<li class="active"><a href="#">Privacy <span>(4)</span></a></li>
-				<li><a href="#">Tech Problems <span>(7)</span></a></li>
-				<li><a href="#">Category A <span>(4)</span></a></li>
-				<li><a href="#">Category B <span>(12)</span></a></li>
-				<li><a href="#">Category C <span>(3)</span></a></li>
-				<li><a href="#">Category D <span>(1)</span></a></li>
-				<li><a href="#">Other <span>(13)</span></a></li>
-				
-				<!-- <a href="#" onclick="return show_cat_tag('categories', null)"></a> -->
+			<ul id="categories">
 			</ul>
 		</div>
 
-		<div id="tags" class="sub">
+		<div class="sub">
 			<h2>Tags</h2>
-			<ul>
-				<li><a href="#">Privacy</a></li>
-				<li><a href="#">Tech Problems</a></li>
-				<li><a href="#">Category A</a></li>
-				<li><a href="#">Category B</a></li>
-				<li><a href="#">Category C</a></li>
-				<li><a href="#">Category D</a></li>
-				<li><a href="#">Other</a></li>
-				
-				<!-- <a href="#" onclick="return show_cat_tag('tags', null)"></a> -->
+			<ul id="tags">
+			
 			</ul>
 		</div>
 		
-		<div class="ad">ad</div>
-
-		<div id="faq_none" style="display: none">
-			<p>There aren't any questions that match your search. Sorry!<br /><br />Why don't you just <strong>tell</strong> me the name of the movie you'd like to see.</p>
-		</div>
+		<div class="ad">{% show_ad std180x150 "rightbar_slot2" %}</div>
 	</div>
 	
 </div>
