@@ -904,3 +904,39 @@ UA: %s
 		"delivered_message_dates": delivered_message_dates,
 		}, context_instance=RequestContext(request))
 
+@user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
+def daily_new_users(request):
+	import csv, StringIO
+	buf = StringIO.StringIO()
+	wr = csv.writer(buf)
+
+	from django.db import connection, transaction
+	c = connection.cursor()
+	c.execute("select min(date(date_joined)), count(*) from auth_user group by date(date_joined)")
+	rows = list(c.fetchall())
+	
+	# turn the result into a list of lists and add a column for the cumulative total,
+	# and room for the monthly growth rate
+	for i in xrange(len(rows)):
+		rows[i] = [rows[i][0], rows[i][1], rows[i][1] + (0 if i==0 else rows[i-1][2]), 0]
+		
+	from scipy import stats
+	from math import log, exp
+	window = 21
+	for i in xrange(window, len(rows)):
+		x = [(dt-rows[0][0]).days for dt, nc, cc, mg in rows[i-window+1 : i+1]]
+		y = [log(cc) for dt, nc, cc, mg in rows[i-window+1 : i+1]]
+		gradient, intercept, r_value, p_value, std_err = stats.linregress(x,y)
+		daily_factor = exp(gradient)
+		monthly_factor = pow(daily_factor, 30.5)
+		rows[i][3] = str(int((monthly_factor-1.0)*100.0)) + "%"
+	
+
+	rows.reverse()
+
+	wr.writerow(["date", "new users", "total users", "monthly_growth_rate"])
+	wr.writerows(rows)	
+
+	resp = HttpResponse(buf.getvalue(), mimetype="text/plain")
+	resp['Content-Disposition'] = 'inline'
+	return resp
