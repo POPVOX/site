@@ -809,7 +809,16 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			elif address_record_fixed == None:
 				# Now do verification against CDYNE to get congressional district.
 				# Do this after the CAPTCHA to prevent any abuse.
-				verify_adddress(address_record)
+
+				# if the address matches a previously entered address, don't recompute the district
+				# (especially if we manually overrode it) --- it was probably a resubmission of
+				# their last address that we provided as default values.
+				for other in request.user.postaladdress_set.all():
+					if address_record.nameprefix == other.nameprefix and address_record.firstname == other.firstname and address_record.lastname == other.lastname and address_record.namesuffix == other.namesuffix and address_record.address1.lower() == other.address1.lower() and address_record.address2.lower() == other.address2.lower() and address_record.city.lower() == other.city.lower() and address_record.state == other.state and address_record.zipcode == other.zipcode and address_record.phonenumber == other.phonenumber:
+						address_record = other
+						break
+				else:
+					verify_adddress(address_record)
 		
 		except Exception, e:
 			import sys
