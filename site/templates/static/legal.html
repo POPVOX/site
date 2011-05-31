@@ -62,21 +62,21 @@
 		{% if not user.userprofile.is_org_admin and not user.userprofile.is_leg_staff %}
 		<tr valign="top">
 			<td>Your Email Address</td>
-			<td>Your email address is shared with your Members of Congress when you weigh in on legislation, and sometimes with organizations that referred you to POPVOX (see Who Referred You). It is not shown publicly. We use your email address to send you news and account information.</td>
+			<td>Your email address is shared with your Members of Congress when you weigh in on legislation, and sometimes with organizations that referred you to POPVOX if you gave us your permission to do so (see Who Referred You). It is not shown publicly. We use your email address to send you news and account information.</td>
 			{% if user.is_authenticated %}
 			<td>{{user.email}}<br/>(<a href="/accounts/profile">edit</a>)</td>
 			{% endif %}
 		</tr>
 		<tr valign="top">
 			<td>Your Screen Name</td>
-			<td>Your screen name is how you are known to other users on POPVOX. It shows up next to each of your comments on legislation.</td>
+			<td>Your screen name is how you are known to other users on POPVOX. It shows up next to each of your public comments on legislation.</td>
 			{% if user.is_authenticated %}
 			<td>{{user.username}}<br/>(<a href="/accounts/profile">edit</a>)</td>
 			{% endif %}
 		</tr>
 		<tr valign="top">
 			<td>Your Name, Address, and Phone Number</td>
-			<td>Your name, physical address, and phone number are shared with your Members of Congress when you weigh in on legislation, and sometimes with organizations that referred you to POPVOX (see Who Referred You). Congressional offices generally require this information when accepting the letters we deliver on your behalf. When you move, we keep your past addresses on file so we know what Congressional district you were in when you left comments there.</td>
+			<td>Your name, physical address, and phone number are shared with your Members of Congress when you weigh in on legislation, and sometimes with organizations that referred you to POPVOX if you gave us your permission to do so (see Who Referred You). Congressional offices require this information when accepting the letters we deliver on your behalf. When you move, we keep your past addresses on file so we know what Congressional district you were in when you left comments there.</td>
 			{% if user.is_authenticated %}
 			<td>
 			<div style="max-height: 10em; overflow: auto">
@@ -95,7 +95,7 @@
 		</tr>
 		<tr valign="top">
 			<td>Your Comments and Your Congressional District</td>
-			<td>When you leave a comment on legislation, it is shown publicly on POPVOX along with your screen name and your state and congressional district (but not your real name nor your physical address), and it is delivered to your Members of Congress, and sometimes it is shared with organizations that referred you to POPVOX (see Who Referred You). Your comments are listed on your POPVOX home page. We also use your comments to suggest other bills you may be interested in. <br/><br/>We maintain a record of all delivered correspondence to your Members of Congress, even if you subsequently delete your comment, in order to protect the integrity of our relationship with Members of Congress. These records are deleted shortly after the end of the two-year Congressional session in which they were sent. Those records are not listed here.</td>
+			<td>When you leave a comment on legislation, it is shown publicly on POPVOX along with your screen name and your state and congressional district, and it is delivered to your Members of Congress. Your comment is only identified with your  real name and physical address whe it is sent to your Members of Congress, and also sometimes it is shared with organizations that referred you to POPVOX if you gave us your permission to do so (see Who Referred You). Your comments are listed on your POPVOX home page. <br/><br/>We also use your comments to suggest other bills you may be interested in. <br/><br/>We maintain a record of all delivered correspondence to your Members of Congress, even if you subsequently delete your comment, in order to protect the integrity of our relationship with Members of Congress. These records are deleted shortly after the end of the two-year Congressional session in which they were sent. {% if user.is_authenticated %}(Those records are not currently listed in this privacy report.).{% endif %}</td>
 			{% if user.is_authenticated %}
 			<td>
 			{% for comment in user.comments.all %}
@@ -110,7 +110,7 @@
 		</tr>
 		<tr valign="top">
 			<td>Who Referred You</td>
-			<td>When you leave a comment on legislation, we keep note of how you got here (normally that means from the website of an advocacy organization) and include that information when we deliver your comment to your Members of Congress. Otherwise, we do not share the information. </td>
+			<td>When you leave a comment on legislation, we keep note of how you got here (normally that means from the website of an advocacy organization) and include that information when we deliver your comment to your Members of Congress.</td>
 			{% if user.is_authenticated %}
 			<td>
 			{% for comment in user.comments.all %}
@@ -125,7 +125,7 @@
 		</tr>
 		<tr valign="top">
 			<td></td>
-			<td>Additionally, when you take action on an action page that has been customized by an organization or through the POPVOX Write Congress widget hosted by an organization, we may provide the organization with the information you enter &mdash; in either case, we let you know at the time you are filling out the information.</td>
+			<td>Additionally, when you take action on an action page that has been customized by an organization or through the POPVOX Write Congress widget hosted by an organization, we may provide the organization with the information you enter &mdash; in either case, we ask your permission or let you know at the time you are filling out the information.</td>
 			{% if user.is_authenticated %}
 			<td>
 			<div style="max-height: 10em; overflow: auto">
@@ -141,7 +141,7 @@
 		</tr>
 		<tr valign="top">
 			<td>Your Bookmark Settings</td>
-			<td>You can choose to bookmark bills and exclude bills from suggestions we make about what you might be interested in. We use these settings to customize suggestions we have for you and, in aggregate, for others.</td>
+			<td>You can choose to bookmark bills and exclude bills from suggestions we make about what you might be interested in. We use these settings to customize suggestions we have for you and, in aggregate, for others. We don&rsquo;t tell anyone what bills you weighed in on, except as explained above.</td>
 			{% if user.is_authenticated %}
 			<td>
 			<div>Bookmarked:
@@ -163,7 +163,7 @@
 		</tr>
 		<tr valign="top">
 			<td>Your Appreciations</td>
-			<td>You can appreciate the comments others leave on POPVOX. We don&rsquo;t share your appreciations with anyone and only use appreciations in aggregate to let other users find the most appreciated comments.</td>
+			<td>You can appreciate the comments others leave on POPVOX. We don&rsquo;t currently share your appreciations with anyone and only use appreciations in aggregate to let other users find the most appreciated comments. However, we will soon be showing what comments you have appreciated in a way that is tied to your public screen name, but not your real name or address.</td>
 			{% if user.is_authenticated %}
 			<td>
 				<div style="max-height: 10em; overflow: auto">
