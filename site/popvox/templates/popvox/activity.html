@@ -105,17 +105,24 @@
 <div class="content">
 	
 	<div class="col_9 col_top">
-		<h1>Recent Comments and other POPVOX Activity</h1>
+		<h1 class="mar_no_btm">Recent Comments and other POPVOX Activity</h1>
 			
 		{% if user.is_staff %}
 		
-			<p>
-				All-Time Registered Users: {{count_users}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %};
-				Leg Staff: {{count_legstaff}};
-				Positions Left: {{count_comments}};
-				Actual Comments Left: {{count_comments_messages}};
-				Registered Orgs: {{count_orgs}}
-			</p>
+			<div class="col_4 pad_no">
+				<ul class="activity bullets">
+					<li><strong>All-Time Registered Users:</strong> {{count_users}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %}</li>
+					<li><strong>Leg Staff:</strong> {{count_legstaff}}</li>
+					<li><strong>Positions Left:</strong> {{count_comments}}</li>
+				</ul>
+			</div>
+			<div class="col_4 pad_no col_last">
+				<ul class="activity bullets">
+					<li><strong>Actual Comments Left:</strong> {{count_comments_messages}}</li>
+					<li><strong>Registered Orgs:</strong> {{count_orgs}}</li>
+				</ul>
+			</div>
+			<div class="clear"> </div>
 			
 		{% else %}
 		
