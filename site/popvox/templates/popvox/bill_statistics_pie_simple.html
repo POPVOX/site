@@ -9,8 +9,8 @@
 		 <div style="float: left; width: 110px">
 			<p class="chart_stats">
 				<span class="chart_title">{{ stats.longdescription}}:</span><br />
-				<span class="bg_support">{{ stats.pro_pct }}% Support</span><br />
-				<span class="bg_oppose">{{ stats.con_pct }}% Oppose </span><br />
+				<span class="bg_support">{{ stats.pro_pct }}% Support <!-- {{stats.pro }} --></span><br />
+				<span class="bg_oppose">{{ stats.con_pct }}% Oppose <!-- {{stats.con }} --></span><br />
 				<span class="users">({{stats.total}} user{{stats.total|pluralize}})</span>
 			</p>
 			{% if not chart_no_links %}

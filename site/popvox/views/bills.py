@@ -364,7 +364,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		"shortdescription": shortdescription,
 		"longdescription": longdescription,
 		"total": pro+con, "pro":pro, "con":con,
-		"pro_pct": 100*pro/(pro+con), "con_pct": 100*con/(pro+con),
+		"pro_pct": int(round(100.0*pro/float(pro+con))), "con_pct": int(round(100.0*con/float(pro+con))),
 		"timeseries": time_series,
 		"pro_reintro": pro_reintro}
 	
