@@ -1,3 +1,4 @@
+{% load popvox_utils %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml"> 
  
@@ -281,7 +282,12 @@ $(function() {
 mpmetrics.register({
 	'user type': {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}
 });
-{% if user.is_authenticated %}mpmetrics.identify("{{user.id}}");{% endif %}
+{% if user.is_authenticated %}mpmetrics.identify("pv_uid_{{user.id}}");{% endif %}
+{% with request.session.shorturl.target.meta as surlm %}
+	{% if surlm.mixpanel_event %}
+		mpmetrics.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
+	{% endif %}
+{% endwith %}
 </script>
 {% block finalscript %}{% endblock %}
 
