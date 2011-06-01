@@ -1099,9 +1099,12 @@ class UserComment(models.Model):
 			govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
 			
 		# Remove recipients for whom we've already delivered to another Member in the same
-		# office, because of e.g. a resignation followed by a replacement.
-		govtrackrecipients = [g for g in govtrackrecipients if
-			not self.delivery_attempts.filter(success = True, target__office=g["office_id"]).exists()]
+		# office, because of e.g. a resignation followed by a replacement. This would raise a M2M
+		# error if the user comment isn't stored in the database yet, but happens when we're just
+		# testing for delivery of a hypothetical comment.
+		if self.id != None:
+			govtrackrecipients = [g for g in govtrackrecipients if
+				not self.delivery_attempts.filter(success = True, target__office=g["office_id"]).exists()]
 			
 		return govtrackrecipients
 		
