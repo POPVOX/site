@@ -49,6 +49,8 @@ if "LAST_ERR_SR" in os.environ:
 	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE)
 if "LAST_ERR_TIMEOUT" in os.environ:
 	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR, delivery_attempts__trace__contains="error timed out")
+if "RECENT" in os.environ:
+	comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=7))
 	
 for comment in comments_iter.order_by('created').select_related("bill").iterator():
 	if os.path.exists("/tmp/break"): break

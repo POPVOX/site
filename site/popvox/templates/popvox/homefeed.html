@@ -22,6 +22,13 @@ function phone_number_twilio_callback() {
 }
 {% include "popvox/bookmarked_bills.js" %}
 </script>
+<style>
+.action {
+	display: block;
+	float: left;
+	margin: 4px 15px 20px 0;
+}
+</style>
 {% endblock %}
 {% block content %}
 <div class="content"> 
@@ -44,37 +51,65 @@ function phone_number_twilio_callback() {
 		</script>
 		
 		<div id="newsfeed" class="col_9 col_top">
-		
+			<script>
+			function hide_prompt(billid) {
+				ajax(
+					"/ajax/accounts/profile/trackbill",
+					{
+						bill: billid,
+						track: "-"
+					},
+					{
+						success: function(ret) {
+							var has_remaining_sugs = false;
+							$('#suggestions ul.prompts li').each(function() {
+								if (this.getAttribute("billid") == billid)
+									$(this).fadeOut();
+								else
+									has_remaining_sugs = true;
+							});
+							//if (!has_remaining_sugs) $('#suggestions').fadeOut(); // there is still the last two bullets
+						}
+					});
+				return false;
+			}
+			</script>
+			<div id="suggestions">
 			{% for sug in suggestions %}
 				{% if forloop.first %}
 				<h3 class="mar_no">Here are some suggestions for you</h3>
-				<ul>
+				<ul class="prompts">
 				{% endif %}
 			
-				<li>
+				<li billid="{{sug.bill.id}}">
 					{% if forloop.counter <= 2 %}
 						<div class="col_6">
 						<div style="margin-bottom: .5em"><a href="{{sug.bill.url}}" style="font-weight: bold;">{{sug.bill.title|truncatewords:10}}</a></div>
+						<a class="action" href="{{sug.bill.url}}">Action</a>
+						<p>
 						{% if sug.source %}
-							<p>Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
+							Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.
 						{% else %}
-							<p>This bill is trending on POPVOX.</p>
+							This bill is trending on POPVOX.
 						{% endif %}
-						
-						<div><a class="action" href="{{sug.bill.url}}">Action</a></div>
+						Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.
+						</p>
 						</div>
 						
 						{% bill_statistics sug.bill as stats %}
 						{% with sug.bill as bill %}
 						{% with bill.id as chart_id %}
 						{% with 60 as chart_size %}
+						{% with 1 as chart_no_links %}
 							{% include "popvox/bill_statistics_pie_simple.html" %}
+						{% endwith %}
 						{% endwith %}
 						{% endwith %}
 						{% endwith %}
 						
 					{% else %}
 						<div><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></div>
+						<div style="margin-left: 30px"><small>Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</small></div>
 					{% endif %}
 					<div class="hr"> </div>
 					
@@ -89,6 +124,7 @@ function phone_number_twilio_callback() {
 				</ul>
 				{% endif %}
 			{% endfor %}
+			</div>
 					
 			 <div class="mar_top">
 				 <h3>Your Recent Comments</h3>

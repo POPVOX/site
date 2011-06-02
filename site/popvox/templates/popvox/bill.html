@@ -86,7 +86,7 @@ function getshorturl() {
 
 	{% endif %}
 
-	<div class="col_9">
+	<div class="col_9 col_top">
 		<a class="btn b_view_report" href="{{bill.url}}/report">
 			View {{bill.displaynumber}} report
 		</a>
@@ -96,9 +96,7 @@ function getshorturl() {
 		{% else %}
 		<h1>Bill Status and Org Positions</h1>
 		{% endif %}
-	</div>
-		
-	<div class="clear col_9 col_top">
+
 		<div class="block bill_overview_user">
 			{% if user.is_authenticated %}
 			<div style="float: left; margin-left: -34px">
@@ -123,6 +121,9 @@ function getshorturl() {
 				<p><strong>This bill {{bill.getDeadReason}}.</strong></p>
 			{% endif %}
 		</div>
+	</div>
+	
+	{% include "ads/rightbar_single.html" %}	
 		
 	{% comment %} START FOR ORG STAFF {% endcomment %}
 	{% if user_org %}
@@ -253,8 +254,6 @@ function getshorturl() {
 		{% endif %}
 	{% comment %} END OF USER VOTE {% endcomment %}
 
-	</div>
-	
 	{% comment %} START OF PIE CHART {% endcomment %}
 	<div class="col_3 col_top col_last">
 		<h3 class="no_rule">What POPVOX Users Say</h3>

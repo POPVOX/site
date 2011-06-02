@@ -1,4 +1,5 @@
 {% extends "master.html" %}
+{% load popvox_utils %}
 {% load adserver_tags %}
 {% block title %}POPVOX Frequently Asked Questions{% endblock %}
 {% block title2 %}{% endblock %}
@@ -34,7 +35,7 @@
 	background-repeat: none;
 	}
 	
-	.faq h2.c_bills	{
+	/*.faq h2.c_bills	{
 		background: url(bg_icon_privacy.png) left top no-repeat;
 		}
 		
@@ -48,13 +49,7 @@
 
 	.faq h2.c_hill	{
 		background: url(bg_icon_privacy.png) left center no-repeat;
-		}
-
-	.faq h2.c_first {
-		border-top: 0;
-		padding: 12px 0 20px 60px;
-		background-position-x: top;
-		}
+		}*/
 
 .faq h3 {
 	font: bold 18px/24px helvetica,arial,sans-serif;
@@ -71,6 +66,7 @@
 	height: 42px;
 	width: 215px;
 	background: #d4d1ca;
+	margin-top: 5px;
 	}
 
 	#search_faq input {
@@ -149,7 +145,7 @@
 		}
 
 	.faq .sub ul li {
-		line-height: 13px;
+		line-height: 18px;
 		}
 		
 		.faq .sub li a {
@@ -180,6 +176,10 @@
 		font: bold 11px/11px helvetica, arial, sans-serif;
 		}
 		
+.faq_category h2 { /* temporary improvement till we have icons */
+    background: none repeat scroll 0 0 #D4D1CA;
+    padding: 15px 0 10px 60px;
+}
 </style>
 <script>
 	function populate_categories_tags() {
@@ -353,7 +353,7 @@
 		
 		<h1>Frequently Asked Questions</h1>
 
-		<p>Here are some questions frequently asked by real POPVOX users, and our answers to them. If you have a question, please email us at info@popvox.com. Chances are that other POPVOX users are thinking about the same question, so do us a favor and let us know!</p>
+		<p>Here are some questions frequently asked by real POPVOX users, and our answers to them. If you have a question, please email us at <a href="mailto:info@popvox.com">info@popvox.com</a>. Chances are that other POPVOX users are thinking about the same question, so do us a favor and let us know!</p>
 
 		<div id="search_faq">
 			<form onsubmit="return false;">
@@ -363,7 +363,7 @@
 
 		<div class="faq_category">
 			
-			<h2 class="c_bills">Bills</h2>
+			<h2 class="c_bills">Bills, Lists, and Alerts</h2>
 			
 			<div class="faq_item">
 				<a name="billtitles"><h3>Where do the bill titles come from? Some seem so biased.</h3></a>
@@ -409,7 +409,8 @@
 
 				<p>As campaigns around bills heat up in Congress, the POPVOX team also uploads the positions organizations take on these bills as an added value to our POPVOX users and Congressional staffers. From our conversations with our users, we know that they want to hear from trusted sources of information before weighing in on a bill—including issue experts and analysts, as well as other individuals in their community or state.</p>
 
-				<p>If you know of an organization you&rsquo;d like to see on POPVOX, please let Rachna know at <a href="mailto:rachna@popvox.com?subject=I Want To See This Organization On Popvox!">rachna@popvox.com. We&rsquo;d also love a reference to that organization, so reach out and ask them to get on POPVOX! And feel free to share this <A HREF="/files/organization_intro.pdf">Organizational Overview</a> with them.</p>
+				<p>If you know of an organization you&rsquo;d like to see on POPVOX, please let Rachna know at <a href="mailto:rachna@popvox.com?subject=I Want To See This Organization On Popvox!">rachna@popvox.com. We&rsquo;d also love a reference to that organization, so reach out and ask them to get on POPVOX! And feel free to share this <a href="/files/organization_intro.pdf">Organizational Overview</a> with them.</p>
+
 				<ul class="tags">
 					<li>orgs</li>
 				</ul><div class="clear"> </div>
@@ -441,7 +442,7 @@
 
 		<div class="faq_category">
 			
-			<h2 class="c_hill">POPVOX and Congress</h2>
+			<h2 class="c_hill">Congress</h2>
 			
 			<div class="faq_item">
 				<a name="billtitles"><h3>What does Congress see on POPVOX? Does POPVOX seek feedback from Congressional staffers?</h3></a>
@@ -459,7 +460,7 @@
 
 		<div class="faq_category">
 			
-			<h2 class="c_message">Your Message And Congress</h2>
+			<h2 class="c_message">Your Message</h2>
 			
 			<div class="faq_item">
 				<a name="howsent"><h3>How is my message sent to Congress?</h3></a>
