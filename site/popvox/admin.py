@@ -90,7 +90,24 @@ admin.site.register(ServiceAccount, ServiceAccountAdmin)
 admin.site.register(ServiceAccountPermission)
 
 class RawTextAdmin(admin.ModelAdmin):
-	actions = ['view_html']
+	actions = ['view_html', 'make_short_urls']
+	
+	def save_model(self, request, obj, form, change):
+		if obj.is_mime():
+			# Validate the MIME message and delete extraneous headers
+			# that we don't want to propagate in outgoing emails. A MIME
+			# message is bytes but we can only store unicode in the database,
+			# so we assume we won't lose anything by encoding and then
+			# decoding for storage as utf-8.
+			import email
+			if type(obj.text) == unicode: obj.text = obj.text.encode("utf8")
+			msg = email.message_from_string(obj.text)
+			for header in msg.keys():
+				if not header.lower() in ('from', 'subject', 'content-type'):
+					del msg[header]
+			obj.text = msg.as_string().decode("utf8")
+		obj.save()
+	
 	def view_html(self, request, queryset):
 		from django.http import HttpResponse
 		r = HttpResponse()
@@ -98,5 +115,26 @@ class RawTextAdmin(admin.ModelAdmin):
 			r.write(obj.html())
 		return r
 	view_html.short_description = "Preview"
+	
+	def make_short_urls(self, request, queryset):
+		def make_url(obj, target, cloj):
+			cloj["num"] += 1
+			
+			import shorturl
+			sr = shorturl.models.SimpleRedirect(url=target)
+			sr.set_meta({ "mixpanel_event": obj.name, "mixpanel_properties": { "link_number": "%02d" % cloj["num"] }})
+			sr.save()
+			rec = shorturl.models.Record.objects.create(target=sr)
+			return rec.url()
+			
+		import re
+		for obj in queryset:
+			cloj = { "num": 0 }
+			obj.text = re.sub(
+				r"https?://(www\.)?popvox.com(/[a-zA-Z0-9\-_/%+]+)?",
+				lambda m : make_url(obj, m.group(0), cloj),
+				obj.text)
+			obj.save()
+	make_short_urls.short_description = "Replace Links with Short URLs"
 
 admin.site.register(RawText, RawTextAdmin)

@@ -32,7 +32,7 @@ class MailListUser(models.Model):
 
 class RawText(models.Model):
 	name = models.SlugField(db_index=True, unique=True)
-	format = models.IntegerField(choices=[(0, "Raw HTML"), (1, "Markdown")], default=0)
+	format = models.IntegerField(choices=[(0, "Raw HTML"), (1, "Markdown"), (2, "Email Message Source (MIME)")], default=0)
 	text = models.TextField(blank=True)
 	class Meta:
 		ordering = ['name']
@@ -44,6 +44,9 @@ class RawText(models.Model):
 		if self.format == 1:
 			import markdown
 			return markdown.markdown(self.text, output_format='html4')
+		raise Exception("Invalid for MIME type messages.")
+	def is_mime(self):
+		return self.format == 2
 
 class IssueArea(models.Model):
 	"""An issue area."""

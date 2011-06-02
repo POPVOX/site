@@ -59,11 +59,11 @@ class Record(models.Model):
 	###
 	
 	class Meta:
-		ordering = ["-hits", "created"]
+		ordering = ["-created"]
 		unique_together = ["target_content_type", "target_object_id", "owner_content_type", "owner_object_id"]
 	
 	def __unicode__(self):
-		ret = unicode(self.target_content_type) + u" (" + unicode(self.target)[0:30] + u")"
+		ret = unicode(self.target_content_type) + u" (" + unicode(self.target)[0:60] + u")"
 		if self.owner != None:
 			ret += u" <= " + unicode(self.owner_content_type) + u" (" + unicode(self.owner)[0:30] + u")"
 		#ret += u" (" + self.url() + u")"
@@ -105,6 +105,13 @@ class SimpleRedirect(models.Model):
 	target = generic.GenericForeignKey('target_content_type', 'target_object_id')
 	meta_pickled = models.TextField(blank=True)
 	created = models.DateTimeField(auto_now_add=True)
+	
+	def __unicode__(self):
+		if self.url:
+			return self.url + " (" + repr(self.meta()) + ")"
+		if self.target:
+			return unicode(self.target) + " (" + repr(self.meta()) + ")"
+		return "?"
 
 	def get_absolute_url(self):
 		return self.url
