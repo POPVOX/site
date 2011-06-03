@@ -1,0 +1,138 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}POPVOX Metrics{% endblock%}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<style>
+	th, td { padding: 4px 7px 4px 7px }
+	th { font-weight: bold; }
+	tr.multicol th[colspan] { border-bottom: 1px solid black; border-right: 8px solid #e8e5df; text-align: center }
+</style>
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="col_12 col_top col_last">
+		<h1>POPVOX Metrics</h1>
+		
+		<h2>All-Time</h2>
+			
+		<div class="col_4 pad_no">
+			<ul class="activity bullets">
+				<li><strong>All-Time Registered Users:</strong> {{count_users}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %}</li>
+				<li><strong>Leg Staff:</strong> {{count_legstaff}}</li>
+				<li><strong>Positions Left:</strong> {{count_comments}}</li>
+			</ul>
+		</div>
+		<div class="col_4 pad_no col_last">
+			<ul class="activity bullets">
+				<li><strong>Actual Comments Left:</strong> {{count_comments_messages}}</li>
+				<li><strong>Registered Orgs:</strong> {{count_orgs}}</li>
+			</ul>
+		</div>
+		<div class="clear"> </div>
+
+		<h2>By Cohort</h2>
+		
+		<table>
+		<tr class="multicol">
+			<th/>
+			<th/>
+			<th colspan="2">Total Per User, Average</th>
+			
+			<th colspan="1">Mean</th>
+			
+			<th colspan="5">Login Types</th>
+		</tr>
+		<tr>
+			<th>Date</th>
+			<th>Size</th>
+			
+			<th>Positions</th>
+			<th>Comments</th>
+			
+			<th>Retention (Days)</th>
+			
+			<th>Password</th>
+			<th>Google</th>
+			<th>Facebook</th>
+			<th>Twitter</th>
+			<th>LinkedIn</th>
+		</tr>
+		{% for date, stats in by_cohort %}
+			<tr>
+				<td>{{date.isoformat}}</td>
+				<td>{{stats.size.count}}</td>
+				
+				<td>{{stats.positions_per_user.count}}</td>
+				<td>{{stats.comments_per_user.count}}</td>
+				
+				<td>{{stats.retention.mean}}</td>
+				
+				<td>{{stats.login_types.password}}</td>
+				<td>{{stats.login_types.google_openid}}</td>
+				<td>{{stats.login_types.facebook}}</td>
+				<td>{{stats.login_types.twitter}}</td>
+				<td>{{stats.login_types.linkedin}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+		
+		<div class="rule"> </div>
+
+		<h2>By Day</h2>
+		
+		<table>
+		<tr class="multicol">
+			<th/>
+			<th colspan="3">Users</th>
+			<th colspan="3">Positions</th>
+			<th colspan="3">Comments</th>
+			<th colspan="3">Comments w/ Referrer</th>
+		</tr>
+		<tr>
+			<th>Date</th>
+			
+			<th>New</th>
+			<th>Total</th>
+			<th>x2 Every</th>
+
+			<th>New</th>
+			<th>Total</th>
+			<th>x2 Every</th>
+
+			<th>New</th>
+			<th>Total</th>
+			<th>x2 Every</th>
+			
+			<th>New</th>
+			<th>Total</th>
+			<th>x2 Every</th>
+		</tr>
+		{% for date, stats in by_day %}
+			<tr>
+				<td>{{date.isoformat}}</td>
+				
+				<td>{{stats.new_users.count}}</td>
+				<td>{{stats.new_users.cumulative}}</td>
+				<td>{{stats.new_users.double_life}}</td>
+
+				<td>{{stats.new_positions.count}}</td>
+				<td>{{stats.new_positions.cumulative}}</td>
+				<td>{{stats.new_positions.double_life}}</td>
+
+				<td>{{stats.new_comments.count}}</td>
+				<td>{{stats.new_comments.cumulative}}</td>
+				<td>{{stats.new_comments.double_life}}</td>
+				
+				<td>{{stats.new_comments_with_referrer.count}}</td>
+				<td>{{stats.new_comments_with_referrer.cumulative}}</td>
+				<td>{{stats.new_comments_with_referrer.double_life}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+
+
+	</div> <!-- col_12 -->
+</div><!-- e: content -->
+{% endblock %}
+

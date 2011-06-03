@@ -11,7 +11,6 @@
 	{% include "popvox/track.js" %}
 </script>
 {% endblock %}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block content %}
 	<script>
 	var report_state = "{{default_state}}";
@@ -108,23 +107,6 @@
 		<h1 class="mar_no_btm">Recent Comments and other POPVOX Activity</h1>
 			
 		{% if user.is_staff %}
-		
-			<div class="col_4 pad_no">
-				<ul class="activity bullets">
-					<li><strong>All-Time Registered Users:</strong> {{count_users}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %}</li>
-					<li><strong>Leg Staff:</strong> {{count_legstaff}}</li>
-					<li><strong>Positions Left:</strong> {{count_comments}}</li>
-				</ul>
-			</div>
-			<div class="col_4 pad_no col_last">
-				<ul class="activity bullets">
-					<li><strong>Actual Comments Left:</strong> {{count_comments_messages}}</li>
-					<li><strong>Registered Orgs:</strong> {{count_orgs}}</li>
-				</ul>
-			</div>
-			<div class="clear"> </div>
-			
-		{% else %}
 		
 			{% if user.userprofile.is_leg_staff %}
 			<p>Names and cities are shown for individuals commenting in your state (Senate personal staff) or district (House personal staff). Otherwise, only POPVOX screen names and congressional districts are shown for privacy reasons.</p>
