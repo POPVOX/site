@@ -150,7 +150,7 @@
 			</div><!-- e: body -->
 			
 			<div id="widget_foot">
-				<p><a href="{{url}}" target="_blank">read more at</a></p>
+				<p><a href="{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}" target="_blank">read more at</a></p>
 			</div>
 			
 		</div><!-- e: widget -->

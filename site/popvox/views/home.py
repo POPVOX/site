@@ -762,7 +762,7 @@ def legstaff_download_messages(request):
 	from datetime import datetime
 
 	member_id = request.user.legstaffrole.member.id
-	office_id = getMemberOfCongress(member_id)["office_id"]
+	office_id = govtrack.getMemberOfCongress(member_id)["office_id"]
 	
 	date_format = "%Y-%m-%d %H:%M:%S.%f"
 	
@@ -833,20 +833,20 @@ def legstaff_download_messages(request):
 				comment.bill.hashtag() + " " + ("support" if comment.position=="+" else "oppose"),
 				topic_code,
 				
-				comment.address.nameprefix,
-				comment.address.firstname,
-				comment.address.lastname,
-				comment.address.namesuffix,
-				comment.address.address1,
-				comment.address.address2,
-				comment.address.city,
-				comment.address.state,
-				comment.address.zipcode,
-				comment.address.phonenumber,
+				comment.address.nameprefix.encode("utf8"),
+				comment.address.firstname.encode("utf8"),
+				comment.address.lastname.encode("utf8"),
+				comment.address.namesuffix.encode("utf8"),
+				comment.address.address1.encode("utf8"),
+				comment.address.address2.encode("utf8"),
+				comment.address.city.encode("utf8"),
+				comment.address.state.encode("utf8"),
+				comment.address.zipcode.encode("utf8"),
+				comment.address.phonenumber.encode("utf8"),
 				comment.address.congressionaldistrict,
 
-				comment.user.email,
-				comment.message if comment.message != None else "(This user chose not to write a personal message.)",
+				comment.user.email.encode("utf8"),
+				comment.message.encode("utf8") if comment.message != None else "(This user chose not to write a personal message.)",
 				campaign_id,
 				])
 
