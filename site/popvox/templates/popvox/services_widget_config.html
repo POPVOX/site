@@ -19,10 +19,12 @@
 	border: none;
 	padding: 0px 20px 20px 0;
 	}
+	#wTop .right h3 {
+		margin-bottom: 5px;
+		}
 	#wTop .right p {
-		font-size: 18px;
-		line-height: 30px;
-		font-weight: bold;
+		font-size: 16px;
+		line-height: 15px;
 		}
 
 .wBottom {
@@ -202,7 +204,7 @@ var current_account;
 var widgettype;
 
 function change_widget(tab) {
-	widgettype = tab.getAttribute("href").substr(1);
+	widgettype = tab.getAttribute("href").substr(tab.getAttribute("href").indexOf("#")+1);
 	$('ul.tabs li').removeClass("active");
 	$(tab.parentNode).addClass("active");
 	
@@ -229,7 +231,7 @@ function change_widget(tab) {
 	}
 
 	if (widgettype == "writecongress") {
-		$('#widget_description').html("The Write Congress Widget can be placed on your website to power letter-writing calls to action. Choose what bill your call to action will be about:");
+		$('#widget_description').html("The free “Write Congress” widget embeds the powerful POPVOX advocacy tool onto your own website. Your visitors weigh in on the bill you feature, POPVOX takes care of the rest!");
 		$('#code').css({width: "450px"});
 		$('.config_pane').animate({width: '400px'});
 		$('.preview_pane').animate({width: '460px'});
@@ -465,7 +467,7 @@ $(window).bind("hashchange", function() {
 });
 function open_tab() {
 	$('ul.tabs li a').each(function() {
-			if (this.getAttribute("href") == window.location.hash)
+			if (this.getAttribute("href").substr(this.getAttribute("href").indexOf("#")) == window.location.hash)
 				change_widget(this);
 	});
 }
@@ -526,7 +528,8 @@ var minicolors_opts = {
 			<div class="right">
 				<h3>HARNESS THE POWER OF POPVOX ON YOUR SITE</h3>
 
-				<p>Keep your own website content fresh and allow users to take action with POPVOX’s customizable widgets!</p>
+				<p>Now users can write to Congress without leaving your website</p>
+				<p>Keep your content fresh with real-time streaming comments</p>
 			</div>
 			<div class="clear"> </div>
 		</div><!---end of wTop--->
@@ -543,7 +546,7 @@ var minicolors_opts = {
 			
 			<div class="right">
 				<div tab="commentstream">
-				  <a href="#commentstream"><img src="/media/widget/commentstream_thumbnail.png" alt="Preview Image"/></a>
+				  <img src="/media/widget/commentstream_thumbnail.png" alt="Preview Image" onclick="window.location='#commentstream'"/>
 			      <h4>Display what others are saying about your issues.</h4>
 				  <p>With POPVOX’s Comment Stream, individuals and organizations can:</p>
 					<ul class="bullets">
@@ -555,14 +558,14 @@ var minicolors_opts = {
 				</div>
 			
 				<div tab="writecongress">
-				    <a href="#writecongress"><img src="/media/widget/writecongress_thumbnail.png" alt="Preview Image" style="border: 2px solid #CC6A11;"/></a>
+				  <img src="/media/widget/writecongress_thumbnail.png" alt="Preview Image" style="border: 2px solid #CC6A11;" onclick="window.location='#writecongress'"/>
 				  <h4>Direct your membership to take action without leaving your website.</h4>
 					<p>The “Write Congress” widget embeds POPVOX’s powerful advocacy tool onto your own website. And since it&rsquo;s powered by POPVOX:</p>
 							
 					<ul class="bullets">
 						<li>Constituent information is <b>verified</b> for Congressional offices.</li>
 						<li>Messages from your activists are <b>quantified</b> and aggregated with other messages to show true grassroots power.</li>
-						<li>Activists get guaranteed delivery to Congress and receive a confirmation when their message is sent.</li>
+						<li>Activists get guaranteed delivery to Congress and can view their delivery status.</li>
 					</ul>
 					
 					<p>With a Pro account, your customized text will explain why your site visitors should support or oppose the bills you care about, and the widget integrates into your existing campaign tools.</p>
@@ -653,8 +656,8 @@ var minicolors_opts = {
 										
 				<div id="writecongress_bill_error" class="error"> </div>
 				
-				<p>Comments submitted through the widget will be sent to Congress and posted anonymously on POPVOX. Users will create a POPVOX account if they don&rsquo;t already have one. With a Pro account you will have access to the information submitted by users of your widget, and letters to Congress will mention your organization.</p>
-				
+				<p style="padding-bottom: 1em">Comments submitted through the widget will be sent to Congress and posted anonymously on POPVOX. Users will create a POPVOX account if they don&rsquo;t already have one.</p>
+				<div class="clear"> </div>
 			</div><!-- e: block -->
 			
 			<div class="block3 widget_opts commentstream_opts writecongress_opts">
@@ -686,6 +689,8 @@ var minicolors_opts = {
 			<div class="plus widget_opts commentstream_opts writecongress_opts">
 				<h4>Pro</h4> <!--<p class="b_upgrade btn"><a href="#">upgrade</a>--></p>
 				<div class="clear"> </div>
+				
+				<p class="widget_opts writecongress_opts">With a Pro account you will have access to the information submitted by users of your widget, and letters to Congress will mention your organization.</p>
 				
 				<p class="plus_teaser">You don’t look good in orange?  Customize this widget! Contact Rachna at {% obfuscated_email "rachna@popvox.com" %} to find out more about POPVOX Pro!</p>
 				
