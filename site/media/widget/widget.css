@@ -58,7 +58,7 @@
 		}
 	
 	.form .vert small {
-		margin: 0;
+		margin: -10px 0 16px 2px;
 		padding: 0;
 		width: auto;
 		}
@@ -70,7 +70,7 @@
 	.form .vert input {
 		font-size: 11px;
 		height: 16px;
-		margin: 0 0 25px;
+		margin: 0 0 16px 0;
 		width: 260px;
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
