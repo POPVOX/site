@@ -43,7 +43,9 @@ function getshorturl() {
 			<h1>Hello There!</h1>
 			<p>{{welcome}}</p>
 		</div>
+		{% with "1" as no_rule %}
 		{% include "ads/rightbar_single.html" %}
+		{% endwith %}
 		<div class="clear rule_12"> </div>
 	{% endif %}
 
@@ -123,7 +125,9 @@ function getshorturl() {
 		</div>
 	</div>
 	
+	{% with "1" as no_rule %}
 	{% include "ads/rightbar_single.html" %}	
+	{% endwith %}
 		
 	{% comment %} START FOR ORG STAFF {% endcomment %}
 	{% if user_org %}

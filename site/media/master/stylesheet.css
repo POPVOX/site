@@ -679,7 +679,7 @@ table.form_fields td {
 
 #bill_endorse_oppose_holder_user {
     float: left;
-    margin: 10px 0 30px;
+    margin: 10px 24px 30px 0;
     padding: 10px 20px 20px;
     width: 414px;
     border: 1px solid #D4D1CA;
