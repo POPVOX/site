@@ -165,6 +165,7 @@ def metrics(request):
 					  # column
 		for key, val in inf.items():
 			for row in val:
+				if row["date"] < datetime(2010, 11, 1).date(): continue
 				if not row["date"] in ret: ret[row["date"]] = {} # date
 				ret[row["date"]][key] = row
 				del row["date"]
@@ -191,6 +192,16 @@ def metrics(request):
 			"new_comments": new_comments,
 			"new_comments_with_referrer": new_comments_with_referrer,
 		})
+	for date, stats in by_day: # for the same of graphs, fill in values
+		if not "new_comments" in stats:
+			stats["new_comments"] = { "count": 0, "cumulative": prev_cumu_comments }
+		else:
+			prev_cumu_comments = stats["new_comments"]["cumulative"]
+		if not "new_positions" in stats:
+			stats["new_positions"] = { "count": 0, "cumulative": prev_cumu_positions }
+		else:
+			prev_cumu_positions = stats["new_positions"]["cumulative"]
+		
 
 	cohort_sizes = get_daily_numbers("select min(date(date_joined)), count(*) from auth_user group by year(date_joined), month(date_joined)", year_month=True)
 	cohort_sizes2 = dict(((c["date"], c["count"]) for c in cohort_sizes))
@@ -230,13 +241,18 @@ def metrics(request):
 		if len(nums) == 0:
 			return None
 		return round(float(sum(nums))/float(len(nums)), 1)
+		
+	def pctile(nums, num):
+		if len(nums) == 0:
+			return None
+		return 100 * len([n for n in nums if n >= num]) / len(nums)
 	
 	cohort_retention = []
 	c = connection.cursor()
 	for cohort in cohort_sizes2.keys():
 		c.execute("select min(created), max(created) from popvox_usercomment left join auth_user on popvox_usercomment.user_id=auth_user.id where year(auth_user.date_joined)=%d and month(auth_user.date_joined) = %d group by auth_user.id" % (cohort.year, cohort.month))
 		retention = [(row[1] - row[0]).days for row in c.fetchall()]
-		cohort_retention.append({ "date": cohort, "median": median(retention), "mean": mean(retention) })
+		cohort_retention.append({ "date": cohort, "median": median(retention), "mean": mean(retention), "pctile_1day": pctile(retention, 1), "pctile_7days": pctile(retention, 7), "pctile_30days": pctile(retention, 30) })
 	
 	by_cohort = merge_by_day({
 			"size": cohort_sizes,

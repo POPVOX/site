@@ -6,7 +6,7 @@
 <style>
 	th, td { padding: 4px 7px 4px 7px }
 	th { font-weight: bold; }
-	tr.multicol th[colspan] { border-bottom: 1px solid black; border-right: 8px solid #e8e5df; text-align: center }
+	tr.multicol th[colspan] { border-bottom: 1px solid black; text-align: center; }
 </style>
 {% endblock %}
 {% block content %}
@@ -14,60 +14,72 @@
 	<div class="col_12 col_top col_last">
 		<h1>POPVOX Metrics</h1>
 		
-		<h2>All-Time</h2>
+		<h3>All-Time</h3>
 			
 		<div class="col_4 pad_no">
 			<ul class="activity bullets">
-				<li><strong>All-Time Registered Users:</strong> {{count_users}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %}</li>
+				<li><strong>All Users:</strong> {{count_users}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %}</li>
 				<li><strong>Leg Staff:</strong> {{count_legstaff}}</li>
-				<li><strong>Positions Left:</strong> {{count_comments}}</li>
+				<li><strong>Registered Orgs:</strong> {{count_orgs}}</li>
 			</ul>
 		</div>
 		<div class="col_4 pad_no col_last">
 			<ul class="activity bullets">
-				<li><strong>Actual Comments Left:</strong> {{count_comments_messages}}</li>
-				<li><strong>Registered Orgs:</strong> {{count_orgs}}</li>
+				<li><strong>Positions Left:</strong> {{count_comments}}</li>
+				<li><strong>Comments Left:</strong> {{count_comments_messages}}</li>
 			</ul>
 		</div>
 		<div class="clear"> </div>
 
-		<h2>By Cohort</h2>
+		<h3>By Cohort</h3>
+		
+		<p>Cohorts group users by the month they joined.</p>
+		<p>Retention is the number of days from the first position left to the most recent position left. The percents indicate the percent of the cohort with a retention of that number of days or more.</p>
 		
 		<table>
 		<tr class="multicol">
 			<th/>
 			<th/>
+			<th/>
 			<th colspan="2">Total Per User, Average</th>
-			
-			<th colspan="1">Mean</th>
-			
+			<th/>
+			<th colspan="4">Retention</th>
+			<th/>
 			<th colspan="5">Login Types</th>
 		</tr>
 		<tr>
-			<th>Date</th>
-			<th>Size</th>
-			
+			<th>Joined</th>
+			<th>Users</th>
+			<th/>
 			<th>Positions</th>
 			<th>Comments</th>
-			
-			<th>Retention (Days)</th>
-			
-			<th>Password</th>
-			<th>Google</th>
-			<th>Facebook</th>
-			<th>Twitter</th>
-			<th>LinkedIn</th>
+			<th/>
+			<th>Mean</th>
+			<!--<th>Median</th>-->
+			<th>1 day</th>
+			<th>7 days</th>
+			<th>30 days</th>
+			<th/>
+			<th>Pw.</th>
+			<th>G</th>
+			<th>FB</th>
+			<th>Tw</th>
+			<th>L.I.</th>
 		</tr>
 		{% for date, stats in by_cohort %}
 			<tr>
-				<td>{{date.isoformat}}</td>
+				<td>{{date|date:"Y-m"}}</td>
 				<td>{{stats.size.count}}</td>
-				
+				<th/>
 				<td>{{stats.positions_per_user.count}}</td>
 				<td>{{stats.comments_per_user.count}}</td>
-				
+				<th/>
 				<td>{{stats.retention.mean}}</td>
-				
+				<!--<td>{{stats.retention.median}}</td>-->
+				<td>{{stats.retention.pctile_1day}}%</td>
+				<td>{{stats.retention.pctile_7days}}%</td>
+				<td>{{stats.retention.pctile_30days}}%</td>
+				<th/>
 				<td>{{stats.login_types.password}}</td>
 				<td>{{stats.login_types.google_openid}}</td>
 				<td>{{stats.login_types.facebook}}</td>
@@ -77,33 +89,113 @@
 		{% endfor %}
 		</table>
 		
-		<div class="rule"> </div>
-
-		<h2>By Day</h2>
+		<h3>By Day</h3>
+		
+		<div id="by_day_chart" style="margin-bottom: 20px"> </div>
+		<script>
+			var chart;
+			$(document).ready(function() {
+			   chart = new Highcharts.Chart({
+				  chart: {
+					 renderTo: 'by_day_chart',
+					 defaultSeriesType: 'line',
+					 marginRight: 75,
+					 marginBottom: 25,
+					 backgroundColor: "#e8e5df"
+				  },
+				  title: {text: ""},
+				  xAxis: {
+				  	  type: "datetime",
+				  	  dateTimeLabelFormats: { // don't display the dummy year
+						month: '%b \'%y',
+						year: '%b'
+					 }
+				  },
+				  yAxis: [{
+					 title: {
+						text: 'Users / Comments',
+						x: -10
+					 },
+					 min: 0
+				  },
+				  {
+					 title: {
+						text: 'Positions',
+						x: 10
+					 },
+					 min: 0,
+					 opposite: true
+				  }],
+				  /*tooltip: {
+					 formatter: function() {
+							   return '<b>'+ this.series.name +'</b><br/>'+
+						   this.x +': '+ this.y +'';
+					 }
+				  },*/
+				  legend: {
+					 layout: 'horizontal',
+					 align: 'top',
+					 verticalAlign: 'top',
+					 x: 100,
+					 y: 0,
+					 borderWidth: 0
+				  },
+				  plotOptions: {
+				  	  line: {
+				  	  	  marker: {
+				  	  	  	  enabled: false
+				  	  	  },
+				  	  	  lineWidth: 2
+				  	  }
+				  },
+				  series: [
+				  {
+					 name: 'Users',
+					 data: [{% for date, stats in by_day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_users.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}]
+				  },
+				  {
+				  	 name: 'Comments',
+					 data: [{% for date, stats in by_day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_comments.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}]
+				  },
+				  {
+				  	 name: 'Positions (right-hand axis)',
+					 data: [{% for date, stats in by_day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_positions.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}],
+					 yAxis: 1
+				  }
+				  ]
+			   });
+			   
+			   
+			});		
+		</script>
 		
 		<table>
 		<tr class="multicol">
 			<th/>
+			<th/>
 			<th colspan="3">Users</th>
+			<th/>
 			<th colspan="3">Positions</th>
+			<th/>
 			<th colspan="3">Comments</th>
+			<th/>
 			<th colspan="3">Comments w/ Referrer</th>
 		</tr>
 		<tr>
 			<th>Date</th>
-			
+			<th/>
 			<th>New</th>
 			<th>Total</th>
 			<th>x2 Every</th>
-
+			<th/>
 			<th>New</th>
 			<th>Total</th>
 			<th>x2 Every</th>
-
+			<th/>
 			<th>New</th>
 			<th>Total</th>
 			<th>x2 Every</th>
-			
+			<th/>
 			<th>New</th>
 			<th>Total</th>
 			<th>x2 Every</th>
@@ -111,19 +203,19 @@
 		{% for date, stats in by_day %}
 			<tr>
 				<td>{{date.isoformat}}</td>
-				
+				<th/>
 				<td>{{stats.new_users.count}}</td>
 				<td>{{stats.new_users.cumulative}}</td>
 				<td>{{stats.new_users.double_life}}</td>
-
+				<th/>
 				<td>{{stats.new_positions.count}}</td>
 				<td>{{stats.new_positions.cumulative}}</td>
 				<td>{{stats.new_positions.double_life}}</td>
-
+				<th/>
 				<td>{{stats.new_comments.count}}</td>
 				<td>{{stats.new_comments.cumulative}}</td>
 				<td>{{stats.new_comments.double_life}}</td>
-				
+				<th/>
 				<td>{{stats.new_comments_with_referrer.count}}</td>
 				<td>{{stats.new_comments_with_referrer.cumulative}}</td>
 				<td>{{stats.new_comments_with_referrer.double_life}}</td>
