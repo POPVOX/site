@@ -355,4 +355,50 @@ function ajax(url, postdata, actions) {
 	});
 }
 
+// Turn a <ul class="tabs"><li><a href="#tabname"><span>Tab Item</span></a></li></ul>
+// list into tabs that are fragment-aware. Unless the tab panes are hidden statically, this should
+// be called after all of the panes are loaded in the DOM so that all but the first pane can be hidden.
+jQuery.fn.pvtabs = function() {
+	return this.each(function(){
+		var default_tab = window.location.hash;
+		if (default_tab.length > 1) default_tab = default_tab.substr(1);
+			
+		var ul = $(this);
+		var tab_index = 0;
+		ul.find(">li").each(function() {
+			var a = $(this).find(">a")[0];
+			var tabname = a.getAttribute("href").substr(a.getAttribute("href").indexOf("#")+1);
+			if ((tab_index == 0 && default_tab == "") || (tabname == default_tab)) {
+				$(this).addClass("active");
+				$(".tab_" + tabname).show();
+			} else {
+				$(".tab_" + tabname).hide();
+			}
+			tab_index++;
+		});
+		
+		// the change in tab active state is dependent entirely on changes to
+		// the window location fragment
+		$(window).bind("hashchange", function() {
+			// if the user is scrolled far down on the page, scroll the user back up
+			var tabs_top = ul.offset().top;
+			if ($(window).scrollTop() > tabs_top + 50)
+				//$(window).scrollTop(tabs_top);
+				$('html,body').animate({scrollTop: tabs_top}); // works across browsers?
+			
+			// find the matching tab and make it active
+			ul.find('li').removeClass("active");
+			ul.find('li a').each(function() {
+				var tabname = this.getAttribute("href").substr(this.getAttribute("href").indexOf("#")+1);
+				if ("#" + tabname == window.location.hash) {
+					$(this.parentNode).addClass("active");
+					$(".tab_" + tabname).show();
+				} else {
+					$(".tab_" + tabname).hide();
+				}
+			});
+		});
+	
+	});
+};
 

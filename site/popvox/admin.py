@@ -90,7 +90,7 @@ admin.site.register(ServiceAccount, ServiceAccountAdmin)
 admin.site.register(ServiceAccountPermission)
 
 class RawTextAdmin(admin.ModelAdmin):
-	actions = ['view_html', 'make_short_urls']
+	actions = ['view_html', 'make_short_urls', 'report_short_urls']
 	
 	def save_model(self, request, obj, form, change):
 		if obj.is_mime():
@@ -136,5 +136,25 @@ class RawTextAdmin(admin.ModelAdmin):
 				obj.text)
 			obj.save()
 	make_short_urls.short_description = "Replace Links with Short URLs"
+	
+	def report_short_urls(self, request, queryset):
+		from django.http import HttpResponse
+		import re
+		import shorturl.models
+		r = HttpResponse(mimetype="text/plain")
+		for obj in queryset:
+			r.write(unicode(obj) + "\n")
+			for m in re.finditer("http://pvox.co/([A-Za-z0-9]+)", obj.text):
+				r.write(m.group(1) + "\t")
+				rec = shorturl.models.Record.objects.get(code=m.group(1))
+				r.write(str(rec.hits) + "\t")
+				tg = rec.target
+				r.write(unicode(tg) +"\t")
+				if hasattr(tg, "meta"):
+					r.write(repr(tg.meta()) + "\t")
+				r.write("\n")
+			r.write("------------------------------------------\n")
+		return r
+	report_short_urls.short_description = "Show Short URLs"
 
 admin.site.register(RawText, RawTextAdmin)
