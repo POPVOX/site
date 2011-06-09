@@ -634,7 +634,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			
 		# If we're coming from a customized org action page...
 		if "orgcampaignposition" in request.POST:
-			billpos = get_object_or_404(OrgCampaignPosition, id=request.POST["orgcampaignposition"])
+			billpos = get_object_or_404(OrgCampaignPosition, id=request.POST["orgcampaignposition"], bill=bill)
 			request.session["comment-referrer"] = (bill.id, billpos.campaign, None, billpos.id if "share_with_org" in request.POST else None)
 			request.session["comment-default-address"] = (request.POST["name_first"], request.POST["name_last"], request.POST["zip"], request.POST["email"])
 			if "share_with_org" in request.POST:
@@ -857,7 +857,10 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				surl.increment_completions()
 				
 			if len(request.session["comment-referrer"]) >= 4:
-				ocp = OrgCampaignPosition.objects.get(id=request.session["comment-referrer"][3], bill=bill)
+				try: # ocp/bill mismatch, ocp deleted?
+					ocp = OrgCampaignPosition.objects.get(id=request.session["comment-referrer"][3], bill=bill)
+				except:
+					ocp = None
 				
 			del request.session["comment-referrer"]
 
