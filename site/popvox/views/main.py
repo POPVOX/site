@@ -128,88 +128,99 @@ def citygrid_ad_plugin(banner, request):
 def metrics(request):
 	from django.db import connection, transaction
 	
-	def get_daily_numbers(sql_select_statement, year_month=False):
+	def get_stats(field, fields, table, period="day", growth=False):
 		c = connection.cursor()
-		c.execute(sql_select_statement)
-		if not year_month:
-			fixdate = lambda x : x
-		else:
+		fixdate = lambda x : x
+		if period == "day":
+			group = ("date(%s)" % (field,))
+		elif period == "week":
+			group = ("yearweek(%s)" % (field,))
+			# select the date of the sunday of the week - each day needs to map to something
+			# consistently. double escape the mysql format string first for the interpolation happening
+			# on this line, and second for the interpolation that happens in the Django db layer.
+			field = "STR_TO_DATE(CONCAT(YEARWEEK(%s),'0'),'%%%%X%%%%V%%%%w')" % (field,)			
+		elif period == "month":
 			def fixdate(x):
 				return x.replace(day=1)
-		return [{"date": fixdate(r[0]), "count": r[1] } for r in c.fetchall()]
+			group = ("year(%s), month(%s)" % (field, field))
+		c.execute("select date(%s), %s from %s group by %s" % (field, fields, table, group))
 		
-	def add_cumulative_and_growth_rate(rows):
-		# add cumulative count
-		for i in xrange(len(rows)):
-			rows[i]["cumulative"] = rows[i]["count"] + (0 if i==0 else rows[i-1]["cumulative"])
+		rows = [{"date": fixdate(r[0]), "count": r[1] } for r in c.fetchall()]
+		
+		if growth:
+			# add cumulative counts
+			for i in xrange(len(rows)):
+				rows[i]["cumulative"] = rows[i]["count"] + (0 if i==0 else rows[i-1]["cumulative"])
 			
-		from scipy import stats
-		from math import log, exp
-		window = 21 # sliding window looking back from each day to compute trend
-		for i in xrange(window, len(rows)):
-			x = [(row["date"]-rows[0]["date"]).days for row in rows[i-window+1 : i+1]]
-			y = [log(row["cumulative"]) for row in rows[i-window+1 : i+1]]
-			gradient, intercept, r_value, p_value, std_err = stats.linregress(x,y)
-			# daily_factor = exp(gradient) # e.g. 1.2 means 20% increase by day
-			days_to_double = log(2.0) / gradient
-			if days_to_double < 30:
-				rows[i]["double_life"] = ("%d days" % days_to_double)
-			elif days_to_double < 30.5 * 24:
-				rows[i]["double_life"] = ("%.1f mo." % round(days_to_double/30.5, 1))
-			else:
-				rows[i]["double_life"] = ("%.1f yr." % round(days_to_double/365.25, 1))
+			# compute growth rates with a backward-looking sliding window
+			from scipy import stats
+			from math import log, exp
+			window = {"day": 21, "week": 6, "month": 3 }[period]
+			for i in xrange(window, len(rows)):
+				x = [(row["date"]-rows[0]["date"]).days for row in rows[i-window+1 : i+1]]
+				y = [log(row["cumulative"]) for row in rows[i-window+1 : i+1]]
+				gradient, intercept, r_value, p_value, std_err = stats.linregress(x,y)
+				rows[i]["growth_daily"] = int(100*(exp(gradient) - 1.0)) # percent growth by day
+				rows[i]["growth_weekly"] = int(100*(pow(exp(gradient), 7) - 1.0)) # percent growth by week
+				rows[i]["growth_monthly"] = int(100*(pow(exp(gradient), 30.5) - 1.0)) # percent growth by month
+				days_to_double = log(2.0) / gradient
+				if days_to_double < 30:
+					rows[i]["double_life"] = ("%d days" % days_to_double)
+				elif days_to_double < 30.5 * 24:
+					rows[i]["double_life"] = ("%.1f mo." % round(days_to_double/30.5, 1))
+				else:
+					rows[i]["double_life"] = ("%.1f yr." % round(days_to_double/365.25, 1))
+		
+		return rows
 	
 	def merge_by_day(inf):
-		ret = {} # maps date to a dict that has information by category, with the
-					  # information matching the columns created above, minus the date
-					  # column
+		# take separate rows of results and merge them into one list.
+		ret = {}
 		for key, val in inf.items():
 			for row in val:
 				if row["date"] < datetime(2010, 11, 1).date(): continue
 				if not row["date"] in ret: ret[row["date"]] = {} # date
 				ret[row["date"]][key] = row
 				del row["date"]
-	
 		ret = ret.items()
-		ret.sort(key = lambda x : x[0], reverse=True)
+		ret.sort(key = lambda x : x[0])
+		
+		# for the sake of drawing graphs, we need to fill in the cumulative value for
+		# each day, since the record will be missing if there were no items on that
+		# day.
+		last_rec = {}
+		for date, stats in ret: # for the same of graphs, fill in values
+			for k in inf:
+				if not k in stats and k in last_rec:
+					stats[k] = { "count": 0, "cumulative": last_rec[k]["cumulative"] }
+				elif k in stats:
+					last_rec[k] = stats[k]
+		
+		ret.reverse()
+		
 		return ret
 		
-	new_users = get_daily_numbers("select min(date(date_joined)), count(*) from auth_user group by date(date_joined)")
-	add_cumulative_and_growth_rate(new_users)
-	
-	new_positions = get_daily_numbers("select min(date(created)), count(*) from popvox_usercomment group by date(created)")
-	add_cumulative_and_growth_rate(new_positions)
-	
-	new_comments = get_daily_numbers("select min(date(created)), count(*) from popvox_usercomment where message is not null group by date(created)")
-	add_cumulative_and_growth_rate(new_comments)
-
-	new_comments_with_referrer = get_daily_numbers("select min(date(created)), count(*) from popvox_usercomment where message is not null and referrer_object_id is not null group by date(created)")
-	add_cumulative_and_growth_rate(new_comments_with_referrer)
-
-	by_day = merge_by_day({
-			"new_users": new_users,
-			"new_positions": new_positions,
-			"new_comments": new_comments,
-			"new_comments_with_referrer": new_comments_with_referrer,
-		})
-	for date, stats in by_day: # for the same of graphs, fill in values
-		if not "new_comments" in stats:
-			stats["new_comments"] = { "count": 0, "cumulative": prev_cumu_comments }
-		else:
-			prev_cumu_comments = stats["new_comments"]["cumulative"]
-		if not "new_positions" in stats:
-			stats["new_positions"] = { "count": 0, "cumulative": prev_cumu_positions }
-		else:
-			prev_cumu_positions = stats["new_positions"]["cumulative"]
+	general_stats = {}
+	for period in ("day", "week", "month"):
+		new_users = get_stats("date_joined", "count(*)", "auth_user", period=period, growth=True)
+		new_positions = get_stats("created", "count(*)", "popvox_usercomment", period=period, growth=True)
+		new_comments = get_stats("created", "count(*)", "popvox_usercomment where message is not null", period=period, growth=True)
+		new_comments_with_referrer = get_stats("created", "count(*)", "popvox_usercomment where message is not null and referrer_object_id is not null", period=period, growth=True)
+		general_stats[period] = merge_by_day({
+				"new_users": new_users,
+				"new_positions": new_positions,
+				"new_comments": new_comments,
+				"new_comments_with_referrer": new_comments_with_referrer,
+			})
 		
 
-	cohort_sizes = get_daily_numbers("select min(date(date_joined)), count(*) from auth_user group by year(date_joined), month(date_joined)", year_month=True)
+	cohort_sizes = get_stats("date_joined", "count(*)", "auth_user", period="month")
 	cohort_sizes2 = dict(((c["date"], c["count"]) for c in cohort_sizes))
 	
-	cohort_num_positions = get_daily_numbers("select min(date(date_joined)), count(*) from auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id group by year(date_joined), month(date_joined)", year_month=True)
+	cohort_num_positions = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id", period="month")
 	for c in cohort_num_positions: c["count"] = round(float(c["count"]) / float(cohort_sizes2[c["date"]]), 1)
 	
-	cohort_num_comments = get_daily_numbers("select min(date(date_joined)), count(*) from auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id where popvox_usercomment.message is not null group by year(date_joined), month(date_joined)", year_month=True)
+	cohort_num_comments = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id where popvox_usercomment.message is not null", period="month")
 	for c in cohort_num_comments: c["count"] = round(float(c["count"]) / float(cohort_sizes2[c["date"]]), 1)
 	
 	cohort_login_types = {}
@@ -218,12 +229,12 @@ def metrics(request):
 	for dt, provider, count in c.fetchall():
 		dt = dt.replace(day=1)
 		if not dt in cohort_login_types: cohort_login_types[dt] = { "date": dt }
-		cohort_login_types[dt][provider] = count
+		cohort_login_types[dt][provider] = 100*count/cohort_sizes2[dt]
 	c.execute("select min(date(date_joined)), count(*) from auth_user where not exists(select * from registration_authrecord where auth_user.id=registration_authrecord.user_id) group by year(date_joined), month(date_joined)")
 	for dt, count in c.fetchall():
 		dt = dt.replace(day=1)
 		if not dt in cohort_login_types: cohort_login_types[dt] = { "date": dt }
-		cohort_login_types[dt]["password"] = count
+		cohort_login_types[dt]["password"] = 100*count/cohort_sizes2[dt]
 	cohort_login_types = cohort_login_types.values()
 
 	def median(nums):
@@ -269,7 +280,7 @@ def metrics(request):
 		"count_comments_messages": UserComment.objects.filter(message__isnull=False).count(),
 		"count_orgs": Org.objects.filter(createdbyus=False).count(),
 		
-		"by_day": by_day,
+		"general_stats": general_stats,
 		"by_cohort": by_cohort,
 		}, context_instance=RequestContext(request))
 

@@ -41,11 +41,11 @@
 			<th/>
 			<th/>
 			<th/>
-			<th colspan="2">Total Per User, Average</th>
+			<th colspan="2">Lifetime Average</th>
 			<th/>
 			<th colspan="4">Retention</th>
 			<th/>
-			<th colspan="5">Login Types</th>
+			<th colspan="5">Login Types (%)</th>
 		</tr>
 		<tr>
 			<th>Joined</th>
@@ -85,6 +85,118 @@
 				<td>{{stats.login_types.facebook}}</td>
 				<td>{{stats.login_types.twitter}}</td>
 				<td>{{stats.login_types.linkedin}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+		
+		<h3>By Month</h3>
+		
+		<table>
+		<tr class="multicol">
+			<th/>
+			<th/>
+			<th colspan="3">Users</th>
+			<th/>
+			<th colspan="3">Positions</th>
+			<th/>
+			<th colspan="3">Comments</th>
+			<th/>
+			<th colspan="3">Comments w/ Referrer</th>
+		</tr>
+		<tr>
+			<th>Date</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>Growth</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>Growth</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>Growth</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>Growth</th>
+		</tr>
+		{% for date, stats in general_stats.month %}
+			<tr>
+				<td>{{date|date:"Y-m"}}</td>
+				<th/>
+				<td>{{stats.new_users.count}}</td>
+				<td>{{stats.new_users.cumulative}}</td>
+				<td>{{stats.new_users.growth_monthly}}%</td>
+				<th/>
+				<td>{{stats.new_positions.count}}</td>
+				<td>{{stats.new_positions.cumulative}}</td>
+				<td>{{stats.new_positions.growth_monthly}}%</td>
+				<th/>
+				<td>{{stats.new_comments.count}}</td>
+				<td>{{stats.new_comments.cumulative}}</td>
+				<td>{{stats.new_comments.growth_monthly}}%</td>
+				<th/>
+				<td>{{stats.new_comments_with_referrer.count}}</td>
+				<td>{{stats.new_comments_with_referrer.cumulative}}</td>
+				<td>{{stats.new_comments_with_referrer.growth_monthly}}%</td>
+			</tr>
+		{% endfor %}
+		</table>
+
+		<h3>By Week</h3>
+		
+		<table>
+		<tr class="multicol">
+			<th/>
+			<th/>
+			<th colspan="3">Users</th>
+			<th/>
+			<th colspan="3">Positions</th>
+			<th/>
+			<th colspan="3">Comments</th>
+			<th/>
+			<th colspan="3">Comments w/ Referrer</th>
+		</tr>
+		<tr>
+			<th>Date</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>Growth</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>Growth</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>Growth</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>Growth</th>
+		</tr>
+		{% for date, stats in general_stats.week %}
+			<tr>
+				<td>{{date.isoformat}}</td>
+				<th/>
+				<td>{{stats.new_users.count}}</td>
+				<td>{{stats.new_users.cumulative}}</td>
+				<td>{{stats.new_users.growth_weekly}}%</td>
+				<th/>
+				<td>{{stats.new_positions.count}}</td>
+				<td>{{stats.new_positions.cumulative}}</td>
+				<td>{{stats.new_positions.growth_weekly}}%</td>
+				<th/>
+				<td>{{stats.new_comments.count}}</td>
+				<td>{{stats.new_comments.cumulative}}</td>
+				<td>{{stats.new_comments.growth_weekly}}%</td>
+				<th/>
+				<td>{{stats.new_comments_with_referrer.count}}</td>
+				<td>{{stats.new_comments_with_referrer.cumulative}}</td>
+				<td>{{stats.new_comments_with_referrer.growth_weekly}}%</td>
 			</tr>
 		{% endfor %}
 		</table>
@@ -151,15 +263,15 @@
 				  series: [
 				  {
 					 name: 'Users',
-					 data: [{% for date, stats in by_day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_users.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}]
+					 data: [{% for date, stats in general_stats.day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_users.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}]
 				  },
 				  {
 				  	 name: 'Comments',
-					 data: [{% for date, stats in by_day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_comments.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}]
+					 data: [{% for date, stats in general_stats.day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_comments.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}]
 				  },
 				  {
 				  	 name: 'Positions (right-hand axis)',
-					 data: [{% for date, stats in by_day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_positions.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}],
+					 data: [{% for date, stats in general_stats.day reversed %}[Date.UTC({{date.year}}, {{date.month}}-1, {{date.day}}), {{stats.new_positions.cumulative}}]{% if not forloop.last %},{% endif %}{% endfor %}],
 					 yAxis: 1
 				  }
 				  ]
@@ -200,7 +312,7 @@
 			<th>Total</th>
 			<th>x2 Every</th>
 		</tr>
-		{% for date, stats in by_day %}
+		{% for date, stats in general_stats.day %}
 			<tr>
 				<td>{{date.isoformat}}</td>
 				<th/>
