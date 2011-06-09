@@ -138,7 +138,7 @@ def metrics(request):
 			# select the date of the sunday of the week - each day needs to map to something
 			# consistently. double escape the mysql format string first for the interpolation happening
 			# on this line, and second for the interpolation that happens in the Django db layer.
-			field = "STR_TO_DATE(CONCAT(YEARWEEK(%s),'0'),'%%%%X%%%%V%%%%w')" % (field,)			
+			field = "STR_TO_DATE(CONCAT(YEARWEEK(%s),'0'),CONCAT('%%','X%%','V%%','w'))" % (field,) # between the Python string interpolation and the Django db layer %s parameters, percents just get confused
 		elif period == "month":
 			def fixdate(x):
 				return x.replace(day=1)
