@@ -26,6 +26,7 @@ def check_api_key(request):
 			salsa["org_id"] = request.GET["salsa_org_id"]
 			acct.setopt("salsa", salsa)
 		
+		# "Great!" is hard-coded into the Salsa code.
 		return HttpResponse("Great! That is the correct service account secret password for " + unicode(acct) + ".", mimetype="text/plain")
 	except ServiceAccount.DoesNotExist:
 		return HttpResponse("That is not a correct service account secret password.", mimetype="text/plain")

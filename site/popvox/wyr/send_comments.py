@@ -152,7 +152,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		if "TARGET" in os.environ and gid != int(os.environ["TARGET"]):
 			continue
 	
-		if gid in (412246,) and msg.county == None and comment.address.cdyne_response == None:
+		if gid in (412246,400050) and msg.county == None and comment.address.cdyne_response == None:
 			print "Normalize Address", comment.address.id
 			comment.address.normalize()
 			msg.county = comment.address.county
