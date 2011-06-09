@@ -212,12 +212,16 @@ common_fieldnames = {
 	"addressline2": "address2",
 	"address-line1": "address1",
 	"address-line2": "address2",
+	"addressstreet1": "address1",
+	"addressstreet2": "address2",
 	"mailing_city": "city",
 	"hcity": "city",
 	"citytown": "city",
+	"addresscity": "city",
 	"statecode": "state",
 	"hstate": "state",
 	"mailing_state": "state",
+	"addressstate": "state",
 	"zip": "zipcode",
 	"hzip": "zipcode",
 	"zip5": "zip5",
@@ -229,6 +233,7 @@ common_fieldnames = {
 	"zip_plus4": "zip4",
 	"postalcode": "zipcode",
 	"mailing_zipcode": "zipcode",
+	"addresszip": "zipcode",
 	"phone": "phone",
 	"phone_number": "phone",
 	"phonenumber": "phone",
@@ -377,6 +382,7 @@ custom_overrides = {
 	'179_affl_radio': 'on',
 	'198_field_5eb7428f-9e29-4ecb-a666-6bc56b6a435e_radio': 'NO', #response req
 	'204_action_radio': '', # subscribe
+	'345_enews_radio': '',
 	"426_aff1_radio": "<AFFL>Subscribe</AFFL>",
 	"568_subject_radio": "CRNR", # no response
 	"583_affl1_select": "no action",
@@ -503,6 +509,8 @@ def parse_webform(webformurl, webform, webformid, id):
 					opttext = re.sub("\s+", " ", opttext)
 					if opttext == "" or "select" in opttext or "=" in opttext or opttext[0] == "-":
 						continue
+					if "required-" in field.getAttribute("name") and opt.hasAttribute("value") and opt.getAttribute("value").strip() == "":
+						continue # confusing if the field is required
 				
 				options[opttext.lower()] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext
 				

@@ -55,6 +55,11 @@ if "RECENT" in os.environ:
 for comment in comments_iter.order_by('created').select_related("bill").iterator():
 	if os.path.exists("/tmp/break"): break
 	
+	# since we don't deliver message-less comments, when we activate an endpoint we
+	# end up sending the backlog of those comments. don't bother.
+	if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=21):
+		continue
+	
 	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
 	if not type(govtrackrecipients) == list:
