@@ -8,18 +8,22 @@
 	h3.no_rule {
 		padding-top: 0;
 	}
-	table td, table th {
-		padding-right: 1.5em;
+	tbody td {
+		padding: .5em 5px;
 	}
-	th {
+	tbody th {
+		border-right: 10px solid #e8e5de;
+		padding: 5px;
+		font-size: 12px;
+		background: #75747c;
+		color: white;
 		font-weight: bold;
-		border-bottom: 1px solid black;
-		padding-bottom: .25em;
 	}
-	td {
-		padding-top: .5em;
-		padding-bottom: .5em;
-	}
+	tbody {
+	 	font-size: 12px;
+	 }
+	.privacyreport td.category { font-weight: bold;}
+	.privacyreport td.whatweknow { background: #D4D1CA; padding: 5px;  font-weight: bold; border-top: 15px solid #E8E5DE; border-right: 10px solid #E8E5DE; }
 	
 	.tab_privacypolicy p, .tab_termsofuse p {
 		width: 600px;
@@ -30,8 +34,11 @@
 	
 	.commentary {
 		float: right;
-		width: 300px;
 		font-style: italic;
+		background: #d4d1ca;
+		width: 250px;
+		padding: 10px;
+		font-family: Georgia, serif;
 	}
 </style>
 {% endblock %}
@@ -46,6 +53,7 @@
 		<li><a href="#guidelines"><span>Guidelines on Language</span></a></il>
 		<li><a href="#termsofuse"><span>Terms of Use</span></a></il>
 	</ul>
+	<div class="tabs_panel">
 
 	<div class="tab_guidelines">
 		<h3 class="no_rule">Guidelines on Acceptable Language</h3>
@@ -79,7 +87,7 @@
 			<p>The following is a list of the information we know <strong>about you ({{user.email}})</strong> and a brief explanation about how we use that information. Except where noted, the information is deleted upon request to delete your account.</p>
 		{% endif %}
 		
-		<table>
+		<table class="privacyreport">
 		<tr valign="top">
 			<th style="width: 150px">Personal Information</th>
 			<th>How We Use It</th>
@@ -89,24 +97,24 @@
 		</tr>
 		{% if not user.userprofile.is_org_admin and not user.userprofile.is_leg_staff %}
 		<tr valign="top">
-			<td>Your Email Address</td>
+			<td class="category">Your Email Address</td>
 			<td>Your email address is shared with your Members of Congress when you weigh in on legislation, and sometimes with organizations that referred you to POPVOX if you gave us your permission to do so (see Who Referred You). It is not shown publicly. We use your email address to send you news and account information.</td>
 			{% if user.is_authenticated %}
-			<td>{{user.email}}<br/>(<a href="/accounts/profile">edit</a>)</td>
+			<td class="whatweknow">{{user.email}}<br/>(<a href="/accounts/profile">edit</a>)</td>
 			{% endif %}
 		</tr>
 		<tr valign="top">
-			<td>Your Screen Name</td>
+			<td class="category">Your Screen Name</td>
 			<td>Your screen name is how you are known to other users on POPVOX. It shows up next to each of your public comments on legislation.</td>
 			{% if user.is_authenticated %}
-			<td>{{user.username}}<br/>(<a href="/accounts/profile">edit</a>)</td>
+			<td class="whatweknow">{{user.username}}<br/>(<a href="/accounts/profile">edit</a>)</td>
 			{% endif %}
 		</tr>
 		<tr valign="top">
-			<td>Your Name, Address, and Phone Number</td>
+			<td class="category">Your Name, Address, and Phone Number</td>
 			<td>Your name, physical address, and phone number are shared with your Members of Congress when you weigh in on legislation, and sometimes with organizations that referred you to POPVOX if you gave us your permission to do so (see Who Referred You). Congressional offices require this information when accepting the letters we deliver on your behalf. When you move, we keep your past addresses on file so we know what Congressional district you were in when you left comments there.</td>
 			{% if user.is_authenticated %}
-			<td>
+			<td class="whatweknow">
 			<div style="max-height: 10em; overflow: auto">
 			{% for addr in user.postaladdress_set.all %}
 				<div style="margin-bottom: 1em">
@@ -122,10 +130,10 @@
 			{% endif %}
 		</tr>
 		<tr valign="top">
-			<td>Your Comments and Your Congressional District</td>
+			<td class="category">Your Comments and Your Congressional District</td>
 			<td>When you leave a comment on legislation, it is shown publicly on POPVOX along with your screen name and your state and congressional district, and it is delivered to your Members of Congress. Your comment is only identified with your  real name and physical address whe it is sent to your Members of Congress, and also sometimes it is shared with organizations that referred you to POPVOX if you gave us your permission to do so (see Who Referred You). Your comments are listed on your POPVOX home page. <br/><br/>We also use your comments to suggest other bills you may be interested in. <br/><br/>We maintain a record of all delivered correspondence to your Members of Congress, even if you subsequently delete your comment, in order to protect the integrity of our relationship with Members of Congress. These records are deleted shortly after the end of the two-year Congressional session in which they were sent. {% if user.is_authenticated %}(Those records are not currently listed in this privacy report.).{% endif %}</td>
 			{% if user.is_authenticated %}
-			<td>
+			<td class="whatweknow">
 			{% for comment in user.comments.all %}
 				{% if comment.message %}
 					<div style="margin-bottom: 1em">
@@ -137,10 +145,10 @@
 			{% endif %}
 		</tr>
 		<tr valign="top">
-			<td>Who Referred You</td>
+			<td class="category">Who Referred You</td>
 			<td>When you leave a comment on legislation, we keep note of how you got here (normally that means from the website of an advocacy organization) and include that information when we deliver your comment to your Members of Congress.</td>
 			{% if user.is_authenticated %}
-			<td>
+			<td class="whatweknow">
 			{% for comment in user.comments.all %}
 				{% if comment.referrer %}
 					<div style="margin-bottom: 1em">
@@ -152,10 +160,10 @@
 			{% endif %}
 		</tr>
 		<tr valign="top">
-			<td></td>
+			<td class="category"></td>
 			<td>Additionally, when you take action on an action page that has been customized by an organization or through the POPVOX Write Congress widget hosted by an organization, we may provide the organization with the information you enter &mdash; in either case, we ask your permission or let you know at the time you are filling out the information.</td>
 			{% if user.is_authenticated %}
-			<td>
+			<td class="whatweknow">
 			<div style="max-height: 10em; overflow: auto">
 			{% for org in user.userprofile.matching_ocpar_orgs %}
 				{% if forloop.first %}We have shared information with: {% endif %}
@@ -168,10 +176,10 @@
 			{% endif %}
 		</tr>
 		<tr valign="top">
-			<td>Your Bookmark Settings</td>
+			<td class="category">Your Bookmark Settings</td>
 			<td>You can choose to bookmark bills and exclude bills from suggestions we make about what you might be interested in. We use these settings to customize suggestions we have for you and, in aggregate, for others. We don&rsquo;t tell anyone what bills you weighed in on, except as explained above.</td>
 			{% if user.is_authenticated %}
-			<td>
+			<td class="whatweknow">
 			<div>Bookmarked:
 				{% for bill in user.userprofile.tracked_bills.all %}
 					{{bill.displaynumber}}{% if not forloop.last %}, {% endif %}
@@ -190,10 +198,10 @@
 			{% endif %}
 		</tr>
 		<tr valign="top">
-			<td>Your Appreciations</td>
+			<td class="category">Your Appreciations</td>
 			<td>You can appreciate the comments others leave on POPVOX. We don&rsquo;t currently share your appreciations with anyone and only use appreciations in aggregate to let other users find the most appreciated comments. However, we will soon be showing what comments you have appreciated in a way that is tied to your public screen name, but not your real name or address.</td>
 			{% if user.is_authenticated %}
-			<td>
+			<td class="whatweknow">
 				<div style="max-height: 10em; overflow: auto">
 				{% for digg in user.commentdiggs.all %}
 					{{digg.comment.user.username}}&rsquo;s comment on {{digg.comment.bill.displaynumber}}{% if not forloop.last %}, {% endif %}
@@ -208,32 +216,32 @@
 
 		{% if user.userprofile.is_org_admin %}
 		<tr valign="top">
-			<td>Your Name &amp; Email</td>
+			<td class="category">Your Name &amp; Email</td>
 			<td>This information is kept private unless you or another administrator for your organization adds you to the staff contact list in your organization profile.</td>
-			<td>{{user.userprofile.fullname}}<br/>{{user.email}}</td>
+			<td class="whatweknow">{{user.userprofile.fullname}}<br/>{{user.email}}</td>
 		</tr>
 		{% endif %}
 
 		{% if user.userprofile.is_leg_staff %}
 		<tr valign="top">
-			<td>Your Name &amp; Email</td>
+			<td class="category">Your Name &amp; Email</td>
 			<td>This information is kept private.</td>
-			<td>{{user.userprofile.fullname}}<br/>{{user.email}}</td>
+			<td class="whatweknow">{{user.userprofile.fullname}}<br/>{{user.email}}</td>
 		</tr>
 		{% endif %}
 		</table>
 		
-		<table style="margin-top: 1em">
+		<table style="margin-top: 1em" class="privacyreport">
 		<tr valign="top">
 			<th style="width: 150px">Other Information</th>
 			<th>How We Use It</th>
 		</tr>
 		<tr>
-			<td>Advertisements Viewed</td>
+			<td class="category">Advertisements Viewed</td>
 			<td>We keep a record for a short period of time of the advertisements that we have shown to you in order to avoid showing you the same advertisements repeatedly. This information is stored in a cookie separately from your account. It is not shared with advertisers.</td>
 		</tr>
 		<tr>
-			<td>Log Files</td>
+			<td class="category">Log Files</td>
 			<td>We also keep industry-standard log files that record certain non-personal information including your IP address, the URL of the page you are visiting, your browser type, and referring pages. This information is cleared periodically. It is used for diagnostic and aggregate statistics purposes only.</td>
 		</tr>
 		</table>
@@ -425,6 +433,8 @@ Please contact us at {% obfuscated_email "info@popvox.com" %} with any questions
 
 
 	</div>
+
+	</div> <!-- tabs_panel -->
 </div>
 
 <script>$('.tabs').pvtabs();</script>
