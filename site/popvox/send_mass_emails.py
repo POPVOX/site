@@ -28,7 +28,7 @@ elif sys.argv[-1] == "survey":
 		allow_mass_mails=True,
 		registration_followup_sent=False,
 		user__date_joined__gt = datetime.datetime.now() - datetime.timedelta(days=30),
-		user__date_joined__lt = datetime.datetime.now() - datetime.timedelta(days=1.5)
+		user__date_joined__lt = datetime.datetime.now() - datetime.timedelta(days=3)
 		)
 	def mark(userprof):
 		userprof.registration_followup_sent = True

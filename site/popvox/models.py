@@ -615,6 +615,7 @@ class OrgCampaignPositionActionRecord(models.Model):
 	request_dump = models.TextField(blank=True, null=True)
 	class Meta:
 		ordering = ['created']
+		unique_together = [('ocp', 'email')]
 
 def ocpar_saved_callback(sender, instance, created, **kwargs):
 	# Save data back to CRM.
