@@ -7,6 +7,10 @@
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block finalscript %}<script>mpmetrics.track('bill page', { 'bill': '{{bill.display_number}}', 'can_comment': {% if canvote %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
 {% block head %}
+<style>
+	h1.streetname { margin-bottom: 0; }
+	h2.streetname { font: bold 18px/24px helvetica, arial; margin-bottom: 5px; }
+</style>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script>
@@ -94,7 +98,12 @@ function getshorturl() {
 		</a>
 		
 		{% if not user.userprofile.is_leg_staff %}
-		<h1>What&rsquo;s your position on {% if not bill.street_name %}{{bill.displaynumber}}{% else %}{{bill.street_name}}{% endif %}?</h1>
+			{% if not bill.street_name %}
+				<h1>What&rsquo;s your position on {{bill.displaynumber}}?</h1>
+			{% else %}
+				<h1 class="streetname">What&rsquo;s your position on</h1>
+				<h2 class="streetname">{{bill.street_name|capfirst}}</h2>
+			{% endif %}
 		{% else %}
 		<h1>Bill Status and Org Positions</h1>
 		{% endif %}
