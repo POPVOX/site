@@ -96,12 +96,13 @@ class Command(BaseCommand):
 				print "\tCurrent Daily Rate:", "$" + str(round(totalcost/td*100.0)/100.0) + "/day", "($" + str(round(totalcost*100.0)/100.0), "in", round(td*10.0)/10.0, "days)", "of", "$" + str(order.maxcostperday) + "/day max"
 				
 				# Compute the ad drop rate according to the formulation in adselection.py.
-				drop_rate = 1.0 - order.maxcostperday * ((td / totalcost) * (1.0 - recent_drop_rate))
-				if drop_rate < 0.0: drop_rate = 0.0
-				drop_rate_2 = ((totalcost/td) / (order.maxcostperday)) ** 2
-				if drop_rate_2 > 1.0: drop_rate_2 = 1.0
-				if drop_rate > drop_rate_2: drop_rate = drop_rate_2
-				print "\tDrop Rate:", round(drop_rate, 2)
+				if totalcost > 0:
+					drop_rate = 1.0 - order.maxcostperday * ((td / totalcost) * (1.0 - recent_drop_rate))
+					if drop_rate < 0.0: drop_rate = 0.0
+					drop_rate_2 = ((totalcost/td) / (order.maxcostperday)) ** 2
+					if drop_rate_2 > 1.0: drop_rate_2 = 1.0
+					if drop_rate > drop_rate_2: drop_rate = drop_rate_2
+					print "\tDrop Rate:", round(drop_rate, 2)
 		
 		print
 		print "Paths"
