@@ -771,11 +771,16 @@ def send_message_webform(di, msg, deliveryrec):
 				postdata[k] = [postdata[k]]
 			alts = []
 			# For each value we have coming in from the message, also
-				# try any of its mapped synonyms in the database.
+			# try any of its mapped synonyms in the database,
+			# and one transitive step for the case where a bill hashtag
+			# maps to a CRS term which in turn has been mapped to a form option.
 			for q in postdata[k]:
 				alts.append((q, -1))
 				for rec in Synonym.objects.filter(term1 = q):
 					alts.append((rec.term2, 0 if not rec.last_resort else 1))
+					if not rec.last_resort:
+						for rec2 in Synonym.objects.filter(term1 = rec.term2):
+							alts.append((rec2.term2, 0 if not rec.last_resort else 1))
 			alts.sort(key = lambda x : x[1]) # put last_resort at the end
 			for q, l_r in alts:
 				if q.lower() in field_options[k]:
@@ -785,7 +790,24 @@ def send_message_webform(di, msg, deliveryrec):
 					postdata[k] = q
 					break
 			else:
-				raise SelectOptionNotMappable("Can't map value %s for %s into available option from %s." % (postdata[k], k, field_options[k]), k, postdata[k], field_options[k].keys())
+				# There were no mappings from the keyword we have in the message to
+				# one of the options on the form. Construct a list of the options so we can
+				# store it in a SynonymRequired to be dealt with later.
+				select_opts = list(field_options[k].keys())
+				
+				# Because of the one transitive step, we can expand the options to one
+				# transitive step backwards from what's on the form. But only do this for
+				# hashtag keywords because there's no sense in mapping CRS subject terms
+				# to other CRS subject terms.
+				if postdata[k][0].startswith("#"):
+					for syn in Synonym.objects.filter(term2__in=select_opts).exclude(term1__startswith="#").values("term1").distinct():
+						if syn["term1"] not in select_opts:
+							select_opts.append(syn["term1"])
+				
+				# Issue a delivery error that will also trigger an INSERT into the synonym required
+				# table with term1set set to the keyword alternatives in the message postdata[k]
+				# and term2set set to select_opts.
+				raise SelectOptionNotMappable("Can't map value %s for %s into available option from %s." % (postdata[k], k, field_options[k]), k, postdata[k], select_opts)
 		
 		postdata[k] = postdata[k].encode("utf8")
 		
