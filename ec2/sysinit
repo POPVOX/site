@@ -128,8 +128,9 @@ fi
 #  Master config files.
 rm -f /etc/sphinxsearch/sphinx.conf
 ln -s /home/www/sources/site/popvox/db/sphinx.conf /etc/sphinxsearch/
-ln -s /home/www/sources/httpd.conf /etc/apache2/conf.d/local.conf
-ln -s /home/www/sources/nginx.conf /etc/nginx/conf.d/local.conf
+ln -s /home/www/sources/conf/httpd.conf /etc/apache2/conf.d/local.conf
+ln -s /home/www/sources/conf/nginx.conf /etc/nginx/conf.d/local.conf
+ln -s /home/www/sources/conf/logrotate.conf /etc/logrotate.d/local
 
 # Finish.
 searchd
