@@ -1246,6 +1246,16 @@ class ServiceAccount(models.Model):
 	# this is a private key
 	secret_key = models.CharField(max_length=16, blank=True, unique=True, db_index=True)
 
+	# Track activity for billing.
+	
+	# this counter increments for each comment submitted by the Write Congress
+	# widget tied to a service account with either the writecongress_theme or
+	# writecongress_ocp permissions.
+	beancounter_comments = models.IntegerField(default=0) # number of user messages to bill
+	
+	# other metadata
+	created = models.DateTimeField(auto_now_add=True)
+
 	options = PickledObjectField(default={})
 
 	def __unicode__(self):

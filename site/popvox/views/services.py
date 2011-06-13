@@ -314,7 +314,7 @@ def widget_render_writecongress(request, account, permissions):
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
 			}, context_instance=RequestContext(request))
 	else:
-		response = widget_render_writecongress_action(request)
+		response = widget_render_writecongress_action(request, account, permissions)
 
 	# add a P3P compact policy so that IE will accept third-party cookies.
 	# apparently the actual policy doesn't matter as long as one is sent,
@@ -330,7 +330,7 @@ def widget_render_writecongress(request, account, permissions):
 
 
 @json_response
-def widget_render_writecongress_action(request):
+def widget_render_writecongress_action(request, account, permissions):
 	from settings import BENCHMARKING
 	
 	########################################
@@ -526,7 +526,16 @@ def widget_render_writecongress_action(request):
 
 		bill = Bill.objects.get(id=request.POST["bill"])
 		referrer, ocp, message = widget_render_writecongress_getsubmitparams(request.POST)
-		
+
+		# At this point we increment the service account beancounter for submitted comments for
+		# the purpose of billing the account later. How do we know if we are supposed to charge
+		# the account for this comment? Any advanced option means the user has a pro acct.,
+		# which means we charge.
+		if account != None and ("writecongress_theme" in permissions or "writecongress_ocp" in permissions) and "demo" not in request.POST:
+			from django.db.models import F
+			account.beancounter_comments = F('beancounter_comments') + 1
+			account.save()
+	
 		# if the user is logged in and the address's congressional district
 		# was determined, then we can save the comment immediately.
 		if request.user.is_authenticated() and str(request.user.id) == request.POST.get("userid", None):
