@@ -203,6 +203,10 @@ def org_update_fields(request, field, value, validate_only):
 		m = re.match(r"^http://(www.)?facebook.com/group.php\?gid=(\d+)$", value)
 		if m != None:
 			gid = m.group(2)
+
+		m = re.match(r"^http://(www.)?facebook.com/home.php\?sk=group_(\d+)$", value)
+		if m != None:
+			gid = m.group(2)
 			
 		if gid == None:
 			gid = value
@@ -213,20 +217,26 @@ def org_update_fields(request, field, value, validate_only):
 		fb = json.load(urlopen("http://graph.facebook.com/" + gid))
 		if type(fb) == dict:
 			if "error" in fb:
-				raise ValueError("That is not a Facebook Page address.")
+				raise ValueError("That is not a Facebook Page or Group address.")
 			if "link" in fb and "http://www.facebook.com" in fb["link"] : # normalize value to what Facebook says, FB Group link values are to an external website...
 				value = fb["link"]
 		if not validate_only and value != org.facebookurl:
 			org.facebookurl = value
 			
-			# If no logo is set, grab it from Facebook, if set there.
+			# If no logo is set, grab it from Facebook, if set in the picture property.
 			if not org.logo and type(fb) == dict and "picture" in fb:
 				try:
 					data = urlopen(fb["picture"]).read() # python docs indicate this may not read to end??
 					org_update_logo_2(org, data)
 				except:
 					pass
-			
+			# or try the graph.facebook.com/.../picture URL.
+			elif not org.logo and type(fb) == dict and "id" in dict:
+				try:
+					data = urlopen("http://graph.facebook.com/" + gid + "/picture?type=large").read() # python docs indicate this may not read to end??
+					org_update_logo_2(org, data)
+				except:
+					pass
 			org.save()
 		return { "status": "success", "value": value }
 	else:
