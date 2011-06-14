@@ -92,11 +92,11 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		if comment.created < datetime.datetime.now()-datetime.timedelta(days=16):
 			msg.message += "\npopvox holds letters on bills until they are pending a vote in your chamber"
 		msg.message_personal = "yes"
-		msg.response_requested = ("yes",)
+		msg.response_requested = ("yes", "response needed", "WEBRN")
 	else:
 		msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
 		msg.message_personal = "no"
-		msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","")
+		msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","no response needed","WEBNRN","")
 		
 	topterm = comment.bill.topterm
 	if topterm == None:
@@ -162,6 +162,9 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			comment.address.normalize()
 			msg.county = comment.address.county
 
+		if gid in (400616,):
+			msg.phone = "".join([d for d in msg.phone if d.isdigit()])
+		
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
 		try:

@@ -281,6 +281,7 @@ common_fieldnames = {
 	"topic_select": "topicarea",
 	"issue_text": "subjectline",
 	"issue_select": "topicarea",
+	"issue1_select": "topicarea",
 	"issues_select": "topicarea",
 	"issueslist_select": "topicarea",
 	"feedbackissueselector_select": "topicarea",
@@ -312,6 +313,7 @@ common_fieldnames = {
 	"reqestresponse": "response_requested",
 	"responseexpected": "response_requested",
 	"correspondence_response": "response_requested",
+	"answer": "response_requested",
 	
 	'view_select': 'support_oppose',
 	}
@@ -410,8 +412,10 @@ custom_overrides = {
 	"869_aff1req_text": "",
 }
 
+# Supply additional POST data that doesn't correspond to a form field.
 custom_additional_fields = {
 	757: { "zip4": "zip4" },
+	870: { "address": "address_combined", "city": "city" }, # required fields not actually on form because he doesn't care
 }
 
 class WebformParseException(Exception):
@@ -658,6 +662,7 @@ def parse_webform(webformurl, webform, webformid, id):
 	if id in custom_additional_fields:
 		for htmlattr, msgfield in custom_additional_fields[id].items():
 			field_map[htmlattr] = msgfield
+			field_options[htmlattr] = None
 
 	return field_map, field_options, field_default, formaction, formmethod
 
@@ -754,6 +759,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 		# Make sure that if there were options given for a prefix that they accept our
 		# prefixes. We'll deal with the wrath of an unexpected response.
+		if v == "prefix" and postdata[k] == "Reverend" and msg.firstname == "Jacob" and di.id == 677: postdata[k] = "Mr."
 		if v == "prefix" and field_options[k] != None: field_options[k]["reverend"] = "Reverend"
 		if v == "prefix" and field_options[k] != None: field_options[k]["pastor"] = "Pastor"
 		if v == "prefix" and field_options[k] != None: field_options[k]["dr."] = "Dr."
@@ -816,7 +822,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 588, 600, 607, 611, 641, 665, 678, 709, 730, 736, 788, 791, 809, 811, 837, 861, 869):
+	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 588, 600, 607, 608, 611, 641, 665, 678, 709, 718, 730, 734, 736, 749, 774, 780, 784, 788, 791, 805, 809, 811, 826, 837, 861, 869):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -878,6 +884,9 @@ def send_message_webform(di, msg, deliveryrec):
 	if "experiencing technical difficulties" in ret:
 		deliveryrec.trace += u"\n" + ret + u"\n\n"
 		raise IOError("The site reports it is experiencing technical difficulties.")
+
+	if "Phone number must be 10 digits" in ret:
+		raise WebformParseException("Phone number must be 10 digits")
 	
 	if "&success=true" in ret_url:
 		return
@@ -886,6 +895,11 @@ def send_message_webform(di, msg, deliveryrec):
 	m = re_red_error.search(ret)
 	if m:
 		raise WebformParseException("Form-reported " + m.group(1) + ": " + m.group(2))
+
+	re_class_error = re.compile(r'class="custom_form_error">\*?(.*?)<')
+	m = re_class_error.search(ret)
+	if m:
+		raise WebformParseException("Form-reported " + m.group(1))
 	
 	if di.webformresponse == None or di.webformresponse.strip() == "":
 		deliveryrec.trace += u"\n" + ret + u"\n\n"
