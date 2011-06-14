@@ -33,7 +33,7 @@ apt-get install -y \
  apache2 apache2-mpm-worker libapache2-mod-wsgi nginx-full mysql-server \
  python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml sphinxsearch \
  memcached python-memcache \
- python-mechanize python-matplotlib python-scipy \
+ python-mechanize python-matplotlib python-scipy python-rsvg \
  texlive-latex-base texlive-latex-recommended texlive-xetex fontconfig ttf-linux-libertine
 
 ## Custom packages
