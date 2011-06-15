@@ -314,6 +314,7 @@ common_fieldnames = {
 	"responseexpected": "response_requested",
 	"correspondence_response": "response_requested",
 	"answer": "response_requested",
+	"responsereq": "response_requested",
 	
 	'view_select': 'support_oppose',
 	}
@@ -321,6 +322,7 @@ common_fieldnames = {
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
 skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
+	"contact-type",
 	"dummy_zip",
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey", "affl_del",
 	"speech", "authfailmsg",
@@ -346,9 +348,11 @@ radio_choices = {
 
 custom_mapping = {
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
+	"613_zipcode_text": "zip5",
 	"624_phone_prefix_text" : "phone_areacode",
 	"624_phone_first_text" : "phone_prefix",
 	"624_phone_second_text" : "phone_line",
+	"659_zipcode_text": "zip5",
 	"666_daytime-phone_text": "phone",
 	"757_name_text": "firstname",
 	"789_phone8_text": "phone",
@@ -822,7 +826,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 588, 600, 607, 608, 611, 641, 665, 678, 709, 718, 730, 734, 736, 749, 774, 780, 784, 788, 791, 805, 809, 811, 826, 837, 861, 869):
+	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 588, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 709, 718, 730, 734, 736, 749, 774, 780, 784, 788, 791, 805, 809, 811, 826, 837, 861, 869):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
