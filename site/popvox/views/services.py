@@ -802,53 +802,55 @@ your comment and check on its status.
 					"mode": "widget_writecongress",
 					}, context_instance=RequestContext(request))
 
+# TODO: Cache.
 def image(request, fn):
-	if not fn in ('test',):
+	if not re.match(r"writecongress/(1|2|3|4|check|expand|next|preview|send|send-without|widget_writerep_progress)", fn):
 		raise Http404()
 
 	import rsvg, cairo
 	import os.path, StringIO
 	import settings
 
-	fn = os.path.dirname(settings.__file__)+('/media/widgets/%s.svg'%fn)
-	fn = "/usr/share/doc/python-twisted-web/img/web-process.svg"
-	fn = "/home/josh/1.svg"
+	fn = os.path.dirname(settings.__file__) + '/media/widget/' + os.path.dirname(fn) + '/svg/' + os.path.basename(fn) + ".svg"
 	data = open(fn, "r").read()
 
-	if "sub" in request.GET:
-		for sub in request.GET["sub"].split(";"):
-			sp = sub.split(",")
-			if len(sp) == 2:
-				find, replace = sp
-				data = data.replace(str(find), str(replace))
+	for sub in request.GET.getlist("sub"):
+		sp = sub.split(",")
+		if len(sp) == 2:
+			find, replace = sp
+			# TODO: Check that replace only has # and hex digits.
+			data = data.replace(str(find), str(replace))
 
 	svg = rsvg.Handle(data=data)
 
 	width = svg.props.width
 	height = svg.props.height
-	if "width" in request.GET and "height" in request.GET:
-		try:
-			width = int(request.GET["width"])
-			height = int(request.GET["height"])
-		except:
-			raise Http404()
-	elif "width" in request.GET:
-		try:
-			width = int(request.GET["width"])
-			height = svg.props.height * width / svg.props.width
-		except:
-			raise Http404()
-	elif "height" in request.GET:
-		try:
-			height = int(request.GET["height"])
-			width = svg.props.width * height / svg.props.height
-		except:
-			raise Http404()
+	
+	# TODO 
+	#if "width" in request.GET and "height" in request.GET:
+	#	try:
+	#		width = int(request.GET["width"])
+	#		height = int(request.GET["height"])
+	#	except:
+	#		raise Http404()
+	#elif "width" in request.GET:
+	#	try:
+	#		width = int(request.GET["width"])
+	#		height = svg.props.height * width / svg.props.width
+	#	except:
+	#		raise Http404()
+	#elif "height" in request.GET:
+	#	try:
+	#		height = int(request.GET["height"])
+	#		width = svg.props.width * height / svg.props.height
+	#	except:
+	#		raise Http404()
+	#
+	#svg.set_dpi(
+	#	dpi_x = svg.props.dpi_x * width / svg.props.width,
+	#	dpi_y = svg.props.dpi_y * height / svg.props.height)
 
 	surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-	svg.set_dpi(
-		dpi_x = svg.props.dpi_x * width / svg.props.width,
-		dpi_y = svg.props.dpi_y * height / svg.props.height)
 	svg.render_cairo(cairo.Context(surf))
 
 	buf = StringIO.StringIO()

@@ -312,7 +312,6 @@ function update_preview() {
 	var default_width;
 	var default_height;
 	var can_change_height = true;
-	var supports_bg = true;
 	
 	if (widgettype == "commentstream") {
 		if (this && this.id=="commentstream_issuearea" && $('#commentstream_issuearea').val() != "") $('#commentstream_bills').val("");
@@ -384,7 +383,6 @@ function update_preview() {
 		default_width = 460;
 		default_height = 773;
 		can_change_height = false;
-		supports_bg = false;
 	}
 	
 	if (widgettype == "integrations" || widgettype == "splash") {
@@ -399,10 +397,9 @@ function update_preview() {
 	{% if accounts|length > 0 %}
 	if ($('#serviceaccount').val() != "") {
 		// Only apply these configuration options if they are permitted.
-		var clrs = ["sbg", "sfg", "lnk", "bg", "fg"];
+		var clrs = ["sbg", "sbg2", "sfg", "lnk", "bg", "fg", "fg2"];
 		for (var e in clrs)
-			if (clrs[e] != "bg" || supports_bg)
-				opts += "&" + clrs[e] + "=" + $('#color_' + clrs[e]).val().replace("#", "");
+			opts += "&" + clrs[e] + "=" + $('#color_' + clrs[e]).val().replace("#", "");
 		
 		/*if ($('#commentstream_scrollmode_scroll')[0].checked)
 			opts += "&scroll=bar";
@@ -703,6 +700,12 @@ var minicolors_opts = {
 						<script>$('#color_sbg').miniColors(minicolors_opts);</script>
 					</div>
 					
+					<div class="vert widget_opts writecongress_opts">
+						<input id="color_sbg2" type="text" value="#e7e4dd" class="colorpicker"/>
+						<label for="color_sbg2">shell light background</label>
+						<script>$('#color_sbg2').miniColors(minicolors_opts);</script>
+					</div>
+					
 					<div class="vert">
 						<input id="color_sfg" type="text" value="#ffffff" class="colorpicker"/>
 						<label for="color_sfg">shell text</label>
@@ -718,7 +721,7 @@ var minicolors_opts = {
 					<div class="clear"> </div>
 			
 					<div class="vert">
-						<input id="color_bg" type="text" value="#eeeeee" class="colorpicker"/>
+						<input id="color_bg" type="text" value="#fafafa" class="colorpicker"/>
 						<label for="color_bg">main background</label>
 						<script>$('#color_bg').miniColors(minicolors_opts);</script>
 					</div>
@@ -729,6 +732,12 @@ var minicolors_opts = {
 						<script>$('#color_fg').miniColors(minicolors_opts);</script>
 					</div>
 				
+					<div class="vert widget_opts writecongress_opts">
+						<input id="color_fg2" type="text" value="#555555" class="colorpicker"/>
+						<label for="color_fg2">light text</label>
+						<script>$('#color_fg2').miniColors(minicolors_opts);</script>
+					</div>
+					
 				</div><!-- e: panel -->
 				<div class="clear"> </div>
 				
