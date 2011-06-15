@@ -352,7 +352,7 @@ custom_mapping = {
 	"624_phone_prefix_text" : "phone_areacode",
 	"624_phone_first_text" : "phone_prefix",
 	"624_phone_second_text" : "phone_line",
-	"659_zipcode_text": "zip5",
+	"659_contact[postal_code]_text": "zip5",
 	"666_daytime-phone_text": "phone",
 	"757_name_text": "firstname",
 	"789_phone8_text": "phone",
@@ -400,6 +400,8 @@ custom_overrides = {
 	"645_authfailmsg_hidden": "/andrews/AuthFailMsg.htm",
 	"661_subject_hidden": "",
 	"661_reqresponse_radio": "on",
+	"661_issues_select": "",
+	"661_issues2_select": "",
 	"689_field_07c7727a-6c47-4ff9-a890-c904fa4d408f_radio": "express an opinion or share your views with me",
 	"690_aff2_radio": "",
 	"694_newsletter_radio": "No",
@@ -416,7 +418,7 @@ custom_overrides = {
 	"869_aff1req_text": "",
 }
 
-# Supply additional POST data that doesn't correspond to a form field.
+# Supply additional POST data from the message object that doesn't correspond to a form field.
 custom_additional_fields = {
 	757: { "zip4": "zip4" },
 	870: { "address": "address_combined", "city": "city" }, # required fields not actually on form because he doesn't care
@@ -670,6 +672,23 @@ def parse_webform(webformurl, webform, webformid, id):
 
 	return field_map, field_options, field_default, formaction, formmethod
 
+def test_zipcode_rejected(webform, deliveryrec):
+	if "The zip code you typed in does not appear to be a zip code within my district" in webform\
+		or "You might not be in my district" in webform \
+		or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
+		or "The zip code entered indicates that you reside outside the" in webform\
+		or "Your zip code indicates that you are outside of the" in webform\
+		or "multiple Representatives who share the 5-digit zip code which was entered" in webform\
+		or "Your zip code is split between more that one Congressional District" in webform\
+		or "The zip code you entered was either not found or not in our District" in webform\
+		or "Zip Code Split Between Multiple Districts" in webform\
+		or "Your zip code indicates that you live outside" in webform \
+		or "This authentication has failed" in webform\
+		or "<li>Zip Extension is required</li>" in webform\
+		or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform:
+		deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
+		raise DistrictDisagreementException()
+	
 def send_message_webform(di, msg, deliveryrec):
 	# Load the web form and parse the fields.
 	
@@ -725,14 +744,7 @@ def send_message_webform(di, msg, deliveryrec):
 			
 		webform = urlopen(webformurl, postdata, formmethod, deliveryrec).read()
 		
-		if "The zip code you typed in does not appear to be a zip code within my district" in webform\
-			or "You might not be in my district" in webform \
-			or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
-			or "The zip code entered indicates that you reside outside the" in webform\
-			or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform:
-			deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
-			raise DistrictDisagreementException()
-			
+		test_zipcode_rejected(webform, deliveryrec)
 
 	webformid = webform_stages.pop(0) if len(webform_stages) > 0 else "<not entered>"
 	try:
@@ -826,7 +838,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 426, 585, 588, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 709, 718, 730, 734, 736, 749, 774, 780, 784, 788, 791, 805, 809, 811, 826, 837, 861, 869):
+	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 426, 585, 588, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 706, 709, 718, 730, 734, 736, 746, 749, 774, 780, 784, 788, 791, 805, 809, 811, 826, 837, 851, 861, 869):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -843,6 +855,8 @@ def send_message_webform(di, msg, deliveryrec):
 	ret = urlopen(formaction, postdata, formmethod, deliveryrec)
 	ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
+	test_zipcode_rejected(ret, deliveryrec)
+	
 	# If this form has a final stage where the user is supposed to verify
 	# what he entered, then re-submit the verification form presented to
 	# him with no change.
@@ -851,7 +865,7 @@ def send_message_webform(di, msg, deliveryrec):
 		try:
 			doc, form, formaction, formmethod = find_webform(ret, webformid_stage2, formaction)
 		except WebformParseException:
-			deliveryrec.trace += u"\n" + webform.decode('utf8', 'replace') + u"\n\n"
+			deliveryrec.trace += u"\n" + ret.decode('utf8', 'replace') + u"\n\n"
 			raise
 					
 		postdata = { }
@@ -872,19 +886,11 @@ def send_message_webform(di, msg, deliveryrec):
 	if ret_code == 404:
 		raise IOError("Form POST resulted in a 404.")
 	
+	test_zipcode_rejected(ret, deliveryrec)
+	
 	if type(ret) == str:
 		ret = ret.decode('utf8', 'replace')
 
-	if "Your zip code indicates that you are outside of" in ret \
-	 or "Your zip code indicates that you live outside" in ret \
-	 or "The zip code entered indicates that you reside outside the" in ret\
-	 or "This authentication has failed" in ret\
-	 or "You might not be in my district" in ret\
-	 or "The zip code you entered was either not found or not in our District" in ret\
-	 or "Zip Code Split Between Multiple Districts" in ret:
-		deliveryrec.trace += u"\n" + ret + u"\n\n"
-		raise DistrictDisagreementException()
-		
 	if "experiencing technical difficulties" in ret:
 		deliveryrec.trace += u"\n" + ret + u"\n\n"
 		raise IOError("The site reports it is experiencing technical difficulties.")

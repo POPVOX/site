@@ -48,7 +48,7 @@ if "TARGET" in os.environ:
 if "LAST_ERR_SR" in os.environ:
 	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE)
 if "LAST_ERR_TIMEOUT" in os.environ:
-	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR, delivery_attempts__trace__contains="error timed out")
+	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR, delivery_attempts__trace__contains="timed out")
 if "RECENT" in os.environ:
 	comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=7))
 	
@@ -156,13 +156,13 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 	for gid in govtrackrecipientids:
 		if "TARGET" in os.environ and gid != int(os.environ["TARGET"]):
 			continue
-	
+			
+		# Special field cleanups for particular endpoints.
 		if gid in (412246,400050) and msg.county == None and comment.address.cdyne_response == None:
 			print "Normalize Address", comment.address.id
 			comment.address.normalize()
 			msg.county = comment.address.county
-
-		if gid in (400616,):
+		if gid in (400616,400055):
 			msg.phone = "".join([d for d in msg.phone if d.isdigit()])
 		
 		# Get the last attempt to deliver to this recipient.
