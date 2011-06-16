@@ -1,0 +1,2 @@
+#!/bin/sh
+ssh -i /mnt/persistent/id_dsa ec2-user@10.112.57.60
