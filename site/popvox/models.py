@@ -622,7 +622,7 @@ def ocpar_saved_callback(sender, instance, created, **kwargs):
 	try:
 		ocp = instance.ocp
 		acct = ocp.campaign.org.serviceaccount
-		url = "http://%s/o/%s/p/d/popvox/public/api/add_supporter.sjs" % (
+		url = "http://%s/o/%s/p/d/popvox/popvox/public/api/add_supporter.sjs" % (
 			acct.getopt("salsa", None)["node"],
 			acct.getopt("salsa", None)["org_id"])
 		data = {
