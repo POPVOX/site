@@ -816,6 +816,11 @@ def legstaff_download_messages(request):
 			topic_code = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
 			campaign_id = ""
 			
+			# take the first referrer
+			comment.referrer = None
+			for ref in comment.referrers():
+				comment.referrer = ref
+				break
 			if comment.referrer != None and isinstance(comment.referrer, Org):
 				if comment.referrer.website == None:
 					campaign_id = "http://popvox.com" + comment.referrer.url()

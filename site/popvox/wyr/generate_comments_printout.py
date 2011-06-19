@@ -159,26 +159,27 @@ def create_tex(tex, serial):
 				outfile.write_esc(comment.message)
 				outfile.write("\n\n\\bigskip")
 				
-				if comment.referrer != None and isinstance(comment.referrer, Org):
-					outfile.write(r"{\it ")
-					outfile.write_esc("(This individual was referred by " + comment.referrer.name + ", ")
-					if comment.referrer.website == None:
-						outfile.write_esc("http://popvox.com" + comment.referrer.url())
-					else:
-						outfile.write_esc(comment.referrer.website)
-					outfile.write_esc(")")
-					outfile.write(r"}")
-					outfile.write("\n\n\\bigskip")
-				elif comment.referrer != None and isinstance(comment.referrer, OrgCampaign):
-					outfile.write(r"{\it ")
-					outfile.write_esc("(This individual was referred by " + comment.referrer.org.name + ", ")
-					if comment.referrer.website_or_orgsite() == None:
-						outfile.write_esc("http://popvox.com" + comment.referrer.url())
-					else:
-						outfile.write_esc(comment.referrer.website_or_orgsite())
-					outfile.write_esc(")")
-					outfile.write(r"}")
-					outfile.write("\n\n\\bigskip")
+				for referrer in comment.referrers():
+					if isinstance(referrer, Org):
+						outfile.write(r"{\it ")
+						outfile.write_esc("(This individual was referred by " + referrer.name + ", ")
+						if referrer.website == None:
+							outfile.write_esc("http://popvox.com" + referrer.url())
+						else:
+							outfile.write_esc(referrer.website)
+						outfile.write_esc(")")
+						outfile.write(r"}")
+						outfile.write("\n\n\\bigskip")
+					elif isinstance(referrer, OrgCampaign):
+						outfile.write(r"{\it ")
+						outfile.write_esc("(This individual was referred by " + referrer.org.name + ", ")
+						if referrer.website_or_orgsite() == None:
+							outfile.write_esc("http://popvox.com" + referrer.url())
+						else:
+							outfile.write_esc(referrer.website_or_orgsite())
+						outfile.write_esc(")")
+						outfile.write(r"}")
+						outfile.write("\n\n\\bigskip")
 				
 			# clear page after each "topic", i.e. bill and support oppose
 			outfile.write(r"\clearpage" + "\n")

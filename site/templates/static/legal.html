@@ -176,11 +176,11 @@
 			{% if user.is_authenticated %}
 			<td class="whatweknow">
 			{% for comment in user.comments.all %}
-				{% if comment.referrer %}
+				{% for referrer in comment.referrers %}
 					<div style="margin-bottom: 1em">
-						<div>{{comment.bill|truncatewords:5}}: Referred by {{comment.referrer}}</div>
+						<div>{{comment.bill|truncatewords:5}}: Referred by {{referrer}}</div>
 					</div>
-				{% endif %}
+				{% endfor %}
 			{% endfor %}
 			</td>
 			{% endif %}

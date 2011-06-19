@@ -945,7 +945,6 @@ def save_user_comment(user, bill, position, referrer, message, address_record, o
 		comment.user = user
 		comment.bill = bill
 		comment.position = position
-		comment.referrer = referrer
 	
 	# We're updating an existing record.
 	else:
@@ -986,6 +985,9 @@ def save_user_comment(user, bill, position, referrer, message, address_record, o
 		comment.status = UserComment.COMMENT_NOT_REVIEWED
 
 	comment.save()
+	
+	if referrer != None:
+		UserCommentReferral.create(comment, referrer)
 	
 	if ocp != None:
 		# Update the OrgCampaignPositionActionRecord to track that the comment was

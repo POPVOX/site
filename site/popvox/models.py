@@ -653,10 +653,6 @@ class UserProfile(models.Model):
 	
 	user = models.OneToOneField(User)
 	
-	referrer_content_type = models.ForeignKey(ContentType, db_index=True, blank=True, null=True, related_name="usersrefferedby")
-	referrer_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
-	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
-
 	fullname = models.CharField(max_length=100, blank=True, null=True)
 	
 	# we're not using these now but I figure we will at some point.
@@ -1016,7 +1012,9 @@ class UserComment(models.Model):
 	tweet_id = models.BigIntegerField(blank=True, null=True)
 	fb_linkid = models.CharField(max_length=32, blank=True, null=True)
 
-	referrer_content_type = models.ForeignKey(ContentType, blank=True, null=True, db_index=True, related_name="commentsrefferedby")
+	# TODO: CRITICAL: Potential cascaded delete.
+	# REMEMBER TO INITIALIZE OTHER TABLE.
+	referrer_content_type = models.ForeignKey(ContentType, blank=True, null=True, db_index=True)
 	referrer_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
 	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
 	
@@ -1196,6 +1194,34 @@ class UserComment(models.Model):
 
 	def appreciates_count(self):
 		return UserCommentDigg.objects.filter(comment=self, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE).count()
+		
+	def referrers(self):
+		return [ucr.referrer for ucr in self.usercommentreferral_set.all()]
+
+class UserCommentReferral(models.Model):
+	# This class is used to avoid cascaded deletes on UserComment objects
+	# if a referring object is deleted.
+	comment = models.ForeignKey(UserComment)
+	referrer_content_type = models.ForeignKey(ContentType, db_index=True)
+	referrer_object_id = models.PositiveIntegerField(db_index=True)
+	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
+	class Meta:
+		unique_together = (("comment", "referrer_content_type", "referrer_object_id"),)
+		
+	@staticmethod
+	def create(comment, referrer):
+		for ucr in UserCommentReferral.objects.filter(comment=comment):
+			if ucr.referrer == referrer:
+				break
+		else:
+			ucr = UserCommentReferral()
+			ucr.comment = comment
+			ucr.referrer = referrer
+			try:
+				ucr.save()
+			except:
+				# race condition on uniqueness
+				pass
 
 class UserCommentOfflineDeliveryRecord(models.Model):
 	comment = models.ForeignKey(UserComment)

@@ -116,6 +116,10 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 	
 	msg.simple_topic_code = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
 	
+	try:
+		comment.referrer = comment.referrers()[0]
+	except:
+		comment.referrer = None
 	if comment.referrer != None and isinstance(comment.referrer, Org):
 		msg.campaign_id = "http://popvox.com" + comment.referrer.url()
 		msg.campaign_info = comment.referrer.name
