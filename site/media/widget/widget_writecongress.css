@@ -95,7 +95,7 @@ a {
 
 	
 #widget_top ul {
-	background: url(bg_bar.png) right 4px repeat-x;
+	background: url(bg_bar.png) right 0 repeat-x;
 	height: 32px;
 	}
 	
@@ -482,13 +482,13 @@ a {
 			
 		
 		#msg_preview {
-			background: url(bg_preview_msg.png) left top repeat-y;
+			background: url(bg_preview_msg.png) -20px 3px no-repeat;
 			font-family: Georgia, serif;
 			margin-bottom: 10px;
 			}
 			
 			#msg_preview p.greeting {
-				background: url(bg_preview_msg_top.png) left top no-repeat;
+				background: url(bg_ preview_msg_top.png) left top no-repeat;
 				height: 35px;
 				padding: 70px 40px 0;
 				} 
@@ -508,7 +508,6 @@ a {
 				}
 			
 			#msg_preview p.signature {
-				background: url(bg_preview_msg_btm.png) left bottom no-repeat;
 				padding: 10px 0 65px 200px;
 				padding-bottom: 40px;
 				height: 80px;
