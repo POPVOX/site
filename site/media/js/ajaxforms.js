@@ -358,47 +358,72 @@ function ajax(url, postdata, actions) {
 // Turn a <ul class="tabs"><li><a href="#tabname"><span>Tab Item</span></a></li></ul>
 // list into tabs that are fragment-aware. Unless the tab panes are hidden statically, this should
 // be called after all of the panes are loaded in the DOM so that all but the first pane can be hidden.
-jQuery.fn.pvtabs = function() {
+jQuery.fn.pvtabs = function(tab_change_callback) {
 	return this.each(function(){
-		var default_tab = window.location.hash;
-		if (default_tab.length > 1) default_tab = default_tab.substr(1);
-			
 		var ul = $(this);
-		var tab_index = 0;
-		ul.find(">li").each(function() {
-			var a = $(this).find(">a")[0];
-			var tabname = a.getAttribute("href").substr(a.getAttribute("href").indexOf("#")+1);
-			if ((tab_index == 0 && default_tab == "") || (tabname == default_tab)) {
-				$(this).addClass("active");
-				$(".tab_" + tabname).show();
-			} else {
-				$(".tab_" + tabname).hide();
+			
+		var open_tab = function (is_initial) {
+			// find the matching tab from the window location hash
+			var active_tab;
+			ul.find('li a').each(function() {
+				var tabname = this.getAttribute("href").substr(this.getAttribute("href").indexOf("#")+1);
+				if ("#" + tabname == window.location.hash)
+					active_tab = tabname;
+			});
+			
+			// if the hash doesn't correspond with a tab name, and this isn't on page
+			// load, then just abort.
+			if (!active_tab && !is_initial) return;
+			
+			// if this is executing on page load and the window hash didn't match a tab,
+			// open the first tab by default.
+			if (!active_tab) {
+				ul.find('li a').each(function() {
+					var tabname = this.getAttribute("href").substr(this.getAttribute("href").indexOf("#")+1);
+					if (!active_tab)
+						active_tab = tabname;
+				});
 			}
-			tab_index++;
-		});
-		
-		// the change in tab active state is dependent entirely on changes to
-		// the window location fragment
-		$(window).bind("hashchange", function() {
-			// if the user is scrolled far down on the page, scroll the user back up
-			var tabs_top = ul.offset().top;
-			if ($(window).scrollTop() > tabs_top + 50)
-				//$(window).scrollTop(tabs_top);
-				$('html,body').animate({scrollTop: tabs_top}); // works across browsers?
+				
+			// if there are no tabs, abort
+			if (!active_tab) return;
+			
+			if (!is_initial) {
+				// if the user is scrolled far down on the page, scroll the user back up
+				var tabs_top = ul.offset().top;
+				if ($(window).scrollTop() > tabs_top + 50)
+					//$(window).scrollTop(tabs_top);
+					$('html,body').animate({scrollTop: tabs_top}); // works across browsers?
+			}
 			
 			// find the matching tab and make it active
+			// since tabs can share tab_panes, do hide before show
+			var tabs_to_hide = "";
+			var tabs_to_show = "";
 			ul.find('li').removeClass("active");
 			ul.find('li a').each(function() {
 				var tabname = this.getAttribute("href").substr(this.getAttribute("href").indexOf("#")+1);
-				if ("#" + tabname == window.location.hash) {
+				if (tabname == active_tab) {
 					$(this.parentNode).addClass("active");
-					$(".tab_" + tabname).show();
+					tabs_to_show += ".tab_" + tabname + ", ";
 				} else {
-					$(".tab_" + tabname).hide();
+					tabs_to_hide += " .tab_" + tabname + ", ";
 				}
 			});
-		});
+			$(tabs_to_hide).hide();
+			$(tabs_to_show).show();
+			
+			if (tab_change_callback)
+				tab_change_callback(active_tab);
+		};
 	
+		// open the default tab
+		open_tab(true);
+		
+		// the change in tab active state is dependent entirely on changes to
+		// the window location fragment, since the tabs are made of links
+		// with hrefs that are just fragments.
+		$(window).bind("hashchange", function() { open_tab(false); });
 	});
 };
 

@@ -281,10 +281,8 @@ var accounts = [
 var current_account;
 var widgettype;
 
-function change_widget(tab) {
-	widgettype = tab.getAttribute("href").substr(tab.getAttribute("href").indexOf("#")+1);
-	$('ul.tabs li').removeClass("active");
-	$(tab.parentNode).addClass("active");
+function change_widget(tabname) {
+	widgettype = tabname;
 	
 	if (widgettype == "splash") {
 		$('.config_pane, .preview_pane').hide();
@@ -537,26 +535,12 @@ function set_fb_page_code() {
 	return false;
 }
 
-$(window).bind("hashchange", function() {
-	open_tab();
-});
-function open_tab() {
-	$('ul.tabs li a').each(function() {
-			if (this.getAttribute("href").substr(this.getAttribute("href").indexOf("#")) == window.location.hash)
-				change_widget(this);
-	});
-}
-
 $(function() {
 	$('.form input[type=text]').keyup_delayed(update_preview);
 	$('.form select').change(update_preview);
 	$('.form input[type=radio]').click(update_preview);
 	
 	splash_tab($('#wSelect li a')[0]);
-	
-	change_widget($('ul.tabs li a')[0]);
-	open_tab(); // open from URL fragment
-	
 	account_changed();
 
 	$('#features_write_congress li').hover(function(event) {
@@ -599,7 +583,7 @@ var minicolors_opts = {
 		<li><a href="#integration"><span>Facebook</span></a></li>
 	</ul>
 
-	<div id="splash">
+	<div id="splash" class="tab_splash">
 		<div id="wTop">
 			<div class="left">
 				<img src="/media/widget/widgetpage_cogs.png" />
@@ -677,6 +661,7 @@ var minicolors_opts = {
 		</div>
 	</div><!-- e:splash -->
 
+	<div class="tab_writecongress tab_commentstream">
 	<div class="config_pane">
 		<p id="widget_description"></p>
 	
@@ -860,22 +845,6 @@ var minicolors_opts = {
 					<label for="commentstream_scrollmode_animate">Animate</label>
 				</div>
 -->			</div>
-
-				<div class="widget_opts integration_opts">
-					<h3>Facebook</h3>
-					<p>With a service plan, any POPVOX widget can be embedded into a &ldquo;POPVOX&rdquo; tab on a Facebook Page. Facebook allows you to include a single POPVOX tab with a single widget on your page. To add a POPVOX tab:</p>
-					<ul class="bullets">
-						<li>Visit the <a href="http://www.facebook.com/apps/application.php?id=150910028257528">POPVOX Facebook App</a> page.</li>
-						<li>Click <em>Add to My Page</em> in the lower left list of links.</li>
-						<li>Visit your page and click on the new POPVOX tab.</li>
-						<li>When prompted, enter your service account secret password <b class="secret_key">xxxx</b>. Do not share this password.</li>
-						<li>You&rsquo;ll then return to this page to publish a widget to your Facebook page.</li>
-					</ul>
-					<p>Please <a href="/about/contact">contact us</a> if you are interested in a service account.</p>
-					
-					<h3>Other Integrations</h3>
-					<p>We are working on other ways to integrate POPVOX widgets into your website or campaign software. Please <a href="/about/contact">contact us</a> with any requests.</p>
-				</div>
 		</form><!-- e: form -->
 	</div>
 	
@@ -895,6 +864,26 @@ var minicolors_opts = {
 		<div id="preview">
 		</div>
 	</div>
+	</div> <!-- tab pane -->
+	
+	<div class="tab_integration">
+		<h3>Facebook</h3>
+		<p>With a service plan, any POPVOX widget can be embedded into a &ldquo;POPVOX&rdquo; tab on a Facebook Page. Facebook allows you to include a single POPVOX tab with a single widget on your page. To add a POPVOX tab:</p>
+		<ul class="bullets">
+			<li>Visit the <a href="http://www.facebook.com/apps/application.php?id=150910028257528">POPVOX Facebook App</a> page.</li>
+			<li>Click <em>Add to My Page</em> in the lower left list of links.</li>
+			<li>Visit your page and click on the new POPVOX tab.</li>
+			<li>When prompted, enter your service account secret password <b class="secret_key">xxxx</b>. Do not share this password.</li>
+			<li>You&rsquo;ll then return to this page to publish a widget to your Facebook page.</li>
+		</ul>
+		<p>Please <a href="/about/contact">contact us</a> if you are interested in a service account.</p>
+		
+		<h3>Other Integrations</h3>
+		<p>We are working on other ways to integrate POPVOX widgets into your website or campaign software. Please <a href="/about/contact">contact us</a> with any requests.</p>
+	</div>	
+	
+	
+	<script>$('.tabs').pvtabs(change_widget);</script> <!-- execute early to get visibiity set -->
 </div><!-- e: content -->
 
 {% endblock %}
