@@ -87,7 +87,11 @@
 	cursor: pointer;
 	}
 	
-.faq .b_expand, .faq .b_collapse {
+.faq .b_expand {
+	font-size: 11px;
+	padding: 1px 5px;
+	}
+.faq .b_collapse {
 	float: right;
 	font-weight: bold;
 	font-size: 11px;
@@ -313,7 +317,7 @@
 			$('.faq_item').each(function() {
 					var p = $(this).find('p');
 					if (p.length > 1) {
-						$(p[0]).append('<a class="b_expand">read more [+]</a>');
+						$(p[0]).append('<a class="b_expand">read more...</a>');
 						$(p[p.length-1]).append('<a class="b_collapse">collapse [-]</a>');
 						$('.faq_item').find('p:not(:first)').hide();
 					}
@@ -409,6 +413,16 @@
 					<li>congress</li>
 				</ul><div class="clear"> </div>
 			</div> <!-- end of item -->
+			
+			<div class="faq_item">
+				<a name="nosummary"><h3>Wouldn&rsquo;t it be nice if you summarized the bills so we knew what they were really about?</h3></a>
+				<p>We think it is important to understand what a bill is before weighing in on it, but at the same time we are constrained by our company principle of not editorializing. So rather than us providing summaries of bills, we allow organizations to provide their own perspectives. On many pages for bills the statements of advocacy organizations about the bill are listed.</p> 
+				<p>The trouble is that for exactly those bills that are complicated enough to need a lot of explanation, there is really no way to provide an objective summary. A summary has to choose what aspects of the bill are important and which are not, and then requires some interpretation to explain how the legalese in the bill will make an impact. Rather than adding our own subjective interpretations of bills into the mix, we hope that the variety of opinions coming from advocacy organizations gives a good, broad overview of the issues surrounding a bill.</p>
+				<ul class="tags">
+					<li>bills</li>
+					<li>balance</li>
+				</ul><div class="clear"> </div>
+			</div> <!-- end of item -->
 
 			<div class="faq_item">
 				<a name="howalerts"><h3>How are the POPVOX Alerts put together?</h3></a>
@@ -442,7 +456,7 @@
 
 				<p>As campaigns around bills heat up in Congress, the POPVOX team also uploads the positions organizations take on these bills as an added value to our POPVOX users and Congressional staffers. From our conversations with our users, we know that they want to hear from trusted sources of information before weighing in on a bill—including issue experts and analysts, as well as other individuals in their community or state.</p>
 
-				<p>If you know of an organization you&rsquo;d like to see on POPVOX, please let Rachna know at <a href="mailto:rachna@popvox.com?subject=I Want To See This Organization On Popvox!">rachna@popvox.com. We&rsquo;d also love a reference to that organization, so reach out and ask them to get on POPVOX! And feel free to share this <a href="/files/organization_intro.pdf">Organizational Overview</a> with them.</p>
+				<p>If you know of an organization you&rsquo;d like to see on POPVOX, please let Rachna know at <a href="mailto:rachna@popvox.com?subject=I Want To See This Organization On Popvox!">rachna@popvox.com.</a> We&rsquo;d also love a reference to that organization, so reach out and ask them to get on POPVOX! And feel free to share this <a href="/files/organization_intro.pdf">Organizational Overview</a> with them.</p>
 
 				<ul class="tags">
 					<li>orgs</li>

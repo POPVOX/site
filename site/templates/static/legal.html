@@ -463,34 +463,52 @@ Please contact us at {% obfuscated_email "info@popvox.com" %} with any questions
 	<div class="tab_donottrack">
 		<h3 class="no_rule">Do Not Track Compliance</h3>
 		
-		<div class="left">
-			<h4>What is Do Not Track?</h4>
+		<p style="font-style: italic">
+		{% if request.META.HTTP_DNT == "1" %}
+			You have Do Not Track turned on.
+		{% else %}
+			Your browser does not support Do Not Track or you do not have it turned on.
+		{% endif %}
+		</p>
 			
+		<h4>What is Do Not Track?</h4>
+			
+		<div class="left">
 			<p>&ldquo;Do Not Track&rdquo; (DNT) is a new approach to allowing web users the ability to state their preference to opt-out of being tracked by services they may not be aware are collecting data about them. Although there is no one adopted standard for how web sites are supposed to behave in order to be Do Not Track-compliant, POPVOX has taken some steps outlined here to get ahead of the game.</p>
 
+			<p>As of June 2011, Firefox version 4, Safari version 5.1, and Internet Explorer version 9 support the Do Not Track user preference.</p>
+			
+			<p>More information about Do Not Track can be found at <a href="http://donottrack.us/">DoNotTrack.us</a> and for Firefox specifically at <a href="http://dnt.mozilla.org/">dnt.Mozilla.org</a>.</p>
+		</div>
+			
+		<div class="right">
 			<p>Do Not Track is primarily aimed at the tracking that large advertising networks do to shape the advertisements they show you. One confusing aspect of Do Not Track is that it does not actually apply to the websites you visit directly. Instead, Do Not Track is intended solely to stop companies that you don&rsquo;t know even have your information from tracking you.</p>
 			
 			<p>In other words, when you visit xyz.com <strong>directly</strong> the Do Not Track standard(s) are not applicable to xyz.com. The idea is that since you know you are visiting xyz.com, you can choose to accept their privacy policy. But if xyz.com <strong>embeds</strong> advertising from zyx.com, you don&rsquo;t have an opportunity to evaluate zyx's policy. If you are using a supported web browser with Do Not Track turned on, zyx.com is Do Not Track compliant only if it does not track you from session to session.</p>
-			
-			<p>As of June 2011, Firefox version 4, Safari version 5.1, and Internet Explorer version 9 support the Do Not Track user preference.</p>
-			
-			<p>More information about Do Not Track can be found at <a href="http://donottrack.us/">DoNotTrack.us</a>.</p>
 		</div>
 		
-		<div class="right">
+		<div class="left">
 			<h4>&ldquo;DNT&rdquo; When You Visit POPVOX.com</h4>
 		
-			<p>When you visit POPVOX.com directly the Do Not Track standard(s) are not relevant &mdash; see the explanation at left. Instead, see our <a href="#privacyreport">Privacy Report</a> and <a href="#privacypolicy">Privacy Policy</a>.</p>
+			<p>When you visit POPVOX.com directly the Do Not Track standard(s) are not relevant &mdash; see the explanation above. Instead, see our <a href="#privacyreport">Privacy Report</a> and <a href="#privacypolicy">Privacy Policy</a>.</p>
 			
-			<p>Even so, we take the extra step of <strong>embedding only DNT-compliant</strong> third-party resources on POPVOX (following the prevailing DNT standard, linked at left). That means that when you visit POPVOX.com, your DNT preference will be respected by us and any other web content loaded on our site by your browser. At the time of writing, we are embedding the following services which we consider to fall under the "exclusively on behalf of and for the use of a first party" type of allowed tracking:</p>
+			<p>Even so, we take the extra step of <strong>embedding only DNT-compliant</strong> third-party resources on POPVOX when you have turned on your browser&rsquo;s DNT option. That means that when you visit POPVOX.com, your DNT preference will be respected by us and any other web content loaded on our site by your browser. At the time of writing, we are embedding the following services:</p>
 			
 			<ul class="bullets">
 			<li><a href="http://www.google.com/analytics">Google Analytics</a> [<a href="http://www.google.com/intl/en/analytics/privacyoverview.html">privacy info</a>] with the "<a href="http://www.google.com/support/analytics/bin/answer.py?answer=87515">do not share my Google Analytics data</a>" option</li>
 			<li><a href="http://www.mixpanel.com">Mixpanel</a> [<a href="https://mixpanel.com/privacy/">privacy info</a>]</li> 
 			</ul>
 			
-			<p>We use these services to understand whether POPVOX is operating normally and how we can improve. These services may not use their tracking information except to help us understand our own site traffic.</p>
+			<p>We consider these to fall under the "exclusively on behalf of and for the use of a first party" type of allowed tracking. When your DNT option is turned on, we disable the following resources:</p>
 			
+			<ul class="bullets">
+			<li>Google Maps: Because the Google Maps API is probably not DNT compliant, we disable this part of POPVOX when your DNT option is turned on. We use Google Maps in a small number of cases to help find your Congressional district when we cannot find it based on your street address.</li> 
+			</ul>
+			
+			<p>Unfortunately, this may mean you will not be able to use POPVOX properly with the DNT option turned on.</p>
+		</div>
+			
+		<div class="right">
 			<h4>&ldquo;DNT&rdquo; When You Encounter a POPVOX Widget</h4>
 			
 			<p>We provide a number of widgets that blogs and advocacy websites can embed
