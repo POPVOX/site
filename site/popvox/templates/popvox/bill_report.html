@@ -18,7 +18,9 @@ h2 span {
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
 <script>
+{% if user.is_authenticated %}
 {% include "popvox/track.js" %}
+{% endif %}
 </script>
 {% endblock %}
 {% block content %}
@@ -348,11 +350,13 @@ h2 span {
 			<h1>Bill Report</h1>
 
 			<div class="block">
+				{% if user.is_authenticated %}
 				<div style="float: left; margin-left: -29px; margin-top: -7px">
 					{% with "+" as tracktype %}
 					{% include "popvox/track.html" %}
 					{% endwith %}
 				</div>
+				{% endif %}
 				{% if not bill.street_name %}
 					<h2>{{ bill.title|truncatewords:30 }}</h2> 
 				{% else %}
