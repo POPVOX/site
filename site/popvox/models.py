@@ -737,10 +737,22 @@ class UserProfile(models.Model):
 		if save:
 			self.save()
 			
-	def service_accounts(self):
+	def service_accounts(self, create=False):
+		if create:
+			# Create a service account for this user. If the user is an org admin,
+			# create a service account for each org the user admins. Otherwise,
+			# create a user-specific service account.
+			orgs = Org.objects.filter(admins__user = self.user)
+			if orgs.count() > 0:
+				for org in orgs:
+					if not ServiceAccount.objects.filter(org=org).exists():
+						ServiceAccount.objects.create(org=org)
+			else:
+				if not ServiceAccount.objects.filter(user=self.user).exists():
+					ServiceAccount.objects.create(user=self.user)
+		
 		return ServiceAccount.objects.filter(user = self.user) \
 			| ServiceAccount.objects.filter(org__admins__user = self.user)
-		return ret
 	
 	def matching_ocpar_orgs(self):
 		orgs = set()
@@ -1249,7 +1261,7 @@ class ServiceAccount(models.Model):
 	# Track activity for billing.
 	
 	# this counter increments for each comment submitted by the Write Congress
-	# widget tied to a service account with either the writecongress_theme or
+	# widget tied to a service account with either the widget_theme or
 	# writecongress_ocp permissions.
 	beancounter_comments = models.IntegerField(default=0) # number of user messages to bill
 	

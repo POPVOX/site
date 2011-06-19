@@ -414,7 +414,7 @@ jQuery.fn.pvtabs = function(tab_change_callback) {
 			$(tabs_to_show).show();
 			
 			if (tab_change_callback)
-				tab_change_callback(active_tab);
+				tab_change_callback(active_tab, is_initial);
 		};
 	
 		// open the default tab

@@ -32,7 +32,7 @@
 	}
 	{% endif %}
 	
-	{% if "commentstream_theme" in permissions %}
+	{% if "widget_theme" in permissions %}
 	#comment_widget #widget_top {
 		background: #{{request.GET.sbg}} url("comments_widget_head_grad.png") left top repeat-x;
 		color: #{{request.GET.sfg}};

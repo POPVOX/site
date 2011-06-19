@@ -46,7 +46,7 @@
 	}
 	{% endif %}
 	
-	{% if "writecongress_theme" in permissions %}
+	{% if "widget_theme" in permissions %}
 	body, input, textarea, select, h4.congrats { background-color: #{{request.GET.bg}}; color: #{{request.GET.fg}}; }
 	.optional, input[disabled] { color: #{{request.GET.fg2}}; }
 	a, p.error { color: #{{request.GET.lnk}}; }

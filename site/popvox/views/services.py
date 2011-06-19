@@ -34,7 +34,7 @@ def widget_config(request):
 	# Collect all of the ServiceAccounts that the user has access to.
 	
 	return render_to_response('popvox/services_widget_config.html', {
-		'accounts': request.user.userprofile.service_accounts() if request.user.is_authenticated() else [],
+		'accounts': request.user.userprofile.service_accounts(create=True) if request.user.is_authenticated() else [],
 		
 		'issueareas': IssueArea.objects.filter(parent__isnull=True),
 		"states": statelist,
@@ -531,7 +531,7 @@ def widget_render_writecongress_action(request, account, permissions):
 		# the purpose of billing the account later. How do we know if we are supposed to charge
 		# the account for this comment? Any advanced option means the user has a pro acct.,
 		# which means we charge.
-		if account != None and ("writecongress_theme" in permissions or "writecongress_ocp" in permissions) and "demo" not in request.POST:
+		if account != None and ("widget_theme" in permissions or "writecongress_ocp" in permissions) and "demo" not in request.POST:
 			from django.db.models import F
 			account.beancounter_comments = F('beancounter_comments') + 1
 			account.save()

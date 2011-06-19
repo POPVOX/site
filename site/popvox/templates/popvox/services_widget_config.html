@@ -169,13 +169,17 @@ ul#wSelect {
 	background: #b36015;
 	}
 	
+#must_login_to_customize {
+	margin: 20px 0 40px 0;
+	border-top: 1px solid #CCC;
+	padding-top: 20px;
+	}
 	
 /* widget features */
 #features_write_congress {
 	display: block;
 	width: 400px;
-	height: 436px; 
-	padding: 10px 0 0 0px;
+	padding: 10px 0 15px 0px;
 	/*background: url(_temp_featu res.jpg) left top no-repeat;*/
 	background: #CD6913;
 	}
@@ -204,7 +208,7 @@ ul#wSelect {
 			background-position: center 0px; 
 			}
 		
-		.form .plus #features_write_congress li h4 {
+		#features_write_congress li h4 {
 			font: bold 16px Helvetica, arial;
 			text-transform: uppercase;
 			text-shadow: 0px -1px 1px #8c4607;
@@ -280,8 +284,9 @@ var accounts = [
 
 var current_account;
 var widgettype;
+var writecongress_by_ocp;
 
-function change_widget(tabname) {
+function change_widget(tabname, is_initial) {
 	widgettype = tabname;
 	
 	if (widgettype == "splash") {
@@ -293,8 +298,8 @@ function change_widget(tabname) {
 		$('#splash').hide();
 	}
 	
-	$('.widget_opts').hide();
-	$('.' + widgettype + '_opts').show();
+	$('.widget_opts').not('.' + widgettype + '_opts').hide();
+	$('.' + widgettype + '_opts').fadeIn();
 
 	$('.preview_pane').show();
 	$('.preview_pane iframe').hide();
@@ -302,21 +307,21 @@ function change_widget(tabname) {
 	if (widgettype == "commentstream") {
 		$('#widget_description').html("The Comment Stream Widget displays the most recent constituent comments left on POPVOX for a given bill or issue area. What comments do you want to display?");
 		$('#code').css({width: "230px"});
-		$('.config_pane').animate({width: '640px'});
-		$('.preview_pane').animate({width: '240px'});
+		$('.config_pane').css({width: '640px'});
+		$('.preview_pane').css({width: '240px'});
 	}
 
 	if (widgettype == "writecongress") {
 		$('#widget_description').html("The free “Write Congress” widget embeds the powerful POPVOX advocacy tool onto your own website. Your visitors weigh in on the bill you feature, POPVOX takes care of the rest!");
 		$('#code').css({width: "450px"});
-		$('.config_pane').animate({width: '400px'});
-		$('.preview_pane').animate({width: '460px'});
+		$('.config_pane').css({width: '400px'});
+		$('.preview_pane').css({width: '460px'});
 	}
 	
 	if (widgettype == "integration") {
 		$('#widget_description').html("POPVOX widgets can be integrated into several other services. Please <a href=\"/about/contact\">contact us</a> for details.");
 		$('.preview_pane').hide();
-		$('.config_pane').animate({width: '640px'});
+		$('.config_pane').css({width: '640px'});
 	}
 
 	//update_preview();
@@ -326,26 +331,22 @@ function change_widget(tabname) {
 }
 
 function account_changed() {
-	var permissions = [];
-	var fb_enabled = false;
-	
-	$('.secret_key').text("<not available with a free account>");
+	$('.secret_key').text("<not available>");
 	
 	current_account = null;
-	{% if accounts|length > 0 %}
-	var acct_idx = $('#serviceaccount').val();
-	if (acct_idx != "") {
-		current_account = accounts[acct_idx].id;
-		permissions = accounts[acct_idx].permissions;
-		fb_enabled = accounts[acct_idx].has_fb_page;
-		$('.secret_key').text(accounts[acct_idx].secret_key);
-	}
-	{% endif %}
-		
-	var plus_enabled = permissions["commentstream_theme"] ? true : false;
-	fb_enabled &= permissions["fb_page"];
 	
-	if (plus_enabled) $('.plus .panel').removeClass("disabled"); else $('.plus .panel').addClass("disabled");
+	{% if accounts|length > 0 %}
+	var acct_idx = {% if accounts|length > 1 %}$('#serviceaccount').val(){% else %}0;{% endif %}
+	current_account = accounts[acct_idx];
+	
+	var fb_enabled = current_account.has_fb_page;
+	$('.secret_key').text(current_account.secret_key);
+		
+	var plus_enabled = current_account.permissions["widget_theme"] ? true : false;
+	fb_enabled &= current_account.permissions["fb_page"];
+	
+	//if (plus_enabled) $('.plus .panel').removeClass("disabled"); else $('.plus .panel').addClass("disabled");
+	$('.plus').toggle(plus_enabled);
 	$('.plus_teaser').toggle(!plus_enabled);
 	
 	$('.plus input').attr("disabled", plus_enabled ? '' : '1')
@@ -354,28 +355,30 @@ function account_changed() {
 	$('#writecongress_bill_1').hide();
 	$('#writecongress_bill_2').show();
 	$('#writecongress_bill_position').text('');
-	{% if accounts|length > 0 %}
-	if (acct_idx != "") {
+	
+	writecongress_by_ocp = false;
+	if (current_account.bill_positions.length > 0) {
+		writecongress_by_ocp = true;
 		$('#writecongress_bill_1').show();
 		$('#writecongress_bill_2').hide();
 		$('#writecongress_bill_position').text('');
-		for (var j = 0; j < accounts[acct_idx].bill_positions.length; j++) {
+		for (var j = 0; j < current_account.bill_positions.length; j++) {
 			var opt = $('<option/>');
-			opt.attr('value', accounts[acct_idx].bill_positions[j].id);
+			opt.attr('value', current_account.bill_positions[j].id);
 			opt.text(
-				(accounts[acct_idx].bill_positions[j].campaign ? accounts[acct_idx].bill_positions[j].campaign + ": " : "") 
-				+ (accounts[acct_idx].bill_positions[j].position == "+" ? "Support " : "Oppose ")
-				+ accounts[acct_idx].bill_positions[j].bill
+				(current_account.bill_positions[j].campaign ? current_account.bill_positions[j].campaign + ": " : "") 
+				+ (current_account.bill_positions[j].position == "+" ? "Support " : "Oppose ")
+				+ current_account.bill_positions[j].bill
 				);
 			$('#writecongress_bill_position').append(opt);
 		}
 	}
-	{% endif %}
 	
 	if (!fb_enabled)
 		$('#fb_page').hide();
 	else
 		$('#fb_page').show();
+	{% endif %}
 	
 	update_preview();
 }
@@ -427,12 +430,7 @@ function update_preview() {
 	}
 	
 	if (widgettype == "writecongress") {
-		var acct_idx = "";
-		{% if accounts|length > 0 %}
-		acct_idx = $('#serviceaccount').val();
-		{% endif %}
-		
-		if (acct_idx == "") {
+		if (!writecongress_by_ocp) {
 			$('#writecongress_bill_error').hide();
 			var bill_re = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
 			var match = bill_re.exec($('#writecongress_bill').val().replace(/\s/g, "").replace(/\./g, ""));
@@ -471,19 +469,13 @@ function update_preview() {
 	var account = "";
 	
 	{% if accounts|length > 0 %}
-	if ($('#serviceaccount').val() != "") {
+	if (current_account.permissions["widget_theme"]) {
 		// Only apply these configuration options if they are permitted.
 		var clrs = ["sbg", "sbg2", "sfg", "lnk", "bg", "fg", "fg2"];
 		for (var e in clrs)
 			opts += "&" + clrs[e] + "=" + $('#color_' + clrs[e]).val().replace("#", "");
-		
-		/*if ($('#commentstream_scrollmode_scroll')[0].checked)
-			opts += "&scroll=bar";
-		else
-			opts += "&scroll=animate";*/
-		
-		account = accounts[$('#serviceaccount').val()].api_key
 	}
+	account = current_account.api_key
 	{% endif %}
 		
 	function make_code(host, width, height, demo) {
@@ -512,7 +504,7 @@ function set_fb_page_code() {
 	$.ajax({
 			url: "/ajax/services/setopt",
 			data: {
-				account: current_account,
+				account: current_account.id,
 				name: "fb_page_code",
 				value: $('#code').val()
 			},
@@ -560,13 +552,11 @@ var minicolors_opts = {
 
 	<h1>POPVOX Widgets</h1>
 
-	{% if accounts|length > 0 %}
-	{% comment %}This goes outside of the form so that the select doesn't trigger a preview update.{% endcomment %}
-
+	{% if accounts|length > 1 %}
+	{% comment %}This goes outside of the form so that the select doesn't trigger a preview update. Only show if there is more than one service account associated with the user. Otherwise there's no need to ask.{% endcomment %}
 	<div class="block1">
 		<label for="serviceaccount">Service Account:</label>
 		<select id="serviceaccount" onchange="account_changed()">
-			<option value="">- Free Services Only -</option>
 			{% for account in accounts %}
 				<option value="{{forloop.counter0}}" {% if forloop.first %}selected="1"{% endif %}>{{account}}</option>
 			{% endfor %}
@@ -665,7 +655,10 @@ var minicolors_opts = {
 	<div class="config_pane">
 		<p id="widget_description"></p>
 	
-		<form class="form">
+		{% comment %}when the user isn't logged in with a service account, then don't show
+		the form because the user will lose his customization when he logs in, but keep the
+		form elements because they are needed to generate the preview iframe URL{% endcomment %}
+		<form class="form" {% if accounts|length == 0 %}style="display: none"{% endif %}>
 		
 			<div class="block2 widget_opts commentstream_opts">
 			
@@ -750,39 +743,9 @@ var minicolors_opts = {
 				<div class="clear"> </div>
 			</div><!-- e: block2 -->
 			
-			<div class="plus widget_opts commentstream_opts writecongress_opts">
-				<div id="features_write_congress">
-					<h3>With a Pro account you can:</h3>
-					<ul>
-						<li id="customize">
-							<h4>Customize</h4>
-							<p>Use your own<br />colors &amp; fonts.</p>
-						</li>	
-						<li id="talking_points">
-							<h4>Talking Points</h4>
-							<p>Guide users to write<br />effective letters.</p>
-						</li>	
-						<li id="build">
-							<h4>Build Your Base</h4>
-							<p>Track grassroots<br />activity &amp; grow.</p>
-						</li>	
-						<li id="analytics">
-							<h4>Analytics</h4>
-							<p>Track the success of<br />your campaign.</p>
-						</li>
-					</ul>
-					<div class="clear"> </div>
-					<a href="#" class="btn">upgrade now</a>	
-				</div>
-			
-			
-			
+			<div class="plus">
 				<h4>Pro Options</h4>
 				<div class="clear"> </div>
-				
-				<p class="widget_opts writecongress_opts">With a Pro account you will have access to the information submitted by users of your widget, and letters to Congress will mention your organization.</p>
-				
-				<p class="plus_teaser">You don’t look good in orange?  Customize this widget! Contact Rachna at {% obfuscated_email "rachna@popvox.com" %} to find out more about POPVOX Pro!</p>
 				
 				<div class="panel">
 					<h5>Widget Colors</h5>
@@ -834,6 +797,9 @@ var minicolors_opts = {
 				</div><!-- e: panel -->
 				<div class="clear"> </div>
 				
+				<p class="widget_opts writecongress_opts">With a Pro account you have access to the information submitted by users of your widget, and letters to Congress will mention your organization.</p>
+			
+				
 <!--			<h4>Animation</h4>
 		
 				<div class="radio">
@@ -846,12 +812,45 @@ var minicolors_opts = {
 				</div>
 -->			</div>
 		</form><!-- e: form -->
+		
+		{% if accounts|length == 0 %}
+		<div id="must_login_to_customize">
+			<p>You must <a href="/accounts/login?next=/services/widgets" onclick="window.location='/accounts/login?next=/services/widgets' + escape(window.location.hash); return false;">log in or create an account</a> to set up a free widget.</p>
+		</div>
+		{% endif %}
+		
+		<div id="features_write_congress" class="plus_teaser">
+			<h3>With a Pro account you can:</h3>
+			<ul>
+				<li id="customize">
+					<h4>Customize</h4>
+					<p>Use your own colors.</p>
+				</li>	
+				<li id="talking_points" class="widget_opts writecongress_opts">
+					<h4>Suggest</h4>
+					<p>Guide users to write<br />effective letters.</p>
+				</li>	
+				<li id="build" class="widget_opts writecongress_opts">
+					<h4>Build Your Base</h4>
+					<p>Track grassroots<br />activity &amp; grow.</p>
+				</li>	
+				<li id="analytics" class="widget_opts writecongress_opts">
+					<h4>Analyze</h4>
+					<p>Track the success of<br />your campaign.</p>
+				</li>
+			</ul>
+			<div class="clear"> </div>
+			{% if accounts|length > 0 %}
+			<a href="/about/contact" class="btn" onclick="alert('Our Pro features are currently in a limited beta trial. For more information, please contact rachna@popvox.com.'); return false;">upgrade now</a>
+			{% endif %}
+		</div>		
 	</div>
 	
 	<div class="preview_pane">
 		<!--<a class="b_copy_code btn" href="#">Copy Code</a>-->
 		<h3 class="no_rule">Preview</h3>
 
+		{% if accounts|length > 0 %}
 		<div>
 			<p>Copy and paste the following HTML code into your website:</p>
 			<textarea id="code" rows="4" style="width: 230px; margin-bottom: 15px; padding: 5px;"> </textarea>
@@ -860,6 +859,7 @@ var minicolors_opts = {
 		<div id="fb_page">
 			<p><b>Facebook Page:</b> <a href="#" onclick="return set_fb_page_code()">Publish</a> <span style="display: none">Saving...</span></p>
 		</div>
+		{% endif %}
 		
 		<div id="preview">
 		</div>
@@ -867,8 +867,8 @@ var minicolors_opts = {
 	</div> <!-- tab pane -->
 	
 	<div class="tab_integration">
-		<h3>Facebook</h3>
-		<p>With a service plan, any POPVOX widget can be embedded into a &ldquo;POPVOX&rdquo; tab on a Facebook Page. Facebook allows you to include a single POPVOX tab with a single widget on your page. To add a POPVOX tab:</p>
+		<h3 class="no_rule">Facebook</h3>
+		<p>With a Pro account, any POPVOX widget can be embedded into a &ldquo;POPVOX&rdquo; tab on a Facebook Page. Facebook allows you to include a single POPVOX tab with a single widget on your page. To add a POPVOX tab:</p>
 		<ul class="bullets">
 			<li>Visit the <a href="http://www.facebook.com/apps/application.php?id=150910028257528">POPVOX Facebook App</a> page.</li>
 			<li>Click <em>Add to My Page</em> in the lower left list of links.</li>
