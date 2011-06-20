@@ -183,10 +183,12 @@ common_fieldnames = {
 	"namefirst": "firstname",
 	"first_name": "firstname",
 	"name_first": "firstname",
+	"first-name": "firstname",
 	"last": "lastname",
 	"lname": "lastname",
 	"namelast": "lastname",
 	"last_name": "lastname",
+	"last-name": "lastname",
 	"name_last": "lastname",
 	"fullname": "name",
 	"name_suffix": "suffix",
@@ -838,7 +840,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 426, 585, 588, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 706, 709, 718, 730, 734, 736, 746, 749, 774, 780, 784, 788, 791, 805, 809, 811, 826, 837, 851, 861, 869):
+	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 426, 585, 588, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 706, 709, 718, 730, 734, 736, 746, 749, 774, 780, 784, 788, 791, 805, 808, 809, 811, 826, 827, 837, 851, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
