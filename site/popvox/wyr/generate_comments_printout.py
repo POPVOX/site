@@ -135,7 +135,13 @@ def create_tex(tex, serial):
 				
 				comment = t3.comment
 				address = comment.address
-				target_errors[t3.failure_reason] = True
+
+				fr = t3.failure_reason
+				if fr == "bad-webform": # get our comment from the Endpoint webformresponse field
+					endpoints = Endpoint.objects.filter(govtrackid=govtrack_id, office=getMemberOfCongress(govtrack_id)["office_id"], method=Endpoint.METHOD_NONE)
+					if len(endpoints) > 0:
+						fr = endpoints[0].webformresponse
+				target_errors[fr] = True
 				
 				outfile.write(r"\hrule\bigskip" + "\n\n")
 				outfile.write(r"\noindent ")
