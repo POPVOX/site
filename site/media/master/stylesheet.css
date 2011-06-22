@@ -642,6 +642,7 @@ table.form_fields td {
     width: 182px;
     height: 47px;
     margin-top: 10px;
+    border: none;
     }
 
 #billsearch_endorse_oppose_submit_endorse { background: url(b_endorse.png) left bottom no-repeat    }

@@ -203,7 +203,7 @@ function getshorturl() {
 					<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="endorse_oppose_1('-')"/>
 				</div>
 				
-				<p><small>Or leave a <a href="#" onclick="return endorse_oppose_1('0')">neutral statement</a>.</small></p>
+				<p class="clear"><small>Or leave a <a href="#" onclick="return endorse_oppose_1('0')">neutral statement</a>.</small></p>
 	
 				{% if existing_org_positions %}
 				<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.campaign.default %} in <a href="{{pp.campaign.url}}">{{pp.campaign.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
