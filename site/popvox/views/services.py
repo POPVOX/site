@@ -75,7 +75,7 @@ def validate_widget_request(request, api_key):
 
 	# Validate the referrer header.
 	try:
-		host = urlparse.urlparse(request.META["HTTP_REFERER"]).hostname
+		host = urlparse.urlparse(request.META["HTTP_REFERER"]).hostname.lower()
 		if host.startswith("www."):
 			host = host[4:]
 	except:
@@ -95,7 +95,7 @@ def validate_widget_request(request, api_key):
 		return (account, perms) # widget preview
 
 	# Get the permitted referring hostnames.
-	permitted_hosts = [s.strip() for s in account.hosts.split("\n") if s.strip() != ""]
+	permitted_hosts = [s.strip().lower() for s in account.hosts.split("\n") if s.strip() != ""]
 	
 	if len(permitted_hosts) == 0 and account.org != None and account.org.website != "":
 		# the default host is the domain of the org's configured website

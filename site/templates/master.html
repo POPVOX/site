@@ -253,6 +253,8 @@
 			<li><a href="/accounts/switchuser/demo_org_staffer">demo_org_staffer</a></li>
 		</ul>
 		{% endif %}
+
+		{% block footer %}{% endblock %}
 		
 		{% for sql in sql_queries %}
 			{% if forloop.first %}

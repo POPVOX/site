@@ -43,12 +43,9 @@
 	{% endif %}
 
 	{% if request.ua.ua_family == "Firefox" and request.ua.os_family != "Mac OSX" %}
-	#comment_widget h1, #comment_widget h2 {
-		text-shadow: none;
-	}
 	{% endif %}
 	
-	{% if "widget_theme" in permissions %}
+	{% if "widget_theme" in permissions and request.GET.bg %}
 	body, input, textarea, select, h4.congrats { background-color: #{{request.GET.bg}}; color: #{{request.GET.fg}}; }
 	.optional, input[disabled] { color: #{{request.GET.fg2}}; }
 	a, p.error { color: #{{request.GET.lnk}}; }

@@ -1282,7 +1282,7 @@ class ServiceAccount(models.Model):
 	permissions = models.ManyToManyField(ServiceAccountPermission, blank=True)
 	notes = models.TextField(blank=True)
 	hosts = models.TextField(blank=True, help_text="Restrict the widget to appearing on sites at these domain names. Put domain names each on a separate line. You do not need to include the www.")
-	fb_page_id = models.CharField(max_length=24, blank=True, null=True, unique=True, db_index=True, help_text="The numeric ID of the Facebook Page that widgets may appear on for this account.")
+	fb_page_id = models.CharField(max_length=24, blank=True, null=True, db_index=True, help_text="The numeric ID of the Facebook Page that widgets may appear on for this account.") # ought to be unique but since it can be null it can't be set unique
 	
 	# this is a public key used in the URLs of widgets to identify this service account,
 	# and it should be matched against a referrer URL to verify it is being used with

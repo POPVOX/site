@@ -73,7 +73,7 @@
 	var scroll_delay = 9000;
 	
 	$(function() {
-			$('#widget_top').css("height", ($('#widget_top h2').height() + 35) + "px");
+			$('#widget_top').css("height", ($('#widget_top h1').height() + $('#widget_top h2').height() + 15) + "px");
 			
 			{% if request.GET.iframe %}
 			$('#widget_body').css("height", ($(window).height() - $('#widget_top').height() - $('#widget_foot').height() - 25) + "px");
