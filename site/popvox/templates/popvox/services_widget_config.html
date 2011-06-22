@@ -380,6 +380,14 @@ function account_changed() {
 		$('#fb_page').show();
 	{% endif %}
 	
+	if (current_account.permissions.writecongress_ocp) {
+		$('#talkingpoints').text("Talking points from your legislative agenda appear in your widget.");
+		$('#supporters').text("Your Pro account gives you access to the information supporters enter into widgets you place on your website.");
+	} else {
+		$('#talkingpoints').text("With a Pro account, you could add talking points to your widget.");
+		$('#supporters').text("With a Pro account you could get access to the information supporters enter into widgets you place on your website.");
+	}
+	
 	update_preview();
 }
 
@@ -751,6 +759,24 @@ var minicolors_opts = {
 					<h5>Widget Colors</h5>
 					
 					<div class="vert">
+						<input id="color_bg" type="text" value="#fafafa" class="colorpicker"/>
+						<label for="color_bg">main background</label>
+						<script>$('#color_bg').miniColors(minicolors_opts);</script>
+					</div>
+					
+					<div class="vert">
+						<input id="color_fg" type="text" value="#404045" class="colorpicker"/>
+						<label for="color_fg">main text</label>
+						<script>$('#color_fg').miniColors(minicolors_opts);</script>
+					</div>
+				
+					<div class="vert">
+						<input id="color_lnk" type="text" value="#cc6A11" class="colorpicker"/>
+						<label for="color_lnk">link</label>
+						<script>$('#color_lnk').miniColors(minicolors_opts);</script>
+					</div>
+					
+					<div class="vert">
 						<input id="color_sbg" type="text" value="#b36015" class="colorpicker"/>
 						<label for="color_sbg">shell background</label>
 						<script>$('#color_sbg').miniColors(minicolors_opts);</script>
@@ -767,27 +793,7 @@ var minicolors_opts = {
 						<label for="color_sfg">shell text</label>
 						<script>$('#color_sfg').miniColors(minicolors_opts);</script>
 					</div>
-			
-					<div class="vert">
-						<input id="color_lnk" type="text" value="#cc6A11" class="colorpicker"/>
-						<label for="color_lnk">link</label>
-						<script>$('#color_lnk').miniColors(minicolors_opts);</script>
-					</div>
-					
-					<div class="clear"> </div>
-			
-					<div class="vert">
-						<input id="color_bg" type="text" value="#fafafa" class="colorpicker"/>
-						<label for="color_bg">main background</label>
-						<script>$('#color_bg').miniColors(minicolors_opts);</script>
-					</div>
-					
-					<div class="vert">
-						<input id="color_fg" type="text" value="#404045" class="colorpicker"/>
-						<label for="color_fg">main text</label>
-						<script>$('#color_fg').miniColors(minicolors_opts);</script>
-					</div>
-				
+
 					<div class="vert widget_opts writecongress_opts">
 						<input id="color_fg2" type="text" value="#555555" class="colorpicker"/>
 						<label for="color_fg2">light text</label>
@@ -797,20 +803,18 @@ var minicolors_opts = {
 				</div><!-- e: panel -->
 				<div class="clear"> </div>
 				
-				<p class="widget_opts writecongress_opts">With a Pro account you have access to the information submitted by users of your widget, and letters to Congress will mention your organization.</p>
-			
-				
-<!--			<h4>Animation</h4>
+				<div class="plus widget_opts writecongress_opts">
+					<h5>Talking Points</h5>
+					<p id="talkingpoints"></p>
+					
+					<h5>Analytics</h5>
+					<p>Widget analytics are coming soon!</p>
+					
+					<h5>Your Supporters</h5>
+					<p id="supporters"></p>
+				</div>
 		
-				<div class="radio">
-					<input id="commentstream_scrollmode_scroll" type="radio" name="commentstream_scrollmode" value="scrollbar" checked="1"/>
-					<label for="commentstream_scrollmode_scroll">Scrollbar</label>
-				</div>
-				<div class="radio">
-					<input id="commentstream_scrollmode_animate" type="radio" name="commentstream_scrollmode" value="animate"/>
-					<label for="commentstream_scrollmode_animate">Animate</label>
-				</div>
--->			</div>
+			</div>
 		</form><!-- e: form -->
 		
 		{% if accounts|length == 0 %}
