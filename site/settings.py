@@ -198,34 +198,19 @@ TINYMCE_DEFAULT_CONFIG = {
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
 
 # phone_number_twilio app
-TWILIO_ACCOUNT_SID = "ACdef6c89a3285e10de7af748f678df7c6"
-TWILIO_ACCOUNT_TOKEN = "0ed66a495abc5e8c99b9d7f4059ab25f"
-TWILIO_OUTGOING_CALLERID = "+12026847872"
 TWILIO_INCOMING_RESPONSE = "Thank you for calling pop vox. For more information, please see pop vox dot com. Goodbye."
 TWILIO_STORE_HASHED_NUMBERS = True
 
 # emailverification and default email address
 EMAILVERIFICATION_FROMADDR = "POPVOX <info@popvox.com>"
 
-# associated with popvox.com domain and subdomains
-RECAPTCHA_PUBLIC_KEY = "6LdJrbwSAAAAADCh7jpzE4kLiLB0lAvpZbU8EmI1"
-RECAPTCHA_PRIVATE_KEY = "6LdJrbwSAAAAAFdrOJz0acpEk-1CEwtR4y7_t-tM"
-
 # Registration.
-#GOOGLE_OAUTH_TOKEN = "popvox.com"
-#GOOGLE_OAUTH_TOKEN_SECRET = "Mnd7PqW+KmIhuqyvwlOIiqc4"
-#GOOGLE_OAUTH_SCOPE = "http://www.google.com/m8/feeds/contacts/default/full"
-TWITTER_OAUTH_TOKEN = "nHW7QjeTXTUxW7Pbww"
-TWITTER_OAUTH_TOKEN_SECRET = "e8ky2OCVvW8uhrTcCwJqa1jyRHMsoRRLfPubCZSFs"
-LINKEDIN_API_KEY = "KdiWIOZyqU_z34KzN6io1yLpJ19MqLn65LGQl4vVmvH8e0wBzMCRLxPlIFEtgj_g"
-LINKEDIN_SECRET_KEY = "OrfNdzdEkbp_ysto9C8pceeTnR-DquFThUskQJNyT6gNqIQR-auZVwdrAR_fTWN0"
-FACEBOOK_APP_ID = "150910028257528"
-FACEBOOK_APP_SECRET = "736f9da5e1218854f9fb638336ad7c17"
 FACEBOOK_AUTH_SCOPE = "email" #,offline_access,publish_stream,user_location"
-
-CDYNE_LICENSE_KEY = "b9033636-528a-444c-bfed-4cee41f8f84a"
 
 STOCKPHOTO_URL = "/about/photos"
 
 BENCHMARKING = False
+
+execfile("/mnt/persistent/config/tokens.py")
+
 

@@ -27,6 +27,8 @@
 	
 	<script>var bill_display_number = "{{bill.displaynumber|escapejs}}";</script>
 	<script src="/media/js/lettertips.js"> </script>
+	
+	<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('{{MIXPANEL_TOKEN}}'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
 
 	<style>
 	{% if request.GET.iframe %}
@@ -74,7 +76,20 @@
 	</style>
 	
 	<script>
+		// Initialization //
+		
 		$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); });
+		
+		{% if not request.GET.demo %}
+		var mixpanel_properties = {
+			{% if ocp %}bucket: "ocp_" + {{ocp.id}},{% endif %}
+			{% if org %}org: "{{org.name|escapejs}}",{% endif %}
+			bill: "{{bill.displaynumber|escapejs}}"
+		};
+		mpmetrics.track('widget_writecongress_hit', mixpanel_properties);
+		{% endif %}
+		
+		// General //
 
 		var technical_difficulties = "We're having some technical difficulty. Please try again. If the problem persists, please reload the page."; // might be csrf if they logged in at pv while doing this
 	
@@ -225,6 +240,11 @@
 		
 		function do_login() {
 			if (working) return;
+			
+			{% if not request.GET.demo %}
+			mpmetrics.track('widget_writecongress_start', mixpanel_properties);
+			{% endif %}
+			
 			if (identity) return show_address();
 			
 			if ($("#panel_login .next").hasClass("disabled")) return false;
@@ -388,6 +408,11 @@
 		function do_preview() {
 			if (working) return;
 			
+			{% if not request.GET.demo %}
+			mixpanel_properties.personalized = !$('#message').hasClass("default");
+			mpmetrics.track('widget_writecongress_write', mixpanel_properties);
+			{% endif %}
+			
 			// convert message text into a nicely paragraphed html preview
 			var msghtml = "";
 			if (!$('#message').hasClass("default")) {
@@ -413,6 +438,10 @@
 		
 		function do_send() {
 			if (working) return;
+			
+			{% if not request.GET.demo %}
+			mpmetrics.track('widget_writecongress_send', mixpanel_properties);
+			{% endif %}
 			
 			$.ajax({
 					url: window.location.pathname,
@@ -509,6 +538,10 @@
 			return false;
 		}
 		function do_share(method) {
+			{% if not request.GET.demo %}
+			mpmetrics.track('widget_writecongress_share', mixpanel_properties);
+			{% endif %}
+			
 			var f;
 			if (method == "facebook") f = facebook_share_simple;
 			if (method == "twitter") f = twitter_share_simple;

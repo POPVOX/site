@@ -6,6 +6,11 @@
 <script type="text/javascript" src="/media/js/jquery.miniColors.js"></script>
 <script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
 
+<script type="text/javascript">
+var protocol = document.location.protocol == 'https:' ? 'https:' : 'http:';
+document.write(unescape('%3Cscript src="' + protocol + '//mixpanel.com/site_media/api/platform/platform.1.min.js" type="text/javascript"%3E%3C/script%3E'));
+</script>
+
 <style>
 /* splash tab */
 
@@ -276,7 +281,9 @@ var accounts = [
 				{% templatetag openbrace %} id: {{p.id}},
 				campaign: {% if p.campaign.default %}null{% else %}"{{p.campaign.name|truncatewords:3|escapejs}}"{% endif %},
 					position: "{{p.position}}",
-					bill: "{{p.bill.title|truncatewords:6|escapejs}}" {% templatetag closebrace %}{% if not forloop.last %},{% endif %}{% endfor %} ],
+					bill: "{{p.bill.title|truncatewords:6|escapejs}}",
+					mixpanel_bucket_secret: "{{p.mixpanel_bucket_secret}}"
+					{% templatetag closebrace %}{% if not forloop.last %},{% endif %}{% endfor %} ],
 		has_fb_page: {% if account.fb_page_id %}true{% else %}false{% endif %}
 	}{% if not forloop.last %},{% endif %}
 	{% endfor %}
@@ -395,6 +402,8 @@ var last_preview_html = "";
 var fb_code = "";
 
 function update_preview() {
+	update_analytics();
+	
 	var opts = "";
 	var default_width;
 	var default_height;
@@ -533,6 +542,27 @@ function set_fb_page_code() {
 		});
 
 	return false;
+}
+
+function update_analytics() {
+	$('#analytics_frame').html("<p>With a Pro account we'll show you how your campaign is going.</p>");
+	
+	if (widgettype != "writecongress") return;
+	if (!writecongress_by_ocp) return;
+	
+	var ocp = $('#writecongress_bill_position').val();
+	var bucket_secret;
+	for (var i = 0; i < current_account.bill_positions.length; i++)
+		if (current_account.bill_positions[i].id == ocp)
+			bucket_secret = current_account.bill_positions[i].mixpanel_bucket_secret;
+			
+    var platform = new Mixpanel.Platform(
+        '{{MIXPANEL_API_KEY}}',
+        bucket_secret,
+        "ocp_" + ocp
+    );
+    platform.create_line_chart('analytics_frame');
+    $('#analytics_frame').css("margin-bottom", "15px");
 }
 
 $(function() {
@@ -807,11 +837,11 @@ var minicolors_opts = {
 					<h5>Talking Points</h5>
 					<p id="talkingpoints"></p>
 					
-					<h5>Analytics</h5>
-					<p>Widget analytics are coming soon!</p>
-					
 					<h5>Your Supporters</h5>
 					<p id="supporters"></p>
+
+					<h5>Analytics</h5>
+					<div id="analytics_frame"> </div>
 				</div>
 		
 			</div>

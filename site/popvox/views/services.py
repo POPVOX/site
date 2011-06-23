@@ -20,7 +20,7 @@ from emailverification.utils import send_email_verification
 
 from jquery.ajax import json_response, validation_error_message, ajax_fieldupdate_request
 
-from settings import DEBUG, SITE_ROOT_URL
+from settings import DEBUG, SITE_ROOT_URL, MIXPANEL_TOKEN, MIXPANEL_API_KEY
 
 import urlparse
 import json
@@ -39,6 +39,8 @@ def widget_config(request):
 		'issueareas': IssueArea.objects.filter(parent__isnull=True),
 		"states": statelist,
 		"current_congress": CURRENT_CONGRESS,
+		
+		"MIXPANEL_API_KEY": MIXPANEL_API_KEY
 		}, context_instance=RequestContext(request))
 
 @csrf_protect
@@ -312,6 +314,8 @@ def widget_render_writecongress(request, account, permissions):
 			
 			"useraddress_prefixes": PostalAddress.PREFIXES,
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
+			
+			"MIXPANEL_TOKEN": MIXPANEL_TOKEN,
 			}, context_instance=RequestContext(request))
 	else:
 		response = widget_render_writecongress_action(request, account, permissions)

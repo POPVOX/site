@@ -599,6 +599,10 @@ class OrgCampaignPosition(models.Model):
 		return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
 	def documents(self):
 		return self.campaign.org.documents.filter(bill=self.bill).defer("text")
+	def mixpanel_bucket_secret(self):
+		import hashlib
+		from settings import MIXPANEL_API_SECRET
+		return hashlib.md5(MIXPANEL_API_SECRET + "ocp_" + str(self.id)).hexdigest()
 
 class OrgCampaignPositionActionRecord(models.Model):
 	# This is used for org-customized landing pages
