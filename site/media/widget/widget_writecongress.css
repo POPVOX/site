@@ -331,7 +331,6 @@ a {
 			#panel_addressform .next {
 				margin-left: 285px;
 				}
-
 			.btn {
 				text-indent: -9999em;
 				background-color: white; /* IE8 with inherit yields a grey */
@@ -347,6 +346,24 @@ a {
 				cursor: default;
 				} 
 				
+		.btn.next_support, .btn.next_oppose {
+			width: 162px;
+			height: 47px;
+			display: block;
+			text-indent: -9999em;
+			font-size: 0; /* IE 7 */
+			margin: 20px;
+			border: none;
+			float: left;
+			cursor: pointer;
+			}
+			.btn.next_support {
+				background-image: url(next_support.png);
+				}
+			.btn.next_oppose {
+				background-image: url(next_oppose.png);
+				}
+
 		p.error {
 			color: red;
 			margin-top: 10px;

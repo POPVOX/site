@@ -217,17 +217,17 @@ def widget_render_writecongress(request, account, permissions):
 			elif position_verb == "oppose":
 				position = "-"
 			else:
-				return HttpResponseBadRequest("Invalid URL.")
+				position = None
 		else:
 			# ocp argument specifies the OrgCampaignPosition, which has all of the
 			# information we need.
 			try:
-				_ocp = OrgCampaignPosition.objects.get(id=request.GET["ocp"], position__in=("+", "-"), campaign__visible=True, campaign__org__visible=True)
+				_ocp = OrgCampaignPosition.objects.get(id=request.GET["ocp"], campaign__visible=True, campaign__org__visible=True)
 			except OrgCampaignPosition.DoesNotExist:
 				return HttpResponseBadRequest("The campaign for the bill has become hidden or the widget URL is invalid")
 			bill = _ocp.bill
 			position = _ocp.position
-			position_verb = "support" if position == "+" else "oppose"
+			if position == "0": position = None
 			if account != None and _ocp.campaign.org == account.org:
 				# We'll let the caller use an OCP id to get the bill and position, but
 				# don't tie this request to the org if the request is not under a
@@ -303,7 +303,6 @@ def widget_render_writecongress(request, account, permissions):
 			"ocp": ocp,
 			"org": org,
 			"reason": reason,
-			"verb": position_verb,
 			"bill": bill,
 			"position": position,
 			"url": url,
@@ -674,21 +673,21 @@ class WriteCongressEmailVerificationCallback:
 
 Thank you for sharing your opinion using the Write Congress tool from POPVOX.
 
-POPVOX ensures your letter to Congress is most effective by verifying your
-email address before submitting it to your representatives. We may also
-need additional information from you.
+In order to complete delivery to your Representative or Senators, we need to
+verify your email address. We may also need some additional information from
+you to meet your legislator's specific requirements.
 
-To finish your letter to Congress, just follow this link:
+To finish your letter and ensure delivery to Congress, click here:
 
      <URL>
 
-     If the link is not clickable, please copy and paste it into your web browser.%s
+     (If the link is not clickable, please copy and paste it into your web browser.)%s
 
 Thanks again,
 
 POPVOX""" % (self.post["useraddress_firstname"], ("""
 	
-We've also created an account for you at POPVOX so you can revised
+We've also created an account for you at POPVOX so you can revise
 your comment and check on its status.
 
      Your POPVOX password is: """ + self.password) if not User.objects.filter(email=self.post["email"]).exists() else "")

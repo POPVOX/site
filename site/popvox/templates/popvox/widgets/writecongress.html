@@ -65,7 +65,9 @@
 	#widget_top ul li.tab_2.complete { background: url(/services/widgets/img/writecongress/2?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=C4C0B7,{{request.GET.sfg}}) -10px -69px no-repeat; }
 	#widget_top ul li.tab_3.complete { background: url(/services/widgets/img/writecongress/3?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=C4C0B7,{{request.GET.sfg}}) -10px -69px no-repeat; }
 	
-	.btn.next { background: url(/services/widgets/img/writecongress/next?sub=C66825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}) no-repeat; }
+	.btn.next { background: url(/services/widgets/img/writecongress/next?sub=C66825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=864817,{{request.GET.fg2}}) no-repeat; }
+	.btn.next_support { background: url(/services/widgets/img/writecongress/next_support?sub=C66825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=844817,{{request.GET.fg2}}) no-repeat; }
+	.btn.next_oppose { background: url(/services/widgets/img/writecongress/next_oppose?sub=C66825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=844817,{{request.GET.fg2}}) no-repeat; }
 	.why a.expand { background-image: url(/services/widgets/img/writecongress/expand?sub=C56825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}); }
 	#panel_write_why_reason { border-bottom: 1px solid #D1D1CF; clear: both; display: block; padding-top: 10px;}
 	#b_send_no_msg { background-image: url(b_send_no_msg.png); }
@@ -132,6 +134,7 @@
 			return false;
 		}
 		
+		var position = null;
 		var email_status = null;
 		
 		function check_email() {
@@ -238,12 +241,17 @@
 			return true;
 		}
 		
-		function do_login() {
+		function do_login(chosen_position) {
 			if (working) return;
 			
 			{% if not request.GET.demo %}
 			mpmetrics.track('widget_writecongress_start', mixpanel_properties);
 			{% endif %}
+			
+			position = chosen_position;
+			$('.position_verb').text(position == "+" ? "support" : "oppose");
+			$('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
+			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.displaynumber|escapejs}} because...");
 			
 			if (identity) return show_address();
 			
@@ -421,7 +429,8 @@
 					msghtml += "<p>" + $('<div/>').text(lines[i]).html() + "</p>";
 				$('#msg_preview .write_a_personal_message').hide();
 			} else {
-				msghtml = "<p><i>I {{verb}} {{bill.displaynumber}}.</i></p>";
+				if (position == "+") verb = "support"; else verb = "oppose";
+				msghtml = "<p><i>I " + verb + " {{bill.displaynumber}}.</i></p>";
 				$('#msg_preview .write_a_personal_message').show();
 			}
 			
@@ -449,7 +458,7 @@
 						{% if request.GET.demo %}demo: true,{% endif %}
 						{% if ocp %}ocp: {{ocp.id}},{% endif %}
 						bill: {{bill.id}},
-						position: "{{position}}",
+						position: position,
 						action: "submit",
 						userid: identity.id ? identity.id : undefined,
 						email: identity.email,
@@ -547,7 +556,9 @@
 			if (method == "twitter") f = twitter_share_simple;
 			if (method == "email") f = email_share;
 			if (method == "link") f = link_share;
-			f("{{url|escapejs}}", "{{verb|capfirst}} {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
+			
+			if (position == "+") verb = "Support"; else verb = "Oppose";
+			f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
 			return false;
 		}
 		
@@ -584,7 +595,11 @@
 				<div id="panel_holder">
 			
 					<div id="panel_login" class="widget_panel">
-						<h1>Tell Congress that you {{verb}} {{bill.displaynumber}}</h1>
+						{% if position %}
+						<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.displaynumber}}</h1>
+						{% else %}
+						<h1>Tell Congress What You Think About {{bill.displaynumber}}</h1>
+						{% endif %}
 
 						<p class="bill_name"><span>Official Title:</span> {{bill.title|truncatewords:15}}</p>
 						<form class="form" action="#" onsubmit="return false;" autocomplete="off"><br />
@@ -622,8 +637,13 @@
 								<p><a href="#" onclick="return logout();">Not you?</a>
 							</div>
 							
-							<input value="next" class="btn next disabled" onclick="return do_login();" type="button"/>
-							<script>$('#panel_login .next').hover(
+							{% if position %}
+							<input value="next" class="btn next disabled" onclick="return do_login('{{position}}');" type="button"/>
+							{% else %}
+							<input value="support" class="btn next_support disabled" onclick="return do_login('+');" type="button"/>
+							<input value="oppose" class="btn next_oppose disabled" onclick="return do_login('-');" type="button"/>
+							{% endif %}
+							<script>$('#panel_login .next, #panel_login .next_support, #panel_login  .next_oppose').hover(
 								function() { if ($('#email').hasClass("default")) { $('#email').css({'font-weight': 'bold', 'color': 'red'}); } },
 								function() { $('#email').css({'font-weight': '', 'color': ''}); }
 							);</script>
@@ -707,7 +727,7 @@
 						{% if reason %}
 						<div id="panel_write_why_reason">
 						<div class="why">
-							<h3>Why should I {{verb}} {{bill.displaynumber}}?</h3>
+							<h3>Why should I <span class="position_verb"> </span> {{bill.displaynumber}}?</h3>
 							<a href="#" class="expand btn" onclick="return false;">expand</a>
 						</div><div class="clear"> </div>
 						<div class="reason" style="display: none">
@@ -722,12 +742,12 @@
 						{% endif %}
 										
 						<h3>Write a Personal Message</h3>
-						<h4 class="{{verb}}">I {{verb}} {{bill.displaynumber}} because...</h4>
+						<h4>I <span class="position_verb"> </span> {{bill.displaynumber}} because...</h4>
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
 		
 								<!-- 1200 is hard-coded in lettertips.js -->
-							<textarea class="half" id="message" maxlength="1200" type="text">I {{verb}} {{bill.displaynumber}} because...</textarea><br /> 
+							<textarea class="half" id="message" maxlength="1200" type="text"></textarea><br /> 
 							
 							<a href="#" class="back" onclick="return working ? false : show_panel(2);">back</a>
 							
@@ -761,7 +781,7 @@
 						<div id="msg_preview">
 							<p class="greeting">Dear Congressperson:</p>
 							<div class="scrolled">
-								<p class="{{verb}}"><span></span> <div class="message"> </div></p>
+								<p class="firstpara"><span></span> <div class="message"> </div></p>
 								<p class="write_a_personal_message">
 								Members of Congress only respond to personal messages.
 								Consider <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and writing a personal message.<p>
@@ -791,7 +811,7 @@
 						<h4 class="congrats">More information on what happened!</h4>
 		
 						<div id="social_share">
-							<h3>Tell your friends to {{verb}} this bill</h3>
+							<h3>Tell your friends to <span class="position_verb"> </span> this bill</h3>
 							<ul class="social_share_btns">
 								<li><a class="btn social_facebook" href="#" onclick="return do_share('facebook')" title="Facebook">facebook</a></li>
 								<li><a class="btn social_twitter" href="#" target="_blank" onclick="return do_share('twitter')" title="Twitter">twitter</a></li>

@@ -372,9 +372,12 @@ function account_changed() {
 		for (var j = 0; j < current_account.bill_positions.length; j++) {
 			var opt = $('<option/>');
 			opt.attr('value', current_account.bill_positions[j].id);
+			var verb = "";
+			if (current_account.bill_positions[j].position == "+") verb = "Support: ";
+			if (current_account.bill_positions[j].position == "-") verb = "Oppose: ";
 			opt.text(
 				(current_account.bill_positions[j].campaign ? current_account.bill_positions[j].campaign + ": " : "") 
-				+ (current_account.bill_positions[j].position == "+" ? "Support " : "Oppose ")
+				+ verb
 				+ current_account.bill_positions[j].bill
 				);
 			$('#writecongress_bill_position').append(opt);
@@ -466,7 +469,8 @@ function update_preview() {
 			bill = "us/" + congressnumber + "/" + billtype + billnumber;
 			
 			opts += "&bill=" + bill;
-			opts += "&position=" + $('#writecongress_position').val();
+			if ($('#writecongress_position').val() != "neutral")
+				opts += "&position=" + $('#writecongress_position').val();
 		} else {
 			opts += "&ocp=" + $('#writecongress_bill_position').val();
 		}
@@ -496,7 +500,7 @@ function update_preview() {
 	{% endif %}
 		
 	function make_code(host, width, height, demo) {
-		return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + "&user_info=" + (demo ? "&demo=1{% if user.is_staff %}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+		return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + "&user_info=" + (demo ? "&demo=1{% if user.is_staff or user.username == "demo_org_staffer"%}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
 	}
 
 	var prv = make_code("", default_width, default_height, true);
@@ -744,7 +748,7 @@ var minicolors_opts = {
 				
 				<div class="vert" id="writecongress_bill_2">
 					<label for="writecongress_bill">Letters are about this bill</label>
-					<select id="writecongress_position" size="1" style="width: 10em"><option value="support">supporting</option> <option value="oppose">opposing</option></select>
+					<select id="writecongress_position" size="1" style="width: 10em"><option value="support">supporting</option> <option value="oppose">opposing</option> <option value="neutral">support/oppose</option></select>
 					<input id="writecongress_bill" type="text" value="S. 724" style="width: 8em"/>
 				</div>
 				<div class="clear"> </div>

@@ -379,7 +379,7 @@ class Org(models.Model):
 	def positions(self):
 		return OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org=self).order_by("-campaign__default", "campaign__name", "order", "-updated")
 	def positions_can_comment(self):
-		return [p for p in self.positions() if p.position in ("+", "-") and p.bill.isAlive() or p.bill.died()]
+		return [p for p in self.positions() if p.bill.isAlive() or p.bill.died()]
 		
 	def is_admin(self, user):
 		if user.is_anonymous():
