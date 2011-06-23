@@ -485,6 +485,7 @@ a {
 			background: url(bg_preview_msg.png) -20px 3px no-repeat;
 			font-family: Georgia, serif;
 			margin-bottom: 10px;
+			color: black;
 			}
 			
 			#msg_preview p.greeting {
@@ -530,7 +531,6 @@ a {
 				padding-top: 20px;
 				font-family: helvetica, arial, sans-serif;
 				font-size: 14px;
-				color: black;
 				}
 			#msg_preview .write_a_personal_message a {
 				text-decoration: underline;
@@ -595,8 +595,8 @@ a {
 		}	
 	
 	#social_share {
-		border-bottom: 1px solid #d1d1cf;
-		padding-bottom: 10px;
+		/*border-bottom: 1px solid #d1d1cf;*/
+		padding: 10px;
 		}
 			
 	ul.social_share_btns {

@@ -740,7 +740,7 @@
 							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. To skip this step, just click Preview.</p>
 							
 							<h3>Tips</h3>
-							<p id="messagetip" style="color: black"></p>
+							<p id="messagetip"></p>
 							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
 						</div>
 						<script>
@@ -804,7 +804,7 @@
 						
 						{% for class, text, list in suggestions %}
 							{% if list|length > 0 %}
-								<h3 class="{{class}}">{{text}}</h3>
+								<h3 class="{{class}} no_rule">{{text}}</h3>
 								
 								{% for bill in list %}
 									{% bill_statistics bill as stats %}
