@@ -1,0 +1,59 @@
+{% extends "master.html" %}
+{% block head %}
+<style>
+.sub p.inquiries {
+	margin: 0 0 25px 0;
+	}
+h2 {
+	}
+h3 {
+	font-family: Arial, sans-serif;
+	background: none;
+	margin: 0 0 25px 0;
+	font-size: 16px;
+	font-weight: bold;
+	}
+span.dateline {
+	font-weight: bold;
+	}
+</style>
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="col_9 col_top press">
+	
+		<h1>Press Release</h1>
+
+		{% block pr_content %}{% endblock %}
+		
+	</div><!-- e: col_9 -->
+
+	<div class="col_3 col_top col_last">
+		<div class="sub">
+			<p class="inquiries">(For media inquiries, please contact Marci Harris, POPVOX&rsquo;s CEO, at <a href="mailto:info@popvox.com">info@popvox.com</a>.)</p>
+			<h2>MEDIA KIT</h2>
+			<ul class="sub_side">
+				<li><a href="/press">All Press Releases</a></li>
+				<li><a href="/about/whyitworks">Why POPVOX Works</a></li>
+				<li><a href="/about/team">Team Bios</a></li>
+				<li><a href="/about/principles">Company Principles</a></li>
+				<li><p>Logo:</p>
+					<ul class="logo bullets">
+						<li><a href="/media_kit/POPVOX_LOGO-V_RGB.png">Low Res (png)</a></li>
+						<li><a href="/media_kit/POPVOX_LOGO-V_CMYK.jpg">High Res (jpg)</a> (888k)</li>
+				 		<li><a href="/media_kit/POPVOX_LOGO-V_CMYK.eps">EPS</a> (564k)</li>
+				 	</ul>
+				 </li>
+			</ul>
+		</div>
+		<div class="sub">
+			<h2>ADDITIONAL INFO</h2>
+			<ul class="sub_side">
+				<li><a href="/blog">Our Blog</a></li>
+			</ul>
+		</div>
+	</div>
+
+</div>
+
+{% endblock %}

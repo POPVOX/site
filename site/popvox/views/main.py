@@ -23,8 +23,11 @@ def staticpage(request, page):
 		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 			return HttpResponseRedirect("/home")
 		news = get_news()
-			
-	page = page.replace("/", "_") # map URL structure to static files
+	
+	if page.startswith("press/"):
+		page = "press_releases/" + page[6:].replace("/", "_")
+	else:
+		page = page.replace("/", "_") # map URL structure to static files
 			
 	try:
 		return render_to_response("static/%s.html" % page, {
