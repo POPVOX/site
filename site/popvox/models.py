@@ -490,10 +490,15 @@ class Org(models.Model):
 				from urllib import urlopen, quote_plus
 				from xml.dom import minidom
 				t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(self.twittername.encode('utf-8'))))
-				count = int(t.getElementsByTagName('followers_count')[0].firstChild.data)
-				updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, count)
+				er = t.getElementsByTagName('error')
+				if len(er) > 0:
+					print self.twittername, er[0].firstChild.data
+				else:
+					fc = t.getElementsByTagName('followers_count')
+					count = int(fc[0].firstChild.data)
+					updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, count)
 			except Exception, e:
-				print e
+				print self.twittername, e
 				pass
 			
  	def facebook_fan_count(self):

@@ -169,16 +169,30 @@ def org_update_fields(request, field, value, validate_only):
 			if not validate_only and org.twittername != None:
 				org.twittername = None
 				org.save()
+				try:
+					org.sync_external_members()
+				except:
+					pass
 			return { "status": "success", "value": value }
 		else:
 			from urllib import urlopen, quote_plus
 			from xml.dom import minidom
 			try:
 				t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(value.encode('utf-8'))))
+				er = t.getElementsByTagName('error')
+				if len(er) > 0 and "Rate limit exceeded." in er[0].firstChild.data:
+					if not validate_only and value != org.twittername:
+						org.twittername = value
+						org.save()
+					return { "status": "success", "value": value }
 				value = t.getElementsByTagName('screen_name')[0].firstChild.data
 				if not validate_only and value != org.twittername:
 					org.twittername = value
 					org.save()
+					try:
+						org.sync_external_members()
+					except:
+						pass
 				return { "status": "success", "value": value }
 			except Exception, e:
 				raise ValueError("That is not a Twitter name.")
@@ -187,6 +201,10 @@ def org_update_fields(request, field, value, validate_only):
 			if not validate_only and org.facebookurl != None:
 				org.facebookurl = None
 				org.save()
+				try:
+					org.sync_external_members()
+				except:
+					pass
 			return { "status": "success", "value": value }
 		
 		gid = None
@@ -238,6 +256,12 @@ def org_update_fields(request, field, value, validate_only):
 				except:
 					pass
 			org.save()
+
+			try:
+				org.sync_external_members()
+			except:
+				pass
+
 		return { "status": "success", "value": value }
 	else:
 		raise Exception("Bad request: Invalid field: " + field)
