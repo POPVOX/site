@@ -208,7 +208,7 @@ def metrics(request):
 		new_users = get_stats("date_joined", "count(*)", "auth_user", period=period, growth=True)
 		new_positions = get_stats("created", "count(*)", "popvox_usercomment", period=period, growth=True)
 		new_comments = get_stats("created", "count(*)", "popvox_usercomment where message is not null", period=period, growth=True)
-		new_comments_with_referrer = get_stats("created", "count(*)", "popvox_usercomment where message is not null and referrer_object_id is not null", period=period, growth=True)
+		new_comments_with_referrer = get_stats("created", "count(*)", "popvox_usercomment where message is not null and exists(select * from popvox_usercommentreferral where popvox_usercomment.id=comment_id)", period=period, growth=True)
 		general_stats[period] = merge_by_day({
 				"new_users": new_users,
 				"new_positions": new_positions,

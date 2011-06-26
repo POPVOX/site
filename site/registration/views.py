@@ -40,7 +40,7 @@ def loginform(request):
 			if user is not None:
 				if user.is_active:
 					login(request, user)
-					if "next" in request.POST:
+					if request.POST.get("next","").strip() != "":
 						try:
 							validate_next(request, request.POST["next"]) # raises exception on error
 							return HttpResponseRedirect(request.POST["next"])
