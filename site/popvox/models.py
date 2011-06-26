@@ -993,6 +993,10 @@ class UserComment(models.Model):
 	COMMENT_REJECTED_STOP_DELIVERY = 3
 	COMMENT_REJECTED_REVISED = 4
 	COMMENT_HOLD = 5
+	
+	METHOD_SITE = 0
+	METHOD_CUSTOMIZED_PAGE = 1
+	METHOD_WIDGET = 2
 
 	user = models.ForeignKey(User, related_name="comments", db_index=True) # user authoring the comment
 	bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True)
@@ -1008,20 +1012,17 @@ class UserComment(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now_add=True)
 	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed (Default)'), (COMMENT_ACCEPTED, 'Reviewed & Accepted'), (COMMENT_REJECTED, 'Rejected -- Still Deliver'), (COMMENT_REJECTED_STOP_DELIVERY, 'Rejected -- Stop Delivery'), (COMMENT_REJECTED_REVISED, 'Rejected-then-Revised - Waiting Approval'), (COMMENT_HOLD, 'Hold Delivery')], default=COMMENT_NOT_REVIEWED)
+	method = models.IntegerField(choices=[(METHOD_SITE, 'Site'), (METHOD_CUSTOMIZED_PAGE, 'Customized Landing Page'), (METHOD_WIDGET, 'Widget')])
 
 	# repeated from the address for better indexing
 	state = models.CharField(max_length=2)
 	congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
 
+	# links to the user's outgoing shares
 	tweet_id = models.BigIntegerField(blank=True, null=True)
 	fb_linkid = models.CharField(max_length=32, blank=True, null=True)
 
-	# TODO: CRITICAL: Potential cascaded delete.
-	# REMEMBER TO INITIALIZE OTHER TABLE.
-	referrer_content_type = models.ForeignKey(ContentType, blank=True, null=True, db_index=True)
-	referrer_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
-	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
-	
+	# records any private notes about how we are moderating the comment
 	moderation_log = models.TextField(blank=True, null=True)
 	
 	# This holds all delivery attempts at this comment. some of the
@@ -1211,6 +1212,9 @@ class UserCommentReferral(models.Model):
 	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
 	class Meta:
 		unique_together = (("comment", "referrer_content_type", "referrer_object_id"),)
+
+	def __unicode__(self):
+		return "UserCommentReferral(%s,%s)" % (unicode(self.comment), unicode(self.referrer))
 		
 	@staticmethod
 	def create(comment, referrer):

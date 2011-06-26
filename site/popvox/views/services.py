@@ -528,7 +528,7 @@ def widget_render_writecongress_action(request, account, permissions):
 			return { "status": "fail", "msg": "Address error: " + validation_error_message(e) }
 
 		bill = Bill.objects.get(id=request.POST["bill"])
-		referrer, ocp, message = widget_render_writecongress_getsubmitparams(request.POST)
+		referrer, ocp, message = widget_render_writecongress_getsubmitparams(request.POST, account)
 
 		# At this point we increment the service account beancounter for submitted comments for
 		# the purpose of billing the account later. How do we know if we are supposed to charge
@@ -563,7 +563,7 @@ def widget_render_writecongress_action(request, account, permissions):
 			
 			if getattr(p, "congressionaldistrict", None) != None:
 				if "demo" in request.POST: return { "status": "demo-submitted", }
-				save_user_comment(user, bill, request.POST["position"], referrer, message, p, ocp)
+				save_user_comment(user, bill, request.POST["position"], referrer, message, p, ocp, UserComment.METHOD_WIDGET)
 				status = "submitted"
 
 			else:
@@ -605,6 +605,7 @@ def widget_render_writecongress_action(request, account, permissions):
 		axn.ocp = ocp
 		axn.post = request.POST
 		axn.password = User.objects.make_random_password()
+		axn.account = account
 		
 		r = send_email_verification(request.POST["email"], None, axn, send_email=not BENCHMARKING)
 
@@ -646,8 +647,8 @@ def widget_render_writecongress_get_identity(user, address=None):
 		"congressionaldistrict": getattr(pa, "congressionaldistrict", ""),
 		}
 
-def widget_render_writecongress_getsubmitparams(post):
-	referrer = None
+def widget_render_writecongress_getsubmitparams(post, account):
+	referrer = account
 	ocp = None
 	if "ocp" in post:
 		ocp = OrgCampaignPosition.objects.get(id=post["ocp"])
@@ -664,6 +665,7 @@ class WriteCongressEmailVerificationCallback:
 	post = None
 	ocp = None
 	password = None
+	account = None
 	
 	def email_subject(self):
 		return "Finish Your Letter to Congress" + (" - " + self.ocp.campaign.org.name + " Needs Your Help" if self.ocp else "")
@@ -766,11 +768,11 @@ your comment and check on its status.
 				verify_adddress_cached(p, cdyne_response, validate=False)
 
 			# Get the comment details.
-			referrer, ocp, message = widget_render_writecongress_getsubmitparams(self.post)
+			referrer, ocp, message = widget_render_writecongress_getsubmitparams(self.post, self.account)
 
 			# If the address was OK, save the comment now.
 			if getattr(p, "congressionaldistrict", None) != None:
-				comment = save_user_comment(user, bill, self.post["position"], referrer, message, p, ocp)
+				comment = save_user_comment(user, bill, self.post["position"], referrer, message, p, ocp, UserComment.METHOD_WIDGET)
 				
 				# the session state will be used if we need to pop up a lightbox
 				return HttpResponseRedirect(bill.url() + "/comment/share")
@@ -787,6 +789,8 @@ your comment and check on its status.
 				request.session["comment-default-address"] = p
 				if ocp != None:
 					request.session["comment-referrer"] = (bill.id, referrer, None, ocp.id)
+				elif referrer != None:
+					request.session["comment-referrer"] = (bill.id, referrer, None)
 				elif "comment-referrer" in request.session:
 					del request.session["comment-referrer"]
 			

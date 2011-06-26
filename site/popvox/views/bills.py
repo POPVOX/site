@@ -864,7 +864,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				
 			del request.session["comment-referrer"]
 
-		save_user_comment(request.user, bill, position, referrer, message, address_record, ocp)
+		save_user_comment(request.user, bill, position, referrer, message, address_record, ocp, UserComment.METHOD_SITE)
 			
 		# Clear the session state set in the preview. Don't clear until the end
 		# because if the user is redirected back to ../finish we need the session
@@ -929,7 +929,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	else:
 		raise Http404()
 
-def save_user_comment(user, bill, position, referrer, message, address_record, ocp):
+def save_user_comment(user, bill, position, referrer, message, address_record, ocp, method):
 	# If a comment exists, update that record.
 	comment = None
 	for c in user.comments.filter(bill = bill):
@@ -945,6 +945,7 @@ def save_user_comment(user, bill, position, referrer, message, address_record, o
 		comment.user = user
 		comment.bill = bill
 		comment.position = position
+		comment.method = method
 	
 	# We're updating an existing record.
 	else:
