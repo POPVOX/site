@@ -3,7 +3,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.forms import ValidationError
 from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page, cache_control
+
 from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth.models import User
@@ -811,6 +812,7 @@ your comment and check on its status.
 					}, context_instance=RequestContext(request))
 
 @cache_page(60*60*12) # twelve hours, seems to have no effect on speed
+@cache_control(public=True, max_age=60*60*12)
 def image(request, fn):
 	if not re.match(r"writecongress/(1|2|3|4|check|expand|next|preview|send|send-without|widget_writerep_progress)", fn):
 		raise Http404()
