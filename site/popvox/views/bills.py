@@ -1001,6 +1001,7 @@ def save_user_comment(user, bill, position, referrer, message, address_record, o
 				"lastname": address_record.lastname,
 				"zipcode": address_record.zipcode } )
 		ocpar.completed_comment = comment
+		ocpar.completed_stage = "finished"
 		ocpar.save()
 		
 	return comment
