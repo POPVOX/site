@@ -747,14 +747,19 @@ class UserProfile(models.Model):
 			# Create a service account for this user. If the user is an org admin,
 			# create a service account for each org the user admins. Otherwise,
 			# create a user-specific service account.
+			
+			def add_default_perms(acct):
+				for perm in ("widget_theme", "salsa", "fb_page", "writecongress_ocp"):
+					acct.permissions.add(ServiceAccountPermission.objects.get(name=perm))
+			
 			orgs = Org.objects.filter(admins__user = self.user)
 			if orgs.count() > 0:
 				for org in orgs:
 					if not ServiceAccount.objects.filter(org=org).exists():
-						ServiceAccount.objects.create(org=org)
+						add_default_perms(ServiceAccount.objects.create(org=org))
 			else:
 				if not ServiceAccount.objects.filter(user=self.user).exists():
-					ServiceAccount.objects.create(user=self.user)
+					add_default_perms(ServiceAccount.objects.create(user=self.user))
 		
 		return ServiceAccount.objects.filter(user = self.user) \
 			| ServiceAccount.objects.filter(org__admins__user = self.user)
