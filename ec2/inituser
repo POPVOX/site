@@ -12,8 +12,8 @@ egrep "(^|,)$USER[, ]" sources/ec2/authorized_keys | sed "s/[^ ]* //" > ~/.ssh/a
 
 cd sources
 
-cat httpd_deployment_template.conf|sed "s/__USER__/$USER/g"|sed "s/__UID__/`id -u`/" > ../httpd.conf
-cat nginx_deployment_template.conf|sed "s/__USER__/$USER/g"|sed "s/__UID__/`id -u`/" > ../nginx.conf
+cat conf/httpd_deployment_template.conf|sed "s/__USER__/$USER/g"|sed "s/__UID__/`id -u`/" > ../httpd.conf
+cat conf/nginx_deployment_template.conf|sed "s/__USER__/$USER/g"|sed "s/__UID__/`id -u`/" > ../nginx.conf
 
 #########
 
