@@ -1142,7 +1142,7 @@ def send_message(msg, moc, previous_attempt, loginfo):
 				msg.subjectline,
 				msg_body,
 				msg.email,
-				[moc.webform, "josh@popvox.com"],
+				[moc.webform],
 				fail_silently=False)
 
 			deliveryrec.success = True
