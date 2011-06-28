@@ -193,12 +193,13 @@ window.fbAsyncInit = function() {
 		user_info = http_rest_json("https://graph.facebook.com/" + fbargs["user_id"],
 			{ "oauth_token": fbargs["oauth_token"] })
 		# re-write for what a widget can expect
-		user_info = urlsafe_b64encode(json.dumps({
-			"first_name": user_info["first_name"],
-			"last_name": user_info["last_name"],
-			"email": user_info["email"],
-			}).encode("ascii")).replace("=", ".")
-		resp = resp.replace("&user_info=", "&user_info=" + user_info)
+		if "first_name" in user_info and "last_name" in user_info and "email" in user_info:
+			user_info = urlsafe_b64encode(json.dumps({
+				"first_name": user_info["first_name"],
+				"last_name": user_info["last_name"],
+				"email": user_info["email"],
+				}).encode("ascii")).replace("=", ".")
+			resp = resp.replace("&user_info=", "&user_info=" + user_info)
 
 	# Prepend some instructions for page admins.
 	if fbargs["page"]["admin"]:
