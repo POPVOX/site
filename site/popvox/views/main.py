@@ -283,7 +283,8 @@ def metrics(request):
 		"count_legstaff": UserLegStaffRole.objects.all().count() - 1, # minus one for our demo acct
 		"count_comments": UserComment.objects.all().count(),
 		"count_comments_messages": UserComment.objects.filter(message__isnull=False).count(),
-		"count_orgs": Org.objects.filter(createdbyus=False).count(),
+		"count_orgs_selfreg": Org.objects.filter(createdbyus=False).count(),
+		"count_orgs_all": Org.objects.filter(visible=True).count(),
 		
 		"general_stats": general_stats,
 		"by_cohort": by_cohort,
