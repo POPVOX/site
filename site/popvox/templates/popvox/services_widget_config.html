@@ -260,6 +260,18 @@ ul#wSelect {
 <link rel="stylesheet" href="/media/widget/widget.css" type="text/css" media="screen" />
 
 <script>
+var color_themes = {
+	"default": 	{ sbg: "#b36015", sbg2: "#e7e4dd", sfg: "#ffffff", lnk: "#cc6a11", bg: "#fafafa", fg: "#404045", fg2: "#555555" },
+	"blue":		{ sbg: "#4b92d0", sbg2: "#99bac7", sfg: "#ffffff", lnk: "#283636", bg: "#b1d1e8", fg: "#363636", fg2: "#000000" },
+	"green":	{ sbg: "#649e61", sbg2: "#95d69f", sfg: "#ffffff", lnk: "#283636", bg: "#ccebc3", fg: "##363636", fg2: "#000000" },
+	"creamy":	{ sbg: "#383838", sbg2: "#4a4a40", sfg: "#ffffff", lnk: "#283636", bg: "#fff44c", fg: "#363636", fg2: "#000000" },
+	"trendy":	{ sbg: "#ab4b00", sbg2: "#9c6133", sfg: "#ffffff", lnk: "#283636", bg: "#d4f2e3", fg: "#363636", fg2: "#000000" },
+	"shiek":		{ sbg: "#ed9355", sbg2: "#c2845b", sfg: "#ffffff", lnk: "#283636", bg: "#d4f2e3", fg: "#363636", fg2: "#000000" },
+	"minimal":	{ sbg: "#4d4d4d", sbg2: "#b3b3b3", sfg: "#ffffff", lnk: "#cc6a11", bg: "#ffffff", fg: "#404045", fg2: "#555555" },
+	"popvox":	{ sbg: "#b36015", sbg2: "#757575", sfg: "#ffffff", lnk: "#cc6a11", bg: "#e8e5df", fg: "#404045", fg2: "#555555" },
+	"dummy":	null
+};
+
 function splash_tab(tab) {
 	$('#wSelect>li').removeClass("active");
 	$(tab.parentNode).addClass("active");
@@ -403,8 +415,11 @@ function account_changed() {
 
 var last_preview_html = "";
 var fb_code = "";
+var hold_update = false;
 
 function update_preview() {
+	if (hold_update) return;
+	
 	update_analytics();
 	
 	var opts = "";
@@ -573,6 +588,20 @@ $(function() {
 	$('.form input[type=text]').keyup_delayed(update_preview);
 	$('.form select').change(update_preview);
 	$('.form input[type=radio]').click(update_preview);
+	$('.colorpicker').change(function() {
+		if ($('#color_theme').val() != "")
+			$('#color_theme').val("");
+	});
+	$('#color_theme').change(function() {
+		if ($('#color_theme').val() != "") {
+			var i = $('#color_theme').val();
+			hold_update = true;
+			for (var clr in color_themes[i])
+				$('#color_' + clr).miniColors("value", color_themes[i][clr]);
+			hold_update = false;
+			update_preview();
+		}
+	});
 	
 	splash_tab($('#wSelect li a')[0]);
 	account_changed();
@@ -791,6 +820,19 @@ var minicolors_opts = {
 				
 				<div class="panel">
 					<h5>Widget Colors</h5>
+					
+					<div>
+						<select id="color_theme" size="1" class="c3">
+							<option value="default">Default Color Theme</option>
+							<option value="blue">Going for a Swim</option>
+							<option value="creamy">Creamy Sun</option>
+							<option value="trendy">Trendy Trends</option>
+							<option value="shiek">Shiek Shine</option>
+							<option value="minimal">Minimal Moon</option>
+							<option value="popvox">POPVOX Colors</option>
+							<option value="">Custom Colors</option>
+						</select>
+					</div>
 					
 					<div class="vert">
 						<input id="color_bg" type="text" value="#fafafa" class="colorpicker"/>

@@ -10,6 +10,7 @@
 # the master server should be assocated with the elastic IP address tied to popvox.com
 #
 # last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
+#      ami-1aad5273 also works on a micro instance
 # if disk is local: us-east-1a / attach EBS volume on /dev/sdf (which to Ubuntu is /dev/xvdf)
 #
 # Although it seems like we allow MySQL, NFS, and Git from any Amazon EC2 instance,
