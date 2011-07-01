@@ -45,6 +45,9 @@
 	{% if request.ua.ua_family == "Firefox" and request.ua.os_family != "Mac OSX" %}
 	{% endif %}
 	
+	#widget_body .btn.next_oppose, #widget_body .btn.next_support { margin: 20px 0;}
+	#widget_body p.or { display: block; width: 40px; height: 47px; float: left; font-weight: bold; margin: 20px 0 0; padding: 15px 0 0; text-align: center; }
+
 	{% if "widget_theme" in permissions and request.GET.bg %}
 	body, input, textarea, select, h4.congrats { background-color: #{{request.GET.bg}}; color: #{{request.GET.fg}}; }
 	.optional, input[disabled] { color: #{{request.GET.fg2}}; }
@@ -65,7 +68,9 @@
 	.btn.next { background: url(/services/widgets/img/writecongress/next?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=864817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
 	.btn.next_support { background: url(/services/widgets/img/writecongress/support-btn?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=844817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
 	.btn.next_oppose { background: url(/services/widgets/img/writecongress/oppose-btn?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=844817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
+
 	.why a.expand { background-image: url(/services/widgets/img/writecongress/expand?sub=C56825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken); }
+
 	#panel_write_why_reason { border-bottom: 1px solid #D1D1CF; clear: both; display: block; padding-top: 10px;}
 	#b_send_no_msg { background-image: url(b_send_no_msg.png); }
 	#b_preview { background: url(/services/widgets/img/writecongress/preview?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
@@ -637,8 +642,9 @@
 							{% if position %}
 							<input value="next" class="btn next disabled" onclick="return do_login('{{position}}');" type="button"/>
 							{% else %}
-							<input value="support" class="btn next_support disabled" onclick="return do_login('+');" type="button"/>
-							<input value="oppose" class="btn next_oppose disabled" onclick="return do_login('-');" type="button"/>
+							<input style="margin: 20px 0; /*put me in head */" value="support" class="btn or next_support disabled" onclick="return do_login('+');" type="button"/>
+							<p class="or" style="display: block; width: 60px; height: 47px; float: left; font-weight: bold; margin: 20px 0 0; padding: 15px 0 0; text-align: center ">OR</p>
+							<input style="margin: 20px 0; /*put me in head */" value="oppose" class="btn or next_oppose disabled" onclick="return do_login('-');" type="button"/>
 							{% endif %}
 							<script>$('#panel_login .next, #panel_login .next_support, #panel_login  .next_oppose').hover(
 								function() { if ($('#email').hasClass("default")) { $('#email').css({'font-weight': 'bold', 'color': 'red'}); } },
