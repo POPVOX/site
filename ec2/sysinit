@@ -11,12 +11,15 @@
 #    scp tauberer@tauberer.dyndns.org:dev/popvox/main/ec2/sysinit .
 
 #
+# or copy preinit code and run CODE=XXXXX sh preinit.sh
+#
 # master server:  sudo DISK=localhost DB=localhost CODE=localhost CRON=yes bash sysinit
 #
 # slave server:   export MASTER=...
 #                 sudo DISK=$MASTER   DB=$MASTER   CODE=$MASTER   CRON=no  bash sysinit
 #
 # testing server: sudo DISK=localhost DB=localhost CODE=XXXXX     CRON=no  bash sysinit
+# intern server: sudo DISK=root DB=localhost CODE=XXXXX     CRON=no  bash sysinit
 #
 # if DB is localhost, then DISK has to be localhost too!
 # the master server should be assocated with the elastic IP address tied to popvox.com
@@ -56,7 +59,11 @@ apt-get install python-django
 
 # Persistent storage area.
 mkdir -p /mnt/persistent
-if [[ "$DISK" == "localhost" ]]; then
+if [[ "$DISK" == "root" ]]; then
+	# The root drive is on an elastic block store device already.
+	mkdir -p /mnt/persistent;
+
+elif [[ "$DISK" == "localhost" ]]; then
 	# Mount the EBS disk.
 	echo "/dev/xvdf        /mnt/persistent auto noatime" >> /etc/fstab;
 	mount -a;
@@ -83,6 +90,7 @@ fi
 
 # Mysql
 if [[ "$DB" == "localhost" ]]; then
+if [[ "$DISK" != "root" ]]; then
 	# "bind" the persistent mysql directory to /var/lib/mysql and trash the system-provided contents
 	service mysql stop;
 	rm -rf /var/lib/mysql/;
@@ -103,14 +111,17 @@ if [[ "$DB" == "localhost" ]]; then
 	# grant anyone access with username 'slave' and the same password 
 	mysql mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
 fi
+fi
 
 # Deployments
 
 # get the inituser script
 if [[ "$CODE" == "localhost" ]]; then
+	GIT_DIR=/mnt/persistent/sources.git git show master:ec2/createuser > createuser
 	GIT_DIR=/mnt/persistent/sources.git git show master:ec2/inituser > inituser
 else
 	git clone --bare git://$CODE/sources.git sources.git
+	GIT_DIR=sources.git git show master:ec2/createuser > createuser
 	GIT_DIR=sources.git git show master:ec2/inituser > inituser
 	GIT_DIR=sources.git git show master:ec2/createuser > createuser
 fi
