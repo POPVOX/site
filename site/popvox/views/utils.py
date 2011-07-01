@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_protect
 
 import urllib
 from datetime import datetime, timedelta, time
+import hashlib
 
 def formatDateTime(d, withtime=True, tz="EST"):
 	if d.time() == time.min:
@@ -42,6 +43,8 @@ def cache_page_postkeyed(duration, vary_by_user=False):
 			reqkeys.sort()
 			for k in reqkeys:
 				key += "&" + urllib.quote(k) + "=" + urllib.quote(request.REQUEST[k])
+			
+			key = hashlib.md5(key).hexdigest()
 			
 			ret = cache.get(key)
 			if ret == None:

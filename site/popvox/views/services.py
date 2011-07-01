@@ -3,19 +3,18 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.forms import ValidationError
 from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.cache import cache_page, cache_control
-
+from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
-
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.core.cache import cache
 
 from popvox.models import *
 from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS, getMemberOfCongress
 
 from widgets import do_not_track_compliance
 from bills import save_user_comment
-from utils import require_lock, csrf_protect_if_logged_in
+from utils import require_lock, csrf_protect_if_logged_in, cache_page_postkeyed
 
 from registration.helpers import validate_email, validate_password
 from emailverification.utils import send_email_verification
@@ -812,12 +811,12 @@ your comment and check on its status.
 					"mode": "widget_writecongress",
 					}, context_instance=RequestContext(request))
 
-@cache_page(60*60*12) # twelve hours, seems to have no effect on speed
+@cache_page_postkeyed(60*60*12) # twelve hours
 @cache_control(public=True, max_age=60*60*12)
 def image(request, fn):
-	if not re.match(r"writecongress/(1|2|3|4|check|expand|next|preview|send|send-without|widget_writerep_progress)", fn):
+	if not re.match(r"^writecongress/(1|2|3|4|check|expand|next|preview|send|send-without|widget_writerep_progress|support-btn|oppose-btn)$", fn):
 		raise Http404()
-
+	
 	import rsvg, cairo
 	import os.path, StringIO
 	import settings
@@ -827,8 +826,17 @@ def image(request, fn):
 
 	for sub in request.GET.getlist("sub"):
 		sp = sub.split(",")
-		if len(sp) == 2:
-			find, replace = sp
+		if len(sp) in (2, 3):
+			find, replace = sp[0:2]
+			
+			if len(sp) == 3 and sp[2] == "darken":
+				# reduce lightness by a factor
+				def darken(c):
+					h = hex(int(float(int(c,16)) * .5)).replace("0x","")
+					if len(h) < 2: h = "0" + h
+					return h
+				replace = darken(replace[0:2]) + darken(replace[2:4]) + darken(replace[4:6])
+		
 			# TODO: Check that replace only has # and hex digits.
 			data = data.replace(str(find), str(replace))
 
