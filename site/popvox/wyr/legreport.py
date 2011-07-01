@@ -56,8 +56,8 @@ def generate_report(recipient, office, report_start_date, report_end_date):
 	write(unicode(comments.values("user").distinct().count()) + " constituents took " + str(comments.count()) + " new positions and wrote " + str(comments.filter(message__isnull=False).count()) + " letters", None, tag="p", escape=False)
 	
 	write(
-		u"(The names and addresses of your constituents weighing in to POPVOX are available to you at www.popvox.com/congress and are letters for the purposes of franking.)",
-		u"<p>(The names and addresses of your constituents weighing in to POPVOX are available to you at <a href='http://www.popvox.com/congress'>popvox.com/congress</a>. They were submitted as letters to Congress and so can be responded to under franking.)</p>", escape=False)
+		u"(The names and addresses of your constituents weighing in on POPVOX are available to you at www.popvox.com/congress. They were submitted as letters to Congress and so can be responded to under franking.)",
+		u"<p>(The names and addresses of your constituents weighing in on POPVOX are available to you at <a href='http://www.popvox.com/congress'>popvox.com/congress</a>. They were submitted as letters to Congress and so can be responded to under franking.)</p>", escape=False)
 	
 	# Order by bill. Sort by whether the bill is up for a vote next in the chamber,
 	# then by number of positions left.
