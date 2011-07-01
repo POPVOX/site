@@ -110,8 +110,9 @@ def validate_widget_request(request, api_key):
 	if "node" in salsa:
 		permitted_hosts.append(salsa["node"])
 
-	# Validate the referrer. 
-	if host in permitted_hosts:
+	# Validate the referrer.
+	# For now, if the permitted hosts list is empty, allow all hosts.
+	if host in permitted_hosts or len(permitted_hosts) == 0:
 		return (account, perms)
 
 	return "This widget has been placed on a website (%s) that is not authorized." % host
