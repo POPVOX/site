@@ -419,7 +419,6 @@ function account_changed() {
 		$('#fb_page').hide();
 	else
 		$('#fb_page').show();
-	{% endif %}
 	
 	if (current_account.permissions.writecongress_ocp) {
 		$('#talkingpoints').text("Talking points from your legislative agenda appear in your widget.");
@@ -428,6 +427,7 @@ function account_changed() {
 		$('#talkingpoints').text("With a Pro account, you could add talking points to your widget.");
 		$('#supporters').text("With a Pro account you could get access to the information supporters enter into widgets you place on your website.");
 	}
+	{% endif %}
 	
 	update_preview();
 }

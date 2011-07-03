@@ -811,7 +811,7 @@ your comment and check on its status.
 					"mode": "widget_writecongress",
 					}, context_instance=RequestContext(request))
 
-@cache_page_postkeyed(60*60*12) # twelve hours
+#@cache_page_postkeyed(60*60*12) # twelve hours
 @cache_control(public=True, max_age=60*60*12)
 def image(request, fn):
 	if not re.match(r"^writecongress/(1|2|3|4|check|expand|next|preview|send|send-without|widget_writerep_progress|support-btn|oppose-btn)$", fn):
