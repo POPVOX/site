@@ -13,6 +13,16 @@ class SimpleTest(TestCase):
         Tests that 1 + 1 always equals 2.
         """
         self.failUnlessEqual(1 + 1, 2)
+        
+class TrueTest(TestCase):
+    def testBasic(self):
+        a = 1
+        self.assertEqual(1, a)
+
+class FalseTest(TestCase):
+    def testBasic(self):
+        a = 1
+        self.assertEqual(2, a)
 
 __test__ = {"doctest": """
 Another way to test that 1 + 1 is equal to 2.
