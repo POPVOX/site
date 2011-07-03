@@ -319,6 +319,23 @@ common_fieldnames = {
 	"responsereq": "response_requested",
 	
 	'view_select': 'support_oppose',
+	
+	#Numbered senate fields
+	"a01": "prefix",
+	"b01": "firstname",
+	"c01": "lastname",
+	"d01": "address1",
+	"e01": "address2",
+	"f01": "city",
+	"g01": "state",
+	"h01": "zipcode",
+	"h02": "phone",
+	"i01": "email",
+	"i02": "message",
+	"j01": "topicarea",
+	"j15": "response_requested",
+	"k01": "message",
+	
 	}
 
 # Here are field names that we assume are optional everywhere.
@@ -329,7 +346,8 @@ skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey", "affl_del",
 	"speech", "authfailmsg",
 	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
-	"org")
+	"org",
+	"h03", "H03")
 
 radio_choices = {
 	"reason": "legsitemail",
@@ -349,7 +367,9 @@ radio_choices = {
 }
 
 custom_mapping = {
+	"24_i02": "message",
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
+	"37_affl3": "enews_subscribe",
 	"613_zipcode_text": "zip5",
 	"624_phone_prefix_text" : "phone_areacode",
 	"624_phone_first_text" : "phone_prefix",
@@ -364,6 +384,7 @@ custom_mapping = {
 	"832_phone1_text" : "phone_areacode",
 	"832_phone2_text" : "phone_prefix",
 	"832_phone3_text" : "phone_line",
+	"842_J01": "subjectline",
 	"864_phone_prefix_text" : "phone_areacode",
 	"864_phone_first_text" : "phone_prefix",
 	"864_phone_second_text" : "phone_line",
@@ -372,6 +393,7 @@ custom_mapping = {
 custom_overrides = {
 	"18_prefix2_select": "Yes",
 	"29_subject_radio": "CRNR", # no response requested
+	"37_state_id_select": "california", #WTF Feinstein's form, seriously.
 	"38_subsubject_select": "Other",
 	"44_nl_radio": "no",
 	"44_nl_format_radio": "text",
