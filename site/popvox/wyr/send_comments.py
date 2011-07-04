@@ -167,7 +167,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			comment.address.normalize()
 			msg.county = comment.address.county
 		if gid in (400616,400055):
-			msg.phone = "".join([d for d in msg.phone if d.isdigit()])
+			msg.phone = "".join([d for d in msg.phone if d.isdigit()][0:10])
 		
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
