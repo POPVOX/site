@@ -82,8 +82,8 @@ def create_tex(tex, serial):
 		else:
 			# Don't create a new batch for this target if there are fewer than three messages to
 			# deliver and they were all written in the last two weeks.
-			if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
-				continue
+			#if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
+			#	continue
 			
 			batch_max += 1
 			batch_no = serial + ":" + str(batch_max)

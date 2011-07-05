@@ -22,6 +22,9 @@ class Endpoint(models.Model):
 	webform = models.CharField(max_length=256, blank=True, null=True)
 	webformresponse = models.CharField(max_length=256, blank=True, null=True)
 	
+	send_report_to = models.CharField(max_length=256, blank=True, null=True, help_text="The email address to send a notice to of constituent messages that can be downloaded, along with a report. Setting this field prevents the letters from being included in a printout.")
+	no_print = models.BooleanField(default=False)
+	
 	tested = models.BooleanField(default=False)
 	
 	template = models.TextField(blank=True, null=True)
