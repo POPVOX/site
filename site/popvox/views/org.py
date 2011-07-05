@@ -764,7 +764,7 @@ class CoalitionRequestAction:
 	sender = None
 	message = None
 	
-	def get_from_address(self):
+	def email_from_address(self):
 		return self.sender.email
 		
 	def get_response(self, request, vrec):

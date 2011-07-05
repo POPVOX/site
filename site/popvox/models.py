@@ -492,13 +492,13 @@ class Org(models.Model):
 				t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(self.twittername.encode('utf-8'))))
 				er = t.getElementsByTagName('error')
 				if len(er) > 0:
-					print self.twittername, er[0].firstChild.data
+					print self.twittername.encode("utf8"), er[0].firstChild.data.encode("utf8")
 				else:
 					fc = t.getElementsByTagName('followers_count')
 					count = int(fc[0].firstChild.data)
 					updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, count)
 			except Exception, e:
-				print self.twittername, e
+				print self.twittername.encode("utf8"), e
 				pass
 			
  	def facebook_fan_count(self):

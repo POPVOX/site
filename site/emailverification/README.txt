@@ -66,6 +66,7 @@ object that has just been verified. Here's an example:
 ===================
 from django.contrib.auth.models import User
 from django.contrib.auth import login
+from django.http import HttpResponseRedirect
 ...
 class RegisterUserAction:
 	email = None
@@ -88,6 +89,9 @@ All the best."""
 		login(request, user)
 		return HttpResponseRedirect("/home#welcome")
 ===================
+
+Within the string returned by email_body, "<URL>" will be replaced by the
+URL that the user should click on to execute the callback action.
 
 In some view in response to the user submitting a form, you'll typically
 run this:
@@ -123,6 +127,40 @@ changes any of its state, it will be saved back to the database so on
 the second invocation it will get its saved state back. But since requests
 are processed asynchronously, there is no guarantee that the state
 will be saved before the second request comes in.
+
+Advanced use:
+-------------------
+
+The action class can optionally contain a method email_from_address
+to override the default from address specified either in the
+EMAILVERIFICATION_FROMADDR or SERVER_EMAIL settings. e.g.:
+
+	def email_from_address(self):
+		return "info@example.com"
+
+The email can also contain an HTML part. The HTML part is assembled
+using the Django templating system. Add a method to the action
+class called email_html_template which returns a tuple containing the
+name of the template to use and a dict of context variables, e.g.:
+
+	def email_html_template(self):
+		return ("email/html_template.html", { "message": "Hello!" })
+		
+Typically the template will use {% extends "templatename" %} to apply
+a default email theme used across actions.
+		
+Instead of using "<URL>" in the template, a "URL" context variable will
+be set instead, which can be accessed with {{URL|safe}}.
+
+Be careful with adding an HTML part because you might forget to keep
+the text and HTML content in sync!
+
+A template can also be used for the text part. Provide a email_text_template
+function instead of email_body. email_text_template works the same way
+as email_html_template. But be careful because Django will assume that
+HTML escaping is still in effect in the template, so any values brought in
+via {{...}} should probably be marked as safe, e.g. {{myvariable|safe}},
+to avoid HTML escaping.
 
 A note on pickling:
 ------------------------
