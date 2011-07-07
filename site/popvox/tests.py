@@ -6,28 +6,22 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.test.client import Client
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.failUnlessEqual(1 + 1, 2)
-        
-class TrueTest(TestCase):
-    def testBasic(self):
+c = Client()
+
+class SampleTest(TestCase):
+    
+    def testTrue(self):
         a = 1
         self.assertEqual(1, a)
 
-class FalseTest(TestCase):
-    def testBasic(self):
-        a = 1
-        self.assertEqual(2, a)
+class ResponseCodeTest(TestCase):
+    def testStatic(self):
+	statics = ['/congres', '/about', '/about/team', '/about/principles', '/about/whyitworks', '/about/contact', '/legal', '/advertising', '/press', '/jobs', '/faq', '/blog']
+        response = c.get('/press')
+        status = response.status_code
+        self.assertEqual(int(status), 200)
 
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
 
->>> 1 + 1 == 2
-True
-"""}
 
