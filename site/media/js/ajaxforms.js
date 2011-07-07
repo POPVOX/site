@@ -363,11 +363,20 @@ jQuery.fn.pvtabs = function(tab_change_callback) {
 		var ul = $(this);
 			
 		var open_tab = function (is_initial) {
+			// get the tab specified in the window location hash. However, support tabname=info
+			// tab "arguments".
+			var hash_tab = window.location.hash;
+			var hash_argument = null;
+			if (hash_tab.indexOf("=") > 0) {
+				hash_argument = hash_tab.substr(hash_tab.indexOf("=")+1);
+				hash_tab = hash_tab.substr(0, hash_tab.indexOf("="));
+			}
+			
 			// find the matching tab from the window location hash
 			var active_tab;
 			ul.find('li a').each(function() {
 				var tabname = this.getAttribute("href").substr(this.getAttribute("href").indexOf("#")+1);
-				if ("#" + tabname == window.location.hash)
+				if ("#" + tabname == hash_tab)
 					active_tab = tabname;
 			});
 			
@@ -414,7 +423,7 @@ jQuery.fn.pvtabs = function(tab_change_callback) {
 			$(tabs_to_show).show();
 			
 			if (tab_change_callback)
-				tab_change_callback(active_tab, is_initial);
+				tab_change_callback(active_tab, is_initial, hash_argument);
 		};
 	
 		// open the default tab

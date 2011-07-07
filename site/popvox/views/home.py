@@ -21,6 +21,8 @@ from popvox.views.bills import bill_statistics, get_default_statistics_context
 import popvox.govtrack
 from utils import formatDateTime
 
+from settings import MIXPANEL_API_KEY
+
 def annotate_track_status(profile, bills):
 	tracked_bills = profile.tracked_bills.all()
 	antitracked_bills = profile.antitracked_bills.all()
@@ -460,8 +462,9 @@ def reports(request):
 		return render_to_response('popvox/reports_legstaff.html',
 			context_instance=RequestContext(request))
 	elif request.user.userprofile.is_org_admin():
-		return render_to_response('popvox/reports_orgstaff.html',
-			context_instance=RequestContext(request))
+		return render_to_response('popvox/reports_orgstaff.html', {
+				"MIXPANEL_API_KEY": MIXPANEL_API_KEY
+			}, context_instance=RequestContext(request))
 	else:
 		raise Http404()
 
