@@ -199,7 +199,7 @@ def create_tex(tex, serial):
 		outfile.write(r" --- ")
 		outfile.write_esc(p["lastname"] + " " + p["state"] + (str(p["district"]) if p["district"]!=None else ""))
 		outfile.write(r"  --- ")
-		outfile.write_esc(" ".join(p["address"].split(" ")[0:2]))
+		outfile.write_esc(" ".join(p["address"][0:10].split(" ")[0:2]))
 		outfile.write(r"  --- ")
 		#outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no).count()))
 		#outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method", "missing-info", "failure-oops")]))

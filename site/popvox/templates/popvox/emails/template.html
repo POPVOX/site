@@ -1,0 +1,59 @@
+{% extends "emailverification/htmltemplate.html" %}
+{% block subject %}{{subject}}{% endblock %}
+{% block head %}
+	<style>
+		body, td { color: #4b494a; font-family: Arial, Helvetica, sans-serif; font-size: 8px; }
+		a { color: #cd680e; }
+		div.rule { margin: 15px 0 15px 0; height: 4px; background: url(https://www.popvox.com/media/email/rule.jpg) repeat-x; }
+	</style>
+	{% block head2 %}
+	{% endblock %}
+{% endblock %}
+{% block h_styles %}
+	{% comment %}should be applied inline{% endcomment %}
+	h1 {
+	   color: #414046 !important;
+	   font-size: 32px;
+	   line-height: 100% !important;
+	}
+	
+	h2, h3, h4, h5, h6 {
+	   color: #cd680e !important;
+	   line-height: 100% !important;
+	}
+	
+	h2 {
+	   font-size: 24px;
+	}	
+	
+	h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+	   color: blue !important;
+	}
+	
+	h1 a:active, h2 a:active,  h3 a:active, h4 a:active, h5 a:active, h6 a:active {
+	   color: red !important;
+	}
+	
+	h1 a:visited, h2 a:visited,  h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited {
+	   color: purple !important;
+	}
+{% endblock %}
+{% block backgroundcss %}background-color: #e7e4dd; padding: 1em;{% endblock %}
+{% block body %}
+	<table width="100%">
+	<tr>
+	<td width="100"><a href="http://www.popvox.com"><img src="https://www.popvox.com/media/email/logo.jpg" alt="POPVOX" border="0"/></a></td>
+	<td>{% block h1 %}{% endblock %}</td>
+	<td style="text-align: right">{% block h1button %}{% endblock %}</td>
+	</tr>
+	</table>
+	
+	<div class="rule"> </div>
+	
+	{% block body2 %}
+	{% endblock %}
+	
+	<div class="rule"> </div>
+	
+	<p class="footer"><a href="http://www.popvox.com">POPVOX.COM</a> | REDWOOD CITY, CA | WASHINGTON, DC</p>
+{% endblock %}

@@ -19,6 +19,7 @@ This file contains a boilerplate template from htmlemailboilerplate.com download
            margin: 1em 0;
        }
        
+       {% block h_styles %}
        {% comment %}should be applied inline{% endcomment %}
        h1, h2, h3, h4, h5, h6 {
            color: black !important;
@@ -36,6 +37,7 @@ This file contains a boilerplate template from htmlemailboilerplate.com download
        h1 a:visited, h2 a:visited,  h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited {
            color: purple !important;
        }
+       {% endblock %}
        
        table td {
            border-collapse: collapse;
