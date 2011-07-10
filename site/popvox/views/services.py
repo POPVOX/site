@@ -907,3 +907,16 @@ def image(request, fn):
 	surf.write_to_png(buf)
 
 	return HttpResponse(buf.getvalue(), mimetype="image/png")
+	
+@csrf_protect
+@login_required
+def analytics(request):
+	orgs = [role.org for role in request.user.orgroles.all()]
+	if request.user.is_superuser and "org" in request.GET:
+		orgs = [Org.objects.get(slug=request.GET["org"])]
+	
+	return render_to_response('popvox/reports_orgstaff.html', {
+			"orgs": orgs,
+			"MIXPANEL_API_KEY": MIXPANEL_API_KEY
+		}, context_instance=RequestContext(request))
+

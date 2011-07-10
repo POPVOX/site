@@ -455,19 +455,6 @@ def home_suggestions(request):
 		    },
 		context_instance=RequestContext(request))
 
-@csrf_protect
-@login_required
-def reports(request):
-	if request.user.userprofile.is_leg_staff():
-		return render_to_response('popvox/reports_legstaff.html',
-			context_instance=RequestContext(request))
-	elif request.user.userprofile.is_org_admin():
-		return render_to_response('popvox/reports_orgstaff.html', {
-				"MIXPANEL_API_KEY": MIXPANEL_API_KEY
-			}, context_instance=RequestContext(request))
-	else:
-		raise Http404()
-
 def activity(request):
 	default_state, default_district = get_default_statistics_context(request.user)
 	

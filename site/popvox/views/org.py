@@ -740,21 +740,46 @@ def orgcampaignpositionactionupdate(request):
 	
 	return {"status": "success", "action_headline": billpos.action_headline, "action_body": billpos.action_body }
 
-def action_download(request, orgslug, billposid):
+def action_download(request, orgslug, billposid, dataformat):
 	org = get_object_or_404(Org, slug=orgslug)
 	billpos = get_object_or_404(OrgCampaignPosition, id=billposid, campaign__org = org)
 	
 	if not org.is_admin(request.user):
 		return HttpResponseForbidden("You do not have permission to view this page.")
 
-	import csv
-	response = HttpResponse(mimetype='text/csv')
-	response['Content-Disposition'] = 'attachment; filename=userdata.csv'
+	import csv, json
 	
-	writer = csv.writer(response)
-	writer.writerow(['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode'])
-	for rec in OrgCampaignPositionActionRecord.objects.filter(ocp=billpos):
-		writer.writerow([unicode(s).encode("utf-8") for s in [rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode]])
+	response = HttpResponse(mimetype='text/' + dataformat)
+	response['Content-Disposition'] = 'attachment; filename=userdata.' + dataformat
+	
+	ret = []
+	
+	recs = OrgCampaignPositionActionRecord.objects.filter(ocp=billpos)
+	total_records = recs.count()
+	if request.GET.get("sidx", "") != "":
+		recs = recs.order_by(("" if request.GET.get("sord", "asc") == "asc" else "-") + request.GET["sidx"])
+	if "rows" in request.GET and "page" in request.GET:
+		recs = recs[int(request.GET["rows"])*(int(request.GET["page"])-1):int(request.GET["rows"])*int(request.GET["page"])]
+	
+	if dataformat == "csv":
+		writer = csv.writer(response)
+		writer.writerow(['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode'])
+	for rec in recs:
+		row = [unicode(s).encode("utf-8") for s in [rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode]]
+		if dataformat == "csv":
+			writer.writerow(row)
+		if dataformat == "json":
+			ret.append(row)
+			
+	if dataformat == "json":
+		ret = {
+			"records": total_records,
+			"rows": [{"id": row[0], "cell": row} for row in ret],
+		}
+		if "rows" in request.GET and "page" in request.GET:
+			ret["page"] = request.GET["page"]
+			ret["total"] = total_records / int(request.GET["rows"])
+		response.write(json.dumps(ret))
 	
 	return response
 

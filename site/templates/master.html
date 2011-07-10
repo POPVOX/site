@@ -38,8 +38,8 @@
 	{% if request.ua.ua_family == "Firefox" %}<script>jQuery.fx.off = true</script>{% endif %}
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
 	
-	<link href="/media/css/jquery-ui.css" rel="stylesheet" type="text/css"/> <!-- autocomplete -->
-	<script type="text/javascript" src="/media/js/jquery-ui-1.8rc3.custom.min.js"></script>
+	<link href="/media/css/jquery-ui-1.8.14.custom.css" rel="stylesheet" type="text/css"/> <!-- autocomplete -->
+	<script type="text/javascript" src="/media/js/jquery-ui-1.8.14.custom.min.js"></script>
 	
 	<link rel="stylesheet" href="/media/css/colorbox/colorbox.css" type="text/css" />
 	<script src="/media/js/jquery.colorbox-min.js"></script>
@@ -181,7 +181,7 @@
 						<script>$('#master_profile_orglist_li').mouseleave(function() { $('#master_profile_orglist').fadeOut() });</script>					
 					</li>
 					{% endif %}
-					<li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/home/reports">Reports</a></li>
+					<li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/services/analytics">Campaigns</a></li>
 					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Find Orgs</a></li>
 					<li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Find Bills</a></li>
 					<li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>

@@ -619,7 +619,7 @@ class OrgCampaignPositionActionRecord(models.Model):
 	zipcode = models.CharField(max_length=16, blank=True)
 	email = models.EmailField(db_index=True)
 	created = models.DateTimeField(auto_now_add=True)
-	completed_comment = models.ForeignKey("UserComment", blank=True, null=True)
+	completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord")
 	completed_stage = models.CharField(max_length=16, blank=True, null=True)
 	request_dump = models.TextField(blank=True, null=True)
 	class Meta:
