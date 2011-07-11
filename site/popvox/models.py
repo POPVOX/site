@@ -659,6 +659,7 @@ class OrgCampaignPositionActionRecord(models.Model):
 				lastname = ocpar.lastname,
 				zipcode = ocpar.zipcode,
 				created = ocpar.created,
+				updated = ocpar.created,
 				completed_comment = ocpar.completed_comment,
 				completed_stage = ocpar.completed_stage if ocpar.completed_stage != "submitted" else "finished",
 				request_dump = ocpar.request_dump
@@ -1392,7 +1393,7 @@ class ServiceAccountCampaign(models.Model):
 			campaign=self,
 			email=email,
 			defaults = kwargs)
-		if not isnew:
+		if not isnew or "created" in kwargs:
 			# Update the record with the new values.
 			for k, v in kwargs.items():
 				setattr(rec, k, v)
@@ -1415,6 +1416,7 @@ class ServiceAccountCampaignActionRecord(models.Model):
 		unique_together = [('campaign', 'email')]
 def sacar_saved_callback(sender, instance, created, **kwargs):
 	# Save data back to CRM.
+	if "LOADING_DUMP_DATA" in os.environ: return
 	try:
 		campaign = instance.campaign
 		acct = campaign.account
@@ -1436,7 +1438,9 @@ def sacar_saved_callback(sender, instance, created, **kwargs):
 			data["supporter_state"] = instance.completed_comment.address.state
 			data["supporter_district"] = instance.completed_comment.address.state + ("%02d" % instance.completed_comment.address.congressionaldistrict)
 		ret = http_rest_json(url, data)
-	except:
+	except e:
+		import sys
+		sys.stderr.write("sacar_saved_callback " + str(instance.id) + " " + str(instance) + ": " + unicode(e).encode("utf8") + "\n")
 		pass
 django.db.models.signals.post_save.connect(sacar_saved_callback, sender=ServiceAccountCampaignActionRecord)
 
