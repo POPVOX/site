@@ -1,0 +1,42 @@
+{% load popvox_utils %}
+<!DOCTYPE html> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+ 
+<head profile="http://gmpg.org/xfn/11"> 
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /><!--[if lte IE 7]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
+
+	<title>{% block title %}{% endblock %}{% block title2 %} - POPVOX.com{% endblock %}</title>
+	<meta name="description" content="{% block description %}{% endblock %}"/>
+
+	<link rel="shortcut icon" href="/favicon.ico" />
+
+	<meta property="og:site_name" content="POPVOX"/>
+	<meta property="og:image" content="http://www.popvox.com/media/logo.png"/>
+	<meta property="fb:app_id" content="150910028257528"/>
+	
+	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />
+<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script>
+<link rel="stylesheet" href="/media/mobile/style.css" type="text/css" />
+
+	{% block head %}
+	{% endblock %}
+
+	{% if not debug %}
+	{% endif %}
+</head>
+<body {% block bodyattributes %}{% endblock %}>
+
+	{% block content %}
+	{% endblock %}
+	
+{% block finalscript %}{% endblock %}
+
+	
+
+
+</body> 
+</html>
+

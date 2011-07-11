@@ -1,0 +1,54 @@
+{% extends "master.html" %}
+{% load registration_providers %}
+{% block title %}POPVOX - Your Voice. Verified. Quantified. Amplified.{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
+{% block disable_login_redirect %}{% endblock %}
+{% block head %}
+{% endblock %}
+{% block content %}
+
+<div data-role="page">
+
+    <div data-role="header">
+		<h1>Trending Bills</h1>
+		<a href="/" data-direction="reverse" >Back</a>
+	</div><!-- /header -->
+
+   		    
+	<div data-role="content">
+			
+            <ul data-role="listview" data-inset="false" data-theme="c" data-dividertheme="a">
+                {% for billrec in trending_bills %}  {% with billrec.bill as bill %}    
+                
+                
+                <li><a href="{{billrec.bill.url}}" data-transition="slide">
+                <h3 class="ui-li-heading">{{ billrec.bill.title_or_streetname }}</h3>
+                <p class="ui-li-desc">
+                	{% if bill.officialtitle %}
+                    {{ bill.officialtitle }}
+                    {% endif %}
+                </p>
+                </a>
+                </li>
+
+				{% endwith %} {% endfor %}
+
+            </ul>
+         
+	</div>
+
+	
+	
+	
+    <div data-role="footer">
+        <h4>Mobile | Desktop</h4>
+    </div><!-- /footer -->
+    
+
+
+</div><!-- /page -->
+
+{% endblock %}
+{% block footer %}
+{% endblock %}
