@@ -48,13 +48,18 @@ def commentmapus(request):
 		# TODO: put this in the database
 		comments = bill_comments(bill).defer("message")
 	
-	elif "ocp" in request.GET:
+	elif "sac" in request.GET and request.user.is_authenticated():
 		
-		ocp = get_object_or_404(OrgCampaignPosition, id=request.GET["ocp"])
-		if not ocp.campaign.org.is_admin(request.user): raise Http404()
+		if not request.user.is_superuser:
+			# validate that the service account campaign is in one of the accounts accessible
+			# by the logged in user.
+			user_accounts = request.user.userprofile.service_accounts(create=False)
+			sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"], account__in=user_accounts)
+		else:
+			sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"])
 		
-		bill = ocp.bill
-		comments = UserComment.objects.filter(actionrecord__ocp=ocp)
+		bill = sac.bill
+		comments = UserComment.objects.filter(actionrecord__campaign=sac)
 
 	elif "file" in request.GET:
 		

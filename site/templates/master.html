@@ -181,7 +181,7 @@
 						<script>$('#master_profile_orglist_li').mouseleave(function() { $('#master_profile_orglist').fadeOut() });</script>					
 					</li>
 					{% endif %}
-					<li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/services/analytics">Campaigns</a></li>
+					<li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/services/analytics">Analytics</a></li>
 					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Find Orgs</a></li>
 					<li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Find Bills</a></li>
 					<li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
@@ -194,6 +194,9 @@
 					{% endif %}
 					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
+					{% if user.userprofile.service_accounts.campaigns|length > 1 %}
+					<li class="{%block nav_user_class_reports%}{%endblock%}"><a href="/services/analytics">Analytics</a></li>
+					{% endif %}
 				{% endif %}
 				<div id="search_head">
 					<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">

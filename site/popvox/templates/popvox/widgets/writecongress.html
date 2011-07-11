@@ -86,8 +86,7 @@
 		
 		{% if not request.GET.demo %}
 		var mixpanel_properties = {
-			{% if ocp %}bucket: "ocp_" + {{ocp.id}},{% endif %}
-			{% if org %}org: "{{org.name|escapejs}}",{% endif %}
+			{% if campaign %}bucket: "{{campaign.mixpanel_bucket|escapejs}}",{% endif %}
 			bill: "{{bill.displaynumber|escapejs}}"
 		};
 		mpmetrics.track('widget_writecongress_hit', mixpanel_properties);
@@ -151,7 +150,7 @@
 					url: window.location.pathname,
 					data: {
 						{% if request.GET.demo %}demo: true,{% endif %}
-						{% if ocp %}ocp: {{ocp.id}},{% endif %}
+						{% if campaign %}campaign: {{campaign.id}},{% endif %}
 						bill: {{bill.id}},
 						action: "check-email",
 						email: email
@@ -247,6 +246,7 @@
 			if (working) return;
 			
 			{% if not request.GET.demo %}
+			mixpanel_properties.position = chosen_position;
 			mpmetrics.track('widget_writecongress_start', mixpanel_properties);
 			{% endif %}
 			
@@ -271,7 +271,7 @@
 				
 				data = {
 					{% if request.GET.demo %}demo: true,{% endif %}
-					{% if ocp %}ocp: {{ocp.id}},{% endif %}
+					{% if campaign %}campaign: {{campaign.id}},{% endif %}
 					action: "newuser",
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
@@ -285,7 +285,7 @@
 			
 				data = {
 					{% if request.GET.demo %}demo: true,{% endif %}
-					{% if ocp %}ocp: {{ocp.id}},{% endif %}
+					{% if campaign %}campaign: {{campaign.id}},{% endif %}
 					action: "login",
 					email: $("#email").val(),
 					password: $("#password").val()
@@ -373,7 +373,7 @@
 					url: window.location.pathname,
 					data: {
 						{% if request.GET.demo %}demo: true,{% endif %}
-						{% if ocp %}ocp: {{ocp.id}},{% endif %}
+						{% if campaign %}campaign: {{campaign.id}},{% endif %}
 						bill: {{bill.id}},
 						action: "address",
 						userid: identity.id ? identity.id : undefined,
@@ -458,7 +458,7 @@
 					url: window.location.pathname,
 					data: {
 						{% if request.GET.demo %}demo: true,{% endif %}
-						{% if ocp %}ocp: {{ocp.id}},{% endif %}
+						{% if campaign %}campaign: {{campaign.id}},{% endif %}
 						bill: {{bill.id}},
 						position: position,
 						action: "submit",
@@ -550,6 +550,7 @@
 		}
 		function do_share(method) {
 			{% if not request.GET.demo %}
+			mixpanel_properties.share_method = method;
 			mpmetrics.track('widget_writecongress_share', mixpanel_properties);
 			{% endif %}
 			
@@ -635,8 +636,8 @@
 							
 							<div id="loggedinalready" style="display: none; margin-top: 1em;">
 								<!-- can't say "welcome back" because on a login we reload the page and start over -->
-								<p>Welcome <strong>{{displayname}}</strong>.</p>
-								<p><a href="#" onclick="return logout();">Not you?</a>
+								<p>Welcome <strong>{{displayname}}</strong>.
+								<a href="#" onclick="return logout();">Not you?</a>
 							</div>
 							
 							{% if position %}
@@ -668,6 +669,8 @@
 							$("#email").keyup_delayed(check_email);
 						</script>
 						
+						<p style="margin-top: 190px; padding-right: 1em;">Your letter will be sent to your representative or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
+						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">A copy will also go to {{campaign.account}}.</p>{% endif %}
 					</div> <!-- e: panel_login -->
 
 					<div id="panel_addressform" class="widget_panel" style="display: none">
@@ -773,7 +776,7 @@
 						
 						<div class="clear"> </div>
 						
-						<p style="margin-top: 1em; padding-right: 1em;">Your letter will be sent to your representative or senators <b>and</b> posted anonymously on POPVOX.com. {% if org %}We&rsquo;ll also provide a copy to {{org.name}}.{% endif %}</p>
+						<p style="margin-top: 60px; padding-right: 1em;">Your letter will be sent to Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
 						
 					</div><!-- e: panel_write -->
 					
@@ -848,7 +851,7 @@
 							{% endif %}
 						{% endfor %}
 						
-						{% if not ocp %}
+						{% if not campaign %}
 						<div class="search">
 							<h3>Search bills on POPVOX</h3>
 							<p>search by bill number or issue area</p>

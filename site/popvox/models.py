@@ -513,6 +513,12 @@ class Org(models.Model):
 			return 0
 	def estimated_fan_count(self):
 		return self.facebook_fan_count() + self.twitter_follower_count()
+
+	def service_account(self, create=False):
+		if not create:
+			return ServiceAccount.objects.get(org=self)
+		else:
+			return ServiceAccount.get_or_create(org=self)
  
 class OrgContact(models.Model):
 	"""A contact record for an Org displayed to legislative staff."""
@@ -535,7 +541,7 @@ class OrgContact(models.Model):
 
 class OrgCampaign(models.Model):
 	"""An organization's campaign."""
-	org = models.ForeignKey(Org)
+	org = models.ForeignKey(Org) # implicitly indexed by the unique-together
 	slug = models.SlugField()
 	name = models.CharField(max_length=100)
 	website = models.URLField(blank=True, null=True)
@@ -568,7 +574,7 @@ class OrgExternalMemberCount(models.Model):
 	FACEBOOK_FANS = 1
 	TWITTER_FOLLOWERS = 2
 	SOURCE_TYPES = [0, 1, 2]
-	org = models.ForeignKey(Org)
+	org = models.ForeignKey(Org) # implicitly indexed by the unique_together
 	source = models.IntegerField(choices=[(AS_REPORTED, 'As Reported'), (FACEBOOK_FANS, 'Facebook Fans'), (TWITTER_FOLLOWERS, 'Twitter Followers')])
 	count = models.IntegerField()
 	updated = models.DateTimeField(auto_now=True)
@@ -586,7 +592,7 @@ class OrgExternalMemberCount(models.Model):
 class OrgCampaignPosition(models.Model):
 	"""A position on a bill within an OrgCampaign."""
 	POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
-	campaign = models.ForeignKey(OrgCampaign, related_name="positions")
+	campaign = models.ForeignKey(OrgCampaign, related_name="positions") # implicitly indexed by the unique_together
 	bill = models.ForeignKey(Bill)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
 	comment = models.TextField(blank=True, null=True)
@@ -604,11 +610,26 @@ class OrgCampaignPosition(models.Model):
 		return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
 	def documents(self):
 		return self.campaign.org.documents.filter(bill=self.bill).defer("text")
-	def mixpanel_bucket_secret(self):
-		import hashlib
-		from settings import MIXPANEL_API_SECRET
-		return hashlib.md5(MIXPANEL_API_SECRET + "ocp_" + str(self.id)).hexdigest()
+	def get_service_account_campaign(self, create=True):
+		if create:
+			acct = self.campaign.org.service_account(create=True)
+			campaign, is_new = ServiceAccountCampaign.objects.get_or_create(
+				account = acct,
+				bill = self.bill,
+				position = self.position)
+		else:
+			acct = self.campaign.org.service_account(create=False)
+			campaign = acct.campaigns.get(
+				bill = self.bill,
+				position = self.position)
+		return campaign
+	def has_service_account_campaign(self):
+		try:
+			return self.get_service_account_campaign(create=False) != None
+		except:
+			return False
 
+## DELETE ##
 class OrgCampaignPositionActionRecord(models.Model):
 	# This is used for org-customized landing pages
 	# for bills when the user accepts to send their
@@ -619,39 +640,30 @@ class OrgCampaignPositionActionRecord(models.Model):
 	zipcode = models.CharField(max_length=16, blank=True)
 	email = models.EmailField(db_index=True)
 	created = models.DateTimeField(auto_now_add=True)
-	completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord")
+	completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True)
 	completed_stage = models.CharField(max_length=16, blank=True, null=True)
 	request_dump = models.TextField(blank=True, null=True)
 	class Meta:
 		ordering = ['created']
 		unique_together = [('ocp', 'email')]
-
-def ocpar_saved_callback(sender, instance, created, **kwargs):
-	# Save data back to CRM.
-	try:
-		ocp = instance.ocp
-		acct = ocp.campaign.org.serviceaccount
-		url = "http://%s/o/%s/p/d/popvox/popvox/public/api/add_supporter.sjs" % (
-			acct.getopt("salsa", None)["node"],
-			acct.getopt("salsa", None)["org_id"])
-		data = {
-			"api_key": acct.secret_key,
-			"action_id": "popvox_ocp_" + str(ocp.id),
-			"action_name": ocp.bill.title,
-			"supporter_email": instance.email,
-			"supporter_firstname": instance.firstname,
-			"supporter_lastname": instance.lastname,
-			"supporter_zip": instance.zipcode,
-			"tracking_code": "popvox_ocpar_" + str(instance.id),
-			}
-		if instance.completed_comment != None:
-			data["supporter_zip"] = instance.completed_comment.address.zipcode
-			data["supporter_state"] = instance.completed_comment.address.state
-			data["supporter_district"] = instance.completed_comment.address.state + ("%02d" % instance.completed_comment.address.congressionaldistrict)
-		ret = http_rest_json(url, data)
-	except:
-		pass
-django.db.models.signals.post_save.connect(ocpar_saved_callback, sender=OrgCampaignPositionActionRecord)
+	@staticmethod
+	def upgrade():
+		for ocpar in OrgCampaignPositionActionRecord.objects.all():
+			sac = ocpar.ocp.get_service_account_campaign()
+			if sac.mpbucket == None:
+				sac.mpbucket = "ocp_" + str(ocpar.ocp.id)
+				sac.save()
+			sac.add_action_record(
+				email = ocpar.email,
+				firstname = ocpar.firstname,
+				lastname = ocpar.lastname,
+				zipcode = ocpar.zipcode,
+				created = ocpar.created,
+				completed_comment = ocpar.completed_comment,
+				completed_stage = ocpar.completed_stage if ocpar.completed_stage != "submitted" else "finished",
+				request_dump = ocpar.request_dump
+				)
+## DELETE ##
 
 class UserProfile(models.Model):
 	"""A user profile extends the basic user model provided by Django."""
@@ -748,26 +760,20 @@ class UserProfile(models.Model):
 			# create a service account for each org the user admins. Otherwise,
 			# create a user-specific service account.
 			
-			def add_default_perms(acct):
-				for perm in ("widget_theme", "salsa", "fb_page", "writecongress_ocp"):
-					acct.permissions.add(ServiceAccountPermission.objects.get(name=perm))
-			
 			orgs = Org.objects.filter(admins__user = self.user)
 			if orgs.count() > 0:
 				for org in orgs:
-					if not ServiceAccount.objects.filter(org=org).exists():
-						add_default_perms(ServiceAccount.objects.create(org=org))
+					ServiceAccount.get_or_create(org=org)
 			else:
-				if not ServiceAccount.objects.filter(user=self.user).exists():
-					add_default_perms(ServiceAccount.objects.create(user=self.user))
+				ServiceAccount.get_or_create(user=self.user)
 		
 		return ServiceAccount.objects.filter(user = self.user) \
 			| ServiceAccount.objects.filter(org__admins__user = self.user)
 	
-	def matching_ocpar_orgs(self):
+	def matching_sacar_orgs(self):
 		orgs = set()
-		for ocpar in OrgCampaignPositionActionRecord.objects.filter(email=self.user.email):
-			orgs.add(ocpar.ocp.campaign.org)
+		for sacar in ServiceAccountCampaignActionRecord.objects.filter(email=self.user.email):
+			orgs.add(sacar.campaign.account)
 		return orgs
 	
 def user_saved_callback(sender, instance, created, **kwargs):
@@ -783,7 +789,7 @@ if not "LOADING_DUMP_DATA" in os.environ:
 	django.db.models.signals.post_save.connect(user_saved_callback, sender=User)
 
 class UserOrgRole(models.Model):
-	user = models.ForeignKey(User, related_name="orgroles", db_index=True)
+	user = models.ForeignKey(User, related_name="orgroles") # implicitly indexed by the unique_together
 	org = models.ForeignKey(Org, related_name="admins", db_index=True)
 	title = models.CharField(max_length=50)
 	class Meta:
@@ -1216,7 +1222,7 @@ class UserComment(models.Model):
 class UserCommentReferral(models.Model):
 	# This class is used to avoid cascaded deletes on UserComment objects
 	# if a referring object is deleted.
-	comment = models.ForeignKey(UserComment)
+	comment = models.ForeignKey(UserComment) # implicitly indexed by the unique_together
 	referrer_content_type = models.ForeignKey(ContentType, db_index=True)
 	referrer_object_id = models.PositiveIntegerField(db_index=True)
 	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
@@ -1242,8 +1248,8 @@ class UserCommentReferral(models.Model):
 				pass
 
 class UserCommentOfflineDeliveryRecord(models.Model):
-	comment = models.ForeignKey(UserComment)
-	target = models.ForeignKey(MemberOfCongress, db_index=True)
+	comment = models.ForeignKey(UserComment, db_index=True)
+	target = models.ForeignKey(MemberOfCongress) # implicitly indexed by the unique_together
 	failure_reason = models.CharField(max_length=16)
 	batch = models.CharField(max_length=20, blank=True, null=True)
 	failure_reason = models.CharField(max_length=16)
@@ -1315,6 +1321,7 @@ class ServiceAccount(models.Model):
 	options = PickledObjectField(default={})
 
 	def __unicode__(self):
+		if self.user and self.org: return unicode(self.user) + "/" + unicode(self.org)
 		if self.user: return unicode(self.user)
 		if self.org: return unicode(self.org)
 		return "Anonymous ServiceAccount"
@@ -1350,6 +1357,88 @@ class ServiceAccount(models.Model):
 			del self.options[key]
 		if save:
 			self.save()
+	
+	@staticmethod
+	def get_or_create(**kwargs):
+		acct, is_new = ServiceAccount.objects.get_or_create(**kwargs)
+		if is_new:
+			for perm in ("widget_theme", "salsa", "fb_page", "writecongress_ocp"):
+				acct.permissions.add(ServiceAccountPermission.objects.get(name=perm))
+		return acct
+	
+class ServiceAccountCampaign(models.Model):
+	"""A position on a bill within a ServiceAccount."""
+	POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
+	account = models.ForeignKey(ServiceAccount, related_name="campaigns") # implicitly indexed by the unique_together
+	bill = models.ForeignKey(Bill)
+	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
+	created = models.DateTimeField(auto_now_add=True)
+	mpbucket = models.CharField(max_length=16, blank=True, null=True)
+	class Meta:
+		ordering = ['account', '-created']
+		unique_together = (("account", "bill", "position"),)
+	def __unicode__(self):
+		return unicode(self.account) + " -- " + unicode(self.bill) + " -- " + self.position
+	def mixpanel_bucket(self):
+		if self.mpbucket: return self.mpbucket
+		return "sac_" + str(self.id)
+	def mixpanel_bucket_secret(self):
+		import hashlib
+		from settings import MIXPANEL_API_SECRET
+		return hashlib.md5(MIXPANEL_API_SECRET + self.mixpanel_bucket()).hexdigest()
+	def add_action_record(self, **kwargs):
+		email = kwargs.pop("email")
+		rec, isnew = ServiceAccountCampaignActionRecord.objects.get_or_create(
+			campaign=self,
+			email=email,
+			defaults = kwargs)
+		if not isnew:
+			# Update the record with the new values.
+			for k, v in kwargs.items():
+				setattr(rec, k, v)
+			rec.save()
+
+class ServiceAccountCampaignActionRecord(models.Model):
+	campaign = models.ForeignKey(ServiceAccountCampaign, related_name="actionrecords") # implicitly indexed by the unique_together
+	firstname = models.CharField(max_length=64, blank=True, db_index=True)
+	lastname = models.CharField(max_length=64, blank=True, db_index=True)
+	zipcode = models.CharField(max_length=16, blank=True, db_index=True)
+	email = models.EmailField(db_index=True)
+	created = models.DateTimeField(auto_now_add=True, db_index=True)
+	updated = models.DateTimeField(auto_now=True)
+	completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord")
+	completed_stage = models.CharField(max_length=16, blank=True, null=True)
+	request_dump = models.TextField(blank=True, null=True)
+	# various indexing above is for the data table sort on the analytics page
+	class Meta:
+		ordering = ['created']
+		unique_together = [('campaign', 'email')]
+def sacar_saved_callback(sender, instance, created, **kwargs):
+	# Save data back to CRM.
+	try:
+		campaign = instance.campaign
+		acct = campaign.account
+		url = "http://%s/o/%s/p/d/popvox/popvox/public/api/add_supporter.sjs" % (
+			acct.getopt("salsa", None)["node"],
+			acct.getopt("salsa", None)["org_id"])
+		data = {
+			"api_key": acct.secret_key,
+			"action_id": "popvox_sac_" + str(campaign.id),
+			"action_name": campaign.bill.title,
+			"supporter_email": instance.email,
+			"supporter_firstname": instance.firstname,
+			"supporter_lastname": instance.lastname,
+			"supporter_zip": instance.zipcode,
+			"tracking_code": "popvox_sacar_" + str(instance.id),
+			}
+		if instance.completed_comment != None:
+			data["supporter_zip"] = instance.completed_comment.address.zipcode
+			data["supporter_state"] = instance.completed_comment.address.state
+			data["supporter_district"] = instance.completed_comment.address.state + ("%02d" % instance.completed_comment.address.congressionaldistrict)
+		ret = http_rest_json(url, data)
+	except:
+		pass
+django.db.models.signals.post_save.connect(sacar_saved_callback, sender=ServiceAccountCampaignActionRecord)
 
 if not "LOADING_DUMP_DATA" in os.environ:
 	# Make sure that we have MoC and CC records for all people

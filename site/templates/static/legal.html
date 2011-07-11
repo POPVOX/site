@@ -191,7 +191,7 @@
 			{% if user.is_authenticated %}
 			<td class="whatweknow">
 			<div style="max-height: 10em; overflow: auto">
-			{% for org in user.userprofile.matching_ocpar_orgs %}
+			{% for org in user.userprofile.matching_sacar_orgs %}
 				{% if forloop.first %}We have shared information with: {% endif %}
 				{{org}}{% if not forloop.last %}, {% endif %}
 			{% empty %}
