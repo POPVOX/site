@@ -101,5 +101,5 @@ def generate_report(recipient, office, report_start_date, report_end_date, downl
 	msg.send()
 
 if __name__ == "__main__":	
-	generate_report("josh@popvox.com", "NY-S1", date(2011, 06, 01), date(2011, 06, 19), True)
+	generate_report("josh@joshmlewis.com", "NY-S1", date(2011, 06, 01), date(2011, 06, 19), True)
 
