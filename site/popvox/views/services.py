@@ -908,6 +908,9 @@ def download_supporters(request, campaignid, dataformat):
 	else:
 		campaign = get_object_or_404(ServiceAccountCampaign, id=campaignid)
 	
+	column_names = ['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode']
+	column_keys = ['id', 'created', 'email', 'firstname', 'lastname', 'zipcode']
+	
 	import csv, json
 	
 	response = HttpResponse(mimetype='text/' + dataformat)
@@ -917,16 +920,22 @@ def download_supporters(request, campaignid, dataformat):
 	
 	recs = campaign.actionrecords.all()
 	total_records = recs.count()
-	if request.GET.get("sidx", "") != "":
-		recs = recs.order_by(("" if request.GET.get("sord", "asc") == "asc" else "-") + request.GET["sidx"])
-	if "rows" in request.GET and "page" in request.GET:
-		recs = recs[int(request.GET["rows"])*(int(request.GET["page"])-1):int(request.GET["rows"])*int(request.GET["page"])]
+	if request.GET.get("iSortingCols", "") != "":
+		order = []
+		for i in xrange(int(request.GET["iSortingCols"])):
+			col = int(request.GET["iSortCol_" + str(i)])
+			if request.GET.get('bSortable_' + str(col), "") == "true":
+				order.append( ("" if request.GET.get("sSortDir_" + str(i), "asc") == "asc" else "-") + column_keys[col] )
+		recs = recs.order_by(*order)
+	if "iDisplayStart" in request.GET and "iDisplayLength" in request.GET:
+		recs = recs[int(request.GET["iDisplayStart"]):int(request.GET["iDisplayStart"])+int(request.GET["iDisplayLength"])]
 	
 	if dataformat == "csv":
 		writer = csv.writer(response)
-		writer.writerow(['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode'])
+		writer.writerow(column_names)
+	
 	for rec in recs:
-		row = [unicode(s).encode("utf-8") for s in [rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode]]
+		row = [unicode(getattr(rec, k)).encode("utf-8") for k in column_keys]
 		if dataformat == "csv":
 			writer.writerow(row)
 		if dataformat == "json":
@@ -934,12 +943,10 @@ def download_supporters(request, campaignid, dataformat):
 			
 	if dataformat == "json":
 		ret = {
-			"records": total_records,
-			"rows": [{"id": row[0], "cell": row} for row in ret],
+			"iTotalRecords": total_records,
+			"iTotalDisplayRecords": total_records, # if there is filtering, which there is not
+			"aaData": ret,
 		}
-		if "rows" in request.GET and "page" in request.GET:
-			ret["page"] = request.GET["page"]
-			ret["total"] = math.ceil(float(total_records) / float(request.GET["rows"]))
 		response.write(json.dumps(ret))
 	
 	return response

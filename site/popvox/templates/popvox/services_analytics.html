@@ -4,9 +4,7 @@
 {%block nav_orgadmin_class_reports%}active{%endblock%}
 {%block nav_user_class_reports%}active{%endblock%}
 {% block head %}
-<link rel="stylesheet" type="text/css" media="screen" href="/media/js/jqGrid/css/ui.jqgrid.css" />
-<script src="/media/js/jqGrid/js/i18n/grid.locale-en.js" type="text/javascript"></script>
-<script src="/media/js/jqGrid/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+<script src="/media/js/jquery.dataTables.js" type="text/javascript"></script>
 
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -201,7 +199,18 @@ h4 { font: bold 14px/16px "LucidaGrande",helvetica,arial,sans-serif; margin-bott
 
 	<iframe id="supporters_map" width="940" height="590" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe>
 
-	<div id="supporters_grid_container"> </div>
+	<table id="supporters_grid">
+		<thead>
+			<th>ID</th>
+			<th>Date</th>
+			<th>Email</th>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>ZIP Code</th>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
 	<a id="supporters_download" href="#overview">Download</a>
 </div> <!-- tab_details -->
 </div> <!-- e:tabs_panel -->	
@@ -229,14 +238,14 @@ h4 { font: bold 14px/16px "LucidaGrande",helvetica,arial,sans-serif; margin-bott
 			$("#analytics_alt, #supporters_alt").show();
 			
 			$('#analytics_frame, #analytics_numbers').hide();
-			$("#supporters_grid_container, #supporters_download, #supporters_map").hide();
+			$("#supporters_grid, #supporters_download, #supporters_map").hide();
 			return;
 		}
 		
 		$('#analytics_alt, #supporters_alt').hide();
 		
 		$('#analytics_frame, #analytics_numbers').show();
-		$("#supporters_grid_container, #supporters_download, #supporters_map").show();
+		$("#supporters_grid, #supporters_download, #supporters_map").show();
 		
 		$('#analytics_total').text(campaign_info[id].counts.total);
 		$('#analytics_letters').text(campaign_info[id].counts.finished);
@@ -267,30 +276,26 @@ h4 { font: bold 14px/16px "LucidaGrande",helvetica,arial,sans-serif; margin-bott
 		platform.create_property_pie_chart('analytics_personalized', 'widget_writecongress_write', 'personalized', null,
 			{ legend: false, mapping: { "False": "No", "True": "Yes" }, type: "unique" });
 		
-		$('#supporters_grid_container').html('<table id="supporters_grid"> </table> <div id="supperts_grid_pager"> </div>');
-		$("#supporters_grid").jqGrid({
-			url:campaign_info[id].download_url + "json",
-			datatype: 'json',
-			mtype: 'GET',
-			colNames:['Tracking ID', 'Date', 'Email', 'First Name','Last Name', 'ZIP Code'],
-			colModel:[
-				{name:'trackingid', index:'trackingid', hidden:true, key:true},
-				{name:'created', index:'created'},
-				{name:'email', index:'email'},
-				{name:'firstname', index:'firstname'},
-				{name:'lastname', index:'lastname'},
-				{name:'zipcode', index:'zipcode', hidden:true}
-		   ],			
-			pager: '#supperts_grid_pager',
-			rowNum:10,
-			rowList:[10,20,30],
-			sortname: "created",
-			sortorder: "desc",
-			viewrecords: true,
-			caption: 'Individuals Who Took Action',
-			autowidth: true,
-			height: "auto"
-		  }); 
+		$('#supporters_grid').dataTable( {
+			"bProcessing": true,
+			"bServerSide": true,
+			"sAjaxSource": campaign_info[id].download_url + "json",
+			"bDestroy": true,
+			"bJQueryUI": true,
+			"bFilter": false,
+			"aaSorting": [[1,'desc']],
+			"aLengthMenu": [15, 30, 50],
+			"iDisplayLength": 15,
+			"sScrollX": "100%",
+			"aoColumns": [
+				{ "sWidth": "50px" },
+				{ "sWidth": "130px", "fnRender": function (cell) { return cell.aData[1].substr(0, 16); } },
+				{ "sWidth": "200px" },
+				{ "sWidth": "110px" },
+				{ "sWidth": "130px" },
+				{ "sWidth": "100px" }
+				]
+		} );
 		
 		$('#supporters_download').attr('href', campaign_info[id].download_url + "csv")
 		
