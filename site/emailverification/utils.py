@@ -23,16 +23,21 @@ def send_email_verification(email, searchkey, action, send_email=True):
 	return r
 	
 def send_record_email(email, action, r):
+		return_url = r.url()
+		kill_url = r.killurl()
+	
 		emailsubject = action.email_subject()
 		
 		if hasattr(action, "email_body"):
 			emailbody = action.email_body()
-			emailbody = emailbody.replace("<URL>", r.url())
+			emailbody = emailbody.replace("<URL>", return_url)
+			emailbody = emailbody.replace("<KILL_URL>", kill_url)
 		elif hasattr(action, "email_text_template"):
 			template_name, template_context_vars = action.email_text_template()
 			templ = get_template(template_name)
 			ctx = Context(template_context_vars)
-			ctx["URL"] = r.url()
+			ctx["URL"] = return_url
+			ctx["KILL_URL"] = kill_url
 			emailbody = templ.render(ctx)
 		else:
 			raise ValueError("Action object is missing email_body and email_text_template. You must implement one.")
@@ -54,18 +59,33 @@ def send_record_email(email, action, r):
 			template_name, template_context_vars = action.email_html_template()
 			templ = get_template(template_name)
 			ctx = Context(template_context_vars)
-			ctx["URL"] = r.url()
+			ctx["URL"] = return_url
+			ctx["KILL_URL"] = kill_url
 			html_content = templ.render(ctx)
 
 			email.attach_alternative(html_content, "text/html")
 			
 			email.send(fail_silently=False)
 	
-def resend_verifications():
-	for rec in Record.objects.filter(retries = 0, hits = 0,
-		created__gt = datetime.now() - timedelta(days=EXPIRATION_DAYS),
-		created__lt = datetime.now() - timedelta(minutes=20),
-		):
+def resend_verifications(test=True):
+	# Build up a union of queries, one for each number of retries made so
+	# far, starting with zero. Each level has a different delay time since the
+	# last send.
+	search = None
+	for retries in xrange(len(RETRY_DELAYS)):
+		q = Record.objects.filter(
+			retries = retries,
+			hits = 0,
+			killed = False,
+			created__gt = datetime.now() - timedelta(days=EXPIRATION_DAYS),
+			last_send__lt = datetime.now() - RETRY_DELAYS[retries]
+			)
+		if search == None:
+			search = q
+		else:
+			search |= q
+
+	for rec in search:
 
 		try:
 			action = rec.get_action()
@@ -77,10 +97,16 @@ def resend_verifications():
 		if not action.email_should_resend():
 			continue
 			
-		print rec.created, rec
+		print rec.retries, rec.created, rec.last_send, rec,
+		if test:
+			print "test"
+			continue
+		else:
+			print
 			
 		send_record_email(rec.email, action, rec)
 			
 		rec.retries += 1
+		rec.last_send = datetime.now()
 		rec.save()
 

@@ -28,3 +28,15 @@ def processcode(request, code):
 	rec.save()
 		
 	return ret
+	
+def killcode(request, code):
+	try:
+		rec = Record.objects.get(code=code)
+	except:
+		return render_to_response('emailverification/badcode.html', { "code": code }, context_instance=RequestContext(request))
+
+	rec.killed = True
+	rec.save()
+
+	return render_to_response('emailverification/codekilled.html', { "code": code }, context_instance=RequestContext(request))
+

@@ -689,7 +689,13 @@ To finish your letter and ensure delivery to Congress, click here:
 
 Thanks again,
 
-POPVOX""" % (self.post["useraddress_firstname"], ("""
+POPVOX
+
+
+(We'll send this email again soon in case you miss it the first time.
+If you do not wish to complete the action and do not want to get
+a reminder, please follow this link instead to stop future reminders:
+<KILL_URL>)""" % (self.post["useraddress_firstname"], ("""
 	
 We've also created an account for you at POPVOX so you can revise
 your comment and check on its status.

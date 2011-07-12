@@ -526,7 +526,12 @@ If the link is not clickable, please copy and paste it into your web browser.
 
 All the best,
 
-POPVOX"""
+POPVOX
+
+(We'll send this email again soon in case you miss it the first time.
+If you do not wish to complete the action and do not want to get
+a reminder, please follow this link instead to stop future reminders:
+<KILL_URL>)"""
 
 	def email_should_resend(self):
 		return not User.objects.filter(email = self.registrationinfo.email).exists()
