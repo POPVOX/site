@@ -16,7 +16,7 @@ def send_email_verification(email, searchkey, action, send_email=True):
 	r.set_action(action)
 	
 	if send_email:
-		send_actual_email(email, action, r)
+		send_record_email(email, action, r)
 		
 	r.save()
 
@@ -62,7 +62,11 @@ def send_record_email(email, action, r):
 			email.send(fail_silently=False)
 	
 def resend_verifications():
-	for rec in Record.objects.filter(retries = 0, hits = 0, created__gt = datetime.now() - timedelta(days=EXPIRATION_DAYS)):
+	for rec in Record.objects.filter(retries = 0, hits = 0,
+		created__gt = datetime.now() - timedelta(days=EXPIRATION_DAYS),
+		created__lt = datetime.now() - timedelta(minutes=20),
+		):
+
 		try:
 			action = rec.get_action()
 		except:
@@ -73,12 +77,10 @@ def resend_verifications():
 		if not action.email_should_resend():
 			continue
 			
-		print rec
+		print rec.created, rec
 			
 		send_record_email(rec.email, action, rec)
 			
 		rec.retries += 1
 		rec.save()
-		
-		break
 

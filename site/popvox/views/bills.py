@@ -527,7 +527,10 @@ If the link is not clickable, please copy and paste it into your web browser.
 All the best,
 
 POPVOX"""
-	
+
+	def email_should_resend(self):
+		return not User.objects.filter(email = self.registrationinfo.email).exists()
+
 	def get_response(self, request, vrec):
 		# Create the user and log the user in.
 		self.registrationinfo.finish(request)

@@ -697,9 +697,6 @@ your comment and check on its status.
      Your POPVOX password is: """ + self.password) if not User.objects.filter(email=self.post["email"]).exists() else "")
 
 	def email_should_resend(self):
-		if self.post["email"] != "debug@popvox.com":
-			return False
-		
 		if "userid" in self.post and self.post["userid"] != "":
 			user = User.objects.get(id=self.post["userid"])
 		else:
