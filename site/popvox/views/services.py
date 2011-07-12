@@ -746,6 +746,12 @@ your comment and check on its status.
 			
 			user = User.objects.create_user(username, self.post["email"], password=self.password)
 			user.save()
+
+			# disable introductory emails, at least for now
+			prof = user.userprofile
+			prof.registration_welcome_sent = True
+			prof.registration_followup_sent = True
+			prof.save()
 			
 			user_is_new = True
 			

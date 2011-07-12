@@ -5,6 +5,6 @@ from popvox.models import Bill
 
 from popvox.govtrack import CURRENT_CONGRESS
 
-for b in Bill.objects.filter(congressnumber=CURRENT_CONGRESS).annotate(c=Count("usercomments")).filter(c__gt=0).order_by("-c")[0:50]:
-	print b.c, b.title
+for b in Bill.objects.filter(congressnumber=CURRENT_CONGRESS).annotate(c=Count("usercomments")).filter(c__gt=0).order_by("-c")[0:100]:
+	print b.c, b.title.encode('utf8')
 
