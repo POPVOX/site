@@ -19,6 +19,8 @@ class Record(models.Model):
 	searchkey = models.CharField(max_length=127, blank=True, null=True, db_index=True)
 	action = models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
+	hits = models.IntegerField(default=0)
+	retries = models.IntegerField(default=0)
 	
 	def __unicode__(self):
 		try:

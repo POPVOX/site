@@ -696,6 +696,28 @@ your comment and check on its status.
 
      Your POPVOX password is: """ + self.password) if not User.objects.filter(email=self.post["email"]).exists() else "")
 
+	def email_should_resend(self):
+		if self.post["email"] != "debug@popvox.com":
+			return False
+		
+		if "userid" in self.post and self.post["userid"] != "":
+			user = User.objects.get(id=self.post["userid"])
+		else:
+			try:
+				user = User.objects.get(email=self.post["email"])
+			except User.DoesNotExist:
+				# If the account has not been created, then the action has not been completed.
+				return True
+		
+		bill = Bill.objects.get(id=self.post["bill"])
+		if not user.comments.filter(bill=bill).exists():
+			# the comment does not exist, so the action has not been completed..... unless the user
+			# decided to delete his comment after, which is why we need tracking of hits to the
+			# verification URL and not test if the action was completed. 
+			return True
+			
+		return False
+
 	#@require_lock("auth_user", "popvox_userprofile") # prevent race conditions
 	# The lock is too expensive. Making the requests operate in serial is an
 	# enormous hit to the site's overall throughput. We'll take our chances.

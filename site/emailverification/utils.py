@@ -4,6 +4,8 @@ from django.template.loader import get_template
 
 from models import *
 
+from datetime import datetime, timedelta
+
 import settings
 
 def send_email_verification(email, searchkey, action, send_email=True):
@@ -14,6 +16,13 @@ def send_email_verification(email, searchkey, action, send_email=True):
 	r.set_action(action)
 	
 	if send_email:
+		send_actual_email(email, action, r)
+		
+	r.save()
+
+	return r
+	
+def send_record_email(email, action, r):
 		emailsubject = action.email_subject()
 		
 		if hasattr(action, "email_body"):
@@ -52,6 +61,24 @@ def send_email_verification(email, searchkey, action, send_email=True):
 			
 			email.send(fail_silently=False)
 	
-	r.save()
+def resend_verifications():
+	for rec in Record.objects.filter(retries = 0, hits = 0, created__gt = datetime.now() - timedelta(days=EXPIRATION_DAYS)):
+		try:
+			action = rec.get_action()
+		except:
+			continue
+		
+		if not hasattr(action, "email_should_resend"):
+			continue
+		if not action.email_should_resend():
+			continue
+			
+		print rec
+			
+		send_record_email(rec.email, action, rec)
+			
+		rec.retries += 1
+		rec.save()
+		
+		break
 
-	return r
