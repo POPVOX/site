@@ -17,11 +17,34 @@ class SampleTest(TestCase):
         self.assertEqual(1, a)
 
 class ResponseCodeTest(TestCase):
+    fixtures = ['test_adserver']
+    
     def testStatic(self):
-	statics = ['/congres', '/about', '/about/team', '/about/principles', '/about/whyitworks', '/about/contact', '/legal', '/advertising', '/press', '/jobs', '/faq', '/blog']
-        response = c.get('/press')
-        status = response.status_code
-        self.assertEqual(int(status), 200)
+	statics = [
+	  '/congress',
+	  '/about',
+	  '/about/team',
+	  '/about/principles',
+	  '/about/whyitworks',
+	  '/about/contact',
+	  '/legal',
+	  '/press',
+	  '/jobs',
+	  '/advertising',
+	  '/faq']
+	
+	success = 1
+	
+	for x in statics:
+	  response = c.get(x)
+	  status = response.status_code
+	  if int(status) == 200:
+	    print x, " is good."
+	  else:
+	    success = 0
+	    print "problem loading ", x
+	    
+	self.assertEqual(success, 1)
 
 
 
