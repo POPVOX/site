@@ -1438,9 +1438,9 @@ def sacar_saved_callback(sender, instance, created, **kwargs):
 			data["supporter_state"] = instance.completed_comment.address.state
 			data["supporter_district"] = instance.completed_comment.address.state + ("%02d" % instance.completed_comment.address.congressionaldistrict)
 		ret = http_rest_json(url, data)
-	except e:
+	except Exception as e:
 		import sys
-		sys.stderr.write("sacar_saved_callback " + str(instance.id) + " " + str(instance) + ": " + unicode(e).encode("utf8") + "\n")
+		sys.stderr.write("sacar_saved_callback " + str(instance.id) + " " + str(instance) + ": " + unicode(e).encode("utf8") + " [" + unicode(getattr(e, "response_data", "")).encode("utf8") + "]\n")
 		pass
 django.db.models.signals.post_save.connect(sacar_saved_callback, sender=ServiceAccountCampaignActionRecord)
 

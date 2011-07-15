@@ -119,10 +119,14 @@ function validate(form) {
 				<input type="hidden" name="orgcampaignposition" value="{{position.id}}"/>
 				<input id="name_first" name="name_first" class="c3" type="text">
 				<input id="name_last" name="name_last" class="c3 last" type="text"><br />
+				{% if not request.user.is_authenticated %}
 				<input id="email" name="email" class="c3" type="text">
+				{% else %}
+				<input id="email" name="email" type="hidden" value="{{request.user.email}}">
+				{% endif %}
 				<input id="zip" name="zip" class="c2 last" type="text"><br />
 				<div class="radio">
-			        <input id="share_with_org" type="checkbox" name="share_with_org" checked="1"/>
+			        <input id="share_with_org" type="checkbox" name="share_with_org" checked="1" value="1"/>
 			        <p><label for="share_with_org">Share my info with {{position.campaign.org.name}}?</label></p>
 				</div>
 				<script>

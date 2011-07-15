@@ -62,9 +62,13 @@ class ServiceAccountAdmin(admin.ModelAdmin):
 	readonly_fields = ("api_key", "secret_key")
 	search_fields = ["user__username", "user__email", "org__name", "api_key", "secret_key"]
 
+class ServiceAccountCampaignAdmin(admin.ModelAdmin):
+	raw_id_fields = ("account", "bill")
+	readonly_fields = ("account", "bill")
+
 class ServiceAccountCampaignActionRecordAdmin(admin.ModelAdmin):
-	raw_id_fields = ("campaign",)
-	readonly_fields = ("campaign",)
+	raw_id_fields = ("campaign","completed_comment")
+	readonly_fields = ("campaign","completed_comment")
 	search_fields = ["firstname", "lastname", "zipcode", "email"]
 	list_display = ["created", "info", "zipcode", "email"]
 
@@ -87,7 +91,7 @@ admin.site.register(PostalAddress, PostalAddressAdmin)
 admin.site.register(PositionDocument)
 admin.site.register(ServiceAccount, ServiceAccountAdmin)
 admin.site.register(ServiceAccountPermission)
-admin.site.register(ServiceAccountCampaign)
+admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)
 admin.site.register(ServiceAccountCampaignActionRecord, ServiceAccountCampaignActionRecordAdmin)
 
 class RawTextAdmin(admin.ModelAdmin):

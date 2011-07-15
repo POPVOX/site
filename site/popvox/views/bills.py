@@ -646,7 +646,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			request.session["comment-referrer"] = {"bill": bill.id, "referrer": billpos.campaign }
 			request.session["comment-default-address"] = (request.POST["name_first"], request.POST["name_last"], request.POST["zip"], request.POST["email"])
 			if request.POST.get("share_with_org", "") == "1":
-				request.session["comment-referrer"]["campaign"] = billpos.get_service_account_campaign()
+				request.session["comment-referrer"]["campaign"] = billpos.get_service_account_campaign().id
 				billpos.get_service_account_campaign().add_action_record(
 					email = request.POST["email"],
 					firstname = request.POST["name_first"],
