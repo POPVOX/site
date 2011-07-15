@@ -37,7 +37,7 @@ def generate_report(recipient, office, report_start_date, report_end_date, downl
 		subject = u"POPVOX Report %s for %s (Senate Offices)" % (strftime(report_end_date), statenames[state])
 
 	all_time_comments = UserComment.objects.filter(state = state)
-	if district != None: all_time_comments = comments.filter(congressionaldistrict = district)
+	if district != None: all_time_comments = all_time_comments.filter(congressionaldistrict = district)
 	comments = all_time_comments.filter(created__gte = report_start_date, created__lte = report_end_date)
 	
 	html_template = get_template("popvox/emails/legreport.html")
@@ -101,5 +101,5 @@ def generate_report(recipient, office, report_start_date, report_end_date, downl
 	msg.send()
 
 if __name__ == "__main__":	
-	generate_report("josh@joshmlewis.com", "NY-S1", date(2011, 06, 01), date(2011, 06, 19), True)
+	generate_report("josh@joshmlewis.com", "PA-H02", date(2011, 06, 01), date(2015, 06, 19), True)
 

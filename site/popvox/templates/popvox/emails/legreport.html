@@ -26,43 +26,44 @@
 <h2 style="color: #cd680e; text-transform: uppercase;">{{startdate2}} - {{enddate2}}: {{statename}}{% if district %}'s {{district}}{{districtord}} Congressional District{% else %} (Senate){% endif %}</h2>
 
 {% if download_csv %}
-<p>POPVOX does not consider these letters delivered until you download the CSV file. If you have any questions, please reply to this email.</p>
+<p>POPVOX does not consider these letters delivered until you download the CSV file. If you have any questions, please reply to this email.
+</p>
 {% endif %}
 
-<div class="summary">
+<div class="summary" style="background-color: #d4d1ca; padding: 6px 12px 6px 12px;">
 	<table cellspacing="0" cellpadding="0" border="0" height="68"><tr>
-	<td class="img users">{{users}}</td>
-	<td class="text">constituents took</td>
-	<td class="img positions">{{positions}}</td>
-	<td class="text">new positions &amp; wrote</td>
-	<td class="img letters">{{letters}}</td>
-	<td class="text">letters</td>
+	<td class="img users" style="width: 60px; background: url({{imgroot}}/legreport_constituent.jpg);">{{users}}</td>
+	<td class="text" style="font-size: 14px; font-weight: bold; color: #40404c; padding: 0 1em 0 1em; ">constituents took</td>
+	<td class="img positions" style="width: 77px; background: url({{imgroot}}/legreport_position.jpg);">{{positions}}</td>
+	<td class="text" style="font-size: 14px; font-weight: bold; color: #40404c; padding: 0 1em 0 1em;">new positions &amp; wrote</td>
+	<td class="img letters" style="width: 62px; background: url({{imgroot}}/legreport_letter.jpg);">{{letters}}</td>
+	<td class="text" style="font-size: 14px; font-weight: bold; color: #40404c; padding: 0 1em 0 1em;">letters</td>
 	</tr></table>
-	<p>(The names and addresses of your constituents weighing in on POPVOX are available to you at <a href='http://www.popvox.com/congress'>popvox.com/congress</a>. {% comment %}They were submitted as letters to Congress and so can be responded to under franking.{% endcomment %})</p>
+	<p style="font-style: italic; font-family: Georgia, Times New Roman, serif;">(The names and addresses of your constituents weighing in on POPVOX are available to you at <a href='http://www.popvox.com/congress'>popvox.com/congress</a>. {% comment %}They were submitted as letters to Congress and so can be responded to under franking.{% endcomment %})</p>
 </div>
 
 {% for bill in bills %}
-<div class="bill">
+<div class="bill" style="margin-top: 32px; border-top: 1px solid #a7a49b; padding-top: 32px;">
 	<table cellspacing="0" cellpadding="0" border="0">
 	<tr valign="top">
 		<td rowspan="2" width="60"><img src="{{imgroot}}/icon_bill.jpg" alt=""/></td>
 		<td colspan="3" width="535"><h3 style="color: #cd680e; margin: 3px 0 6px 0; font-size: 16px;">{{bill.title|truncatewords:20}}</h3></td>
 	</tr>
 	<tr>
-		<td width="230"><div class="status"><strong>Status:</strong> {{bill.status_advanced}}</div></td>
+		<td width="230"><div class="status" stlye="background-color: #d4d1ca; padding: 3px;"><strong>Status:</strong> {{bill.status_advanced}}</div></td>
 		<td width="15"> </td>
-		<td width="290"><div class="formore">for more see <a href='http://www.popvox.com{{bill.url}}/report'>popvox.com{{bill.url}}/report</a></div></td>
+		<td width="290"><div class="formore" style="font-size: 14px;">for more see <a href='http://www.popvox.com{{bill.url}}/report'>popvox.com{{bill.url}}/report</a></div></td>
 	</tr>
 	</table>
 	<table cellspacing="0" cellpadding="0" border="0">
 	<td colspan="4" width="290">
 		<h4 style="margin-top: 20px; text-transform: uppercase; font-size: 12px;">NEW SINCE {{startdate1}}:</h4>
-		<p><strong>{{bill.comments_new.positions}}</strong> constituent(s) weighed in &amp; wrote <strong>{{bill.comments_new.letters}}</strong> letters</p>
+		<p style="font-size: 13px; padding-bottom:10px;"><strong>{{bill.comments_new.positions}}</strong> constituent(s) weighed in &amp; wrote <strong>{{bill.comments_new.letters}}</strong> letters</p>
 	</td>
 	<td width="15"> </td>
 	<td colspan="4" width="290">
 		<h4 style="margin-top: 20px; font-size: 12px;">ALL TIME:</h4>
-		<p><strong>{{bill.comments_alltime.positions}}</strong> constituent(s) weighed in &amp; wrote <strong>{{bill.comments_alltime.letters}}</strong> letters</p>
+		<p style="font-size: 13px; padding-bottom: 10px;"><strong>{{bill.comments_alltime.positions}}</strong> constituent(s) weighed in &amp; wrote <strong>{{bill.comments_alltime.letters}}</strong> letters</p>
 	</td>
 	</tr>
 	<tr>

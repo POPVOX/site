@@ -7,6 +7,11 @@
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
+<style>
+@media print {
+	.progress_tabs { display: none; }
+}
+</style>
 {% include "popvox/billcomment_share_social_js.html" %}
 {% endblock %}
 {% block content %}
