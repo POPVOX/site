@@ -117,6 +117,7 @@ urlpatterns = patterns('',
 
 	#(r'^about/photos/', include('stockphoto.urls')),
 
+	(r'^admin/ses', include('django_ses.urls')),
 	(r'^admin/', include(admin.site.urls)),
 )
 
