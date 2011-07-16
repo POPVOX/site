@@ -1417,10 +1417,11 @@ class ServiceAccountCampaignActionRecord(models.Model):
 def sacar_saved_callback(sender, instance, created, **kwargs):
 	# Save data back to CRM.
 	if "LOADING_DUMP_DATA" in os.environ: return
+
+	campaign = instance.campaign
+	acct = campaign.account
 	if acct.getopt("salsa", None) == None: return
 	try:
-		campaign = instance.campaign
-		acct = campaign.account
 		url = "http://%s/o/%s/p/d/popvox/popvox/public/api/add_supporter.sjs" % (
 			acct.getopt("salsa", None)["node"],
 			acct.getopt("salsa", None)["org_id"])
