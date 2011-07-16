@@ -643,9 +643,15 @@ def widget_render_writecongress_getsubmitparams(post, account):
 	referrer = account
 	campaign = None
 	if "campaign" in post:
-		campaign = ServiceAccountCampaign.objects.get(id=post["campaign"])
-		if campaign.account.org != None:
-			referrer = campaign.account.org
+		try:
+			# Because this is called from an email callback and a
+			# service account could have been deleted in the meanwhile
+			# (especially if it was for testing), wrap in a try.
+			campaign = ServiceAccountCampaign.objects.get(id=post["campaign"])
+			if campaign.account.org != None:
+				referrer = campaign.account.org
+		except:
+			pass
 	message = post["message"]
 	if len(message.strip()) < 8:
 		message = None
@@ -659,7 +665,10 @@ class WriteCongressEmailVerificationCallback:
 	
 	def email_subject(self):
 		referrer, campaign, message = widget_render_writecongress_getsubmitparams(self.post, self.account)
-		org = campaign.account.org
+		if campaign:
+			org = campaign.account.org
+		else:
+			org = None
 		return "Finish Your Letter to Congress" + (" - " + org.name + " Needs Your Help" if org != None else "")
 	
 	def email_body(self):
