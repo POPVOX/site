@@ -128,6 +128,12 @@ the second invocation it will get its saved state back. But since requests
 are processed asynchronously, there is no guarantee that the state
 will be saved before the second request comes in.
 
+Periodically you should issue
+
+	manage.py clear_expired_email_verifications 
+
+to clear out email verification records that have expired.
+
 
 ADVANCED USE
 

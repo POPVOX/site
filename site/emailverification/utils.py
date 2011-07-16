@@ -103,10 +103,16 @@ def resend_verifications(test=True):
 			continue
 		else:
 			print
-			
-		send_record_email(rec.email, action, rec)
+		
+		try:
+			send_record_email(rec.email, action, rec)
+		except Exception as e:
+			print "\tfailed:", e
+			continue
 			
 		rec.retries += 1
 		rec.last_send = datetime.now()
 		rec.save()
 
+def clear_expired():
+	return Record.objects.filter(created__lt = datetime.now() - timedelta(days=EXPIRATION_DAYS)).delete()
