@@ -29,7 +29,7 @@ SERVER_EMAIL = "POPVOX <no.reply@popvox.com>"
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 
-if os.environ.get("EMAIL_BACKEND") != "AWS-SES" or DEBUG:
+if DEBUG: #os.environ.get("EMAIL_BACKEND") != "AWS-SES" or DEBUG:
 	# When DEBUG is set these parameters are ignored
 	# but crucially we do not set the email backend
 	# to AWS SES.
