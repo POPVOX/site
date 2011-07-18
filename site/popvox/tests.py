@@ -16,35 +16,104 @@ class SampleTest(TestCase):
         a = 1
         self.assertEqual(1, a)
 
-class ResponseCodeTest(TestCase):
+class StaticPageTest(TestCase):
     fixtures = ['test_adserver']
     
     def testStatic(self):
-	statics = [
-	  '/congress',
-	  '/about',
-	  '/about/team',
-	  '/about/principles',
-	  '/about/whyitworks',
-	  '/about/contact',
-	  '/legal',
-	  '/press',
-	  '/jobs',
-	  '/advertising',
-	  '/faq']
+        statics = [
+            '/congress',
+            '/about',
+            '/about/team',
+            '/about/principles',
+            '/about/whyitworks',
+            '/about/contact',
+            '/legal',
+            '/press',
+            '/jobs',
+            '/advertising',
+            '/faq']
 	
-	success = 1
+        success = True
 	
-	for x in statics:
-	  response = c.get(x)
-	  status = response.status_code
-	  if int(status) == 200:
-	    print x, " is good."
-	  else:
-	    success = 0
-	    print "problem loading ", x
+        for x in statics:
+            response = c.get(x)
+            status = response.status_code
+            pagecontents = response.content
+        
+            if int(status) != 200:
+                success = False
+                print "problem loading ", x
+            elif "<html" not in pagecontents:
+                success = False
+                print "content problem in ", x
+            else:
+                print x, " is good."
 	    
-	self.assertEqual(success, 1)
+        self.assertEqual(success, True)
+
+class BillSearchTest(TestCase):
+    fixtures = ['test_adserver', 'test_pvgeneral', 'test_bill']
+
+    def testWordsearchFail(self):
+        
+        response = c.get('/bills/search', {'q': 'winnie the pooh'})
+        status = response.status_code
+        pagecontents = response.content
+        success = True
+        page = '/bills/search/' 
+
+        if int(status) != 200:
+            success = False
+            print "problem loading ", page
+        elif "no bills matched your search" not in pagecontents:
+            success = False
+            print "term not found in ", page
+        else:
+            print page, " reports that Pooh stuck his head in a honey jar and can't be found (is good)."
+
+        self.assertEqual(success, True)
+
+    def testWordsearchResults(self):
+
+        response = c.get('/bills/search', {'q': 'Internal Revenue Code'})
+        status = response.status_code
+        pagecontents = response.content
+        success = True
+        page = 'search for tax legislation'
+
+        if int(status) != 200:
+            success = False
+            print "problem loading ", page
+        elif "amend the Internal Revenue Code" not in pagecontents:
+            success = False
+            print "term not found in ", page
+        else:
+            print page, " loaded successfully."
+
+        self.assertEqual(success, True)
+        
+
+    def testSearchRedirect(self):
+
+        response = c.get('/bills/search', {'q': 'hr 2110'}, follow=True)
+        status = response.status_code
+        pagecontents = response.content
+        success = True
+        page = 'HR 2110 page'
+
+        if int(status) != 200:
+            success = False
+            print "problem loading ", page
+        elif "your position on" not in pagecontents:
+            success = False
+            print "term not found in ", page
+            print pagecontents
+        else:
+            print page, " loaded successfully."
+
+        self.assertEqual(success, True)
+
+        
 
 
 

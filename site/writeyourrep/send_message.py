@@ -442,6 +442,7 @@ custom_overrides = {
 	"791_typeofresponse_select": "email",
 	"805_issue_radio": "",
 	"830_contactform:cd:rblformat_radio": "html",
+	"867_message-type_radio":"legislative",
 	"869_aff1req_text": "",
 }
 
