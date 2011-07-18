@@ -16,7 +16,7 @@ from popvox.govtrack import *
 import cgi
 from datetime import date, datetime, timedelta
 
-def generate_report(recipient, office, report_start_date, report_end_date, download_csv):
+def generate_report(recipients, office, report_start_date, report_end_date, download_csv):
 	# an office is either e.g. "NY-S3" or "NY-H21".
 
 	state = office[0:2]
@@ -95,11 +95,11 @@ def generate_report(recipient, office, report_start_date, report_end_date, downl
 	msg = EmailMultiAlternatives(
 		subject,
 		text_template.render(template_ctx),
-		"POPVOX <congress@popvox.com>",
-		[recipient])
+		"POPVOX <info@popvox.com>",
+		recipients)
 	msg.attach_alternative(html_template.render(template_ctx), "text/html")
 	msg.send()
 
 if __name__ == "__main__":	
-	generate_report("josh@joshmlewis.com", "PA-H02", date(2011, 06, 01), date(2015, 06, 19), True)
+	generate_report(["josh@joshmlewis.com", "josh@popvox.com", "tauberer@gmail.com"], "PA-H02", date(2011, 06, 01), date(2015, 06, 19), True)
 
