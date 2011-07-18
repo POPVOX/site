@@ -5,37 +5,67 @@
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+function hide_prompt(billid) {
+	ajax(
+		"/ajax/accounts/profile/trackbill",
+		{
+			bill: billid,
+			track: "-"
+		},
+		{
+			success: function(ret) {
+				var has_remaining_sugs = false;
+				$('#suggestions .suggestion:visible').each(function() {
+					if (this.getAttribute("billid") == billid)
+						$(this).fadeOut();
+					else
+						has_remaining_sugs = true;
+				});
+				if (!has_remaining_sugs) {
+					$('#sugintro').hide();
+					$('#nomoresugs').fadeIn();
+				}
+			}
+		});
+	return false;
+}
+</script>
 {% endblock %}
 {% block content %}
 <div class="content"> 
 	<h1>Suggestions for Action</h1>
 	
-	<div class="col_9 col_top">
+	<div class="col_9 col_top" id="suggestions">
 		
 	{% for sug in suggestions %}
 		{% if forloop.first %}
-		<p>We have computed the following actions that you might be interested in taking based on the positions you previously left on legislation.</p>
+		<p id="sugintro">We have computed the following actions that you might be interested in taking based on the positions you previously left on legislation.</p>
+		<p id="nomoresugs" style="display: none">You&rsquo;ve cleared out all of your suggestions. Try <a href="javascript:window.location.reload()">reloading this page</a> for more suggestions.</p>
 		{% endif %}
 	
-		<div>
-			<div class="col_5">
-				<div style="float: right"><a class="action" href="{{sug.bill.url}}">Action</a></div>
-				<h4><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h4>
+		<div class="col_9 rule suggestion" billid="{{sug.bill.id}}">
+			<div class="col_6">
+				<h4 style="margin-bottom: 8px"><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h4>
 				{% if sug.source %}
 					<p>Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
 				{% else %}
 					<p>This bill is trending on POPVOX.</p>
 				{% endif %}
-				<p>{{sug.bill.status}}</p>
+				<div style="float: left; margin-left: 15px;"><a class="action" href="{{sug.bill.url}}">Action</a></div>
+				<div style="float: left; margin-left: 15px;"><p style="margin-top: 1px; font-weight: bold;">Let Congress know <a href="{{sug.bill.url}}">what you think</a>.</p></div>
+				<p class="clear">{{sug.bill.status}}
+				<span style="font-style: italic">Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</span></p>
 			</div>
 			
+			<div class="col_3 col_last">
 			{% bill_statistics sug.bill as stats %}
 			{% with sug.bill as bill %}
 			{% with bill.id as chart_id %}
 				{% include "popvox/bill_statistics_pie_simple.html" %}
 			{% endwith %}
 			{% endwith %}
-			
+			</div>
 			
 			<div class="clear"> </div>
 		</div>

@@ -440,6 +440,7 @@ def legstaff_bill_category_panel(request):
 		},
 		context_instance=RequestContext(request))
 	
+@csrf_protect
 @login_required
 def home_suggestions(request):
 	prof = request.user.get_profile()
