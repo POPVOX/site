@@ -167,7 +167,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			comment.address.normalize()
 			msg.county = comment.address.county
 		if gid in (400616,400055):
-			msg.phone = "".join([d for d in msg.phone if d.isdigit()])
+			msg.phone = "".join([d for d in msg.phone if d.isdigit()][0:10])
 		
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
@@ -194,9 +194,15 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 				ucodr.delete() # will recreate if needed, and delete records for messages whose content has been removed
 		except UserCommentOfflineDeliveryRecord.DoesNotExist:
 			pass
-		
+
+		endpoints = Endpoint.objects.filter(govtrackid=gid, office=getMemberOfCongress(gid)["office_id"])
+		if len(endpoints) == 0:
+			endpoint = None
+		else:
+			endpoint = endpoints[0]
+
 		def mark_for_offline(reason):
-			if comment.message == None: return
+			if comment.message == None or (endpoint != None and endpoint.no_print): return
 			UserCommentOfflineDeliveryRecord.objects.create(
 				comment=comment,
 				target=MemberOfCongress.objects.get(id=gid),
@@ -228,18 +234,16 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			mark_for_offline("missing-info")
 			continue
 
-		endpoints = Endpoint.objects.filter(govtrackid=gid, office=getMemberOfCongress(gid)["office_id"])
-
 		# If we know we have no delivery method for this target, fail fast.
-		if endpoints.filter(method = Endpoint.METHOD_NONE, tested=True).exists():
+		if endpoint != None and endpoint.method == Endpoint.METHOD_NONE and endpoint.tested == True:
 			failure += 1
 			mark_for_offline("bad-webform")
 			continue
 				#or not Endpoint.objects.filter(govtrackid = gid).exclude(method = Endpoint.METHOD_NONE).exists() \
 
-		if len(endpoints) == 0:
+		if endpoint == None:
 			failure += 1
-			mark_for_offline("no-method")
+			mark_for_offline("no-endpoint")
 			continue
 				
 		# Send the comment.
@@ -249,9 +253,9 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			mark_for_offline("not-attempted")
 			continue
 		
-		delivery_record = send_message(msg, endpoints[0], last_delivery_attempt, u"comment #" + unicode(comment.id))
+		delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id))
 		if delivery_record == None:
-			print gid, comment.address.zipcode, endpoints[0]
+			print gid, comment.address.zipcode, endpoint
 			mark_for_offline("no-method")
 			if not gid in target_counts: target_counts[gid] = 0
 			target_counts[gid] += 1

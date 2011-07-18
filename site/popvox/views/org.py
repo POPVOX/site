@@ -695,6 +695,7 @@ def action(request, orgslug, billposid):
 	
 	url = None
 	num = None
+	campaign = None
 	if admin:
 		import shorturl
 		surl, created = shorturl.models.Record.objects.get_or_create(target=billpos)
@@ -705,8 +706,12 @@ def action(request, orgslug, billposid):
 		if "shorturl" in request.session and request.session["shorturl"] == surl:
 			admin = False
 			del request.session["shorturl"]
-			
-		num = OrgCampaignPositionActionRecord.objects.filter(ocp=billpos).count()
+		
+		try:
+			campaign = billpos.get_service_account_campaign(create=False)
+			num = campaign.actionrecords.count()
+		except:
+			num = 0
 
 	# create a Comment instance to get the appropriate verb to display
 	# to the user
@@ -721,6 +726,7 @@ def action(request, orgslug, billposid):
 		'admin': admin,
 		"shorturl": url,
 		"num": num,
+		"campaign": campaign,
 		}, context_instance=RequestContext(request))
 
 @csrf_protect
@@ -740,31 +746,13 @@ def orgcampaignpositionactionupdate(request):
 	
 	return {"status": "success", "action_headline": billpos.action_headline, "action_body": billpos.action_body }
 
-def action_download(request, orgslug, billposid):
-	org = get_object_or_404(Org, slug=orgslug)
-	billpos = get_object_or_404(OrgCampaignPosition, id=billposid, campaign__org = org)
-	
-	if not org.is_admin(request.user):
-		return HttpResponseForbidden("You do not have permission to view this page.")
-
-	import csv
-	response = HttpResponse(mimetype='text/csv')
-	response['Content-Disposition'] = 'attachment; filename=userdata.csv'
-	
-	writer = csv.writer(response)
-	writer.writerow(['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode'])
-	for rec in OrgCampaignPositionActionRecord.objects.filter(ocp=billpos):
-		writer.writerow([unicode(s).encode("utf-8") for s in [rec.id, rec.created, rec.email, rec.firstname, rec.lastname, rec.zipcode]])
-	
-	return response
-
 class CoalitionRequestAction:
 	coalition = None
 	org = None
 	sender = None
 	message = None
 	
-	def get_from_address(self):
+	def email_from_address(self):
 		return self.sender.email
 		
 	def get_response(self, request, vrec):

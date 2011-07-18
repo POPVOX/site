@@ -255,23 +255,42 @@ ul#wSelect {
 				background-position: left bottom;
 				}
 
+#color_theme_picker {
+	margin-bottom: 1em;
+	}
+#color_themes div.theme {
+	padding: 2px;
+	cursor: pointer;
+	}
+#color_themes div.theme:hover {
+	color: white;
+	background-color: #777;
+	}
+#color_themes div.theme.active {
+	color: white;
+	background-color: #F77;
+	}
+#color_themes span.label {
+	display: inline-block;
+	width: 120px;
+	font-size: 12px;
+	}
+#color_themes span.color {
+	display: inline-block;
+	margin-top: 3px;
+	width: 12px;
+	height: 12px;
+	border: 1px solid #AAA;
+	border-left: none;
+	}
+#color_themes span.color.first {
+	border-left: 1px solid #AAA;
+	}				
 </style>
 
 <link rel="stylesheet" href="/media/widget/widget.css" type="text/css" media="screen" />
 
 <script>
-var color_themes = {
-	"default": 	{ sbg: "#b36015", sbg2: "#e7e4dd", sfg: "#ffffff", lnk: "#cc6a11", bg: "#fafafa", fg: "#404045", fg2: "#555555" },
-	"blue":		{ sbg: "#4b92d0", sbg2: "#99bac7", sfg: "#ffffff", lnk: "#283636", bg: "#b1d1e8", fg: "#363636", fg2: "#000000" },
-	"green":	{ sbg: "#649e61", sbg2: "#95d69f", sfg: "#ffffff", lnk: "#283636", bg: "#ccebc3", fg: "##363636", fg2: "#000000" },
-	"creamy":	{ sbg: "#383838", sbg2: "#4a4a40", sfg: "#ffffff", lnk: "#283636", bg: "#fff44c", fg: "#363636", fg2: "#000000" },
-	"trendy":	{ sbg: "#ab4b00", sbg2: "#9c6133", sfg: "#ffffff", lnk: "#283636", bg: "#d4f2e3", fg: "#363636", fg2: "#000000" },
-	"shiek":		{ sbg: "#ed9355", sbg2: "#c2845b", sfg: "#ffffff", lnk: "#283636", bg: "#d4f2e3", fg: "#363636", fg2: "#000000" },
-	"minimal":	{ sbg: "#4d4d4d", sbg2: "#b3b3b3", sfg: "#ffffff", lnk: "#cc6a11", bg: "#ffffff", fg: "#404045", fg2: "#555555" },
-	"popvox":	{ sbg: "#b36015", sbg2: "#757575", sfg: "#ffffff", lnk: "#cc6a11", bg: "#e8e5df", fg: "#404045", fg2: "#555555" },
-	"dummy":	null
-};
-
 function splash_tab(tab) {
 	$('#wSelect>li').removeClass("active");
 	$(tab.parentNode).addClass("active");
@@ -400,7 +419,6 @@ function account_changed() {
 		$('#fb_page').hide();
 	else
 		$('#fb_page').show();
-	{% endif %}
 	
 	if (current_account.permissions.writecongress_ocp) {
 		$('#talkingpoints').text("Talking points from your legislative agenda appear in your widget.");
@@ -409,6 +427,7 @@ function account_changed() {
 		$('#talkingpoints').text("With a Pro account, you could add talking points to your widget.");
 		$('#supporters').text("With a Pro account you could get access to the information supporters enter into widgets you place on your website.");
 	}
+	{% endif %}
 	
 	update_preview();
 }
@@ -588,20 +607,6 @@ $(function() {
 	$('.form input[type=text]').keyup_delayed(update_preview);
 	$('.form select').change(update_preview);
 	$('.form input[type=radio]').click(update_preview);
-	$('.colorpicker').change(function() {
-		if ($('#color_theme').val() != "")
-			$('#color_theme').val("");
-	});
-	$('#color_theme').change(function() {
-		if ($('#color_theme').val() != "") {
-			var i = $('#color_theme').val();
-			hold_update = true;
-			for (var clr in color_themes[i])
-				$('#color_' + clr).miniColors("value", color_themes[i][clr]);
-			hold_update = false;
-			update_preview();
-		}
-	});
 	
 	splash_tab($('#wSelect li a')[0]);
 	account_changed();
@@ -613,6 +618,7 @@ $(function() {
 
 var minicolors_opts = {
 	change: function(hex, rgb) {
+		if (!hold_update) $('#color_themes div.theme').removeClass("active");
 		$('#color_sbg').keyup(); // trigger delayed update of preview
 	}
 };
@@ -821,19 +827,50 @@ var minicolors_opts = {
 				<div class="panel">
 					<h5>Widget Colors</h5>
 					
-					<div>
-						<select id="color_theme" size="1" class="c3">
-							<option value="default">Default Color Theme</option>
-							<option value="blue">Going for a Swim</option>
-							<option value="creamy">Creamy Sun</option>
-							<option value="trendy">Trendy Trends</option>
-							<option value="shiek">Shiek Shine</option>
-							<option value="minimal">Minimal Moon</option>
-							<option value="popvox">POPVOX Colors</option>
-							<option value="">Custom Colors</option>
-						</select>
+					<div id="color_theme_picker">
+						<div id="color_themes">
+						</div>
+						<div style="padding: 2px; font-size: 12px"><a href="#" onclick="$('#color_theme_picker').hide(); $('#color_pickers').show(); return false;">Customize colors...</a></div>
 					</div>
+					<script>
+						var color_themes = {
+							"Standard": 	{ sbg: "b36015", sbg2: "e7e4dd", sfg: "ffffff", lnk: "cc6a11", bg: "fafafa", fg: "404045", fg2: "555555" },
+							"Bald Eagle":				{ sbg: "073F6D", sbg2: "54B3E1", sfg: "ffffff", lnk: "073F6D", bg: "F1F1F1", fg: "404045", fg2: "555555" },
+							"American Flag":	{ sbg: "B33220", sbg2: "B7BEC0", sfg: "ffffff", lnk: "B33220", bg: "ffffff", fg: "254F66", fg2: "555555" },
+							"E Pluribus Unum":	{ sbg: "68B004", sbg2: "ADAB9F", sfg: "ffffff", lnk: "68B004", bg: "ffffff", fg: "555555", fg2: "cfcdcd" },
+							"Corn on the Cob":	{ sbg: "F7DC34", sbg2: "E1DCCA", sfg: "ffffff", lnk: "F7DC34", bg: "ffffff", fg: "5B595A", fg2: "efefef" },
+							"dummy":	null // so prev entry can end with comma
+						};
+
+						var clrs = ["lnk", "sbg", "sbg2",  "fg2", "fg", "bg", "sfg"];
+						for (var clr in color_themes) {
+							if (clr == "dummy") continue;
+							var node = $("<div class='theme'><span class='label'></span></div>");
+							node.find(".label").text(clr);
+							if (clr == "Standard") node.addClass("active");
+							var first = " first";
+							for (var c in clrs) {
+								var cnode = $("<span class='color " + clrs[c] + first + "'/>");
+								cnode.css("background-color", "#" + color_themes[clr][clrs[c]]);
+								node.append(cnode);
+								first = "";
+							}
+							$('#color_themes').append(node);
+						}
+						
+						$('#color_themes div.theme').click(function() {
+							$('#color_themes div.theme').removeClass("active");
+							$(this).addClass("active");
+							var theme = $(this).find('.label').text();
+							hold_update = true;
+							for (var clr in color_themes[theme])
+								$('#color_' + clr).miniColors("value", "#" + color_themes[theme][clr]);
+							hold_update = false;
+							update_preview();
+						});
+					</script>					
 					
+					<div id="color_pickers" style="display: none">
 					<div class="vert">
 						<input id="color_bg" type="text" value="#fafafa" class="colorpicker"/>
 						<label for="color_bg">main background</label>
@@ -876,6 +913,11 @@ var minicolors_opts = {
 						<script>$('#color_fg2').miniColors(minicolors_opts);</script>
 					</div>
 					
+					<div class="vert">
+						<a href="#" onclick="$('#color_theme_picker').show(); $('#color_pickers').hide(); return false;" style="font-size: 12px">Choose a theme...</a>
+					</div>
+
+					</div>
 				</div><!-- e: panel -->
 				<div class="clear"> </div>
 				

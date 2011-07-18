@@ -252,7 +252,14 @@ ul#nav_2 {
         color: #404045;
         text-decoration: none;
         border: none;
+        margin-right: -5px;
+        padding-right: 15px;
+        background: url(b_pencil_sm.png) right top no-repeat;
         }
+        
+		#whoami a:hover {
+			color: #CC6A11;
+			}
 
 #logo {
     background: url(logo.png) left top no-repeat;
@@ -2847,6 +2854,22 @@ h1#landing {
         text-indent: -9999em;
         height: 118px;
         }
+        
+#edit_tip {
+	background: url(bg_edit_profile.png) left top no-repeat;
+	display: block;
+	width: 86px;
+	height: 29px;
+	position: absolute;
+	top: 0px;
+	right: 260px;
+	text-indent: -9999em;
+	}
+	
+	#edit_tip:hover {
+		border: none;
+		background-position: left bottom;
+		}
 
 .b_get_started_l {
     width: 185px;

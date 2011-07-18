@@ -125,6 +125,7 @@
 			</div>
 			<div class="label last">Oppose</div>
 		</div>
+		{% if max_sz_num != min_sz_num %}
 		<div id="legend_sz">
 			<div class="label first">{{max_sz_num}} User{{max_sz_num|pluralize}}</div>
 			<div class="dotholder">
@@ -136,6 +137,7 @@
 			</div>
 			<div class="label last">{{min_sz_num}} User{{min_sz_num|pluralize}}</div>
 		</div>
+		{% endif %}
 		{% endif %}
 		<div id="legend_text">
 			Each circle represents a Congressional District.

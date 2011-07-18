@@ -1,0 +1,559 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Campaign Analytics{% endblock%}
+{%block nav_orgadmin_class_reports%}active{%endblock%}
+{%block nav_user_class_reports%}active{%endblock%}
+{% block head %}
+<script src="/media/js/jquery.dataTables.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+
+<script type="text/javascript">
+var protocol = document.location.protocol == 'https:' ? 'https:' : 'http:';
+document.write(unescape('%3Cscript src="' + protocol + '//mixpanel.com/site_media/api/platform/platform.1.min.js" type="text/javascript"%3E%3C/script%3E'));
+</script>
+
+<style>
+h2 { font: bold 20px/30px "LucidaGrande",helvetica,arial,sans-serif; margin-bottom: 15px;  }
+h4 { font: bold 14px/16px "LucidaGrande",helvetica,arial,sans-serif; margin-bottom: 15px;  }
+#analytics_numbers { margin: 1em 1em 2em 1em; }
+#analytics_numbers th, #analytics_numbers td { font-size: 13px;  padding: 6px 6px 0 0; }
+#analytics_numbers p { margin-top: 6px; font-style: italic; font-size: 11px; }
+.chart_title { text-align: center; }
+
+/***** PUT MORE STYLES HERE *****/
+
+@font-face {
+    font-family: 'BebasNeueRegular';
+    src: url('/media/widget/BebasNeue-webfont.eot');
+    src: url('/media/widget/BebasNeue-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/media/widget/BebasNeue-webfont.woff') format('woff'),
+         url('/media/widget/BebasNeue-webfont.ttf') format('truetype'),
+         url('/media/widget/BebasNeue-webfont.svg#BebasNeueRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+#widgetBox {
+background: #e8e5df;
+height: 426px;
+width: 715px;
+}
+
+.boxes {
+background: url(/media/widget/box.png) no-repeat;
+padding-top: 22px;
+height: 128px;
+width: 132px;
+padding-left: 8px;
+background-position: bottom right;
+float:left;
+}
+
+.first {
+/***padding-left: 22px;***/
+padding-left: 0px;
+}
+
+.last {
+/***padding-right: 22px;
+background-position: 12px 22px;***/
+}
+
+.stat {
+font-family: 'BebasNeueRegular';
+color: white;
+width: 132px;
+margin: 0 auto;
+text-align: center;
+}
+
+.top {
+padding-top: 22px;
+font-size: 48px;
+
+}
+
+.bottom {
+padding-top: 8px;
+font-size: 26px;
+}
+
+#headLeft {
+/***padding-left: 22px;****/
+padding-top: 21px;
+width: 400px;
+}
+
+.wTitle {
+font-family: 'BebasNeueRegular';
+font-size: 26px;
+color: #75757d;
+}
+
+.wSubTitle {
+padding-top: 5px;
+font-family: Helvetica, Tahoma;
+font-size: 18px;
+color: #75757d;
+font-weight: normal;
+}
+
+#headRight {
+width: 200px;
+float: right;
+margin-top: -44px;
+padding-right: 22px;
+text-align: right;
+}
+
+.wDate {
+font-family: Helvetica, Tahoma;
+font-size: 18px;
+color: #75757d;
+font-weight: normal;
+}
+
+.dCustom {
+font-size: 14px;
+font-style: italic;
+}
+
+#iconContain {
+width: 100%;
+clear: both;
+}
+
+.icons {
+float: left;
+width: 141px;
+padding-top: 10px;
+height: 115px;
+}
+
+.iconFirst {
+/***margin-left: 22px;***/
+background: url(/media/widget/pointer.png) no-repeat 40% 20%;
+}
+
+
+/***Support** 
+.iconSecond {
+background: url(/media/widget/support.png) no-repeat 40% 30%;
+}
+**/
+
+/**Support and Oppose**/
+.iconSecond {
+background: url(/media/widget/oppose.png) no-repeat 20% 30%;
+}
+
+
+
+
+.iconThird {
+background: url(/media/widget/house.png) no-repeat 40% 20%;
+}
+
+.iconFourth {
+background: url(/media/widget/letter.png) no-repeat 40% 30%;
+}
+
+.iconFifth {
+background: url(/media/widget/confirmed.png) no-repeat 40% 15%;
+}
+
+.iconText {
+background: url(/media/widget/arrow.png) no-repeat 100% 40%;
+font-size: 13px;
+font-family: Helvetica, Tahoma;
+font-weight: bold;
+color: #75757d;
+padding-top: 80px;
+text-align: center;
+padding-right: 17px;
+padding-left: 5px;
+}
+
+.textLast {
+background: none;
+}
+
+
+</style>
+{% endblock %}
+{% block content %}
+<div class="content">
+<div class="col_9 col_plus col_top">
+
+<h1>Campaign Analytics</h1>
+
+{% if has_campaigns %}
+	<ul class="tabs">
+		<li><a href="#overview"><span>Overview</span></a></il>
+		<li><a href="#details"><span>Details</span></a></il>
+	</ul>
+	<div class="tabs_panel">
+{% endif %}
+	
+<div class="tab_overview">
+	{% if user.orgroles.all|length == 0 %}
+		<p>Use our <a href="/services/widgets#writecongress">Write Congress Widget</a> to create a letter-writing campaign.</p>
+	{% else %}
+		<p>Create letter-writing campaigns for bills in your legislative agenda using our <a href="/services/widgets#writecongress">Write Congress Widget</a> or customized action pages.</p>
+	{% endif %}
+	
+	
+	{% for acct in accts %}
+
+		{% if accts|length > 1 %}
+		<h2>{{acct}}</h2>
+		{% endif %}
+	
+		<div class="block campaigns {% if not forloop.first %}rule{% endif %}">
+		{% for cam in acct.campaigns.all %}
+			<div class="support_oppose">
+				{% bill_statistics cam.bill as stats %}
+				<div class="col_50">
+					<h4 style="margin-bottom: 1em">
+						{{cam.bill.title|truncatewords:10}}
+						<span> ({% if cam.position == '+' %}Endorsing{% endif %}{% if cam.position == '-' %}Opposing{% endif %}{% if cam.position == '0' %}Neutral{% endif %})</span>
+					</h4>
+					
+					{% with cam.actionrecords.all.count as count %}
+					{% if count %}
+						<p>{{count}} supporter{% if count > 1 %}s{% endif %} took action. View <a href="#details={{cam.id}}">detailed analytics for your widget or action page</a>.</p>
+						
+						{% comment %}
+						<p style="text-align: center; margin-bottom: 0">Widget Completions</p>
+						
+						<div id="analytics_{{cam.id}}" style="height: 150px; margin-bottom: 15px;"> </div>
+						<script>
+						var platform = new Mixpanel.Platform(
+							'{{MIXPANEL_API_KEY}}',
+							"{{cam.mixpanel_bucket_secret|escapejs}}",
+							"sac_{{cam.id}}"
+						);
+						platform.create_line_chart('analytics_{{cam.id}}', ['widget_writecongress_send'], { legend: false} );
+						</script>
+						{% endcomment %}
+
+					{% else %}
+						<p>Create a <a href="/services/widgets#writecongress">widget</a> to drive your supporters to take action.</p>
+					{% endif %}
+					{% endwith %}
+				</div>
+				<div class="col_50">
+					{% with cam.bill as bill %}
+					{% with cam.id as chart_id %}
+					{% with 75 as chart_size %}
+						{% include "popvox/bill_statistics_pie_simple.html" %}
+					{% endwith %}
+					{% endwith %}
+					{% endwith %}
+				</div>
+				{% if not forloop.last %}<div class="hr"> </div>{% endif %}
+				</div> <!-- e: support_oppose -->
+		{% endfor %}
+		</div> <!-- e: block campaigns -->
+	{% endfor %}
+	
+	{% for role in user.orgroles.all %}
+		{% for cam in role.org.all_campaigns %}
+			{% for pos in cam.positions.all %}
+				{% if not pos.has_service_account_campaign %}
+					{% bill_statistics pos.bill as stats %}
+					<div class="clear hr"> </div>
+					<div class="col_50">
+						<h4{% if not cam.default %} style="margin: 0"{% endif %}>
+							{{pos.bill.title|truncatewords:10}}
+							<span> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '0' %}Neutral{% endif %})</span>
+						</h4>
+						
+						{% if not cam.default %}
+						<p style="font-style: italic">{{cam.name}}</p>
+						{% endif %}
+
+						<p>Create a <a href="/services/widgets#writecongress">widget</a> or <a href="{{role.org.url}}/_action/{{pos.id}}">customized action page</a> to drive your supporters to take action.</p>
+					</div>
+					<div class="col_50">
+						{% with pos.bill as bill %}
+						{% with pos.id as chart_id %}
+						{% with 75 as chart_size %}
+							{% include "popvox/bill_statistics_pie_simple.html" %}
+						{% endwith %}
+						{% endwith %}
+						{% endwith %}
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endfor %}	
+	{% endfor %}
+</div> <!-- e:tab_overview -->
+
+{% if has_campaigns %}
+<div class="tab_details">
+
+	<script>
+	var campaign_info = { };
+	</script>
+
+	<ul class="ul_tags">
+		{% for acct in accts %}
+			{% for cam in acct.campaigns.all %}
+					<li><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.displaynumber}}</a></li>
+					<script>
+					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
+					campaign_info["{{cam.id}}"] = {
+						title: "{{cam.bill.title_or_streetname|truncatewords:10|escapejs}} {% if accts|length > 1 %}[{{acct.org.slug}}]{% endif %}",
+						descr: "{% if cam.bill.officialtitle %}{{cam.bill.officialtitle|truncatewords:25|escapejs}}{% endif %}",
+						mixpanel_bucket: "{{cam.mixpanel_bucket|escapejs}}",
+						mixpanel_bucket_secret: "{{cam.mixpanel_bucket_secret|escapejs}}",
+						download_url: "/services/api/campaign/{{cam.id}}/supporters/",
+						counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": {{stage.list|length}}, {% endfor %} total: {{cam.actionrecords.all|length}}},
+						mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
+						null: null
+					};
+					</script>
+			{% endfor %}
+		{% endfor %}
+		<div class="clear"> </div>
+	</ul>
+	
+	<h2>S. 1234</h2>
+	<p class="campaign_summary">A bill to do this and that.</p>
+
+
+
+<!---My HTML--->
+
+<div id="widgetBox">
+	<div id="headLeft">
+		<span class="wTitle">Solar Energy Industries Association</span><br />
+		<span class="wSubTitle">S. 1108: The 10 Million Solar Roofs Act</span>
+	</div>
+	
+	<div id="headRight">
+		<span class="wDate">6-27-11 <span class="dCustom">thru</span> 7-13-11</span>
+	</div>
+	
+	<div id="boxContain">
+		<div class="boxes first">
+			<div class="stat top">
+			1868
+			</div>
+			<div class="stat bottom">
+			100%
+			</div>		
+		</div>
+		<div class="boxes">
+			<div class="stat top">
+			763
+			</div>
+			<div class="stat bottom">
+			41%
+			</div>	
+		</div>
+		<div class="boxes">
+			<div class="stat top">
+			707
+			</div>
+			<div class="stat bottom">
+			37%
+			</div>	
+		</div>
+		<div class="boxes">
+			<div class="stat top">
+			652
+			</div>
+			<div class="stat bottom">
+			35%
+			</div>	
+		</div>
+		<div class="boxes last">
+			<div class="stat top">
+			424
+			</div>
+			<div class="stat bottom">
+			23%
+			</div>	
+		</div>
+	</div>
+	
+	<div id="iconContain">
+		<div class="icons iconFirst">
+			<div class="iconText">
+			landed on the widget page
+			</div>
+		</div>
+		<div class="icons iconSecond">
+			<div class="iconText">
+			weighed in & gave their email
+			</div>
+		</div>
+		<div class="icons iconThird">
+			<div class="iconText">
+			provided their mailing address
+			</div>
+		</div>
+		<div class="icons iconFourth">
+			<div class="iconText">
+			wrote letter to Congress
+			</div>
+		</div>
+		<div class="icons iconFifth">
+			<div class="iconText textLast">
+			confirmed email & sent letter
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+	
+	<h3>Analytics</h3>
+	<p id="analytics_alt">There are no analytics to display for this campaign.</p>
+	<div id="analytics_frame" style="width: 680px; margin-bottom: 15px; border: 1px solid black; background-color: white;">
+		<div id="analytics_numbers">
+			<table>
+			<tr><th>Total Supporters:</th> <td id="analytics_total"></td></tr>
+			<tr><th>Completed Letters:</th> <td><span id="analytics_letters"></span> (<span id="analytics_letters_percent"></span>%)</td></tr>
+			</table>
+			<!--<tr><th>Drop-Off: Start: <span id="analytics_start"></span>%; Login: <span id="analytics_login"></span>%; Address: <span id="analytics_address"></span>%; Confirm Address: <span id="analytics_confirmaddress"></span>%; Confirm Email: <span id="analytics_confirmemail"></span>%</p>-->
+			<p>Total supporters indicates the number of individuals available to you to download. Completed letters indicates the number of individuals who completed all stages of the letter-writing process. The widget usage numbers below may show different numbers due to repeat hits or a failure to complete the email verification step.</p>
+		</div>
+	
+		<div style="float: left;">
+			<div class="chart_title">Totals</div>
+			<div id="analytics_totals" style="width: 380px; height: 250px;"> </div>
+		</div>
+		
+		<div style="float: left;">
+			<div class="chart_title">Wrote a Personal Message?</div>
+			<div id="analytics_personalized" style="width: 300px; height: 250px;"> </div>
+		</div>
+		
+		<div style="float: left;">
+			<div class="chart_title">Widget Usage</div>
+			<div id="analytics_activity" style="width: 680px;"> </div>
+		</div>
+		
+		<div class='clear'> </div>
+	</div>
+
+	<h3>Supporters</h3>
+	<p id="supporters_alt">There are no supporters for this campaign yet. Why don&rsquo;t you create a <a href="/services/widgets#writecongress">widget</a> to drive your supporters to take action!</p>
+
+	<iframe id="supporters_map" width="940" height="590" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe>
+
+	<table id="supporters_grid">
+		<thead>
+			<th>ID</th>
+			<th>Date</th>
+			<th>Email</th>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>ZIP Code</th>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+	<a id="supporters_download" href="#overview">Download</a>
+</div> <!-- tab_details -->
+</div> <!-- e:tabs_panel -->	
+{% endif %}
+
+</div>	<!-- e:col_9 -->
+{% include "ads/rightbar.html" %}
+</div> <!-- e:content -->
+
+<script>
+	function myround(num) {
+		if (!num) return 0;
+		return Math.round(num);
+	}
+	function show_analytics(id) {
+		if (id == null) {
+			$('.tab_details h2').text("No Campaign Selected");
+			$('.tab_details .campaign_summary').text("Select a campaign from the list above.");
+		} else {
+			$('.tab_details h2').text(campaign_info[id].title);
+			$('.tab_details .campaign_summary').text(campaign_info[id].descr);
+		}
+		
+		if (id == null || !campaign_info[id].counts.total) {
+			$("#analytics_alt, #supporters_alt").show();
+			
+			$('#analytics_frame, #analytics_numbers').hide();
+			$("#supporters_grid, #supporters_download, #supporters_map").hide();
+			return;
+		}
+		
+		$('#analytics_alt, #supporters_alt').hide();
+		
+		$('#analytics_frame, #analytics_numbers').show();
+		$("#supporters_grid, #supporters_download, #supporters_map").show();
+		
+		$('#analytics_total').text(campaign_info[id].counts.total);
+		$('#analytics_letters').text(campaign_info[id].counts.finished);
+		$('#analytics_letters_percent').text(myround(100*campaign_info[id].counts.finished/campaign_info[id].counts.total));
+		$('#analytics_start').text(myround(100*campaign_info[id].counts.start/campaign_info[id].counts.total));
+		$('#analytics_login').text(myround(100*campaign_info[id].counts.login/campaign_info[id].counts.total));
+		$('#analytics_address').text(myround(100*campaign_info[id].counts.address/campaign_info[id].counts.total));
+		$('#analytics_confirmaddress').text(myround(100*campaign_info[id].counts["confirm-address"]/campaign_info[id].counts.total));
+		$('#analytics_confirmemail').text(myround(100*campaign_info[id].counts["confirm-email"]/campaign_info[id].counts.total));
+		
+		var platform = new Mixpanel.Platform(
+			'{{MIXPANEL_API_KEY}}',
+			campaign_info[id].mixpanel_bucket_secret,
+			campaign_info[id].mixpanel_bucket
+		);
+		platform.create_bar_chart('analytics_totals',
+				["widget_writecongress_hit", "widget_writecongress_start", "widget_writecongress_send", "widget_writecongress_share"], {
+				mapping: { "widget_writecongress_hit": "Hit Page", "widget_writecongress_send": "Letter Sent", "widget_writecongress_share": "Shared", "widget_writecongress_start": "Began Widget" },
+				interval: 365*10,
+				type: "unique"
+		});
+		platform.create_line_chart('analytics_activity',
+				["widget_writecongress_hit", "widget_writecongress_start", "widget_writecongress_send", "widget_writecongress_share"], {
+				mapping: { "widget_writecongress_hit": "Hit Page", "widget_writecongress_send": "Letter Sent", "widget_writecongress_share": "Shared", "widget_writecongress_start": "Began Widget" },
+				drilldown: [ "personalized", "share_method" ],
+				type: "unique"
+		});
+		platform.create_property_pie_chart('analytics_personalized', 'widget_writecongress_write', 'personalized', null,
+			{ legend: false, mapping: { "False": "No", "True": "Yes" }, type: "unique" });
+		
+		$('#supporters_grid').dataTable( {
+			"bProcessing": true,
+			"bServerSide": true,
+			"sAjaxSource": campaign_info[id].download_url + "json",
+			"bDestroy": true,
+			"bJQueryUI": true,
+			"bFilter": false,
+			"aaSorting": [[1,'desc']],
+			"aLengthMenu": [15, 30, 50],
+			"iDisplayLength": 15,
+			"sScrollX": "100%",
+			"aoColumns": [
+				{ "sWidth": "50px" },
+				{ "sWidth": "130px", "fnRender": function (cell) { return cell.aData[1].substr(0, 16); } },
+				{ "sWidth": "200px" },
+				{ "sWidth": "110px" },
+				{ "sWidth": "130px" },
+				{ "sWidth": "100px" }
+				]
+		} );
+		
+		$('#supporters_download').attr('href', campaign_info[id].download_url + "csv")
+		
+		$('#supporters_map').attr('src', campaign_info[id].mapurl);
+	}
+
+	$('.tabs').pvtabs(function(active_tab, is_initial, hash_argument) { if (active_tab == "details") show_analytics(hash_argument); });
+</script>
+{% endblock %}
+

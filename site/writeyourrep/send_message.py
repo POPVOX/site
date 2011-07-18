@@ -319,6 +319,23 @@ common_fieldnames = {
 	"responsereq": "response_requested",
 	
 	'view_select': 'support_oppose',
+	
+	#Numbered senate fields
+	"a01": "prefix",
+	"b01": "firstname",
+	"c01": "lastname",
+	"d01": "address1",
+	"e01": "address2",
+	"f01": "city",
+	"g01": "state",
+	"h01": "zipcode",
+	"h02": "phone",
+	"i01": "email",
+	"i02": "message",
+	"j01": "topicarea",
+	"j15": "response_requested",
+	"k01": "message",
+	
 	}
 
 # Here are field names that we assume are optional everywhere.
@@ -329,12 +346,14 @@ skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey", "affl_del",
 	"speech", "authfailmsg",
 	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
-	"org")
+	"org",
+	"h03", "H03")
 
 radio_choices = {
 	"reason": "legsitemail",
 	"newslettersignup": "0",
 	"newsletter_action": "unsubscribe",
+	"newsletter-subscribe": "",
 	"subscribe": "n",
 	"affl1": "",
 	"affl": "",
@@ -349,7 +368,9 @@ radio_choices = {
 }
 
 custom_mapping = {
+	"24_i02": "message",
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
+	"37_affl3": "enews_subscribe",
 	"613_zipcode_text": "zip5",
 	"624_phone_prefix_text" : "phone_areacode",
 	"624_phone_first_text" : "phone_prefix",
@@ -364,6 +385,7 @@ custom_mapping = {
 	"832_phone1_text" : "phone_areacode",
 	"832_phone2_text" : "phone_prefix",
 	"832_phone3_text" : "phone_line",
+	"842_J01": "subjectline",
 	"864_phone_prefix_text" : "phone_areacode",
 	"864_phone_first_text" : "phone_prefix",
 	"864_phone_second_text" : "phone_line",
@@ -372,6 +394,7 @@ custom_mapping = {
 custom_overrides = {
 	"18_prefix2_select": "Yes",
 	"29_subject_radio": "CRNR", # no response requested
+	"37_state_id_select": "83c503f1-e583-488d-ac7f-9ff476cfec25", #WTF Feinstein's form, seriously.
 	"38_subsubject_select": "Other",
 	"44_nl_radio": "no",
 	"44_nl_format_radio": "text",
@@ -400,6 +423,7 @@ custom_overrides = {
 	"639_aff1req_text": "fill",
 	"645_yes_radio": "NRN",
 	"645_authfailmsg_hidden": "/andrews/AuthFailMsg.htm",
+	"658_human_radio": "on",
 	"661_subject_hidden": "",
 	"661_reqresponse_radio": "on",
 	"661_issues_select": "",
@@ -414,6 +438,7 @@ custom_overrides = {
 	"761_contact_nature_select": "comment or question",
 	"761_enews_radio": "no",
 	"776_formfield1234567894_text": "",
+	"789_affl1_radio": "",
 	"791_typeofresponse_select": "email",
 	"805_issue_radio": "",
 	"830_contactform:cd:rblformat_radio": "html",
@@ -840,7 +865,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 426, 585, 588, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 693, 706, 709, 718, 730, 734, 736, 746, 749, 774, 780, 784, 788, 791, 805, 808, 809, 811, 826, 827, 837, 851, 861, 869, 878):
+	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 426, 585, 588, 598, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 693, 703, 706, 709, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 784, 788, 791, 805, 808, 809, 811, 826, 827, 837, 840, 851, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats

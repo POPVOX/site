@@ -46,7 +46,7 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	# Title.
 	bill.title = getBillTitle(bill, dom, "short")
 
-	print bill
+	#print bill
 
 	# Status.
 	bill.current_status = dom.getElementsByTagName('state')[0].firstChild.data
@@ -86,7 +86,7 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 				bill.topterm = ix
 				first = False
 		except IssueArea.DoesNotExist:
-			print "CRS term not found", term.getAttribute("name")
+			#print "CRS term not found", term.getAttribute("name")
 			continue
 		
 		bill.issues.add(ix)

@@ -60,23 +60,26 @@ class OrgAdmin(admin.ModelAdmin):
 class ServiceAccountAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user", "org")
 	readonly_fields = ("api_key", "secret_key")
-	search_fields = ["user__username", "user__email", "org__name"]
+	search_fields = ["user__username", "user__email", "org__name", "api_key", "secret_key"]
 
-class OrgCampaignPositionActionRecordAdmin(admin.ModelAdmin):
-	raw_id_fields = ("ocp",)
-	readonly_fields = ("ocp",)
+class ServiceAccountCampaignAdmin(admin.ModelAdmin):
+	raw_id_fields = ("account", "bill")
+	readonly_fields = ("account", "bill")
+
+class ServiceAccountCampaignActionRecordAdmin(admin.ModelAdmin):
+	raw_id_fields = ("campaign","completed_comment")
+	readonly_fields = ("campaign","completed_comment")
 	search_fields = ["firstname", "lastname", "zipcode", "email"]
 	list_display = ["created", "info", "zipcode", "email"]
 
 	def info(self, obj):
-		return obj.ocp.campaign.org.slug + " " + obj.ocp.bill.displaynumber()
+		return obj.campaign.bill.displaynumber()
 
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
 admin.site.register(Org, OrgAdmin)
 admin.site.register(OrgCampaign)
 admin.site.register(OrgCampaignPosition)
-admin.site.register(OrgCampaignPositionActionRecord, OrgCampaignPositionActionRecordAdmin)
 admin.site.register(OrgContact)
 admin.site.register(Bill, BillAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
@@ -88,6 +91,8 @@ admin.site.register(PostalAddress, PostalAddressAdmin)
 admin.site.register(PositionDocument)
 admin.site.register(ServiceAccount, ServiceAccountAdmin)
 admin.site.register(ServiceAccountPermission)
+admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)
+admin.site.register(ServiceAccountCampaignActionRecord, ServiceAccountCampaignActionRecordAdmin)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html', 'make_short_urls', 'report_short_urls']

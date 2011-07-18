@@ -1,4 +1,5 @@
 {% extends "master.html" %}
+{% humanize %}
 {% load popvox_utils %}
 {% block title %}POPVOX Metrics{% endblock%}
 {% block head %}
@@ -18,16 +19,16 @@
 			
 		<div class="col_4 pad_no">
 			<ul class="activity bullets">
-				<li><strong>All Users:</strong> {{count_users}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %}</li>
-				<li><strong>Leg Staff:</strong> {{count_legstaff}}</li>
-				<li><strong>Registered Orgs:</strong> {{count_orgs_selfreg}}</li>
-				<li><strong>Org Directory:</strong> {{count_orgs_all}}</li>
+				<li><strong>All Users:</strong> {{count_users|intcomma}}{% comment %}({{count_users_verified}} phone number verified){% endcomment %}</li>
+				<li><strong>Leg Staff:</strong> {{count_legstaff|intcomma}}</li>
+				<li><strong>Registered Orgs:</strong> {{count_orgs_selfreg|intcomma}}</li>
+				<li><strong>Org Directory:</strong> {{count_orgs_all|intcomma}}</li>
 			</ul>
 		</div>
 		<div class="col_4 pad_no col_last">
 			<ul class="activity bullets">
-				<li><strong>Positions Left:</strong> {{count_comments}}</li>
-				<li><strong>Comments Left:</strong> {{count_comments_messages}}</li>
+				<li><strong>Positions Left:</strong> {{count_comments|intcomma}}</li>
+				<li><strong>Comments Left:</strong> {{count_comments_messages|intcomma}}</li>
 			</ul>
 		</div>
 		<div class="clear"> </div>
@@ -319,7 +320,7 @@
 				<th/>
 				<td>{{stats.new_users.count}}</td>
 				<td>{{stats.new_users.cumulative}}</td>
-				<td>{{stats.new_users.double_life}}</td>
+				<td>{{stats.new_users.double_life}} <!-- {{stats.new_users.growth_daily}} --></td>
 				<th/>
 				<td>{{stats.new_positions.count}}</td>
 				<td>{{stats.new_positions.cumulative}}</td>

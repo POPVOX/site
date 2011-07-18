@@ -545,7 +545,9 @@ a {
 				
 			#msg_preview .write_a_personal_message {
 				clear: both;
-				padding-top: 20px;
+				margin: 40px 10px 0 40px;
+				border-top: 1px solid #999;
+				padding-top: 10px;
 				font-family: helvetica, arial, sans-serif;
 				font-size: 14px;
 				}

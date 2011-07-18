@@ -165,7 +165,7 @@ def metrics(request):
 				x = [(row["date"]-rows[0]["date"]).days for row in rows[i-window+1 : i+1]]
 				y = [log(row["cumulative"]) for row in rows[i-window+1 : i+1]]
 				gradient, intercept, r_value, p_value, std_err = stats.linregress(x,y)
-				rows[i]["growth_daily"] = int(100*(exp(gradient) - 1.0)) # percent growth by day
+				rows[i]["growth_daily"] = int(10000*(exp(gradient) - 1.0))/100.0 # percent growth by day
 				rows[i]["growth_weekly"] = int(100*(pow(exp(gradient), 7) - 1.0)) # percent growth by week
 				rows[i]["growth_monthly"] = int(100*(pow(exp(gradient), 30.5) - 1.0)) # percent growth by month
 				days_to_double = log(2.0) / gradient

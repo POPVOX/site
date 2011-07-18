@@ -9,14 +9,18 @@ import sys
 import random
 
 if sys.argv[-1] == "welcome":
-	email_subject = "Welcome to POPVOX!"
+	email_subject = "Your message to Congress will soon be delivered by POPVOX"
 	email_from = "POPVOX <info@popvox.com>"
 	body_obj = RawText.objects.get(name="registration-user")
 	users = UserProfile.objects.filter(
 		allow_mass_mails=True,
 		registration_welcome_sent=False,
 		user__date_joined__gt = datetime.datetime.now() - datetime.timedelta(hours=4),
-		)
+		user__comments__id__isnull=False,
+		).distinct()
+		# user__comments__id__isnull filters out users that have not
+		# left a comment, but it also creates duplicate rows from
+		# the left join, so distinct fixes that.
 	def mark(userprof):
 		userprof.registration_welcome_sent = True
 		userprof.save()

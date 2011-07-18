@@ -15,7 +15,6 @@ urlpatterns = patterns('',
 	
 	(r'^home$', 'popvox.views.home.home'),
 	(r'^home/suggestions$', 'popvox.views.home.home_suggestions'),
-	(r'^home/reports$', 'popvox.views.home.reports'),
 	(r'^docket$', 'popvox.views.home.docket'),
 	(r'^ajax/docket/bill_categories$', 'popvox.views.home.legstaff_bill_categories'),
 	(r'^ajax/docket/bill_category_panel$', 'popvox.views.home.legstaff_bill_category_panel'),
@@ -59,7 +58,6 @@ urlpatterns = patterns('',
 	(r'^orgs/([\w\-]+)/([\w\-]+)$', "popvox.views.org.orgcampaign"),
 	(r'^orgs/([\w\-]+)/([\w\-]+)/_edit$', "popvox.views.org.orgcampaign_edit"),
 	(r'^orgs/([\w\-]+)/_action/(\d+)$', "popvox.views.org.action"),
-	(r'^orgs/([\w\-]+)/_action/(\d+)/_download/csv$', "popvox.views.org.action_download"),
 	(r'^ajax/orgs/search$', 'popvox.views.org.org_search'),
 	(r'^ajax/orgs/updatefield$', 'popvox.views.org.org_update_field'),
 	(r'^ajax/orgs/updatefields$', 'popvox.views.org.org_update_fields'),
@@ -92,10 +90,12 @@ urlpatterns = patterns('',
 	(r'^widgets/top-bills$', "popvox.views.widgets.top_bills"),
 		
 	(r'^services/widgets$', "popvox.views.services.widget_config"),
+	(r'^services/analytics$', 'popvox.views.services.analytics'),
 	(r'^services/widgets/w/(?P<widgettype>commentstream|writecongress)$', "popvox.views.services.widget_render"),
 	(r'^services/widgets/w/account/(?P<api_key>.{16})/(?P<widgettype>commentstream|writecongress)$', "popvox.views.services.widget_render"), # separate URL prefix aids caching vary by referrer for API key validation
-	(r'^services/widgets/img/([\w/]+)$', "popvox.views.services.image"),
+	(r'^services/widgets/img/([\w/\-]+)$', "popvox.views.services.image"),
 	(r'^ajax/services/setopt$', "popvox.views.services.service_account_set_option"),
+	(r'^services/api/campaign/(\d+)/supporters/(csv|json)$', "popvox.views.services.download_supporters"),
 	
 
 	(r'^ajax/district-lookup$', 'writeyourrep.district_lookup.district_lookup'),
@@ -117,6 +117,7 @@ urlpatterns = patterns('',
 
 	#(r'^about/photos/', include('stockphoto.urls')),
 
+	(r'^admin/ses', include('django_ses.urls')),
 	(r'^admin/', include(admin.site.urls)),
 )
 

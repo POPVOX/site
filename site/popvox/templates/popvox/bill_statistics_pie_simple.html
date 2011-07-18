@@ -1,3 +1,4 @@
+{% load humanize %}
 {% if stats.total %}
 	<div class="chart_info">
 		<div style="float: left; width: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px; margin-right: 15px">
@@ -11,7 +12,7 @@
 				<span class="chart_title">{{ stats.longdescription}}:</span><br />
 				<span class="bg_support">{{ stats.pro_pct }}% Support <!-- {{stats.pro }} --></span><br />
 				<span class="bg_oppose">{{ stats.con_pct }}% Oppose <!-- {{stats.con }} --></span><br />
-				<span class="users">({{stats.total}} user{{stats.total|pluralize}})</span>
+				<span class="users">({{stats.total|intcomma}} user{{stats.total|pluralize}})</span>
 			</p>
 			{% if not chart_no_links %}
 			 <p class="view_report">

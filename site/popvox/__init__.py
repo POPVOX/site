@@ -14,7 +14,10 @@ def http_rest_json(url, args=None, method="GET"):
 	if method == "GET" and args != None:
 		url += "?" + urllib.urlencode(args).encode("utf8")
 	req = urllib2.Request(url)
-	r = urllib2.urlopen(req)
-	return json.load(r, "utf8")
+	r = urllib2.urlopen(req).read()
+	try:
+		return json.loads(r, "utf8")
+	except Exception as e:
+		e.response_data = r
+		raise
 	
-

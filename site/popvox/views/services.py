@@ -3,19 +3,18 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.forms import ValidationError
 from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.cache import cache_page, cache_control
-
+from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
-
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.core.cache import cache
 
 from popvox.models import *
 from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS, getMemberOfCongress
 
 from widgets import do_not_track_compliance
 from bills import save_user_comment
-from utils import require_lock, csrf_protect_if_logged_in
+from utils import require_lock, csrf_protect_if_logged_in, cache_page_postkeyed
 
 from registration.helpers import validate_email, validate_password
 from emailverification.utils import send_email_verification
@@ -27,7 +26,7 @@ from settings import DEBUG, SITE_ROOT_URL, MIXPANEL_TOKEN, MIXPANEL_API_KEY
 import urlparse
 import json
 import re
-import random
+import random, math
 from itertools import chain
 from base64 import urlsafe_b64decode
 
@@ -110,8 +109,9 @@ def validate_widget_request(request, api_key):
 	if "node" in salsa:
 		permitted_hosts.append(salsa["node"])
 
-	# Validate the referrer. 
-	if host in permitted_hosts:
+	# Validate the referrer.
+	# For now, if the permitted hosts list is empty, allow all hosts.
+	if host in permitted_hosts or len(permitted_hosts) == 0:
 		return (account, perms)
 
 	return "This widget has been placed on a website (%s) that is not authorized." % host
@@ -203,9 +203,10 @@ def widget_render_commentstream(request, account, permissions):
 def widget_render_writecongress(request, account, permissions):
 	if request.META["REQUEST_METHOD"] == "GET":
 		# Get bill, position, org, orgcampaignposition, and reason.
-		ocp = None # indicates where to save user response data for the org to get
+		campaign = None # indicates where to save user response data for the org to get
 		org = None
 		reason = None
+		
 		if "ocp" not in request.GET:
 			if not "bill" in request.GET:
 				return HttpResponseBadRequest("Invalid URL.")
@@ -220,23 +221,29 @@ def widget_render_writecongress(request, account, permissions):
 				position = "-"
 			else:
 				position = None
+				
 		else:
 			# ocp argument specifies the OrgCampaignPosition, which has all of the
 			# information we need.
 			try:
-				_ocp = OrgCampaignPosition.objects.get(id=request.GET["ocp"], campaign__visible=True, campaign__org__visible=True)
+				ocp = OrgCampaignPosition.objects.get(id=request.GET["ocp"], campaign__visible=True, campaign__org__visible=True)
 			except OrgCampaignPosition.DoesNotExist:
 				return HttpResponseBadRequest("The campaign for the bill has become hidden or the widget URL is invalid")
-			bill = _ocp.bill
-			position = _ocp.position
+			bill = ocp.bill
+			position = ocp.position
 			if position == "0": position = None
-			if account != None and _ocp.campaign.org == account.org:
+			if account != None and ocp.campaign.org == account.org:
 				# We'll let the caller use an OCP id to get the bill and position, but
 				# don't tie this request to the org if the request is not under a
 				# verified api_key for that org.
-				ocp = _ocp
 				org = ocp.campaign.org
 				reason = ocp.comment
+			
+		if account != None:
+			campaign, is_new = ServiceAccountCampaign.objects.get_or_create(
+				account = account,
+				bill = bill,
+				position = position if position != None else "0")
 			
 		if not bill.isAlive():
 			return HttpResponseBadRequest("This letter-writing widget has been turned off because the bill is no longer open for comments.")
@@ -302,8 +309,7 @@ def widget_render_writecongress(request, account, permissions):
 			"displayname": displayname,
 			"identity": None if u == None else json.dumps(widget_render_writecongress_get_identity(request.user)),
 			
-			"ocp": ocp,
-			"org": org,
+			"campaign": campaign,
 			"reason": reason,
 			"bill": bill,
 			"position": position,
@@ -337,6 +343,13 @@ def widget_render_writecongress(request, account, permissions):
 @json_response
 def widget_render_writecongress_action(request, account, permissions):
 	from settings import BENCHMARKING
+	
+	def meta_log(meta):
+		ret = {}
+		for k in ('HTTP_REFERER', 'HTTP_HOST', 'PATH_INFO', 'HTTP_ORIGIN', 'HTTP_USER_AGENT', 'HTTP_COOKIE', 'REMOTE_ADDR'):
+			ret[k] = meta.get(k, None)
+		return repr(ret)
+			
 	
 	########################################
 	if request.POST["action"] == "check-email":
@@ -410,18 +423,14 @@ def widget_render_writecongress_action(request, account, permissions):
 			logout(request)
 		
 		# Record the information for the org. This also occurs at the point of returning user login, checking address, and submit.
-		if "ocp" in request.POST and "demo" not in request.POST:
-			ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
-			if not OrgCampaignPositionActionRecord.objects.filter(ocp=ocp, email=identity["email"]).exists():
-				ocpar = OrgCampaignPositionActionRecord()
-				ocpar.ocp = ocp
-				ocpar.firstname = identity["firstname"]
-				ocpar.lastname = identity["lastname"]
-				ocpar.zipcode = identity["zipcode"]
-				ocpar.email = identity["email"]
-				ocpar.completed_stage = "start"
-				ocpar.request_dump = repr(request.META)
-				ocpar.save()
+		if "campaign" in request.POST and "demo" not in request.POST:
+			ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+				firstname = identity["firstname"],
+				lastname = identity["lastname"],
+				zipcode = identity["zipcode"],
+				email = identity["email"],
+				completed_stage = "start",
+				request_dump = meta_log(request.META) )
 		
 		return {
 			"status": "success",
@@ -451,15 +460,11 @@ def widget_render_writecongress_action(request, account, permissions):
 			# computer, they won't realize they've logged into something.
 
 			# Record the information for the org. This also occurs at the point of new user information, checking the address, and submit.
-			if "ocp" in request.POST and "demo" not in request.POST:
-				ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
-				if not OrgCampaignPositionActionRecord.objects.filter(ocp=ocp, email=email).exists():
-					ocpar = OrgCampaignPositionActionRecord()
-					ocpar.ocp = ocp
-					ocpar.email = email
-					ocpar.completed_stage = "login"
-					ocpar.request_dump = repr(request.META)
-					ocpar.save()
+			if "campaign" in request.POST and "demo" not in request.POST:
+				ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+					email = email,
+					completed_stage = "login",
+					request_dump = meta_log(request.META) )
 			
 
 			return {
@@ -491,21 +496,14 @@ def widget_render_writecongress_action(request, account, permissions):
 				recipients = []
 
 		# Record the information for the org. This also occurs at the point of new user and returning user login and submit.
-		if "ocp" in request.POST and "demo" not in request.POST:
-			ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
-			ocpar = OrgCampaignPositionActionRecord.objects.filter(ocp=ocp, email=request.POST["email"])
-			if not ocpar.exists():
-				ocpar = OrgCampaignPositionActionRecord()
-				ocpar.ocp = ocp
-				ocpar.email = request.POST["email"]
-			else:
-				ocpar = ocpar[0]
-			ocpar.firstname = request.POST["useraddress_firstname"]
-			ocpar.lastname = request.POST["useraddress_lastname"]
-			ocpar.zipcode = request.POST["useraddress_zipcode"]
-			ocpar.completed_stage = "address"
-			ocpar.request_dump = repr(request.META)
-			ocpar.save()
+		if "campaign" in request.POST and "demo" not in request.POST:
+			ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+				email = request.POST["email"],
+				firstname = request.POST["useraddress_firstname"],
+				lastname = request.POST["useraddress_lastname"],
+				zipcode = request.POST["useraddress_zipcode"],
+				completed_stage = "address",
+				request_dump = meta_log(request.META) )
 
 		user = User()
 		user.id = request.POST.get("userid", None)
@@ -530,7 +528,7 @@ def widget_render_writecongress_action(request, account, permissions):
 			return { "status": "fail", "msg": "Address error: " + validation_error_message(e) }
 
 		bill = Bill.objects.get(id=request.POST["bill"])
-		referrer, ocp, message = widget_render_writecongress_getsubmitparams(request.POST, account)
+		referrer, campaign, message = widget_render_writecongress_getsubmitparams(request.POST, account)
 
 		# At this point we increment the service account beancounter for submitted comments for
 		# the purpose of billing the account later. How do we know if we are supposed to charge
@@ -565,7 +563,7 @@ def widget_render_writecongress_action(request, account, permissions):
 			
 			if getattr(p, "congressionaldistrict", None) != None:
 				if "demo" in request.POST: return { "status": "demo-submitted", }
-				save_user_comment(user, bill, request.POST["position"], referrer, message, p, ocp, UserComment.METHOD_WIDGET)
+				save_user_comment(user, bill, request.POST["position"], referrer, message, p, campaign, UserComment.METHOD_WIDGET)
 				status = "submitted"
 
 			else:
@@ -584,27 +582,19 @@ def widget_render_writecongress_action(request, account, permissions):
 		if "demo" in request.POST: return { "status": "demo-" + status, }
 
 		# Record the information for the org. This also occurs at the point of new user and returning user login and address.
-		if "ocp" in request.POST and "demo" not in request.POST:
-			ocp = OrgCampaignPosition.objects.get(id=request.POST["ocp"])
-			ocpar = OrgCampaignPositionActionRecord.objects.filter(ocp=ocp, email=request.POST["email"])
-			if not ocpar.exists(): # it really has to exist by now
-				ocpar = OrgCampaignPositionActionRecord()
-				ocpar.ocp = ocp
-				ocpar.email = request.POST["email"]
-			else:
-				ocpar = ocpar[0]
-			ocpar.firstname = request.POST["useraddress_firstname"]
-			ocpar.lastname = request.POST["useraddress_lastname"]
-			ocpar.zipcode = request.POST["useraddress_zipcode"]
-			ocpar.completed_stage = status
-			ocpar.request_dump = repr(request.META)
-			ocpar.save()
+		if "campaign" in request.POST and "demo" not in request.POST:
+			ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+				email = request.POST["email"],
+				firstname = request.POST["useraddress_firstname"],
+				lastname = request.POST["useraddress_lastname"],
+				zipcode = request.POST["useraddress_zipcode"],
+				completed_stage = status if status != "submitted" else "finished",
+				request_dump = meta_log(request.META) )
 
 		if status == "submitted":
 			return { "status": status }
 
 		axn = WriteCongressEmailVerificationCallback()
-		axn.ocp = ocp
 		axn.post = request.POST
 		axn.password = User.objects.make_random_password()
 		axn.account = account
@@ -651,26 +641,35 @@ def widget_render_writecongress_get_identity(user, address=None):
 
 def widget_render_writecongress_getsubmitparams(post, account):
 	referrer = account
-	ocp = None
-	if "ocp" in post:
-		ocp = OrgCampaignPosition.objects.get(id=post["ocp"])
-		referrer = ocp.campaign
-		if referrer.default: # instead of org default campaign, use org
-			referrer = referrer.org
+	campaign = None
+	if "campaign" in post:
+		try:
+			# Because this is called from an email callback and a
+			# service account could have been deleted in the meanwhile
+			# (especially if it was for testing), wrap in a try.
+			campaign = ServiceAccountCampaign.objects.get(id=post["campaign"])
+			if campaign.account.org != None:
+				referrer = campaign.account.org
+		except:
+			pass
 	message = post["message"]
 	if len(message.strip()) < 8:
 		message = None
 
-	return referrer, ocp, message
+	return referrer, campaign, message
 
 class WriteCongressEmailVerificationCallback:
 	post = None
-	ocp = None
 	password = None
 	account = None
 	
 	def email_subject(self):
-		return "Finish Your Letter to Congress" + (" - " + self.ocp.campaign.org.name + " Needs Your Help" if self.ocp else "")
+		referrer, campaign, message = widget_render_writecongress_getsubmitparams(self.post, self.account)
+		if campaign:
+			org = campaign.account.org
+		else:
+			org = None
+		return "Finish Your Letter to Congress" + (" - " + org.name + " Needs Your Help" if org != None else "")
 	
 	def email_body(self):
 		return """%s,
@@ -689,12 +688,37 @@ To finish your letter and ensure delivery to Congress, click here:
 
 Thanks again,
 
-POPVOX""" % (self.post["useraddress_firstname"], ("""
+POPVOX
+
+
+(We'll send this email again soon in case you miss it the first time.
+If you do not wish to complete the action and do not want to get
+a reminder, please follow this link instead to stop future reminders:
+<KILL_URL>)""" % (self.post["useraddress_firstname"], ("""
 	
 We've also created an account for you at POPVOX so you can revise
 your comment and check on its status.
 
      Your POPVOX password is: """ + self.password) if not User.objects.filter(email=self.post["email"]).exists() else "")
+
+	def email_should_resend(self):
+		if "userid" in self.post and self.post["userid"] != "":
+			user = User.objects.get(id=self.post["userid"])
+		else:
+			try:
+				user = User.objects.get(email=self.post["email"])
+			except User.DoesNotExist:
+				# If the account has not been created, then the action has not been completed.
+				return True
+		
+		bill = Bill.objects.get(id=self.post["bill"])
+		if not user.comments.filter(bill=bill).exists():
+			# the comment does not exist, so the action has not been completed..... unless the user
+			# decided to delete his comment after, which is why we need tracking of hits to the
+			# verification URL and not test if the action was completed. 
+			return True
+			
+		return False
 
 	#@require_lock("auth_user", "popvox_userprofile") # prevent race conditions
 	# The lock is too expensive. Making the requests operate in serial is an
@@ -724,6 +748,12 @@ your comment and check on its status.
 			
 			user = User.objects.create_user(username, self.post["email"], password=self.password)
 			user.save()
+
+			# disable introductory emails, at least for now
+			prof = user.userprofile
+			prof.registration_welcome_sent = True
+			prof.registration_followup_sent = True
+			prof.save()
 			
 			user_is_new = True
 			
@@ -770,11 +800,11 @@ your comment and check on its status.
 				verify_adddress_cached(p, cdyne_response, validate=False)
 
 			# Get the comment details.
-			referrer, ocp, message = widget_render_writecongress_getsubmitparams(self.post, self.account)
+			referrer, campaign, message = widget_render_writecongress_getsubmitparams(self.post, self.account)
 
 			# If the address was OK, save the comment now.
 			if getattr(p, "congressionaldistrict", None) != None:
-				comment = save_user_comment(user, bill, self.post["position"], referrer, message, p, ocp, UserComment.METHOD_WIDGET)
+				comment = save_user_comment(user, bill, self.post["position"], referrer, message, p, campaign, UserComment.METHOD_WIDGET)
 				
 				# the session state will be used if we need to pop up a lightbox
 				return HttpResponseRedirect(bill.url() + "/comment/share")
@@ -789,10 +819,12 @@ your comment and check on its status.
 					"message": self.post["message"]
 					}			
 				request.session["comment-default-address"] = p
-				if ocp != None:
-					request.session["comment-referrer"] = (bill.id, referrer, None, ocp.id)
-				elif referrer != None:
-					request.session["comment-referrer"] = (bill.id, referrer, None)
+				if campaign != None or referrer != None:
+					request.session["comment-referrer"] = { "bill": bill.id }
+					if referrer != None:
+						request.session["comment-referrer"]["referrer"] = referrer
+					if campaign != None:
+						request.session["comment-referrer"]["campaign"] = campaign.id
 				elif "comment-referrer" in request.session:
 					del request.session["comment-referrer"]
 			
@@ -811,12 +843,12 @@ your comment and check on its status.
 					"mode": "widget_writecongress",
 					}, context_instance=RequestContext(request))
 
-@cache_page(60*60*12) # twelve hours, seems to have no effect on speed
+#@cache_page_postkeyed(60*60*12) # twelve hours
 @cache_control(public=True, max_age=60*60*12)
 def image(request, fn):
-	if not re.match(r"writecongress/(1|2|3|4|check|expand|next|preview|send|send-without|widget_writerep_progress)", fn):
+	if not re.match(r"^writecongress/(1|2|3|4|check|expand|next|preview|send|send-without|widget_writerep_progress|support-btn|oppose-btn)$", fn):
 		raise Http404()
-
+	
 	import rsvg, cairo
 	import os.path, StringIO
 	import settings
@@ -826,8 +858,17 @@ def image(request, fn):
 
 	for sub in request.GET.getlist("sub"):
 		sp = sub.split(",")
-		if len(sp) == 2:
-			find, replace = sp
+		if len(sp) in (2, 3):
+			find, replace = sp[0:2]
+			
+			if len(sp) == 3 and sp[2] == "darken":
+				# reduce lightness by a factor
+				def darken(c):
+					h = hex(int(float(int(c,16)) * .5)).replace("0x","")
+					if len(h) < 2: h = "0" + h
+					return h
+				replace = darken(replace[0:2]) + darken(replace[2:4]) + darken(replace[4:6])
+		
 			# TODO: Check that replace only has # and hex digits.
 			data = data.replace(str(find), str(replace))
 
@@ -867,3 +908,68 @@ def image(request, fn):
 	surf.write_to_png(buf)
 
 	return HttpResponse(buf.getvalue(), mimetype="image/png")
+
+@login_required
+def download_supporters(request, campaignid, dataformat):
+	if not request.user.is_superuser:
+		user_accounts = request.user.userprofile.service_accounts(create=False)
+		campaign = get_object_or_404(ServiceAccountCampaign, id=campaignid, account__in=user_accounts)
+	else:
+		campaign = get_object_or_404(ServiceAccountCampaign, id=campaignid)
+	
+	column_names = ['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode']
+	column_keys = ['id', 'created', 'email', 'firstname', 'lastname', 'zipcode']
+	
+	import csv, json
+	
+	response = HttpResponse(mimetype='text/' + dataformat)
+	response['Content-Disposition'] = 'attachment; filename=userdata.' + dataformat
+	
+	ret = []
+	
+	recs = campaign.actionrecords.all()
+	total_records = recs.count()
+	if request.GET.get("iSortingCols", "") != "":
+		order = []
+		for i in xrange(int(request.GET["iSortingCols"])):
+			col = int(request.GET["iSortCol_" + str(i)])
+			if request.GET.get('bSortable_' + str(col), "") == "true":
+				order.append( ("" if request.GET.get("sSortDir_" + str(i), "asc") == "asc" else "-") + column_keys[col] )
+		recs = recs.order_by(*order)
+	if "iDisplayStart" in request.GET and "iDisplayLength" in request.GET:
+		recs = recs[int(request.GET["iDisplayStart"]):int(request.GET["iDisplayStart"])+int(request.GET["iDisplayLength"])]
+	
+	if dataformat == "csv":
+		writer = csv.writer(response)
+		writer.writerow(column_names)
+	
+	for rec in recs:
+		row = [unicode(getattr(rec, k)).encode("utf-8") for k in column_keys]
+		if dataformat == "csv":
+			writer.writerow(row)
+		if dataformat == "json":
+			ret.append(row)
+			
+	if dataformat == "json":
+		ret = {
+			"iTotalRecords": total_records,
+			"iTotalDisplayRecords": total_records, # if there is filtering, which there is not
+			"aaData": ret,
+		}
+		response.write(json.dumps(ret))
+	
+	return response
+
+@csrf_protect
+@login_required
+def analytics(request):
+	accts = request.user.userprofile.service_accounts()
+	if request.user.is_superuser and "org" in request.GET:
+		accts = ServiceAccount.objects.filter(org__slug=request.GET["org"])
+	
+	return render_to_response('popvox/services_analytics.html', {
+			"accts": accts,
+			"MIXPANEL_API_KEY": MIXPANEL_API_KEY,
+			"has_campaigns": ServiceAccountCampaign.objects.filter(account__in=accts).exists()
+		}, context_instance=RequestContext(request))
+

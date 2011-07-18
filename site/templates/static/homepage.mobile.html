@@ -1,0 +1,68 @@
+{% extends "master.html" %}
+{% load registration_providers %}
+{% block title %}POPVOX - Your Voice. Verified. Quantified. Amplified.{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
+{% block disable_login_redirect %}{% endblock %}
+{% block head %}
+{% endblock %}
+{% block content %}
+
+<div data-role="page">
+
+    <div id="header">
+    	<div class="logo">
+    	<img src="/media/mobile/logo2.png" alt="Popvox">
+   		</div>
+   		<div class="hLeft" style=" text-shadow: none; font-family: georgia; font-weight: bold; font-style: italic;">
+   		Welcome, <span style="font-family: helvetica; font-weight: bold; font-weight: bold; font-style: normal;">joshmlewis</span>
+   		</div>
+   			
+    </div><!-- /header -->
+    
+    
+    <div id="searchCon">
+    
+    <div class="search" data-role="fieldcontain">
+    <input type="search" name="password" id="search" value="" />
+	</div>
+	
+	</div>
+	
+	<div data-role="content">
+			
+            <ul data-role="listview" data-inset="false" data-theme="c" data-dividertheme="p">
+                <li data-role="list-divider">Bills In Congress</li>
+                <li><a href="suggestions.html" data-transition="slide">Suggestions</a></li>
+                <li><a href="/bills" data-transition="slide">Trending</a></li>
+                <li><a href="highlights.html" data-transition="slide">Highlights</a></li>
+                <li><a href="#recent" data-transition="slide">Recent Activity</a></li>
+            </ul>
+            
+            
+            <ul data-role="listview" data-inset="false" data-theme="c" data-dividertheme="p" style="margin-top: 15px;">
+                <li data-role="list-divider" >Organizations</li>
+                <li><a href="effects.php?id=slide" data-transition="slide">Recently Updated</a></li>
+                <li><a href="effects.php?id=slide" data-transition="slide">Browse By Issue Area</a></li>
+                <li><a href="effects.php?id=slide" data-transition="slide">Browse By State</a></li>
+            </ul>
+
+			<ul data-role="listview" data-inset="false" data-theme="c" data-dividertheme="p" style="margin-top: 15px;">
+                <li data-role="list-divider" >Everything Else</li>
+                <li><a href="effects.php?id=slide" data-transition="slide">Meet Our Team</a></li>
+                <li><a href="effects.php?id=slide" data-transition="slide">View Our Blog</a></li>
+                <li><a href="effects.php?id=slide" data-transition="slide">Contact Us</a></li>
+            </ul>
+	</div>
+	
+    <div data-role="footer">
+        <h4>Mobile | Desktop</h4>
+    </div><!-- /header -->
+</div><!-- /page -->
+
+
+
+
+{% endblock %}
+{% block footer %}
+{% endblock %}

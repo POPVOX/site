@@ -23,14 +23,32 @@ else:
 
 APP_NICE_SHORT_NAME = "POPVOX"
 EMAIL_SUBJECT_PREFIX = "[POPVOX] "
+
+EMAILVERIFICATION_FROMADDR = "POPVOX <info@popvox.com>"
 SERVER_EMAIL = "POPVOX <no.reply@popvox.com>"
-EMAIL_HOST = "occams.info" # because our EC2 IP was formerly used for spam
-EMAIL_HOST_USER = "popvox"
-EMAIL_HOST_PASSWORD = "qsg;5TtC"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
+
+if DEBUG: #os.environ.get("EMAIL_BACKEND") != "AWS-SES" or DEBUG:
+	# When DEBUG is set these parameters are ignored
+	# but crucially we do not set the email backend
+	# to AWS SES.
+	EMAIL_HOST = "occams.info" # because our EC2 IP was formerly used for spam
+	EMAIL_HOST_USER = "popvox"
+	EMAIL_HOST_PASSWORD = "qsg;5TtC"
+	EMAIL_PORT = 587
+	EMAIL_USE_TLS = True
+else:
+	# For AWS SES:
+	#  The SERVER_EMAIL and EMAILVERIFICATION_FROMADDR must be 
+	#  verified with ./ses-verify-email-address.pl.
+	#  We must be approved for production use.
+	#  The SPF record on the domain must include "include:amazonses.com".
+	#  https://github.com/hmarr/django-ses:
+	#   django_ses is added to installed apps for management commands.
+	#   plus with django_ses.urls mapped to /admin/ses for the dash.
+	#  We should really be monitoring the statistics.
+	EMAIL_BACKEND = 'django_ses.SESBackend'
 
 SEND_BROKEN_LINK_EMAILS = False
 CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
@@ -172,6 +190,7 @@ INSTALLED_APPS = (
     'tinymce',
     'feedback',
     'picklefield',
+    'django_ses',
     #'stockphoto',
     'jquery',
     'writeyourrep',
@@ -200,9 +219,6 @@ ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, us
 # phone_number_twilio app
 TWILIO_INCOMING_RESPONSE = "Thank you for calling pop vox. For more information, please see pop vox dot com. Goodbye."
 TWILIO_STORE_HASHED_NUMBERS = True
-
-# emailverification and default email address
-EMAILVERIFICATION_FROMADDR = "POPVOX <info@popvox.com>"
 
 # Registration.
 FACEBOOK_AUTH_SCOPE = "email" #,offline_access,publish_stream,user_location"

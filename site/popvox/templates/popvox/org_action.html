@@ -119,10 +119,14 @@ function validate(form) {
 				<input type="hidden" name="orgcampaignposition" value="{{position.id}}"/>
 				<input id="name_first" name="name_first" class="c3" type="text">
 				<input id="name_last" name="name_last" class="c3 last" type="text"><br />
+				{% if not request.user.is_authenticated %}
 				<input id="email" name="email" class="c3" type="text">
+				{% else %}
+				<input id="email" name="email" type="hidden" value="{{request.user.email}}">
+				{% endif %}
 				<input id="zip" name="zip" class="c2 last" type="text"><br />
 				<div class="radio">
-			        <input id="share_with_org" type="checkbox" name="share_with_org" checked="1"/>
+			        <input id="share_with_org" type="checkbox" name="share_with_org" checked="1" value="1"/>
 			        <p><label for="share_with_org">Share my info with {{position.campaign.org.name}}?</label></p>
 				</div>
 				<script>
@@ -139,7 +143,12 @@ function validate(form) {
 		
 			{% if admin %}
 				<p class="whattodonext">
-					{{num}} user{{num|pluralize}} filled out this form so far.<br/><br/>Download data in <a href="{{position.get_absolute_url}}/_download/csv">CSV</a> format.
+					{{num}} user{{num|pluralize}} filled out this form so far.
+					{% if campaign %}
+						<br/><br/>Download data in <a href="/services/api/campaign/{{campaign.id}}/supporters/csv">CSV</a> format.
+					{% else %}
+						You&rsquo;ll be able to download supporter information in CSV format.
+					{% endif %}
 				</p>
 			{% endif %}
 		</div>

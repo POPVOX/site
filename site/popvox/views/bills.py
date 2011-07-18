@@ -458,7 +458,7 @@ def bill(request, congressnumber, billtype, billnumber):
 		# Referral to this bill. If the link owner left a comment on the bill,
 		# then we can use that comment as the basis of the welcome
 		# message.
-		request.session["comment-referrer"] = (bill.id, request.session["shorturl"].owner, request.session["shorturl"].id)
+		request.session["comment-referrer"] = {"bill": bill.id, "referrer": request.session["shorturl"].owner, "shorturl": request.session["shorturl"].id }
 		if isinstance(request.session["shorturl"].owner, Org):
 			welcome = "Hello! " + request.session["shorturl"].owner.name + " wants to tell you about " + bill.displaynumber() + " on POPVOX.  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			try:
@@ -526,8 +526,16 @@ If the link is not clickable, please copy and paste it into your web browser.
 
 All the best,
 
-POPVOX"""
-	
+POPVOX
+
+(We'll send this email again soon in case you miss it the first time.
+If you do not wish to complete the action and do not want to get
+a reminder, please follow this link instead to stop future reminders:
+<KILL_URL>)"""
+
+	def email_should_resend(self):
+		return not User.objects.filter(email = self.registrationinfo.email).exists()
+
 	def get_response(self, request, vrec):
 		# Create the user and log the user in.
 		self.registrationinfo.finish(request)
@@ -635,16 +643,15 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		# If we're coming from a customized org action page...
 		if "orgcampaignposition" in request.POST:
 			billpos = get_object_or_404(OrgCampaignPosition, id=request.POST["orgcampaignposition"], bill=bill)
-			request.session["comment-referrer"] = (bill.id, billpos.campaign, None, billpos.id if "share_with_org" in request.POST else None)
+			request.session["comment-referrer"] = {"bill": bill.id, "referrer": billpos.campaign }
 			request.session["comment-default-address"] = (request.POST["name_first"], request.POST["name_last"], request.POST["zip"], request.POST["email"])
-			if "share_with_org" in request.POST:
-				rec, created = OrgCampaignPositionActionRecord.objects.get_or_create(
-					ocp = billpos,
+			if request.POST.get("share_with_org", "") == "1":
+				request.session["comment-referrer"]["campaign"] = billpos.get_service_account_campaign().id
+				billpos.get_service_account_campaign().add_action_record(
 					email = request.POST["email"],
-					defaults={
-						"firstname": request.POST["name_first"],
-						"lastname": request.POST["name_last"],
-						"zipcode": request.POST["zip"] } )
+					firstname = request.POST["name_first"],
+					lastname = request.POST["name_last"],
+					zipcode = request.POST["zip"] )
 	
 		request.session.set_test_cookie() # tested in on the client side
 		return render_to_response('popvox/billcomment_start.html', {
@@ -846,25 +853,26 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 		# If the user came by a short URL to this bill, store the owner of
 		# the short URL as the referrer on the comment.
 		referrer = None
-		ocp = None
-		if "comment-referrer" in request.session and request.session["comment-referrer"][0] == bill.id and len(request.session["comment-referrer"]) >= 3:
+		campaign = None
+		if "comment-referrer" in request.session and type(request.session["comment-referrer"]) == dict and request.session["comment-referrer"]["bill"] == bill.id:
+			rx = request.session["comment-referrer"]
 			
-			referrer = request.session["comment-referrer"][1]
+			referrer = rx.get("referrer", None)
 			
-			if request.session["comment-referrer"][2] != None:
+			if "shorturl" in rx:
 				import shorturl.models
-				surl = shorturl.models.Record.objects.get(id=request.session["comment-referrer"][2])
+				surl = shorturl.models.Record.objects.get(id=rx["shorturl"])
 				surl.increment_completions()
 				
-			if len(request.session["comment-referrer"]) >= 4:
-				try: # ocp/bill mismatch, ocp deleted?
-					ocp = OrgCampaignPosition.objects.get(id=request.session["comment-referrer"][3], bill=bill)
+			if "campaign" in rx:
+				try: # sac/bill mismatch, ocp deleted?
+					campaign = ServiceAccountCampaign.objects.get(id=rx["campaign"], bill=bill)
 				except:
-					ocp = None
+					pass
 				
 			del request.session["comment-referrer"]
 
-		save_user_comment(request.user, bill, position, referrer, message, address_record, ocp, UserComment.METHOD_SITE)
+		save_user_comment(request.user, bill, position, referrer, message, address_record, campaign, UserComment.METHOD_SITE)
 			
 		# Clear the session state set in the preview. Don't clear until the end
 		# because if the user is redirected back to ../finish we need the session
@@ -929,7 +937,7 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	else:
 		raise Http404()
 
-def save_user_comment(user, bill, position, referrer, message, address_record, ocp, method):
+def save_user_comment(user, bill, position, referrer, message, address_record, campaign, method):
 	# If a comment exists, update that record.
 	comment = None
 	for c in user.comments.filter(bill = bill):
@@ -990,19 +998,14 @@ def save_user_comment(user, bill, position, referrer, message, address_record, o
 	if referrer != None:
 		UserCommentReferral.create(comment, referrer)
 	
-	if ocp != None:
-		# Update the OrgCampaignPositionActionRecord to track that the comment was
-		# completed.
-		ocpar, created = OrgCampaignPositionActionRecord.objects.get_or_create(
-			ocp = ocp,
+	if campaign != None:
+		campaign.add_action_record(
 			email = user.email,
-			defaults={
-				"firstname": address_record.firstname,
-				"lastname": address_record.lastname,
-				"zipcode": address_record.zipcode } )
-		ocpar.completed_comment = comment
-		ocpar.completed_stage = "finished"
-		ocpar.save()
+			firstname = address_record.firstname,
+			lastname = address_record.lastname,
+			zipcode = address_record.zipcode,
+			completed_comment = comment,
+			completed_stage = "finished")
 		
 	return comment
 				
@@ -1055,7 +1058,7 @@ def billshare(request, congressnumber, billtype, billnumber, commentid = None):
 	welcome = None
 	if "shorturl" in request.session and request.session["shorturl"].target == comment:
 		surl = request.session["shorturl"]
-		request.session["comment-referrer"] = (bill.id, surl.owner, surl.id)
+		request.session["comment-referrer"] = {"bill": bill.id, "referrer": surl.owner, "shorturl": surl.id}
 		welcome = comment.user.username + " is using POPVOX to send their message to Congress. He or she left this comment on " + bill.displaynumber() + "."
 		del request.session["shorturl"] # so that we don't indefinitely display the message
 

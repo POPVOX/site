@@ -3,10 +3,12 @@
 # This script generates an email report for a legislative office on activity in their
 # district.
 
-# Include info on how to find names and addresses.
+# support for reintro; remove franking note.
 
 from django.db.models import Count
 from django.core.mail import EmailMultiAlternatives
+from django.template import Context, Template
+from django.template.loader import get_template
 
 from popvox.models import *
 from popvox.govtrack import *
@@ -14,50 +16,54 @@ from popvox.govtrack import *
 import cgi
 from datetime import date, datetime, timedelta
 
-def generate_report(recipient, office, report_start_date, report_end_date):
+def generate_report(recipient, office, report_start_date, report_end_date, download_csv):
 	# an office is either e.g. "NY-S3" or "NY-H21".
 
-	report = { "text": "", "html": "" }
-	
 	state = office[0:2]
 	chamber = office[3]
 	district = None
+	districtord = None
 
-	def write(text, html, tag=None, escape=True, attrs=""):
-		if text != None:
-			if tag == "h2":
-				report["text"] += "\n\n"
-			report["text"] += text + "\n\n"
-
-		if html == None:
-			#if text[0] == "\t":
-			#	attrs = " style='margin-left: 2em'"
-			if escape:
-				text = cgi.escape(text)
-			html = "<%s%s>%s</%s>\n" % (tag, attrs, text, tag)
-		report["html"] += html + "\n"
-	
+	def strftime(date):
+		return unicode(date.strftime("%b %d, %Y").replace(" 0", " "))
+	def strftime2(date):
+		return unicode(date.strftime("%b %d").replace(" 0", " "))
+		
 	if chamber == "H" and office[4:] != "0":
 		district = int(office[4:])
-		subject = u"POPVOX Report for %s's %s%s Congressional District" % (statenames[state], str(district), ordinate(district))
+		districtord = ordinate(district)
+		subject = u"POPVOX Report %s for %s's %s%s Congressional District" % (strftime(report_end_date), statenames[state], str(district), ordinate(district))
 	else:
-		subject = u"POPVOX Report for %s (Senate Offices)" % statenames[state]
-
-	write(subject, None, tag="h1")
+		subject = u"POPVOX Report %s for %s (Senate Offices)" % (strftime(report_end_date), statenames[state])
 
 	all_time_comments = UserComment.objects.filter(state = state)
-	if district != None: all_time_comments = comments.filter(congressionaldistrict = district)
+	if district != None: all_time_comments = all_time_comments.filter(congressionaldistrict = district)
 	comments = all_time_comments.filter(created__gte = report_start_date, created__lte = report_end_date)
-		
-	def strftime(date):
-		return unicode(date.strftime("%a, %b %d, %Y").replace(" 0", " "))
-	write(strftime(report_start_date) + " to " + strftime(report_end_date), None, tag="p")
 	
-	write(unicode(comments.values("user").distinct().count()) + " constituents took " + str(comments.count()) + " new positions and wrote " + str(comments.filter(message__isnull=False).count()) + " letters", None, tag="p", escape=False)
+	html_template = get_template("popvox/emails/legreport.html")
+	text_template = get_template("popvox/emails/legreport.txt")
 	
-	write(
-		u"(The names and addresses of your constituents weighing in to POPVOX are available to you at www.popvox.com/congress and are letters for the purposes of franking.)",
-		u"<p>(The names and addresses of your constituents weighing in to POPVOX are available to you at <a href='http://www.popvox.com/congress'>popvox.com/congress</a>. They were submitted as letters to Congress and so can be responded to under franking.)</p>", escape=False)
+	template_ctx = Context()
+	
+	template_ctx["state"] = state
+	template_ctx["statename"] = statenames[state]
+	template_ctx["district"] = district
+	template_ctx["districtord"] = districtord
+	
+	template_ctx["subject"] = subject
+	
+	template_ctx["startdate1"] = strftime(report_start_date)
+	template_ctx["enddate1"] = strftime(report_end_date)
+	template_ctx["startdate2"] = strftime2(report_start_date)
+	template_ctx["enddate2"] = strftime2(report_end_date)
+	
+	template_ctx["download_csv"] = download_csv
+	
+	template_ctx["users"] = comments.values("user").distinct().count()
+	template_ctx["positions"] = comments.count()
+	template_ctx["letters"] = comments.filter(message__isnull=False).count()
+	
+	template_ctx["imgroot"] = "https://www.popvox.com/media/email"
 	
 	# Order by bill. Sort by whether the bill is up for a vote next in the chamber,
 	# then by number of positions left.
@@ -69,43 +75,31 @@ def generate_report(recipient, office, report_start_date, report_end_date):
 			bill["relevant"] = (bill["bill"].getChamberOfNextVote() == chamber.lower())
 	bills.sort(key = lambda x : (not x["relevant"], -x["count"]))
 	
-	# Only the top 25 bills.
-	bills = bills[0:25]
+	# Only the top 25 bills, and pull out just the bill part.
+	bills = [b["bill"] for b in bills[0:25]]
+	template_ctx["bills"] = bills
 	
 	# Output...
 	for bill in bills:
-		title = bill["bill"].title
-		if len(title) > 120: title = title[0:120] + "..."
-		write(title, None, tag="h2")
-		write(u"(Status: " + bill["bill"].status_advanced() + ")", None, tag="p")
+		for key, source in (("new", comments), ("alltime", all_time_comments)):
+			billcomments = source.filter(bill=bill)
+			billcomments_letters = billcomments.filter(message__isnull=False)
+			
+			setattr(bill, "comments_" + key, {
+					"positions": billcomments.count(),
+					"letters": billcomments_letters.count(),
+					"supporting": billcomments.filter(position="+").count(),
+					"opposing": billcomments.filter(position="-").count(),
+			})
 	
-		write(None, "<table><tr valign='top'>", escape=False)
-	
-		for label, source in ((u"New Since " + strftime(report_start_date), comments), (u"All-Time", all_time_comments)):
-			billcomments = source.filter(bill=bill["bill"])
-			
-			write(None, "<td width='50%' style='padding: 0 1.5em 0 1.5em'>", escape=False)
-			write(label + ":", None, tag="h3")
-			
-			lx = billcomments.filter(message__isnull=False).count()
-			write(u"\t" + str(billcomments.count()) + " constituent(s) weighed in"
-				+ (" and wrote " + str(lx) + " letter(s)" if lx > 0 else ""), None, tag="p")
-			write(u"\t" + "Supporting: " + str(billcomments.filter(position="+").count()), None, tag="p")
-			write(u"\t" + "Opposing: " + str(billcomments.filter(position="-").count()), None, tag="p")
-			
-			write(None, "</td>", escape=False)
-			
-		write(None, "</tr></table>", escape=False)
-			
-		write(u"for more see http://www.popvox.com" + bill["bill"].url() + "/report",
-			"<p style='margin-left: 1.5em'>for more see <a href='http://www.popvox.com" + bill["bill"].url() + "/report'>popvox.com" + bill["bill"].url() + "/report</a>", escape=False)
-	
-	write(u"Let us know what other information you would like to see here!", None, tag="p")
-
-	msg = EmailMultiAlternatives(subject, report["text"], "POPVOX <congress@popvox.com>", [recipient])
-	msg.attach_alternative(report["html"], "text/html")
+	msg = EmailMultiAlternatives(
+		subject,
+		text_template.render(template_ctx),
+		"POPVOX <congress@popvox.com>",
+		[recipient])
+	msg.attach_alternative(html_template.render(template_ctx), "text/html")
 	msg.send()
 
 if __name__ == "__main__":	
-	generate_report("josh@popvox.com", "NY-S1", date(2011, 06, 01), date(2011, 06, 19))
+	generate_report("josh@joshmlewis.com", "PA-H02", date(2011, 06, 01), date(2015, 06, 19), True)
 

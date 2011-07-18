@@ -1,13 +1,14 @@
 git clone http://github.com/shrubberysoft/django-picklefield.git
 git clone http://github.com/simplegeo/python-oauth2.git
 git clone http://github.com/openid/python-openid.git
+git clone https://github.com/boto/boto.git
 hg clone http://bitbucket.org/david/django-storages
 svn checkout http://oauth-python-twitter2.googlecode.com/svn/trunk/ oauth-python-twitter2
 svn checkout http://django-tinymce.googlecode.com/svn/trunk/ django-tinymce
 hg clone https://jfm@bitbucket.org/jfm/django-stockphoto/
 
 git clone git://github.com/tauberer/django-feedback-pv.git
-   #git clone https://tauberer@github.com/tauberer/django-feedback-pv.git
+git clone https://github.com/tauberer/django-ses.git
 
 wget -O tinymce.zip "http://downloads.sourceforge.net/project/tinymce/TinyMCE/3.3.9.2/tinymce_3_3_9_2_jquery.zip?r=http%3A%2F%2Ftinymce.moxiecode.com%2Fdownload.php&ts=1292511357&use_mirror=superb-sea2"
 unzip tinymce.zip
