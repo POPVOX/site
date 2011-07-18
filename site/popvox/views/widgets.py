@@ -116,7 +116,7 @@ def commentmapus(request):
 	return render_to_response('popvox/widgets/commentsmapus.html', {
 		"bill": bill,
 		"data": count.items(),
-		"min_sz_num": int(float(max_count)/5.0)+1,
+		"min_sz_num": int(float(max_count)/5.0) if max_count > 5 else 1,
 		"max_sz_num": max_count,
 	}, context_instance=RequestContext(request))
 

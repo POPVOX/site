@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from urllib import urlopen
 from xml.dom import minidom
 import re
+import hashlib
 
 from tinymce import models as tinymce_models
 from picklefield import PickledObjectField
@@ -1384,9 +1385,34 @@ class ServiceAccountCampaign(models.Model):
 		if self.mpbucket: return self.mpbucket
 		return "sac_" + str(self.id)
 	def mixpanel_bucket_secret(self):
-		import hashlib
-		from settings import MIXPANEL_API_SECRET
-		return hashlib.md5(MIXPANEL_API_SECRET + self.mixpanel_bucket()).hexdigest()
+		return hashlib.md5(settings.MIXPANEL_API_SECRET + self.mixpanel_bucket()).hexdigest()
+	def mixpanel_totals(self):
+		from mixpanel import Mixpanel
+		api = Mixpanel(api_key=settings.MIXPANEL_API_KEY, api_secret=settings.MIXPANEL_API_SECRET)
+		events = api.request(['events'], {
+			'event' : ['widget_writecongress_hit', 'widget_writecongress_share'],
+			'unit' : 'month',
+			'interval' : 24, # what happens 24 months from now? the mix of mixpanel and our own counts will go out of sync
+			'type': 'unique',
+			'bucket': self.mixpanel_bucket()
+			})
+		try:
+			hits = 0
+			hits = sum(events["data"]["values"]["widget_writecongress_hit"].values())
+		except:
+			pass
+		try:
+			shares = 0
+			shares = sum(events["data"]["values"]["widget_writecongress_share"].values())
+		except:
+			pass
+		return { "hit": hits, "share": shares }
+	def first_action_date(self):
+		return self.actionrecords.order_by('created')[0].created
+	def last_action_date(self):
+		return self.actionrecords.order_by('-created')[0].created
+	def total_widget_records(self):
+		return self.actionrecords.filter(completed_stage__isnull=False).count()
 	def add_action_record(self, **kwargs):
 		email = kwargs.pop("email")
 		rec, isnew = ServiceAccountCampaignActionRecord.objects.get_or_create(
