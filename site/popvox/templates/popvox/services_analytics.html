@@ -21,6 +21,168 @@ h4 { font: bold 14px/16px "LucidaGrande",helvetica,arial,sans-serif; margin-bott
 #analytics_numbers th, #analytics_numbers td { font-size: 13px;  padding: 6px 6px 0 0; }
 #analytics_numbers p { margin-top: 6px; font-style: italic; font-size: 11px; }
 .chart_title { text-align: center; }
+
+/***** PUT MORE STYLES HERE *****/
+
+@font-face {
+    font-family: 'BebasNeueRegular';
+    src: url('/media/widget/BebasNeue-webfont.eot');
+    src: url('/media/widget/BebasNeue-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/media/widget/BebasNeue-webfont.woff') format('woff'),
+         url('/media/widget/BebasNeue-webfont.ttf') format('truetype'),
+         url('/media/widget/BebasNeue-webfont.svg#BebasNeueRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+#widgetBox {
+background: #e8e5df;
+height: 426px;
+width: 715px;
+}
+
+.boxes {
+background: url(/media/widget/box.png) no-repeat;
+padding-top: 22px;
+height: 128px;
+width: 132px;
+padding-left: 8px;
+background-position: bottom right;
+float:left;
+}
+
+.first {
+/***padding-left: 22px;***/
+padding-left: 0px;
+}
+
+.last {
+/***padding-right: 22px;
+background-position: 12px 22px;***/
+}
+
+.stat {
+font-family: 'BebasNeueRegular';
+color: white;
+width: 132px;
+margin: 0 auto;
+text-align: center;
+}
+
+.top {
+padding-top: 22px;
+font-size: 48px;
+
+}
+
+.bottom {
+padding-top: 8px;
+font-size: 26px;
+}
+
+#headLeft {
+/***padding-left: 22px;****/
+padding-top: 21px;
+width: 400px;
+}
+
+.wTitle {
+font-family: 'BebasNeueRegular';
+font-size: 26px;
+color: #75757d;
+}
+
+.wSubTitle {
+padding-top: 5px;
+font-family: Helvetica, Tahoma;
+font-size: 18px;
+color: #75757d;
+font-weight: normal;
+}
+
+#headRight {
+width: 200px;
+float: right;
+margin-top: -44px;
+padding-right: 22px;
+text-align: right;
+}
+
+.wDate {
+font-family: Helvetica, Tahoma;
+font-size: 18px;
+color: #75757d;
+font-weight: normal;
+}
+
+.dCustom {
+font-size: 14px;
+font-style: italic;
+}
+
+#iconContain {
+width: 100%;
+clear: both;
+}
+
+.icons {
+float: left;
+width: 141px;
+padding-top: 10px;
+height: 115px;
+}
+
+.iconFirst {
+/***margin-left: 22px;***/
+background: url(/media/widget/pointer.png) no-repeat 40% 20%;
+}
+
+
+/***Support** 
+.iconSecond {
+background: url(/media/widget/support.png) no-repeat 40% 30%;
+}
+**/
+
+/**Support and Oppose**/
+.iconSecond {
+background: url(/media/widget/oppose.png) no-repeat 20% 30%;
+}
+
+
+
+
+.iconThird {
+background: url(/media/widget/house.png) no-repeat 40% 20%;
+}
+
+.iconFourth {
+background: url(/media/widget/letter.png) no-repeat 40% 30%;
+}
+
+.iconFifth {
+background: url(/media/widget/confirmed.png) no-repeat 40% 15%;
+}
+
+.iconText {
+background: url(/media/widget/arrow.png) no-repeat 100% 40%;
+font-size: 13px;
+font-family: Helvetica, Tahoma;
+font-weight: bold;
+color: #75757d;
+padding-top: 80px;
+text-align: center;
+padding-right: 17px;
+padding-left: 5px;
+}
+
+.textLast {
+background: none;
+}
+
+
 </style>
 {% endblock %}
 {% block content %}
@@ -147,7 +309,7 @@ h4 { font: bold 14px/16px "LucidaGrande",helvetica,arial,sans-serif; margin-bott
 					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
 					campaign_info["{{cam.id}}"] = {
 						title: "{{cam.bill.title_or_streetname|truncatewords:10|escapejs}} {% if accts|length > 1 %}[{{acct.org.slug}}]{% endif %}",
-						descr: "{% if cam.bill.officialtitle %}{{cam.bill.officialtitle|escapejs}}{% endif %}",
+						descr: "{% if cam.bill.officialtitle %}{{cam.bill.officialtitle|truncatewords:25|escapejs}}{% endif %}",
 						mixpanel_bucket: "{{cam.mixpanel_bucket|escapejs}}",
 						mixpanel_bucket_secret: "{{cam.mixpanel_bucket_secret|escapejs}}",
 						download_url: "/services/api/campaign/{{cam.id}}/supporters/",
@@ -163,6 +325,95 @@ h4 { font: bold 14px/16px "LucidaGrande",helvetica,arial,sans-serif; margin-bott
 	
 	<h2>S. 1234</h2>
 	<p class="campaign_summary">A bill to do this and that.</p>
+
+
+
+<!---My HTML--->
+
+<div id="widgetBox">
+	<div id="headLeft">
+		<span class="wTitle">Solar Energy Industries Association</span><br />
+		<span class="wSubTitle">S. 1108: The 10 Million Solar Roofs Act</span>
+	</div>
+	
+	<div id="headRight">
+		<span class="wDate">6-27-11 <span class="dCustom">thru</span> 7-13-11</span>
+	</div>
+	
+	<div id="boxContain">
+		<div class="boxes first">
+			<div class="stat top">
+			1868
+			</div>
+			<div class="stat bottom">
+			100%
+			</div>		
+		</div>
+		<div class="boxes">
+			<div class="stat top">
+			763
+			</div>
+			<div class="stat bottom">
+			41%
+			</div>	
+		</div>
+		<div class="boxes">
+			<div class="stat top">
+			707
+			</div>
+			<div class="stat bottom">
+			37%
+			</div>	
+		</div>
+		<div class="boxes">
+			<div class="stat top">
+			652
+			</div>
+			<div class="stat bottom">
+			35%
+			</div>	
+		</div>
+		<div class="boxes last">
+			<div class="stat top">
+			424
+			</div>
+			<div class="stat bottom">
+			23%
+			</div>	
+		</div>
+	</div>
+	
+	<div id="iconContain">
+		<div class="icons iconFirst">
+			<div class="iconText">
+			landed on the widget page
+			</div>
+		</div>
+		<div class="icons iconSecond">
+			<div class="iconText">
+			weighed in & gave their email
+			</div>
+		</div>
+		<div class="icons iconThird">
+			<div class="iconText">
+			provided their mailing address
+			</div>
+		</div>
+		<div class="icons iconFourth">
+			<div class="iconText">
+			wrote letter to Congress
+			</div>
+		</div>
+		<div class="icons iconFifth">
+			<div class="iconText textLast">
+			confirmed email & sent letter
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
 	
 	<h3>Analytics</h3>
 	<p id="analytics_alt">There are no analytics to display for this campaign.</p>
