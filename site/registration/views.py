@@ -4,8 +4,10 @@ from django.core.urlresolvers import reverse, resolve
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_protect
 
 import urlparse
 
@@ -444,7 +446,7 @@ class ResetPasswordAction:
 		user = User.objects.get(id = self.userid, email = self.email)
 		
 		# randomize the password
-		newpw = User.objects.make_random_password(length=8, allowed_chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789')
+		newpw = User.objects.make_random_password(length=6, allowed_chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789')
 		user.set_password(newpw)
 		user.save()
 		
@@ -480,26 +482,48 @@ def resetpassword(request):
 		try:
 			validate_captcha(request)
 			
-			try:
-				user = User.objects.get(email = request.POST["email"].strip())
-				
-				axn = ResetPasswordAction()
-				axn.userid = user.id
-				axn.email = user.email 
-				
-				send_email_verification(user.email, None, axn)
-			except:
-				pass
+			user = User.objects.get(email = request.POST["email"].strip())
 			
-			status = "We've sent an email to that address with further instructions. If you do not receive an email, 1) check your junk mail folder and 2) make sure you correctly entered the address that you registered on this site."
+			axn = ResetPasswordAction()
+			axn.userid = user.id
+			axn.email = user.email 
 			
-		except:
-			status = "The reCAPTCHA validation words you typed weren't right."
+			send_email_verification(user.email, None, axn)
+			
+			status = "OK"
+		except forms.ValidationError:
+			status = "The reCAPTCHA validation words you typed weren't right. Please try again"
+		except User.DoesNotExist:
+			status = "That's not the email address of a registered user on the site. Check the spelling and try again, please."
 		
 	return render_to_response('registration/reset_password.html', {
 		"status": status,
 		"captcha": captcha_html(),
+		"email": request.POST.get("email", None)
 		},
 		context_instance=RequestContext(request))
 
+@login_required
+@csrf_protect
+def password_change(request):
+	if "password" not in request.POST:
+		return render_to_response('registration/password_change_form.html', context_instance=RequestContext(request))
+		
+	if request.POST["password"] != request.POST.get("password2", ""):
+		return render_to_response('registration/password_change_form.html', { "error": "The passwords did not match."}, context_instance=RequestContext(request))
+		
+	errs = { }
+	password = validate_password(request.POST["password"], errs)
+
+	if len(errs) > 0:
+		return render_to_response('registration/password_change_form.html', { "error": errs["password"] }, context_instance=RequestContext(request))
+	
+	user = request.user
+	user.set_password(password)
+	user.save()
+
+	messages.info(request, "Your password has been updated.")
+
+	return HttpResponseRedirect(LOGIN_REDIRECT_URL)
+		
 

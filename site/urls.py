@@ -73,8 +73,7 @@ urlpatterns = patterns('',
 	(r'^accounts/logout$', 'django.contrib.auth.views.logout'),
 	
 	(r'^accounts/profile$', 'popvox.views.profile.account_profile'),
-	(r'^accounts/profile/change_password$', 'django.contrib.auth.views.password_change'),
-	(r'^accounts/profile/password_changed$', 'django.contrib.auth.views.password_change_done'),
+	(r'^accounts/profile/change_password$', 'registration.views.password_change'),
 
 	(r'^accounts/register(/orgstaff|/legstaff)?$', 'popvox.views.profile.register'),
 	(r'^accounts/register/(check_inbox|needs_approval)$', 'popvox.views.profile.register_response'),
