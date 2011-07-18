@@ -210,9 +210,14 @@ All the best,
 
 POPVOX
 
-(If you did not request a POPVOX account, please ignore this email and
-sorry for the inconvenience.)"""
 
+If you did not request or do not want to create a POPVOX account,
+please use the following link to end future emails like this one:
+<KILL_URL>"""
+
+	def email_should_resend(self):
+		return not User.objects.filter(email=self.email).exists()
+	
 	def get_response(self, request, vrec):
 		request.goal = { "goal": "registration-email-confirmed", "mode": self.mode }
 		return self.finish(request)
