@@ -1408,9 +1408,15 @@ class ServiceAccountCampaign(models.Model):
 			pass
 		return { "hit": hits, "share": shares }
 	def first_action_date(self):
-		return self.actionrecords.order_by('created')[0].created
+		try:
+			return self.actionrecords.order_by('created')[0].created
+		except:
+			return None
 	def last_action_date(self):
-		return self.actionrecords.order_by('-created')[0].created
+		try:
+			return self.actionrecords.order_by('-created')[0].created
+		except:
+			return None
 	def total_widget_records(self):
 		return self.actionrecords.filter(completed_stage__isnull=False).count()
 	def add_action_record(self, **kwargs):
