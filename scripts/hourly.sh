@@ -9,4 +9,4 @@ popvox/db/update_bill_metadata.py
 
 popvox/send_mass_emails.py welcome
 
-./manage resend_email_verifications send
+EMAIL_BACKEND=AWS-SES ./manage resend_email_verifications send
