@@ -181,6 +181,133 @@ p.help {
 	color: #666;
 }
 
+
+.dataTables_scroll {
+width: 780px;
+font-size: 12px;
+}
+
+.dataTables_wrapper {
+background: #414046;
+width: 779px;
+font-size: 12px;
+}
+
+.dataTables_scrollHead {
+background: #75757D;
+color: white;
+}
+
+.even td {
+border: 1px #e8e5e0 solid;
+border-left: none;
+
+}
+
+.odd td {
+border: 1px #e8e5e0 solid;
+border-top: none;
+border-bottom: none;
+border-left: none;
+}
+
+td {
+padding: 8px;
+}
+
+th {
+padding: 8px;
+text-transform: uppercase;
+}
+
+.odd {
+background: #d4d1ca;
+}
+
+.even {
+background: #ded8d4;
+}
+
+thead th {
+text-transform: uppercase;
+font-weight: bold;
+font-size: 12px;
+border: 1px #e8e5e0 solid;
+border-left: none;
+border-top: none;
+padding-right: 1px;
+}
+
+.dataTables_info {
+background: #414046;
+padding: 8px;
+width: 763px;
+color: white;
+font-size: 12px;
+}
+
+.dataTables_length {
+float: right;
+color: white;
+padding: 8px;
+}
+
+.supporters_download {
+margin: 8px;
+}
+
+.dataTables_paginate {
+width: 100px;
+float:right;
+margin-top: -30px;
+padding: 8px;
+}
+
+#supporters_grid_previous {
+float: left;
+width: 44px;
+height:11px;
+background: url(/media/widget/previous.png) no-repeat;
+cursor: pointer;
+}
+
+#supporters_grid_next {
+float:right;
+width:44px;
+height: 11px;
+background: url(/media/widget/next.png) no-repeat;
+cursor: pointer;
+}
+
+
+#supporters_grid_previous.paginate_disabled_previous {
+background: none;
+cursor: default;
+}
+
+#supporters_grid_next.paginate_disabled_next {
+background: none;
+cursor: default;
+}
+
+
+#supporters_download {
+background: url(/media/widget/b_download_csv.png) no-repeat;
+text-indent: -9999px;
+display: block;
+width: 119px;
+height: 22px;
+margin-top: 5px;
+border: none;
+}
+
+#supporters_download:hover {
+background: url(/media/widget/b_download_csv.png) no-repeat left bottom;
+width: 119px;
+height: 22px;
+border:none;
+}
+
 </style>
 {% endblock %}
 {% block content %}
