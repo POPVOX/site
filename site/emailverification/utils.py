@@ -107,8 +107,18 @@ def resend_verifications(test=True):
 		try:
 			send_record_email(rec.email, action, rec)
 		except Exception as e:
-			print "\tfailed:", e
-			continue
+			
+			if str(type(e)) == "<class 'boto.exception.BotoServerError'>":
+				if e.error_message == "Address blacklisted." in e.body:
+					# for our purposes, mark as retry sent and automatically killed
+					rec.retries += 1
+					rec.last_send = datetime.now()
+					rec.killed = True
+					rec.save()
+					print "\tfailed: AWS SES gives:", e.status, e.reason, e.error_code, e.error_message
+			else:
+				print "\tfailed:", e
+			continue # don't mark as mail successfully sent
 			
 		rec.retries += 1
 		rec.last_send = datetime.now()
