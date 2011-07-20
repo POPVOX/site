@@ -1379,6 +1379,9 @@ class ServiceAccountCampaign(models.Model):
 	class Meta:
 		ordering = ['account', '-created']
 		unique_together = (("account", "bill", "position"),)
+        permissions = (
+				("can_snoop_service_analytics", "Can see anyone's widget analytics"),
+			)
 	def __unicode__(self):
 		return unicode(self.account) + " -- " + unicode(self.bill) + " -- " + self.position
 	def mixpanel_bucket(self):
