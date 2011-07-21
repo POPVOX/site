@@ -2753,6 +2753,66 @@ ul#issuearealist { margin-top: 10px     }
 
 /* ----landing---- */
 
+/* organization landing */
+
+.olp #page {
+	background: url(bg_olp.png) 17px 15px no-repeat;
+	}
+	
+	.olp h1#landing {
+		background: url(what_can_org.png) -96px 20px no-repeat;
+		}
+	
+	.olp .hm_slide_mid {
+		background: none;
+		margin-top: 15px;
+		}
+		
+		.olp .hm_slide_mid h1 {
+			height: 100px;
+			}
+			
+		.olp .hm_slide_mid ul {
+			height: 130px;
+			}
+		
+	.left_olp {
+		display: block;
+		float: left;
+		width: 469px;
+		height: 400px;
+		}
+
+	.right_olp {
+		display: block;
+		float: left;
+		width: 4689x;
+		height: 400px;
+		}
+		
+		.b_create_profile_now {
+		    width: 225px;
+		    height: 76px;
+		    background: url(b_create_profile_now.png) left top no-repeat;
+		    display: block;
+		    text-indent: -9999em;
+		    margin-left: 40px;
+		    border: none;
+		    }
+
+		.b_get_robust_tools {
+		    width: 225px;
+		    height: 76px;
+		    background: url(b_get_robust_tools.png) left top no-repeat;
+		    display: block;
+		    text-indent: -9999em;
+		    margin-left: 75px;
+		    border: none;
+		    }
+
+
+
+
 /* congress home */
 
 .hm_congress .hm_slide_mid {

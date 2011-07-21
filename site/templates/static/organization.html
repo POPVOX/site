@@ -1,0 +1,137 @@
+{% extends "master.html" %}
+{% load registration_providers %}
+{% block title %}POPVOX - For Organizations - Your Voice. Verified. Quantified. Amplified.{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
+{% block bodyattributes %}class="land olp"{% endblock %}
+{% block navattributes %}id="head_r"{% endblock %}
+{% block navbarlinks %}{% if user.is_authenticated %}<li><a href="/home">Home</a></li>{% endif %}{% endblock %}
+{% block disable_login_redirect %}{% endblock %}
+{% block head %}
+<style>
+	.colorbox { width: 500px; height: 500px; }
+	#whoami { display: none; }
+</style>
+<script>
+function zoompop(id) {
+	$.colorbox({
+                transition: "none",
+                inline: true,
+                href: '#' + id,
+                opacity: .5
+		});
+	return false;
+}
+function subscribe(validate) {
+	if ($('#subscribe_email').hasClass("default")) return false;
+	ajaxform("post/home/subscribe",
+		{ "validate": (validate ? "validate" : "submit") },
+		{ "email": "#subscribe_email" },
+		{ "statusfield": "subscribe_status",
+		   "statussuccess": (validate ? null : "Thanks!")} );
+	return false;
+}
+</script>
+{% endblock %}
+{% block head_r_content %}
+<h1 id="landing">Your Voice. Verified. Quantified. Amplified</h1>
+{% endblock %}
+{% block content %}
+<div class="hm_slide">
+	<div class="hm_slide_mid">
+		<div class="hm_slide_div">
+			<div class="left_olp">
+				<h1><span>Raise</span> Your Profile</h1>
+				<ul>
+					<li class="one">Create an organization profile on POPVOX.com</li>
+					<li class="two">List your issue experts for Congressional staff</li>
+					<li class="three">Build your legislative agenda</li>
+				</ul>
+				<p><a class="b_create_profile_now btn" href="/accounts/register/orgstaff">Create Your Profile Now</a></p>
+			</div>
+			<div class="right_olp">
+				<h1><span>Power</span> Your Grassroots</h1>
+				<ul>
+					<li class="one">Lead effective campaigns targeting Congress</li>
+					<li class="two">Boost conversions with embedded advocacy tools</li>
+					<li class="three">Expand your base and monitor results in real time</li>
+				</ul>
+				<p><a class="b_get_robust_tools btn" href="/services/widgets">Get Robust Tools Now</a></p>
+			</div>
+			<div class="clear"> </div>
+						
+<!--
+			{% if user.is_anonymous %}
+				<p><a class="b_get_started_l btn" href="/accounts/register/legstaff">Get Started</a></p>
+			{% else %}
+				<p><a class="b_get_started_l btn" href="/home">Get Started</a></p>
+			{% endif %}
+-->
+		</div>
+	</div>
+</div>
+<div class="clear"> </div>
+
+
+<div class="content">
+	<div class="col_9 rule">
+		{% comment %}
+		<div class="block hot">
+			<h2>HOT TWEETS</h2>
+			<img src="/media/master/_sh_twitterface.jpg" alt="_sh_twitterface" width="32" height="32" />
+			<p class="tweet"><strong>sodiumhalogen</strong> <a href="http://popvox.com">http://popvox.com</a> - exciting new site we are working on where you can let congress know your opinion. effectively. <a href="#">#popvox</a></p>
+			<div class="tweet_info">
+				<p class="tweets">23</p>
+				<a class="retweet btn" href="#">retweet</a>
+			</div>
+			<div class="clear"> </div>
+		</div>
+		{% endcomment %}
+		
+		<div class="block about">
+			<h2>About POPVOX</h2>
+			<p>POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive. Designed by <a href="/about/team">people who understand Congress</a>, POPVOX is different from other political sites. It is not a discussion forum. It is a place for action. For more about the site, see <a href="/about">About POPVOX</a> or <a href="/about/whyitworks">Why It Works</a>.</p>
+			<p>POPVOX is a nonpartisan, transparent, public platform for activity on bills pending before Congress.</p>
+		</div>
+			
+	</div><!-- e: col_6 -->
+	
+	{% comment %}
+	<div class="col_3 rule">
+		<div class="block signup">
+			<h2>Email Signup</h2>
+			<p>Want updates on what is new with POPVOX?</p>
+			<form id="signup_form" action="#" method="post" name="signup"><br />
+			
+				<input id="subscribe_email" class="signup_input" name="email" size="25" maxlength="60" type="text"><br />
+				
+				<p id="subscribe_status" class="error"></p>
+				
+				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button">
+				<script>
+				$('.subscribe_email').input_default("email");
+				$('.signup_input').textchange(function() { subscribe(true); return true; });
+				$('.signup_input').keydown_enter(function() { return subscribe(false); });
+				</script>
+			</form>
+		</div>		
+	</div><!-- e: col_3 -->
+	{% endcomment %}
+	
+	<div class="col_3 col_last rule">
+		<div class="block follow_us">
+			<h2>Follow Us</h2>
+			<ul class="social" style="height: 60px">
+				<li><a class="twitter" href="http://www.twitter.com/popvox">twitter</a></li>
+				<li><a class="facebook" href="http://www.facebook.com/POPVOXnation">facebook</a></li>
+				<!--<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fapps%2Fapplication.php%3Fid%3D150910028257528&amp;layout=box_count&amp;show_faces=true&amp;width=60&amp;action=like&amp;colorscheme=light&amp;height=65" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:60px; height:65px;" allowTransparency="true"></iframe>-->
+				<!--<li class="linked_in"></li>-->
+			</ul>
+		</div>
+		
+		
+	</div><!-- e: col_3 -->
+	<div class="clear"> </div>
+</div>
+
+{% endblock %}
