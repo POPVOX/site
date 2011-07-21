@@ -1108,6 +1108,8 @@ class UserComment(models.Model):
 					return "opposing the reintroduction of"
 				elif tense=="imp":
 					return "oppose the reintroduction of"
+	def verb_imp(self):
+		return self.verb(tense="imp")
 
 	def shares(self):
 		import shorturl
@@ -1141,7 +1143,7 @@ class UserComment(models.Model):
 		# testing for delivery of a hypothetical comment.
 		if self.id != None:
 			govtrackrecipients = [g for g in govtrackrecipients if
-				not self.delivery_attempts.filter(success = True, target__office=g["office_id"]).exists()]
+				not self.delivery_attempts.exclude(target__govtrackid=g["id"]).filter(success = True, target__office=g["office_id"]).exists()]
 			
 		return govtrackrecipients
 		
@@ -1420,6 +1422,8 @@ class ServiceAccountCampaign(models.Model):
 			return self.actionrecords.order_by('-created')[0].created
 		except:
 			return None
+	def recent_comments(self):
+		return self.actionrecords.filter(completed_comment__isnull=False).order_by('-created')[0:6]
 	def total_widget_records(self):
 		return self.actionrecords.filter(completed_stage__isnull=False).count()
 	def add_action_record(self, **kwargs):

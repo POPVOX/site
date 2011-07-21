@@ -96,7 +96,6 @@ font-weight: normal;
 width: 200px;
 float: right;
 margin-top: -44px;
-padding-right: 22px;
 text-align: right;
 }
 
@@ -187,6 +186,36 @@ p.help {
 	color: #666;
 }
 
+#latest_activity_container1 {
+	overflow: hidden;
+	width: 685px;
+	height: 130px;
+}
+#latest_activity_container2 {
+	width: 1200px;
+}
+.recent_activity_item {
+	float: left;
+	width: 200px;
+	height: 118px;
+	margin: 0 5px 5px 0;
+	border: 1px dotted #777;
+	padding: 4px;
+	overflow: hidden;
+}
+.recent_activity_item div {
+	font-size: 11px;
+}
+.recent_activity_item div .header {
+	display: inline-block;
+	width: 35px;
+	font-style: italic;
+}
+.recent_activity_item p {
+	margin-top: 5px;
+	font-size: 11px;
+	line-height: normal;
+}
 
 .dataTables_scroll {
 width: 780px;
@@ -564,7 +593,8 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
 					campaigns_info["{{cam.id}}"] = {
 						account_name: "{{acct|escapejs}}",
-						title: "{{cam.bill.title_or_streetname|truncatewords:10|escapejs}} {% if accts|length > 1 %}[{{acct.org.slug}}]{% endif %}",
+						billnumber: "{{cam.bill.displaynumber|escapejs}}",
+						title: "{{cam.bill.title_or_streetname|truncatewords:10|escapejs}}",
 						descr: "{% if cam.bill.officialtitle %}{{cam.bill.officialtitle|truncatewords:25|escapejs}}{% endif %}",
 						position: "{{cam.position|escapejs}}",
 						date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
@@ -574,6 +604,15 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 						download_url: "/services/api/campaign/{{cam.id}}/supporters/",
 						counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": {{stage.list|length}}, {% endfor %} total: {{cam.total_widget_records}}, hits: {{cam.mixpanel_totals.hit}}},
 						mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
+						latest_data: [{% for item in cam.recent_comments %}{
+							link: "{{item.completed_comment.url|escapejs}}",
+							date: "{{item.completed_comment.created|date:"DATE_FORMAT"|escapejs}} at {{item.completed_comment.created|date:"TIME_FORMAT"|escapejs}}",
+							name: "{{item.completed_comment.address.firstname|escapejs}} {{item.completed_comment.address.lastname|escapejs}}",
+							district: "{{item.completed_comment.state|escapejs}}{{item.completed_comment.congressionaldistrict|escapejs}}",
+							{% if item.completed_comment.message %}message: "{{item.completed_comment.message|truncatewords:25|escapejs}}",{% endif %}
+							recipients: "{{item.completed_comment.get_recipients_display|escapejs}}",
+							position: "{{item.completed_comment.verb_imp|escapejs}}"
+						}{% if not forloop.last %},{% endif %}{% endfor %}],
 						null: null
 					};
 					</script>
@@ -672,7 +711,22 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 		</script>
 	</div>
 	
-	<h3>Recent Activity</h3>
+	<div id="latest_activity" style="display: none">
+		<h4>Live Feed</h4>
+		<div id="latest_activity_container1">
+		<div id="latest_activity_container2">
+		<div id="latest_activity_template" style="display: none" class="recent_activity_item">
+			<div><span class="header">From:</span> <span class="name">Winnie The Pooh</span> (<span class="district">WY0</span>)</div>
+			<div><span class="header">To:</span> <span class="recipients">Sen. Ron Johnson [R, WI] and Sen. Herbert Kohl [D, WI]</span></div>
+			<div><span class="header">Date:</span> <span class="date">July 19, 2011 at 7:25 p.m.</span></div>
+			<p><span class="message">I support the bill because the bill does things but doesn't do other things but does do the right things...</span> <a href="">View More</a></p>
+		</div>
+		</div>
+		</div>
+		<div class="clear"> </div>
+	</div>
+	
+	<h3>The Last 30 Days</h3>
 	<p id="analytics_alt">There are no analytics to display for this campaign.</p>
 	<div id="analytics_frame" style="width: 680px; margin-bottom: 15px;">
 		<div style="float: left;">
@@ -739,7 +793,7 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 			$("#analytics_alt, #supporters_alt").show();
 			
 			$('.tab_details .headRight').hide();
-			$('#analytics_frame, #analyticsFunnel').hide();
+			$('#analytics_frame, #analyticsFunnel, #latest_activity').hide();
 			$("#supporters_grid, #supporters_download, #supporters_map, #supporter_map_help").hide();
 			return;
 		}
@@ -809,6 +863,40 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 		$('#supporters_download').attr('href', campaign_info.download_url + "csv")
 		
 		$('#supporters_map').attr('src', campaign_info.mapurl);
+		
+		if (campaign_info.latest_data.length == 0) {
+			$('#latest_activity').hide();
+		} else {
+			$('#latest_activity').show();
+			$('#latest_activity .dynamic').detach();
+			var templ = $('#latest_activity_template');
+			var w = templ.width();
+			$('#latest_activity_container2').width(campaign_info.latest_data.length * w);
+			for (var i in campaign_info.latest_data) {
+				var node = templ.clone();
+				node.show();
+				node.addClass("dynamic");
+				node.find(".name").text(campaign_info.latest_data[i].name);
+				node.find(".district").text(campaign_info.latest_data[i].district);
+				node.find(".recipients").text(campaign_info.latest_data[i].recipients);
+				node.find(".date").text(campaign_info.latest_data[i].date);
+				node.find(".message").text(campaign_info.latest_data[i].message ? campaign_info.latest_data[i].message : "I " + campaign_info.latest_data[i].position + " " + campaign_info.billnumber + ".");
+				node.find("a").toggle(campaign_info.latest_data[i].message ? true : false).attr("href", campaign_info.latest_data[i].link);
+				node.insertBefore(templ);
+			}
+			
+			function anim() {
+				$('#latest_activity_container2').delay(4000).animate({'margin-left': -(w+10) + 'px'}, "slow", function() {
+					var c = $('#latest_activity_container2');
+					var n = c.find('.dynamic:eq(0)');
+					n.detach();
+					c.append(n);
+					c.css({"margin-left": 0});
+					anim();
+				});
+			}
+			anim();
+		}
 	}
 
 	$('.tabs').pvtabs(function(active_tab, is_initial, hash_argument) { if (active_tab == "details") show_analytics(hash_argument); });
