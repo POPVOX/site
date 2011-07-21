@@ -15,12 +15,18 @@ document.write(unescape('%3Cscript src="' + protocol + '//mixpanel.com/site_medi
 </script>
 
 <style>
-h2 { font: bold 20px/30px "LucidaGrande",helvetica,arial,sans-serif; margin-bottom: 15px;  }
+h2 { font: normal 26px/36px 'BebasNeueRegular', helvetica, arial, sans-serif  }
 h4 { font: bold 14px/16px "LucidaGrande",helvetica,arial,sans-serif; margin-bottom: 15px;  }
 #analytics_numbers { margin: 1em 1em 2em 1em; }
 #analytics_numbers th, #analytics_numbers td { font-size: 13px;  padding: 6px 6px 0 0; }
 #analytics_numbers p { margin-top: 6px; font-style: italic; font-size: 11px; }
 .chart_title { text-align: center; }
+
+.ul_tags li a {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 7px;
+}
 
 #analyticsFunnel {
 background: #e8e5df;
@@ -309,6 +315,87 @@ border:none;
 }
 
 </style>
+<script>
+// override the Mixpanel chart creation function, based on platform.1.js 2011-07-21
+Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, options) {
+    var legend = null;
+    if (options.drilldown) {
+        if (typeof(container) == 'string') {
+            container = $('#' + container);
+        } else {
+            container = $(container);
+        }
+        container.html(
+            '<div class="mp-chart"></div>' +
+            '<div class="mp-legend-container">' +
+                '<div class="mp-legend"></div>' +
+            '</div>'
+        );
+        container.children('.mp-legend-container')
+            .css({
+                'margin': '0 50px',
+                'text-align': 'center'
+            });
+        legend = container.find('.mp-legend')
+            .css({
+                'color': '#A7A7A7',
+                'display': 'inline-block',
+                'font': '12px Arial, sans-serif',
+                'text-align': 'left'
+            });
+        container = container.children('.mp-chart').get(0);
+        options.legend = false;
+    }
+    var chart = new Mixpanel.LineChart(container, options);
+    
+    // OUR CHANGES
+    chart.highcharts_options.chart.backgroundColor = "#E8E5DF";
+    chart.highcharts_options.colors = ["#4a9410", "#ed5923", "#414046", "#f8ac3c", "#999999", "#c66725"];
+    chart.highcharts_options.chart.margin = [15, 0, (options.legend || options.legend == undefined) ? 70 : 20, 50];
+    chart.highcharts_options.credits = { enabled: false };
+    // END OF OUR CHANGES
+    
+    data = data.data;
+    chart.series = [];
+    if (!values) {
+        values = [];
+        for (var e in data.values) {
+            if (data.values.hasOwnProperty(e)) {
+                values.push(e);
+            }
+        }
+    }
+    for (var i = 0; i < values.length; i++) {
+        var value = values[i];
+        if (value in data.values) {
+            var points = [];
+            var total = 0;
+            for (var j = 0; j < data.series.length; j++) {
+                var d = data.series[j];
+                var v = 0;
+                if (d in data.values[value]) {
+                    v = data.values[value][d];
+                }
+                if (options.scaling_factor) {
+                    v *= options.scaling_factor;
+                }
+                if (options.cumulative) {
+                    total += v;
+                    points.push([Mixpanel.get_unix_time(d), total]);
+                } else {
+                    points.push([Mixpanel.get_unix_time(d), v]);
+                }
+            }
+            chart.series.push(value);
+            chart.highcharts_options.series.push({name: chart.get_display_name(value), data: points});
+        }
+    }
+    chart.show();
+    if (legend !== null) {
+        this.create_legend(legend, chart);
+    }
+};
+</script>
 {% endblock %}
 {% block content %}
 <div class="content">
@@ -334,6 +421,7 @@ border:none;
 	
 	{% for acct in accts %}
 
+		{% if acct.campaigns.all|length > 0 %}
 		{% if accts|length > 1 %}
 		<h2>{{acct}}</h2>
 		{% endif %}
@@ -342,60 +430,60 @@ border:none;
 		{% for cam in acct.campaigns.all %}
 			<div class="support_oppose">
 				{% bill_statistics cam.bill as stats %}
+				
+				{% with cam.actionrecords.all.count as count %}
 				<div class="col_50">
 					<h4 style="margin-bottom: 1em">
-						{{cam.bill.title|truncatewords:10}}
-						<span> ({% if cam.position == '+' %}Endorsing{% endif %}{% if cam.position == '-' %}Opposing{% endif %}{% if cam.position == '0' %}Neutral{% endif %})</span>
+						{{cam.bill.title_or_streetname|truncatewords:10}}
+						<span style="color: #777"> ({% if cam.position == '+' %}Endorsing{% endif %}{% if cam.position == '-' %}Opposing{% endif %}{% if cam.position == '0' %}Neutral{% endif %})</span>
 					</h4>
 					
-					{% with cam.actionrecords.all.count as count %}
 					{% if count %}
-						<p>{{count}} supporter{% if count > 1 %}s{% endif %} took action. View <a href="#details={{cam.id}}">detailed analytics for your widget or action page</a>.</p>
-						
-						{% comment %}
-						<p style="text-align: center; margin-bottom: 0">Widget Completions</p>
-						
-						<div id="analytics_{{cam.id}}" style="height: 150px; margin-bottom: 15px;"> </div>
+						<p>{{count}} supporter{% if count > 1 %}s{% endif %} took action. View <a href="#details={{cam.id}}" style="font-weight: bold">detailed analytics</a> for your widget or action page.</p>
+					{% else %}
+						<p>Create a <a href="/services/widgets#writecongress">widget</a> to drive your supporters to take action.</p>
+					{% endif %}
+				</div>
+				<div class="col_50">
+					{% if count %}
+						<div id="analytics_{{cam.id}}" style="width: 320px; height: 120px;"> </div>
 						<script>
 						var platform = new Mixpanel.Platform(
 							'{{MIXPANEL_API_KEY}}',
 							"{{cam.mixpanel_bucket_secret|escapejs}}",
-							"sac_{{cam.id}}"
+							"{{cam.mixpanel_bucket|escapejs}}"
 						);
-						platform.create_line_chart('analytics_{{cam.id}}', ['widget_writecongress_send'], { legend: false} );
+						platform.create_line_chart('analytics_{{cam.id}}', ['widget_writecongress_start'], { legend: false, mapping: {  "widget_writecongress_start": "Gave Name/Email" }} );
 						</script>
-						{% endcomment %}
-
 					{% else %}
-						<p>Create a <a href="/services/widgets#writecongress">widget</a> to drive your supporters to take action.</p>
+						{% with cam.bill as bill %}
+						{% with cam.id as chart_id %}
+						{% with 75 as chart_size %}
+							{% include "popvox/bill_statistics_pie_simple.html" %}
+						{% endwith %}
+						{% endwith %}
+						{% endwith %}
 					{% endif %}
-					{% endwith %}
 				</div>
-				<div class="col_50">
-					{% with cam.bill as bill %}
-					{% with cam.id as chart_id %}
-					{% with 75 as chart_size %}
-						{% include "popvox/bill_statistics_pie_simple.html" %}
-					{% endwith %}
-					{% endwith %}
-					{% endwith %}
-				</div>
+				{% endwith %}
 				{% if not forloop.last %}<div class="hr"> </div>{% endif %}
 				</div> <!-- e: support_oppose -->
 		{% endfor %}
 		</div> <!-- e: block campaigns -->
-	{% endfor %}
-	
-	{% for role in user.orgroles.all %}
-		{% for cam in role.org.all_campaigns %}
+		{% endif %}
+		<div class="clear"> </div>
+		
+		{% for cam in acct.org.all_campaigns %}
 			{% for pos in cam.positions.all %}
 				{% if not pos.has_service_account_campaign %}
+					{% ifchanged %}<h2>{{cam.name}}</h2>{% endifchanged %}
+				
 					{% bill_statistics pos.bill as stats %}
 					<div class="clear hr"> </div>
 					<div class="col_50">
 						<h4{% if not cam.default %} style="margin: 0"{% endif %}>
 							{{pos.bill.title|truncatewords:10}}
-							<span> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '0' %}Neutral{% endif %})</span>
+							<span style="color: #777"> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '0' %}Neutral{% endif %})</span>
 						</h4>
 						
 						{% if not cam.default %}
@@ -416,12 +504,54 @@ border:none;
 				{% endif %}
 			{% endfor %}
 		{% endfor %}	
+		
+	{% endfor %} {% comment %} service account {% endcomment %}
+	
+	{% for role in user.orgroles.all %}
+		{% if not role.org.serviceaccount %}
+		<h2>{{role.org.name}}</h2>
+		{% for cam in acct.org.all_campaigns %}
+			{% for pos in cam.positions.all %}
+				{% if not pos.has_service_account_campaign %}
+					{% ifchanged %}<h2>{{cam.name}}</h2>{% endifchanged %}
+				
+					{% bill_statistics pos.bill as stats %}
+					<div class="clear hr"> </div>
+					<div class="col_50">
+						<h4{% if not cam.default %} style="margin: 0"{% endif %}>
+							{{pos.bill.title|truncatewords:10}}
+							<span style="color: #777"> ({% if pos.position == '+' %}Endorsing{% endif %}{% if pos.position == '-' %}Opposing{% endif %}{% if pos.position == '0' %}Neutral{% endif %})</span>
+						</h4>
+						
+						{% if not cam.default %}
+						<p style="font-style: italic">{{cam.name}}</p>
+						{% endif %}
+
+						<p>Create a <a href="/services/widgets#writecongress">widget</a> or <a href="{{role.org.url}}/_action/{{pos.id}}">customized action page</a> to drive your supporters to take action.</p>
+					</div>
+					<div class="col_50">
+						{% with pos.bill as bill %}
+						{% with pos.id as chart_id %}
+						{% with 75 as chart_size %}
+							{% include "popvox/bill_statistics_pie_simple.html" %}
+						{% endwith %}
+						{% endwith %}
+						{% endwith %}
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endfor %}
+		{% endif %}
 	{% endfor %}
 </div> <!-- e:tab_overview -->
 
 {% if has_campaigns %}
 <div class="tab_details">
 
+	<h2>Campaigns</h2>
+	
+	<p class="help">Select a campaign to view its stats:</p>
+	
 	<script>
 	var campaigns_info = { };
 	</script>
@@ -429,7 +559,7 @@ border:none;
 	<ul class="ul_tags">
 		{% for acct in accts %}
 			{% for cam in acct.campaigns.all %}
-					<li><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.displaynumber}}</a></li>
+					<li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.displaynumber}}</a></li>
 					<script>
 					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
 					campaigns_info["{{cam.id}}"] = {
@@ -452,6 +582,8 @@ border:none;
 		<div class="clear"> </div>
 	</ul>
 	
+	<div class="hr"> </div>
+
 	<div id="headLeft">
 		<span class="wTitle">Campaign Account</span><br />
 		<span class="wSubTitle">Campaign Title</span>
@@ -542,7 +674,7 @@ border:none;
 	
 	<h3>Recent Activity</h3>
 	<p id="analytics_alt">There are no analytics to display for this campaign.</p>
-	<div id="analytics_frame" style="width: 680px; margin-bottom: 15px; border: 1px solid black; background-color: white;">
+	<div id="analytics_frame" style="width: 680px; margin-bottom: 15px;">
 		<div style="float: left;">
 			<!--<div class="chart_title">Widget Usage</div>-->
 			<div id="analytics_activity" style="width: 680px;"> </div>
@@ -591,6 +723,8 @@ border:none;
 	function show_analytics(id) {
 		var campaign_info;
 		
+		$('.ul_tags li').removeClass('active');
+		
 		if (id == null) {
 			$('.tab_details .wTitle').text("No Campaign Selected");
 			$('.tab_details .wSubTitle').text("Select a campaign from the list above.");
@@ -598,6 +732,7 @@ border:none;
 			campaign_info = campaigns_info[id];
 			$('.tab_details .wTitle').text(campaign_info.account_name);
 			$('.tab_details .wSubTitle').text(campaign_info.title);
+			$('#analytics_campaign_' + id).addClass("active");
 		}
 		
 		if (id == null || !campaign_info.counts.total) {
@@ -637,13 +772,13 @@ border:none;
 		);
 		/*platform.create_bar_chart('analytics_totals',
 				["widget_writecongress_hit", "widget_writecongress_start", "widget_writecongress_send", "widget_writecongress_share"], {
-				mapping: { "widget_writecongress_hit": "Hit Page", "widget_writecongress_send": "Letter Sent", "widget_writecongress_share": "Shared", "widget_writecongress_start": "Began Widget" },
+				mapping: { "widget_writecongress_hit": "Hit Page", "widget_writecongress_send": "Wrote Letter", "widget_writecongress_share": "Shared", "widget_writecongress_start": "Gave Name/Email" },
 				interval: 365*10,
 				type: "unique"
 		})*/;
 		platform.create_line_chart('analytics_activity',
 				["widget_writecongress_hit", "widget_writecongress_start", "widget_writecongress_send", "widget_writecongress_share"], {
-				mapping: { "widget_writecongress_hit": "Hit Page", "widget_writecongress_send": "Letter Sent", "widget_writecongress_share": "Shared", "widget_writecongress_start": "Began Widget" },
+				mapping: { "widget_writecongress_hit": "Hit Page", "widget_writecongress_send": "Wrote Letter", "widget_writecongress_share": "Shared", "widget_writecongress_start": "Gave Name/Email" },
 				//drilldown: [ "personalized", "share_method" ],
 				type: "unique"
 		});
