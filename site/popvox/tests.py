@@ -1,20 +1,16 @@
-"""
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
-
-Replace these with more appropriate tests for your application.
-"""
 
 from django.test import TestCase
 from django.test.client import Client
 
 c = Client()
 
+'''
 class SampleTest(TestCase):
     
     def testTrue(self):
         a = 1
         self.assertEqual(1, a)
+        '''
 
 class StaticPageTest(TestCase):
     fixtures = ['test_adserver']
@@ -51,16 +47,16 @@ class StaticPageTest(TestCase):
 	    
         self.assertEqual(success, True)
 
-class BillSearchTest(TestCase):
-    fixtures = ['test_adserver', 'test_pvgeneral', 'test_bill']
+class SearchTest(TestCase):
+    fixtures = ['test_adserver', 'test_pvgeneral', 'test_sbills', 'test_orgs']
 
-    def testWordsearchFail(self):
+    def BillWordsearchFail(self):
         
         response = c.get('/bills/search', {'q': 'winnie the pooh'})
         status = response.status_code
         pagecontents = response.content
         success = True
-        page = '/bills/search/' 
+        page = 'search for Pooh' 
 
         if int(status) != 200:
             success = False
@@ -69,11 +65,11 @@ class BillSearchTest(TestCase):
             success = False
             print "term not found in ", page
         else:
-            print page, " reports that Pooh stuck his head in a honey jar and can't be found (is good)."
+            print page, " is good--no bears here."
 
         self.assertEqual(success, True)
 
-    def testWordsearchResults(self):
+    def BillWordsearchResults(self):
 
         response = c.get('/bills/search', {'q': 'Internal Revenue Code'})
         status = response.status_code
@@ -93,13 +89,15 @@ class BillSearchTest(TestCase):
         self.assertEqual(success, True)
         
 
-    def testSearchRedirect(self):
+    def BillSearchRedirect(self):
+        
+        #tests that the search redirects to the bill if a search term returns only one bill.
 
-        response = c.get('/bills/search', {'q': 'hr 2110'}, follow=True)
+        response = c.get('/bills/search', {'q': 's 12'}, follow=True)
         status = response.status_code
         pagecontents = response.content
         success = True
-        page = 'HR 2110 page'
+        page = 'S 12 page'
 
         if int(status) != 200:
             success = False
@@ -107,13 +105,41 @@ class BillSearchTest(TestCase):
         elif "your position on" not in pagecontents:
             success = False
             print "term not found in ", page
-            print pagecontents
         else:
             print page, " loaded successfully."
 
         self.assertEqual(success, True)
-
+    
+    def OrgSearch(self):
         
+        #Org search returns a json file, not an html document. Test checks that search produces exactly one result for "save the martians."
 
+        response = c.get('https://www.popvox.com/ajax/orgs/search', {'term': 'Save The M'}, follow=True)
+        status = response.status_code
+        pagecontents = response.content
+        success = True
+        page = 'Martian orgs'
+
+        if "Save the M" in pagecontents:
+            import json
+            output = json.loads(pagecontents)
+          
+            if len(output) != 1:
+                success = False
+                print page, " not equal to one (is bad)"
+            
+            elif output[0]["url"] != "/orgs/demo":
+                success = False
+                print page, " not pointing to orgs/demo (is bad)"
+          
+            else:
+                print page, " search is good."
+                
+        else:
+            success = False
+            print "'search results not loading in ", page, " search."
+                
+        self.assertEqual(success, True)
+       
 
 
