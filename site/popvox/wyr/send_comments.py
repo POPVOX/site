@@ -215,9 +215,9 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			mark_for_offline("unexp-response")
 			continue
 			
-		# If the delivery resulted in a FAILURE_DISTRICT_DISAGREEMENT then don't retry
+		# If the delivery resulted in a FAILURE_DISTRICT_DISAGREEMENT/ADDRESS_REJECTED then don't retry
 		# for a week.
-		if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT \
+		if last_delivery_attempt != None and last_delivery_attempt.failure_reason in (DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT, DeliveryRecord.FAILURE_ADDRESS_REJECTED) \
 		   and "COMMENT" not in os.environ \
 		   and "TARGET" not in os.environ \
 		   and "ADDR" not in os.environ \
@@ -283,8 +283,10 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 				#sys.stdin.readline()
 			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT:
 				mark_for_offline("district-disagr")
+			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_ADDRESS_REJECTED:
+				mark_for_offline("address-rejected")
 			else:
-				mark_for_offline("failure-oops")
+				mark_for_offline("failure-other")
 		
 print "Success:", success
 print "Failure:", failure

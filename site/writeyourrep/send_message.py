@@ -249,6 +249,7 @@ common_fieldnames = {
 	"hphone": "phone",
 	"phone-number": "phone",
 	"home-phone": "phone",
+	"daytime-phone": "phone",
 	"emailaddress": "email",
 	"email_address": "email",
 	"email_verify": "email",
@@ -340,14 +341,17 @@ common_fieldnames = {
 
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
-skippable_fields = ("prefixother", "middle", "middlename", "name_middle", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
+skippable_fields = ("prefixother", "middle", "middlename",
+"name_middle", 	"middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
 	"contact-type",
 	"dummy_zip",
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey", "affl_del",
 	"speech", "authfailmsg",
 	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
 	"org",
-	"h03", "H03")
+	"h03", "H03",
+	"name-title",
+	"organization")
 
 radio_choices = {
 	"reason": "legsitemail",
@@ -474,6 +478,9 @@ class SubmissionSuccessUnknownException(Exception):
 		  return str(self.parameter)
 
 class DistrictDisagreementException(Exception):
+	pass
+
+class AddressRejectedException(Exception):
 	pass
 
 def find_webform(htmlstring, webformid, webformurl):
@@ -866,7 +873,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 426, 585, 588, 598, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 693, 703, 706, 709, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 784, 788, 791, 805, 808, 809, 811, 826, 827, 837, 840, 851, 861, 869, 878):
+	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 341, 426, 585, 588, 598, 599, 600, 605, 607, 608, 611, 613, 641, 665, 678, 693, 703, 706, 709, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 784, 788, 791, 805, 808, 809, 811, 826, 827, 837, 840, 851, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -884,7 +891,7 @@ def send_message_webform(di, msg, deliveryrec):
 	ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
 	test_zipcode_rejected(ret, deliveryrec)
-	
+
 	# If this form has a final stage where the user is supposed to verify
 	# what he entered, then re-submit the verification form presented to
 	# him with no change.
@@ -932,6 +939,9 @@ def send_message_webform(di, msg, deliveryrec):
 	re_red_error = re.compile('<span id=".*_(.*Error)"><font color="Red">(.*?)</font></span>')
 	m = re_red_error.search(ret)
 	if m:
+		if m.group(1) == "AddressError":
+			raise AddressRejectedException("Address rejected: " + m.group(2))
+	
 		raise WebformParseException("Form-reported " + m.group(1) + ": " + m.group(2))
 
 	re_class_error = re.compile(r'class="custom_form_error">\*?(.*?)<')
@@ -1178,6 +1188,10 @@ def send_message(msg, moc, previous_attempt, loginfo):
 	except DistrictDisagreementException, e:
 		deliveryrec.trace += unicode(e) + u"\n"
 		deliveryrec.failure_reason = DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT
+
+	except AddressRejectedException, e:
+		deliveryrec.trace += unicode(e) + u"\n"
+		deliveryrec.failure_reason = DeliveryRecord.FAILURE_ADDRESS_REJECTED
 	
 	except HTTPException, e:
 		deliveryrec.trace += unicode(e) + u"\n"
