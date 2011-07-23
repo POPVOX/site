@@ -92,7 +92,7 @@
 		
 		{% include "popvox/billcomment_share_social.html" %}
 
-		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
+		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin and user != comment.user %}
 		<div id="bill_endorse_oppose_holder_user" class="no_border">
 			<h3 class="no_rule orange">What Do You Think About {{bill.displaynumber}}?</h3>
 			{% include "popvox/bill_howshouldtheyvote.html" %}
