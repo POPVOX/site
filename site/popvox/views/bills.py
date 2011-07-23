@@ -1600,8 +1600,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber):
 @csrf_protect
 @json_response
 def comment_digg(request):
-	bill = get_object_or_404(Bill, id=request.POST["bill"])
-	comment = get_object_or_404(UserComment, id=request.POST["comment"])
+	bill = get_object_or_404(Bill, id=request.POST.get("bill", -1))
+	comment = get_object_or_404(UserComment, id=request.POST.get("comment", -1))
 	
 	appreciate = can_appreciate(request, bill)
 	if not appreciate or (type(appreciate) == UserComment and appreciate.position != comment.position):

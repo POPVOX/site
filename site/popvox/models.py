@@ -1397,13 +1397,17 @@ class ServiceAccountCampaign(models.Model):
 	def mixpanel_totals(self):
 		from mixpanel import Mixpanel
 		api = Mixpanel(api_key=settings.MIXPANEL_API_KEY, api_secret=settings.MIXPANEL_API_SECRET)
-		events = api.request(['events'], {
-			'event' : ['widget_writecongress_hit', 'widget_writecongress_share'],
-			'unit' : 'month',
-			'interval' : 24, # what happens 24 months from now? the mix of mixpanel and our own counts will go out of sync
-			'type': 'unique',
-			'bucket': self.mixpanel_bucket()
-			})
+		try:
+			events = api.request(['events'], {
+				'event' : ['widget_writecongress_hit', 'widget_writecongress_share'],
+				'unit' : 'month',
+				'interval' : 24, # what happens 24 months from now? the mix of mixpanel and our own counts will go out of sync
+				'type': 'unique',
+				'bucket': self.mixpanel_bucket()
+				})
+		except:
+			return { "ERROR": 1, "hit": 0, "share": 0 }
+			
 		try:
 			hits = 0
 			hits = sum(events["data"]["values"]["widget_writecongress_hit"].values())
