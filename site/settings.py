@@ -4,6 +4,8 @@ sys.path.insert(0, "libs")
 import os
 import os.path
 
+execfile("/mnt/persistent/config/tokens.py")
+
 DEBUG = ("DEBUG" in os.environ)
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1') # used by django.core.context_processors.debug
@@ -29,16 +31,10 @@ SERVER_EMAIL = "POPVOX <no.reply@popvox.com>"
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 
-if os.environ.get("EMAIL_BACKEND") != "AWS-SES" or DEBUG:
-	# When DEBUG is set these parameters are ignored
-	# but crucially we do not set the email backend
-	# to AWS SES.
-	EMAIL_HOST = "occams.info" # because our EC2 IP was formerly used for spam
-	EMAIL_HOST_USER = "popvox"
-	EMAIL_HOST_PASSWORD = "qsg;5TtC"
-	EMAIL_PORT = 587
-	EMAIL_USE_TLS = True
-else:
+if DEBUG:
+	# this is the default when DEBUG is true, but we'll be explicit.
+	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+elif os.environ.get("EMAIL_BACKEND") == "AWS-SES":
 	# For AWS SES:
 	#  The SERVER_EMAIL and EMAILVERIFICATION_FROMADDR must be 
 	#  verified with ./ses-verify-email-address.pl.
@@ -49,6 +45,19 @@ else:
 	#   plus with django_ses.urls mapped to /admin/ses for the dash.
 	#  We should really be monitoring the statistics.
 	EMAIL_BACKEND = 'django_ses.SESBackend'
+elif os.environ.get("EMAIL_BACKEND") == "SENDGRID":
+	EMAIL_HOST = "smtp.sendgrid.net"
+	EMAIL_HOST_USER = SENDGRID_USERNAME
+	EMAIL_HOST_PASSWORD = SENDGRID_PASSWORD
+	EMAIL_PORT = 587
+	EMAIL_USE_TLS = True
+else:
+	EMAIL_HOST = "occams.info" # don't send from EC2 because our IP might be blacklisted
+	EMAIL_HOST_USER = "popvox"
+	EMAIL_HOST_PASSWORD = "qsg;5TtC"
+	EMAIL_PORT = 587
+	EMAIL_USE_TLS = True
+
 
 SEND_BROKEN_LINK_EMAILS = False
 CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
@@ -227,6 +236,5 @@ STOCKPHOTO_URL = "/about/photos"
 
 BENCHMARKING = False
 
-execfile("/mnt/persistent/config/tokens.py")
 
 

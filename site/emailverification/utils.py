@@ -97,16 +97,14 @@ def resend_verifications(test=True):
 		if not action.email_should_resend():
 			continue
 			
-		print rec.retries, rec.created, rec.last_send, rec,
 		if test:
-			print "test"
+			print rec.retries, rec.created, rec.last_send, rec
 			continue
-		else:
-			print
 		
 		try:
 			send_record_email(rec.email, action, rec)
 		except Exception as e:
+			print rec.retries, rec.created, rec.last_send, rec
 			
 			if str(type(e)) == "<class 'boto.exception.BotoServerError'>":
 				if e.error_message == "Address blacklisted." in e.body:

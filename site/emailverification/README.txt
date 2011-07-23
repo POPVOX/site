@@ -202,14 +202,12 @@ It prints one line for each email it would send consisting of:
 	* the date/time the record was created
 	* the date/time of the last email sent (initial or retry)
 	* the unicode(...) of the action object for the record
-	* the string "test" to indicate this was a dry run
 	
 To actually send the emails, e.g. from a cron job, run:
 
 	manage.py resend_email_verifications send
 	
-which prints the same information as in the dry run, except for the string "test"
-at the end (nothing is printed in its place).
+which only outputs errors.
 
 Re-try emails will only be sent when the action object has a email_should_resend
 method that returns True. Use the method to prevent resending an email for
