@@ -57,14 +57,14 @@
 
 	<h1>Edit Your Profile</h1>
 
-	<p>We appreciate that you have taken the time to create an account on POPVOX.</p>
-	
 	<div class="form">
 	
+	{% if not user.userprofile.is_org_admin and not user.userprofile.is_leg_staff %}
 	<label for="username">Screen Name</label>
 	<input id="username" type="text" value="{{user.username}}"/>
 	<div id="errorlabel_username" class="error"></div>
 	<small>Your screen name is how you are known publicly on POPVOX when you leave a public comment on legislation. Screen names must be at least five characters and cannot contain spaces.</small>
+	{% endif %}
 	
 	{% if user.password %}
 	<small><a href="profile/change_password">Change Password</a></small>
@@ -78,6 +78,24 @@
 	<label> </label>
 	<input id="allow_mass_mails" type="checkbox" {% if user.userprofile.allow_mass_mails %}checked="1"{% endif %}/>
 	<label class="checkbox" for="allow_mass_mails">Allow POPVOX to send you occasional updates about the service and requests for feedback on how we&rsquo;re doing.</label>
+
+	{% if not user.userprofile.is_org_admin and not user.userprofile.is_leg_staff %}
+	{% with user.userprofile.most_recent_address as addr %}
+	{% if addr %}
+		<label for="name">Name</label>
+		<div class="field" style="float: left; margin-top: 3px;"><span>{{addr.nameprefix}} {{addr.firstname}} {{addr.lastname}} {{addr.namesuffix}}</span></div>
+		
+		<label for="address">Address</label>
+		<div class="field" style="float: left;  margin-top: 3px;">
+			<span>{{addr.address1}}<br/>
+			{% if addr.address2 %}{{addr.address2}}<br/>{% endif %}
+			{{addr.city}}, {{addr.state}} {{addr.zipcode}}<br/>
+			{{addr.phonenumber}}</span>
+			<span style="display: block; margin-top: 10px; line-height: normal;">You cannot change your name or address on comments that you have already left. You&rsquo;ll be asked to confirm your address the next time you leave a comment for Congress. If you&rsquo;ve made a mistake, <a href="/about/contact">contact us</a>.</span>
+		</div>
+	{% endif %}
+	{% endwith %}
+	{% endif %}
  	
 	{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
 	<label for="fullname">Full Name</label>
@@ -133,7 +151,7 @@
 	</script>
 	{% endfor %}
 	
-	<input type="button" class="submit" id="submitbutton" value="Save" onclick="updateprofile(false)"/>
+	<input type="button" class="submit" id="submitbutton" value="Save" onclick="updateprofile(false)" style="margin-top: 25px ; margin-bottom: 25px;"/>
 	<p id="errorlabel" class="error clear"/>
 	<div class="hr"></div>
 	
