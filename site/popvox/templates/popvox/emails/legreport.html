@@ -2,6 +2,23 @@
 
 {% block head2 %}
 <style>
+table {
+background: #d4d1ca;
+width: 580px;
+height: 77px;
+font-family: Helvetica, Tahoma; 
+font-size: 14px; 
+color: #404045;
+}
+
+.top {
+height: 16px;
+}
+
+.middle {
+height: 16px;
+}
+
 	.status { background-color: #d4d1ca; padding: 3px; }
 	.formore { font-size: 8px; }
 	div.bill { margin-top: 32px; border-top: 1px solid #a7a49b; padding-top: 32px; }
@@ -23,23 +40,38 @@
 {% block h1button %}{% if download_csv %}<a href="http://www.popvox.com/congress"><img src="{{imgroot}}/btn_downloadcsv.jpg" alt="Download CSV" border="0"/></a>{% endif %}{% endblock %}
 
 {% block body2 %}
-<h2 style="color: #cd680e; text-transform: uppercase;">{{startdate2}} - {{enddate2}}: {{statename}}{% if district %}'s {{district}}{{districtord}} Congressional District{% else %} (Senate){% endif %}</h2>
+
+<div style="color: #cd680e; margin: 3px 0 6px 0; font-size: 16px;">{{startdate2}} - {{enddate2}}: {{statename}}{% if district %}'s {{district}}{{districtord}} Congressional District{% else %} (Senate){% endif %}</div>
 
 {% if download_csv %}
 <p>POPVOX does not consider these letters delivered until you download the CSV file. If you have any questions, please reply to this email.
 </p>
 {% endif %}
 
-<div class="summary" style="background-color: #d4d1ca; padding: 6px 12px 6px 12px;">
-	<table cellspacing="0" cellpadding="0" border="0" height="68"><tr>
-	<td class="img users" style="width: 60px; background: url({{imgroot}}/legreport_constituent.jpg);">{{users}}</td>
-	<td class="text" style="font-size: 14px; font-weight: bold; color: #40404c; padding: 0 1em 0 1em; ">constituents took</td>
-	<td class="img positions" style="width: 77px; background: url({{imgroot}}/legreport_position.jpg);">{{positions}}</td>
-	<td class="text" style="font-size: 14px; font-weight: bold; color: #40404c; padding: 0 1em 0 1em;">new positions &amp; wrote</td>
-	<td class="img letters" style="width: 62px; background: url({{imgroot}}/legreport_letter.jpg);">{{letters}}</td>
-	<td class="text" style="font-size: 14px; font-weight: bold; color: #40404c; padding: 0 1em 0 1em;">letters</td>
-	</tr></table>
-	<p style="font-style: italic; font-family: Georgia, Times New Roman, serif;">(The names and addresses of your constituents weighing in on POPVOX are available to you at <a href='http://www.popvox.com/congress'>popvox.com/congress</a>. {% comment %}They were submitted as letters to Congress and so can be responded to under franking.{% endcomment %})</p>
+
+
+<div class="summary" style="background-color: #d4d1ca; padding: 6px 12px 6px 12px;">	
+<table cellspacing="0" cellpadding="0" border="0" height="68">
+<tr class="top"><td colspan="12"><img src="{{imgroot}}/top.png" /></td></tr>
+<tr class="middle">
+<td style="width: 22px; height: 40px;"><img src="{{imgroot}}/1.png" /></td>
+<td style="width: 45px; background: #cc6a11; color: white; vertical-align: middle; text-align: center;">141</td>
+<td style="width: 12px; height: 40px;"><{{imgroot}}/img src="2.png" /></td>
+<td style="vertical-align: middle; text-align: center; width: 132px;">constituents took</td>
+<td style="width: 16px;"><img src="{{imgroot}}/3.png" /></td>
+<td style="width: 40px; background: #cc6a11; color: white; vertical-align: middle; text-align: center;">564</td>
+<td style="width: 17px; height: 40px;"><{{imgroot}}/img src="4.png"/></td>
+<td style="width: 170px; vertical-align: middle; text-align: center;">new positions & wrote</td>
+<td style="width: 5px;"><img src="{{imgroot}}/5.png" /></td>
+<td style="width: 49px; background: #cc6a11; color: white; vertical-align: middle; text-align: center;">147</td>
+<td style="width: 5px;"><img src="{{imgroot}}/6.png" /></td>
+<td></td>
+</tr>
+<tr><td colspan="12"><img src="{{imgroot}}/bottom.png"/></td></tr>
+</table>	
+	
+	
+	<p style="font-size: 12px; font-style: italic; font-family: Georgia, Times New Roman, serif;">(The names and addresses of your constituents weighing in on POPVOX are available to you at <a href='http://www.popvox.com/congress'>popvox.com/congress</a>. {% comment %}They were submitted as letters to Congress and so can be responded to under franking.{% endcomment %})</p>
 </div>
 
 {% for bill in bills %}
@@ -50,19 +82,19 @@
 		<td colspan="3" width="535"><h3 style="color: #cd680e; margin: 3px 0 6px 0; font-size: 16px;">{{bill.title|truncatewords:20}}</h3></td>
 	</tr>
 	<tr>
-		<td width="230"><div class="status" stlye="background-color: #d4d1ca; padding: 3px;"><strong>Status:</strong> {{bill.status_advanced}}</div></td>
+		<td width="230"><div class="status" style="background-color: #d4d1ca; padding: 5px; font-size: 12px;"><strong>Status:</strong> {{bill.status_advanced}}</div></td>
 		<td width="15"> </td>
-		<td width="290"><div class="formore" style="font-size: 14px;">for more see <a href='http://www.popvox.com{{bill.url}}/report'>popvox.com{{bill.url}}/report</a></div></td>
+		<td width="290"><div class="formore" style="font-size: 12px;">for more see <a href='http://www.popvox.com{{bill.url}}/report'>popvox.com{{bill.url}}/report</a></div></td>
 	</tr>
 	</table>
 	<table cellspacing="0" cellpadding="0" border="0">
 	<td colspan="4" width="290">
-		<h4 style="margin-top: 20px; text-transform: uppercase; font-size: 12px;">NEW SINCE {{startdate1}}:</h4>
+		<h4 style="margin-top: 20px; text-transform: uppercase; font-size: 13px;">NEW SINCE {{startdate1}}:</h4>
 		<p style="font-size: 13px; padding-bottom:10px;"><strong>{{bill.comments_new.positions}}</strong> constituent(s) weighed in &amp; wrote <strong>{{bill.comments_new.letters}}</strong> letters</p>
 	</td>
 	<td width="15"> </td>
 	<td colspan="4" width="290">
-		<h4 style="margin-top: 20px; font-size: 12px;">ALL TIME:</h4>
+		<h4 style="margin-top: 20px; font-size: 13px;">ALL TIME:</h4>
 		<p style="font-size: 13px; padding-bottom: 10px;"><strong>{{bill.comments_alltime.positions}}</strong> constituent(s) weighed in &amp; wrote <strong>{{bill.comments_alltime.letters}}</strong> letters</p>
 	</td>
 	</tr>
@@ -81,7 +113,7 @@
 </div>
 {% endfor %}
 
-<p>These individuals weighed in at <a href="http://www.popvox.com">POPVOX.com</a>, a nonpartisan platform for advocacy. Comments are public, searchable, and sortable by state and district. POPVOX is committed to helping constituents write messages that are in a format easy for you to process. Let us know what other information you would like to see here!</p>
+<p style="font-size: 12px;">These individuals weighed in at <a href="http://www.popvox.com">POPVOX.com</a>, a nonpartisan platform for advocacy. Comments are public, searchable, and sortable by state and district. POPVOX is committed to helping constituents write messages that are in a format easy for you to process. Let us know what other information you would like to see here!</p>
 
 {% endblock %}
 
