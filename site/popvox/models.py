@@ -1202,6 +1202,9 @@ class UserComment(models.Model):
 			
 		return ret
 		
+	def has_been_delivered(self):
+		return self.delivery_attempts.filter(success=True).exists()
+		
 	def review_status(self):
 		if self.status == UserComment.COMMENT_NOT_REVIEWED:
 			return None

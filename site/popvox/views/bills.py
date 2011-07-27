@@ -625,6 +625,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 	
 	if not "submitmode" in request.POST and position_original != "/finish":
 		message = None
+		has_been_delivered = False
+		message_is_new = True
 
 		request.goal = { "goal": "comment-begin" }
 			
@@ -634,6 +636,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 			for c in request.user.comments.filter(bill = bill):
 				request.goal = { "goal": "comment-edit-begin" }
 				message = c.message
+				has_been_delivered = c.has_been_delivered()
+				message_is_new = False
 				break
 				
 		# If we have a saved session, load the saved message.
@@ -658,6 +662,8 @@ def billcomment(request, congressnumber, billtype, billnumber, position):
 				'bill': bill,
 				"position": position,
 				"message": message,
+				"has_been_delivered": has_been_delivered,
+				"message_is_new": message_is_new,
 			}, context_instance=RequestContext(request))
 	
 	elif ("submitmode" in request.POST and request.POST["submitmode"] == "Preview >") or (not "submitmode" in request.POST and position_original == "/finish" and not request.user.is_authenticated()):
