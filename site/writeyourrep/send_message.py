@@ -216,6 +216,8 @@ common_fieldnames = {
 	"address-line2": "address2",
 	"addressstreet1": "address1",
 	"addressstreet2": "address2",
+	"ContactFormcdtxtAddress": "address1",
+	"req_addrl": "address1",
 	"mailing_city": "city",
 	"hcity": "city",
 	"citytown": "city",
