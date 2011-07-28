@@ -118,7 +118,7 @@ height: 150px;
 width: 100%;
 height: 115px;
 clear: both;
-margin-bottom: 25px;
+margin-bottom: 5px;
 }
 
 .icons {
@@ -177,45 +177,70 @@ background: none;
 }
 
 #iconHelp {
-	height: 2em;
+	height: 10px;
+	padding-top: 15px;
 }
 
 p.help {
-	font-size: 12px;
-	font-style: italic;
-	color: #666;
-}
+	font: italic bold 16px/18px georgia, serif;
+	color: #CC6A11;
+	text-align: center;
+	}
 
 #latest_activity_container1 {
 	overflow: hidden;
 	width: 685px;
-	height: 130px;
+	height: 145px;
+	margin-top: -10px;
 }
 #latest_activity_container2 {
 	width: 1200px;
 }
 .recent_activity_item {
 	float: left;
-	width: 200px;
-	height: 118px;
+	background: #D4D1C8;
+	width: 205px;
+	height: 125px;
 	margin: 0 5px 5px 0;
-	border: 1px dotted #777;
-	padding: 4px;
+	padding: 10px;
 	overflow: hidden;
 }
 .recent_activity_item div {
 	font-size: 11px;
+	font-weight: bold;
+	color: #CC6A11;
 }
+
 .recent_activity_item div .header {
 	display: inline-block;
 	width: 35px;
-	font-style: italic;
+	color: #404045;
 }
+
+.recent_activity_item span.date {
+	color: #404045;
+	}
+		
 .recent_activity_item p {
-	margin-top: 5px;
-	font-size: 11px;
+	font: italic normal 12px/16px georgia, serif;
 	line-height: normal;
+	margin-top: 5px;
+	padding: 5px 0 0 0;
+	text-indent: 20px;
 }
+
+.recent_activity_item p.support {
+	background: url(/media/widget/bg_heart_sm.png) no-repeat;
+	}
+
+.recent_activity_item p.oppose {
+	background: url(/media/widget/bg_anti_sm.png) no-repeat;
+	}
+		
+	.recent_activity_item p a {
+		text-transform: uppercase;
+		font: bold 10px helvetica, arial, sans-serif;
+		}
 
 .dataTables_scroll {
 width: 780px;
