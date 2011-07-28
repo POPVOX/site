@@ -4,13 +4,13 @@ from django.test.client import Client
 
 c = Client()
 
-'''
+
 class SampleTest(TestCase):
     
     def testTrue(self):
         a = 1
         self.assertEqual(1, a)
-        '''
+
 
 class StaticPageTest(TestCase):
     fixtures = ['test_adserver']
@@ -47,7 +47,7 @@ class StaticPageTest(TestCase):
 	    
         self.assertEqual(success, True)
 
-class SearchTest(TestCase):
+class Search(TestCase):
     fixtures = ['test_adserver', 'test_pvgeneral', 'test_sbills', 'test_orgs']
 
     def BillWordsearchFail(self):
@@ -65,7 +65,7 @@ class SearchTest(TestCase):
             success = False
             print "term not found in ", page
         else:
-            print page, " is good--no bears here."
+            print page, " is good--the honey is safe."
 
         self.assertEqual(success, True)
 
@@ -141,5 +141,28 @@ class SearchTest(TestCase):
                 
         self.assertEqual(success, True)
        
+class CredentialsTest(TestCase):
+    fixtures = ['test_adserver', 'test_users']
+    
+    def testLogin(self):
 
+        success = True
 
+        response = c.post('/accounts/login?next=/home', {'email': 'kosh@vorlons.gov', 'password': '3edgedsword'},  follow=True)
+        status = response.status_code
+        pagecontents = response.content
+        page = "login"
+        
+        if int(status) != 200:
+            success = False
+            print "status code failed on ", page
+        elif "<title>Home - POPVOX.com</title>" not in pagecontents:
+            success = False
+            print page, "did not redirect to home."
+        elif 'Welcome, <a href="/accounts/profile">kosh</a>' not in pagecontents:
+            success = False
+            print page, "is not showing user as logged in."
+        else:
+            print page, " is good."
+        
+        self.assertEqual(success, True)

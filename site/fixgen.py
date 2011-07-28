@@ -10,3 +10,8 @@ output = open("test_orgs.json", "w")
 orgs = serializers.serialize('json', Org.objects.filter(name__contains="save"))
 output.write(orgs)
 output.close()
+
+output = open("test_users.json", "w")
+users = serializers.serialize('json', User.objects.filter(username="Annalee"))
+output.write(users)
+output.close()
