@@ -636,43 +636,6 @@ class OrgCampaignPosition(models.Model):
 		except:
 			return False
 
-## DELETE ##
-class OrgCampaignPositionActionRecord(models.Model):
-	# This is used for org-customized landing pages
-	# for bills when the user accepts to send their
-	# info back to the org.
-	ocp = models.ForeignKey(OrgCampaignPosition, related_name="actionrecords")
-	firstname = models.CharField(max_length=64, blank=True)
-	lastname = models.CharField(max_length=64, blank=True)
-	zipcode = models.CharField(max_length=16, blank=True)
-	email = models.EmailField(db_index=True)
-	created = models.DateTimeField(auto_now_add=True)
-	completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True)
-	completed_stage = models.CharField(max_length=16, blank=True, null=True)
-	request_dump = models.TextField(blank=True, null=True)
-	class Meta:
-		ordering = ['created']
-		unique_together = [('ocp', 'email')]
-	@staticmethod
-	def upgrade():
-		for ocpar in OrgCampaignPositionActionRecord.objects.all():
-			sac = ocpar.ocp.get_service_account_campaign()
-			if sac.mpbucket == None:
-				sac.mpbucket = "ocp_" + str(ocpar.ocp.id)
-				sac.save()
-			sac.add_action_record(
-				email = ocpar.email,
-				firstname = ocpar.firstname,
-				lastname = ocpar.lastname,
-				zipcode = ocpar.zipcode,
-				created = ocpar.created,
-				updated = ocpar.created,
-				completed_comment = ocpar.completed_comment,
-				completed_stage = ocpar.completed_stage if ocpar.completed_stage != "submitted" else "finished",
-				request_dump = ocpar.request_dump
-				)
-## DELETE ##
-
 class UserProfile(models.Model):
 	"""A user profile extends the basic user model provided by Django."""
 	
