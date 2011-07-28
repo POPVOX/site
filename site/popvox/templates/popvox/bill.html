@@ -41,7 +41,7 @@ function getshorturl() {
 </script>
 {% endblock %}
 {% block content %}
-<div class="content">
+<div class="content pgbill">
 	{% if welcome %}
 		<div class="col_9 col_top cookie-less">
 			<h1>Hello There!</h1>
@@ -142,7 +142,6 @@ function getshorturl() {
 	{% if user_org %}
 		<div class="col_6">
 			<h3 class="stroke">What is your organization&rsquo;s position?</h3>
-			<p>Does <strong>{{user_org.name}}</strong> endorse or oppose this bill?</p>
 	
 			<script>
 			var user_org_pos;
@@ -197,16 +196,30 @@ function getshorturl() {
 			}
 			</script>
 	
-		    <div id="bill_endorse_oppose"> 
+		    <div id="bill_endorse_oppose">
+		    	{% if not existing_org_positions %}
+					<p>Does <strong>{{user_org.name}}</strong> endorse or oppose this bill?</p>
+				{% endif %}
+
+				<div id="bill_endorse_oppose_options" {% if existing_org_positions %}style="display: none"{% endif %}>
 				<div id="bill_endorse_oppose_holder">
 					<input id="billsearch_endorse_oppose_submit_endorse" class="submit" type="button" value="Endorse" onclick="endorse_oppose_1('+')"/>
 					<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="endorse_oppose_1('-')"/>
+					<div class="clear"> </div>
 				</div>
-				
-				<p class="clear"><small>Or leave a <a href="#" onclick="return endorse_oppose_1('0')">neutral statement</a>.</small></p>
+				<p><small>Or leave a <a href="#" onclick="return endorse_oppose_1('0')">neutral statement</a>.</small></p>
+				</div>
 	
 				{% if existing_org_positions %}
-				<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.campaign.default %} in <a href="{{pp.campaign.url}}">{{pp.campaign.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
+					<div id="bill_position_org">
+						{% if existing_org_positions.0.position == "endorsed" %}<h3 id="org_position_endorsed">endorsed</h3>{% endif %}
+						{% if existing_org_positions.0.position == "opposed" %}<h3 id="org_position_opposed">opposed</h3>{% endif %}
+						{% if existing_org_positions.0.position == "listed neutral with a statement" %}<h3 id="org_position_neutral">neutral statement</h3>{% endif %}
+						<a class="b_change_position btn" href="#" onclick="$('#bill_position_org').hide(); $('#bill_endorse_oppose_options').show(); return false;">change position</a>
+					</div>
+					<div class="clear"> </div>
+
+					<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.campaign.default %} in <a href="{{pp.campaign.url}}">{{pp.campaign.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
 				{% endif %}
 		
 				<div style="display: none">
@@ -268,7 +281,7 @@ function getshorturl() {
 	{% comment %} END OF USER VOTE {% endcomment %}
 
 	{% comment %} START OF PIE CHART {% endcomment %}
-	<div class="col_3 col_top col_last">
+	<div class="col_3 col_top col_last users_say">
 		<h3 class="no_rule">What POPVOX Users Say</h3>
 		{% bill_statistics bill as stats %}
 		{% include "popvox/bill_statistics_pie_simple.html" %}

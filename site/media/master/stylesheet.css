@@ -474,7 +474,7 @@ h3 {
     font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
     letter-spacing: .02em;
     text-transform: uppercase;
-    padding-bottom: 10px;
+    padding: 15px 0 10px;
     }
 
 h4 { font: normal 16px/20px helvetica, arial, sans-serif    }
@@ -634,6 +634,40 @@ table.form_fields td {
 /* ----bill status---- */
 
 #bill_endorse_oppose_holder { margin: .5em 0 10px 50px  }
+
+#bill_position_org {
+	display: block;
+	}
+	
+	#bill_position_org h3 {
+		display: block;
+		text-indent: -9999em;
+		width: 320px;
+		height: 76px;
+		float: left;
+		}
+			
+	h3#org_position_endorsed {
+		background: url(bg_org_position_endorsed.png) left top no-repeat;
+		}
+		
+	h3#org_position_opposed {
+		background: url(bg_org_position_opposed.png) left top no-repeat;
+		}
+		
+	h3#org_position_neutral {
+		background: url(bg_org_position_neutral.png) left top no-repeat;
+		}
+		
+	.b_change_position {
+		display: block;
+		background: url(b_change_position.png) left top no-repeat;
+		width: 120px;
+		height: 22px;
+		margin-top: 40px;
+		text-indent: -9999em;
+		float: left;
+		}
 
 #billsearch_endorse_oppose {
     margin: 10px auto;
@@ -1202,6 +1236,14 @@ a.b_more_comments:hover {
     padding: 0 10px 10px;
     width: 200px;
     }
+    
+    .content.pgbill .col_3.col_orange {
+    	margin-right: 20px;
+    	}
+    	
+    	.content.pgbill .users_say {
+    		margin-top: 30px;
+    		}
 
 .content .col_orange h3 {
     color: #fff;
@@ -2753,66 +2795,6 @@ ul#issuearealist { margin-top: 10px     }
 
 
 /* ----landing---- */
-
-/* organization landing */
-
-.olp #page {
-	background: url(bg_olp.png) 17px 15px no-repeat;
-	}
-	
-	.olp h1#landing {
-		background: url(what_can_org.png) -96px 20px no-repeat;
-		}
-	
-	.olp .hm_slide_mid {
-		background: none;
-		margin-top: 15px;
-		}
-		
-		.olp .hm_slide_mid h1 {
-			height: 100px;
-			}
-			
-		.olp .hm_slide_mid ul {
-			height: 130px;
-			}
-		
-	.left_olp {
-		display: block;
-		float: left;
-		width: 469px;
-		height: 400px;
-		}
-
-	.right_olp {
-		display: block;
-		float: left;
-		width: 4689x;
-		height: 400px;
-		}
-		
-		.b_create_profile_now {
-		    width: 225px;
-		    height: 76px;
-		    background: url(b_create_profile_now.png) left top no-repeat;
-		    display: block;
-		    text-indent: -9999em;
-		    margin-left: 40px;
-		    border: none;
-		    }
-
-		.b_get_robust_tools {
-		    width: 225px;
-		    height: 76px;
-		    background: url(b_get_robust_tools.png) left top no-repeat;
-		    display: block;
-		    text-indent: -9999em;
-		    margin-left: 75px;
-		    border: none;
-		    }
-
-
-
 
 /* congress home */
 
