@@ -920,7 +920,8 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 					anim();
 				});
 			}
-			anim();
+			if (campaign_info.latest_data.length > 5)
+				anim();
 		}
 	}
 
