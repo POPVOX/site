@@ -276,7 +276,7 @@ def bill_statistics_cache(f):
 		cache_key = ("bill_statistics_cache:%d,%s,%s" % (bill.id, shortdescription.replace(" ", ""), want_timeseries)) 
 		
 		ret = cache.get(cache_key)
-		if ret != None:
+		if ret != None and want_timeseries:
 			return ret
 		
 		ret = f(bill, shortdescription, longdescription, want_timeseries, **filterargs)

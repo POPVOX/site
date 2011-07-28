@@ -191,8 +191,8 @@ def bill_statistics(parser, token):
 				stats = popvox.views.bills.bill_statistics(self.bill.resolve(context),
 					default_state + "-" + str(default_district),
 					default_state + "-" + str(default_district),
-					address__state=default_state,
-					address__congressionaldistrict=default_district)
+					state=default_state,
+					congressionaldistrict=default_district)
 				if options == "local":
 					context[self.varname] = stats
 					return ""
@@ -202,7 +202,7 @@ def bill_statistics(parser, token):
 				stats = popvox.views.bills.bill_statistics(self.bill.resolve(context),
 					default_state,
 					popvox.govtrack.statenames[default_state],
-					address__state=default_state)
+					state=default_state)
 				if options == "local":
 					context[self.varname] = stats
 					return ""
