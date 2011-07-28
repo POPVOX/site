@@ -48,7 +48,7 @@ function validate_form() {
 	<h1 class="h1_smaller" style="margin-bottom: 0">Send a Letter to Congress</h1>
 	
 	{% if position == "0" %}
-		<p>You are about to clear your position on this bill.</p>
+		<p style="margin-top: 1em; margin-bottom: 1em;">You are about to clear your position on this bill.</p>
 
 		<form name="clearcomment" method="post">
 		{% csrf_token %}
@@ -63,7 +63,8 @@ function validate_form() {
 		{% else %}
 			<p style="padding: 15px 0 10px 30px; font-size: 120%;">&ldquo;I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_or_streetname|truncatewords:7 }}.&rdquo;</p>
 			{% if not message_is_new %}
-				<p style="padding: 0 0 10px 30px; font-size: 11px; font-style: italic;">change from {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} to <a href="{{bill.url}}/comment/{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}">{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}</a></p>
+				<p style="padding: 0 0 10px 30px; font-size: 11px; font-style: italic;">change from {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} to <a href="{{bill.url}}/comment/{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}">{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}</a>
+				or <a href="{{bill.url}}/comment/clear">delete your comment</a></p>
 			{% endif %}
 		{% endif %}
 	
