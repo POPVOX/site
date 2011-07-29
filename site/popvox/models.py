@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.humanize.templatetags.humanize import ordinal
+from django.template.defaultfilters import truncatewords
 
 import sys
 import os
@@ -178,6 +179,11 @@ class Bill(models.Model):
 			return self.title
 		else:
 			return self.displaynumber() + ": " + self.street_name[0].upper() + self.street_name[1:]
+	def title_parens_if_too_long(self):
+		title = truncatewords(self.title, 15)
+		if "..." not in title:
+			return title
+		return self.displaynumber() + " (\"" + truncatewords(self.title_no_number(), 15) + "\")"
 	def shorttitle(self):
 		return govtrack.getBillTitle(self, self.govtrack_metadata(), "short")
 	def officialtitle(self):

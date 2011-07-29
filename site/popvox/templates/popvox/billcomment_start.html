@@ -114,7 +114,7 @@ function validate_form() {
 		</div>
 
 		<div class="form mar_top">
-			<textarea class="c5 h4" id="message" name="message" wrap="virtual">{% if message %}{{message}}{% else %}I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title|truncatewords:15 }} because...{% endif %}</textarea>
+			<textarea class="c5 h4" id="message" name="message" wrap="virtual">{% if message %}{{message}}{% else %}I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_parens_if_too_long }} because...{% endif %}</textarea>
 			<div id="messageerror"></div>
 			<script>
 			{% if not message %}
