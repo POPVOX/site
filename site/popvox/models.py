@@ -183,7 +183,8 @@ class Bill(models.Model):
 		title = truncatewords(self.title, 15)
 		if "..." not in title:
 			return title
-		return self.displaynumber() + " (\"" + truncatewords(self.title_no_number(), 15) + "\")"
+		title = re.sub(r"To amend section [^ ]+ of title [^ ,]+, United States Code, ", "", self.title_no_number())
+		return self.displaynumber() + " (\"" + truncatewords(title, 15).replace(" ...", "") + "\")"
 	def shorttitle(self):
 		return govtrack.getBillTitle(self, self.govtrack_metadata(), "short")
 	def officialtitle(self):
