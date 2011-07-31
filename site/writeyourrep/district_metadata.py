@@ -14,6 +14,9 @@ def http_rest_json(url, args=None, method="GET"):
 
 def get_viewport(address_record):
 	bounds = None
+
+	if address_record.state == "MP":
+		return (145.7, 15.1, 11.0)
 	
 	# First try Google Geocoding on the zipcode to get an approximate location
 	# and a recommended bounding box (which we zoom out a bit).
