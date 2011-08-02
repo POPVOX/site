@@ -7,6 +7,6 @@ cd /home/www/sources/site
 
 popvox/db/update_bill_metadata.py
 
-popvox/send_mass_emails.py welcome
+EMAIL_BACKEND=AWS-SES popvox/send_mass_emails.py welcome
 
-EMAIL_BACKEND=SENDGRID ./manage resend_email_verifications send
+EMAIL_BACKEND=AWS-SES ./manage resend_email_verifications send
