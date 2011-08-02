@@ -123,13 +123,18 @@ function getshorturl() {
 				{% endif %}
 				{{ bill.title }}
 			</h3>
-			{% if bill.officialtitle %}
+			{% if bill.officialtitle and not bill.notes %}
 			<p><strong>Summary: </strong>{{ bill.officialtitle }} (<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>)</p>
 			{% else %}
 			<p>(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Information at GovTrack</a>)</p>
 			{% endif %}
 			{% if not bill.isAlive and not deadbox %}
 				<p><strong>This bill {{bill.getDeadReason}}.</strong></p>
+			{% endif %}
+			{% if bill.notes %}
+				<div class="tip_inline" style="font: bold 14px/18px helvetica,arial,sans-serif">
+					{{bill.notes|safe}}
+				</div>
 			{% endif %}
 		</div>
 	</div>

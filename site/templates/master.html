@@ -194,7 +194,7 @@
 					{% endif %}
 					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
-					{% if user.userprofile.service_accounts.campaigns|length > 1 %}
+					{% if user.userprofile.has_active_service_account %}
 					<li class="{%block nav_user_class_reports%}{%endblock%}"><a href="/services/analytics">Analytics</a></li>
 					{% endif %}
 				{% endif %}

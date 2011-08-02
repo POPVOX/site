@@ -231,7 +231,20 @@ def billsearch(request):
 			return HttpResponseRedirect(bills[0].url())
 	return render_to_response('popvox/billsearch.html', {'bills': bills, "q": request.GET["q"].strip(), "congressnumber": request.GET.get("congressnumber", ""), "status": status, "errormsg": error}, context_instance=RequestContext(request))
 
-def getbill(congressnumber, billtype, billnumber):
+def getbill(congressnumber, billtype, billnumber, vehicleid=None):
+	if vehicleid != None:
+		try:
+			vehicleid = int(vehicleid[1:])
+		except:
+			raise "Invalid bill number. Invalid vehicle id \"" + vehicleid + "\"."
+		b = [getbill(congressnumber, billtype, billnumber)]
+		while b[0].replaced_vehicle.exists():
+			x = b[0].replaced_vehicle.all()[0]
+			b.insert(0, x)
+		if vehicleid < 1 or vehicleid > len(b):
+			raise "Invalid bill number. Invalid vehicle id \"" + vehicleid + "\"."
+		return b[vehicleid-1]
+
 	if int(congressnumber) < 1 or int(congressnumber) > 1000: 
 		raise Http404("Invalid bill number. \"" + congressnumber + "\" is not valid.")
 	try:
@@ -239,7 +252,7 @@ def getbill(congressnumber, billtype, billnumber):
 	except:
 		raise Http404("Invalid bill number. \"" + billtype + "\" is not valid.")
 	try:
-		return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber).select_related("sponsor")[0]
+		return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
 	except:
 		raise Http404("Invalid bill number. There is no bill by that number.")
 	
@@ -369,8 +382,8 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		"pro_reintro": pro_reintro}
 	
 @csrf_protect_if_logged_in
-def bill(request, congressnumber, billtype, billnumber):
-	bill = getbill(congressnumber, billtype, billnumber)
+def bill(request, congressnumber, billtype, billnumber, vehicleid):
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	
 	# Get the organization that the user is an admin of, if any, so he can
 	# have the org take a position on it.
@@ -548,14 +561,14 @@ a reminder, please follow this link instead to stop future reminders:
 		return HttpResponseRedirect(Bill.objects.get(id=self.bill).url() + "/comment/finish")
 
 @csrf_protect
-def billcomment(request, congressnumber, billtype, billnumber, position):
+def billcomment(request, congressnumber, billtype, billnumber, vehicleid, position):
 	from settings import BENCHMARKING
 
 	position_original = position
 	if position_original == None:
 		position_original = ""
 	
-	bill = getbill(congressnumber, billtype, billnumber)
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	
 	address_record = None
 	address_record_fixed = None
@@ -1016,8 +1029,8 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
 	return comment
 				
 @csrf_protect_if_logged_in
-def billshare(request, congressnumber, billtype, billnumber, commentid = None):
-	bill = getbill(congressnumber, billtype, billnumber)
+def billshare(request, congressnumber, billtype, billnumber, vehicleid, commentid = None):
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	
 	# Get the user's comment.
 	user_position = None
@@ -1361,8 +1374,8 @@ def get_default_statistics_context(user, individuals=True):
 	return default_state, default_district
 
 @csrf_protect_if_logged_in
-def billreport(request, congressnumber, billtype, billnumber):
-	bill = getbill(congressnumber, billtype, billnumber)
+def billreport(request, congressnumber, billtype, billnumber, vehicleid):
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 
 	if not request.user.is_anonymous():
 		import home
@@ -1430,10 +1443,10 @@ def can_appreciate(request, bill):
 	return False
 
 @json_response
-def billreport_getinfo(request, congressnumber, billtype, billnumber):
+def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid):
 	# Get report information.
 	
-	bill = getbill(congressnumber, billtype, billnumber)
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	
 	state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
 	
@@ -1672,10 +1685,10 @@ def uploaddoc1(request):
 
 @csrf_protect
 @login_required
-def uploaddoc(request, congressnumber, billtype, billnumber):
+def uploaddoc(request, congressnumber, billtype, billnumber, vehicleid):
 	types, whose, docs = uploaddoc1(request)
 		
-	bill = getbill(congressnumber, billtype, billnumber)
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	
 	# check which documents are already uploaded
 	types = [
@@ -1742,8 +1755,8 @@ def uploaddoc2(request):
 	
 	return { "status": "success", "action": "upload" }
 
-def billdoc(request, congressnumber, billtype, billnumber, orgslug, doctype):
-	bill = getbill(congressnumber, billtype, billnumber)
+def billdoc(request, congressnumber, billtype, billnumber, vehicleid, orgslug, doctype):
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	
 	from org import set_last_campaign_viewed
 	org = get_object_or_404(Org, slug=orgslug, visible=True)

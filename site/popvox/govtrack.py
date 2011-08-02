@@ -431,6 +431,9 @@ def getBillStatusAdvanced(bill, abbreviated) :
 def billFinalStatus(bill, died_key = None):
 	status = bill.current_status
 	date = bill.current_status_date.strftime("%B %d, %Y").replace(" 0", " ")
+
+	if bill.vehicle_for != None:
+		return "represents legislative language that has been superseded"
 	
 	if status in ("PASSED:SIMPLERES", "PASSED:CONSTAMEND", "PASSED:CONCURRENTRES"):
 		return "passed " + date
@@ -453,6 +456,8 @@ def billFinalStatus(bill, died_key = None):
 
 def getChamberOfNextVote(bill):
 	if bill.congressnumber != CURRENT_CONGRESS:
+		return None
+	if bill.vehicle_for != None:
 		return None
 	status = bill.current_status
 	if status in ("INTRODUCED", "REFERRED", "REPORTED", "PROV_KILL:VETO"):

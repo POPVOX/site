@@ -131,6 +131,7 @@ class Bill(models.Model):
 	congressnumber = models.IntegerField()
 	billtype = models.CharField(max_length=2, choices=BILL_TYPE_CHOICES)
 	billnumber = models.IntegerField()
+	vehicle_for = models.ForeignKey('Bill', related_name='replaced_vehicle', blank=True, null=True)
 	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills")
 	committees = models.ManyToManyField(CongressionalCommittee, related_name="bills")
 	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills")
@@ -142,11 +143,13 @@ class Bill(models.Model):
 	latest_action = models.TextField()
 	
 	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase.")
+	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
+	hold_metadata = models.BooleanField(default=False)
 	
 	class Meta:
 			ordering = ['congressnumber', 'billtype', 'billnumber']
-			unique_together = (("congressnumber", "billtype", "billnumber"),)
+			unique_together = (("congressnumber", "billtype", "billnumber", "vehicle_for"),)
 
 	_govtrack_metadata = None
 	
@@ -156,7 +159,15 @@ class Bill(models.Model):
 		return self.url()
 
 	def url(self):
-		return "/bills/us/" + str(self.congressnumber) + "/" + [x[1] for x in Bill.BILL_TYPE_SLUGS if x[0]==self.billtype][0] + str(self.billnumber)
+		vehicleid = ""
+		if self.vehicle_for != None:
+			vehicleid = 1
+			b = self
+			while b.replaced_vehicle.exists():
+				vehicleid += 1
+				b = b.replaced_vehicle.all()[0]
+			vehicleid = "-" + str(vehicleid)
+		return "/bills/us/" + str(self.congressnumber) + "/" + [x[1] for x in Bill.BILL_TYPE_SLUGS if x[0]==self.billtype][0] + str(self.billnumber) + vehicleid
 
 	def govtrack_metadata(self):
 		if self._govtrack_metadata == None :
@@ -253,7 +264,23 @@ class Bill(models.Model):
 		return Bill.objects.get(
 			congressnumber = m.group(3),
 			billtype = {"hr":"h", "hres":"hr", "hjres":"hj", "hconres":"hc", "s":"s", "sres":"sr", "sjres":"sj", "sconres":"sc"}[m.group(1)],
-			billnumber = m.group(2))
+			billnumber = m.group(2),
+			vehicle_for = None)
+
+	def make_vehicle(self):
+		import copy
+		newbill = copy.copy(self)
+		newbill.id = None
+		newbill.billnumber = -1 # cant have identical number at first
+		newbill.save()
+
+		self.vehicle_for = newbill
+		self.save()
+
+		newbill.billnumber = self.billnumber
+		newbill.save()
+
+		return newbill
 
 def bill_from_url(url):
 	fields = url.split("/")
@@ -265,12 +292,13 @@ def bill_from_url(url):
 		raise Exception("Invalid bill id.")
 	try :
 		congressnumber = int(fields[3])
-		m = re.match(r"([a-z]+)(\d+)", fields[4])
+		m = re.match(r"([a-z]+)(\d+)(-\d+)?", fields[4])
 		billtype = [x[0] for x in Bill.BILL_TYPE_SLUGS if x[1]==m.group(1)][0]
 		billnumber = int(m.group(2))
+		vehicle_number = m.group(3)
 	except :
 		raise Exception("Invalid bill id.")
-	bill = Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber)
+	bill = Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None)
 	if len(bill) == 0:
 		raise Exception("No bill with that number exists.")
 	else:
@@ -742,6 +770,9 @@ class UserProfile(models.Model):
 		return ServiceAccount.objects.filter(user = self.user) \
 			| ServiceAccount.objects.filter(org__admins__user = self.user)
 	
+	def has_active_service_account(self):
+		return ServiceAccountCampaignActionRecord.objects.filter(campaign__account__in=self.service_accounts()).exists()
+
 	def matching_sacar_orgs(self):
 		orgs = set()
 		for sacar in ServiceAccountCampaignActionRecord.objects.filter(email=self.user.email):

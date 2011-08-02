@@ -5,7 +5,8 @@ class BillAdmin(admin.ModelAdmin):
 	list_display = ("congressnumber", "billtype", "billnumber", "title", "street_name")
 	list_display_links = ("title",)
 	search_fields = ("title", "street_name")
-	readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "title", "current_status", "current_status_date", "num_cosponsors", "latest_action")
+	readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "num_cosponsors", "latest_action")
+	raw_id_fields = ('vehicle_for','sponsor')
 
 class UserProfileAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user",)

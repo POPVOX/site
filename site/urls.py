@@ -31,21 +31,21 @@ urlpatterns = patterns('',
 	(r'^bills$', "popvox.views.bills.bills"),
 	(r'^orgs$', 'popvox.views.org.orgs'),
 	
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)$', "popvox.views.bills.bill"),
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment/share$', "popvox.views.bills.billshare"), # Google Analytics goal
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment(/clear|/support|/oppose|/finish)?$', "popvox.views.bills.billcomment"),# Google Analytics funnel page
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)/comment/(\d+)$', "popvox.views.bills.billshare"),
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?$', "popvox.views.bills.bill"),
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/comment/share$', "popvox.views.bills.billshare"), # Google Analytics goal
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/comment(/clear|/support|/oppose|/finish)?$', "popvox.views.bills.billcomment"),# Google Analytics funnel page
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/comment/(\d+)$', "popvox.views.bills.billshare"),
 	(r'^ajax/bills/share$', "popvox.views.bills.billshare_share"),
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)/upload$', "popvox.views.bills.uploaddoc"),
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/upload$', "popvox.views.bills.uploaddoc"),
 	(r'^ajax/bills/upload$', "popvox.views.bills.uploaddoc2"),
 	(r'^ajax/bills/getdoc$', "popvox.views.bills.getdoc"),
 	(r'^ajax/bills/getshorturl$', 'popvox.views.bills.getbillshorturl'),
 	(r'^moderate/bills/comment/moderate/(\d+)/([a-z\-]+)$', 'popvox.views.bills.billcomment_moderate'),
 	
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)/report$', "popvox.views.bills.billreport"),
-	(r'^ajax/bills/us/(\d+)/([a-z]+)(\d+)/report/getinfo$', "popvox.views.bills.billreport_getinfo"),
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/report$', "popvox.views.bills.billreport"),
+	(r'^ajax/bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/report/getinfo$', "popvox.views.bills.billreport_getinfo"),
 	(r'^ajax/bills/comment/digg$', "popvox.views.bills.comment_digg"),
-	(r'^bills/us/(\d+)/([a-z]+)(\d+)/docs/([\w\-]+)/(\d+)$', "popvox.views.bills.billdoc"),
+	(r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/docs/([\w\-]+)/(\d+)$', "popvox.views.bills.billdoc"),
 	
 	(r'^bills/search$', "popvox.views.bills.billsearch"),
 	(r'^ajax/bills/search$', "popvox.views.bills.billsearch_ajax"),

@@ -167,7 +167,7 @@ def widget_render_commentstream(request, account, permissions):
 			except:
 				# invalid bill
 				title1 = "Comments sent to Congress"
-				title2 = "Invalid bill number."
+				title2 = "Invalid bill number: " + b
 			
 		if len(cx) == 1: # the bills have to be processed first
 			show_bill_number = False

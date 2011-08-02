@@ -46,6 +46,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 	def select_bills(**kwargs):
 		return Bill.objects.filter(
 			congressnumber=popvox.govtrack.CURRENT_CONGRESS,
+			vehicle_for=None,
 			**kwargs) \
 			.exclude(antitrackedby=prof) \
 			.order_by()

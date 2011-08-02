@@ -34,7 +34,9 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	billsession, billtype, billnumber = m.group(1), m.group(2), m.group(3)
 	
 	try:
-		bill = Bill.objects.get(congressnumber=billsession, billtype=billtype, billnumber=billnumber)
+		bill = Bill.objects.get(congressnumber=billsession, billtype=billtype, billnumber=billnumber, vehicle_for__isnull=True)
+		if bill.hold_metadata:
+			continue # manual override
 	except:
 		bill = Bill()
 		bill.congressnumber = int(billsession)
