@@ -42,11 +42,13 @@ def commentmapus(request):
 	
 	comments = None
 
+	import widgets_usmap
+
 	if "bill" in request.GET:
 		bill = get_object_or_404(Bill, id=request.GET["bill"])
 		
 		# TODO: put this in the database
-		comments = bill_comments(bill).defer("message")
+		comments = bill_comments(bill).only("state", "congressionaldistrict", "position")
 	
 	elif "sac" in request.GET and request.user.is_authenticated():
 		
@@ -70,6 +72,17 @@ def commentmapus(request):
 				count[row[0]] = {}
 				count[row[0]]["class"] = ("dot_clr_%d dot_sz_%d" % ([1,5,3][int(row[1])-1], [3,3,1][int(row[1])-1]))
 
+	elif "point" in request.GET:
+		if request.GET["point"] == "all":
+			for k in widgets_usmap.district_locations:
+				count[k] = { }
+				count[k]["class"] = "dot_clr_1 dot_sz_1"
+		else:
+			k = request.GET["point"]
+			count[k] = { }
+			count[k]["class"] = "dot_clr_5 dot_sz_5"
+		
+
 	if comments != None:
 		for comment in comments:
 			district = comment.state + str(comment.congressionaldistrict)
@@ -88,7 +101,6 @@ def commentmapus(request):
 				)
 	
 
-	import widgets_usmap
 	mapscale = 720.0 / widgets_usmap.map_scale[0]
 	xoffset = 8
 	yoffset = 196

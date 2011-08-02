@@ -127,25 +127,30 @@ body {
 	color: #404045;
 	}
 #legend_clr {
-	top: 503px;
-	left: 340px;
+	top: 493px;
+	left: 320px;
+	color: #666;
 	}
 #legend_sz {
-	top: 530px;
-	left: 345px;
+	top: 515px;
+	left: 320px;
+	color: #666;
 	}
 #legend_text {
 	font-weight: normal;
-	top: 503px;
-	left: 555px;
+	top: 455px;
+	left: 400px;
 	width: 250px;
 	font-size: 11px;
+	color: #666;
 	}
 	
 #legend_sz div, #legend_clr div {
 	float: left;
 	}
 .label.first {
+	width: 75px;
+	text-align: right;
 	padding-right: .5em;
 	}
 .label.last {
@@ -163,8 +168,8 @@ body {
 	text-indent: -9999em;
 	background: url(/media/gis/b_alt_colors.png) left top no-repeat;
 	position: absolute;
-	left: 555px;
-	top: 525px;
+	left: 570px;
+	top: 500px;
 	}
 #colormode:hover {
 	background-position: left bottom;
