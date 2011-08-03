@@ -1626,7 +1626,7 @@ div.neutral {
         padding-top: 5px;
         }
 
-.tab_pane.share_some_pie .col_5 { margin-right: 40px    }
+.tab_pane.share_some_pie .col_5 {     }
 
 .tab_pane.share_some_pie .col_5.col_last {
     margin-right: 0;
@@ -1649,7 +1649,7 @@ div.neutral {
 .c5.share_social h3 { margin-top: 15px;  }
 
 .share_some_pie .c5.share_social h3,
-.share_some_pie .social_share_btns { width: 235px; }
+.share_some_pie .social_share_btns { width: 235px; margin-left: 30px;   }
 
 .share_some_pie .message_preview {
     padding-left: 55px;
@@ -4768,3 +4768,17 @@ p#issueareachooser_listnone {
 .blog div.post-header div.date { color: #c4c2c0     }
 
 .blog .date span { color: #c4c2c0   }
+
+/*** Print ****/
+
+@media print {
+	
+	body {
+	background: #;
+	}
+
+	.progress_tabs { display: none; }
+	
+	
+	
+}
