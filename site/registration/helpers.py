@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+import string
+
 import recaptcha.client.captcha
 
 # due to changes on April 21, 2011, we must use a different api server
@@ -16,7 +18,7 @@ from jquery.ajax import validation_error_message
 from emailverification.utils import send_email_verification
 
 from settings import RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY
-from settings import APP_NICE_SHORT_NAME
+from settings import APP_NICE_SHORT_NAME, USERNAME_BLACKLIST_TERMS
 
 def captcha_html(error = None):
 	return recaptcha.client.captcha.displayhtml(RECAPTCHA_PUBLIC_KEY, error = error, use_ssl=True)
@@ -41,8 +43,13 @@ def validate_username(value, skip_if_this_user=None, for_login=False, fielderror
 			raise forms.ValidationError("Usernames cannot contain spaces.")
 		if "@" in value:
 			raise forms.ValidationError("Usernames cannot contain the @-sign.")
-			
+
 		if not for_login:
+			value2 = "".join(c for c in value.lower() if c in string.lowercase)
+			for term in USERNAME_BLACKLIST_TERMS:
+				if term in value2:
+					raise forms.ValidationError("Usernames cannot contain the word '%s'." % term)
+
 			users = User.objects.filter(username = value)
 			if len(users) > 0 and users[0] != skip_if_this_user:
 				raise forms.ValidationError("The username is already taken.")

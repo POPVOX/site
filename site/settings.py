@@ -224,6 +224,7 @@ TINYMCE_DEFAULT_CONFIG = {
 
 # registration app
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
+USERNAME_BLACKLIST_TERMS = ["admin", "popvox", "fuck"]
 
 # phone_number_twilio app
 TWILIO_INCOMING_RESPONSE = "Thank you for calling pop vox. For more information, please see pop vox dot com. Goodbye."
