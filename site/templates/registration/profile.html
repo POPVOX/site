@@ -7,7 +7,9 @@
 			ajaxform("/ajax/accounts/profile/updatefields",
 				{ "validate": (validate ? "validate" : "") },
 				{
+					{% if not user.userprofile.is_org_admin and not user.userprofile.is_leg_staff %}
 					"username": "#username",
+					{% endif %}
 					"email": "#email",
 					"allow_mass_mails": "#allow_mass_mails",
 					{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
