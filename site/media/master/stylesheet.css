@@ -1874,7 +1874,7 @@ ul.ul_tags {
     }
 
 .tab_panel,
-.content .tab_panel p { font-size: 12px     }
+.content .tab_panel p, .content .tab_panel ul.bullets li { font-size: 12px     }
 
 .tab_panel,
 .content .tab_panel p.date { font-size: 11px    }

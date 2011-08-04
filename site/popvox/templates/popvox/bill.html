@@ -313,7 +313,7 @@ function getshorturl() {
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
 			<script>if (!initial_tab) initial_tab = "billstatus";</script>
 
-			<li id="widgetpane_tab"><a href="#" onclick="return showtab('widgetpane')">Link Here with a Widget</a></li>
+			<li id="widgetpane_tab"><a href="#" onclick="return showtab('widgetpane')">Add POPVOX to your site</a></li>
 			
 			{% if users.tracking or users.commented %} {% comment %} for admins {% endcomment %}
 			<li id="admin_tracking_tab"><a href="#" onclick="return showtab('admin_tracking')">ADMIN &gt; Users Tracking</a></li>
@@ -436,15 +436,32 @@ function getshorturl() {
 		
 		<div id="widgetpane" style="display: none" class="tab_panel">
 		
-			<h3 class="no_rule">Link to this bill with a widget</h3>
+			<h3 class="no_rule">Add POPVOX to your Website</h3>
 			
-			<p>Copy this HTML into your webpage to link to this bill with a widget:</p>
+			<h4>Buttons</h4>
+	
+			<p>Copy the HTML below the button into your webpage to make a link to this page.</p>
 			
-			<textarea wrap="virtual" style="width: 100%; height: 3em; font-size: 9px">&lt;script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}"&gt; &lt;/script&gt;</textarea>
-		
-			<p style="margin-top: 1em">Here is how it will look:</p>
-			
-			<script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}"> </script>
+			<table cols="2" style="margin-bottom: 30px">
+			<tr valign="top">
+			<td width="50%" style="padding-right: 1.5em">
+				<script src="/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}"> </script>
+				<textarea wrap="virtual" style="width: 100%; height: 4.5em; font-size: 10px">&lt;script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}"&gt; &lt;/script&gt;</textarea>
+			</td>
+			<td width="50%">
+				<script src="/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&title=1"> </script>
+				<textarea wrap="virtual" style="width: 100%; height: 4.5em; font-size: 10px">&lt;script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&amp;title=1"&gt; &lt;/script&gt;</textarea>
+			</td>
+			</tr>
+			</table>
+
+			<h4>Advocacy Tools</h4>
+
+			<p>Check out our other advocacy tools for your website in <a href="/services/widgets">POPVOX Widgets</a>.</p>
+			<ul class="bullets">
+			<li>Drive your visitors to take action on this bill with the <a href="/services/widgets#writecongress">Write Congress Widget</a></li>
+			<li>Show what other Americans have been writing Congress with the <a href="/services/widgets#commentstream">Comment Stream</a></li>
+			</ul>
 		</div>
 		
 		<script>showtab(initial_tab)</script>
