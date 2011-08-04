@@ -25,6 +25,7 @@ cn = CURRENT_CONGRESS
 if len(sys.argv) == 2:
 	cn = sys.argv[1]
 
+counter = 0
 for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	m = fre.search(fn)
 	
@@ -42,6 +43,8 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 		bill.congressnumber = int(billsession)
 		bill.billtype = billtype
 		bill.billnumber = int(billnumber)
+
+	counter += 1
 
 	dom = minidom.parse(fn)
 		
@@ -120,3 +123,5 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 
 os.utime(stampfile, None)
 
+if counter > 0:
+	print "updated", counter, "bills"

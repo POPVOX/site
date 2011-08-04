@@ -52,7 +52,7 @@ def select_banner(adformat, targets, ad_trail, request):
 		# Call a banner plugin.
 		extra_info = None
 		pl = banner.order.plugin
-		if pl != None:
+		if pl != None and len(pl) > 0:
 			path = pl.split(".")
 			tmp = __import__(".".join(path[:-1]), globals(), fromlist = [path[-1]])
 			plobj = getattr(tmp, path[-1])

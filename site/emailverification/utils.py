@@ -107,12 +107,14 @@ def resend_verifications(test=True):
 			print rec.retries, rec.created, rec.last_send, rec
 			
 			if str(type(e)) == "<class 'boto.exception.BotoServerError'>":
-				if e.error_message == "Address blacklisted." in e.body:
+				if e.error_message == "Address blacklisted.":
 					# for our purposes, mark as retry sent and automatically killed
 					rec.retries += 1
 					rec.last_send = datetime.now()
 					rec.killed = True
 					rec.save()
+					print "\tfailed: AWS SES gives address blacklisted"
+				else:
 					print "\tfailed: AWS SES gives:", e.status, e.reason, e.error_code, e.error_message
 			else:
 				print "\tfailed:", e
