@@ -172,38 +172,23 @@ def bills(request):
 		'trending_bills': popular_bills2,
 		}, context_instance=RequestContext(request))
 
-@csrf_protect_if_logged_in
-def billsearch(request):
-	if not "q" in request.GET or request.GET["q"].strip() == "":
-		return HttpResponseRedirect("/bills")
-	q = request.GET["q"].strip()
-
+def billsearch_internal(q, cn=CURRENT_CONGRESS):
 	bill_number_re = re.compile(r"(hr|s|hconres|sconres|hjres|sjres|hres|sres)(\d+)(/(\d+))?", re.I)
 	m = bill_number_re.match(q.replace(" ", "").replace(".", "").replace("-", ""))
 	if m != None:
-		cn = CURRENT_CONGRESS
-		if "congressnumber" in request.GET and request.GET["congressnumber"].isdigit():
-			cn = int(request.GET["congressnumber"])
 		if m.group(3) != None:
 			cn = int(m.group(4))
 		try:
 			b = bill_from_url("/bills/us/%d/%s%d" % (cn, m.group(1).lower(), int(m.group(2))))
-			if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
-				return HttpResponseRedirect(b.url() + "/report")
-			else:
-				return HttpResponseRedirect(b.url())
+			return ([b], None)
 		except:
 			pass
 			
-
 	from sphinxapi import SphinxClient, SPH_MATCH_EXTENDED
 	c = SphinxClient()
 	c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
 	c.SetMatchMode(SPH_MATCH_EXTENDED)
-	if "congressnumber" in request.GET and request.GET["congressnumber"].isdigit():
-		c.SetFilter("congressnumber", [int(request.GET["congressnumber"])])
-	else:
-		c.SetFilter("congressnumber", [CURRENT_CONGRESS])
+	c.SetFilter("congressnumber", [cn])
 	ret = c.Query(q)
 	bills = []
 	status = "ok"
@@ -219,7 +204,20 @@ def billsearch(request):
 				status = "overflow"
 				break
 
-	bills = Bill.objects.filter(id__in=bills)
+	return (Bill.objects.filter(id__in=bills), status)
+
+@csrf_protect_if_logged_in
+def billsearch(request):
+	if not "q" in request.GET or request.GET["q"].strip() == "":
+		return HttpResponseRedirect("/bills")
+	q = request.GET["q"].strip()
+	
+	cn = CURRENT_CONGRESS
+	if "congressnumber" in request.GET and request.GET["congressnumber"].isdigit():
+		cn = int(request.GET["congressnumber"])
+	
+	bills, status = billsearch_internal(q, cn=cn)
+
 	if request.user.is_authenticated():
 		import home
 		home.annotate_track_status(request.user.userprofile, bills)

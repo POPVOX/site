@@ -8,6 +8,8 @@ admin.autodiscover()
 
 import settings
 
+import popvox.views.api
+
 urlpatterns = patterns('',
 	(r'^(|congress|organization|about|about/team|about/principles|about/whyitworks|about/contact|legal|advertising|press(?:/\d\d\d\d-\d\d-\d\d/[a-z_]+)?|jobs|faq|blog_template)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	
@@ -104,7 +106,12 @@ urlpatterns = patterns('',
 	(r'^embed/salsa/legagenda', 'popvox.views.embed.salsa_legagenda'),
 	(r'^embed/salsa/action', 'popvox.views.embed.salsa_action'),
 	(r'^embed/fb_page', 'popvox.views.embed.facebook_page'),
-	
+
+	(r'^api/v1/bill_suggestions', 'popvox.views.api.bill_suggestions'),
+	(r'^api/v1/bill_search', 'popvox.views.api.bill_search'),
+	(r'^api/v1/comments', 'popvox.views.api.comments'),
+
+	# external-ish apps
 	(r'^wyr/', include('writeyourrep.urls')),
 	(r'^ajax/phone_number_twilio/', include('phone_number_twilio.urls')),
 	(r'^emailverif/', include('emailverification.urls')),

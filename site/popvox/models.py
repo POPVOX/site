@@ -167,7 +167,9 @@ class Bill(models.Model):
 				vehicleid += 1
 				b = b.replaced_vehicle.all()[0]
 			vehicleid = "-" + str(vehicleid)
-		return "/bills/us/" + str(self.congressnumber) + "/" + [x[1] for x in Bill.BILL_TYPE_SLUGS if x[0]==self.billtype][0] + str(self.billnumber) + vehicleid
+		return "/bills/us/" + str(self.congressnumber) + "/" + self.billtype2() + str(self.billnumber) + vehicleid
+	def billtype2(self):
+		return [x[1] for x in Bill.BILL_TYPE_SLUGS if x[0]==self.billtype][0]
 
 	def govtrack_metadata(self):
 		if self._govtrack_metadata == None :
