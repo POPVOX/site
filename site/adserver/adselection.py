@@ -23,7 +23,7 @@ def select_banner(adformat, targets, ad_trail, request):
 
 	banners = adformat.banners.filter(active=True, order__active=True) \
 		.select_related("order", "order__advertiser") \
-		.order_by() # clear default ordering which loads up the Advertiser object
+		.order_by() # clear default ordering
 		
 	target_ids = [t.id for t in targets]
 
@@ -95,12 +95,14 @@ def select_banner(adformat, targets, ad_trail, request):
 		
 	# Make a list of pairs of banners and their proposed bid, and sort them first by
 	# bid, and if there are ties prefer ones with higher max cost per day, which means
-	# ones without a max cost (usually remnant ads) are ordered last.
+	# ones without a max cost (usually remnant ads) are ordered last, and if there are
+	# still ties, which is probably just among remnant ads, add some randomization.
 	banners = [get_bid(b) for b in banners]
 	banners = [b for b in banners if b != None] # filter out banners that plugin says do not display
-	banners.sort(key = lambda x : (-x[1], -x[0].order.maxcostperday))
+	banners.sort(key = lambda x : (-x[1], -x[0].order.maxcostperday, random.random()))
 	
-	# Because of rate limiting, we can't just take the top banner.
+	# Because of rate limiting, we can't just take the top banner. We have to check
+	# if each matching ad is under its current rate limit.
 	banner = None
 	drop_rate = 0.0
 	while len(banners) > 0:
