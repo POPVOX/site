@@ -5,7 +5,7 @@
 {% endif %}
 
 document.write('<style>');
-document.write('.popvoxwidget.small { width: 162px; height: 47px; background: url(/media/icons/speak_up_{% if bill %}ext{% else %}bubble{% endif %}.png) left top no-repeat; cursor: pointer; }\n');
+document.write('.popvoxwidget.small { width: 162px; height: 47px; background: url(/media/icons/speak_up_{% if stats %}ext{% else %}bubble{% endif %}.png) left top no-repeat; cursor: pointer; }\n');
 document.write('.popvoxwidget.wide { width: 259px; height: 51px; background-image: url(/media/icons/speak_up_wide.png); cursor: pointer; text-align: left; }\n');
 document.write('.popvoxwidget.small .procon { color: #fff; font: 12px/19px helvetica, sans-serif; float: left; margin: 4px 0 0 25px; width: 25px; }\n');
 document.write('.popvoxwidget.wide .procon { color: #fff; font: 13px/21px helvetica, sans-serif; float: left; margin: 5px 0 0 29px; width: 30px; }\n');
