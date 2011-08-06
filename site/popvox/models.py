@@ -27,6 +27,8 @@ from writeyourrep.models import DeliveryRecord
 
 from popvox import http_rest_json
 
+# GENERAL METADATA #
+
 class MailListUser(models.Model):
 	email = models.EmailField(db_index=True, unique=True)
 	def __unicode__(self):
@@ -339,6 +341,8 @@ def getbillsfromhash(bills):
 			ret.append(objs[code])
 
 	return ret
+
+# ORGANIZATIONS #
 
 class Org(models.Model):
 	"""An advocacy group."""
@@ -667,6 +671,49 @@ class OrgCampaignPosition(models.Model):
 		except:
 			return False
 
+# POSITION DOCUMENTS and BILL TEXT (for iPad App) #
+
+class PositionDocument(models.Model):
+	bill = models.ForeignKey(Bill, related_name="documents", db_index=True)
+	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text')])
+	title = models.CharField(max_length=128)
+	text = tinymce_models.HTMLField(blank=True) #models.TextField()
+	link = models.URLField(blank=True, null=True)
+	created = models.DateTimeField(auto_now_add=True)
+	updated = models.DateTimeField(auto_now=True, db_index=True)
+	key = models.CharField(max_length=16, blank=True, null=True)
+	pdf = models.TextField(blank=True, null=True) # base64 encoded
+	text = models.TextField(blank=True, null=True)
+	xml = models.TextField(blank=True, null=True) # base64 encoded
+	toc = models.TextField(blank=True, null=True) # json encoded
+	def __unicode__(self):
+		owner = ""
+		if self.owner_memberofcongress.all().exists():
+			owner = unicode(self.owner_memberofcongress.all()[0]) + ": "
+		if self.owner_org.all().exists():
+			owner = unicode(self.owner_org.all()[0]) + ": "
+		return owner + self.bill.title + " [" + self.get_doctype_display() + "]"
+	def get_absolute_url(self):
+		if self.owner_org.all().exists():
+			return self.bill.url() + "/docs/" + self.owner_org.all()[0].slug + "/" + str(self.doctype)
+		if self.owner_memberofcongress.all().exists():
+			return self.bill.url() + "/docs/" + self.owner_memberofcongress.all()[0].id + "/" + str(self.doctype)
+		return self.bill.url() # !!
+
+	def url(self):
+		return self.get_absolute_url()
+		
+class DocumentPage(models.Model):
+	document = models.ForeignKey(PositionDocument, related_name="pages")
+	page = models.IntegerField()
+	png = models.TextField(blank=True, null=True) # base64 encoded
+	text = models.TextField(blank=True, null=True) # base64 encoded utf-8
+	html = models.TextField(blank=True, null=True) # base64 encoded utf-8
+	class Meta:
+		unique_together = (('document', 'page'),)
+		
+# USER PROFILES AND COMMENTS #
+
 class UserProfile(models.Model):
 	"""A user profile extends the basic user model provided by Django."""
 	
@@ -839,31 +886,6 @@ class UserLegStaffRole(models.Model):
 			if self.committee.code[0] in ("H", "S"): # but not J
 				return self.committee.code[0]
 		return None
-		
-class PositionDocument(models.Model):
-	bill = models.ForeignKey(Bill, related_name="documents", db_index=True)
-	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other')])
-	title = models.CharField(max_length=128)
-	text = tinymce_models.HTMLField(blank=True) #models.TextField()
-	link = models.URLField(blank=True, null=True)
-	created = models.DateTimeField(auto_now_add=True)
-	updated = models.DateTimeField(auto_now=True, db_index=True)
-	def __unicode__(self):
-		owner = ""
-		if self.owner_memberofcongress.all().exists():
-			owner = unicode(self.owner_memberofcongress.all()[0]) + ": "
-		if self.owner_org.all().exists():
-			owner = unicode(self.owner_org.all()[0]) + ": "
-		return owner + self.bill.title + " [" + self.get_doctype_display() + "]"
-	def get_absolute_url(self):
-		if self.owner_org.all().exists():
-			return self.bill.url() + "/docs/" + self.owner_org.all()[0].slug + "/" + str(self.doctype)
-		if self.owner_memberofcongress.all().exists():
-			return self.bill.url() + "/docs/" + self.owner_memberofcongress.all()[0].id + "/" + str(self.doctype)
-		return self.bill.url() # !!
-
-	def url(self):
-		return self.get_absolute_url()
 		
 class PostalAddress(models.Model):
 	"""A postal address."""
@@ -1285,6 +1307,8 @@ class UserCommentDigg(models.Model):
 
 	created = models.DateTimeField(auto_now_add=True)
 
+# BILL SIMILARITY #
+
 class BillSimilarity(models.Model):
 	"""Stores a similarity value between two bills, where bill1.id < bill2.id."""
 	bill1 = models.ForeignKey(Bill, related_name="similar_bills_one", db_index=True)
@@ -1292,6 +1316,8 @@ class BillSimilarity(models.Model):
 	similarity = models.FloatField()
 	class Meta:
 		unique_together = (("bill1", "bill2"),)
+
+# SERVICE ACCOUNTS #
 
 class ServiceAccountPermission(models.Model):
 	name = models.CharField(max_length=20, unique=True)

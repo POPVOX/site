@@ -34,6 +34,7 @@ apt-get install -y \
  apache2 apache2-mpm-worker libapache2-mod-wsgi nginx-full mysql-server \
  python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml sphinxsearch \
  memcached python-memcache \
+ poppler-utils libqtcore4 \
  python-mechanize python-matplotlib python-scipy python-rsvg \
  texlive-latex-base texlive-latex-recommended texlive-xetex fontconfig ttf-linux-libertine
 
@@ -128,7 +129,7 @@ fi
 
 #  Master config files.
 rm -f /etc/sphinxsearch/sphinx.conf
-ln -s /home/www/sources/site/popvox/db/sphinx.conf /etc/sphinxsearch/
+ln -s /home/www/sources/conf/sphinx.conf /etc/sphinxsearch/
 ln -s /home/www/sources/conf/httpd.conf /etc/apache2/conf.d/local.conf
 ln -s /home/www/sources/conf/nginx.conf /etc/nginx/conf.d/local.conf
 ln -s /home/www/sources/conf/logrotate.conf /etc/logrotate.d/local

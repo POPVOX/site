@@ -15,6 +15,7 @@ svn checkout http://django-tinymce.googlecode.com/svn/trunk/ django-tinymce
 git clone git://github.com/tauberer/django-feedback-pv.git
 git clone https://github.com/tauberer/django-registration-pv.git
 git clone https://github.com/tauberer/django-ses.git
+git clone https://github.com/tauberer/diff_match_patch-python.git
 
 if [ ! -d tinymce ]; then
 	wget -O tinymce.zip "http://downloads.sourceforge.net/project/tinymce/TinyMCE/3.3.9.2/tinymce_3_3_9_2_jquery.zip?r=http%3A%2F%2Ftinymce.moxiecode.com%2Fdownload.php&ts=1292511357&use_mirror=superb-sea2";

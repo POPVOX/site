@@ -13,7 +13,7 @@ python popvox/db/compute_prompts.py
 ./manage cleanup
 ./manage clear_expired_email_verifications
 
-sudo indexer bill_titles --rotate
+sudo indexer --all --rotate
 
 cd /mnt/persistent
 $SCRIPTS/backup.sh

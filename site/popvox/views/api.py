@@ -1,12 +1,15 @@
 from django.core.paginator import Paginator
+from django.http import HttpResponse, Http404
 
 from piston.resource import Resource
 from piston.handler import BaseHandler
 
 from popvox.models import *
 
-import re
+import re, base64, json
 from itertools import chain
+
+from sphinxapi import SphinxClient, SPH_MATCH_EXTENDED
 
 from settings import SITE_ROOT_URL
 
@@ -87,6 +90,78 @@ class bill_search(BillHandler):
 		from bills import billsearch_internal
 		bills, status = billsearch_internal(request.GET.get("q", "").strip())
 		return bills
+
+class DocumentHandler(BaseHandler):
+	@classmethod
+	def pages(api, item):
+		return item.pages.count()
+
+	@classmethod
+	def formats(api, item):
+		has_text = item.pages.filter(text__isnull=False).exists()
+		has_html = item.pages.filter(html__isnull=False).exists()
+		has_png = item.pages.filter(png__isnull=False).exists()
+		return { "text": has_text, "html": has_html, "png": has_png }
+
+
+@Resource
+class bill_documents(DocumentHandler):
+	model = PositionDocument
+	fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats']
+	
+	def read(self, request, billid):
+		bill = Bill.objects.get(id=billid)
+		return bill.documents.all()
+
+@Resource
+class document_info(DocumentHandler):
+	model = PositionDocument
+	fields = ['id', 'bill', 'title', 'created', 'doctype', 'pages', 'formats', 'toc']
+	
+	def read(self, request, docid):
+		try:
+			return PositionDocument.objects.get(id=docid)
+		except PositionDocument.DoesNotExist:
+			raise Http404("Invalid document ID.")
+		
+	@classmethod
+	def toc(api, item):
+		return json.loads(item.toc) if item.toc else None
+
+def bill_document_page(request, docid, pagenum, format):
+	try:
+		doc = PositionDocument.objects.get(id=docid)
+		page = doc.pages.get(page=pagenum)
+		if format == "png":
+			return HttpResponse(base64.decodestring(page.png), "image/png")
+		if format == "html":
+			return HttpResponse(page.html, "text/html")
+		if format == "txt":
+			return HttpResponse(page.text, "text/plain")
+	except PositionDocument.DoesNotExist:
+		raise Http404("Invalid document ID.")
+	except DocumentPage.DoesNotExist:
+		raise Http404("Page number out of range.")
+
+@Resource
+class bill_document_search(BaseHandler):
+	model = DocumentPage
+	fields = ['page']
+	
+	def read(self, request, docid):
+		q = request.GET.get("q", "").strip()
+		if q == "":
+			return []
+		
+		c = SphinxClient()
+		c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
+		c.SetMatchMode(SPH_MATCH_EXTENDED)
+		c.SetFilter("document_id", [int(docid)])
+		ret = c.Query(q)
+		if ret == None:
+			return []
+		
+		return sorted([m["attrs"]["page"] for m in ret["matches"]])
 	
 @Resource
 class comments(BaseHandler):
