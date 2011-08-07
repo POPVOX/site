@@ -143,7 +143,7 @@ class bill_search(BillHandler):
 	@paginate
 	def read(self, request):
 		from bills import billsearch_internal
-		bills, status = billsearch_internal(request.GET.get("q", "").strip())
+		bills, status, error = billsearch_internal(request.GET.get("q", "").strip())
 		return bills
 
 class DocumentHandler(BaseHandler):

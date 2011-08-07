@@ -37,8 +37,11 @@
 	<p>More than 100 bills came back for your search but only the first 100 are displayed below. To dig deeper, <a href="http://www.govtrack.us/congress/billsearch.xpd">use bill search at GovTrack.us</a>.</p>
 	{% endif %}
 	
-	{% if status == "callfail" %}
-	<p>The search function had an internal error. {% if debug %}({{ errormsg }}){% endif %}</p>
+	{% if status == "callfail" and errormsg %}
+	<p>The search function reported an error: {{ errormsg }}.</p>
+	{% endif %}
+	{% if status == "callfail" and not errormsg %}
+	<p>The search function had an internal error.</p>
 	{% endif %}
 	
 	<table width="100%">

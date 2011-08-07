@@ -180,7 +180,7 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
 			cn = int(m.group(4))
 		try:
 			b = bill_from_url("/bills/us/%d/%s%d" % (cn, m.group(1).lower(), int(m.group(2))))
-			return ([b], None)
+			return ([b], None, None)
 		except:
 			pass
 			
@@ -204,7 +204,7 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
 				status = "overflow"
 				break
 
-	return (Bill.objects.filter(id__in=bills), status)
+	return (Bill.objects.filter(id__in=bills), status, error)
 
 @csrf_protect_if_logged_in
 def billsearch(request):
@@ -216,7 +216,7 @@ def billsearch(request):
 	if "congressnumber" in request.GET and request.GET["congressnumber"].isdigit():
 		cn = int(request.GET["congressnumber"])
 	
-	bills, status = billsearch_internal(q, cn=cn)
+	bills, status, error = billsearch_internal(q, cn=cn)
 
 	if request.user.is_authenticated():
 		import home
