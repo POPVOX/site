@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
 from django.http import HttpResponse, Http404
+from django.contrib.auth.models import User, AnonymousUser
 
 from piston.resource import Resource
 from piston.handler import BaseHandler
@@ -12,6 +13,30 @@ from itertools import chain
 from sphinxapi import SphinxClient, SPH_MATCH_EXTENDED
 
 from settings import SITE_ROOT_URL
+
+class ServiceKeyAuthentication(object):
+	def is_authenticated(self, request):
+		auth_string = request.GET.get('api_key', None)
+
+		if not auth_string:
+			return False
+
+		try:
+			acct = ServiceAccount.objects.get(secret_key=auth_string)
+		except:
+			return False
+		
+		request.user = acct.user or AnonymousUser()
+
+		return True
+
+	def challenge(self):
+		resp = HttpResponse("Authorization Required. Missing or invalid api_key. Include your service account private API key in the api_key parameter.")
+		resp.status_code = 401
+		return resp
+
+def make_endpoint(f):
+	return Resource(f, ServiceKeyAuthentication())
 
 def paginate_items(items, request):
 	p = Paginator(items, int(request.GET.get("count", "25")))
@@ -53,7 +78,7 @@ class BillHandler(BaseHandler):
 	def link(api, bill):
 		return SITE_ROOT_URL + bill.url()
 		
-@Resource
+@make_endpoint
 class bill_suggestions(BillHandler):
 	def read(self, request):
 		from bills import get_popular_bills
@@ -83,7 +108,7 @@ class bill_suggestions(BillHandler):
 		
 		return ret
 
-@Resource
+@make_endpoint
 class bill_search(BillHandler):
 	@paginate
 	def read(self, request):
@@ -104,7 +129,7 @@ class DocumentHandler(BaseHandler):
 		return { "text": has_text, "html": has_html, "png": has_png }
 
 
-@Resource
+@make_endpoint
 class bill_documents(DocumentHandler):
 	model = PositionDocument
 	fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats']
@@ -113,7 +138,7 @@ class bill_documents(DocumentHandler):
 		bill = Bill.objects.get(id=billid)
 		return bill.documents.all()
 
-@Resource
+@make_endpoint
 class document_info(DocumentHandler):
 	model = PositionDocument
 	fields = ['id', 'bill', 'title', 'created', 'doctype', 'pages', 'formats', 'toc']
@@ -143,7 +168,7 @@ def bill_document_page(request, docid, pagenum, format):
 	except DocumentPage.DoesNotExist:
 		raise Http404("Page number out of range.")
 
-@Resource
+@make_endpoint
 class bill_document_search(BaseHandler):
 	model = DocumentPage
 	fields = ['page']
@@ -163,7 +188,7 @@ class bill_document_search(BaseHandler):
 		
 		return sorted([m["attrs"]["page"] for m in ret["matches"]])
 	
-@Resource
+@make_endpoint
 class comments(BaseHandler):
 	allowed_methods = ('GET',)
 	model = UserComment
