@@ -1,6 +1,9 @@
 from django.core.paginator import Paginator
 from django.http import HttpResponse, Http404
 from django.contrib.auth.models import User, AnonymousUser
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
+from django.core.urlresolvers import reverse
 
 from piston.resource import Resource
 from piston.handler import BaseHandler
@@ -13,6 +16,8 @@ from itertools import chain
 from sphinxapi import SphinxClient, SPH_MATCH_EXTENDED
 
 from settings import SITE_ROOT_URL
+
+api_endpoints = []
 
 class ServiceKeyAuthentication(object):
 	def is_authenticated(self, request):
@@ -36,7 +41,14 @@ class ServiceKeyAuthentication(object):
 		return resp
 
 def make_endpoint(f):
+	global api_endpoints
+	api_endpoints.append(f)
 	return Resource(f, ServiceKeyAuthentication())
+
+def make_simple_endpoint(f):
+	global api_endpoints
+	api_endpoints.append(f)
+	return f
 
 def paginate_items(items, request):
 	p = Paginator(items, int(request.GET.get("count", "25")))
@@ -80,6 +92,10 @@ class BillHandler(BaseHandler):
 		
 @make_endpoint
 class bill_suggestions(BillHandler):
+	description = "Retreives suggested bills, including popular bills and bills similar to other bills."
+	qs_args = (
+		('can_comment', 'Optional. Set to "1" to restrict the output to bills that can be commented on.'),
+		("similar_to", "Optional. A comma-separated list of bill IDs. Adds a 'similarity' key to the output with related bills."))
 	def read(self, request):
 		from bills import get_popular_bills
 		ret = {}
@@ -106,10 +122,14 @@ class bill_suggestions(BillHandler):
 			# Take the top reccomendations.
 			ret["similarity"] = [t[0] for t in targets[:15]]
 		
-		return ret
+		return ret 
 
 @make_endpoint
 class bill_search(BillHandler):
+	description = "Search bills by bill number or keywords in bill title. Returns a paginated list of bills."
+	url_example_qs = "?q=H.R.3"
+	qs_args = (('q', 'The search query.'),)
+	
 	@paginate
 	def read(self, request):
 		from bills import billsearch_internal
@@ -133,6 +153,9 @@ class DocumentHandler(BaseHandler):
 class bill_documents(DocumentHandler):
 	model = PositionDocument
 	fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats']
+	url_pattern_args = [("000", "BILL_ID")]
+	url_example_args = (16412,)
+	description = "Returns documents associated with a bill, including bill text."
 	
 	def read(self, request, billid):
 		bill = Bill.objects.get(id=billid)
@@ -142,6 +165,9 @@ class bill_documents(DocumentHandler):
 class document_info(DocumentHandler):
 	model = PositionDocument
 	fields = ['id', 'bill', 'title', 'created', 'doctype', 'pages', 'formats', 'toc']
+	url_pattern_args = [("000", "DOCUMENT_ID")]
+	url_example_args = (248,)
+	description = "Returns metadata about a document (such as bill text)."
 	
 	def read(self, request, docid):
 		try:
@@ -153,25 +179,36 @@ class document_info(DocumentHandler):
 	def toc(api, item):
 		return json.loads(item.toc) if item.toc else None
 
+@make_simple_endpoint
 def bill_document_page(request, docid, pagenum, format):
 	try:
 		doc = PositionDocument.objects.get(id=docid)
 		page = doc.pages.get(page=pagenum)
 		if format == "png":
 			return HttpResponse(base64.decodestring(page.png), "image/png")
-		if format == "html":
+		elif format == "html":
 			return HttpResponse(page.html, "text/html")
-		if format == "txt":
+		elif format == "txt":
 			return HttpResponse(page.text, "text/plain")
+		else:
+			raise Http404("Invalid page format.")
 	except PositionDocument.DoesNotExist:
 		raise Http404("Invalid document ID.")
 	except DocumentPage.DoesNotExist:
 		raise Http404("Page number out of range.")
+bill_document_page.description = "Retreives one page of a document as either a PNG or in plain text. Result is either image/png or text/plain."
+bill_document_page.url_pattern_args = (("000",'DOCUMENT_ID'), ("001",'PAGE_NUMBER'), ('aaa', '{png|html|txt}'))
+bill_document_page.url_example_args = (248,20,'png')
 
 @make_endpoint
 class bill_document_search(BaseHandler):
 	model = DocumentPage
 	fields = ['page']
+	description = "Searches a document for text returning a list of page numbers."
+	url_pattern_args = (("000",'DOCUMENT_ID'),)
+	url_example_args = (248,)
+	url_example_qs = "?q=budget%20authority"
+	qs_args = (('q', 'The search query.'),)
 	
 	def read(self, request, docid):
 		q = request.GET.get("q", "").strip()
@@ -194,14 +231,22 @@ class comments(BaseHandler):
 	model = UserComment
 	exclude = []
 	fields = ('id', 'bill', 'position', 'position_text', 'screenname', 'message', 'created', 'state', 'congressionaldistrict', 'referral', 'link')
+	description = "Retrieves constituent comments on bills. Returns a paginated list of comments."
+	qs_args = (
+		('bill', 'Optional. Restrict comments to a single bill, given by bill ID.'),
+		('has_message', 'Optional. Set to "1" to only return comments with messages.'),
+		('state', 'Optional. Restrict comments to users from a state. Set to a USPS state abbreviation.'),
+		('district', 'Optional. Restrict comments to users from a congressional district. Set this parameter to an integer, the Congressional district, and also set the state parameter.'),)
+	url_example_qs = "?state=NY&district=2&has_message=1"		
 	
 	@paginate
 	def read(self, request):
 		items = UserComment.objects.all().select_related("user", "bill", "bill_sponsor")
 		if "bill" in request.GET: items = items.filter(bill=int(request.GET["bill"]))
 		if request.GET.get("has_message", "0") == "1": items = items.filter(message__isnull=False)
-		if "state" in request.GET: items = items.filter(state=request.GET["state"])
-		if "district" in request.GET: items = items.filter(congressionaldistrict=request.GET["district"])
+		if "state" in request.GET:
+			items = items.filter(state=request.GET["state"])
+			if "district" in request.GET: items = items.filter(congressionaldistrict=request.GET["district"])
 		return items
 
 	@classmethod
@@ -222,4 +267,37 @@ class comments(BaseHandler):
 	@classmethod
 	def referral(api, item):
 		return [str(r) for r in item.referrers()]
+
+def documentation(request):
+	def reformat_args_1(args):
+		# Because the Django URL reverse mechanism only lets us put in numbers in \d+ spots,
+		# and we want to give a more helpful pattern, for args specified as a tuple (NUM, STR),
+		# call the resolver with NUM and then replace it with STR later.
+		return [a if type(a) != tuple else a[0] for a in args]
+	def reformat_args_2(url, args):
+		for a in args:
+			if type(a) == tuple:
+				url = url.replace(a[0], a[1])
+		return url
+	
+	def update(f):
+		f.name = f.__name__
+
+		try:
+			args = getattr(f, "url_pattern_args", [])
+			f.url_pattern = SITE_ROOT_URL + reformat_args_2(reverse('popvox.views.api.' + f.__name__, args=reformat_args_1(args)), args) 
+		except Exception as e:
+			f.url_pattern =  str(e)
+
+		try:
+			f.url_example = SITE_ROOT_URL + reverse('popvox.views.api.' + f.__name__, args=getattr(f, "url_example_args", [])) + getattr(f, "url_example_qs", "")
+		except Exception as e:
+			f.url_example = str(e)
 			
+		return f
+			
+	return render_to_response('popvox/apidoc.html', {
+		'accounts': request.user.userprofile.service_accounts(create=True) if request.user.is_authenticated() else [],
+		'methods': [update(f) for f in api_endpoints],
+		}, context_instance=RequestContext(request))
+

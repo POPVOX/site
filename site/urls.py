@@ -109,11 +109,12 @@ urlpatterns = patterns('',
 	(r'^embed/salsa/action', 'popvox.views.embed.salsa_action'),
 	(r'^embed/fb_page', 'popvox.views.embed.facebook_page'),
 
+	(r'^api/docs', 'popvox.views.api.documentation'),
 	(r'^api/v1/bill_suggestions', 'popvox.views.api.bill_suggestions'),
 	(r'^api/v1/bill_search', 'popvox.views.api.bill_search'),
 	(r'^api/v1/bill_documents/(\d+)', 'popvox.views.api.bill_documents'),
 	(r'^api/v1/document/(\d+)$', 'popvox.views.api.document_info'),
-	(r'^api/v1/document/(\d+)/page/(\d+).(png|html|txt)', 'popvox.views.api.bill_document_page'),
+	(r'^api/v1/document/(\d+)/page/(\d+).([a-z]+)', 'popvox.views.api.bill_document_page'),
 	(r'^api/v1/document/(\d+)/search', 'popvox.views.api.bill_document_search'),
 	(r'^api/v1/comments', 'popvox.views.api.comments'),
 
