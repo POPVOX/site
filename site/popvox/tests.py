@@ -47,7 +47,7 @@ class StaticPageTest(TestCase):
 	    
         self.assertEqual(success, True)
 
-class Search(TestCase):
+class SearchingTest(TestCase):
     fixtures = ['test_adserver', 'test_pvgeneral', 'test_sbills', 'test_orgs']
 
     def BillWordsearchFail(self):
@@ -152,7 +152,7 @@ class CredentialsTest(TestCase):
         status = response.status_code
         pagecontents = response.content
         page = "login"
-        
+                
         if int(status) != 200:
             success = False
             print "status code failed on ", page
@@ -162,6 +162,69 @@ class CredentialsTest(TestCase):
         elif 'Welcome, <a href="/accounts/profile">kosh</a>' not in pagecontents:
             success = False
             print page, "is not showing user as logged in."
+        else:
+            print page, " is good."
+        
+        self.assertEqual(success, True)
+        
+    def testBadLogin(self):
+
+        success = True
+
+        response = c.post('/accounts/login?next=/home', {'email': 'kosh@vorlons.gov', 'password': 'WhatDoYouWant'},  follow=True)
+        status = response.status_code
+        pagecontents = response.content
+        page = "bad login"
+        
+        if int(status) != 200:
+            success = False
+            print "status code failed on ", page
+        elif "<title>Sign In - POPVOX.com</title>" not in pagecontents:
+            success = False
+            print page, "did not reload login page."
+        elif 'Your email and password were incorrect' not in pagecontents:
+            success = False
+            print page, "did not inform user of bad login."
+        else:
+            print page, " is good."
+        
+        self.assertEqual(success, True)
+        
+class CommentTest(TestCase):
+    fixtures = ['test_adserver', 'test_users']
+    
+    def testComment(self):
+
+        success = True
+        CredentialsTest().testLogin()
+
+        response = c.post('/bills/us/112/hr200/comment/support', {
+            "message":                  "I support H.R. 200 because it is a good http response.",
+            "submitmode":               "Submit Comment >",
+            "useraddress_address1":     "1220 East-West Highway",
+            "useraddress_address2":     "Apt 1716",
+            "useraddress_city":         "Silver Spring",
+            "useraddress_firstname":    "Ambassador",
+            "useraddress_lastname":     "Kosh",
+            "useraddress_phonenumber":  "240-688-6685",
+            "useraddress_prefix":       "Mr.",
+            "useraddress_state":        "MD",
+            "useraddress_suffix":       "",
+            "useraddress_zipcode":      "20910",
+            },  follow=True)
+        status = response.status_code
+        pagecontents = response.content
+        page = "send comment"
+                
+        if int(status) != 200:
+            success = False
+            print "status code failed on ", page
+        elif "<title>Share Your Comment" not in pagecontents:
+            success = False
+            print page, "did not redirect to share."
+        elif "What Others Think" not in pagecontents:
+            success = False
+            print page, "is not showing what others think."
         else:
             print page, " is good."
         

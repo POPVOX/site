@@ -11,7 +11,7 @@ import settings
 import popvox.views.api
 
 urlpatterns = patterns('',
-	(r'^(|congress|organization|about|about/team|about/principles|about/whyitworks|about/contact|legal|advertising|press(?:/\d\d\d\d-\d\d-\d\d/[a-z_]+)?|jobs|faq|blog_template)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
+	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|legal|advertising|press(?:/\d\d\d\d-\d\d-\d\d/[a-z_]+)?|jobs|faq|blog_template)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	

@@ -235,6 +235,7 @@ common_fieldnames = {
 	"zip2": "zip4",
 	"plusfour": "zip4",
 	"zip_plus4": "zip4",
+	"zipcode4": "zip4",
 	"postalcode": "zipcode",
 	"mailing_zipcode": "zipcode",
 	"addresszip": "zipcode",
@@ -353,7 +354,10 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"org",
 	"h03", "H03",
 	"name-title",
-	"organization")
+	"organization",
+	"unsubscribe",
+	"email.optin",
+	"enewssign", "enewsletter")
 
 radio_choices = {
 	"reason": "legsitemail",
