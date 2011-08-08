@@ -733,7 +733,7 @@ table.form_fields td {
         color: #CC6A11;
         }
 
-.content .col_9 #bill_endorse_oppose_holder_user h3 { font: 14px/20px "LucidaGrande",helvetica,arial,sans-serif     }
+.content .col_9 #bill_endorse_oppose_holder_user h3 { font: 14px/20px helvetica,arial,sans-serif     }
 
 /* alert dead */
 
@@ -966,9 +966,9 @@ ul.tabs {
     padding: 17px 0 10px 75px;
     }
 
-    .bill_overview h2 { font: bold 20px/30px "LucidaGrande",helvetica,arial,sans-serif  }
+    .bill_overview h2 { font: bold 20px/30px helvetica,arial,sans-serif  }
 
-.bill_overview_user h3 { font: normal 14px/18px "LucidaGrande",helvetica,arial,sans-serif   }
+.bill_overview_user h3 { font: normal 14px/18px helvetica,arial,sans-serif   }
 
 .bill_overview_user {
     background: url(bg_bill_orange.png) left 15px no-repeat;
@@ -3265,7 +3265,7 @@ p.create_text { margin-top: -5px    }
 
 .content .login h2 {
     text-transform: uppercase;
-    font: 14px/20px "LucidaGrande",helvetica,arial,sans-serif;
+    font: 14px/20px helvetica,arial,sans-serif;
     height: 25px;
     }
 
