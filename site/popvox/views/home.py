@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
-import re
+import re, json, urllib
 from xml.dom import minidom
 from itertools import chain, izip, cycle
 
@@ -890,4 +890,109 @@ UA: %s
 		"delivered_message_dates": delivered_message_dates,
 		}, context_instance=RequestContext(request))
 
+def legstaff_facebook_report(request):
+	return render_to_response('popvox/congress_facebook_report.html', {
+		}, context_instance=RequestContext(request))
 
+@json_response
+@user_passes_test(lambda u : u.is_authenticated() and u.userprofile.is_leg_staff())
+def legstaff_facebook_report_getinfo(request):
+	id = int(request.GET.get('id', '0'))
+	
+	id = 412326 # DEBUG
+	
+	limit = 500
+	offset = 0
+	
+	info = {}
+	
+	from registration.models import AuthRecord
+	from popvox.govtrack import getMemberOfCongress
+	moc = getMemberOfCongress(id)
+	
+	info["person"] = moc
+	
+	if "facebookgraphid" in moc:
+		pageid = moc["facebookgraphid"]
+	
+		from utils import get_facebook_app_access_token
+		fb_tok = get_facebook_app_access_token()
+		
+		info["page"] = cache.get("facebook_metadata_" + pageid)
+		if not info["page"]:	
+			try:
+				ret = urllib.urlopen("https://graph.facebook.com/" + pageid)
+				if ret.getcode() != 200:
+					raise Exception("Failed to load page metadata.")
+				info["page"] = json.loads(ret.read())
+				cache.set("facebook_metadata_" + pageid, info["page"], 60*20) # 20 minutes
+			except Exception as e:
+				info["error"] = str(e)
+				return info
+		
+		lim_off = "_%d+%d" % (offset, limit)
+		info["feed"] = cache.get("facebook_feed_" + pageid + lim_off)
+		if not info["feed"]:
+			try:
+				url = "https://graph.facebook.com/" + str(pageid) + "/feed?" \
+					+ urllib.urlencode({
+						"offset": offset,
+						"limit": limit,
+						"access_token": fb_tok
+					})
+				ret = urllib.urlopen(url)
+				if ret.getcode() != 200:
+					raise Exception("Failed to load page feed.")
+				info["feed"] = json.loads(ret.read())
+				cache.set("facebook_feed_" + pageid + lim_off, info["feed"], 60*20) # 20 minutes
+			except Exception as e:
+				info["error"] = str(e)
+	
+		if info["feed"]:
+			# get list of all Facebook IDs seen.
+			uids = []
+			for entry in info["feed"]["data"]:
+				uids.append(entry["from"]["id"])
+				if "comments" in entry and "data" in entry["comments"]:
+					for comment in entry["comments"]["data"]:
+						uids.append(comment["from"]["id"])
+				if "likes" in entry and "data" in entry["likes"]:
+					for like in entry["likes"]["data"]:
+						uids.append(like["id"])
+			
+			# batch load the constituenthood of each UID
+			uid_map = { }
+			num_constit = 0
+			for authrecord in AuthRecord.objects.filter(provider="facebook", uid__in=set(uids)).select_related("user"):
+				addrs = authrecord.user.postaladdress_set.all().order_by('-created')
+				if len(addrs) > 0:
+					addr = addrs[0]
+					if (addr.state == moc["state"] and (moc["district"]==None or addr.congressionaldistrict==moc["district"])):
+						uid_map[authrecord.uid] = (True, addr.city, addr.name_string(), addr.address_string())
+						num_constit += 1
+					else:
+						uid_map[authrecord.uid] = (False, "out-of-district")
+			info["num_known"] = len(uid_map)
+			info["num_constituents"] = num_constit
+	
+			# add constituenthood back to returned data
+			def is_constituent(uid):
+				if int(uid) == int(pageid): return (False, "page")
+				if uid in uid_map: return uid_map[uid]
+				return (False, "unknown")
+			for entry in info["feed"]["data"]:
+				entry["from"]["constituent"] = is_constituent(entry["from"]["id"])
+				entry["constituent_comments"] = 0
+				entry["constituent_likes"] = 0
+				if "comments" in entry and "data" in entry["comments"]:
+					for comment in entry["comments"]["data"]:
+						comment["from"]["constituent"] = is_constituent(comment["from"]["id"])
+						if comment["from"]["constituent"][0]:
+							entry["constituent_comments"] += 1
+				if "likes" in entry and "data" in entry["likes"]:
+					for like in entry["likes"]["data"]:
+						like["constituent"] = is_constituent(like["id"])
+						if like["constituent"][0]:
+							entry["constituent_likes"] += 1
+				
+	return info

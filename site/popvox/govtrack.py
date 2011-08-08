@@ -101,6 +101,9 @@ def loadpeople():
 				px["class"] = int(role.getAttribute("class")) if role.getAttribute("type") == "sen" else None
 				px["address"] = role.getAttribute("address")
 				px["url"] = role.getAttribute("url")
+				
+				if node.hasAttribute("facebookgraphid"):
+					px["facebookgraphid"] = node.getAttribute("facebookgraphid")
 			
 				if role.getAttribute("type") == "sen":
 					if not role.getAttribute("state") in senators:

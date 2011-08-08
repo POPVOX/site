@@ -80,3 +80,34 @@ def csrf_protect_if_logged_in(f):
 			
 	return g
 
+def get_facebook_app_access_token():
+	key = "popvox_facebook_app_access_token"
+	token = cache.get(key)
+	if token: return token
+	
+	import csv, json, urllib, urlparse
+	from settings import FACEBOOK_APP_ID, FACEBOOK_APP_SECRET
+				
+	url = "https://graph.facebook.com/oauth/access_token?" \
+		+ urllib.urlencode({
+			"client_id": FACEBOOK_APP_ID,
+			"client_secret": FACEBOOK_APP_SECRET,
+			"grant_type": "client_credentials"
+		})
+	
+	ret = urllib.urlopen(url)
+	if ret.getcode() != 200:
+		raise Exception("Failed to get a Facebook App access_token: " + ret.read())
+	
+	ret = dict(urlparse.parse_qsl(ret.read()))
+
+	token = ret["access_token"]
+	if "expires" in ret:
+		expires = int(ret["expires"])
+	else:
+		expires = 60*60*4 # four hours
+	
+	cache.set(key, token, expires/2)
+	
+	return token
+

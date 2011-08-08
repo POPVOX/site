@@ -1,0 +1,228 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Are They Your Constituents? - POPVOX Report{% endblock%}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script src="/media/js/jquery.tools.min.js"></script>
+<script>
+function htmlescape(text) {
+	return $("<div/>").text(text).html();
+}
+function constituent_location(data) {
+	if (data.constituent[0]) return "from " + data.constituent[1];
+	if (data.constituent[0] == "unknown") return "(unknown location)";
+	if (data.constituent[0] == "out-of-district") return "(out of district)";
+	return "";
+}
+function constituent_address(data) {
+	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>");
+}
+function update(id) {
+	$('#content_status').text("Loading...");
+	$('#content').hide();
+	$.ajax({
+		type:"GET",
+		url: "/ajax/congress/facebook",
+		data: {
+			id: id,
+		},
+		complete: function(res, status) {
+			if (status != "success") {
+				$('#content_status').text("Error loading report.");
+				return;
+			}
+			
+			res = eval('(' + res.responseText + ')');
+			if (res.error) {
+				$('#content_status').text(res.error);
+				return;
+			}
+
+			$('#content_status').text('');
+			
+			$('#content').show();
+			$('#content h2').text(res.page.name);
+			$('#content .link a').attr("href", res.page.link).text(res.page.link);
+			if (res.page.picture) $('#content .pagephoto').attr('src', res.page.picture); // busts https:
+			
+			var postcount = 0;
+			
+			for (var i = 0; i < res.feed.data.length; i++) {
+				var n = $('#template_post').clone();
+				
+				var data = res.feed.data[i];
+				if (!data.constituent_comments && !data.constituent_likes && !data.from.constituent[0]) continue;
+				 //  && !(data.from.constituent[1]=="page" && data.constituent_likes)
+				
+				postcount++;
+				
+				//n.find('.from .picture').attr('src', data.from.picture.replace("http:", "https:"));
+				n.find('.from .name').text(data.from.name);
+				n.find('.from .constituent').text(constituent_location(data.from));
+				
+				if (data.type == "status") {
+					n.find('.from .what').text('wrote on your wall.');
+					n.find('.content .picture').hide();
+					n.find('.content .title').text(data.message);
+					n.find('.content .description').hide();
+					n.find('.content .date').text(data.created_time);
+				} else if (data.type == "link") {
+					n.find('.from .what').text('posted a link.');
+					//n.find('.content .picture').attr('src', data.picture.replace("http:", "https:"));
+					n.find('.content .title').text(data.name);
+					n.find('.content .description').text(data.description);
+					n.find('.content .date').text(data.created_time);
+				} else if (data.type == "video" || data.type == "photo") {
+					n.find('.from .what').text('posted a ' + data.type + '.');
+					//n.find('.content .picture').attr('src', data.picture.replace("http:", "https:"));
+					n.find('.content .title').text(data.message);
+					n.find('.content .description').text(data.description);
+					n.find('.content .date').text(data.created_time);
+				} else {
+					n.find('.from .what').text('posted a ' + data.type + '.');
+					//continue;
+				}
+				
+				if (data.from.constituent[0]) {
+					n.find('.tooltip').html(constituent_address(data.from));
+					n.find(".title").addClass("needs_tooltip");
+				}
+				
+				var t = "";
+				if (data.constituent_comments) t += data.constituent_comments + " constituent(s) commented.";
+				if (data.constituent_likes) t += data.constituent_likes + " constituent(s) liked this post.";
+				n.find('.constituent_info').text(t)
+				
+				if (data.comments && data.comments.data)
+				for (var j = 0; j < data.comments.data.length; j++) {
+					var data2 = data.comments.data[j];
+					if (!data2.from.constituent[0]) continue;
+					var nn = $('#template_comment').clone();
+					nn.find('.name').text(data2.from.name);
+					nn.find('.constituent').text(constituent_location(data2.from));
+					nn.find('.text').text(data2.message);
+					if (data2.from.constituent[0]) {
+						nn.find('.tooltip').html(constituent_address(data2.from));
+						nn.find(".title").addClass("needs_tooltip");
+					}
+					n.find(".comments").append(nn);
+				}
+				
+				if (data.likes && data.likes.data)
+				for (var j = 0; j < data.likes.data.length; j++) {
+					var data2 = data.likes.data[j];
+					if (!data2.constituent[0]) continue;
+					var nn = $('#template_like').clone();
+					nn.find('.name').text(data2.name);
+					nn.find('.constituent').text(constituent_location(data2));
+					if (data2.constituent[0]) {
+						nn.find('.tooltip').html(constituent_address(data2));
+						nn.find(".title").addClass("needs_tooltip");
+					}
+					n.find(".likes").append(nn);
+					n.find(".likes").show();
+				}
+				
+				$('#content').append(n);
+			}
+			
+			if (!postcount) {
+				$('#content').append($("<p>We couldn't find posts from any of your constituents on your Wall. We know whether an individual is one of your constituents only if they are a POPVOX user.</p>"));
+			}
+			
+			$('.needs_tooltip').tooltip({relative: true}).removeClass("needs_tooltip");
+		}
+	});
+
+}
+
+{% if user.userprofile.is_leg_staff %}
+	$(function() {
+		update({{user.legstaffrole.member.id}});
+	});
+{% endif %}
+</script>
+<style>
+.post { border: 1px solid black; padding: 3px; }
+.comment { border: 1px solid black; padding: 3px; }
+.like { display: inline; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="content">
+	
+	<div class="col_9 col_top">
+		<h1 class="mar_no_btm">Are They Your #Constituents?</h1>
+		
+		{% if user.userprofile.is_leg_staff %}
+			<p>An analysis of your official Facebook page.</p>
+		{% else %}		
+			<p>An analysis of the official Facebook page of Members of Congress.</p>
+		
+			... select ...
+		
+		{% endif %}
+
+		<div id="content_status">			
+		</div>
+		
+		<div id="content" style="display: none">
+			<img class="pagephoto" style="float: left; margin-right: 15px"/>
+			<h2></h2>
+			<p class="link"><a href="" target="_blank"></a></p>
+		</div>
+		
+		<div style="display: none">
+			<div id="template_post" class="post">
+				<div class="from">
+					<img class="picture" style="float: left; margin-right: 15px"/>
+					<div><span class="title"><span class="name"></span> <span class="constituent"></span> <span class="what"></span></span></div>
+					<div class="tooltip"> </div>
+				</div>
+				<div class="content">
+					<img class="picture" style="float: left; margin-right: 15px"/>
+					<div class="title"></div>
+					<div class="description"></div>
+					<div class="date"></div>
+				</div>
+				<div class="constituent_info">
+				</div>
+				<div class="likes" style="display: none">
+					Likes:
+				</div>
+				<div class="comments">
+				</div>
+			</div>
+			
+			<div id="template_comment" class="comment">
+				<div><span class="title"><span class="name"></span> <span class="constituent"></span></span></div>
+				<div class="tooltip"> </div>
+				
+				<div class="text"> </div>
+			</div>
+			
+			<div id="template_like" class="like">
+				<span class="title"><span class="name"></span> <span class="constituent"></span></span>
+				<div class="tooltip"> </div>
+			</div>
+		</div>
+		
+	</div> <!-- col_9 -->
+
+	{% if user.userprofile.is_leg_staff %}
+		{% include "ads/rightbar.html" %}
+	{% else %}
+		<div class="col_3 col_top col_last">
+		
+			<div style="background: #D4D1CA; padding: 1em;">
+				<p>Get a report for your office instantly. Just
+				<a href="/accounts/register/legstaff?next=/congress/facebook" target="_blank">register</a> with your @mail.house.gov or @senate.gov address or <a href="/accounts/login?next=/congress/facebook">login</a> if you
+				already have a POPVOX account.</p>
+			</div>
+		
+		</div>
+	{% endif %}
+</div><!-- e: content -->
+
+{% endblock %}
+
