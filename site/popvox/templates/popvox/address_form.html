@@ -1,3 +1,5 @@
+<script src="/media/js/jquery.tools.min.js"></script>
+
 <label for="useraddress_prefix">Prefix</label>
 <select class="c2" name="useraddress_prefix">
 	{% for prefix in useraddress_prefixes %}
@@ -19,7 +21,7 @@
 </select><br />
 
 <label for="useraddress_address1">Address Line 1</label>
-<input class="c3" id="useraddress_address1" name="useraddress_address1" type="text" value="{{useraddress.address1}}"/><br />
+<input class="c3" id="useraddress_address1" name="useraddress_address1" type="text" value="{{useraddress.address1}}" title="Your Members of Congress need to know you are a constituent. Provide a mailing address in the distrit in which you vote. If you live abroad, Members of Congress still require us to submit a district address that can receive a reply."/><br />
 
 <label for="useraddress_address2">Address Line 2</label>
 <input class="c3" id="useraddress_address2" name="useraddress_address2" type="text" value="{{useraddress.address2}}"/><br />
@@ -39,5 +41,7 @@
 <input class="c2" id="useraddress_zipcode" name="useraddress_zipcode" type="text" value="{{useraddress.zipcode}}"/><br />
 
 <label for="useraddress_phonenumber">Phone Number</label>
-<input class="c2" id="useraddress_phonenumber" name="useraddress_phonenumber" type="text" value="{{useraddress.phonenumber}}"/><br />
+<input class="c2" id="useraddress_phonenumber" name="useraddress_phonenumber" type="text" value="{{useraddress.phonenumber}}" title="We only use your phone number when required on a Congressional message submission form."/><br />
+
+<script>$('#useraddress_address1,#useraddress_phonenumber').tooltip();</script>
 

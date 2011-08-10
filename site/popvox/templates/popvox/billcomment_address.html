@@ -17,26 +17,18 @@
 	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
 	<input type="hidden" name="message" value="{% if message %}{{message}}{% endif %}"/>
 	
-	<h1>Tell Congress Who You Are</h1>
-	
-			<p style="width: 480px">Provide your name and the address of your residence where you intend to vote.  Please understand that we cannot deliver your message to your Representative and Senators without your complete contact information.</p>
+		{% if not useraddress.id %}
+			<h1>Tell Congress Who You Are</h1>
+		{% else %}
+			<h1>Check Your Return Address</h1>
 		
-			{% if not error %}
-			<p>We will share your name, address, and phone number with your Members of Congress and no one else.</p>
-			{% endif %}
-
-			<div class="hr"> </div>
-		
-		<p class="error" style="width: 583px">{{ error }}</p>
-	
-		{% if useraddress.id %}
 			<div id="savedaddress">
+				<div style="height: 8em;">
 				<div>{{useraddress.prefix}} {{useraddress.firstname}} {{useraddress.lastname}} {% if useraddress.suffix %}, {{useraddress.suffix}}{% endif %}</div>
 				<div>{{useraddress.address1}}</div>
-				<div>{{useraddress.address2}}</div>
 				<div>{{useraddress.city}}, {{useraddress.state}} {{useraddress.zipcode}}</div>
 				<div>{{useraddress.phonenumber}}</div>
-				<div style="font-size: 80%">(Congressional District {{useraddress.state}}-{% if useraddress.congressionaldistrict == 0 %}At Large{% else %} {{useraddress.congressionaldistrict}}{% endif %})</div>
+				{% comment %}<div style="font-size: 80%">(Congressional District {{useraddress.state}}-{% if useraddress.congressionaldistrict == 0 %}At Large{% else %} {{useraddress.congressionaldistrict}}{% endif %})</div>{% endcomment %}
 				
 				{% if not useraddress_fixed %}
 					<div><a href="#" onclick="$('#savedaddress').hide(); $('#editdaddress').show()">Change Address</a></div>
@@ -45,34 +37,34 @@
 						<p>{{ useraddress_fixed }}</p>
 					</div>
 				{% endif %}
+				</div>
 			
-		<div id="toCongress">
-		Senator Michael Moore<br />
-		Senator James Dean<br />
-		The Capitol<br />
-		Washington, D.C.
-		</div>
-			
-			
-			
+				<div id="toCongress">
+				{% for recip in recipients %}
+				{{recip.name}}<br />
+				{% endfor %}
+				The United States Capitol<br />
+				Washington, D.C.
+				</div>
+
+				<p style="margin-top: 15px; font-size: 10px; color: #666;">We will share your name, address, and phone number with your Members of Congress and no one else.</p>
 			</div>
 		{% endif %}
 		
-
-		
-		
+		<p class="error" style="width: 583px">{{ error }}</p>
+	
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
-			<div class="float_right col_3" style="margin: 0px 20px 0 0">
-				<p class="tip" style="margin-top: 0">POPVOX verifies your address to ensure that Members of Congress know you are a constituent.
-				</p>
-				<p class="tip" style="margin: 170px 0 0 0">We <strong>only</strong> use your phone number when required on a Congressional message submission form.</p>
-			</div>
+			<p>Where do you intend to vote? That&rsquo;s the address your Members of Congress want to see to know you are their constituent.</p>
 			
 			{% include "popvox/address_form.html" %}
+
+			{% if not error %}
+			<p style="margin: 15px 0 25px 0">We will share your name, address, and phone number with your Members of Congress and no one else.</p>
+			{% endif %}
 		</div>
 		
 		<div class="clear"> </div>
-		
+
 		<div class="captcha">
 			{% if captcha %}
 			<p>Please type the words you see below to help us prevent spam:</p>

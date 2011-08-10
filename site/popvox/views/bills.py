@@ -558,6 +558,13 @@ a reminder, please follow this link instead to stop future reminders:
 		request.goal = { "goal": "comment-register-registered" }
 		return HttpResponseRedirect(Bill.objects.get(id=self.bill).url() + "/comment/finish")
 
+def get_comment_recipients(bill, address):
+	if address == None: return None
+	c = UserComment(bill=bill, address=address)
+	recips = c.get_recipients()
+	if type(recips) != list: return None
+	return recips
+
 @csrf_protect
 def billcomment(request, congressnumber, billtype, billnumber, vehicleid, position):
 	from settings import BENCHMARKING
@@ -745,7 +752,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 				address_record.zipcode = request.session["comment-default-address"][2]
 				address_record.state = writeyourrep.district_lookup.get_state_for_zipcode(address_record.zipcode)
 			del request.session["comment-default-address"]
-			
+		
 		return render_to_response('popvox/billcomment_address.html', {
 				'bill': bill,
 				"position": position,
@@ -756,6 +763,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 				"useraddress_suffixes": PostalAddress.SUFFIXES,
 				"useraddress_states": govtrack.statelist,
 				"captcha": captcha_html() if require_captcha else "",
+				"recipients": get_comment_recipients(bill, address_record),
 			}, context_instance=RequestContext(request))
 
 	elif request.POST["submitmode"] == "Use a Map >":
@@ -860,6 +868,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 				"captcha": captcha_html(getattr(e, "recaptcha_error", None)) if require_captcha else "",
 				"error": validation_error_message(e), # accepts ValidationError, KeyError, ValueError
 				"error_is_validation": isinstance(e, AddressVerificationError),
+				"recipients": get_comment_recipients(bill, address_record),
 				}, context_instance=RequestContext(request))
 		
 			

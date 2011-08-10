@@ -1714,8 +1714,7 @@ div.neutral {
 
 #savedaddress {
 font-family: Georgia, serif;
-font-size: 16px;
-margin-left: 15px;
+font-size: 14px;
 background: url(letter.png) no-repeat;;
 width: 643px;
 height: 253px;
@@ -1725,7 +1724,8 @@ padding: 15px;
 
 #toCongress {
 margin-left: 240px;
-margin-top: 10px;
+margin-top: -10px;
+height: 6em;
 }
 
 
@@ -2340,6 +2340,7 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
 	padding-left: 40px;
 	margin-left: -21px;
 	margin-bottom: 0;
+	padding-bottom: 15px;
 	width: 641px;
 	font-family: Georgia, serif;
 	font-size: 16px;
@@ -2347,9 +2348,9 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
 }
 
 .letterBottom {
-	background: url(bottomLetter.png) center no-repeat;
+	background: url(bottomLetter.png) center bottom no-repeat;
 	width: 641px;
-	height: 56px;
+	height: 25px;
 }
 
 

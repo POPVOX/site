@@ -20,11 +20,10 @@
 	{% if not newaccount_error and message %}
 		<div class="clear"> </div>
 
-		<h1 class="h1_smaller" style="font-size: 35px;">Preview Your Message to Congress</h1>
+		<h1 class="h1_smaller" style="font-size: 35px;">Preview Your Message</h1>
 		
-			 <p style="width:480px">Writing your comment was the hardest step &mdash; you&rsquo;re doing great!
-				Before we go on, read it over to make sure you are happy with it.
-				(You can revise or remove your comment later.)</p>
+			 <p>Check over your letter before we send it in to Congress.
+				You can revise or remove your comment later, too.</p>
 		
 		
 		
@@ -39,12 +38,12 @@
 		<p class="pad_btm">
 			<input class="b_back btn force_hover_state" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
 		</p>
-		
 		<h1 class="h1_smaller" style="margin-top: 2em">You&rsquo;re not done until you register or sign in</h1>
 		<p class="callout">A POPVOX account is free and your public comments will be anonymous.</p>
 		{% else %}
-		<p style="margin-top: 20px;">You are not done just yet. Click Next to locate your congressional district.</p>
+		<p style="margin-top: 20px;">Click Next to enter or check your address.</p>
 		{% endif %}
+		
 	{% else %}
 		{% if message %}
 		<h1>Submit Your Comment</h1>
