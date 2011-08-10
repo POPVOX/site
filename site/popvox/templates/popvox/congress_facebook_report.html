@@ -146,15 +146,15 @@ function update(id) {
 			  tooltip: {
 				 formatter: function() {
 					return '<b>'+ this.series.name +'</b><br/>'+ 
-					   this.point.name +': '+ this.y +' %';
+					   this.point.name +': '+ this.y;
 				 }
 			  },
 			  legend: { enabled: false },
 			  series: [{
 				 type: 'pie',
 				 name: 'Post Likes',
-				 size: '60%',
-				 innerSize: '40%',
+				 size: '40%',
+				 innerSize: '20%',
 				 data: [
 				 	{ name: 'Constituent', y: res.num_constituent_postlikes[0], color: '#4572A7' },
 					{ name: 'Not A Constituent', y: res.num_constituent_postlikes[1]-res.num_constituent_postlikes[0], color: '#E8E5DF' },
@@ -166,8 +166,8 @@ function update(id) {
 			  {
 				 type: 'pie',
 				 name: 'Comments',
-				 size: '80%',
-				 innerSize: '60%',
+				 size: '60%',
+				 innerSize: '40%',
 				 data: [
 				 	{ name: 'Constituent', y: res.num_constituent_comments[0], color: '#4572A7' },
 					{ name: 'Not A Constituent', y: res.num_constituent_comments[1]-res.num_constituent_comments[0], color: '#E8E5DF' },
@@ -178,11 +178,25 @@ function update(id) {
 			  }, {
 				 type: 'pie',
 				 name: 'Wall Posts',
-				 size: '100%',
-				 innerSize: '80%',
+				 size: '80%',
+				 innerSize: '60%',
 				 data: [
 				 	{ name: 'Constituent', y: res.num_constituent_posts[0], color: '#4572A7' },
 					{ name: 'Not A Constituent', y: res.num_constituent_posts[1]-res.num_constituent_posts[0], color: '#E8E5DF' },
+				 ],
+				 dataLabels: {
+					enabled: true,
+					color: '#000000',
+					connectorColor: '#000000'
+				 }
+			  }, {
+				 type: 'pie',
+				 name: 'Users',
+				 size: '100%',
+				 innerSize: '80%',
+				 data: [
+				 	{ name: 'Constituent', y: res.num_constituents, color: '#4572A7' },
+					{ name: 'Not A Constituent', y: res.num_known-res.num_constituents, color: '#E8E5DF' },
 				 ],
 				 dataLabels: {
 					enabled: true,
