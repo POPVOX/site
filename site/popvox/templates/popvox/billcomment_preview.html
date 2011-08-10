@@ -6,7 +6,7 @@
 <style>
 #needsauth { margin-top: 25px   }
 
-#needsauth .signin_social { margin-left: 70px; }
+#needsauth .signin_social, #needsauth .b_back { margin-left: 80px; }
 
 #needsauth .form input.b_login { margin-left: 200px; }
 
@@ -34,9 +34,10 @@
 
     .form.signinup small {
         margin-bottom: 10px;
-        margin-left: 0px;
         margin-top: -6px;
         }
+        
+        .alert small { width: 250px; margin-left: 0px; }
 
 	.form.signinup .note {
 		font-family:  Helvetica;
@@ -68,10 +69,12 @@ function startlogin() {
 		},
 		success: function(res) {
 			$('html,body').animate({scrollTop: $('#needsauth').offset().top});
-			$('#login_password_container, #login_sso_container, #login_sso_container .btn, #login_newuser_container').hide();
 			if (res.result == "not-recognized") {
-				$('#login_newuser_container').show();
+				$('#login_password_container, #login_sso_container, #login_sso_container .btn').hide();
+				$('#login_newuser_container').fadeIn();
+				$('#createacct_username').focus();
 			} else {
+				$('#login_sso_container, #login_sso_container .btn, #login_newuser_container').hide();
 				var servicenames = [];
 				for (key in res) {
 					if (key == "status" || key == "password") continue;
@@ -85,6 +88,8 @@ function startlogin() {
 				if (res.password) {
 					$('#login_password_container').show();
 					$('#login_password').focus();
+				} else {
+					$('#login_password_container').hide();
 				}
 			}
 		}
@@ -137,9 +142,10 @@ function trylogin() {
 		
 	
 		{% if not user.is_authenticated %}
-		<p class="pad_btm">
+		<div class="pad_btm">
 			<input class="b_back btn force_hover_state" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
-		</p>
+		</div>
+		
 		<h1 class="h1_smaller" style="margin-top: 2em">You&rsquo;re not done until you register or sign in</h1>
 		<p class="callout">A POPVOX account is free and your public comments will be anonymous.</p>
 		{% else %}
@@ -166,44 +172,41 @@ function trylogin() {
 			<script>$(function() { $('#login_email').keyup_delayed(startlogin); });</script>
 			
 			<div id="login_sso_container" style="display: none">
-				<p>Click the <span class="servicename"> </span> icon to log in.</p>
 				<div class="signin_social">
 					{% include "registration/login_singlesignon.html" %}
 					<div class="clear"> </div>
 				</div>
-				<p style="margin-top: 5px">Or enter your POPVOX password:</p>
+				<p style="margin: 10px 0 10px 80px;">Click the <span class="servicename"> </span> icon to log in. <span class="or">Or enter your POPVOX password:</span></p>
 			</div>
 			
 			<div id="login_password_container" style="display: none">
 				<label for="login_password">password</label>
 				<input class="c2" type="password" id="login_password"/><br />
 				<div id="login_errorlabel_password" class="error"> </div>
+				<small><a href="/registration/reset-password">Forgot your password?</a></small>
 				
 				<input class="b_login btn" type="button" value="Login" onclick="trylogin()" class="submit"/>
 				<div class="clear error" id="login_errorlabel"></div>
-
-				<p class="clear"><a href="/registration/reset-password">Forgot your password?</a></p>
 			
 				<script>$(function() { $('#login_password').keydown_enter(trylogin); });</script>
 			</div>
 			
 			<div id="login_newuser_container" {% if not newaccount_error %}style="display: none"{% endif %}>
-				<h4>First Time Here?</h4>
-				
 				<div id="create_acct_social" {% if newaccount_error %}style="display: none"{% endif %}>
-					<p>You can use your login credentials from one of the services below to login to POPVOX:</p>
+					<p style="margin-left: 80px">Have one of these? Click to log in.</p>
+					<!--<div class="note">We won&rsquo;t email your contacts or post your comment to these sites without your permission.</div>-->
 					<div class="signin_social">
 						{% include "registration/login_singlesignon.html" %}
-						<p class="clear pad_top alert"><small>We won&rsquo;t email your contacts or post your comment to these sites without your permission.</small></p>
+						<div class="clear"> </div>
 					</div>
-					<div class="hr"> <strong>or</strong> </div>
+					<div class="hr" style="margin-left: 80px; width: 250px"> <strong>or</strong> </div>
 				</div>
 			
-				<p>Select a screen name and password.</p>
+				<p style="margin-left: 80px">Select a screen name and password.</p>
 			
 				<div class="clear mar_top"> </div>
 
-				<div class="form signinup">
+				<div class="form signinup pad_btm">
 					<div class="note">Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces.</div>
 					<label for="createacct_username">screen name</label>
 					<input class="c2" type="text" name="createacct_username" value="{{username}}"/>
@@ -220,6 +223,7 @@ function trylogin() {
 		</div>		
 		
 		<div class="clear"></div>
+		
 	</div>
 	
 	{% else %}
