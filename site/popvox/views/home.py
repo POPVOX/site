@@ -901,7 +901,7 @@ def legstaff_facebook_report_getinfo(request):
 	
 	id = 412326 # DEBUG
 	
-	limit = 500
+	limit = 100
 	offset = 0
 	
 	info = {}
@@ -980,19 +980,29 @@ def legstaff_facebook_report_getinfo(request):
 				if int(uid) == int(pageid): return (False, "page")
 				if uid in uid_map: return uid_map[uid]
 				return (False, "unknown")
+			info["num_constituent_posts"] = [0, 0] # constituents, total
+			info["num_constituent_comments"] = [0, 0] # constituents, total
+			info["num_constituent_postlikes"] = [0, 0] # constituents, total
 			for entry in info["feed"]["data"]:
 				entry["from"]["constituent"] = is_constituent(entry["from"]["id"])
 				entry["constituent_comments"] = 0
 				entry["constituent_likes"] = 0
+				info["num_constituent_posts"][1] += 1
+				if entry["from"]["constituent"][0]:
+					info["num_constituent_posts"][0] += 1
 				if "comments" in entry and "data" in entry["comments"]:
 					for comment in entry["comments"]["data"]:
 						comment["from"]["constituent"] = is_constituent(comment["from"]["id"])
+						info["num_constituent_comments"][1] += 1
 						if comment["from"]["constituent"][0]:
 							entry["constituent_comments"] += 1
+							info["num_constituent_comments"][0] += 1
 				if "likes" in entry and "data" in entry["likes"]:
 					for like in entry["likes"]["data"]:
 						like["constituent"] = is_constituent(like["id"])
+						info["num_constituent_postlikes"][1] += 1
 						if like["constituent"][0]:
 							entry["constituent_likes"] += 1
+							info["num_constituent_postlikes"][0] += 1
 				
 	return info

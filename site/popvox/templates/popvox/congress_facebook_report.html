@@ -131,6 +131,66 @@ function update(id) {
 			}
 			
 			$('.needs_tooltip').tooltip({relative: true}).removeClass("needs_tooltip");
+			
+			var chart = new Highcharts.Chart({
+			  chart: {
+				 renderTo: 'overall_stats_pie',
+				 backgroundColor: "#E8E5DF",
+				 margin: [50, 0, 0, 0],
+				 plotBackgroundColor: 'none',
+				 plotBorderWidth: 0,
+				 plotShadow: true            
+			  },
+			  title: { text: null },
+			  credits: { enabled: false },
+			  tooltip: {
+				 formatter: function() {
+					return '<b>'+ this.series.name +'</b><br/>'+ 
+					   this.point.name +': '+ this.y +' %';
+				 }
+			  },
+			  legend: { enabled: false },
+			  series: [{
+				 type: 'pie',
+				 name: 'Post Likes',
+				 size: '60%',
+				 innerSize: '40%',
+				 data: [
+				 	{ name: 'Constituent', y: res.num_constituent_postlikes[0], color: '#4572A7' },
+					{ name: 'Not A Constituent', y: res.num_constituent_postlikes[1]-res.num_constituent_postlikes[0], color: '#E8E5DF' },
+				 ],
+				 dataLabels: {
+					enabled: false
+				 }
+			  }, 
+			  {
+				 type: 'pie',
+				 name: 'Comments',
+				 size: '80%',
+				 innerSize: '60%',
+				 data: [
+				 	{ name: 'Constituent', y: res.num_constituent_comments[0], color: '#4572A7' },
+					{ name: 'Not A Constituent', y: res.num_constituent_comments[1]-res.num_constituent_comments[0], color: '#E8E5DF' },
+				 ],
+				 dataLabels: {
+					enabled: false
+				 }
+			  }, {
+				 type: 'pie',
+				 name: 'Wall Posts',
+				 size: '100%',
+				 innerSize: '80%',
+				 data: [
+				 	{ name: 'Constituent', y: res.num_constituent_posts[0], color: '#4572A7' },
+					{ name: 'Not A Constituent', y: res.num_constituent_posts[1]-res.num_constituent_posts[0], color: '#E8E5DF' },
+				 ],
+				 dataLabels: {
+					enabled: true,
+					color: '#000000',
+					connectorColor: '#000000'
+				 }
+			  }]
+		   });
 		}
 	});
 
@@ -165,6 +225,8 @@ function update(id) {
 
 		<div id="content_status">			
 		</div>
+		
+		<div id="overall_stats_pie"> </div>
 		
 		<div id="content" style="display: none">
 			<img class="pagephoto" style="float: left; margin-right: 15px"/>
