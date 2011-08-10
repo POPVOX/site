@@ -1,0 +1,57 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}POPVOX API{% endblock%}
+{% block content %}
+	<h1>POPVOX API</h1>
+
+	<p>The POPVOX API provides programmatic RESTful access to many live resources on POPVOX.</p>
+	
+	<p>This API is experimental! Use at your own risk.</p>
+
+	<h3>Common Parameters</h3>
+
+		<h4>Authentication</h4>
+		
+		<p>All POPVOX API methods require an <tt>api_key</tt> parameter.
+			{% if not accounts %}<a href="/accounts/login">Log in</a> to get an API key.
+			{% else %}Your API key is:{% endif %}</p>
+			
+		{% for acct in accounts %}	
+			<p style="margin-left: 2em">
+				{{acct.secret_key}} (account: {{acct}})
+			</p>
+		{% endfor %}
+	
+		<h4>Data Format</h4>
+		
+		<p>The default result format is JSON. The output format can be changed to XML by adding "format=xml" to any API.</p>
+		
+		<h4>Pagination</h4>
+		
+		<p>Some results are paged (as indicated below). Paged API calls take two optional parameters, <tt>count</tt> which gives the
+		number of items to return per page (default 25), and <tt>page</tt> the one-based page number to return.</p>
+		
+		<p>The response of paged API calls are mappings with the following keys: <tt>count</tt> as the total number of items matching the query, <tt>pages</tt> as the total number of pages, <tt>page</tt> the current page returned, <tt>has_prev</tt> a boolean indicating if there is a previous page, <tt>has_next</tt> a boolean indicating if there is a next page, <tt>items</tt> the array of results for the returned page.</p>
+		
+	{% for method in methods %}
+	
+		<h3>{{method.name}}</h3>
+		
+		<p>{{method.description}}</p>
+		
+		<div style="margin-left: 2em">
+			<p style="margin: 0; font-weight: bold;">{{method.url_pattern}}</p>
+			<p>example: <a href="{{method.url_example}}">{{method.url_example}}</a></p>
+			
+			{% if method.qs_args %}
+				<h4>Additional Parameters</h4>
+				{% for key, descr in method.qs_args %}
+					<p><tt>{{key}}</tt>. {{descr}}</p>
+				{% endfor %}
+			{% endif %}
+		</div>
+	
+	{% endfor %}
+
+{% endblock %}
+
