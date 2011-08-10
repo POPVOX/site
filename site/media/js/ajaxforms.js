@@ -320,7 +320,7 @@ function ajax(url, postdata, actions) {
 								$(f2).text(res.byfield[field]);
 							}
 							$('#' + actions.statusfield).fadeIn();
-							$('#' + actions.statusfield).text("There were errors. Please see above.");
+							//$('#' + actions.statusfield).text("There were errors. Please see above.");
 						} else if (res && res.status != "generic-failure" && res.msg && res.msg != "") {
 							// If a message was specified, display it. If the message is tied
 							// to a field and we have a span for #statusfield_fieldname

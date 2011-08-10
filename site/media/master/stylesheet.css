@@ -2354,25 +2354,6 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
 }
 
 
-#needsauth { margin-top: 25px   }
-
-    #needsauth .col_4 {
-        background: #D4D1CA;
-        padding: 20px;
-        width: 283px;
-        }
-
-    #needsauth .signin_social { height: 80px    }
-
-    #needsauth .form input.b_login { float: right   }
-
-.content #needsauth h4 {
-    font: bold 14px/20px helvetica, arial, sans-serif;
-    color: #404045;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    }
-
 .float_text { margin-top: 15px  }
 
 .singlesignon { margin-bottom: 10px     }
@@ -2389,33 +2370,6 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
             height: 31px;
             border: none;
             }
-
-.form.signinup { /*        display: none;  _NO__DOTCOMMA__AFTER__*/     }
-
-    .form.signinup input.c2 {
-        margin-right: 0px;
-        height: 18px;
-        width: 190px;
-        }
-
-    .form.signinup label {
-        width: 70px;
-        text-transform: uppercase;
-        font-weight: bold;
-        margin-right: 10px;
-        }
-
-    .form.signinup small {
-        margin-bottom: 10px;
-        margin-left: 85px;
-        margin-top: -6px;
-        width: 200px;
-        }
-
-.b_create_box {
-    margin-left: 3260;
-    padding-bottom: 20px;
-    }
 
 .content p.asterisk_red {
     font: bold 12px/18px helvetica, arial, sans-serif;
@@ -3261,8 +3215,6 @@ ul#user_type {
     }
 
 p.create_text { margin-top: -5px    }
-
-#create_account .b_create_box { margin-left: 165px  }
 
 .content .login h2 {
     text-transform: uppercase;

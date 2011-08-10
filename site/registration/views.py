@@ -424,6 +424,23 @@ class DirectLoginBackend(ModelBackend):
 		return user_object
 
 @json_response
+def ajax_get_login_type(request):
+	email = validate_email(request.POST["email"], for_login=True)
+	try:
+		u = User.objects.get(email=email)
+	except User.DoesNotExist:
+		return { "status": "success", "result": "not-recognized" }
+
+	if not u.is_active:
+		return { "status": "fail", "msg": "Your account has been disabled." }
+
+	ret = { "status": "success", "password": u.has_usable_password() }
+	for rec in AuthRecord.objects.filter(user=u):
+		ret[rec.provider] = providers.providers[rec.provider]["displayname"]
+		
+	return ret
+
+@json_response
 def ajax_login(request):
 	email = validate_email(request.POST["email"], for_login=True)
 	password = validate_password(request.POST["password"])
