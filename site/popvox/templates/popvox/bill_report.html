@@ -13,6 +13,17 @@ h2 span {
     font-family: Georgia;
     margin-bottom: 15px;
 	}
+{% comment %}
+.tag_cloud {
+	float: left;
+	width: 400px;
+	font-family: Andale Mono, Courier New;
+	border-right: 1px solid #DDD;
+	}
+.tag_cloud .line {
+	padding-bottom: 3px;
+	}
+{% endcomment %}
 </style>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -416,6 +427,28 @@ h2 span {
 		<div class="clear"> </div>
 		
 	</div><!-- e: section -->
+	
+	{% comment %}
+	{% if tag_cloud_support %}
+	<div class="tag_cloud">
+		{% for line in tag_cloud_support %}
+		<div class="line">
+			{% for word, fontsize, lpad in line %}<span class="tag" style="font-size: {{fontsize}}px; padding-left: {{lpad}}px;">{{ word }}</span>{% endfor %}
+		</div>
+		{% endfor %}
+	</div>
+	{% endif %}
+
+	{% if tag_cloud_oppose %}
+	<div class="tag_cloud">
+		{% for line in tag_cloud_oppose %}
+		<div class="line">
+			{% for word, fontsize, lpad in line %}<span class="tag" style="font-size: {{fontsize}}px; padding-left: {{lpad}}px;">{{ word }}</span>{% endfor %}
+		</div>
+		{% endfor %}
+	</div>
+	{% endif %}
+	{% endcomment %}
 	
 	<div class="section clearfix"> 
 		<div class="col_6"> 
