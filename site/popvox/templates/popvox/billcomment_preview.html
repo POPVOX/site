@@ -64,13 +64,13 @@ function startlogin() {
 		{
 		statusfield: "login_errorlabel",
 		failure: function() {
-			$('#login_password_container, #login_sso_container, #login_sso_container .btn, #login_newuser_container').hide();
+			$('#login_password_container, #login_sso_container, #login_sso_container .btn, #login_newuser_container, #login_get_password').hide();
 			$('#createacct_username').focus();
 		},
 		success: function(res) {
 			$('html,body').animate({scrollTop: $('#needsauth').offset().top});
 			if (res.result == "not-recognized") {
-				$('#login_password_container, #login_sso_container, #login_sso_container .btn').hide();
+				$('#login_password_container, #login_sso_container, #login_sso_container .btn, login_get_password').hide();
 				$('#login_newuser_container').fadeIn();
 				$('#createacct_username').focus();
 			} else {
@@ -82,14 +82,18 @@ function startlogin() {
 					$('#login_sso_container').show();
 					if (res.password)
 						$('#login_sso_container .or').show();
+					else
+						$('#login_sso_container .or').hide();
 					$('#login_sso_container .btn.social_' + key).show();
 				}
 				$('#login_sso_container .servicename').text(servicenames.join(" or "));
 				if (res.password) {
+					$('#login_get_password').hide();
 					$('#login_password_container').show();
 					$('#login_password').focus();
 				} else {
 					$('#login_password_container').hide();
+					$('#login_get_password').show();
 				}
 			}
 		}
@@ -191,6 +195,10 @@ function trylogin() {
 				<script>$(function() { $('#login_password').keydown_enter(trylogin); });</script>
 			</div>
 			
+			<div id="login_get_password" style="display: none; margin-left: 80px;">
+				<p style="font-size: 10px;"><a href="/registration/reset-password">Create a password for your account</a></p>
+			</div>
+
 			<div id="login_newuser_container" {% if not newaccount_error %}style="display: none"{% endif %}>
 				<div id="create_acct_social" {% if newaccount_error %}style="display: none"{% endif %}>
 					<p style="margin-left: 80px">Have one of these? Click to log in.</p>
@@ -223,6 +231,12 @@ function trylogin() {
 		</div>		
 		
 		<div class="clear"></div>
+		
+		{% if newaccount_error %}
+		<div class="pad_top pad_btm">
+			<input class="b_back btn force_hover_state" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
+		</div>
+		{% endif %}
 		
 	</div>
 	
