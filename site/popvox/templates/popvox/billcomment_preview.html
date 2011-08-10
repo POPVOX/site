@@ -9,7 +9,7 @@
 	{% include "popvox/billcomment_progress.html" %}
 	{% endwith %}
 
-	<div class="tab_pane">
+	<div class="tab_pane commentProcess">
 	
 	<form method="post" id="commentform" name="commentform">
 	
@@ -20,18 +20,20 @@
 	{% if not newaccount_error and message %}
 		<div class="clear"> </div>
 
-		<h1 class="h1_smaller">Preview Your Message to Congress</h1>
-		<div class="tip_inline mar_no">
-			 <p>Writing your comment was the hardest step &mdash; you&rsquo;re doing great!
+		<h1 class="h1_smaller" style="font-size: 35px;">Preview Your Message to Congress</h1>
+		
+			 <p style="width:480px">Writing your comment was the hardest step &mdash; you&rsquo;re doing great!
 				Before we go on, read it over to make sure you are happy with it.
 				(You can revise or remove your comment later.)</p>
-		</div>
 		
-		<div class="hr"> </div>
+		
 		
 		<div class="message_preview">
 			{{message|wraplines:"p"}}
 		</div>
+		<div class="letterBottom">
+		</div>
+		
 	
 		{% if not user.is_authenticated %}
 		<p class="pad_btm">
@@ -41,7 +43,7 @@
 		<h1 class="h1_smaller" style="margin-top: 2em">You&rsquo;re not done until you register or sign in</h1>
 		<p class="callout">A POPVOX account is free and your public comments will be anonymous.</p>
 		{% else %}
-		<p class="">You are not done just yet. Click Next to locate your congressional district.</p>
+		<p style="margin-top: 20px;">You are not done just yet. Click Next to locate your congressional district.</p>
 		{% endif %}
 	{% else %}
 		{% if message %}

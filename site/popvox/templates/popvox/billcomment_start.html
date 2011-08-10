@@ -29,7 +29,7 @@ function validate_form() {
 	{% include "popvox/billcomment_progress.html" %}
 	{% endwith %}
 
-	<div class="tab_pane">
+	<div class="tab_pane commentProcess">
 
 	{% if has_been_delivered %}
 	<div class="calloutr">
@@ -45,7 +45,7 @@ function validate_form() {
 		<hr/>
 	</noscript>
 
-	<h1 class="h1_smaller" style="margin-bottom: 0">Send a Letter to Congress</h1>
+	<h1 class="h1_smaller" style="font-size: 35px; margin-bottom: 30px;">Send a Letter to Congress</h1>
 	
 	{% if position == "0" %}
 		<p style="margin-top: 1em; margin-bottom: 1em;">You are about to clear your position on this bill.</p>
@@ -61,14 +61,14 @@ function validate_form() {
 		{% if bill.died %}
 		<p>{{bill.displaynumber_nosession}} was introduced in a previous Congress. You are about to show your support for the reintroduction of this bill.</p>
 		{% else %}
-			<p style="padding: 15px 0 10px 30px; font-size: 120%;">&ldquo;I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_or_streetname|truncatewords:7 }}.&rdquo;</p>
+			<p style="padding: 15px 0 15px 30px; font-size: 120%; background: #d4d1ca;">&ldquo;I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_or_streetname|truncatewords:7 }}.&rdquo;</p>
 			{% if not message_is_new %}
 				<p style="padding: 0 0 10px 30px; font-size: 11px; font-style: italic;">change from {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} to <a href="{{bill.url}}/comment/{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}">{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}</a>
 				or <a href="{{bill.url}}/comment/clear">delete your comment</a></p>
 			{% endif %}
 		{% endif %}
 	
-		<p style="margin-top: 1em; margin-bottom: 1em;">Would you like to add a personal message or story about how this bill affects you or your community?</p>
+		<p style="margin-top: 2em; margin-bottom: 1em;">Would you like to add a personal message or story about how this bill affects you or your community?</p>
 		<div class="pad_btm">
 			<input id="writemessage0"  type="radio" name="writemessage" {% if not message %}checked="1"{% endif %} onclick="$('#message_container').hide(); $('#nomessage_container').fadeIn()"/>
 			<label for="writemessage0">No, I have nothing personal to add.</label>
@@ -103,8 +103,8 @@ function validate_form() {
 		<form name="yescomment" method="post" onsubmit="return validate_form()">
 		{% csrf_token %}
 
-		<div class="tip mar_top">
-		<p>We will send your message to your Representative or Senator and will post it anonymously on POPVOX.
+		<div class="commentTip">
+		<p class="commentP">We will send your message to your Representative or Senator and will post it anonymously on POPVOX.
 		{% if user.is_authenticated %}Privacy Note: Your comment will be shared with others on POPVOX who will see your name as <strong>{{user.username}}</strong>, and with your Members of Congress who will see your full name and address.{% endif %}</p>
 
 		<div id="messagetipcontainer" style="display: none">

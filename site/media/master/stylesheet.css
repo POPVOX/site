@@ -1601,9 +1601,11 @@ div.neutral {
     padding-left: 30px;
     }
 
+
 .tab_pane {
     border: 3px solid #D4D1CA;
     width: 703px;
+    /***margin: 15px 0px 15px 0px;***/
     margin: 15px 0px 15px 231px;
     padding: 20px 0;
     min-height: 200px;
@@ -1652,9 +1654,19 @@ div.neutral {
 .share_some_pie .social_share_btns { width: 235px; margin-left: 30px;   }
 
 .share_some_pie .message_preview {
-    padding-left: 55px;
     margin-top: 0;
+    background: none;
+    width: 400px;
+    padding-top: 0;
     }
+    
+.share_some_pie .message_preview p {
+	background: none;
+	width: 400px;
+	padding-left: 0;
+	margin-left: 0;
+
+}
 
 .share_some_pie .form textarea.c5 {
     width: 230px;
@@ -1698,6 +1710,30 @@ div.neutral {
     color: #404045;
     border-bottom: 1px solid #404045;
     }
+
+
+#savedaddress {
+font-family: Georgia, serif;
+font-size: 16px;
+margin-left: 15px;
+background: url(letter.png) no-repeat;;
+width: 643px;
+height: 253px;
+padding: 15px;
+}
+
+
+#toCongress {
+margin-left: 240px;
+margin-top: 10px;
+}
+
+
+
+
+
+
+
 
 /* ----leg staff dashboard---- */
 
@@ -2062,6 +2098,7 @@ tr.bill td a:hover {
 
 h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, sans-serif     }
 
+
 .tip {
     float: right;
     margin: 0 0 2em 0;
@@ -2073,7 +2110,7 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
     min-height: 30px;
     height: auto !important;
     height: 30px;
-    }
+	}
 
 .tip_inline {
     margin: 0 0 1em 0;
@@ -2085,6 +2122,8 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
     height: auto !important;
     height: 30px;
     }
+    
+
 
 .callout,
 .calloutr {
@@ -2289,14 +2328,30 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
     }
 
 .message_preview {
-    background: url(bg_quote_marks.png) left top no-repeat;
+    background: url(topLetter.png) top no-repeat;
     margin: 20px 0;
-    padding-left: 80px;
-    min-height: 80px;
-    xxx-min-height: 80px;
-    height: auto !important;
-    height: 60px;
+	width:636px;
+	margin-bottom: 0;
+    padding-top: 50px;
     }
+    
+.message_preview p {
+	background: url(middleLetter.png) center repeat-y;
+	padding-left: 40px;
+	margin-left: -21px;
+	margin-bottom: 0;
+	width: 641px;
+	font-family: Georgia, serif;
+	font-size: 16px;
+	
+}
+
+.letterBottom {
+	background: url(bottomLetter.png) center no-repeat;
+	width: 641px;
+	height: 56px;
+}
+
 
 #needsauth { margin-top: 25px   }
 
@@ -4769,16 +4824,32 @@ p#issueareachooser_listnone {
 
 .blog .date span { color: #c4c2c0   }
 
-/*** Print ****/
 
-@media print {
-	
-	body {
-	background: #;
-	}
 
-	.progress_tabs { display: none; }
+
+
+/****Changes**/
+
+.commentProcess {
+margin: 15px 0px 15px 0px;
+}
 	
-	
-	
+
+.commentTip {
+font-family:  Helvetica;
+background: #414046;
+color: white;
+font-size: 12px;
+padding: 15px;
+width: 220px;
+float: right;
+margin: 0 0 2em 0;
+clear: both;
+min-height: 30px;
+height: auto !important;
+height: 30px;
+}
+
+.commentTipInline {
+min-height: 20px;
 }
