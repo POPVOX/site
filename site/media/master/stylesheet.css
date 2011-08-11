@@ -4639,12 +4639,14 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat   }
 
 .tooltip {
     display: none;
-    background: transparent url(/media/master/tooltip_bg.png);
+    background: transparent url(/media/master/bg_tooltip_yellow_right.png);
     font-size: 12px;
-    height: 70px;
-    width: 160px;
-    padding: 25px;
-    color: #fff;
+    height: 67px;
+    width: 202px;
+    padding: 8px 12px 5px 45px;
+    color: #444;
+    overflow: hidden;
+    text-align: left;
     }
 
 .advertisement a {
@@ -4784,9 +4786,24 @@ p#issueareachooser_listnone {
 /****Changes**/
 
 .commentProcess {
-margin: 15px 0px 15px 0px;
-}
-	
+	margin: 15px 0px 15px 0px;
+	float: left;
+	}
+
+.commentProcessHints>div {
+	padding: 0 0 0 15px;
+	color: #555;
+	}
+	.commentProcessHints h3 {
+		margin-top: 0;
+		background: none;
+		font-size: 19px;
+		line-height: normal;
+		}
+	.commentProcessHints p {
+		font-size: 11px;
+		line-height: 15px;
+		}
 
 .commentTip {
 font-family:  Helvetica;

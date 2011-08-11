@@ -43,7 +43,7 @@ function update(id) {
 			$('#content').show();
 			$('#content h2').text(res.page.name);
 			$('#content .link a').attr("href", res.page.link).text(res.page.link);
-			if (res.page.picture) $('#content .pagephoto').attr('src', res.page.picture); // busts https:
+			$('#content .pagephoto').attr('src', 'https://graph.facebook.com/' + res.page.id + '/picture?type=large');
 			
 			var postcount = 0;
 			
@@ -57,8 +57,13 @@ function update(id) {
 				postcount++;
 				
 				//n.find('.from .picture').attr('src', data.from.picture.replace("http:", "https:"));
-				n.find('.from .name').text(data.from.name);
-				n.find('.from .constituent').text(constituent_location(data.from));
+				if (data.from.id == id) {
+					n.find('.from .name').text("You");
+				} else {
+					n.find('.from .name').text(data.from.name);
+					n.find('.from .constituent').text(constituent_location(data.from));
+				}
+				n.find('.from .picture').attr('src', 'https://graph.facebook.com/' + data.from.id + '/picture?type=small');
 				
 				if (data.type == "status") {
 					n.find('.from .what').text('wrote on your wall.');
@@ -130,7 +135,7 @@ function update(id) {
 				$('#content').append($("<p>We couldn't find posts from any of your constituents on your Wall. We know whether an individual is one of your constituents only if they are a POPVOX user.</p>"));
 			}
 			
-			$('.needs_tooltip').tooltip({relative: true}).removeClass("needs_tooltip");
+			//$('.needs_tooltip').tooltip({relative: true}).removeClass("needs_tooltip");
 			
 			var chart = new Highcharts.Chart({
 			  chart: {
@@ -204,7 +209,7 @@ function update(id) {
 					connectorColor: '#000000'
 				 }
 			  }]
-		   });
+			});
 		}
 	});
 
@@ -223,6 +228,17 @@ function update(id) {
 </style>
 {% endblock %}
 {% block content %}
+<div id="fb-root"></div>
+<script src="https://connect.facebook.net/en_US/all.js"></script>
+<script>
+  FB.init({
+    appId  : '150910028257528',
+    status : false, // check login status
+    cookie : false, // enable cookies to allow the server to access the session
+    xfbml  : false, // parse XFBML
+    oauth  : false // enable OAuth 2.0
+  });
+</script>
 <div class="content">
 	
 	<div class="col_9 col_top">

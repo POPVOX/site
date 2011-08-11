@@ -3,8 +3,9 @@
 {% block title %}Preview Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block head %}
+<script src="/media/js/jquery.tools.min.js"></script>
 <style>
-#needsauth { margin-top: 25px   }
+#needsauth { margin-top: 35px   }
 
 #needsauth .signin_social, #needsauth .b_back { margin-left: 80px; }
 
@@ -68,11 +69,11 @@ function startlogin() {
 			$('#createacct_username').focus();
 		},
 		success: function(res) {
+			$('#login_email').data("tooltip").hide();
 			$('html,body').animate({scrollTop: $('#needsauth').offset().top});
 			if (res.result == "not-recognized") {
 				$('#login_password_container, #login_sso_container, #login_sso_container .btn, login_get_password').hide();
-				$('#login_newuser_container').fadeIn();
-				$('#createacct_username').focus();
+				$('#login_newuser_container').fadeIn(function() { $('#createacct_username').focus(); });
 			} else {
 				$('#login_sso_container, #login_sso_container .btn, #login_newuser_container').hide();
 				var servicenames = [];
@@ -150,8 +151,8 @@ function trylogin() {
 			<input class="b_back btn force_hover_state" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
 		</div>
 		
-		<h1 class="h1_smaller" style="margin-top: 2em">You&rsquo;re not done until you register or sign in</h1>
-		<p class="callout">A POPVOX account is free and your public comments will be anonymous.</p>
+		<h1 class="h1_smaller" style="margin-top: 2em">Register or sign in</h1>
+		<p style="margin-bottom: 50px">Before we send your letter we need to get additional information from you.</p>
 		{% else %}
 		<p style="margin-top: 20px;">Click Next to enter or check your address.</p>
 		{% endif %}
@@ -163,14 +164,15 @@ function trylogin() {
 		<h1>Register Your Position</h1>
 		{% endif %}
 	
-		<p class="pad_btm">You are not done until you register or sign in. A POPVOX account is free and your public comments will be anonymous.</p>
+		<p class="pad_btm">We&rsquo;re going to send your position as a letter to your Members of Congress, so we need you to register or sign in.</p>
 	{% endif %}
 		
 	{% if not user.is_authenticated %}
-	<div id="needsauth" {% if not message %}style="border: 0; margin: 0"{% endif %}>
+	<div id="needsauth">
 		<div class="form signinup">
 			<label for="login_email">email</label>
-			<input class="c2" type="text" id="login_email" name="createacct_email" value="{{email}}"/><br />
+			<input class="c2" type="text" id="login_email" name="createacct_email" value="{{email}}" title=" "/><br />
+			<script>$('#login_email').tooltip({position: "center right", layout: "<div>Enter your email address.{% if not newaccount_error %}<br/><br/> A POPVOX account is free and your public comments will be anonymous.{% endif %}</div>"}).data("tooltip").show();</script>
 			<div id="login_errorlabel_email" class="error"> </div>
 			<div id="createacct_errorlabel_email" class="error" style="display: block">{{newaccount_error.email}}</div>
 			<script>$(function() { $('#login_email').keyup_delayed(startlogin); });</script>
@@ -215,16 +217,17 @@ function trylogin() {
 				<div class="clear mar_top"> </div>
 
 				<div class="form signinup pad_btm">
-					<div class="note">Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces.</div>
 					<label for="createacct_username">screen name</label>
-					<input class="c2" type="text" name="createacct_username" value="{{username}}"/>
+					<input id="createacct_username" class="c2" type="text" name="createacct_username" value="{{username}}" title="Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces."/>
 					<div id="createacct_errorlabel_username" class="error" style="display: block">{{newaccount_error.username}}</div>
-	
+
 					<label for="createacct_password">password</label>
-					<input class="c2" type="password" name="createacct_password" value="{{password}}"/>
+					<input id="createacct_password" class="c2" type="password" name="createacct_password" value="{{password}}" title="Passwords must be at least 5 characters and cannot contain spaces."/>
 					<div id="createacct_errorlabel_password" class="error" style="display: block">{{newaccount_error.password}}</div>
 		
 					<div class="error" id="createacct_errorlabel"></div>
+
+					<script>$('#createacct_username,#createacct_password').tooltip({position: "center right"})</script>
 				</div>
 				<div class="b_create_accnt btn" type="button" value="Create Account >" onclick="submitform('Create Account >')"> </div>
 			</div>
@@ -260,6 +263,25 @@ function trylogin() {
 	
 	</div>
 	
+	{% if not user.is_authenticated %}
+	<div class="col_3 col_last commentProcessHints">
+	<div>
+		<h3>Why do we ask you to register?</h3>
+		
+		<p>Letters to Congress are most effective when they are from verified constituents. By registering with POPVOX you are telling your representatives that you have gone the extra step to be verified. Plus we do all the hard work.</p>
+		
+		<p>You will receive confirmation each time your messages are delivered to your Members of Congress.</p>
+		
+		<p>We have a strict privacy policy that you <a href="/legal" target="_blank">can read here</a>. We do not share your contact information with anyone besides your Members of Congress.</p>
+		
+		<p>POPVOX was made by DC insiders who know how to make your advocacy effective. Read more on <a href="/about/whyitworks" target="_blank">why it works</a>.</p>
+		
+		{% if request.META.HTTP_DNT != "1" %}
+		<iframe src="https://www.facebook.com/plugins/facepile.php?app_id=150910028257528&amp;size=small&amp;width=200&amp;max_rows=2&amp;colorscheme=light" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:200px;" allowTransparency="true"></iframe>
+		{% endif %}
+	</div>
+	</div>
+	{% endif %}
 </div>
 {% endblock %}
 

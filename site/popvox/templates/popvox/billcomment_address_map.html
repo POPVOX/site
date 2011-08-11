@@ -87,15 +87,9 @@
 		{% with "address" as billcomment_progress_step %}
 		{% include "popvox/billcomment_progress.html" %}
 		{% endwith %}
-	{% else %}
-		<div class="col_3">
-			<p>Thank you for sharing your opinion using the Write Congress tool from POPVOX.</p>
-			
-			<p>We need more information from you.</p>
-		</div>
 	{% endif %}
 
-	<div class="tab_pane">
+	<div class="tab_pane commentProcess">
 	
 	<form method="post" id="commentform" action="{{bill.url}}/comment/{% if position == "+" %}support{% else %}oppose{% endif %}">
 	
@@ -105,7 +99,11 @@
 	<input id="form_latitude" type="hidden" name="latitude" value=""/>
 	<input id="form_longitude" type="hidden" name="longitude" value=""/>
 	
+	{% if mode != "widget_writecongress" %}
 	<h1>Find Your Congressional District</h1>
+	{% else %}
+	<h1>Finish Your Letter to Congress</h1>
+	{% endif %}
 	
 		<div class="col_3" style="padding-top: 0">
 			{% if mode != "widget_writecongress" %}

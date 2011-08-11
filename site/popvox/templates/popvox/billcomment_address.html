@@ -51,10 +51,10 @@
 			</div>
 		{% endif %}
 		
-		<p class="error" style="width: 583px">{{ error }}</p>
-	
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
-			<p>Where do you intend to vote? That&rsquo;s the address your Members of Congress want to see to know you are their constituent.</p>
+			<p style="width: 500px; margin-bottom: 30px;">Your Members of Congress want to know you are their constituent and may send you a reply. Tell them how to reach you.</p>
+			
+			<p class="error" style="margin: -10px 0 30px 0; width: 583px; display: block;">{{ error }}</p>
 			
 			{% include "popvox/address_form.html" %}
 
@@ -72,10 +72,6 @@
 			{% endif %}
 		</div>
 		
-		{% if error_is_validation %}
-			<p class="error" style="width: 583px">If you revised your address, click Try Again. If you are having trouble getting passed this point, click I&rsquo;m Having Trouble.</p>
-		{% endif %}
-			
 		<div class="captcha">
 			<p class="mar_top pad_btm">
 				<input class="b_back btn" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
