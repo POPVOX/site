@@ -423,6 +423,7 @@ custom_overrides = {
 	"426_aff1_radio": "<AFFL>Subscribe</AFFL>",
 	"568_subject_radio": "CRNR", # no response
 	"583_affl1_select": "no action",
+	"584_msub_select": "Other",
 	"585_aff1_radio": "<affl>subscribe</affl>",
 	"590_response_select": "newsNo",
 	"611_aff1req_text": "fill",
