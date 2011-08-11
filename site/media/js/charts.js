@@ -47,8 +47,9 @@ function bill_timeseries(container, data, opts) {
 	 chart: {
 	    backgroundColor: "#e8e5df",
 	    renderTo: container,
-	    margin: [10,0,5,40],
-	    defaultSeriesType: 'line'
+	    margin: [10,0,10,40],
+	    defaultSeriesType: 'line',
+	    width: 220
 	 },
     tooltip: {
 	    formatter: function() {
@@ -56,8 +57,8 @@ function bill_timeseries(container, data, opts) {
 		}
     },
 	 credits: { enabled: false },
-	 xAxis: { categories: data.xaxis },
-	 yAxis: { min: 0 },
+	 xAxis: { categories: data.xaxis, labels: { enabled: false } },
+	 yAxis: { min: 0, title: { text: "Cumulative Users", style: { fontSize: "10px", fontWeight: "normal" } } },
 	 plotOptions: {
 		    line: {
 		       //enableMouseTracking: false,
