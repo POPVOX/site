@@ -6,7 +6,7 @@ from glob import glob
 from datetime import datetime, timedelta
 from xml.dom import minidom
 import re
-import os, os.path
+import os, os.path, hashlib
 
 from popvox.models import MemberOfCongress, CongressionalCommittee, Bill, IssueArea
 from popvox.govtrack import CURRENT_CONGRESS, getBillTitle, parse_govtrack_date, getMemberOfCongress
@@ -32,12 +32,18 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	if os.stat(fn).st_mtime < updatetime - 1000000:
 		continue
 
+	srcfilehash = hashlib.new("md5")
+	srcfilehash.update(open(fn).read())
+	srcfilehash = srcfilehash.hexdigest()
+
 	billsession, billtype, billnumber = m.group(1), m.group(2), m.group(3)
 	
 	try:
 		bill = Bill.objects.get(congressnumber=billsession, billtype=billtype, billnumber=billnumber, vehicle_for__isnull=True)
 		if bill.hold_metadata:
 			continue # manual override
+		if bill.srcfilehash == srcfilehash:
+			continue # doesn't need update
 	except:
 		bill = Bill()
 		bill.congressnumber = int(billsession)
@@ -118,7 +124,8 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	bill.latest_action = "\n".join([d.strftime("%Y-%m-%d") + "\t" + t for (d,t) in latest_actions])
 
 	# Save.
-		
+	
+	bill.srcfilehash = srcfilehash	
 	bill.save()
 
 os.utime(stampfile, None)

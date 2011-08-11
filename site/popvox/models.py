@@ -148,6 +148,8 @@ class Bill(models.Model):
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)
+
+	srcfilehash = models.CharField(max_length=32, blank=True)
 	
 	class Meta:
 			ordering = ['congressnumber', 'billtype', 'billnumber']
