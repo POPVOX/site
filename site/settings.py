@@ -34,7 +34,7 @@ MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 if DEBUG:
 	# this is the default when DEBUG is true, but we'll be explicit.
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-elif os.environ.get("EMAIL_BACKEND") == "AWS-SES":
+elif os.environ.get("EMAIL_BACKEND") == "AWS-SES" or True:
 	# For AWS SES:
 	#  The SERVER_EMAIL and EMAILVERIFICATION_FROMADDR must be 
 	#  verified with ./ses-verify-email-address.pl.
