@@ -27,6 +27,15 @@ class AdserverTargetsMiddleware:
 			request.adserver_targets = ["popvox_orgstaff"]
 		else:
 			request.adserver_targets = ["popvox_individual"]
+
+			ip = request.META.get("HTTP_X_REAL_IP", "0.0.0.0")
+			if ip.startswith("137.18."):
+				request.adserver_targets = ["net_house"]
+			if ip.startswith("156.33."):
+				request.adserver_targets = ["net_senate"]
+
+		if "98.204.156.74" == request.META.get("HTTP_X_REAL_IP", "0.0.0.0"):
+			request.adserver_targets = ["test_josh"]
 			
 		return None
 

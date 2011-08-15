@@ -260,6 +260,7 @@
 
 		{% block footer %}{% endblock %}
 		
+		{% if debug %}<div>Adserver targets: {{request.adserver_targets}}</div>{% endif %}
 		{% for sql in sql_queries %}
 			{% if forloop.first %}
 				<div>
