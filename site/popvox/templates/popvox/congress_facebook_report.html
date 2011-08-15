@@ -97,11 +97,15 @@ function update(id) {
 			$('#content .pagephoto').attr('src', 'https://graph.facebook.com/' + res.page.id + '/picture?type=large');
 			
 			var postcount = 0;
-			
+			var debug = false;			
+
 			for (var i = 0; i < res.feed.data.length; i++) {
-				var n = $('#template_post').clone();
-				
+				var n = $('#templates .post').clone();
+
 				var data = res.feed.data[i];
+
+				if (debug && Math.random() > .5) { data.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
+				
 				if (!data.constituent_comments && !data.constituent_likes && !data.from.constituent[0]) continue;
 				 //  && !(data.from.constituent[1]=="page" && data.constituent_likes)
 				
@@ -125,12 +129,14 @@ function update(id) {
 				} else if (data.type == "link") {
 					n.find('.from .what').text('posted a link.');
 					//n.find('.content .picture').attr('src', data.picture.replace("http:", "https:"));
+					n.find('.content .picture').hide();
 					n.find('.content .title').text(data.name);
 					n.find('.content .description').text(data.description);
 					n.find('.content .date').text(data.created_time);
 				} else if (data.type == "video" || data.type == "photo") {
+					n.addClass("has_image");
 					n.find('.from .what').text('posted a ' + data.type + '.');
-					//n.find('.content .picture').attr('src', data.picture.replace("http:", "https:"));
+					n.find('.content .picture').attr('src', data.picture);
 					n.find('.content .title').text(data.message);
 					n.find('.content .description').text(data.description);
 					n.find('.content .date').text(data.created_time);
@@ -153,10 +159,11 @@ function update(id) {
 				for (var j = 0; j < data.comments.data.length; j++) {
 					var data2 = data.comments.data[j];
 					if (!data2.from.constituent[0]) continue;
-					var nn = $('#template_comment').clone();
+					var nn = $('#templates .comment').clone();
 					nn.find('.name').text(data2.from.name);
 					nn.find('.constituent').text(constituent_location(data2.from));
 					nn.find('.text').text(data2.message);
+					if (debug && Math.random() > .5) { data.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
 					if (data2.from.constituent[0]) {
 						nn.find('.tooltip').html(constituent_address(data2.from));
 						nn.find(".title").addClass("needs_tooltip");
@@ -168,9 +175,10 @@ function update(id) {
 				for (var j = 0; j < data.likes.data.length; j++) {
 					var data2 = data.likes.data[j];
 					if (!data2.constituent[0]) continue;
-					var nn = $('#template_like').clone();
+					var nn = $('#templates .like').clone();
 					nn.find('.name').text(data2.name);
 					nn.find('.constituent').text(constituent_location(data2));
+					if (debug && Math.random() > .5) { data.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
 					if (data2.constituent[0]) {
 						nn.find('.tooltip').html(constituent_address(data2));
 						nn.find(".title").addClass("needs_tooltip");
@@ -301,6 +309,63 @@ $(function() {
 		"%");
 });
 </script>
+<style>
+/****Facebook****/
+
+#content .post {
+border: none;
+}
+
+#content .comment {
+border: none;
+}
+
+#content .content img {
+padding: 5px;
+}
+
+#content .post {
+font-size: 12px;
+font-family: helvetica;
+clear: both;
+padding-bottom: 10px;
+padding-top: 10px;
+}
+
+#content .like { display: inline; }
+
+#content .picture {
+width: 50px;
+height: 50px;
+background: #444;
+
+}
+
+#content .from .title {
+font-weight: bold;
+
+}
+
+#content .content {
+margin-top: 5px;
+}
+
+#content .content .title {
+margin-left: 65px;
+font-weight: normal;
+}
+
+
+#content .content .description {
+margin-left: 65px;
+}
+
+#content .date {
+margin-left: 65px;
+margin-top: 5px;
+color: #6c6c6c;
+}
+</style>
 {% endblock %}
 {% block content %}
 <div id="fb-root"></div>
@@ -394,8 +459,8 @@ $(function() {
 		</div>
 		{% endif %}
 		
-		<div style="display: none">
-			<div id="template_post" class="post">
+		<div style="display: none" id="templates">
+			<div class="post">
 				<div class="from">
 					<img class="picture" style="float: left; margin-right: 15px"/>
 					<div><span class="title"><span class="name"></span> <span class="constituent"></span> <span class="what"></span></span></div>
@@ -416,14 +481,14 @@ $(function() {
 				</div>
 			</div>
 			
-			<div id="template_comment" class="comment">
+			<div class="comment">
 				<div><span class="title"><span class="name"></span> <span class="constituent"></span></span></div>
 				<div class="tooltip"> </div>
 				
 				<div class="text"> </div>
 			</div>
 			
-			<div id="template_like" class="like">
+			<div class="like">
 				<span class="title"><span class="name"></span> <span class="constituent"></span></span>
 				<div class="tooltip"> </div>
 			</div>
