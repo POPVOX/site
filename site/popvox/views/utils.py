@@ -2,31 +2,36 @@ from django.core.cache import cache
 from django.db import connection
 from django.views.decorators.csrf import csrf_protect
 
-import urllib, re, math
+import urllib, re, math, pytz
 from datetime import datetime, timedelta, time
 import hashlib, numpy
+
+est = pytz.timezone('US/Eastern')
 
 def formatDateTime(d, withtime=True, tz="EST"):
 	if d.time() == time.min:
 		# midnight usually means we have no time info
 		withtime = False
+		
+	now = datetime.now()
+	if d.tzinfo: now = est.localize(now)
 
-	if (datetime.now().date() == d.date()):
+	if (now.date() == d.date()):
 		if withtime:
 			return "Today at" + d.strftime(" %I:%M%p").replace(" 0", " ").lower() #+ " " + tz
 		else:
 			return "Today"
-	elif ((datetime.now() - timedelta(.5)).date() == d.date()):
+	elif ((now - timedelta(.5)).date() == d.date()):
 		if withtime:
 			return "Yesterday at" + d.strftime(" %I:%M%p").replace(" 0", " ").lower() #+ " " + tz
 		else:
 			return "Yesterday"
-	elif (datetime.now() - d).days < 7:
+	elif (now - d).days < 7:
 		if withtime:
 			return d.strftime("%a") + " at" + d.strftime(" %I:%M%p").replace(" 0", " ").lower() #+ " " + tz
 		else:
 			return d.strftime("%A")
-	elif (datetime.now() - d).days < 120:
+	elif (now - d).days < 120:
 		return d.strftime("%B %d").replace(" 0", " ")
 	else:
 		return d.strftime("%b %d, %Y").replace(" 0", " ")

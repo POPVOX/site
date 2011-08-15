@@ -31,7 +31,7 @@ h2 { font: normal 28px/42px 'BebasNeueRegular', helvetica, arial, sans-serif; }
 #customized_stats_pie_legend p { margin: 0 0 3px 0; }
 #customized_stats_pie_legend span.percent {
 	display: inline-block;
-	width: 30px;
+	width: 25px;
 	height: 18px;
 	overflow: hidden;
 	padding: 6px 0 0 4px;
@@ -95,7 +95,9 @@ function update(id) {
 			//$('#content h2').text(res.page.name);
 			$('#custreporttab').text("Report for " + res.page.name);
 			$('#content .link a').attr("href", res.page.link).text(res.page.link);
+			{% if request.META.HTTP_DNT != "1" %}
 			$('#content .pagephoto').attr('src', 'https://graph.facebook.com/' + res.page.id + '/picture?type=large');
+			{% endif %}
 			
 			var postcount = 0;
 			var debug = false;			
@@ -119,7 +121,9 @@ function update(id) {
 					n.find('.from .name').text(data.from.name);
 					n.find('.from .constituent').text(constituent_location(data.from));
 				}
-				n.find('.from .picture').attr('src', 'https://graph.facebook.com/' + data.from.id + '/picture?type=small');
+				{% if request.META.HTTP_DNT != "1" %}
+				n.find('.from_picture').attr('src', 'https://graph.facebook.com/' + data.from.id + '/picture?type=small');
+				{% endif %}
 				
 				if (data.type == "status") {
 					n.find('.from .what').text('wrote on your wall.');
@@ -129,7 +133,6 @@ function update(id) {
 					n.find('.content .date').text(data.created_time);
 				} else if (data.type == "link") {
 					n.find('.from .what').text('posted a link.');
-					//n.find('.content .picture').attr('src', data.picture.replace("http:", "https:"));
 					n.find('.content .picture').hide();
 					n.find('.content .title').text(data.name);
 					n.find('.content .description').text(data.description);
@@ -137,7 +140,9 @@ function update(id) {
 				} else if (data.type == "video" || data.type == "photo") {
 					n.addClass("has_image");
 					n.find('.from .what').text('posted a ' + data.type + '.');
+					{% if request.META.HTTP_DNT != "1" %}
 					n.find('.content .picture').attr('src', data.picture);
+					{% endif %}
 					n.find('.content .title').text(data.message);
 					n.find('.content .description').text(data.description);
 					n.find('.content .date').text(data.created_time);
@@ -161,6 +166,9 @@ function update(id) {
 					var data2 = data.comments.data[j];
 					if (!data2.from.constituent[0]) continue;
 					var nn = $('#templates .comment').clone();
+					{% if request.META.HTTP_DNT != "1" %}
+					nn.find('.picture').attr('src', 'https://graph.facebook.com/' + data2.from.id + '/picture?type=small');
+					{% endif %}
 					nn.find('.name').text(data2.from.name);
 					nn.find('.constituent').text(constituent_location(data2.from));
 					nn.find('.text').text(data2.message);
@@ -352,38 +360,25 @@ margin-top: 5px;
 }
 
 #content .content .title {
-margin-left: 65px;
 font-weight: normal;
 }
 
 
 #content .content .description {
-margin-left: 65px;
 }
 
 #content .date {
-margin-left: 65px;
 margin-top: 5px;
 color: #6c6c6c;
 }
 </style>
 {% endblock %}
 {% block content %}
-<div id="fb-root"></div>
-<script src="https://connect.facebook.net/en_US/all.js"></script>
-<script>
-  FB.init({
-    appId  : '150910028257528',
-    status : false, // check login status
-    cookie : false, // enable cookies to allow the server to access the session
-    xfbml  : false, // parse XFBML
-    oauth  : false // enable OAuth 2.0
-  });
-</script>
 <div class="content">
 	
 	<div class="col_9 col_top">
-		<h1 style="font-size: 26px; font-family: verdana,helvetica,arial,sans-serif">Identifying Constituents for a #SocialCongress</h1>
+		<h1 style="margin-bottom: 0">Analysis</h1>
+		<h2 style="margin: 10px 0 20px 0; font-size: 24px; line-height: normal; font-family: helvetica,arial,sans-serif">Are they your #Constituents? An analysis of Congressional Facebook Pages.</h1>
 		
 		<p><em>Congressional courtesy</em> dictates that Members of Congress should avoid contacting individuals in another Member&rsquo;s state or district. As a result, Congressional communications staff are reluctant to respond to comments on social media, not knowing whether the poster is a constituent or not.</p>
 		
@@ -438,7 +433,6 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 		{% if is_leg_staff %}
 		</div>
 		<div class="tab_panel tab_customized" style="display: none">
-		{% endif %}
 		
 		<div id="content_status">	
 		</div>
@@ -462,20 +456,20 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 			<p>Here are the latest posts, comments, and likes from your constituents who have verified their identity on POPVOX.</p>
 		</div>
 
-		<h2 class="mar_top">Methodology</h2>
+		<h2 class="mar_top clear">Methodology</h2>
 		
 		<p>As of August 11, 2011, about 1.3% of users interacting with your Facebook page are also POPVOX users. We are able to identify those individuals as either within or outside of your state or district based on the mailing address they used to send you a letter through POPVOX.</p>
 		
 		<p>Wall posts, comments, and likes on Congressional Facebook Pages are public information and can be accessed by anyone comprehensively through the <a href="http://www.facebook.com">Facebook</a> <a href="http://developers.facebook.com/docs/reference/api/">Graph API</a>. For those POPVOX users who choose to log in to POPVOX using their Facebook account, we are able to match their Facebook activity with their POPVOX profile. All information in POPVOX profiles remains private following our <a href="/legal">privacy policy</a>. We show you the name and address of your constituents only. Email questions or concerns to {% obfuscated_email "privacy@popvox.com" %}.</p>
 		
-		{% if is_leg_staff %}
 		</div>
 		{% endif %}
 		
 		<div style="display: none" id="templates">
 			<div class="post">
+				<img class="from_picture" style="float: left; margin-right: 15px; width: 30px;"/>
+				<div style="float: left; width: 550px;">
 				<div class="from">
-					<img class="picture" style="float: left; margin-right: 15px"/>
 					<div><span class="title"><span class="name"></span> <span class="constituent"></span> <span class="what"></span></span><div class="tooltip"> </div></div>
 				</div>
 				<div class="content">
@@ -491,9 +485,13 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 				</div>
 				<div class="comments">
 				</div>
+				</div>
+				<div class="clear"> </div>
 			</div>
 			
 			<div class="comment">
+				<img class="picture" style="float: left; margin-right: 15px"/>
+			
 				<div><span class="title"><span class="name"></span> <span class="constituent"></span></span><div class="tooltip"> </div></div>
 				
 				<div class="text"> </div>

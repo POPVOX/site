@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
-import re, json, urllib
+import re, json, urllib, pytz
 from xml.dom import minidom
 from itertools import chain, izip, cycle
 
@@ -905,7 +905,7 @@ def legstaff_facebook_report(request):
 def legstaff_facebook_report_getinfo(request):
 	id = int(request.GET.get('id', '0'))
 	
-	id = 400029 # DEBUG  412326
+	#id = 400029 # DEBUG  412326
 	
 	limit = 500
 	offset = 0
@@ -993,6 +993,7 @@ def legstaff_facebook_report_getinfo(request):
 				entry["from"]["constituent"] = is_constituent(entry["from"]["id"])
 				entry["constituent_comments"] = 0
 				entry["constituent_likes"] = 0
+				entry["created_time"] = formatDateTime(pytz.utc.localize(datetime.strptime(entry["created_time"], "%Y-%m-%dT%H:%M:%S+0000")))
 				if entry["from"]["constituent"][1] not in ("page", "unknown"):
 					info["num_constituent_posts"][1] += 1
 					if entry["from"]["constituent"][0]:
