@@ -388,7 +388,9 @@ h2 span {
 					{% else %}
 						{{bill.status}}
 					{% endif %}
+					{% if bill.is_bill %}
 					(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>)
+					{% endif %}
 					</p>
 				</div>
 			</div>

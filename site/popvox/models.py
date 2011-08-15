@@ -132,10 +132,16 @@ class CongressionalCommittee(models.Model):
 
 class Bill(models.Model):
 	"""A bill in Congress."""
-	BILL_TYPE_CHOICES = [ ('h', 'H.R.'), ('s', 'S.'), ('hr', 'H.Res.'), ('sr', 'S.Res.'), ('hc', 'H.Con.Res.'), ('sc', 'S.Con.Res.'), ('hj', 'H.J.Res.'), ('sj', 'S.J.Res.') ]
 	
+	BILL_TYPE_CHOICES = [ ('h', 'H.R.'), ('s', 'S.'), ('hr', 'H.Res.'), ('sr', 'S.Res.'), ('hc', 'H.Con.Res.'), ('sc', 'S.Con.Res.'), ('hj', 'H.J.Res.'), ('sj', 'S.J.Res.'), ('ha', 'House Amendment'), ('sa', 'Senate Amendment'), ('dh', 'House Draft'), ('ds', 'Senate Draft'), ('x', 'Generic Proposition') ]
+
 	# the iPad app relies on the House/Senate distinction being made in the first character of the slug (h/s)
-	BILL_TYPE_SLUGS = [ ('h', 'hr'), ('s', 's'), ('hr', 'hres'), ('sr', 'sres'), ('hc', 'hconres'), ('sc', 'sconres'), ('hj', 'hjres'), ('sj', 'sjres') ]
+	BILL_TYPE_SLUGS = [ ('h', 'hr'), ('s', 's'), ('hr', 'hres'), ('sr', 'sres'), ('hc', 'hconres'), ('sc', 'sconres'), ('hj', 'hjres'), ('sj', 'sjres'), ('ha', 'hamdt'), ('sa', 'samdt'), ('dh', 'hdraft'), ('ds', 'sdraft'), ('x', 'x') ]
+		# when adding a type, see getChamberOfNextVote
+	
+	slug_to_type = {}
+	for t, s in BILL_TYPE_SLUGS:
+		slug_to_type[s] = t
 	
 	congressnumber = models.IntegerField()
 	billtype = models.CharField(max_length=2, choices=BILL_TYPE_CHOICES)
@@ -156,6 +162,7 @@ class Bill(models.Model):
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)
+	comments_to_chamber = models.CharField(max_length=1, blank=True, null=True)
 
 	srcfilehash = models.CharField(max_length=32, blank=True)
 	
@@ -179,28 +186,39 @@ class Bill(models.Model):
 				vehicleid += 1
 				b = b.replaced_vehicle.all()[0]
 			vehicleid = "-" + str(vehicleid)
-		return "/bills/us/" + str(self.congressnumber) + "/" + self.billtype2() + str(self.billnumber) + vehicleid
-	def billtype2(self):
+		return "/bills/us/" + str(self.congressnumber) + "/" + self.billtypeslug() + str(self.billnumber) + vehicleid
+	def billtypeslug(self):
 		return [x[1] for x in Bill.BILL_TYPE_SLUGS if x[0]==self.billtype][0]
 
+	def is_bill(self):
+		return self.billtype in ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc')
+
 	def govtrack_metadata(self):
+		if not self.is_bill(): raise Exception("Invalid call on non-bill.")
 		if self._govtrack_metadata == None :
 			self._govtrack_metadata = govtrack.getBillMetadata(self)
 		return self._govtrack_metadata
 		
 	def govtrack_code(self):
+		if not self.is_bill(): raise Exception("Invalid call on non-bill.")
 		return self.billtype + str(self.congressnumber) + "-" + str(self.billnumber)
 	def govtrack_link(self):
+		if not self.is_bill(): raise Exception("Invalid call on non-bill.")
 		return "http://www.govtrack.us/congress/bill.xpd?bill=" + self.govtrack_code()
 		
 	def displaynumber(self):
-		return govtrack.getBillNumber(self)
+		ret = self.displaynumber_nosession()
+		if self.congressnumber != govtrack.CURRENT_CONGRESS :
+			ret += " (" + str(self.congressnumber) + govtrack.ordinate(self.congressnumber) + ")"
+		return ret
 	def displaynumber_nosession(self):
-		return govtrack.getBillNumber(self, False)
+		return self.get_billtype_display() + " " + str(self.billnumber)
 	def title_no_number(self):
+		if self.billtype in ('dh', 'ds', 'x'): # these don't have numbered titles
+			return self.title
 		return self.title[self.title.index(":")+2:]
 	def title_or_streetname(self):
-		if not self.street_name:
+		if not self.street_name or self.billtype in ('dh', 'ds', 'x'):
 			return self.title
 		else:
 			return self.displaynumber() + ": " + self.street_name[0].upper() + self.street_name[1:]
@@ -210,31 +228,52 @@ class Bill(models.Model):
 			return title
 		title = re.sub(r"To amend (section [^ ]+ of )?title [^ ,]+, United States Code, ", "", self.title_no_number())
 		return self.displaynumber() + " (\"" + truncatewords(title, 15).replace(" ...", "") + "\")"
-	def shorttitle(self):
-		return govtrack.getBillTitle(self, self.govtrack_metadata(), "short")
 	def officialtitle(self):
-		return govtrack.getBillTitle(self, self.govtrack_metadata(), "official")
-	def populartitle(self):
-		return govtrack.getBillTitle(self, self.govtrack_metadata(), "popular")
+		if self.is_bill():
+			return govtrack.getBillTitle(self, self.govtrack_metadata(), "official")
+		else:
+			return None
 	def status(self):
-		return govtrack.getBillStatus(self)
+		if self.is_bill():
+			return govtrack.getBillStatus(self)
+		else:
+			return "Status information is only available for introduced bills."
 	def status_advanced(self):
-		return govtrack.getBillStatusAdvanced(self, False)
+		if self.is_bill():
+			return govtrack.getBillStatusAdvanced(self, False)
+		else:
+			return "N/A"
 	def status_advanced_abbreviated(self):
-		return govtrack.getBillStatusAdvanced(self, True)
+		if self.is_bill():
+			return govtrack.getBillStatusAdvanced(self, True)
+		else:
+			return "N/A"
 	def cosponsors(self):
-		return govtrack.getBillCosponsors(self.govtrack_metadata())
+		if self.is_bill():
+			return govtrack.getBillCosponsors(self.govtrack_metadata())
+		else:
+			return []
 	def isAlive(self):
 		# alive = pending further Congressional action
+		if not self.is_bill(): return self.congressnumber == govtrack.CURRENT_CONGRESS
 		return govtrack.billFinalStatus(self) == None
 	def getDeadReason(self):
 		# dead = no longer pending action because it passed, failed, or died in a previous session
+		if not self.is_bill():
+			if self.congressnumber != govtrack.CURRENT_CONGRESS:
+				return "was proposed in a previous session of Congress"
+			return None
 		return govtrack.billFinalStatus(self)
 	def died(self):
 		# died is the specific state of having failed to be passed in a previous session
+		if not self.is_bill(): return False
 		return govtrack.billFinalStatus(self, "died") == "died"
 	def getChamberOfNextVote(self):
 		# bill must be alive
+		if self.comments_to_chamber: return self.comments_to_chamber # for x-type bills and to override
+		if self.billtype in ('ha', 'dh'): return 'h'
+		if self.billtype in ('sa', 'ds'): return 's'
+		if self.billtype in ('x', ): raise Exception("comments_to_chamber is not set on x-type bill record")
 		return govtrack.getChamberOfNextVote(self)
 		
 	def latest_action_formatted(self):
@@ -253,23 +292,7 @@ class Bill(models.Model):
 		return qs
 	
 	def hashtag(self, always_include_session=False):
-		bt = ""
-		if self.billtype == "h":
-			bt = "hr"
-		elif self.billtype == "hr":
-			bt = "hres"
-		elif self.billtype == "hj":
-			bt = "hjres"
-		elif self.billtype == "hc":
-			bt = "hconres"
-		elif self.billtype == "s":
-			bt = "s"
-		elif self.billtype == "sr":
-			bt = "sres"
-		elif self.billtype == "sj":
-			bt = "sjres"
-		elif self.billtype == "sc":
-			bt = "sconres"
+		bt = self.billtypeslug()
 		bs = ""
 		if self.congressnumber < govtrack.CURRENT_CONGRESS or always_include_session:
 			bs = "/" + str(self.congressnumber)
@@ -280,7 +303,7 @@ class Bill(models.Model):
 		m = re.match(r"\#([a-z]+)(\d+)/(\d+)", hashtag)
 		return Bill.objects.get(
 			congressnumber = m.group(3),
-			billtype = {"hr":"h", "hres":"hr", "hjres":"hj", "hconres":"hc", "s":"s", "sres":"sr", "sjres":"sj", "sconres":"sc"}[m.group(1)],
+			billtype = Bill.slug_to_type[m.group(1)],
 			billnumber = m.group(2),
 			vehicle_for = None)
 
@@ -310,7 +333,7 @@ def bill_from_url(url):
 	try :
 		congressnumber = int(fields[3])
 		m = re.match(r"([a-z]+)(\d+)(-\d+)?", fields[4])
-		billtype = [x[0] for x in Bill.BILL_TYPE_SLUGS if x[1]==m.group(1)][0]
+		billtype = Bill.slug_to_type[m.group(1)][0]
 		billnumber = int(m.group(2))
 		vehicle_number = m.group(3)
 	except :
@@ -321,40 +344,6 @@ def bill_from_url(url):
 	else:
 		return bill[0]
 		
-def getbillsfromhash(bills):
-	# Group by congress number, then by bill type, and then
-	# fetch many bills at once for that pair. We don't usually
-	# query across sessions so this makes sure we don't
-	# execute more than eight queries (for the eight types
-	# of bills). Then return the Bill objects in the same order
-	# as in the list we were passed in.
-	
-	# group bills into sets we can query in batch
-	groups = { }
-	for b in bills:
-		if not b["congressnumber"] in groups:
-			groups[b["congressnumber"]] = { }
-		if not b["billtype"] in groups[b["congressnumber"]]:
-			groups[b["congressnumber"]][b["billtype"]] = { }
-		if not b["billnumber"] in groups[b["congressnumber"]][b["billtype"]]:
-			groups[b["congressnumber"]][b["billtype"]][b["billnumber"]] = True
-	
-	# get bill objects in batch and map from a string code to the object
-	objs = { }
-	for congressnumber in groups:
-		for billtype in groups[congressnumber]:
-			for bill in Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber__in=groups[congressnumber][billtype]).select_related('sponsor'):
-				objs[bill.govtrack_code()] = bill
-
-	# form the output array
-	ret = []
-	for bill in bills:
-		code = bill["billtype"] + str(bill["congressnumber"]) + "-" + str(bill["billnumber"])
-		if code in objs:
-			ret.append(objs[code])
-
-	return ret
-
 # ORGANIZATIONS #
 
 class Org(models.Model):

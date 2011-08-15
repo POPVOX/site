@@ -97,14 +97,14 @@ def get_popular_bills2():
 		popular_bills2.append(b)
 		b["bill"] = bill
 		b["orgs"] = {}
-		bmap[bill.govtrack_code()] = b
+		bmap[bill.id] = b
 	for cam in cams:
 		for pos in cam.positions.all().select_related(): # note recursive SQL which goes from OrgCampaignPosition to Bill
 			if pos.position == "0": # not showing neutral positions in hot bills list
 				continue
-			if not pos.bill.govtrack_code() in bmap:
+			if not pos.bill.id in bmap:
 				continue
-			b = bmap[pos.bill.govtrack_code()]
+			b = bmap[pos.bill.id]
 			if not cam.org.slug in b["orgs"]:
 				b["orgs"][cam.org.slug] = {
 					"name": cam.org.name,
@@ -246,7 +246,7 @@ def getbill(congressnumber, billtype, billnumber, vehicleid=None):
 	if int(congressnumber) < 1 or int(congressnumber) > 1000: 
 		raise Http404("Invalid bill number. \"" + congressnumber + "\" is not valid.")
 	try:
-		billtype = [x[0] for x in Bill.BILL_TYPE_SLUGS if x[1] == billtype][0]
+		billtype = Bill.slug_to_type[billtype]
 	except:
 		raise Http404("Invalid bill number. \"" + billtype + "\" is not valid.")
 	try:

@@ -154,7 +154,7 @@ class BillHandler(BaseHandler):
 
 	@staticmethod
 	def billtype(bill, request, acct):
-		return bill.billtype2()
+		return bill.billtypeslug()
 
 	@staticmethod
 	def link(bill, request, acct):

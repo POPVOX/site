@@ -371,12 +371,9 @@ def home(request):
 					if not cam in cams:
 						cams.append(cam)
 		
-		feed = ["bill:"+b.govtrack_code() for b in bills] + ["crs:"+ix.name for ix in issues]
-		
 		return render_to_response('popvox/home_orgadmin.html',
 			{
 			   'cams': cams,
-			   'feed': govtrack.loadfeed(feed),
 			   "tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
 			   "adserver_targets": ["org_admin_home"],
 			   },
