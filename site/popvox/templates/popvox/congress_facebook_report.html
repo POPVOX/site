@@ -1,9 +1,60 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
-{% block title %}Are They Your Constituents? - POPVOX Report{% endblock%}
+{% block title %}Identifying Constituents for a #SocialCongress - POPVOX Report{% endblock%}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script src="/media/js/jquery.tools.min.js"></script>
+<style>
+h2 { font: normal 28px/42px 'BebasNeueRegular', helvetica, arial, sans-serif; }
+#overall_stats_pie { float: left; width: 400px; height: 360px; }
+#overall_stats_pie_legend { float: left; width: 300px; padding-top: 10px;  }
+#overall_stats_pie_legend p { margin: 0 0 4px 0; }
+#overall_stats_pie_legend span.percent {
+	display: inline-block;
+	width: 90px;
+	height: 50px;
+	overflow: hidden;
+	padding: 9px 0 0 9px;
+	color: white;
+	font: normal 56px/66px 'BebasNeueRegular', helvetica, arial, sans-serif;
+}
+#overall_stats_pie_legend span.label {
+	display: inline-block;
+	color: #747378;
+	font: bold 24px/24px helvetica, arial, sans-serif; 
+	padding: 18px 0 0 9px;
+	vertical-align: top;
+}
+
+#customized_stats_pie { float: left; width: 230px; height: 220px; }
+#customized_stats_pie_legend { float: left; width: 450px; }
+#customized_stats_pie_legend p { margin: 0 0 3px 0; }
+#customized_stats_pie_legend span.percent {
+	display: inline-block;
+	width: 30px;
+	height: 18px;
+	overflow: hidden;
+	padding: 6px 0 0 4px;
+	color: white;
+	font: normal 16px/20px 'BebasNeueRegular', helvetica, arial, sans-serif;
+}
+#customized_stats_pie_legend span.label {
+	display: inline-block;
+	color: #747378;
+	font: bold 13px/20px helvetica, arial, sans-serif; 
+	padding: 2px 0 0 4px;
+	vertical-align: top;
+}
+
+.pie_legend .users span.percent { background-color: #cb6b08; }
+.pie_legend .posts span.percent { background-color: #17afec; }
+.pie_legend .comments span.percent { background-color: #568525; }
+.pie_legend .postlikes span.percent { background-color: #bb2973; }
+
+#content .post { border: 1px solid black; padding: 3px; }
+#content .comment { border: 1px solid black; padding: 3px; }
+#content .like { display: inline; }
+</style>
 <script>
 function htmlescape(text) {
 	return $("<div/>").text(text).html();
@@ -137,95 +188,119 @@ function update(id) {
 			
 			//$('.needs_tooltip').tooltip({relative: true}).removeClass("needs_tooltip");
 			
-			var chart = new Highcharts.Chart({
-			  chart: {
-				 renderTo: 'overall_stats_pie',
-				 backgroundColor: "#E8E5DF",
-				 margin: [50, 0, 0, 0],
-				 plotBackgroundColor: 'none',
-				 plotBorderWidth: 0,
-				 plotShadow: true            
-			  },
-			  title: { text: null },
-			  credits: { enabled: false },
-			  tooltip: {
-				 formatter: function() {
-					return '<b>'+ this.series.name +'</b><br/>'+ 
-					   this.point.name +': '+ this.y;
-				 }
-			  },
-			  legend: { enabled: false },
-			  series: [{
-				 type: 'pie',
-				 name: 'Post Likes',
-				 size: '40%',
-				 innerSize: '20%',
-				 data: [
-				 	{ name: 'Constituent', y: res.num_constituent_postlikes[0], color: '#4572A7' },
-					{ name: 'Not A Constituent', y: res.num_constituent_postlikes[1]-res.num_constituent_postlikes[0], color: '#E8E5DF' },
-				 ],
-				 dataLabels: {
-					enabled: false
-				 }
-			  }, 
-			  {
-				 type: 'pie',
-				 name: 'Comments',
-				 size: '60%',
-				 innerSize: '40%',
-				 data: [
-				 	{ name: 'Constituent', y: res.num_constituent_comments[0], color: '#4572A7' },
-					{ name: 'Not A Constituent', y: res.num_constituent_comments[1]-res.num_constituent_comments[0], color: '#E8E5DF' },
-				 ],
-				 dataLabels: {
-					enabled: false
-				 }
-			  }, {
-				 type: 'pie',
-				 name: 'Wall Posts',
-				 size: '80%',
-				 innerSize: '60%',
-				 data: [
-				 	{ name: 'Constituent', y: res.num_constituent_posts[0], color: '#4572A7' },
-					{ name: 'Not A Constituent', y: res.num_constituent_posts[1]-res.num_constituent_posts[0], color: '#E8E5DF' },
-				 ],
-				 dataLabels: {
-					enabled: true,
-					color: '#000000',
-					connectorColor: '#000000'
-				 }
-			  }, {
-				 type: 'pie',
-				 name: 'Users',
-				 size: '100%',
-				 innerSize: '80%',
-				 data: [
-				 	{ name: 'Constituent', y: res.num_constituents, color: '#4572A7' },
-					{ name: 'Not A Constituent', y: res.num_known-res.num_constituents, color: '#E8E5DF' },
-				 ],
-				 dataLabels: {
-					enabled: true,
-					color: '#000000',
-					connectorColor: '#000000'
-				 }
-			  }]
-			});
+			make_chart('customized_stats_pie', 200,
+				res.num_constituent_postlikes[0], res.num_constituent_postlikes[1]-res.num_constituent_postlikes[0],
+				res.num_constituent_comments[0], res.num_constituent_comments[1]-res.num_constituent_comments[0],
+				res.num_constituent_posts[0], res.num_constituent_posts[1]-res.num_constituent_posts[0],
+				res.num_constituents, res.num_known-res.num_constituents);
 		}
 	});
 
 }
-
-{% if user.userprofile.is_leg_staff %}
-	$(function() {
-		update({{user.legstaffrole.member.id}});
+	
+function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post_y, post_n, user_y, user_n, y_scale) {
+	function putnum(type, y, n) {
+		if (y + n == 0) n = 1; // avoid division by zero
+		$('#' + id + '_legend .' + type + ' span.percent').text(Math.round(y/(y+n)*100) + "%")
+	}
+	
+	putnum('users', user_y, user_n);
+	putnum('posts', post_y, post_n);
+	putnum('comments', comment_y, comment_n);
+	putnum('postlikes', postlike_y, postlike_n);
+	
+	var chart = new Highcharts.Chart({
+	  chart: {
+		 renderTo: id,
+		 backgroundColor: "#E8E5DF",
+		 margin: [2, 2, 2, 2],
+		 width: size,
+		 height: size
+	  },
+	  title: { text: null },
+	  credits: { enabled: false },
+	  tooltip: {
+	  	 enabled: size > 250,
+		 formatter: function() {
+			return '<b>'+ this.series.name +'</b><br/>'+ 
+			this.point.name +': '+ this.y + (y_scale ? y_scale : "");
+		 }
+	  },
+	  legend: { enabled: false },
+	  plotOptions: {
+	  	  pie: {
+	  	  	  borderWidth: 0,
+	  	  	  shadow: false
+	  	  }
+	  },
+	  series: [{
+		 type: 'pie',
+		 name: 'Likes on Posts',
+		 size: '46%',
+		 innerSize: '30%',
+		 data: [
+			{ name: 'Constituent', y: postlike_y, color: '#bf2873' },
+			{ name: 'Not A Constituent', y: postlike_n, color: '#d5d1ca' },
+		 ],
+		 dataLabels: {
+			enabled: false
+		 }
+	  }, 
+	  {
+		 type: 'pie',
+		 name: 'Comments',
+		 size: '64%',
+		 innerSize: '48%',
+		 data: [
+			{ name: 'Constituent', y: comment_y, color: '#578525' },
+			{ name: 'Not A Constituent', y: comment_n, color: '#d5d1ca' },
+		 ],
+		 dataLabels: {
+			enabled: false
+		 }
+	  }, {
+		 type: 'pie',
+		 name: 'Wall Posts',
+		 size: '82%',
+		 innerSize: '66%',
+		 data: [
+			{ name: 'Constituent', y: post_y, color: '#11aae3' },
+			{ name: 'Not A Constituent', y: post_n, color: '#d5d1ca' },
+		 ],
+		 dataLabels: {
+			enabled: false,
+		 }
+	  }, {
+		 type: 'pie',
+		 name: 'Users',
+		 size: '100%',
+		 innerSize: '84%',
+		 data: [
+			{ name: 'Constituent', y: user_y, color: '#cb6a0f' },
+			{ name: 'Not A Constituent', y: user_n, color: '#d5d1ca' },
+		 ],
+		 dataLabels: {
+			enabled: false, // not sure how to make them fit right
+			color: '#000000',
+			connectorColor: '#000000'
+		 }
+	  }]
 	});
-{% endif %}
+}
+
+$(function() {
+	{% if is_leg_staff %}
+	$('#main_tab').pvtabs();
+	update({{user.legstaffrole.member.id}});
+	{% endif %}
+	make_chart('overall_stats_pie', 340,
+		14.5, 100-14.5, // post likes
+		60.0, 100-60.0, // comments
+		22.1, 100-22.1, // wall posts
+		21.6, 100-21.6, // unique users
+		"%");
+});
 </script>
-<style>
-.post { border: 1px solid black; padding: 3px; }
-.comment { border: 1px solid black; padding: 3px; }
-.like { display: inline; }
-</style>
 {% endblock %}
 {% block content %}
 <div id="fb-root"></div>
@@ -242,27 +317,82 @@ function update(id) {
 <div class="content">
 	
 	<div class="col_9 col_top">
-		<h1 class="mar_no_btm">Are They Your #Constituents?</h1>
+		<h1 style="font-size: 26px; font-family: verdana,helvetica,arial,sans-serif">Identifying Constituents for a #SocialCongress</h1>
 		
-		{% if user.userprofile.is_leg_staff %}
-			<p>An analysis of your official Facebook page.</p>
-		{% else %}		
-			<p>An analysis of the official Facebook page of Members of Congress.</p>
+		<p><em>Congressional courtesy</em> dictates that Members of Congress should avoid contacting individuals in another Member&rsquo;s state or district. As a result, Congressional communications staff are reluctant to respond to comments on social media, not knowing whether the poster is a constituent or not.</p>
 		
-			... select ...
-		
+		{% if is_leg_staff %}
+		<ul id="main_tab" class="tabs">
+		<li><a href="#overall"><span>Overall Report</span></a></li>
+		<li><a href="#customized"><span>Report for {{user.legstaffrole.member.name}}</span></a></li>
+		</ul>
+		<div class="tab_panel tab_overall">
 		{% endif %}
+		
+		<p class="pad_btm">We looked at the <strong>467 Facebook Pages of Members of Congress</strong> to see whether the individuals posting, liking posts, and commenting were <strong>constituents of the congressman or senator</strong>. Here is what we found:</p>
 
-		<div id="content_status">			
+		<div id="overall_stats_pie"> </div>
+		<div id="overall_stats_pie_legend" class="pie_legend">
+			{% if is_leg_staff %}
+			<div style="margin: -20px 0 20px 0; background: #D4D1CA; padding: 6px;">
+				<p style="margin: 0; font-size: 13px;"><a href="#customized" style="font-weight: bold;">Get your customized report for {{user.legstaffrole.member.state_district}}...</a></p>
+			</div>
+			{% endif %}
+		
+			<h2>How many are constituents?</h2>
+			<p class="users"><span class="percent"></span> <span class="label">Users</span></p>
+			<p class="posts"><span class="percent"></span> <span class="label">Wall Posts</span></p>
+			<p class="comments"><span class="percent"></span> <span class="label">Comments</span></p>
+			<p class="postlikes"><span class="percent"></span> <span class="label">Likes on Posts</span></p>
 		</div>
 		
-		<div id="overall_stats_pie"> </div>
+		<div class="clear"> </div>
+		
+		<p style="margin: 20px; font-size: 17px; line-height: normal;">While a majority of users interacting with Congressional Facebook Pages are not constituents, we do find that most comments are from constituents.</p>
+	
+		{% if not is_leg_staff %}
+		<div style="margin: 10px; background: #D4D1CA; padding: 10px;">
+			<p style="margin-bottom: 10px; font-size: 17px; line-height: normal;"><strong>Want to know more?</strong> We can show you <strong>which posts are from your constituents</strong> if you are a Congressional staffer or Member of Congress.</p>
+			<p style="margin: 0;">In order to protect the privacy of our users, you will need to
+			<a href="/accounts/register/legstaff?next=/congress/facebook" target="_blank">register</a> with your @mail.house.gov or @senate.gov address or <a href="/accounts/login?next=/congress/facebook">login</a> if you already have a POPVOX Congressional staff account (personal staff only).</p>
+		</div>
+		{% endif %}
+		
+		<p class="pad_top">According to a report by the <a href="http://www.congressfoundation.org">Congressional Management Foundation</a>, <a href="http://www.congressfoundation.org/storage/documents/CMF_Pubs/cmf-social-congress.pdf">#SocialCongress: Perceptions and Use of Social Media on Capitol Hill</a>, almost two-thirds of staffers surveyed viewed Facebook as &ldquo;an important source for understanding constituents’ views and opinions.&rdquo; We hope that our analysis of Facebook Pages &mdash; and our customized reports for Congressional staff &mdash; make Facebook Pages more effective.</p>
+		
+		<h2>Methodology</h2>
+		
+		<p>This analysis is based on the subset of users of Congressional Facebook Pages who are also registered on POPVOX and use their Facebook account to log in to POPVOX. Of 128,178 users interacting recently with 467 Congressional Facebook Pages, 1.3% or 1,696 were also POPVOX users. The analysis was conducted on August 11, 2011. The margin of error is around 5%.</p>
+		
+		<p>Wall posts, comments, and likes on Congressional Facebook Pages are public information and can be accessed by anyone comprehensively through the <a href="http://www.facebook.com">Facebook</a> <a href="http://developers.facebook.com/docs/reference/api/">Graph API</a>. POPVOX users have the option to log into POPVOX using a password or through their account at Google, Facebook, Twitter, or LinkedIn. For those users who choose to log in to POPVOX using their Facebook account, we are able to match their Facebook activity with their POPVOX profile. If the user has weighed in on legislation on POPVOX, their profile includes their current Congressional district.</p>
+		
+		<p>All information in POPVOX profiles remains private following our <a href="/legal">privacy policy</a>. For customized reports for Congressional staff, we show name and address information for their constituents only in order to facilitate communication between the constituent and the Congressional office. (We show the same information when Congressional staff access their constituents&rsquo; letters on POPVOX.) Email questions or concerns to {% obfuscated_email "privacy@popvox.com" %}.</p>
+
+		{% if is_leg_staff %}
+		</div>
+		<div class="tab_panel tab_customized" style="display: none">
+		{% endif %}
+		
+		<div id="content_status">	
+		</div>
 		
 		<div id="content" style="display: none">
-			<img class="pagephoto" style="float: left; margin-right: 15px"/>
-			<h2></h2>
-			<p class="link"><a href="" target="_blank"></a></p>
+			<div id="customized_stats_pie"> </div>
+			<div id="customized_stats_pie_legend" class="pie_legend">
+				<h2 style="margin: 0">How many are constituents?</h2>
+				<p class="link pad_btm"><a href="" target="_blank"></a></p>
+				<p class="users"><span class="percent"></span> <span class="label">Users</span></p>
+				<p class="posts"><span class="percent"></span> <span class="label">Wall Posts</span></p>
+				<p class="comments"><span class="percent"></span> <span class="label">Comments</span></p>
+				<p class="postlikes"><span class="percent"></span> <span class="label">Likes on Posts</span></p>
+			</div>
+			{% comment %}<img class="pagephoto" style="float: left; margin-right: 15px"/>{% endcomment %}
+			<div class="clear"> </div>
 		</div>
+		
+		{% if is_leg_staff %}
+		</div>
+		{% endif %}
 		
 		<div style="display: none">
 			<div id="template_post" class="post">
@@ -301,19 +431,7 @@ function update(id) {
 		
 	</div> <!-- col_9 -->
 
-	{% if user.userprofile.is_leg_staff %}
-		{% include "ads/rightbar.html" %}
-	{% else %}
-		<div class="col_3 col_top col_last">
-		
-			<div style="background: #D4D1CA; padding: 1em;">
-				<p>Get a report for your office instantly. Just
-				<a href="/accounts/register/legstaff?next=/congress/facebook" target="_blank">register</a> with your @mail.house.gov or @senate.gov address or <a href="/accounts/login?next=/congress/facebook">login</a> if you
-				already have a POPVOX account.</p>
-			</div>
-		
-		</div>
-	{% endif %}
+	{% include "ads/rightbar.html" %}
 </div><!-- e: content -->
 
 {% endblock %}

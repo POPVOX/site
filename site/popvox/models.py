@@ -85,6 +85,10 @@ class MemberOfCongress(models.Model):
 		else:
 			return "?"
 			
+	def state_district(self):
+		x = self.info()
+		return x["state"] + ("-" + str(x["district"]) if x["type"] == "rep" else "")
+			
 	def info(self):
 		return govtrack.getMemberOfCongress(self.id)
 	

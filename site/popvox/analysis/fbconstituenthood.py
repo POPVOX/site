@@ -1,5 +1,10 @@
 #!runscript
 
+# TODO:
+#   Page likes
+#   Check for campaign pages
+#   Spot check results
+
 # Look at who is posting on a Page for a Member of Congress
 # and see what percent of the posts/posters are constituents
 # based on what we know about the posting invidiauls from

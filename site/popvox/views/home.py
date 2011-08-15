@@ -891,7 +891,13 @@ UA: %s
 		}, context_instance=RequestContext(request))
 
 def legstaff_facebook_report(request):
+	is_leg_staff = False
+	if request.user.is_authenticated() and request.user.userprofile.is_leg_staff() \
+		and request.user.legstaffrole.member != None:
+			is_leg_staff = True
+	
 	return render_to_response('popvox/congress_facebook_report.html', {
+		"is_leg_staff": is_leg_staff
 		}, context_instance=RequestContext(request))
 
 @json_response
