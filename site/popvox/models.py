@@ -148,21 +148,21 @@ class Bill(models.Model):
 	billnumber = models.IntegerField()
 	vehicle_for = models.ForeignKey('Bill', related_name='replaced_vehicle', blank=True, null=True)
 	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills")
-	committees = models.ManyToManyField(CongressionalCommittee, related_name="bills")
+	committees = models.ManyToManyField(CongressionalCommittee, blank=True, related_name="bills")
 	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills")
-	issues = models.ManyToManyField(IssueArea, related_name="bills")
+	issues = models.ManyToManyField(IssueArea, blank=True, related_name="bills")
 	title = models.TextField()
-	current_status = models.TextField()
+	current_status = models.TextField(help_text="For bill drafts, enter DRAFT.")
 	current_status_date = models.DateTimeField()
 	num_cosponsors = models.IntegerField()
-	latest_action = models.TextField()
+	latest_action = models.TextField(blank=True)
 	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True)
 	
 	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase.")
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)
-	comments_to_chamber = models.CharField(max_length=1, blank=True, null=True)
+	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House')], blank=True, null=True)
 
 	srcfilehash = models.CharField(max_length=32, blank=True)
 	
@@ -192,6 +192,14 @@ class Bill(models.Model):
 
 	def is_bill(self):
 		return self.billtype in ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc')
+	def is_officially_numbered(self):
+		return self.billtype in ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc', 'ha', 'sa')
+
+	def proposition_type(self):
+		if self.billtype in ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc'): return "bill"
+		if self.billtype in ('ha', 'sa'): return "amendment"
+		if self.billtype in ('dh', 'ds'): return "draft"
+		return "proposition"
 
 	def govtrack_metadata(self):
 		if not self.is_bill(): raise Exception("Invalid call on non-bill.")
@@ -212,17 +220,22 @@ class Bill(models.Model):
 			ret += " (" + str(self.congressnumber) + govtrack.ordinate(self.congressnumber) + ")"
 		return ret
 	def displaynumber_nosession(self):
+		if not self.is_officially_numbered(): return self.street_name
 		return self.get_billtype_display() + " " + str(self.billnumber)
 	def title_no_number(self):
 		if self.billtype in ('dh', 'ds', 'x'): # these don't have numbered titles
 			return self.title
 		return self.title[self.title.index(":")+2:]
 	def title_or_streetname(self):
-		if not self.street_name or self.billtype in ('dh', 'ds', 'x'):
+		if not self.street_name:
 			return self.title
-		else:
+		elif self.is_officially_numbered():
 			return self.displaynumber() + ": " + self.street_name[0].upper() + self.street_name[1:]
+		else:
+			return self.street_name[0].upper() + self.street_name[1:]
 	def title_parens_if_too_long(self):
+		if not self.is_officially_numbered():
+			return self.street_name + " (" + self.title + ")"
 		title = truncatewords(self.title, 15)
 		if "..." not in title:
 			return title

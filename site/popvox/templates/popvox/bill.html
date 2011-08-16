@@ -31,7 +31,7 @@ function getshorturl() {
 		{ billid: {{bill.id}}},
 		{
 			success: function(res) {
-				$('#getshorturl').html("Use this special tracking URL <tt>" + res.url + "</tt> to share this bill with others.");
+				$('#getshorturl').html("Use this special tracking URL <tt>" + res.url + "</tt> to share this {{bill.proposition_type}} with others.");
 			}
 		}
 	);
@@ -62,10 +62,10 @@ function getshorturl() {
 				<h2 class="shadow_up">It has not yet been reintroduced.</h2>
 				<div class="col_6 col_top">
 					<input id="b_reintroduce" class="btn submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'" style="margin: 15px 0 15px 100px"/>
-					<p>You can increase the chances that the bill is revived in the new Congress by showing support for reintroduction.</p>
+					<p>You can increase the chances that the {{bill.proposition_type}} is revived in the new Congress by showing support for reintroduction.</p>
 				</div>
 				<div class="col_6 col_last col_top">
-					<p>Just want to be notified when this bill is reintroduced?</p>
+					<p>Just want to be notified when this {{bill.proposition_type}} is reintroduced?</p>
 					{% if user.is_authenticated %}
 					<div class="track_as_notify">
 						{% with "+" as tracktype %}
@@ -92,8 +92,8 @@ function getshorturl() {
 			</div><!-- e: alert_dead -->
 		{% else %}
 			<div class="alert_dead">
-				<h2>This bill {{bill.getDeadReason}}.</h2>
-				<p>You can no longer write a comment about this bill.</p>
+				<h2>This {{bill.proposition_type}} {{bill.getDeadReason}}.</h2>
+				<p>You can no longer write a comment about this {{bill.proposition_type}}.</p>
 			</div>
 		{% endif %}
 
@@ -105,19 +105,21 @@ function getshorturl() {
 		</a>
 		
 		{% if not user.userprofile.is_leg_staff %}
-			{% if not bill.street_name %}
+			{% if not bill.street_name and bill.is_officially_numbered %}
 				<h1>What&rsquo;s your position on {{bill.displaynumber}}?</h1>
 			{% else %}
 				<h1 class="streetname">What&rsquo;s your position on</h1>
-				<h2 class="streetname">{{bill.street_name|capfirst}}</h2>
+				{% if not bill.street_name %}<h2 class="streetname">{{bill.title}}</h2>{% endif %}
+				{% if bill.street_name %}<h2 class="streetname">{{bill.street_name|capfirst}}</h2>{% endif %}
 			{% endif %}
 		{% else %}
 		<h1>Bill Status and Org Positions</h1>
 		{% endif %}
 
 		<div class="block bill_overview_user">
+			<div style="float: left; height: 90px;"> </div> {% comment %}just give a minimum height for the icon {% endcomment %}
 			{% if user.is_authenticated %}
-			<div style="float: left; margin-left: -34px">
+			<div style="float: left; margin-left: -34px;">
 				{% with "+" as tracktype %}
 				{% include "popvox/track.html" %}
 				{% endwith %}
@@ -136,13 +138,15 @@ function getshorturl() {
 				{% if bill.is_bill %}<p>(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Information at GovTrack</a>)</p>{% endif %}
 			{% endif %}
 			{% if not bill.isAlive and not deadbox %}
-				<p><strong>This bill {{bill.getDeadReason}}.</strong></p>
+				<p><strong>This {{bill.proposition_type}} {{bill.getDeadReason}}.</strong></p>
 			{% endif %}
 			{% if bill.notes %}
 				<div class="tip_inline" style="font: bold 14px/18px helvetica,arial,sans-serif">
 					{{bill.notes|safe}}
 				</div>
 			{% endif %}
+			
+			<div class="clear"> </div> {% comment %}enforce a minimum height for the icon {% endcomment %}
 		</div>
 	</div>
 	
@@ -210,7 +214,7 @@ function getshorturl() {
 	
 		    <div id="bill_endorse_oppose">
 		    	{% if not existing_org_positions %}
-					<p>Does <strong>{{user_org.name}}</strong> endorse or oppose this bill?</p>
+					<p>Does <strong>{{user_org.name}}</strong> endorse or oppose this {{bill.proposition_type}}?</p>
 				{% endif %}
 
 				<div id="bill_endorse_oppose_options" {% if existing_org_positions %}style="display: none"{% endif %}>
@@ -238,11 +242,11 @@ function getshorturl() {
 					<div id="bill_endorse_oppose_colorbox" class="colorbox" style="width: 500px">
 					<h1><span id="bill_endorse_oppose_descr2"></span> {{ bill.displaynumber }}?</h1>
 					<p>You are about to <span id="bill_endorse_oppose_descr"></span> {{ bill.displaynumber }} in {{user_org.name}}&rsquo;s legislative agenda.</p>
-					<p>Please provide a short explanation for your position in the form of a bill summary.</p>
+					<p>Please provide a short explanation for your position in the form of a summary of what this {{bill.proposition_type}} does.</p>
 					<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%">{% for p in existing_org_positions %}{% if forloop.first %}{{p.comment}}{% endif %}{% endfor %}</textarea>
 					<div>
 						<input type="checkbox" id="bill_endorse_oppose_forcam" onclick="if ($('#bill_endorse_oppose_forcam')[0].checked) $('#bill_endorse_oppose_cam').attr('disabled', ''); else $('#bill_endorse_oppose_cam').attr('disabled', '1');" {% if lastviewedcampaign %}checked="1"{% endif %}/>
-						<label for="bill_endorse_oppose_forcam">Add this bill to a campaign.</label>
+						<label for="bill_endorse_oppose_forcam">Add this {{bill.proposition_type}} to a campaign.</label>
 					</div>
 					<div id="bill_endorse_oppose_camdiv">
 						<select id="bill_endorse_oppose_cam" {% if not lastviewedcampaign %}disabled="1"{% endif %}>
@@ -264,7 +268,7 @@ function getshorturl() {
 		<div class="col_3 col_last col_orange">
 			<h3>Drive Your Membership to Take Action</h3>
 			{% if not existing_org_positions %}
-				<p>POPVOX provides organizations with customized action pages to drive membership to take action. Start by endorsing or opposing this bill.</p>
+				<p>POPVOX provides organizations with customized action pages to drive membership to take action. Start by endorsing or opposing this {{bill.proposition_type}}.</p>
 			{% else %}
 				{% for position in existing_org_positions %}
 					{% if forloop.first %}
@@ -284,7 +288,7 @@ function getshorturl() {
 			<h3 class="no_rule">What do you think?</h3>
 			{% include "popvox/bill_howshouldtheyvote.html" %}
 			
-			<div><small id="getshorturl"><a href="#" onclick="return getshorturl()">Share this bill</a></small></div>
+			<div><small id="getshorturl"><a href="#" onclick="return getshorturl()">Share this {{bill.proposition_type}}</a></small></div>
 		</div>
 		<div id="bill_endorse_oppose_holder_user">
 			{% include "popvox/bill_uservote.html" %}
@@ -317,10 +321,13 @@ function getshorturl() {
 			{% endif %}
 			{% endfor %}
 
+			{% if bill.is_bill %}
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
 			<script>if (!initial_tab) initial_tab = "billstatus";</script>
+			{% endif %}
 
 			<li id="widgetpane_tab"><a href="#" onclick="return showtab('widgetpane')">Add POPVOX to your site</a></li>
+			<script>if (!initial_tab) initial_tab = "widgetpane";</script>
 			
 			{% if users.tracking or users.commented %} {% comment %} for admins {% endcomment %}
 			<li id="admin_tracking_tab"><a href="#" onclick="return showtab('admin_tracking')">ADMIN &gt; Users Tracking</a></li>
@@ -333,7 +340,7 @@ function getshorturl() {
 		<div id="welcome" class="tab_panel">
 			{% if referral_orgposition %}
 				<h3 class="no_rule">{{ referral_orgposition.campaign.org.name }}</h3>
-				<p>This organization {% if referral_orgposition.position == "+" %}endorses{% endif %}{% if referral_orgposition.position == "-" %}opposes{% endif %}{% if referral_orgposition.position == "0" %}posted a neutral statement about{% endif %} this bill. {% if referral_orgposition.comment %}They had this to say about the bill:{% endif %}</p>
+				<p>This organization {% if referral_orgposition.position == "+" %}endorses{% endif %}{% if referral_orgposition.position == "-" %}opposes{% endif %}{% if referral_orgposition.position == "0" %}posted a neutral statement about{% endif %} this {{bill.proposition_type}}. {% if referral_orgposition.comment %}They had this to say about it:{% endif %}</p>
 				
 				{{ referral_orgposition.comment|wraplines:"p" }}
 				
@@ -384,7 +391,7 @@ function getshorturl() {
 					{% if position == "neutral" %}Other Statements{% endif %}
 					{% if position == "administration" %}The Administration{% endif %}
 					</h3>
-				{% if not orgset %}<p>No organization has {% if position == "support" %}endorsed{% else %}opposed{% endif %} this bill yet on POPVOX.</p>{% endif %}
+				{% if not orgset %}<p>No organization has {% if position == "support" %}endorsed{% else %}opposed{% endif %} this {{bill.proposition_type}} yet on POPVOX.</p>{% endif %}
 				{% for org in orgset %}
 				<div>
 					<h5><a href="{{org.url}}">{{org.name}}</a>
@@ -408,7 +415,7 @@ function getshorturl() {
 					{% endfor %}
 				</div>
 				{% if org.object.createdbyus %}
-					<p><small><em>* This organization&rsquo;s position on this bill was entered by POPVOX.</em></small></p>
+					<p><small><em>* This organization&rsquo;s position on this {{bill.proposition_type}} was entered by POPVOX.</em></small></p>
 				{% endif %}
 				{% endfor %}
 				
@@ -466,7 +473,7 @@ function getshorturl() {
 
 			<p>Check out our other advocacy tools for your website in <a href="/services/widgets">POPVOX Widgets</a>.</p>
 			<ul class="bullets">
-			<li>Drive your visitors to take action on this bill with the <a href="/services/widgets#writecongress">Write Congress Widget</a></li>
+			<li>Drive your visitors to take action on this {{bill.proposition_type}} with the <a href="/services/widgets#writecongress">Write Congress Widget</a></li>
 			<li>Show what other Americans have been writing Congress with the <a href="/services/widgets#commentstream">Comment Stream</a></li>
 			</ul>
 		</div>

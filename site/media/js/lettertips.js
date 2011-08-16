@@ -39,11 +39,11 @@ function validate(box) {
 	else if (bangcount(v) > 4)
 		$('#' + box + "tip").text("Exclamation points might be a little excessive. Try using fewer exclamation points.");
 	else if (v.search(billnum) == -1)
-		$('#' + box + "tip").text("You should include the bill's number,  " + bill_display_number + ", in your message, and the word 'support' or 'oppose'.");
+		$('#' + box + "tip").text("You should include the bill's name or number (" + bill_display_number + "), in your message, and the word 'support' or 'oppose'.");
 	else if (v.search("support") == -1 && v.search("oppose") == -1)
 		$('#' + box + "tip").text("You should include the word 'support' or 'oppose' in your message to make your position clear.");
 	else if (v.length < .3 * charlimit && v.search(" my ") == -1)
-		$('#' + box + "tip").text("Be personal. Write about how this bill affects your life or your community.");
+		$('#' + box + "tip").text("Be personal. Write about how it affects your life or your community.");
 	else if (bangcount(v) > 1)
 		$('#' + box + "tip").text("Exclamation points might be a little excessive. Try using fewer exclamation points.");
 	else if (v.length < .15 * charlimit)

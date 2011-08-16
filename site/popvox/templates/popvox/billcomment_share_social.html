@@ -7,7 +7,7 @@
 	{% if comment.message %}
 	<h3 class="no_rule orange">Share This Comment</h3>
 	{% else %}
-	<h3 class="no_rule orange">Share This Bill</h3>
+	<h3 class="no_rule orange">Share This {{comment.bill.proposition_type}}</h3>
 	{% endif %}
 	
 	<ul class="social_share_btns">
@@ -89,7 +89,7 @@
 		<p>Make this easier for next time by connecting POPVOX to your Twitter account. Click the Twitter login button to begin.</p>
 	{% else %}
 		{% if user == comment.user and comment.tweet_id %}
-			<p>You have already tweeted about this bill but you can tweet again.</p>
+			<p>You have already tweeted about this {{bill.proposition_type}} but you can tweet again.</p>
 		{% endif %}
 			<p style="float: right; margin-left: 1em"><a class="b_share_twitter btn" href="#" onclick="return share('twitter')">share with twitter</a></p>
 			<p>We&rsquo;ll add a link back to this page to the end of your tweet. Characters left: <span id="twitter_chars_left">140</span>.</p>

@@ -267,20 +267,20 @@ h2 span {
 					buildchart(res.stats.overall, 2, true);
 				} else if (res.stats.state) {
 					if (report_district != "" && report_district != "0")
-						$('#stats_overall_info').text("Not enough individuals from the Congressional district have commented on this bill to display a chart for district." + (res.stats.state.total > 0 ? " Charts for the state and nation are displayed instead." : ""));
+						$('#stats_overall_info').text("Not enough individuals from the Congressional district have commented on {{bill.proposition_type}} bill to display a chart for district." + (res.stats.state.total > 0 ? " Charts for the state and nation are displayed instead." : ""));
 					buildchart(res.stats.state, 0);
 					buildchart(res.stats.overall, 1, true);
 					$('#chart2').hide();
 				} else if (res.stats.overall) {
 					if (report_district != "")
-						$('#stats_overall_info').text("Not enough individuals from the state have commented on this bill to display a chart for the district or state." + (res.stats.overall.total > 0 ? " A chart for the nation is displayed instead." : ""));
+						$('#stats_overall_info').text("Not enough individuals from the state have commented on this {{bill.proposition_type}} to display a chart for the district or state." + (res.stats.overall.total > 0 ? " A chart for the nation is displayed instead." : ""));
 					else if (report_state != "")
-						$('#stats_overall_info').text("Not enough individuals from the state have commented on this bill to display a chart for the state." + (res.stats.overall.total > 0 ? " A chart for the nation is displayed instead." : ""));
+						$('#stats_overall_info').text("Not enough individuals from the state have commented on this {{bill.proposition_type}} to display a chart for the state." + (res.stats.overall.total > 0 ? " A chart for the nation is displayed instead." : ""));
 					buildchart(res.stats.overall, 0, true);
 					$('#chart1').hide();
 					$('#chart2').hide();
 				} else {
-					$('#stats_overall_info').text("Not enough individuals have commented on this bill to display a chart.");
+					$('#stats_overall_info').text("Not enough individuals have commented on this {{bill.proposition_type}} to display a chart.");
 				}
 
 				if ((is_first_load || !report_state || res.comments.length == 0) && res.stats.overall) {
@@ -370,7 +370,7 @@ h2 span {
 					<h2>{{ bill.title|truncatewords:30 }}</h2> 
 				{% else %}
 					<h2>
-						{{bill.street_name|capfirst}} ({{bill.displaynumber}})
+						{{bill.street_name|capfirst}} {% if bill.is_officially_numbered %}({{bill.displaynumber}}){% endif %}
 						<span>{{ bill.title_no_number|truncatewords:30 }}</span>
 					</h2>
 				{% endif %}
@@ -380,6 +380,7 @@ h2 span {
 					<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
 				</div>
 				{% endif %}
+				{% if bill.is_bill %}
 				<div id="status">
 					<h4>Status:</h4>
 					<p>
@@ -393,6 +394,7 @@ h2 span {
 					{% endif %}
 					</p>
 				</div>
+				{% endif %}
 			</div>
 			<div class="clear"> </div>
 				
@@ -503,6 +505,7 @@ h2 span {
 		</div>
 
 	{% if user.userprofile.is_leg_staff or user.userprofile.is_org_admin %}
+	{% if bill.is_bill or bill.cosponsors|length > 0 %}
 	<div class="col_6 rule btm_10"> 
 		<div class="cosponsor"> 
 			<h3 class="no_rule">Co-Sponsors</h3> 
@@ -534,6 +537,7 @@ h2 span {
 			{% endfor %}
 		</div>
 	</div>
+	{% endif %}
 	{% endif %}
 
 			{% if orgs_neutral %}
