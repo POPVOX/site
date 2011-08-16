@@ -370,6 +370,8 @@ def legstaffemailcheck(value):
 @csrf_protect
 @json_response
 def register_validation(request):
+	if request.method != 'POST': raise Http404()
+
 	status = { }
 	
 	if request.POST["mode"] == "orgstaff" and request.user.is_authenticated():
