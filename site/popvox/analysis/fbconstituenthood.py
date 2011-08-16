@@ -1,8 +1,6 @@
 #!runscript
 
 # TODO:
-#   Page likes
-#   Check for campaign pages
 #   Spot check results
 
 # Look at who is posting on a Page for a Member of Congress
@@ -87,7 +85,7 @@ def get_uid_stats(uids, state, district):
 		"unique": [len(uid_info), in_district_unique[1] + in_district_unique[2], in_district_unique[2]]
 	}
 
-def get_page_stats(pageid, pid, pname, state, district):
+def get_page_stats(pageid, pid, pname, state, district, pagecategory):
 	global output
 	
 	print pageid
@@ -99,7 +97,7 @@ def get_page_stats(pageid, pid, pname, state, district):
 	comments = get_uid_stats(uidsets["comments"], state, district)
 	postlikes = get_uid_stats(uidsets["likes"], state, district)
 		
-	output.writerow([pid, pageid, pname, state, district]
+	output.writerow([pid, pageid, pagecategory, pname, state, district]
 		+ uniques["unique"]
 		+ posts["total"]
 		+ comments["total"]
@@ -121,9 +119,16 @@ output.writerow(["personid", "pageid", "name", "state", "district",
 for moc in getMembersOfCongress():
 	if not moc["current"]: continue
 	if not "facebookgraphid" in moc: continue
+	
+	# get meta info
+	url = "https://graph.facebook.com/" + str(moc["facebookgraphid"])
+	ret = urllib.urlopen(url)
+	if ret.getcode() != 200:
+		raise Exception("Failed to load meta info for %s: %s" % (pageid, ret.read()))
+	ret = json.loads(ret.read())
 		
 	try:
-		get_page_stats(moc["facebookgraphid"], moc["id"], moc["name"].encode("utf8"), moc["state"], moc["district"])
+		get_page_stats(moc["facebookgraphid"], moc["id"], moc["name"].encode("utf8"), moc["state"], moc["district"], ret["category"] if "category" in ret else "")
 	except Exception as e:
 		print e, moc
 

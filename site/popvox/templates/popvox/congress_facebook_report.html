@@ -31,7 +31,7 @@ h2 { font: normal 28px/42px 'BebasNeueRegular', helvetica, arial, sans-serif; }
 #customized_stats_pie_legend p { margin: 0 0 3px 0; }
 #customized_stats_pie_legend span.percent {
 	display: inline-block;
-	width: 25px;
+	width: 30px;
 	height: 18px;
 	overflow: hidden;
 	padding: 6px 0 0 4px;
@@ -46,14 +46,16 @@ h2 { font: normal 28px/42px 'BebasNeueRegular', helvetica, arial, sans-serif; }
 	vertical-align: top;
 }
 
-.pie_legend .users span.percent { background-color: #cb6b08; }
+.pie_legend .users span.percent { background-color: #3b5998 /*cb6b08*/; }
 .pie_legend .posts span.percent { background-color: #17afec; }
 .pie_legend .comments span.percent { background-color: #568525; }
 .pie_legend .postlikes span.percent { background-color: #bb2973; }
 
-#content .post { border: 1px solid black; padding: 3px; }
-#content .comment { border: 1px solid black; padding: 3px; }
-#content .like { display: inline; }
+#breakdowns td, #breakdowns th { font-size: 14px; padding: 3px 10px 3px 3px; }
+#breakdowns th { font-weight: bold; }
+#breakdowns tr.header th { text-decoration: underline; }
+#breakdowns .shade { background-color: #d5d1ca; }
+
 </style>
 <script>
 function htmlescape(text) {
@@ -219,6 +221,7 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 	function putnum(type, y, n) {
 		if (y + n == 0) n = 1; // avoid division by zero
 		$('#' + id + '_legend .' + type + ' span.percent').text(Math.round(y/(y+n)*100) + "%")
+		$('#' + id + '_legend .' + type + ' span.raw').text("(" + y + ")")
 	}
 	
 	putnum('users', user_y, user_n);
@@ -250,11 +253,27 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 	  	  	  shadow: false
 	  	  }
 	  },
-	  series: [{
+	  series: [
+	  {
 		 type: 'pie',
-		 name: 'Likes on Posts',
+		 name: 'Page Users',
 		 size: '46%',
 		 innerSize: '30%',
+		 data: [
+			{ name: 'Constituent', y: user_y, color: '#3b5998' },
+			{ name: 'Not A Constituent', y: user_n, color: '#d5d1ca' },
+		 ],
+		 dataLabels: {
+			enabled: false, // not sure how to make them fit right
+			color: '#000000',
+			connectorColor: '#000000'
+		 }
+	  },
+ 	 {
+		 type: 'pie',
+		 name: 'Likes on Posts',
+		 size: '64%',
+		 innerSize: '48%',
 		 data: [
 			{ name: 'Constituent', y: postlike_y, color: '#bf2873' },
 			{ name: 'Not A Constituent', y: postlike_n, color: '#d5d1ca' },
@@ -266,8 +285,8 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 	  {
 		 type: 'pie',
 		 name: 'Comments',
-		 size: '64%',
-		 innerSize: '48%',
+		 size: '82%',
+		 innerSize: '66%',
 		 data: [
 			{ name: 'Constituent', y: comment_y, color: '#578525' },
 			{ name: 'Not A Constituent', y: comment_n, color: '#d5d1ca' },
@@ -278,8 +297,8 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 	  }, {
 		 type: 'pie',
 		 name: 'Wall Posts',
-		 size: '82%',
-		 innerSize: '66%',
+		 size: '100%',
+		 innerSize: '84%',
 		 data: [
 			{ name: 'Constituent', y: post_y, color: '#11aae3' },
 			{ name: 'Not A Constituent', y: post_n, color: '#d5d1ca' },
@@ -287,21 +306,8 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 		 dataLabels: {
 			enabled: false,
 		 }
-	  }, {
-		 type: 'pie',
-		 name: 'Users',
-		 size: '100%',
-		 innerSize: '84%',
-		 data: [
-			{ name: 'Constituent', y: user_y, color: '#cb6a0f' },
-			{ name: 'Not A Constituent', y: user_n, color: '#d5d1ca' },
-		 ],
-		 dataLabels: {
-			enabled: false, // not sure how to make them fit right
-			color: '#000000',
-			connectorColor: '#000000'
-		 }
-	  }]
+	  }
+	  ]
 	});
 }
 
@@ -311,10 +317,10 @@ $(function() {
 	update({{user.legstaffrole.member.id}});
 	{% endif %}
 	make_chart('overall_stats_pie', 340,
-		14.5, 100-14.5, // post likes
-		60.0, 100-60.0, // comments
-		22.1, 100-22.1, // wall posts
-		21.6, 100-21.6, // unique users
+		15, 100-15, // post likes
+		62, 100-62, // comments
+		23, 100-23, // wall posts
+		22, 100-22, // unique users
 		"%");
 });
 </script>
@@ -390,7 +396,7 @@ color: #6c6c6c;
 		<div class="tab_panel tab_overall">
 		{% endif %}
 		
-		<p class="pad_btm">We looked at the <strong>467 Facebook Pages of Members of Congress</strong> to see whether the individuals posting, liking posts, and commenting were <strong>constituents of the congressman or senator</strong>. Here is what we found:</p>
+		<p class="pad_btm" style="font: normal 13px/18px helvetica, arial, sans-serif">We looked at the <strong>369 official Facebook Pages of Members of Congress</strong> to see whether the individuals posting, liking posts, and commenting were <strong>constituents of the congressman or senator</strong>. Here is what we found:</p>
 
 		<div id="overall_stats_pie"> </div>
 		<div id="overall_stats_pie_legend" class="pie_legend">
@@ -401,18 +407,26 @@ color: #6c6c6c;
 			{% endif %}
 		
 			<h2>How many are constituents?</h2>
-			<p class="users"><span class="percent"></span> <span class="label">Users</span></p>
 			<p class="posts"><span class="percent"></span> <span class="label">Wall Posts</span></p>
 			<p class="comments"><span class="percent"></span> <span class="label">Comments</span></p>
 			<p class="postlikes"><span class="percent"></span> <span class="label">Likes on Posts</span></p>
+			<p class="users" title="Individuals interacting with the Page"><span class="percent"></span> <span class="label">Page Users</span></p>
 		</div>
-		
+
 		<div class="clear"> </div>
 		
-		<p style="margin: 20px; font-size: 17px; line-height: normal;">While a majority of users interacting with Congressional Facebook Pages are not constituents, we do find that most comments are from constituents.</p>
-	
+		<p style="margin: 20px 0 20px 0; font-size: 17px; line-height: normal;">While a large majority of users interacting with Congressional Facebook Pages are not constituents, we do find that <strong>most comments on wall posts are from constituents</strong>. On Senate pages, three-quarters of comments are from constituents.</p>
+		
+		<table id="breakdowns">
+		<tr><th></th><th colspan="4" style="text-align: center">How Many Are Constituents?</th></tr>
+		<tr class="header"><th></th> <th>Wall Posts</th> <th>Comments</th> <th>Likes on Posts</th> <th>Page Users</th> <th class="shade">Pages</th></tr>
+		<tr><th>Senators</th> <td>46%</td> <td>75%</td> <td>33%</td> <td>40%</td> <td class="shade">61</td></tr>
+		<tr><th>Representatives</th> <td>17%</td> <td>58%</td> <td>12%</td> <td>17%</td> <td class="shade">308</td></tr>
+		</table>
+
+		
 		{% if not is_leg_staff %}
-		<div style="margin: 10px; background: #D4D1CA; padding: 10px;">
+		<div style="margin: 30px 0 20px 0; background: #D4D1CA; padding: 10px;">
 			<p style="margin-bottom: 10px; font-size: 17px; line-height: normal;"><strong>Want to know more?</strong> We can show you <strong>which posts are from your constituents</strong> if you are a Congressional staffer or Member of Congress.</p>
 			<p style="margin: 0;">In order to protect the privacy of our users, you will need to
 			<a href="/accounts/register/legstaff?next=/congress/facebook" target="_blank">register</a> with your @mail.house.gov or @senate.gov address or <a href="/accounts/login?next=/congress/facebook">login</a> if you already have a POPVOX Congressional staff account (personal staff only).</p>
@@ -424,11 +438,15 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 		
 		<h2>Methodology</h2>
 		
-		<p>This analysis is based on the subset of users of Congressional Facebook Pages who are also registered on POPVOX and use their Facebook account to log in to POPVOX. Of 128,178 users interacting recently with 467 Congressional Facebook Pages, 1.3% or 1,696 were also POPVOX users. The analysis was conducted on August 11, 2011. The margin of error is around 5%.</p>
+		<p>This analysis is based on the subset of users of Congressional Facebook Pages who are also registered on POPVOX and use their Facebook account to log in to POPVOX. We looked at 369 official Congressional Facebook Pages (those with category government official or government organization). Of the 100,936 users interacting recently with those pages, 1.4% or 1,378 were also POPVOX users. The analysis was conducted on August 11, 2011. The margin of error is around 7%.</p>
+
+		<p>Because POPVOX users may have different behaviors than the general population, our results may not be reflective of all Page interactions.</p>
+
+		<p>&ldquo;Page Users&rdquo; refers to the set of individuals interacting on Facebook pages. A single user may make multiple posts but is counted only once in &ldquo;Page Users.&rdquo;</p>
 		
 		<p>Wall posts, comments, and likes on Congressional Facebook Pages are public information and can be accessed by anyone comprehensively through the <a href="http://www.facebook.com">Facebook</a> <a href="http://developers.facebook.com/docs/reference/api/">Graph API</a>. POPVOX users have the option to log into POPVOX using a password or through their account at Google, Facebook, Twitter, or LinkedIn. For those users who choose to log in to POPVOX using their Facebook account, we are able to match their Facebook activity with their POPVOX profile. If the user has weighed in on legislation on POPVOX, their profile includes their current Congressional district.</p>
 		
-		<p>All information in POPVOX profiles remains private following our <a href="/legal">privacy policy</a>. For customized reports for Congressional staff, we show name and address information for their constituents only in order to facilitate communication between the constituent and the Congressional office. (We show the same information when Congressional staff access their constituents&rsquo; letters on POPVOX.) Email questions or concerns to {% obfuscated_email "privacy@popvox.com" %}.</p>
+		<p>All information in POPVOX profiles remains private following our <a href="/legal">privacy policy</a>. For customized reports for Congressional staff, we show name and address information for their constituents in order to facilitate communication between the constituent and the Congressional office. (We show the same information when Congressional staff access their constituents&rsquo; letters on POPVOX.) Email questions or concerns to {% obfuscated_email "privacy@popvox.com" %}.</p>
 
 		{% if is_leg_staff %}
 		</div>
@@ -442,10 +460,10 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 			<div id="customized_stats_pie_legend" class="pie_legend">
 				<h2 style="margin: 0">How many are constituents?</h2>
 				<p class="link pad_btm"><a href="" target="_blank"></a></p>
-				<p class="users"><span class="percent"></span> <span class="label">Users</span></p>
-				<p class="posts"><span class="percent"></span> <span class="label">Wall Posts</span></p>
-				<p class="comments"><span class="percent"></span> <span class="label">Comments</span></p>
-				<p class="postlikes"><span class="percent"></span> <span class="label">Likes on Posts</span></p>
+				<p class="posts"><span class="percent"></span> <span class="label">Wall Posts</span> <span class="raw"></span></p>
+				<p class="comments"><span class="percent"></span> <span class="label">Comments</span> <span class="raw"></span></p>
+				<p class="postlikes"><span class="percent"></span> <span class="label">Likes on Posts</span> <span class="raw"></span></p>
+				<p class="users"><span class="percent"></span> <span class="label">Page Users</span> <span class="raw"></span></p>
 				<p class="pad_top" style="font-size: 10px; color: #666;">(Based on users interacting with your Facebook page who are also POPVOX users.)</p>
 			</div>
 			{% comment %}<img class="pagephoto" style="float: left; margin-right: 15px"/>{% endcomment %}
@@ -458,7 +476,7 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 
 		<h2 class="mar_top clear">Methodology</h2>
 		
-		<p>As of August 11, 2011, about 1.3% of users interacting with your Facebook page are also POPVOX users. We are able to identify those individuals as either within or outside of your state or district based on the mailing address they used to send you a letter through POPVOX.</p>
+		<p>As of August 11, 2011, about 1.4% of users interacting with your Facebook page are also POPVOX users. We are able to identify those individuals as either within or outside of your state or district based on the mailing address they used to send you a letter through POPVOX.</p>
 		
 		<p>Wall posts, comments, and likes on Congressional Facebook Pages are public information and can be accessed by anyone comprehensively through the <a href="http://www.facebook.com">Facebook</a> <a href="http://developers.facebook.com/docs/reference/api/">Graph API</a>. For those POPVOX users who choose to log in to POPVOX using their Facebook account, we are able to match their Facebook activity with their POPVOX profile. All information in POPVOX profiles remains private following our <a href="/legal">privacy policy</a>. We show you the name and address of your constituents only. Email questions or concerns to {% obfuscated_email "privacy@popvox.com" %}.</p>
 		
