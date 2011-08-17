@@ -68,7 +68,7 @@ function constituent_location(data) {
 	return "";
 }
 function constituent_address(data) {
-	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>") + "<br/>" + htmlescape(data.constituent[4]) + "<br/>" + htmlescape(data.constituent[4]) + "<br/><a href='http://www.facebook.com/" + data.id + "'>View Facebook Profile</a>";
+	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>") + "<br/>" + htmlescape(data.constituent[4]) + "<br/><a href='http://www.facebook.com/" + data.id + "'>View Facebook Profile</a>";
 }
 function update(id) {
 	$('#content_status').text("Loading...");
