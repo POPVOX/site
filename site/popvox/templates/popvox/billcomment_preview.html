@@ -144,15 +144,13 @@ function trylogin() {
 			<span></span>
 			{{message|wraplines:"p"}}
 			<p class="signature">
-				<span class="name">w d</span>
-				<br>
-				<span class="address1">95</span>
-				<br>
-				<span class="citystatezip">jackson, TN 38301</span>
-				<br>
-				<a onclick="return working ? false : show_panel(2);" href="#">edit address</a>
-				|
-				<a onclick="return working ? false : show_panel(3);" href="#">revise message</a>
+				{% comment %}
+				<span class="name">w d</span> <br>
+				<span class="address1">95</span> <br>
+				<span class="citystatezip">jackson, TN 38301</span> <br>
+				<a onclick="return working ? false : show_panel(2);" href="#">edit address</a> |
+				{% endcomment %}
+				<a onclick="submitform('< Go Back'); return false;" href="#">revise message</a>
 			</p>
 		</div>
 		<div class="letterBottom">
@@ -160,9 +158,11 @@ function trylogin() {
 		
 	
 		{% if not user.is_authenticated %}
+		{% comment %}
 		<div class="pad_btm">
 			<input class="b_back btn force_hover_state" type="button" value="< Go Back" onclick="submitform('< Go Back')"/>
 		</div>
+		{% endcomment %}
 		
 		<h1 class="h1_smaller" style="margin-top: 2em">Register or sign in</h1>
 		<p style="margin-bottom: 50px">Before we send your letter we need to get additional information from you.</p>
@@ -185,7 +185,7 @@ function trylogin() {
 		<div class="form signinup">
 			<label for="login_email">email</label>
 			<input class="c2" type="text" id="login_email" name="createacct_email" value="{{email}}" title=" "/><br />
-			<script>$('#login_email').tooltip({position: "center right", layout: "<div>Enter your email address.{% if not newaccount_error %}<br/><br/> A POPVOX account is free and your public comments will be anonymous.{% endif %}</div>"}).data("tooltip").show();</script>
+			<script>$('#login_email').tooltip({position: "center right", layout: "<div><span class='tip_point'/>Enter your email address.{% if not newaccount_error %}<br/><br/> A POPVOX account is free and your public comments will be anonymous.{% endif %}</div>", offset: [0, 5], effect: "fade"}).data("tooltip").show();</script>
 			<div id="login_errorlabel_email" class="error"> </div>
 			<div id="createacct_errorlabel_email" class="error" style="display: block">{{newaccount_error.email}}</div>
 			<script>$(function() { $('#login_email').keyup_delayed(startlogin); });</script>
@@ -240,7 +240,7 @@ function trylogin() {
 		
 					<div class="error" id="createacct_errorlabel"></div>
 
-					<script>$('#createacct_username,#createacct_password').tooltip({position: "center right"})</script>
+					<script>$('#createacct_username,#createacct_password').tooltip({position: "center right", layout: "<div><span class='tip_point'></span></div>", offset: [0, 5], effect: "fade"});</script>
 				</div>
 				<div class="b_create_accnt btn" type="button" value="Create Account >" onclick="submitform('Create Account >')"> </div>
 			</div>

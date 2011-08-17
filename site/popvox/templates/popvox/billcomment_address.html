@@ -32,10 +32,6 @@
 				
 				{% if not useraddress_fixed %}
 					<div><a href="#" onclick="$('#savedaddress').hide(); $('#editdaddress').show()">Change Address</a></div>
-				{% else %}
-					<div class="tip_inline commentTipInline">
-						<p>{{ useraddress_fixed }}</p>
-					</div>
 				{% endif %}
 				</div>
 			
@@ -46,9 +42,10 @@
 				The United States Capitol<br />
 				Washington, D.C.
 				</div>
-
-				<p style="margin-top: 50px; font: italic normal 13px/18px georgia, serif; color: #606065;">We will share your name, address, and phone number with your Members of Congress and no one else.</p>
 			</div>
+			
+			{% if useraddress_fixed %}<p style="font: italic normal 13px/18px georgia, serif; color: #606065;">{{ useraddress_fixed }}</p>{% endif %}
+			<p style="margin-bottom: 30px; font: italic normal 13px/18px georgia, serif; color: #606065;">We will share your name, address, and phone number with your Members of Congress and no one else.</p>
 		{% endif %}
 		
 		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
