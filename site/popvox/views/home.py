@@ -1001,6 +1001,7 @@ def legstaff_facebook_report_getinfo(request):
 				if "comments" in entry and "data" in entry["comments"]:
 					for comment in entry["comments"]["data"]:
 						comment["from"]["constituent"] = is_constituent(comment["from"]["id"])
+						comment["created_time"] = formatDateTime(pytz.utc.localize(datetime.strptime(comment["created_time"], "%Y-%m-%dT%H:%M:%S+0000")))
 						if comment["from"]["constituent"][1] not in ("page", "unknown"):
 							info["num_constituent_comments"][1] += 1
 							if comment["from"]["constituent"][0]:

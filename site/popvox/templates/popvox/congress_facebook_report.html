@@ -68,7 +68,7 @@ function constituent_location(data) {
 	return "";
 }
 function constituent_address(data) {
-	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>") + "<br/>" + htmlescape(data.constituent[4]);
+	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>") + "<br/>" + htmlescape(data.constituent[4]) + "<br/><a href='http://www.facebook.com/" + data.id + "'>View Facebook Profile</a>";
 }
 function update(id) {
 	$('#content_status').text("Loading...");
@@ -102,7 +102,7 @@ function update(id) {
 			{% endif %}
 			
 			var postcount = 0;
-			var debug = false;			
+			var debug = false;	
 
 			for (var i = 0; i < res.feed.data.length; i++) {
 				var n = $('#templates .post').clone();
@@ -159,17 +159,13 @@ function update(id) {
 				}
 				
 				if (data.from.constituent[0]) {
-					n.find('.tooltipFB').html(constituent_address(data.from));
-					n.find(".from .title .name").addClass("needs_tooltip");
+					n.find('.tooltip').html(constituent_address(data.from));
+					n.find(".from .name").addClass("needs_tooltip");
 				}
 				
-				var t = "";
-				if (data.constituent_comments) t += data.constituent_comments + " constituent(s) commented.";
-				if (data.constituent_likes) t += data.constituent_likes + " constituent(s) liked this post.";
-				if (t) {
-					n.find('.constituent_info').text(t)
-					n.find('.constituent_info').show()
-				}
+				if (data.constituent_comments || data.constituent_likes) n.find('.constituent_info').show();
+				if (data.constituent_comments) n.find('.constituent_info .comments_count .count').text(data.constituent_comments); else n.find('.constituent_info .comments_count').hide();
+				if (data.constituent_likes) n.find('.constituent_info .likes_count .count').text(data.constituent_likes); else n.find('.constituent_info .likes_count').hide();
 				
 				if (data.comments && data.comments.data)
 				for (var j = 0; j < data.comments.data.length; j++) {
@@ -182,11 +178,12 @@ function update(id) {
 					{% endif %}
 					nn.find('.name').text(data2.from.name);
 					nn.find('.text').text(data2.message);
+					nn.find('.date').text(data2.created_time);
 					if (data2.from.constituent[0]) {
 						nn.find('.constituent_from').text(' from ');
 						nn.find('.constituent').text(constituent_location(data2.from));
-						nn.find('.tooltipFB').html(constituent_address(data2.from));
-						nn.find(".title .name").addClass("needs_tooltip");
+						nn.find('.tooltip').html(constituent_address(data2.from));
+						nn.find(".name").addClass("needs_tooltip");
 					}
 					n.find(".comments").append(nn);
 				}
@@ -204,8 +201,8 @@ function update(id) {
 					if (data2.constituent[0]) {
 						nn.find('.constituent_from').text(' from ');
 						nn.find('.constituent').text(constituent_location(data2));
-						nn.find('.tooltipFB').html(constituent_address(data2));
-						nn.find(".title .name").addClass("needs_tooltip");
+						nn.find('.tooltip').html(constituent_address(data2));
+						nn.find(".name").addClass("needs_tooltip");
 					}
 					n.find(".likes").append(nn);
 					n.find(".likes").show();
@@ -219,7 +216,7 @@ function update(id) {
 				$('#content').append($("<p>We couldn't find posts from any of your constituents on your Wall. We know whether an individual is one of your constituents only if they are a POPVOX user.</p>"));
 			}
 			
-			$('.needs_tooltip').tooltip({relative: true, position: "top center", tipClass:"tooltipFB"}).removeClass("needs_tooltip");
+			$('.needs_tooltip').tooltip({relative: true, position: "top center"}).removeClass("needs_tooltip");
 			
 			make_chart('customized_stats_pie', 200,
 				res.num_constituent_postlikes[0], res.num_constituent_postlikes[1]-res.num_constituent_postlikes[0],
@@ -369,13 +366,13 @@ width: 50px;
 
 }
 
-#content .from .title .name {
+#content .from .name {
 font-weight: bold;
 cursor: pointer;
 color: #3B5998;
 text-decoration: none;
 }
-#content .from .title .constituent {
+#content .from .constituent {
 font-weight: bold;
 }
 
@@ -401,7 +398,6 @@ color: #6c6c6c;
 }
 
 .constituent_info {
-display: none;
 margin-top: 5px;
 background: #E0DDD7;
 padding: 6px;
@@ -440,12 +436,12 @@ color: #3B5998;
 text-decoration: none;
 }
 
-#content .tooltipFB {
+#content .tooltip {
 display: none;
 background: #E8E5DF;
 font-size: 12px;
-min-height: 40px;
-min-width: 100px;
+min-height: 90px;
+min-width: 120px;
 padding: 15px 10px;
 color: #444;
 overflow: hidden;
@@ -463,9 +459,9 @@ border-bottom: solid black 3px;
 	
 	<div class="col_9 col_top">
 		<h1 style="margin-bottom: 0">Analysis</h1>
-		<h2 style="margin: 10px 0 20px 0; font-size: 24px; line-height: normal; font-family: helvetica,arial,sans-serif">Are they your #Constituents? An analysis of Congressional Facebook Pages.</h1>
+		<h2 style="margin: 10px 0 20px 0; font-size: 24px; line-height: normal; font-family: helvetica,arial,sans-serif">Are they your constituents? An analysis of Congressional Facebook Pages.</h1>
 		
-		<p><em>Congressional courtesy</em> dictates that Members of Congress should avoid contacting individuals in another Member&rsquo;s state or district. As a result, Congressional communications staff are reluctant to respond to comments on social media, not knowing whether the poster is a constituent or not.</p>
+		<p><em>Congressional courtesy</em> dictates that Members of Congress should avoid contacting individuals in another Member&rsquo;s state or district. As a result, some Congressional communications staff are reluctant to respond to comments on social media, not knowing whether the poster is a constituent or not.</p>
 		
 		{% if is_leg_staff %}
 		<ul id="main_tab" class="tabs">
@@ -567,7 +563,7 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 				<img class="from_picture" style="float: left; margin-right: 15px; width: 50px;"/>
 				<div style="float: left; width: 550px;">
 				<div class="from">
-					<div><span class="title"><span class="name"></span><div class="tooltipFB"> </div> <span class="constituent_from"></span><span class="constituent"></span> <span class="what"></span></span></div>
+					<span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span> <span class="what"></span>
 				</div>
 				<div class="content">
 					<img class="picture" style="float: left; margin-right: 15px"/>
@@ -575,7 +571,9 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 					<div class="description"></div>
 					<div class="date"></div>
 				</div>
-				<div class="constituent_info">
+				<div class="constituent_info" style="display: none">
+					<span class="comments_count"><span class="count"></span> constituent(s) commented.</span>
+					<span class="likes_count"><span class="count"></span> constituent(s) liked this post.</span>
 				</div>
 				<div class="likes" style="display: none">
 					Likes:
@@ -589,13 +587,15 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 			<div class="comment">
 				<img class="picture" style="float: left; margin-right: 15px"/>
 			
-				<div><span class="title"><span class="name"></span><div class="tooltipFB"> </div> <span class="constituent_from"></span><span class="constituent"></span></span></div>
+				<div class="who"><span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span></div>
 				
 				<div class="text"> </div>
+				
+				<div class="date"> </div>
 			</div>
 			
 			<div class="like">
-				<span class="title"><span class="name"></span><div class="tooltipFB"> </div> <span class="constituent_from"></span><span class="constituent"></span></span>
+				<span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span>
 			</div>
 		</div>
 		
