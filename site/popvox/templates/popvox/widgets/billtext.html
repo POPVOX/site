@@ -1,0 +1,218 @@
+{% extends "master.html" %}
+{% block title %}POPVOX - Dev Test Page{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}Dev test page.{% endblock %}
+{% block head %}
+<style>
+#table_of_contents {
+}
+#table_of_contents .entry {
+	clear: both;
+}
+#table_of_contents .entry .number {
+	float: right;
+}
+#search {
+	display: none;
+}
+.search_nav { 
+	display: none;
+}
+.search_match {
+	background-color: white;
+	color: black;
+	font-weight: bold;
+}
+.page_view {
+	display: none;
+}
+</style>
+<script>
+var _docid = null;
+var _pagecount = null;
+var _curpage = null;
+var _curview = 'meta';
+var _lastview = "paper";
+var _searchterms = null;
+var _searchresultpages = null;
+var _searchnavindex = null;
+
+function load_document(docid) {
+	_docid = docid;
+
+	$.ajax({
+	type:"GET",
+	url: "/api/v1/document/" + docid,
+	dataType: "json",
+	success: function(data, status) {
+		$('h1').text(data.title);
+		
+		var toc = $('#table_of_contents');
+		for (var i in data.toc) {
+			var entry = $('<div class="entry"><span class="number"/> <span class="label"/></div>');
+			entry.attr('style', 'margin-left: ' + (data.toc[i].indentation*1.5) + 'em');
+			entry.find('.number').text(data.toc[i].page);
+			entry.find('.label').text(data.toc[i].label);
+			entry.attr('page_number', data.toc[i].page);
+			entry.click(function() { load_page(this.getAttribute('page_number')); return false; });
+			toc.append(entry);
+		}
+		
+		_pagecount = data.pages;
+	}});
+}
+
+function show_meta(view) {
+	$('.meta_view, .page_view').hide()
+	if (view == 'toc') $('#table_of_contents').show();
+	if (view == 'search') $('#search').show();
+	_curview = 'meta';
+	return false;
+}
+
+function show_page(format) {
+	$('.meta_view, .page_view').hide()
+	$('#page_' + format).show();
+	
+	_curview = format;
+	_lastview = format;
+	
+	load_page(_curpage ? _curpage : 1);
+	
+	return false;
+}
+
+function load_page(pagenum) {
+	if (pagenum == _curpage) return;
+	if (pagenum) _curpage = pagenum;
+	
+	$('#page_text pre').text("Loading...");
+	$.ajax({
+	type:"GET",
+	url: "/api/v1/document/" + _docid + "/page/" + _curpage + ".txt",
+	dataType: "text",
+	success: function(data, status) {
+		$('#page_text pre').text(data);
+		$('#page_text .pagenum').text("Page " + _curpage);
+		if (_curview == "meta") { // make sure page view is visible and not meta view
+			if (!_searchterms)
+				show_page(_lastview);
+			else
+				show_page("text");
+		}
+		
+		if (_searchterms) {
+			for (var i in _searchterms) {
+				// create HTML-escaped and span-wrapped representation of the match
+				function wrap(text) {
+					var st_html = $('<div><span class="search_match"/></div>');
+					st_html.find('span').text(text);
+					return st_html.html();
+				}
+				
+				// replace instances of the term with that
+				st_text = _searchterms[i].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"); // make a regex out of it so we can do case-insensitive matching
+				$('#page_text pre').html( $('#page_text pre').html().replace(new RegExp(st_text, "gi"), wrap) );
+			}
+		}
+	}});
+	
+	$('#page_paper img').attr('src', "/api/v1/document/" + _docid + "/page/" + _curpage + ".png")
+	
+	$('.page_view .prev').toggle(_curpage > 1);
+	$('.page_view .next').toggle(_curpage < _pagecount);
+}
+
+function page_advance(direction) {
+	load_page(_curpage + direction);
+	return false;
+}
+
+function search() {
+	var q = $('#search_input').val();
+	$.ajax({
+	type:"GET",
+	url: "/api/v1/document/" + _docid + "/search",
+	data: { q: q },
+	dataType: "json",
+	success: function(data, status) {
+		if (data.length == 0) {
+			$('#search_results').text("Text not found in document.");
+			$('.page_view .search_nav').hide();
+			_searchterms = null;
+			_searchresultpages = null;
+			_searchnavindex = null;
+			return;
+		}
+		
+		_searchterms = q.split(" ");
+		_searchresultpages = data;
+		_searchnavindex = 0;
+		
+		_curpage = null; // reset current page view
+		load_page(_searchresultpages[0]);
+		
+		$('#search_results').text('');
+		$('.page_view .search_nav').show();
+	}});
+	return false;
+}
+
+function search_advance(direction) {
+	_searchnavindex += direction;
+	if (_searchnavindex == -1) _searchnavindex = _searchresultpages.length - 1;
+	if (_searchnavindex == _searchresultpages.length) _searchnavindex = 0;
+	load_page(_searchresultpages[_searchnavindex]);
+	return false;
+}
+
+$(function() {
+	load_document(248);
+});
+</script>
+{% endblock %}
+{% block content %}
+<div class="content">
+	<h1>Document Title</h1>
+	
+	<ul>
+		<li><a href="#" onclick="return show_page('paper');">Paper</a></li>
+		<li><a href="#" onclick="return show_page('text');">Text</a></li>
+		<li><a href="#" onclick="return show_meta('toc');">Table of Contents</a></li>
+		<li><a href="#" onclick="return show_meta('search');">Search</a></li>
+	</ul>
+
+	<div id="table_of_contents" class="meta_view">	
+		<h2>Table of Contents</h2>
+	</div>
+	
+	<div id="search" class="meta_view">	
+		<h2>Search</h2>
+		<form onsubmit="return search()">
+			<input id="search_input" type="text"/>
+			<div id="search_results"></div>
+		</form>
+	</div>
+
+	<div id="page_paper" class="page_view">
+		<div class="prev"><a href="#" onclick="return page_advance(-1)">&lt; Previous</a></div>
+		<div class="next"><a href="#" onclick="return page_advance(+1)">Next &gt;</a></div>
+		<div class="search_nav search_prev"><a href="#" onclick="return search_advance(-1)">&lt; Previous Location</a></div>
+		<div class="search_nav search_next"><a href="#" onclick="return search_advance(+1)">Next Location &gt;</a></div>
+		<img width="768" height="1024"/>
+	</div>
+
+	<div id="page_text" class="page_view">
+		<div class="search_nav search_prev"><a href="#" onclick="return search_advance(-1)">&lt; Previous Location</a></div>
+		<div class="search_nav search_next"><a href="#" onclick="return search_advance(+1)">Next Location &gt;</a></div>
+		<div class="prev"><a href="#" onclick="return page_advance(-1)">&lt; Previous</a></div>
+		<div class="next"><a href="#" onclick="return page_advance(+1)">Next &gt;</a></div>
+		<div class="pagenum"> </div>
+		<pre/>
+		<div class="prev"><a href="#" onclick="return page_advance(-1)">&lt; Previous</a></div>
+		<div class="next"><a href="#" onclick="return page_advance(+1)">Next &gt;</a></div>
+		<div class="search_nav search_prev"><a href="#" onclick="return search_advance(-1)">&lt; Previous Location</a></div>
+		<div class="search_nav search_next"><a href="#" onclick="return search_advance(+1)">Next Location &gt;</a></div>
+	</div>
+</div>
+{% endblock %}
