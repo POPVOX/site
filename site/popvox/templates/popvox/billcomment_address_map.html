@@ -2,6 +2,7 @@
 {% load popvox_utils %}
 {% block title %}Finish Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
+{% block finalscript %}<script>mpmetrics.track('comment addressmap', { 'bill': '{{bill.displaynumber|escapejs}}' );</script>{% endblock %}
 {% block head %}
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	{% if request.META.HTTP_DNT != "1" %}

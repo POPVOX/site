@@ -4,6 +4,7 @@
 {% load humanize %}
 {% block title %}Share Your Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
+{% block finalscript %}<script>mpmetrics.track('comment finished', { 'bill': '{{bill.displaynumber|escapejs}}', mode: "{{request.session.follow_up|escapejs}}", 'personalized': {% if comment.message %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -36,7 +37,7 @@
 	{% else %}
 		<div class="col_3">
 			<p>Thank you for sharing your opinion using the Write Congress tool from POPVOX.</p>
-			<p>Your comment on {{bill.display_number}} has been saved.</p>
+			<p>Your comment on {{bill.displaynumber}} has been saved.</p>
 		</div>
 		
 		{% include "popvox/widgets/writecongress_followup.html" %}

@@ -5,7 +5,7 @@
 {% block description %}Weigh in and send your message to Congress about {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock %}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block finalscript %}<script>mpmetrics.track('bill page', { 'bill': '{{bill.display_number}}', 'can_comment': {% if canvote %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
+{% block finalscript %}<script>mpmetrics.track('bill page', { 'bill': '{{bill.displaynumber|escapejs}}', 'can_comment': {% if canvote %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
 {% block head %}
 <style>
 	h1.streetname { margin-bottom: 0; }

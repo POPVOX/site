@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 {% block title %}Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block finalscript %}<script>mpmetrics.track('comment start', { 'bill': '{{bill.display_number}}' });</script>{% endblock %}
+{% block finalscript %}<script>mpmetrics.track('comment start', { 'bill': '{{bill.displaynumber|escapejs}}', 'position': "{{position|escapejs}}" });</script>{% endblock %}
 {% block head %}
 <script>var bill_display_number = "{{bill.displaynumber|escapejs}}";</script>
 <script src="/media/js/lettertips.js"> </script>

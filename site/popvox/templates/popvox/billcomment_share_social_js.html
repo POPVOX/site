@@ -47,6 +47,7 @@ function share(method, isauto, linkcallback) {
 				   linkcallback("{{SITE_ROOT_URL|escapejs}}{{comment.url|escapejs}}");
 		   },
 		});
+	mpmetrics.track('comment share', { 'bill': '{{comment.bill.displaynumber|escapejs}}', method: method });
 	return false;
 }
 function share_tab(method) {
