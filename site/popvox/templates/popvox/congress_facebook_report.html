@@ -62,7 +62,7 @@ function htmlescape(text) {
 	return $("<div/>").text(text).html();
 }
 function constituent_location(data) {
-	if (data.constituent[0]) return "from " + data.constituent[1];
+	if (data.constituent[0]) return data.constituent[1];
 	if (data.constituent[0] == "unknown") return "(unknown location)";
 	if (data.constituent[0] == "out-of-district") return "(out of district)";
 	return "";
@@ -102,14 +102,16 @@ function update(id) {
 			{% endif %}
 			
 			var postcount = 0;
-			var debug = false;			
+			var debug = false;	
 
 			for (var i = 0; i < res.feed.data.length; i++) {
 				var n = $('#templates .post').clone();
 
 				var data = res.feed.data[i];
 
-				if (debug && Math.random() > .5) { data.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
+				if (debug && Math.random() > .5 && data.from.constituent[1] == "unknown") { data.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
+				if (debug && Math.random() > .5) { data.constituent_comments++; }
+				if (debug && Math.random() > .5) { data.constituent_likes++; }
 				
 				if (!data.constituent_comments && !data.constituent_likes && !data.from.constituent[0]) continue;
 				 //  && !(data.from.constituent[1]=="page" && data.constituent_likes)
@@ -121,7 +123,10 @@ function update(id) {
 					n.find('.from .name').text("You");
 				} else {
 					n.find('.from .name').text(data.from.name);
-					n.find('.from .constituent').text(constituent_location(data.from));
+					if (data.from.constituent[0]) {
+						n.find('.from .constituent_from').text(' from ');
+						n.find('.from .constituent').text(constituent_location(data.from));
+					}
 				}
 				{% if request.META.HTTP_DNT != "1" %}
 				n.find('.from_picture').attr('src', 'https://graph.facebook.com/' + data.from.id + '/picture?type=small');
@@ -155,7 +160,7 @@ function update(id) {
 				
 				if (data.from.constituent[0]) {
 					n.find('.tooltip').html(constituent_address(data.from));
-					n.find(".from .title").addClass("needs_tooltip");
+					n.find(".from .title .name").addClass("needs_tooltip");
 				}
 				
 				var t = "";
@@ -166,18 +171,19 @@ function update(id) {
 				if (data.comments && data.comments.data)
 				for (var j = 0; j < data.comments.data.length; j++) {
 					var data2 = data.comments.data[j];
+					if (debug && Math.random() > .75) { data2.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
 					if (!data2.from.constituent[0]) continue;
 					var nn = $('#templates .comment').clone();
 					{% if request.META.HTTP_DNT != "1" %}
 					nn.find('.picture').attr('src', 'https://graph.facebook.com/' + data2.from.id + '/picture?type=small');
 					{% endif %}
 					nn.find('.name').text(data2.from.name);
-					nn.find('.constituent').text(constituent_location(data2.from));
 					nn.find('.text').text(data2.message);
-					if (debug && Math.random() > .5) { data.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
 					if (data2.from.constituent[0]) {
+						nn.find('.constituent_from').text(' from ');
+						nn.find('.constituent').text(constituent_location(data2.from));
 						nn.find('.tooltip').html(constituent_address(data2.from));
-						nn.find(".title").addClass("needs_tooltip");
+						nn.find(".title .name").addClass("needs_tooltip");
 					}
 					n.find(".comments").append(nn);
 				}
@@ -185,14 +191,15 @@ function update(id) {
 				if (data.likes && data.likes.data)
 				for (var j = 0; j < data.likes.data.length; j++) {
 					var data2 = data.likes.data[j];
+					if (debug && Math.random() > .75) { data2.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
 					if (!data2.constituent[0]) continue;
 					var nn = $('#templates .like').clone();
 					nn.find('.name').text(data2.name);
-					nn.find('.constituent').text(constituent_location(data2));
-					if (debug && Math.random() > .5) { data.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
 					if (data2.constituent[0]) {
+						nn.find('.constituent_from').text(' from ');
+						nn.find('.constituent').text(constituent_location(data2));
 						nn.find('.tooltip').html(constituent_address(data2));
-						nn.find(".title").addClass("needs_tooltip");
+						nn.find(".title .name").addClass("needs_tooltip");
 					}
 					n.find(".likes").append(nn);
 					n.find(".likes").show();
@@ -205,7 +212,7 @@ function update(id) {
 				$('#content').append($("<p>We couldn't find posts from any of your constituents on your Wall. We know whether an individual is one of your constituents only if they are a POPVOX user.</p>"));
 			}
 			
-			$('.needs_tooltip').tooltip({relative: true, position: "center right"}).removeClass("needs_tooltip");
+			$('.needs_tooltip').tooltip({relative: true, position: "top center"}).removeClass("needs_tooltip");
 			
 			make_chart('customized_stats_pie', 200,
 				res.num_constituent_postlikes[0], res.num_constituent_postlikes[1]-res.num_constituent_postlikes[0],
@@ -328,7 +335,8 @@ $(function() {
 /****Facebook****/
 
 #content .post {
-border: none;
+border-bottom: solid #D8D3C8 1px;
+
 }
 
 #content .comment {
@@ -336,10 +344,10 @@ border: none;
 }
 
 #content .content img {
-padding: 5px;
 }
 
 #content .post {
+
 font-size: 12px;
 font-family: helvetica;
 clear: both;
@@ -351,14 +359,17 @@ padding-top: 10px;
 
 #content .picture {
 width: 50px;
-height: 50px;
-background: #444;
 
 }
 
-#content .from .title {
+#content .from .title .name {
 font-weight: bold;
-
+cursor: pointer;
+color: #3B5998;
+text-decoration: none;
+}
+#content .from .title .constituent {
+font-weight: bold;
 }
 
 #content .content {
@@ -369,6 +380,10 @@ margin-top: 5px;
 font-weight: normal;
 }
 
+.has_image .content .picture {
+margin-bottom: 5px;
+}
+
 
 #content .content .description {
 }
@@ -377,6 +392,62 @@ font-weight: normal;
 margin-top: 5px;
 color: #6c6c6c;
 }
+
+.constituent_info {
+margin-top: 5px;
+background: #E0DDD7;
+padding: 6px;
+clear:both;
+}
+
+.likes {
+padding: 6px;
+background: #E0DDD7;
+margin-top: 3px;
+clear:both;
+}
+
+.comment {
+padding: 6px;
+background: #E0DDD7;
+margin-top: 3px;
+min-height: 50px;
+}
+
+.comment .text {
+margin-top: 3px;
+margin-left: 65px;
+}
+
+.comment .picture {
+width: 32px;
+background: none;
+border: none;
+}
+
+.comment .name, .like .name {
+font-weight: bold;
+cursor: pointer;
+color: #3B5998;
+text-decoration: none;
+}
+
+#content .tooltip {
+display: none;
+background: #E8E5DF;
+font-size: 12px;
+min-height: 40px;
+min-width: 100px;
+padding: 15px 10px;
+color: #444;
+overflow: hidden;
+text-align: left;
+border: solid black 1px;
+border-bottom: solid black 3px;
+}
+
+
+
 </style>
 {% endblock %}
 {% block content %}
@@ -485,10 +556,10 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 		
 		<div style="display: none" id="templates">
 			<div class="post">
-				<img class="from_picture" style="float: left; margin-right: 15px; width: 30px;"/>
+				<img class="from_picture" style="float: left; margin-right: 15px; width: 50px;"/>
 				<div style="float: left; width: 550px;">
 				<div class="from">
-					<div><span class="title"><span class="name"></span> <span class="constituent"></span> <span class="what"></span></span><div class="tooltip"> </div></div>
+					<div><span class="title"><span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span> <span class="what"></span></span></div>
 				</div>
 				<div class="content">
 					<img class="picture" style="float: left; margin-right: 15px"/>
@@ -510,14 +581,13 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 			<div class="comment">
 				<img class="picture" style="float: left; margin-right: 15px"/>
 			
-				<div><span class="title"><span class="name"></span> <span class="constituent"></span></span><div class="tooltip"> </div></div>
+				<div><span class="title"><span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span></span></div>
 				
 				<div class="text"> </div>
 			</div>
 			
 			<div class="like">
-				<span class="title"><span class="name"></span> <span class="constituent"></span></span>
-				<div class="tooltip"> </div>
+				<span class="title"><span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span></span>
 			</div>
 		</div>
 		
