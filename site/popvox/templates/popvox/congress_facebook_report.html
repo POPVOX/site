@@ -102,7 +102,7 @@ function update(id) {
 			{% endif %}
 			
 			var postcount = 0;
-			var debug = false;	
+			var debug = false;			
 
 			for (var i = 0; i < res.feed.data.length; i++) {
 				var n = $('#templates .post').clone();
@@ -159,7 +159,7 @@ function update(id) {
 				}
 				
 				if (data.from.constituent[0]) {
-					n.find('.tooltip').html(constituent_address(data.from));
+					n.find('.tooltipFB').html(constituent_address(data.from));
 					n.find(".from .title .name").addClass("needs_tooltip");
 				}
 				
@@ -182,7 +182,7 @@ function update(id) {
 					if (data2.from.constituent[0]) {
 						nn.find('.constituent_from').text(' from ');
 						nn.find('.constituent').text(constituent_location(data2.from));
-						nn.find('.tooltip').html(constituent_address(data2.from));
+						nn.find('.tooltipFB').html(constituent_address(data2.from));
 						nn.find(".title .name").addClass("needs_tooltip");
 					}
 					n.find(".comments").append(nn);
@@ -198,7 +198,7 @@ function update(id) {
 					if (data2.constituent[0]) {
 						nn.find('.constituent_from').text(' from ');
 						nn.find('.constituent').text(constituent_location(data2));
-						nn.find('.tooltip').html(constituent_address(data2));
+						nn.find('.tooltipFB').html(constituent_address(data2));
 						nn.find(".title .name").addClass("needs_tooltip");
 					}
 					n.find(".likes").append(nn);
@@ -212,7 +212,7 @@ function update(id) {
 				$('#content').append($("<p>We couldn't find posts from any of your constituents on your Wall. We know whether an individual is one of your constituents only if they are a POPVOX user.</p>"));
 			}
 			
-			$('.needs_tooltip').tooltip({relative: true, position: "top center"}).removeClass("needs_tooltip");
+			$('.needs_tooltip').tooltip({relative: true, position: "top center", tipClass:"tooltipFB"}).removeClass("needs_tooltip");
 			
 			make_chart('customized_stats_pie', 200,
 				res.num_constituent_postlikes[0], res.num_constituent_postlikes[1]-res.num_constituent_postlikes[0],
@@ -432,7 +432,7 @@ color: #3B5998;
 text-decoration: none;
 }
 
-#content .tooltip {
+#content .tooltipFB {
 display: none;
 background: #E8E5DF;
 font-size: 12px;
@@ -559,7 +559,7 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 				<img class="from_picture" style="float: left; margin-right: 15px; width: 50px;"/>
 				<div style="float: left; width: 550px;">
 				<div class="from">
-					<div><span class="title"><span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span> <span class="what"></span></span></div>
+					<div><span class="title"><span class="name"></span><div class="tooltipFB"> </div> <span class="constituent_from"></span><span class="constituent"></span> <span class="what"></span></span></div>
 				</div>
 				<div class="content">
 					<img class="picture" style="float: left; margin-right: 15px"/>
@@ -581,13 +581,13 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 			<div class="comment">
 				<img class="picture" style="float: left; margin-right: 15px"/>
 			
-				<div><span class="title"><span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span></span></div>
+				<div><span class="title"><span class="name"></span><div class="tooltipFB"> </div> <span class="constituent_from"></span><span class="constituent"></span></span></div>
 				
 				<div class="text"> </div>
 			</div>
 			
 			<div class="like">
-				<span class="title"><span class="name"></span><div class="tooltip"> </div> <span class="constituent_from"></span><span class="constituent"></span></span>
+				<span class="title"><span class="name"></span><div class="tooltipFB"> </div> <span class="constituent_from"></span><span class="constituent"></span></span>
 			</div>
 		</div>
 		
