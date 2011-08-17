@@ -68,7 +68,7 @@ function constituent_location(data) {
 	return "";
 }
 function constituent_address(data) {
-	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>");
+	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>") + "<br/>" + htmlescape(data.constituent[4]);
 }
 function update(id) {
 	$('#content_status').text("Loading...");
@@ -166,7 +166,10 @@ function update(id) {
 				var t = "";
 				if (data.constituent_comments) t += data.constituent_comments + " constituent(s) commented.";
 				if (data.constituent_likes) t += data.constituent_likes + " constituent(s) liked this post.";
-				n.find('.constituent_info').text(t)
+				if (t) {
+					n.find('.constituent_info').text(t)
+					n.find('.constituent_info').show()
+				}
 				
 				if (data.comments && data.comments.data)
 				for (var j = 0; j < data.comments.data.length; j++) {
@@ -188,11 +191,14 @@ function update(id) {
 					n.find(".comments").append(nn);
 				}
 				
+				var firstlike = true;
+				
 				if (data.likes && data.likes.data)
 				for (var j = 0; j < data.likes.data.length; j++) {
 					var data2 = data.likes.data[j];
 					if (debug && Math.random() > .75) { data2.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
 					if (!data2.constituent[0]) continue;
+					if (!firstlike) n.find(".likes").append($('<span>, </span>'));
 					var nn = $('#templates .like').clone();
 					nn.find('.name').text(data2.name);
 					if (data2.constituent[0]) {
@@ -203,6 +209,7 @@ function update(id) {
 					}
 					n.find(".likes").append(nn);
 					n.find(".likes").show();
+					firstlike = false;
 				}
 				
 				$('#content').append(n);
@@ -394,6 +401,7 @@ color: #6c6c6c;
 }
 
 .constituent_info {
+display: none;
 margin-top: 5px;
 background: #E0DDD7;
 padding: 6px;

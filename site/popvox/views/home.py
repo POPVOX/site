@@ -974,7 +974,7 @@ def legstaff_facebook_report_getinfo(request):
 				if len(addrs) > 0:
 					addr = addrs[0]
 					if (addr.state == moc["state"] and (moc["district"]==None or addr.congressionaldistrict==moc["district"])):
-						uid_map[authrecord.uid] = (True, addr.city, addr.name_string(), addr.address_string())
+						uid_map[authrecord.uid] = (True, addr.city, addr.name_string(), addr.address_string(), authrecord.user.email)
 						num_constit += 1
 					else:
 						uid_map[authrecord.uid] = (False, "out-of-district")
