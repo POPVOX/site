@@ -10,7 +10,7 @@ from piston.handler import BaseHandler
 
 from popvox.models import *
 
-import re, base64, json
+import re, base64, json, urlparse
 from itertools import chain
 
 from sphinxapi import SphinxClient, SPH_MATCH_EXTENDED
@@ -21,9 +21,16 @@ api_endpoints = []
 
 class ServiceKeyAuthentication(object):
 	def is_authenticated(self, request):
-		auth_string = request.GET.get('api_key', None)
+		if not "api_key" in request.GET:
+			host = urlparse.urlparse(request.META["HTTP_REFERER"]).hostname.lower()
+			if host.startswith("www."):
+				host = host[4:]
+			if host in ('popvox.com', 'josh.popvox.com'):
+				return True
+		
+		auth_string = request.GET.get('api_key', "").strip()
 
-		if not auth_string:
+		if len(auth_string) == 0:
 			return False
 
 		try:
