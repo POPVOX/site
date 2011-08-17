@@ -82,24 +82,42 @@ def commentmapus(request):
 			count[k] = { }
 			count[k]["class"] = "dot_clr_5 dot_sz_5"
 		
+	by_date = False
 
 	if comments != None:
+		if by_date:
+			comment_earliest = comments.order_by('created')[0].created
+			comment_latest = comments.order_by('-created')[0].created
+			comment_duration = (comment_latest-comment_earliest).total_seconds()
+		
 		for comment in comments:
 			district = comment.state + str(comment.congressionaldistrict)
 			if not district in count:
-				count[district] = { "+": 0, "-": 0 } 
+				count[district] = { "+": 0, "-": 0, "mean_date": 0 } 
 			count[district][comment.position] += 1
+			
+			if by_date:
+				count[district]["mean_date"] += (comment.created - comment_earliest).total_seconds()
 	
-		max_count = 0
-		for district in count:
-			max_count = max(max_count, count[district]["+"] + count[district]["-"])
+		if not by_date:
+			max_count = 0
+			for district in count:
+				max_count = max(max_count, count[district]["+"] + count[district]["-"])
+			
+			def chartcolor(district):
+				return "dot_clr_%d dot_sz_%d" % (
+					int(district["sentiment"]*4.9999) + 1,
+					int(float(district["count"]) / float(max_count) * 4.9999) + 1
+					)
+	
+		else:
+			def chartcolor(district):
+				return "dot_clr_%d dot_sz_%d" % (
+					#int(district["sentiment"]*4.9999) + 1,
+					6 - (int(float(district["mean_date"]) / float(district["count"]) / float(comment_duration) * 4.9999) + 1),
+					2
+					)
 		
-		def chartcolor(sentiment, countpct):
-			return "dot_clr_%d dot_sz_%d" % (
-				int(sentiment*4.9999) + 1,
-				int(countpct*4.9999) + 1
-				)
-	
 
 	mapscale = 720.0 / widgets_usmap.map_scale[0]
 	xoffset = 8
@@ -114,7 +132,7 @@ def commentmapus(request):
 			count[district]["sentiment"] = float(count[district]["+"])/float(count[district]["+"] + count[district]["-"])
 			count[district]["count"] = count[district]["+"] + count[district]["-"]
 			
-			count[district]["class"] = chartcolor(count[district]["sentiment"], float(count[district]["+"] + count[district]["-"]) / float(max_count))
+			count[district]["class"] = chartcolor(count[district])
 			
 		count[district]["coord"] = { "left": int(widgets_usmap.district_locations[district][0]*mapscale)-xoffset,  "top": int(widgets_usmap.district_locations[district][1]*mapscale)-yoffset }
 		
