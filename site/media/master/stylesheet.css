@@ -2328,27 +2328,52 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
     }
 
 .message_preview {
-    background: url(topLetter.png) top no-repeat;
+    background: url(letter_top.png) top no-repeat;
     margin: 20px 0;
 	width:636px;
 	margin-bottom: 0;
     padding-top: 50px;
     }
+
+	.message_preview p.support span, .message_preview p.oppose span {
+		width: 55px;
+		height: 54px;
+		float: left;
+		}
+		
+	.message_preview p.support span {
+		background: url("../widget/bg_endorsed_bubl_l.png") no-repeat scroll 0px 8px transparent;
+		}
+		
+	.message_preview p.oppose span {
+		background: url("../widget/bg_opposed_bubl_l.png") no-repeat scroll 0px 8px transparent;
+		}
     
-.message_preview p {
-	background: url(middleLetter.png) center repeat-y;
-	padding-left: 40px;
-	margin-left: -21px;
-	margin-bottom: 0;
-	padding-bottom: 15px;
-	width: 641px;
-	font-family: Georgia, serif;
-	font-size: 16px;
-	
-}
+	.message_preview p {
+		background: url(letter_middle.png) center repeat-y;
+		margin-left: -21px;
+		margin-bottom: 0;
+		padding: 0 50px 15px;
+		width: 581px;
+		font-family: Georgia, serif;
+		font-size: 16px;
+		}
+		
+	.message_preview p.signature {
+		padding-left: 400px;
+		width: 230px; /* prevent wrap */
+		}
+		
+	.message_preview .scrolled {
+		width: 400px;
+		height: 200px;
+		overflow: auto;
+		margin-bottom: 10px;
+		}
+
 
 .letterBottom {
-	background: url(bottomLetter.png) center bottom no-repeat;
+	background: url(letter_bottom.png) left bottom repeat-y;
 	width: 641px;
 	height: 25px;
 }
@@ -4639,14 +4664,20 @@ li.ol_6 { background: url(bg_ol_6.png) left top no-repeat   }
 
 .tooltip {
     display: none;
-    background: transparent url(/media/master/bg_tooltip_yellow_right.png);
-    font-size: 12px;
+	font: normal 12px/18px Helvetica, arial, sans-serif;
+	background: #404045;
     height: 67px;
     width: 202px;
-    padding: 8px 12px 5px 45px;
-    color: #444;
+    margin-left: 11px;
+    padding: 10px 20px 17px;
+    color: #fff;
     overflow: hidden;
     text-align: left;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    -khtml-border-radius: 8px;
+    border-radius: 8px;
+    
     }
 
 .advertisement a {
@@ -4797,29 +4828,54 @@ p#issueareachooser_listnone {
 	.commentProcessHints h3 {
 		margin-top: 0;
 		background: none;
-		font-size: 19px;
-		line-height: normal;
+		font-size: 25px;
+		line-height: 25px;
 		}
 	.commentProcessHints p {
-		font-size: 11px;
-		line-height: 15px;
+		font-size: 12px;
+		line-height: 18px;
 		}
 
 .commentTip {
-font-family:  Helvetica;
-background: #414046;
-color: white;
-font-size: 12px;
-padding: 15px;
-width: 220px;
-float: right;
-margin: 0 0 2em 0;
-clear: both;
-min-height: 30px;
-height: auto !important;
-height: 30px;
-}
+	font: normal 12px/18px Helvetica, arial, sans-serif;
+	background: #404045;
+	color: white;
+	padding: 15px;
+	width: 220px;
+	float: right;
+	margin: 0 0 2em 10px;
+	clear: both;
+	min-height: 30px;
+	height: auto !important;
+	height: 30px;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-khtml-border-radius: 8px;
+	border-radius: 8px;
+	position: relative;
+	}
+	
+	.commentTip p {
+		font-size: 12px;
+		}
+		
+	.tab_pane .commentTip h5 {
+		font-size: 12px;
+		font-weight: bold;
+		}
+	
+	.commentTip .tip_point,
+	.tooltip .tip_point {
+		background: url(bg_tip_tip.png) left center no-repeat;
+		position: absolute;
+		left: -11px;
+		top: 0px;
+		width: 11px;
+		height: 100%;
+		
+		}
+	
 
 .commentTipInline {
-min-height: 20px;
-}
+	min-height: 20px;
+	}

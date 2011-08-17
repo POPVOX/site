@@ -63,7 +63,7 @@ function validate_form() {
 		{% else %}
 			<p style="padding: 15px 0 15px 30px; font-size: 120%; background: #d4d1ca;">&ldquo;I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_or_streetname|truncatewords:7 }}.&rdquo;</p>
 			{% if not message_is_new %}
-				<p style="padding: 0 0 10px 30px; font-size: 11px; font-style: italic;">change from {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} to <a href="{{bill.url}}/comment/{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}">{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}</a>
+				<p style="padding: 8px 0 0 30px; font: normal italic 12px/18px georgia, serif;">change from {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} to <a href="{{bill.url}}/comment/{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}">{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}</a>
 				or <a href="{{bill.url}}/comment/clear">delete your comment</a></p>
 			{% endif %}
 		{% endif %}
@@ -104,8 +104,9 @@ function validate_form() {
 		{% csrf_token %}
 
 		<div class="commentTip">
-		<p class="commentP">We will send your message to your Representative or Senator and will post it anonymously on POPVOX.
-		{% comment %}{% if user.is_authenticated %}Privacy Note: Your comment will be shared with others on POPVOX who will see your name as <strong>{{user.username}}</strong>, and with your Members of Congress who will see your full name and address.{% endif %}{% endcomment %}</p>
+			<div class="tip_point"></div>
+			<p class="commentP">We will send your message to your Representative or Senator and will post it anonymously on POPVOX.
+			{% comment %}{% if user.is_authenticated %}Privacy Note: Your comment will be shared with others on POPVOX who will see your name as <strong>{{user.username}}</strong>, and with your Members of Congress who will see your full name and address.{% endif %}{% endcomment %}</p>
 
 		<div id="messagetipcontainer" style="display: none">
 			<h5 style="padding-top: 0">Letter Writing Tips</h5>
