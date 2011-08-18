@@ -1,5 +1,5 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Dev Test Page{% endblock %}
+{% block title %}POPVOX - Bill Text Page{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}Dev test page.{% endblock %}
 {% block head %}
@@ -54,7 +54,7 @@ function load_document(docid) {
 			entry.find('.number').text(data.toc[i].page);
 			entry.find('.label').text(data.toc[i].label);
 			entry.attr('page_number', data.toc[i].page);
-			entry.click(function() { load_page(this.getAttribute('page_number')); return false; });
+			entry.click(function() { load_page(parseInt(this.getAttribute('page_number'))); return false; });
 			toc.append(entry);
 		}
 		
@@ -167,7 +167,7 @@ function search_advance(direction) {
 }
 
 $(function() {
-	load_document(248);
+	load_document(parseInt("{{request.GET.docid|escapejs}}"));
 });
 </script>
 {% endblock %}

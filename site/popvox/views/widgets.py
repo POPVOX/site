@@ -31,7 +31,8 @@ def bill_js(request):
 	return render_to_response('popvox/widgets/bill.js', {
 		"siteroot": SITE_ROOT_URL,
 		"bill": bill
-	}, context_instance=RequestContext(request))
+	}, context_instance=RequestContext(request),
+	mimetype="text/javascript")
 
 @cache_page(60 * 60 * 2) # two hours
 @do_not_track_compliance
@@ -187,3 +188,8 @@ def top_bills(request):
 		"max_opp": max_opp,
 	}, context_instance=RequestContext(request))
 
+#@cache_page(60 * 60 * 2) # two hours
+@do_not_track_compliance
+def bill_text(request):
+	return render_to_response('popvox/widgets/billtext.html', {
+	}, context_instance=RequestContext(request))

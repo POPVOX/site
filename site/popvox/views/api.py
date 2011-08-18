@@ -22,11 +22,14 @@ api_endpoints = []
 class ServiceKeyAuthentication(object):
 	def is_authenticated(self, request):
 		if not "api_key" in request.GET:
-			host = urlparse.urlparse(request.META["HTTP_REFERER"]).hostname.lower()
-			if host.startswith("www."):
-				host = host[4:]
-			if host in ('popvox.com', 'josh.popvox.com'):
-				return True
+			try:
+				host = urlparse.urlparse(request.META.get("HTTP_REFERER", "")).hostname.lower()
+				if host.startswith("www."):
+					host = host[4:]
+				if host in ('popvox.com', 'josh.popvox.com'):
+					return True
+			except:
+				pass
 		
 		auth_string = request.GET.get('api_key', "").strip()
 
@@ -187,7 +190,7 @@ class document_info(DocumentHandler):
 		return json.loads(item.toc) if item.toc else None
 
 @make_simple_endpoint
-def bill_document_page(request, docid, pagenum, format):
+def document_page(request, docid, pagenum, format):
 	try:
 		doc = PositionDocument.objects.get(id=docid)
 		page = doc.pages.get(page=pagenum)
@@ -203,13 +206,27 @@ def bill_document_page(request, docid, pagenum, format):
 		raise Http404("Invalid document ID.")
 	except DocumentPage.DoesNotExist:
 		raise Http404("Page number out of range.")
-bill_document_page.description = "Retreives one page of a document as either a PNG or in plain text. Result is either image/png or text/plain."
-bill_document_page.url_pattern_args = (("000",'DOCUMENT_ID'), ("001",'PAGE_NUMBER'), ('aaa', '{png|html|txt}'))
-bill_document_page.url_example_args = (248,20,'png')
+document_page.description = "Retreives one page of a document as either a PNG or in plain text. Result is either image/png or text/plain."
+document_page.url_pattern_args = (("000",'DOCUMENT_ID'), ("001",'PAGE_NUMBER'), ('aaa', '{png|html|txt}'))
+document_page.url_example_args = (248,20,'png')
 
 @make_endpoint
-class bill_document_search(BaseHandler):
-	model = DocumentPage
+class document_pages(BaseHandler):
+	fields = ['page', 'text']
+	description = "Retreives all pages of a document."
+	url_pattern_args = (("000",'DOCUMENT_ID'),)
+	url_example_args = (248,)
+	@paginate
+	def read(self, request, docid):
+		try:
+			doc = PositionDocument.objects.get(id=docid)
+			return doc.pages.order_by('page')
+		except PositionDocument.DoesNotExist:
+			raise Http404("Invalid document ID.")
+
+@make_endpoint
+class document_search(BaseHandler):
+	#model = DocumentPage
 	fields = ['page']
 	description = "Searches a document for text returning a list of page numbers."
 	url_pattern_args = (("000",'DOCUMENT_ID'),)
