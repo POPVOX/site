@@ -102,14 +102,14 @@ function update(id) {
 			{% endif %}
 			
 			var postcount = 0;
-			var debug = false;			
+			var debug = false;//true;
 
 			for (var i = 0; i < res.feed.data.length; i++) {
 				var n = $('#templates .post').clone();
 
 				var data = res.feed.data[i];
 
-				if (debug && Math.random() > .5 && data.from.constituent[1] == "unknown") { data.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
+				if (debug && Math.random() > .5 && data.from.constituent[1] == "unknown") { data.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000", "me@example.com"]; }
 				if (debug && Math.random() > .5) { data.constituent_comments++; }
 				if (debug && Math.random() > .5) { data.constituent_likes++; }
 				
@@ -170,7 +170,7 @@ function update(id) {
 				if (data.comments && data.comments.data)
 				for (var j = 0; j < data.comments.data.length; j++) {
 					var data2 = data.comments.data[j];
-					if (debug && Math.random() > .75) { data2.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
+					if (debug && Math.random() > .75) { data2.from.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000", "me@example.com"]; }
 					if (!data2.from.constituent[0]) continue;
 					var nn = $('#templates .comment').clone();
 					{% if request.META.HTTP_DNT != "1" %}
@@ -193,7 +193,7 @@ function update(id) {
 				if (data.likes && data.likes.data)
 				for (var j = 0; j < data.likes.data.length; j++) {
 					var data2 = data.likes.data[j];
-					if (debug && Math.random() > .75) { data2.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000"]; }
+					if (debug && Math.random() > .75) { data2.constituent = [true, "RandomCity", "Mr. Random Joe", "Random\nAddress, ST 10000", "me@example.com"]; }
 					if (!data2.constituent[0]) continue;
 					if (!firstlike) n.find(".likes").append($('<span>, </span>'));
 					var nn = $('#templates .like').clone();
@@ -406,10 +406,11 @@ clear:both;
 }
 
 .likes {
-padding: 6px;
-background: #E0DDD7;
+background: #E0DDD7 url(/media/master/icons/icons-01.png) no-repeat top left;
+padding: 8px 8px 8px 30px;
 margin-top: 3px;
 clear:both;
+background-position: 7px 6px;
 }
 
 .comment {
@@ -435,6 +436,10 @@ font-weight: bold;
 cursor: pointer;
 color: #3B5998;
 text-decoration: none;
+}
+
+.like .name {
+font-weight: normal;
 }
 
 #content .tooltipFB {
@@ -575,7 +580,7 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 				<div class="constituent_info">
 				</div>
 				<div class="likes" style="display: none">
-					Likes:
+					
 				</div>
 				<div class="comments">
 				</div>
