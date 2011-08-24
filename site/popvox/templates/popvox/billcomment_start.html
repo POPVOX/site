@@ -1,7 +1,14 @@
 {% extends "master.html" %}
 {% block title %}Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block finalscript %}<script>mpmetrics.track('comment start', { 'bill': '{{bill.displaynumber|escapejs}}', 'position': "{{position|escapejs}}" });</script>{% endblock %}
+{% block finalscript %}
+<script>
+mpmetrics.register({
+  'user type @ comment start': {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}
+});
+mpmetrics.track('comment start', { 'bill': '{{bill.displaynumber|escapejs}}', 'position': "{{position|escapejs}}" });
+</script>
+{% endblock %}
 {% block head %}
 <script>var bill_display_number = "{{bill.displaynumber|escapejs}}";</script>
 <script src="/media/js/lettertips.js"> </script>
