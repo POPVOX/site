@@ -104,7 +104,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 		key=billstatus,
 		title=title,
 		pdf=base64.encodestring(pdf),
-		text=text,
+		txt=text,
 		xml=base64.encodestring(xml)
 		)
 	d.created = date
@@ -164,7 +164,7 @@ def break_pages(document):
 		text = f.read() # utf-8, binary string
 		f.close()
 		
-		dtext = document.text.encode("utf8")
+		dtext = document.txt.encode("utf8")
 		
 		import diff_match_patch
 		diff = diff_match_patch.diff(dtext, text)

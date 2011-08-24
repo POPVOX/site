@@ -683,13 +683,13 @@ class PositionDocument(models.Model):
 	bill = models.ForeignKey(Bill, related_name="documents", db_index=True)
 	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text')])
 	title = models.CharField(max_length=128)
-	text = tinymce_models.HTMLField(blank=True) #models.TextField()
+	text = tinymce_models.HTMLField(blank=True) #models.TextField() # HTML document body
 	link = models.URLField(blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True, db_index=True)
 	key = models.CharField(max_length=16, blank=True, null=True)
 	pdf = models.TextField(blank=True, null=True) # base64 encoded
-	text = models.TextField(blank=True, null=True)
+	txt = models.TextField(blank=True, null=True) # document plain text
 	xml = models.TextField(blank=True, null=True) # base64 encoded
 	toc = models.TextField(blank=True, null=True) # json encoded
 	def __unicode__(self):
