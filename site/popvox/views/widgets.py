@@ -78,6 +78,8 @@ def commentmapus(request):
 			for k in widgets_usmap.district_locations:
 				count[k] = { }
 				count[k]["class"] = "dot_clr_1 dot_sz_1"
+		elif request.GET["point"] == "allcount":
+			comments = UserComment.objects.all()
 		else:
 			k = request.GET["point"]
 			count[k] = { }
@@ -110,6 +112,14 @@ def commentmapus(request):
 					int(district["sentiment"]*4.9999) + 1,
 					int(float(district["count"]) / float(max_count) * 4.9999) + 1
 					)
+
+			if request.GET.get("point", "") == "allcount":
+				def chartcolor(district):
+					import math
+					return "dot_clr_%d dot_sz_%d" % (
+						2,
+						int(math.sqrt(float(district["count"]) / float(max_count)) * 4.9999) + 1
+						)
 	
 		else:
 			def chartcolor(district):
