@@ -38,7 +38,7 @@ def validate_captcha(request):
 
 def validate_username(value, skip_if_this_user=None, for_login=False, fielderrors=None):
 	try:
-		value = forms.CharField(min_length=4 if not for_login else None, error_messages = {'min_length': "The username is too short. Usernames must be at least four characters."}).clean(value) # raises ValidationException
+		value = forms.CharField(min_length=4 if not for_login else None, error_messages = {'min_length': "The username is too short. Usernames must be at least four characters."}).clean(value).strip() # raises ValidationException
 		if " " in value:
 			raise forms.ValidationError("Usernames cannot contain spaces.")
 		if "@" in value:
@@ -65,7 +65,7 @@ def validate_username(value, skip_if_this_user=None, for_login=False, fielderror
 	
 def validate_password(value, fielderrors=None):
 	try:
-		value = forms.CharField(min_length=5, error_messages = {'min_length': "The password is too short. It must be at least five characters."}).clean(value)
+		value = forms.CharField(min_length=5, error_messages = {'min_length': "The password is too short. It must be at least five characters."}).clean(value).strip()
 		if " " in value:
 			raise forms.ValidationError("Passwords cannot contain spaces.")	
 		return value

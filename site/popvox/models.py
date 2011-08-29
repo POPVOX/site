@@ -242,8 +242,11 @@ class Bill(models.Model):
 			
 		return [parse_line(rec) for rec in self.latest_action.split("\n")]
 		
-	def campaign_positions(self):
-		return self.orgcampaignposition_set.filter(campaign__visible=True, campaign__org__visible=True).select_related("campaign", "campaign__org")
+	def campaign_positions(self, position=None):
+		qs = self.orgcampaignposition_set.filter(campaign__visible=True, campaign__org__visible=True).select_related("campaign", "campaign__org")
+		if position:
+			qs = qs.filter(position=position)
+		return qs
 	
 	def hashtag(self, always_include_session=False):
 		bt = ""
@@ -680,8 +683,9 @@ class OrgCampaignPosition(models.Model):
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 
 class PositionDocument(models.Model):
+	DOCTYPES = [(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text')]
 	bill = models.ForeignKey(Bill, related_name="documents", db_index=True)
-	doctype = models.IntegerField(choices=[(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text')])
+	doctype = models.IntegerField(choices=DOCTYPES)
 	title = models.CharField(max_length=128)
 	text = tinymce_models.HTMLField(blank=True) #models.TextField() # HTML document body
 	link = models.URLField(blank=True, null=True)

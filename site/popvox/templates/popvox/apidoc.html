@@ -1,6 +1,16 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
 {% block title %}POPVOX API{% endblock%}
+{% block head %}
+<style>
+h4 {
+	margin-top: 1.25em;
+	margin-bottom: .5em;
+	font-weight: bold;
+	text-decoration: underline;
+}
+</style>
+{% endblock %}
 {% block content %}
 	<h1>POPVOX API</h1>
 
@@ -9,6 +19,10 @@
 	<p>This API is experimental! Use at your own risk.</p>
 
 	<h3>Common Parameters</h3>
+	
+		<h4>Base URL</h4>
+		
+		<p>The base URL of all API calls is https://www.popvox.com.</p>
 
 		<h4>Authentication</h4>
 		
@@ -21,6 +35,8 @@
 				{{acct.secret_key}} (account: {{acct}})
 			</p>
 		{% endfor %}
+		
+		<p>The API key should <i>always</i> be specified in the query string (i.e. a GET parameter) even on POST requests.</p>
 	
 		<h4>Data Format</h4>
 		
@@ -33,6 +49,12 @@
 		
 		<p>The response of paged API calls are mappings with the following keys: <tt>count</tt> as the total number of items matching the query, <tt>pages</tt> as the total number of pages, <tt>page</tt> the current page returned, <tt>has_prev</tt> a boolean indicating if there is a previous page, <tt>has_next</tt> a boolean indicating if there is a next page, <tt>items</tt> the array of results for the returned page.</p>
 		
+		<h4>User Sessions</h4>
+		
+		<p>The user login API method returns a session token for a user by logging a user in with an email address and password. This is useful for writing applications that allow POPVOX users to log in with their POPVOX credentials. (We will add OAuth support in the future.) For API methods that make use of a session token, the session token should be passed as a query string (i.e. GET) parameter called <tt>session</tt>.</p>
+		
+		<p>If you are trying to access your own account, you may not need a session token because your API key will associate the API call with your username.</p>
+		
 	{% for method in methods %}
 	
 		<h3>{{method.name}}</h3>
@@ -40,13 +62,37 @@
 		<p>{{method.description}}</p>
 		
 		<div style="margin-left: 2em">
-			<p style="margin: 0; font-weight: bold;">{{method.url_pattern}}</p>
-			<p>example: <a href="{{method.url_example}}">{{method.url_example}}</a></p>
+			<h4>Overview</h4>
+			
+			<p style="margin: 0 0 4px 0; font-weight: bold;"><tt>{{method.url_pattern}}</tt></p>
+			
+			{% if method.has_read %}
+			<p>example: <a href="{{method.url_example}}"><tt>{{method.url_example}}</tt></a></p>
+			{% else %}
+			<p>(no example available for a POST-only API)</p>
+			{% endif %}
 			
 			{% if method.qs_args %}
-				<h4>Additional Parameters</h4>
+				<h4>Query String Parameters</h4>
 				{% for key, descr in method.qs_args %}
-					<p><tt>{{key}}</tt>. {{descr}}</p>
+					<p style="margin-bottom: .66em"><tt style="display: inline-block; min-width: 6em; margin-right: .5em;">{{key}}</tt> {{descr}}</p>
+				{% endfor %}
+			{% endif %}
+			
+			{% if method.post_args %}
+				<h4>POST Parameters</h4>
+				{% for key, descr in method.post_args %}
+					<p style="margin-bottom: .66em"><tt style="display: inline-block; min-width: 6em; margin-right: .5em;">{{key}}</tt> {{descr}}</p>
+				{% endfor %}
+			{% endif %}
+			
+			{% if method.response_summary or method.response_fields %}
+				<h4>Response {% if method.response_fields %}Fields{% endif %}</h4>
+				
+				<p>{{method.response_summary}}</p>
+				
+				{% for key, descr in method.response_fields %}
+					<p style="margin-bottom: .66em"><tt style="display: inline-block; min-width: 6em; margin-right: .5em;">{{key}}</tt> {{descr}}</p>
 				{% endfor %}
 			{% endif %}
 		</div>
