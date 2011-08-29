@@ -3,6 +3,9 @@
 # for user stickiness emails:
 # EMAIL_BACKEND=AWS-SES SEND=SEND LIMIT=250 popvox/send_mass_emails.py userstickinessemail
 
+# For the remaining, maybe send only to users that haven't come back in 
+# the last month or 6 weeks?
+
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 
