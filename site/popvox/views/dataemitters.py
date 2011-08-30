@@ -109,11 +109,11 @@ class Emitter(object):
             """
             
             if self.typemapper:
-                typeinfo = self.typemapper(data, *self.args)
+                typeinfo = self.typemapper(data.__class__, *self.args)
                 if typeinfo:
                     ret = OrderedDict()
                     for fieldname, valuefunc in typeinfo:
-			if not callable(valuefunc): raise ValueError(repr(valuefunc))
+                        if not callable(valuefunc): raise ValueError(repr(valuefunc))
                         v = valuefunc(data, *self.args)
                         if callable(v):
                             v = v()

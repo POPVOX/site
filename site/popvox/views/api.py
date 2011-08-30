@@ -42,6 +42,10 @@ class BaseHandler(object):
 		return hasattr(self, "post")
 	
 	def __call__(self, request, *args, **kwargs):
+		# Clear the session state for this request since we should not be using cookies.
+		request.session = None
+		request.user = AnonymousUser()
+		
 		# Check the api_key query string parameter.
 		auth_string = request.GET.get('api_key', "").strip()
 		if len(auth_string) == 0:
@@ -53,7 +57,7 @@ class BaseHandler(object):
 		
 		# Set the request user, if the account is tied to a user account and if the session
 		# state has not already set a user.
-		if type(getattr(request, "user", None)) in (NoneType, AnonymousUser) and acct.user:
+		if acct.user:
 			request.user = acct.user
 			
 		# Check a session state set in the session query string parameter.
@@ -87,26 +91,34 @@ class BaseHandler(object):
 		if isinstance(ret, HttpResponse):
 			return ret
 		
+		cached_type_info = { }
+		
 		# Serialize the response.
-		def typemapper(obj, request, acct):
+		def typemapper(obj_class, request, acct):
+			if obj_class in cached_type_info:
+				return cached_type_info[obj_class]
+			
 			# Get the field mapping for the model class, which is a list of fields to serialize for the model.
-			fieldlist = getattr(self, obj.__class__.__name__.lower() + "_fields", None)
+			fieldlist = getattr(self, obj_class.__name__.lower() + "_fields", None)
 			if not fieldlist:
+				cached_type_info[obj_class] = None
 				return None
 			if callable(fieldlist):
-				fieldlist = fieldlist(obj, request, acct)
+				fieldlist = fieldlist(request, acct)
 			
 			# For each field, get the function that returns that value.
 			def getvaluefunc(attrname):
-				if hasattr(self, obj.__class__.__name__ + "_" + attrname):
-					return getattr(self, obj.__class__.__name__ + "_" + attrname)
+				if hasattr(self, obj_class.__name__.lower() + "_" + attrname):
+					return getattr(self, obj_class.__name__.lower() + "_" + attrname)
 				if hasattr(self, attrname):
 					return getattr(self, attrname)
 				def simplevaluefunc(obj, request, acct):
 					return getattr(obj, attrname)
 				return simplevaluefunc
 			
-			return [(f, getvaluefunc(f)) for f in fieldlist]
+			ret = [(f, getvaluefunc(f)) for f in fieldlist]
+			cached_type_info[obj_class] = ret
+			return ret
 		
 		ret = emitter(ret, typemapper, [request, acct]).render(request)
 		return HttpResponse(ret, mimetype=mime_type)
@@ -384,7 +396,6 @@ class document_search(BaseHandler):
 @api_handler
 class comments(BaseHandler):
 	bill_fields = ('id', 'title')
-	usercomment_fields = ('id', 'bill', 'position', 'position_text', 'screenname', 'message', 'created', 'state', 'congressionaldistrict', 'link')
 	description = "Retrieves constituent comments on bills. Returns a paginated list of comments."
 	qs_args = (
 		('bill', 'Optional. Restrict comments to a single bill, given by bill ID.', None),
@@ -406,8 +417,15 @@ class comments(BaseHandler):
 		('state', 'the two-letter USPS state abbreviation for the physical address where the individual votes'),
 		('congressionaldistrict', 'the congressional district (within the indicated state) where the individual votes'),
 		('link', 'an absolute URL to the page to view the comment on POPVOX (if message is null, this is a URL to the bill instead as there is no view page)'),
+		('address', 'constituent address information provided when a legislative staff API key or session token is used and the legislative staff account is in the office of a Member of Congress representing the state and, for congressmen, the district specified in the query string filter arguments'),
+		('address/name', 'when authorized as above, the constituent\'s full name'),
+		('address/address', 'when authorized as above, the constituent\'s postal address, which can be two or three lines separated by newline (\\n) characters'),
+		('address/phonenumber', 'when authorized as above, the constituent\'s phone number'),
+		('address/latitude', 'when authorized as above, the constituent\'s postal address\'s latitude'),
+		('address/longitude', 'when authorized as above, the constituent\'s postal address\'s longitude'),
+		('address/email', 'when authorized as above, the constituent\'s email address'),
 		)
-	
+		
 	@paginate
 	def read(self, request, acct):
 		items = UserComment.objects.all().select_related("user", "bill", "bill_sponsor")
@@ -437,7 +455,33 @@ class comments(BaseHandler):
 	@staticmethod
 	def referral(item, request, acct):
 		return [str(r) for r in item.referrers()]
+		
+	@staticmethod
+	def usercomment_fields(request, acct):
+		fields = ['id', 'bill', 'position', 'position_text', 'screenname', 'message', 'created', 'state', 'congressionaldistrict', 'link']
 
+		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
+			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
+			if member != None and member["current"]:
+				if member["state"] == request.GET.get("state", "").upper() and (member["district"] == None or member["district"] == int(request.GET.get("district", "-1"))):
+					request.is_leg_staff = True
+					fields.append('address')
+					comments.postaladdress_fields = ('name', 'address', 'phonenumber', 'latitude', 'longitude', 'email')
+			
+		return fields
+		
+	@staticmethod
+	def postaladdress_name(item, request, acct):
+		return item.name_string()
+		
+	@staticmethod
+	def postaladdress_address(item, request, acct):
+		return item.address_string()
+
+	@staticmethod
+	def postaladdress_email(item, request, acct):
+		return item.user.email
+		
 @api_handler
 class user_login(BaseHandler):
 	description = "Creates a session token for a POPVOX user."
@@ -487,15 +531,30 @@ class user_get_info(BaseHandler):
 		('email', 'your email address'),
 		('name', 'the full name associated with organization and legislative staff accounts'),
 		('screenname', 'the screen name associated with your account (only applicable for individual accounts)'),
+		('locality', 'locality information if known for the user (optional)'),
+		('locality/state', 'the two-letter USPS state abbreviation for the user\'s state'),
+		('locality/district', 'the user\'s congressional district'),
+		('locality/is_leg_staff', 'true if the user is a legislative staffer for this district and will be able to access the private information of her or her constituents in this state or district, false or not set otherwise'),
 		)
 	def read(self, request, acct):
 		if not request.user.is_authenticated():
 			return HttpResponseBadRequest("No valid session token was specified and your API key is not associated with a user account.")
-		return {
+		ret = {
 			"screenname": request.user.username,
 			"email": request.user.email,
 			"name": request.user.get_profile().fullname,
 		}
+
+		if request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
+			member = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
+			if member != None and member["current"]:
+				ret["locality"] = {
+					"state": member["state"],
+					"district": member["district"],
+					"is_leg_staff": True
+				}
+
+		return ret
 
 def documentation(request):
 	api_keys = list(request.user.userprofile.service_accounts(create=True)) if request.user.is_authenticated() else []

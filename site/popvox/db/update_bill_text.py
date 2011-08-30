@@ -213,7 +213,11 @@ def break_pages(document):
 		if document.xml:
 			from lxml import etree
 			from StringIO import StringIO
-			tree = etree.parse(StringIO(base64.decodestring(document.xml))).getroot()
+			
+			xml = base64.decodestring(document.xml)
+			xml = xml.replace("&nbsp;", " ") # hmm
+			
+			tree = etree.parse(StringIO(xml)).getroot()
 			
 			def serialize_node(node, level, info):
 				label = None
