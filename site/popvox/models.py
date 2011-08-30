@@ -719,6 +719,7 @@ class DocumentPage(models.Model):
 	png = models.TextField(blank=True, null=True) # base64 encoded
 	text = models.TextField(blank=True, null=True) # base64 encoded utf-8
 	html = models.TextField(blank=True, null=True) # base64 encoded utf-8
+	pdf = models.TextField(blank=True, null=True) # base64 encoded
 	class Meta:
 		unique_together = (('document', 'page'),)
 		

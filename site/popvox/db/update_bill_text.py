@@ -103,6 +103,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 		doctype=100,
 		key=billstatus,
 		title=title,
+		text="[not available]", # HTML
 		pdf=base64.encodestring(pdf),
 		txt=text,
 		xml=base64.encodestring(xml)
@@ -119,6 +120,11 @@ def break_pages(document):
 	# Generate PNG, text, and HTML representations of the pages in the PDF for
 	# fast access by the iPad app.
 	if document.pdf == None: raise ValueError("I don't have PDF data.")
+	
+	if document.txt == None: # correct
+		document.txt = document.text
+		document.text = "[not available]"
+		document.save()
 	
 	document.pages.all().delete()
 	
@@ -137,21 +143,32 @@ def break_pages(document):
 			# adjusted because of an arbitrary aspect ratio that might come out,
 			# also the filename shifts
 		
-		# generate PNGs
+		# generate PNGs and PDFs for each page
 		
 		subprocess.call(["pdftoppm", "-scale-to-x", "768", "-scale-to-y", "994", "-png", path + "/document.pdf", path + "/page"], cwd=path) # poppler-utils package
 		
+		subprocess.call(["pdftk", path + "/document.pdf", "burst", "compress"], cwd=path) # pdftk package
+		
 		for fn in glob.glob(path + "/page-*.png"):
 			pagenum = int(fn[len(path)+6:-4])
+			
+			# use graphicsmagick mogrify to trim and convert the PNG to greyscale (to reduce file size),
+			# overwriting the file in place.
+			subprocess.call(["gm", "mogrify", "-trim", "-type", "Grayscale", fn])
 			
 			pngfile = open(fn)
 			png = pngfile.read()
 			pngfile.close()
 			
+			ppdffile = open(path + "/pg_%04d.pdf" % pagenum)
+			ppdf = ppdffile.read()
+			ppdffile.close()
+
 			DocumentPage.objects.create(
 				document = document,
 				page = pagenum,
-				png = base64.encodestring(png))
+				png = base64.encodestring(png),
+				pdf = base64.encodestring(ppdf))
 		
 		# generate text
 		
@@ -224,18 +241,19 @@ def break_pages(document):
 			lctr = 0
 			rctr = 0
 			for (op, length) in diff:
-				while next_section < len(info["section_headings"]) and (lctr <= info["section_headings"][next_section][0] < (lctr+length)):
-					s = info["section_headings"][next_section]
-					sections.append( { "page": pagenum, "indentation": s[1], "label": s[2] } )
-					next_section += 1
-				if next_section == len(info["section_headings"]):
-					break
-				
-				if op in ("-", "="):
-					lctr += length
-				if op in ("+", "="):
-					pagenum += text.count("\x0C", rctr, rctr+length)
-					rctr += length
+				for i in xrange(length):
+					if op in ("+", "="):
+						pagenum += text.count("\x0C", rctr, rctr+1)
+						rctr += 1
+					if op in ("-", "="):
+						while next_section < len(info["section_headings"]) and (lctr <= info["section_headings"][next_section][0] < (lctr+1)):
+							s = info["section_headings"][next_section]
+							sections.append( { "page": pagenum, "indentation": s[1], "label": s[2] } )
+							next_section += 1
+						if next_section == len(info["section_headings"]):
+							break
+					
+						lctr += 1
 			
 			document.toc = json.dumps(sections)
 			document.save()

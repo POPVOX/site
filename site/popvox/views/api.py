@@ -47,7 +47,7 @@ class BaseHandler(object):
 		if len(auth_string) == 0:
 			return HttpResponseForbidden("Authorization Required. Missing api_key parameter.")
 		try:
-			acct = ServiceAccount.objects.get(secret_key=auth_string)
+			acct = (ServiceAccount.objects.filter(secret_key=auth_string) | ServiceAccount.objects.filter(api_key=auth_string)).get()
 		except:
 			return HttpResponseForbidden("Authorization Required. Invalid api_key parameter.")
 		
@@ -266,14 +266,15 @@ class DocumentHandler(BaseHandler):
 		has_text = item.pages.filter(text__isnull=False).exists()
 		has_html = item.pages.filter(html__isnull=False).exists()
 		has_png = item.pages.filter(png__isnull=False).exists()
-		return { "text": has_text, "html": has_html, "png": has_png }
+		has_pdf = item.pages.filter(pdf__isnull=False).exists()
+		return { "text": has_text, "pdf": has_pdf, "png": has_png }
 
 @api_handler
 class bill_documents(DocumentHandler):
 	positiondocument_fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats']
 	url_pattern_args = [("000", "BILL_ID")]
 	url_example_args = (16412,)
-	qs_args = (('type', 'The document type. See below for type numbers.', '100'),)
+	qs_args = (('type', 'The document type. See the document metadata API method for type numbers.', '100'),)
 	description = "Returns documents associated with a bill, including bill text (type 100)."
 	response_summary = "This API method returns two sorts of documents: position documents uploaded by advocacy organizations and other entities, and the text of a bill. Note that bills may have more than one text document associated with it as bill text changes through the legislative process. Each bill text version remains on file as the bill changes. See the document metadata API method for documentation for the returned fields."
 	
@@ -315,7 +316,7 @@ class document_metadata(DocumentHandler):
 @api_handler
 class document_pages(BaseHandler):
 	documentpage_fields = ['page', 'text']
-	description = "Retreives metadata for all pages of a document."
+	description = "Retreives complete data for all pages of a document, except binary data associated with a page (such as its image)."
 	url_pattern_args = (("000",'DOCUMENT_ID'),)
 	url_example_args = (248,)
 	response_summary = "Returns a paginated list of pages."
@@ -328,7 +329,7 @@ class document_pages(BaseHandler):
 	def read(self, request, acct, docid):
 		try:
 			doc = PositionDocument.objects.get(id=docid)
-			return doc.pages.order_by('page')
+			return doc.pages.order_by('page').only("page", "text")
 		except PositionDocument.DoesNotExist:
 			raise Http404("Invalid document ID.")
 
@@ -336,21 +337,23 @@ class document_pages(BaseHandler):
 def document_page(request, docid, pagenum, format):
 	try:
 		doc = PositionDocument.objects.get(id=docid)
-		page = doc.pages.get(page=pagenum)
+		page = doc.pages.only("id").get(page=pagenum) # defer fields
 		if format == "png":
 			return HttpResponse(base64.decodestring(page.png), "image/png")
 		elif format == "html":
 			return HttpResponse(page.html, "text/html")
 		elif format == "txt":
 			return HttpResponse(page.text, "text/plain")
+		elif format == "pdf":
+			return HttpResponse(base64.decodestring(page.pdf), "application/pdf")
 		else:
 			raise Http404("Invalid page format.")
 	except PositionDocument.DoesNotExist:
 		raise Http404("Invalid document ID.")
 	except DocumentPage.DoesNotExist:
 		raise Http404("Page number out of range.")
-document_page.description = "Retreives one page of a document as either a PNG or in plain text. Result is either image/png or text/plain."
-document_page.url_pattern_args = (("000",'DOCUMENT_ID'), ("001",'PAGE_NUMBER'), ('aaa', '{png|html|txt}'))
+document_page.description = "Retreives one page of a document as either a PNG, a single-page PDF, or in plain text. Result is either image/png, application/pdf, or text/plain. The formats available for a document are given in the document metadata API method."
+document_page.url_pattern_args = (("000",'DOCUMENT_ID'), ("001",'PAGE_NUMBER'), ('aaa', '{png|pdf|txt}'))
 document_page.url_example_args = (248,20,'png')
 document_page.has_read = True
 

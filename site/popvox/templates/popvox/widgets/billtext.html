@@ -26,6 +26,12 @@
 .page_view {
 	display: none;
 }
+#page_paper .container {
+	xwidth: 768px;
+	xheight: 1024px;
+	background-color: white;
+	padding: 15px;
+}
 </style>
 <script>
 var _docid = null;
@@ -43,6 +49,9 @@ function load_document(docid) {
 	$.ajax({
 	type:"GET",
 	url: "/api/v1/document/" + docid,
+	data: {
+		api_key: "DQZUTLYRW4K1FK1O", // popvox public api key
+	},
 	dataType: "json",
 	success: function(data, status) {
 		$('h1').text(data.title);
@@ -199,7 +208,7 @@ $(function() {
 		<div class="next"><a href="#" onclick="return page_advance(+1)">Next &gt;</a></div>
 		<div class="search_nav search_prev"><a href="#" onclick="return search_advance(-1)">&lt; Previous Location</a></div>
 		<div class="search_nav search_next"><a href="#" onclick="return search_advance(+1)">Next Location &gt;</a></div>
-		<img width="768" height="1024"/>
+		<div class="container"><img /></div>
 	</div>
 
 	<div id="page_text" class="page_view">
