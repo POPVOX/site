@@ -113,6 +113,7 @@ class Emitter(object):
                 if typeinfo:
                     ret = OrderedDict()
                     for fieldname, valuefunc in typeinfo:
+			if not callable(valuefunc): raise ValueError(repr(valuefunc))
                         v = valuefunc(data, *self.args)
                         if callable(v):
                             v = v()

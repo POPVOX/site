@@ -509,7 +509,7 @@ def documentation(request):
 		return url
 	
 	def prepare_documentation(f):
-		f.name = f.__name__.replace("_", " ")
+		f.api_display_name = f.__name__.replace("_", " ")
 
 		try:
 			args = getattr(f, "url_pattern_args", [])
