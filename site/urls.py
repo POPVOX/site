@@ -15,6 +15,10 @@ urlpatterns = patterns('',
 	
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	
+	(r'^delete_account.html$', 'popvox.views.home.delete_account'),
+	
+	(r'^delete_account_confirmed.html$', 'popvox.views.home.delete_account_confirmed'),
+	
 	(r'^home$', 'popvox.views.home.home'),
 	(r'^home/suggestions$', 'popvox.views.home.home_suggestions'),
 	(r'^docket$', 'popvox.views.home.docket'),

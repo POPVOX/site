@@ -1017,3 +1017,34 @@ def legstaff_facebook_report_getinfo(request):
 								info["num_constituent_postlikes"][0] += 1
 				
 	return info
+	
+@login_required
+def delete_account(request):
+    user = request.user
+    prof = user.get_profile()
+        
+    if prof.is_leg_staff():
+        raise Http404()
+        
+    elif prof.is_org_admin():
+        raise Http404()
+    
+    else:
+        return render_to_response('popvox/delete_account.html', {},
+        
+    context_instance=RequestContext(request))
+    
+def delete_account_confirmed(request):
+    user = request.user
+    prof = user.get_profile()
+        
+    if prof.is_leg_staff():
+        raise Http404()
+        
+    elif prof.is_org_admin():
+        raise Http404()
+    
+    else:
+        return render_to_response('popvox/delete_account_confirmed.html', {},
+        
+    context_instance=RequestContext(request))
