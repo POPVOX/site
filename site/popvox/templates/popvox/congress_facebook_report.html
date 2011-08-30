@@ -406,7 +406,7 @@ clear:both;
 }
 
 .likes {
-background: #E0DDD7 url(/media/master/icons/icons-01.png) no-repeat top left;
+background: #E0DDD7 url(/media/master/thumbsup.png) no-repeat top left;
 padding: 8px 8px 8px 30px;
 margin-top: 3px;
 clear:both;
@@ -415,10 +415,19 @@ background-position: 7px 6px;
 
 .comment {
 padding: 6px;
-background: #E0DDD7;
+/*background: url(/media/master/icons/check.png) no-repeat center left;
+background-position: 5px 50%;*/
 margin-top: 3px;
 min-height: 50px;
+margin-left: -30px;
+padding-left: 30px;
 }
+
+.commentC {
+background: #E0DDD7;
+padding: 6px;
+}
+
 
 .comment .text {
 margin-top: 3px;
@@ -589,11 +598,15 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 			</div>
 			
 			<div class="comment">
+				<div class="commentC">
 				<img class="picture" style="float: left; margin-right: 15px"/>
 			
 				<div class="who"><span class="name"></span><div class="tooltipFB"> </div> <span class="constituent_from"></span><span class="constituent"></span></div>
 				
 				<div class="text"> </div>
+
+				<div class="clear"> </div>
+			</div>
 			</div>
 			
 			<div class="like">
