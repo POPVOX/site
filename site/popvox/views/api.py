@@ -43,7 +43,10 @@ class BaseHandler(object):
 	
 	def __call__(self, request, *args, **kwargs):
 		# Clear the session state for this request since we should not be using cookies.
-		request.session = None
+		# We have to set a valid session object or things that hit the session state like
+		# user login will fail.
+		session_engine = import_module(settings.SESSION_ENGINE)
+		request.session = session_engine.SessionStore()
 		request.user = AnonymousUser()
 		
 		# Check the api_key query string parameter.
@@ -62,7 +65,6 @@ class BaseHandler(object):
 			
 		# Check a session state set in the session query string parameter.
 		if "session" in request.GET:
-			session_engine = import_module(settings.SESSION_ENGINE)
 			request.session = session_engine.SessionStore(request.GET["session"])
 			request.user = get_user(request)
 			
@@ -85,8 +87,9 @@ class BaseHandler(object):
 		# Call the handler function, adding the account argument.
 		try:
 			ret = f(request, acct, *args, **kwargs)
-		except Exception as e:
-			return HttpResponse(str(e))#), status_code=500
+		except:
+			import traceback
+			return HttpResponse(traceback.format_exc())#), status_code=500
 			
 		if isinstance(ret, HttpResponse):
 			return ret
