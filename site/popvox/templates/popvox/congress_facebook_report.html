@@ -68,7 +68,7 @@ function constituent_location(data) {
 	return "";
 }
 function constituent_address(data) {
-	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>") + "<br/>" + htmlescape(data.constituent[4]) + "<br/><a href='http://www.facebook.com/" + data.id + "'>View Facebook Profile</a>";
+	return htmlescape(data.constituent[2]) + "<br/>" + htmlescape(data.constituent[3]).replace("\n", "<br/>") + "<br/>" + htmlescape(data.constituent[4]) + "<br/><a href='http://www.facebook.com/" + data.id + "' target='_blank'>View Facebook Profile</a>";
 }
 function update(id) {
 	$('#content_status').text("Loading...");
@@ -476,8 +476,6 @@ border-bottom: solid black 3px;
 		<h1 style="margin-bottom: 0">Analysis</h1>
 		<h2 style="margin: 10px 0 20px 0; font-size: 24px; line-height: normal; font-family: helvetica,arial,sans-serif">Are they your constituents? An analysis of Congressional Facebook Pages.</h1>
 		
-		<p><em>Congressional courtesy</em> dictates that Members of Congress should avoid contacting individuals in another Member&rsquo;s state or district. As a result, some Congressional communications staff are reluctant to respond to comments on social media, not knowing whether the poster is a constituent or not.</p>
-		
 		{% if is_leg_staff %}
 		<ul id="main_tab" class="tabs">
 		<li><a href="#overall"><span>Overall Report</span></a></li>
@@ -486,17 +484,17 @@ border-bottom: solid black 3px;
 		<div class="tab_panel tab_overall">
 		{% endif %}
 		
-		<p class="pad_btm" style="font: normal 13px/18px helvetica, arial, sans-serif">We looked at the <strong>369 official Facebook Pages of Members of Congress</strong> to see whether the individuals posting, liking posts, and commenting were <strong>constituents of the congressman or senator</strong>. Here is what we found:</p>
+		<p class="pad_btm" style="font-size: 17px; line-height: 145%;"">We looked at the 369 Facebook Pages of Members of Congress to see whether the individuals interacting on the page are constituents of the congressman or senator.</p>
 
 		<div id="overall_stats_pie"> </div>
 		<div id="overall_stats_pie_legend" class="pie_legend">
 			{% if is_leg_staff %}
 			<div style="margin: -20px 0 20px 0; background: #D4D1CA; padding: 6px;">
-				<p style="margin: 0; font-size: 13px;"><a href="#customized" style="font-weight: bold;">Get your customized report for {{user.legstaffrole.member.state_district}}...</a></p>
+				<p style="margin: 0; font-size: 13px;"><a href="#customized" style="font-weight: bold;">Get your customized report...</a></p>
 			</div>
 			{% endif %}
 		
-			<h2>How many are constituents?</h2>
+			<h2>Are they constituents?</h2>
 			<p class="posts"><span class="percent"></span> <span class="label">Wall Posts</span></p>
 			<p class="comments"><span class="percent"></span> <span class="label">Comments</span></p>
 			<p class="postlikes"><span class="percent"></span> <span class="label">Likes on Posts</span></p>
@@ -505,13 +503,13 @@ border-bottom: solid black 3px;
 
 		<div class="clear"> </div>
 		
-		<p style="margin: 20px 0 20px 0; font-size: 17px; line-height: normal;">While a large majority of users interacting with Congressional Facebook Pages are not constituents, we do find that <strong>most comments on wall posts are from constituents</strong>. On Senate pages, three-quarters of comments are from constituents.</p>
+		<p style="margin: 20px 0 20px 0; font-size: 17px; line-height: 145%;">While a large majority of users interacting with Congressional Facebook Pages are not constituents, we do find that <strong>most comments on wall posts are from constituents</strong>. On Senate pages, 75% of comments are from constituents.</p>
 		
 		<table id="breakdowns">
-		<tr><th></th><th colspan="4" style="text-align: center">How Many Are Constituents?</th></tr>
-		<tr class="header"><th></th> <th>Wall Posts</th> <th>Comments</th> <th>Likes on Posts</th> <th>Page Users</th> <th class="shade">Pages</th></tr>
-		<tr><th>Senators</th> <td>46%</td> <td>75%</td> <td>33%</td> <td>40%</td> <td class="shade">61</td></tr>
-		<tr><th>Representatives</th> <td>17%</td> <td>58%</td> <td>12%</td> <td>17%</td> <td class="shade">308</td></tr>
+		<tr><th></th><th colspan="4" style="text-align: center">How Many Are From Constituents?</th></tr>
+		<tr class="header"><th></th> <th>Wall Posts</th> <th>Comments</th> <th>Likes on Posts</th> <th>Page Users</th> <th class="shade">Number of Pages</th></tr>
+		<tr><th>Senate Pages</th> <td>46%</td> <td>75%</td> <td>33%</td> <td>40%</td> <td class="shade">61</td></tr>
+		<tr><th>House Pages</th> <td>17%</td> <td>58%</td> <td>12%</td> <td>17%</td> <td class="shade">308</td></tr>
 		</table>
 
 		
@@ -523,8 +521,12 @@ border-bottom: solid black 3px;
 		</div>
 		{% endif %}
 		
-		<p class="pad_top">According to a report by the <a href="http://www.congressfoundation.org">Congressional Management Foundation</a>, <a href="http://www.congressfoundation.org/storage/documents/CMF_Pubs/cmf-social-congress.pdf">#SocialCongress: Perceptions and Use of Social Media on Capitol Hill</a>, almost two-thirds of staffers surveyed viewed Facebook as &ldquo;an important 
-source for understanding constituents’ views and opinions.&rdquo; We hope that our analysis of Facebook Pages &mdash; and our customized reports for Congressional staff &mdash; make Facebook Pages more effective.</p>
+		<p class="pad_top">&ldquo;Congressional courtesy&rdquo; dictates that Members of Congress should avoid contacting individuals in another Member&rsquo;s state or district. As a result, some Congressional communications staff are reluctant to respond to comments on social media, not knowing whether the poster is a constituent or not.</p>
+
+		<p>Comments on wall posts were predominantly left by constituents, unlike wall posts and likes to posts. This might be explained by the fact that constituents are more likely compared to non-constituents to be consuming information on the Page, and therefore non-constituents will be less likely to respond to a wall post, or if they do, it is more likely to be in a form with the least engagement, such as a &ldquo;like,&rdquo; rather than as a comment.</p>
+		
+		<p>According to a report by the <a href="http://www.congressfoundation.org">Congressional Management Foundation</a>, <a href="http://www.congressfoundation.org/storage/documents/CMF_Pubs/cmf-social-congress.pdf">#SocialCongress: Perceptions and Use of Social Media on Capitol Hill</a>, almost two-thirds of staffers surveyed viewed Facebook as &ldquo;an important 
+source for understanding constituents’ views and opinions.&rdquo; We hope that our analysis of Facebook Pages &mdash; and our customized reports for Congressional staff &mdash; makes Facebook Pages more effective.</p>
 		
 		<h2>Methodology</h2>
 		
@@ -548,13 +550,13 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 		<div id="content" style="display: none">
 			<div id="customized_stats_pie"> </div>
 			<div id="customized_stats_pie_legend" class="pie_legend">
-				<h2 style="margin: 0">How many are constituents?</h2>
+				<h2 style="margin: 0">Are they constituents?</h2>
 				<p class="link pad_btm"><a href="" target="_blank"></a></p>
 				<p class="posts"><span class="percent"></span> <span class="label">Wall Posts</span> <span class="raw"></span></p>
 				<p class="comments"><span class="percent"></span> <span class="label">Comments</span> <span class="raw"></span></p>
 				<p class="postlikes"><span class="percent"></span> <span class="label">Likes on Posts</span> <span class="raw"></span></p>
 				<p class="users"><span class="percent"></span> <span class="label">Page Users</span> <span class="raw"></span></p>
-				<p class="pad_top" style="font-size: 10px; color: #666;">(Based on users interacting with your Facebook page who are also POPVOX users.)</p>
+				<p class="pad_top" style="font-size: 11px; color: #555;">(Based on users interacting with your Facebook page who are also POPVOX users.)</p>
 			</div>
 			{% comment %}<img class="pagephoto" style="float: left; margin-right: 15px"/>{% endcomment %}
 			<div class="clear"> </div>
@@ -617,6 +619,16 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 	</div> <!-- col_9 -->
 
 	{% include "ads/rightbar.html" %}
+
+	<div class="col_3 col_last" style="margin-top: 20px">
+		{% if not is_leg_staff %}
+		<div style="margin: 30px 0 20px 0; background: #D4D1CA; padding: 10px;">
+			<p style="margin-bottom: 10px; font-size: 17px; line-height: normal;"><strong>Want to know more?</strong> We can show you <strong>which posts are from your constituents</strong> if you are a Congressional staffer or Member of Congress.</p>
+			<p style="margin: 0;">In order to protect the privacy of our users, you will need to
+			<a href="/accounts/register/legstaff?next=/congress/facebook" target="_blank" style="font-weight: bold">register</a> with your @mail.house.gov or @senate.gov address or <a href="/accounts/login?next=/congress/facebook" style="font-weight: bold">login</a> if you already have a POPVOX Congressional staff account (personal staff only).</p>
+		</div>
+		{% endif %}
+	</div>
 </div><!-- e: content -->
 
 {% endblock %}
