@@ -72,8 +72,9 @@ class Command(BaseCommand):
 		orders = { }
 		paths = { }
 		dates = { }
+		banners = { }
 		for imb in imprs:
-			for tally_key, tally_list in ((imb.banner.order, orders), (imb.path, paths), (imb.date, dates), ("Total", dates)):
+			for tally_key, tally_list in ((imb.banner.order, orders), (imb.path, paths), (imb.date, dates), ("Total  ", dates), (imb.banner, banners)):
 				if not tally_key in tally_list:
 					tally_list[tally_key] = { "impressions": 0, "clicks": 0, "cost": 0.0 }
 				tally_list[tally_key]["impressions"] += imb.impressions
@@ -121,5 +122,13 @@ class Command(BaseCommand):
 			print date if type(date)==str else date.strftime("%x"), \
 				"\timpr:", info["impressions"], "clicks:", info["clicks"], "ctr:", str(round(10000*info["clicks"]/info["impressions"])/100.0) + "%", "$" + str(round(info["cost"]*100)/100.0)
 
+		print
+		print "Banners"
+		print "====="
+		banners = list(banners.items())
+		banners.sort(key = lambda x : -x[1]["cost"])
+		for banner, info in banners[0:20]:
+			print banner.name.ljust(SitePath.MAX_PATH_LENGTH), "impr:", info["impressions"], "\t$" + str(round(info["cost"]*100)/100.0)
+			
 		
 
