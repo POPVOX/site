@@ -161,38 +161,52 @@ class BillHandler(BaseHandler):
 		
 @api_handler
 class bill_suggestions(BillHandler):
-	description = "Retreives suggested bills, including popular bills and bills similar to other bills."
+	description = "Retreives suggested bills, including popular bills."
 	qs_args = (
-		('can_comment', 'Optional. Set to "1" to restrict the output to bills that can be commented on.', None),
-		("similar_to", "Optional. A comma-separated list of bill IDs. Adds a 'similarity' key to the output with related bills.", None))
-	response_summary = "Returns one or more lists of bills. The lists are keyed by the nature of the list. 'popular' stands for most popular bills on POPVOX. 'similarity' stands for bills similar to the bills specified in similar_to. For documentation of the returned bill metadata, see the bill metadata API method."
+		('can_comment', 'Optional. Set to "1" to restrict the output to bills that can be commented on.', None), )
+	response_summary = "Returns groups of recommendations, i.e. a list of lists. Each group has a title, an identification code, and a list of bills. The list of bills may be ordered from most relevant to least relevant. For documentation of the returned bill metadata, see the bill metadata API method."
+	response_fields = (
+		('name', 'the display name for the list'),
+		('type', 'a string code identifying the type of the list (currently just "popular")'),
+		('bills', 'a list of bills in the list'),
+		)
 	def read(self, request, account):
 		from bills import get_popular_bills
-		ret = {}
 		
-		ret["popular"] = get_popular_bills()
+		pop_bills = get_popular_bills()
 		if request.GET.get("can_comment", '') == "1":
-			ret["popular"] = [b for b in ret["popular"] if b.isAlive()]
+			pop_bills = [b for b in ret["popular"] if b.isAlive()]
 		
-		if "similar_to" in request.GET:
-			# Get related bills by similarity to a set of bills passed in by ID.
-			
-			targets = {}
-			for source_bill in Bill.objects.filter(id__in=request.GET["similar_to"].split(",")):
-				for target_bill, similarity in chain(( (s.bill2, s.similarity) for s in source_bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in source_bill.similar_bills_two.all().select_related("bill1"))):
-					if request.GET.get("can_comment", '') == "1" and not target_bill.isAlive():
-						continue
-					
-					if not target_bill in targets: targets[target_bill] = []
-					targets[target_bill].append( (source_bill, similarity) )
-			
-			targets = list(targets.items()) # (target_bill, [list of (source,similarity) pairs])
-			targets.sort(key = lambda x : -sum([y[1] for y in x[1]]))
-			
-			# Take the top reccomendations.
-			ret["similarity"] = [t[0] for t in targets[:15]]
+		return [
+			OrderedDict([
+				("name", "Popular Bills This Week"),
+				("type", "popular"),
+				("bills", pop_bills),
+			]),
+		]
+
+@api_handler
+class bill_similarity(BillHandler):
+	description = "Retreives bills similar to other bills."
+	qs_args = (
+		("similar_to", "A comma-separated list of bill IDs to get similar bills for.", "14402"),
+		('can_comment', 'Optional. Set to "1" to restrict the output to bills that can be commented on.', None))
+	response_summary = "Returns a paginated list of similar bills, ordered from most similar to least similar. For documentation of the returned bill metadata, see the bill metadata API method."
+	def read(self, request, account):
+		targets = {}
+		for source_bill in Bill.objects.filter(id__in=request.GET["similar_to"].split(",")):
+			for target_bill, similarity in chain(( (s.bill2, s.similarity) for s in source_bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in source_bill.similar_bills_two.all().select_related("bill1"))):
+				if request.GET.get("can_comment", '') == "1" and not target_bill.isAlive():
+					continue
+				
+				if not target_bill in targets: targets[target_bill] = []
+				targets[target_bill].append( (source_bill, similarity) )
 		
-		return ret 
+		targets = list(targets.items()) # (target_bill, [list of (source,similarity) pairs])
+		targets.sort(key = lambda x : -sum([y[1] for y in x[1]]))
+		
+		# Take the top reccomendations.
+		return paginate_items([t[0] for t in targets], request, xml_tag_name="bill")
 
 @api_handler
 class bill_search(BillHandler):

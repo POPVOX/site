@@ -116,6 +116,7 @@ urlpatterns = patterns('',
 
 	(r'^api/docs$', 'popvox.views.api.documentation'),
 	(r'^api/v1/bills/suggestions$', 'popvox.views.api.bill_suggestions'),
+	(r'^api/v1/bills/similarity$', 'popvox.views.api.bill_similarity'),
 	(r'^api/v1/bills/search$', 'popvox.views.api.bill_search'),
 	(r'^api/v1/bill/(\d+)$', 'popvox.views.api.bill_metadata'),
 	(r'^api/v1/bill/(\d+)/documents$', 'popvox.views.api.bill_documents'),
