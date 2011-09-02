@@ -309,7 +309,10 @@ class bill_documents(DocumentHandler):
 	
 	def read(self, request, acount, billid):
 		bill = Bill.objects.get(id=billid)
-		return bill.documents.all()
+		docs = bill.documents.all().order_by("-created")
+		if "type"  in request.GET:
+			docs = docs.filter(doctype=request.GET["type"])
+		return docs
 
 @api_handler
 class document_metadata(DocumentHandler):

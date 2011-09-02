@@ -13,14 +13,18 @@ from popvox.govtrack import CURRENT_CONGRESS
 
 from popvox.models import Bill, PositionDocument, DocumentPage
 	
-def fetch_page(url, args=None, method="GET"):
+def fetch_page(url, args=None, method="GET", decode=False):
 	if method == "GET" and args != None:
 		url += "?" + urllib.urlencode(args).encode("utf8")
 	req = urllib2.Request(url)
 	resp = urllib2.urlopen(req)
 	if resp.getcode() != 200:
 		raise Exception("Failed to load page: " + url)
-	return resp.read()
+	ret = resp.read()
+	if decode:
+		encoding = resp.info().getparam("charset")
+		ret = ret.decode(encoding)
+	return ret
 
 def pull_text(congressnumber):
 	bill_list = fetch_page("http://frwebgate.access.gpo.gov/cgi-bin/BillBrowse.cgi",
@@ -43,8 +47,8 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 		print "invalid bill", m
 		return
 		
-	# check if we have this document already
-	if PositionDocument.objects.filter(bill=bill, doctype=100, key=billstatus).exists():
+	# check if we have this document already and have pages loaded
+	if DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, document__txt__isnull=False).exists():
 		return
 		
 	bill_type_map = {
@@ -87,12 +91,13 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 	if not title:
 		print "bill title not found in MODS", m
 		return
+	title = unicode(title) # force lxml object to unicode, otherwise it isn't handled right in Django db layer
 		
 	date = mods.xpath('string(m:originInfo/m:dateIssued)', namespaces=ns)
 
 	pdf = fetch_page(pdf_url)
 	
-	text = fetch_page(pdf_url.replace("/pdf/", "/html/").replace(".pdf", ".htm"))
+	text = fetch_page(pdf_url.replace("/pdf/", "/html/").replace(".pdf", ".htm"), decode=True)
 	text = text.replace("<html><body><pre>\n", "").replace("</pre></body></html>", "").decode("utf8")
 	text = text.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
 
@@ -169,6 +174,8 @@ def break_pages(document):
 				page = pagenum,
 				png = base64.encodestring(png),
 				pdf = base64.encodestring(ppdf))
+
+		return
 		
 		# generate text
 		
