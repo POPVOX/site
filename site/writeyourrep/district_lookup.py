@@ -164,4 +164,22 @@ def get_state_for_zipcode(zipcode):
 
 	return None
 
+def get_zip_plus_four(zip5, state, district):
+	# Returns the first zip+4 that matches the zipcode, state, and district.
+	# This is used when we have a ZIP+5 and a district and want to make up
+	# a complete ZIP+4 to get a message through a webform.
 	
+	zipcode = "".join([ d for d in zip5 if d.isdigit() ])
+	if len(zipcode) != 5:
+		raise ValueError("expects 5-digit zip code")
+		
+	cursor = connection.cursor()
+	
+	cursor.execute("SELECT zip9 FROM zipcodes WHERE zip9 LIKE %s AND state=%s AND district=%s and LENGTH(zip9)=9 LIMIT 1", [zipcode+"%", state, district])
+	rows = cursor.fetchall()
+	if len(rows) == 0:
+		return None
+		
+	zip9 = rows[0][0]
+	return zip9[0:5] + "-" + zip9[5:9]
+

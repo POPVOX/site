@@ -3,6 +3,11 @@
 import os, os.path, sys
 import datetime
 
+# set the backend flag to anything to avoid Amazon SES because
+# when we do delivery by plain SMTP, we send from the user's
+# email address.
+os.environ["EMAIL_BACKEND"] = "BASIC"
+
 from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, OrgCampaign, Bill, MemberOfCongress
 from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress
 
@@ -45,25 +50,28 @@ if "TARGET" in os.environ:
 	comments_iter = comments_iter.filter(state=m["state"])
 	if m["type"] == "rep":
 		comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
-if "LAST_ERR_SR" in os.environ:
-	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE)
-if "LAST_ERR_TIMEOUT" in os.environ:
-	comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR, delivery_attempts__trace__contains="timed out")
+if "LAST_ERR" in os.environ:
+	if os.environ["LAST_ERR"] == "SR":
+		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE)
+	if os.environ["LAST_ERR"] == "TIMEOUT":
+		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR, delivery_attempts__trace__contains="timed out")
+	if os.environ["LAST_ERR"] == "UE":
+		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_UNHANDLED_EXCEPTION)
 if "RECENT" in os.environ:
 	comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=7))
 	
-for comment in comments_iter.order_by('created').select_related("bill").iterator():
-	if os.path.exists("/tmp/break"): break
-	
+def process_comment(comment, thread_id):
+	global success, failure, needs_attention, pending, held_for_offline
+
 	# since we don't deliver message-less comments, when we activate an endpoint we
 	# end up sending the backlog of those comments. don't bother.
 	if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=21):
-		continue
+		return
 	
 	# Who are we delivering to? Anyone?
 	govtrackrecipients = comment.get_recipients()
 	if not type(govtrackrecipients) == list:
-		continue
+		return
 		
 	govtrackrecipientids = [g["id"] for g in govtrackrecipients]
 	
@@ -79,6 +87,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 	msg.address2 = comment.address.address2
 	msg.city = comment.address.city
 	msg.state = comment.address.state
+	msg.congressionaldistrict = comment.address.congressionaldistrict
 	msg.zipcode = comment.address.zipcode
 	msg.county = comment.address.county # may be None!
 	msg.phone = comment.address.phonenumber
@@ -163,11 +172,15 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 			
 		# Special field cleanups for particular endpoints.
 		if gid in (412246,400050) and msg.county == None and comment.address.cdyne_response == None:
-			print "Normalize Address", comment.address.id
+			print thread_id, "Normalize Address", comment.address.id
 			comment.address.normalize()
 			msg.county = comment.address.county
-		if gid in (400616,400055):
+		if gid in (400616,400055,412469):
 			msg.phone = "".join([d for d in msg.phone if d.isdigit()][0:10])
+			#if gid == 412469:
+			#	msg.phone = ("(%s) %s-%s" % (msg.phone[0:3], msg.phone[3:6], msg.phone[6:10]))
+		if msg.address2.lower() == msg.city.lower():
+			msg.address2 = ""
 		
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
@@ -255,7 +268,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		
 		delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id))
 		if delivery_record == None:
-			print gid, comment.address.zipcode, endpoint
+			print thread_id, gid, comment.address.zipcode, endpoint
 			mark_for_offline("no-method")
 			if not gid in target_counts: target_counts[gid] = 0
 			target_counts[gid] += 1
@@ -272,7 +285,7 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 		# so we know not to try again.
 		comment.delivery_attempts.add(delivery_record)
 		
-		print comment.created, delivery_record
+		print thread_id, comment.created, delivery_record
 		
 		if delivery_record.success:
 			success += 1
@@ -287,7 +300,42 @@ for comment in comments_iter.order_by('created').select_related("bill").iterator
 				mark_for_offline("address-rejected")
 			else:
 				mark_for_offline("failure-other")
+
+def process_comments_group(thread_index, thread_count):
+	# divide work among the threads by taking only comments by users whose id
+	# MOD the thread count is the thread index.
+	#
+	# thread_index should be in range 0 <= thread_index < thread_count so that
+	# the modulus operator works right. the modulus is applied to the commenting
+	# user's ID since a single user targets the same endpoints so they should be
+	# kept to a single thread.
+	
+	for comment in comments_iter\
+		.extra(where=["auth_user.id MOD %d = %d" % (thread_count, thread_index)])\
+		.order_by('created')\
+		.select_related("bill", "user")\
+		.iterator():
+			
+		if os.path.exists("/tmp/break"): break
+		process_comment(comment, "T" + str(thread_index+1))
 		
+if not "THREADS" in os.environ or "TARGET" in os.environ:
+	# when we are targetting a single endpoint, don't multi-thread it
+	process_comments_group(0, 1)
+else:
+	import threading
+	threads = []
+	thread_count = int(os.environ["THREADS"])
+	for thread_index in range(thread_count):
+		t = threading.Thread(target=process_comments_group, args=(thread_index, thread_count))
+		t.start()
+		threads.append(t)
+		
+	# wait for all threads to finish
+	for t in threads:
+		t.join()
+	
+
 print "Success:", success
 print "Failure:", failure
 print "Needs Attention:", needs_attention

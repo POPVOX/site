@@ -39,6 +39,10 @@ There are three delivery methods and four options that can be set:
 		Indicates that the first stage in the webform fill-in process is to submit a zipcode
 		(and possibly other info, but not the message). For FORMSPEC, see next.
 		
+		add-district-zip-cookie
+		Sets a cookie named District with the value of the message's zipcode. Used on Rep.
+		Michael Turner's form.
+		
 		FORMSPEC
 		The name of the primary form to submit the whole comment into. This is the only
 		REQUIRED option to follow the hash.
@@ -110,11 +114,11 @@ Some environment variable settings can help with debugging:
 	ADDR=XXXXXXX popvox/wyr/send_comments.py send
 	send only messages with the given PostalAddress ID
 	
-	LAST_ERR_SR=1 popvox/wyr/send_comments.py send
-	send only messages that had a previous synonym required failure
-
-	LAST_ERR_TIMEOUT=1 popvox/wyr/send_comments.py send
-	send only messages that had a previous HTTP timeout failure
+	LAST_ERR=... popvox/wyr/send_comments.py send
+	send only messages that had a previous failure
+		LAST_ERR=SR			for synonym required
+		LAST_ERR=TIMEOUT	for HTTP timeout failure
+		LAST_ERR=UE			for an unhandled exception failure
 	
 Field Name Configuration
 ==============

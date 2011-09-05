@@ -26,6 +26,7 @@ class Endpoint(models.Model):
 	no_print = models.BooleanField(default=False)
 	
 	tested = models.BooleanField(default=False)
+	notes = models.TextField(blank=True, null=True)
 	
 	template = models.TextField(blank=True, null=True)
 	

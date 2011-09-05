@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.db import IntegrityError
 
 class EndpointAdmin(admin.ModelAdmin):
-	list_display = ("govtrackid", "method", "office", "mocname", "webformresponse")
+	list_display = ("govtrackid", "method", "office", "mocname", "notes")
 	list_filter = ("method", "tested")
 	search_fields = ["govtrackid"]
 	readonly_fields = ("govtrackid", "office")
@@ -15,11 +15,11 @@ class DeliveryRecordAdmin(admin.ModelAdmin):
 	list_display = ("created", "target", "success", "failure_reason", "method")
 	list_filter = ("success", "failure_reason", "created", "method")
 	search_fields = ('trace',)
-	actions = ['make_success', 'make_formparsefail']
+	actions = ['make_success', 'make_formparsefail', 'make_districtdisagr']
 
 	def queryset(self, request):
 		qs = super(DeliveryRecordAdmin, self).queryset(request)
-		return qs.filter(next_attempt__isnull=True)
+		return qs.filter(next_attempt__isnull=True).exclude(target__method=Endpoint.METHOD_NONE)
 
 	def make_success(self, request, queryset):
 		queryset.update(success=True, failure_reason=DeliveryRecord.FAILURE_NO_FAILURE)
@@ -30,6 +30,11 @@ class DeliveryRecordAdmin(admin.ModelAdmin):
 		queryset.update(success=False, failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE)
 		return None
 	make_formparsefail.short_description = "Mark as Form Parse Fail"
+	
+	def make_districtdisagr(self, request, queryset):
+		queryset.update(success=False, failure_reason=DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT)
+		return None
+	make_districtdisagr.short_description = "Mark as District Disagreement"
 	
 class SynonymAdmin(admin.ModelAdmin):
 	list_display = ("created", "term1", "term2", "last_resort", "auto")

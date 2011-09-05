@@ -11,6 +11,7 @@ from time import clock, sleep
 from django.core.mail import send_mail
 
 from writeyourrep.models import *
+from writeyourrep.district_lookup import get_zip_plus_four
 
 from popvox.govtrack import getMemberOfCongress, statenames
 
@@ -22,14 +23,21 @@ cookiejar = cookielib.CookieJar()
 #proxy_handler = urllib2.ProxyHandler({'http': 'http://localhost:8080/'})
 http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar)) # , proxy_handler
 http_last_url = ""
+extra_cookies = { }
 
 def urlopen(url, data, method, deliveryrec):
 	global http_last_url
 	http.addheaders = [
 		('User-agent', "POPVOX.com Message Delivery <info@popvox.com>"),
-		('Referer', http_last_url)
+		('Referer', http_last_url),
 		]
 	
+	cookiestate = repr([("%s=%s" % (c.name, c.value)) for c in cookiejar])
+
+	if extra_cookies:
+		http.addheaders += [("Cookie", ";".join("%s=%s" % (kv[0], kv[1]) for kv in extra_cookies.items()))]
+		cookiestate += " " + repr(extra_cookies)
+
 	if method.upper() == "POST":
 		deliveryrec.trace += unicode("POST " + url + "\n")
 		if not isinstance(data, (str, unicode)):
@@ -40,7 +48,7 @@ def urlopen(url, data, method, deliveryrec):
 			data = urllib.urlencode(data)
 		else:
 			deliveryrec.trace += unicode(data) + u"\n"
-		deliveryrec.trace += "\tcookies: " + unicode(cookiejar) + "\n"
+		deliveryrec.trace += "\tcookies: " + cookiestate + "\n"
 		ret = http.open(url, data)
 	else:
 		if not isinstance(data, (str, unicode)):
@@ -48,7 +56,7 @@ def urlopen(url, data, method, deliveryrec):
 		if len(data) > 0:
 			url = url + ("?" if not "?" in url else "&") + data
 		deliveryrec.trace += unicode("GET " + url + "\n")
-		deliveryrec.trace += "\tcookies: " + unicode(cookiejar) + "\n"
+		deliveryrec.trace += "\tcookies: " + cookiestate + "\n"
 		ret = http.open(url)
 	
 	deliveryrec.trace += unicode(ret.getcode()) + unicode(" " + ret.geturl() + "\n")
@@ -193,8 +201,8 @@ common_fieldnames = {
 	"fullname": "name",
 	"name_suffix": "suffix",
 	"suffix2": "suffix",
-	"address": "address1",
-	"street_address": "address1",
+	"address": "address_combined",
+	"street_address": "address_combined",
 	"street_address_2": "address2",
 	"address01": "address1",
 	"address02": "address2",
@@ -216,7 +224,6 @@ common_fieldnames = {
 	"address-line2": "address2",
 	"addressstreet1": "address1",
 	"addressstreet2": "address2",
-	"ContactFormcdtxtAddress": "address1",
 	"req_addrl": "address1",
 	"mailing_city": "city",
 	"hcity": "city",
@@ -230,12 +237,14 @@ common_fieldnames = {
 	"hzip": "zipcode",
 	"zip5": "zip5",
 	"zip_verify": "zipcode",
+	"mainzip": "zip5",
 	"zip4": "zip4",
 	"zipfour": "zip4",
 	"zip2": "zip4",
 	"plusfour": "zip4",
 	"zip_plus4": "zip4",
 	"zipcode4": "zip4",
+	"pluszip": "zip4",
 	"postalcode": "zipcode",
 	"mailing_zipcode": "zipcode",
 	"addresszip": "zipcode",
@@ -321,6 +330,7 @@ common_fieldnames = {
 	"correspondence_response": "response_requested",
 	"answer": "response_requested",
 	"responsereq": "response_requested",
+	"ddlreply": "response_requested",
 	
 	'view_select': 'support_oppose',
 	
@@ -382,6 +392,11 @@ custom_mapping = {
 	"24_i02": "message",
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
 	"37_affl3": "enews_subscribe",
+	"37_field_302e8a41-000d-419e-991e-40c7cb96f97c_radio": "topicarea",
+	"554_number_text": "address_split_number",
+	"554_name_text": "address_split_street", 
+	"554_quadrant_select": "address_split_quadrant", 
+	"554_apartment_text": "address_split_suite", 
 	"613_zipcode_text": "zip5",
 	"624_phone_prefix_text" : "phone_areacode",
 	"624_phone_first_text" : "phone_prefix",
@@ -406,6 +421,7 @@ custom_overrides = {
 	"18_prefix2_select": "Yes",
 	"29_subject_radio": "CRNR", # no response requested
 	"37_state_id_select": "83c503f1-e583-488d-ac7f-9ff476cfec25", #WTF Feinstein's form, seriously.
+	"37_field_a3ffd5e3-91d9-4394-8aa0-52c160f1a94c_radio": "",
 	"38_subsubject_select": "Other",
 	"44_nl_radio": "no",
 	"44_nl_format_radio": "text",
@@ -426,13 +442,16 @@ custom_overrides = {
 	'204_action_radio': '', # subscribe
 	'345_enews_radio': '',
 	"426_aff1_radio": "<AFFL>Subscribe</AFFL>",
+	"550_issue_type_radio": "issue",
 	"568_subject_radio": "CRNR", # no response
 	"583_affl1_select": "no action",
 	"584_msub_select": "Other",
 	"585_aff1_radio": "<affl>subscribe</affl>",
 	"590_response_select": "newsNo",
+	"593_main-search_text": "",
 	"611_aff1req_text": "fill",
 	"639_aff1req_text": "fill",
+	"644_subcategory_select": "",
 	"645_yes_radio": "NRN",
 	"645_authfailmsg_hidden": "/andrews/AuthFailMsg.htm",
 	"658_human_radio": "on",
@@ -542,6 +561,11 @@ def parse_webform(webformurl, webform, webformid, id):
 			continue
 		if field.getAttribute("name").strip() == "":
 			continue
+		
+		# Rep. Tammy Baldwin has two <select> elements with the same id/name, but the
+		# second should be ignored.
+		if field.getAttribute("gtbfieldid") == "133":
+			continue
 			
 		## Look at any preceding text.
 		#if not field.hasAttribute("id") and field.previousSibling != None and field.previousSibling.data != None:
@@ -566,9 +590,6 @@ def parse_webform(webformurl, webform, webformid, id):
 						continue # confusing if the field is required
 				
 				options[opttext.lower()] = opt.getAttribute("value") if opt.hasAttribute("value") else opttext
-				
-			if len(options) == 0:
-				raise WebformParseException("Select %s has no options at %s." % (field.getAttribute("name"), webformurl))
 				
 		elif field.getAttribute("type") == "checkbox":
 			# just ignore checkboxes --- they should be to subscribe
@@ -628,11 +649,15 @@ def parse_webform(webformurl, webform, webformid, id):
 		ax = attr.lower()
 		
 		ax = ax.replace("contactform:cd:txt", "")
+		ax = ax.replace("contactformcdtxt", "")
+		ax = ax.replace("contactformcdddl", "")
+		ax = ax.replace("contactformcimtxt", "")
 
 		if ax.startswith("ctl00$") and ax.endswith("$zip"): ax = "zip5"
 		if id == 636 and ax == "zipcode": ax = "zip5"
 		
 		ax = ax.replace("ctl00$contentplaceholderdefault$newslettersignup_1$", "")
+		ax = ax.replace("ctl00$contentplaceholderdefault$runwaymastercontentplaceholder$item1$maincontactform_4$", "")
 		
 		ax = re.sub(r"^(req(uired)?[\-\_]|ctl\d+\$ctl\d+\$)", "", ax)
 		ax = re.sub(r"[\-\_]required$", "", ax)
@@ -644,6 +669,9 @@ def parse_webform(webformurl, webform, webformid, id):
 		if str(id) + "_" + ax + "_" + fieldtype.lower() in custom_overrides:
 			field_default[attr] = custom_overrides[str(id) + "_" + ax + "_" + fieldtype.lower()]
 			continue
+
+		if fieldtype.lower() == "select" and len(options) == 0:
+			raise WebformParseException("Select %s has no options at %s." % (ax, webformurl))
 
 		if str(id) + "_" + ax + "_" + fieldtype.lower() in custom_mapping:
 			field_map[attr] = custom_mapping[str(id) + "_" + ax + "_" + fieldtype.lower()]
@@ -728,6 +756,7 @@ def test_zipcode_rejected(webform, deliveryrec):
 		or "Your zip code indicates that you live outside" in webform \
 		or "This authentication has failed" in webform\
 		or "<li>Zip Extension is required</li>" in webform\
+		or "the zip code you entered is incomplete or lies outside of the boundaries" in webform\
 		or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform:
 		deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
 		raise DistrictDisagreementException()
@@ -788,6 +817,10 @@ def send_message_webform(di, msg, deliveryrec):
 		webform = urlopen(webformurl, postdata, formmethod, deliveryrec).read()
 		
 		test_zipcode_rejected(webform, deliveryrec)
+		
+	if len(webform_stages) > 0 and webform_stages[0] == "add-district-zip-cookie":
+		webform_stages.pop(0)
+		extra_cookies["District"] = msg.zipcode
 
 	webformid = webform_stages.pop(0) if len(webform_stages) > 0 else "<not entered>"
 	try:
@@ -795,10 +828,10 @@ def send_message_webform(di, msg, deliveryrec):
 	except:
 		deliveryrec.trace += u"\n" + webform.decode('utf8', 'replace') + u"\n\n"
 		raise
-			
+		
 	# Make sure that we've found the equivalent of all of the fields
 	# that the form should be accepting.
-	for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined"), ("address2", "address_combined"), "city", ("zipcode", "zip5"), "message"):
+	for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined", "address_split_street"), ("address2", "address_combined", "address_split_street"), ("city", "address_split_quadrant"), ("zipcode", "zip5"), "message"):
 		if type(field) == str:
 			field = [field]
 		for f in field:
@@ -881,7 +914,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 341, 426, 585, 588, 598, 599, 600, 604, 605, 607, 608, 611, 613, 641, 665, 678, 693, 703, 706, 709, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 784, 788, 791, 805, 808, 809, 811, 826, 827, 837, 840, 851, 861, 869, 878):
+	if di.id in (13, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 280, 341, 386, 426, 570, 585, 588, 598, 599, 600, 604, 605, 607, 608, 611, 613, 639, 641, 665, 678, 693, 703, 706, 709, 713, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 784, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -1063,6 +1096,7 @@ def send_message_housewyr(msg, deliveryrec):
 
 def send_message(msg, moc, previous_attempt, loginfo):
 	cookiejar.clear()
+	extra_cookies = { }
 	http_last_url = ""
 	
 	# Check for delivery information.
@@ -1100,6 +1134,12 @@ def send_message(msg, moc, previous_attempt, loginfo):
 	# Generate some additional fields.
 	msg.name = msg.firstname + " " + msg.lastname
 	msg.address_combined = msg.address1 + ("" if msg.address2 == "" else "; " + msg.address2)
+	if len(msg.zipcode) == 5:
+		# if we only have a 5-digit zip code, make up the +4 based on the congressional
+		# district.
+		alt_zip = get_zip_plus_four(msg.zipcode, msg.state, msg.congressionaldistrict)
+		if alt_zip:
+			msg.zipcode = alt_zip
 	if len(msg.zipcode.split("-")) != 2:
 		msg.zip5 = msg.zipcode
 		msg.zip4 = ""
@@ -1109,6 +1149,17 @@ def send_message(msg, moc, previous_attempt, loginfo):
 	msg.phone_prefix = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[3:6]
 	msg.phone_line = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[6:10]
 	if govtrackrecipientid == 400633 and len(msg.phone) > 0 and msg.phone[0] == '1': msg.phone = msg.phone[1:]
+	if govtrackrecipientid == 400295:
+		# for Rep. Norton, the street address is split
+		m = re.match(r"(\d+)\s+(.+?)\s+(NE|NW|SE|SW)\s*(.*)", msg.address1, re.I)
+		if m:
+			msg.address_split_number = m.group(1)
+			msg.address_split_street = m.group(2)
+			msg.address_split_quadrant = m.group(3)
+			msg.address_split_suite = m.group(4)
+		else:
+			# can't deliver without those fields
+			return None
 
 	# Begin the delivery attempt.
 	try:

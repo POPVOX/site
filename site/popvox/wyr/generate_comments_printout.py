@@ -115,7 +115,11 @@ def create_tex(tex, serial):
 
 		outfile.write(r"\bigskip" + "\n\n")
 		
-		for t2 in UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).values("comment__bill", "comment__position").order_by("comment__bill", "comment__position").distinct():
+		topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).values("comment__bill", "comment__position").distinct()
+		
+		use_pagebreaks = topics_in_batch.count() < 15
+		
+		for t2 in topics_in_batch.order_by("comment__bill", "comment__position"):
 			position = t2["comment__position"]
 			bill = Bill.objects.get(id=t2["comment__bill"])
 			
@@ -137,10 +141,10 @@ def create_tex(tex, serial):
 				address = comment.address
 
 				fr = t3.failure_reason
-				if fr == "bad-webform": # get our comment from the Endpoint webformresponse field
+				if fr == "bad-webform": # get our comment from the Endpoint notes field
 					endpoints = Endpoint.objects.filter(govtrackid=govtrack_id, office=getMemberOfCongress(govtrack_id)["office_id"], method=Endpoint.METHOD_NONE)
 					if len(endpoints) > 0:
-						fr = endpoints[0].webformresponse
+						fr = endpoints[0].notes
 				target_errors[fr] = True
 				
 				outfile.write(r"\hrule\bigskip" + "\n\n")
@@ -188,6 +192,12 @@ def create_tex(tex, serial):
 						outfile.write("\n\n\\bigskip")
 				
 			# clear page after each "topic", i.e. bill and support oppose
+			if use_pagebreaks:
+				outfile.write(r"\clearpage" + "\n")
+			else:
+				outfile.write(r"\hrule\bigskip" + "\n\n")
+				
+		if not use_pagebreaks: # pagebreak before next office
 			outfile.write(r"\clearpage" + "\n")
 
 	outfile.write(r"\clearpage" + "\n")
@@ -201,8 +211,7 @@ def create_tex(tex, serial):
 		outfile.write(r"  --- ")
 		outfile.write_esc(" ".join(p["address"][0:10].split(" ")[0:2]))
 		outfile.write(r"  --- ")
-		#outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no).count()))
-		#outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method", "missing-info", "failure-oops")]))
+		outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no).count()) + " ")
 		outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method",)]))
 		outfile.write(r" \\" + "\n")
 	
