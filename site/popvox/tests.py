@@ -1,9 +1,13 @@
-
 from django.test import TestCase
 from django.test.client import Client
+from django.conf import settings
 
+import json
+
+settings.IS_TESTING = True # don't import this module unless setting this flag is OK
 c = Client()
 
+from popvox.models import *
 
 class SampleTest(TestCase):
     
@@ -229,3 +233,107 @@ class CommentTest(TestCase):
             print page, " is good."
         
         self.assertEqual(success, True)
+       
+class APIRegistrationTest(TestCase):
+	fixtures = ['test_api', 'test_pvgeneral.json']
+	
+	def test_individual_fail(self):
+		response = c.post('/api/v1/users/registration', {
+				"api_key": "AJ2651BKQOD1RGNY",
+				"mode": "individual",
+				"email": "xxx@",
+			})
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(
+			json.loads(response.content),
+			{
+				"errors": {
+					"email": "Enter a valid e-mail address.", 
+					"password": "This field is required.", 
+					"username": "This field is required."
+				}, 
+				"status": "fail"
+			})
+
+	def do_test(self, args):
+		# registration
+		response = c.post('/api/v1/users/registration', args)
+		self.assertEqual(response.status_code, 200)
+		#print response.content
+		resp = json.loads(response.content)
+		self.assertEqual(resp["status"], "success")
+		assert("testing_email_link" in resp)
+		assert(resp["testing_email_link"].startswith("http://www.popvox.com"))
+		
+		# verification email link
+		url = resp["testing_email_link"][len("http://www.popvox.com"):]
+		response = c.get(url, follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.content, "Welcome!")
+		
+		# check user was created
+		assert(UserProfile.objects.filter(user__email=args["email"]).exists())
+		if "username" in args:
+			self.assertEqual(UserProfile.objects.get(user__email=args["email"]).user.username, args["username"])
+			
+		# login
+		response = c.post('/api/v1/users/login', {
+			"api_key": "AJ2651BKQOD1RGNY",
+			"email": args["email"],
+			"password": args["password"]})
+		self.assertEqual(response.status_code, 200)
+		resp = json.loads(response.content)
+		self.assertEqual(resp["status"], "success")
+		assert(resp["session"] != "")
+		session = resp["session"]
+
+		# logout
+		response = c.post('/api/v1/users/logout', {
+			"api_key": "AJ2651BKQOD1RGNY",
+			"session": session})
+		self.assertEqual(response.status_code, 200)
+		resp = json.loads(response.content)
+		self.assertEqual(resp["status"], "success")
+
+	def test_individual_success(self):
+		self.do_test({
+			"api_key": "AJ2651BKQOD1RGNY",
+			"mode": "individual",
+			"email": "test_individual@popvox.com",
+			"password": "dummypassword",
+			"username": "TestUser1",
+			"next": "/mobileapps/ipad_billreader/welcome",
+			})
+
+	def test_legstaff_success(self):
+		e = "test_legstaff@popvox.com"
+		resp = self.do_test({
+			"api_key": "AJ2651BKQOD1RGNY",
+			"mode": "legislative_staff",
+			"email": e,
+			"password": "dummypassword",
+			"fullname": "Mr. Test Johnson",
+			"position": "Test Staff",
+			"member": "400284",
+			"next": "/mobileapps/ipad_billreader/welcome",
+			})
+		userprof = UserProfile.objects.get(user__email=e)
+		assert(userprof.is_leg_staff())
+		assert(userprof.user.legstaffrole.member.id==400284)
+		assert(userprof.user.legstaffrole.position=="Test Staff")
+		
+	def test_member_success(self):
+		e = "test_legstaff@popvox.com"
+		resp = self.do_test({
+			"api_key": "AJ2651BKQOD1RGNY",
+			"mode": "member_of_congress",
+			"email": e,
+			"password": "dummypassword",
+			"member": "400284",
+			"next": "/mobileapps/ipad_billreader/welcome",
+			})
+		userprof = UserProfile.objects.get(user__email=e)
+		assert(userprof.is_leg_staff())
+		assert(userprof.user.legstaffrole.member.id==400284)
+		assert(userprof.user.legstaffrole.position=="Senator / Congressman/woman")
+

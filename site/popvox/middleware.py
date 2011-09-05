@@ -2,6 +2,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.cache import patch_vary_headers
 from django.conf import settings
+from django.utils.importlib import import_module
 
 import datetime
 
@@ -78,3 +79,15 @@ class StandardCacheMiddleware:
 		
 		return response
 
+# Put this between SessionMiddlware and AuthenticationMiddleware to load the session
+# from a GET or POST session variable, if set, as an alternative to passing a session
+# cookie.
+#
+# We use this for the POPVOX API (as a GET parameter), for file uploads (e.g. org
+# profile image), and for web views from the iPad app.
+class SessionFromFormMiddleware(object):
+	def process_request(self, request):
+		if "session" in request.REQUEST:
+			engine = import_module(settings.SESSION_ENGINE)
+			request.session = engine.SessionStore(request.REQUEST["session"])
+			request.session.modified = True # force write to cookie so that session persists

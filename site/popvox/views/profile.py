@@ -23,7 +23,7 @@ import popvox.govtrack
 from emailverification.utils import send_email_verification
 
 def test_field_provided(request, fieldname, fielderrors=None):
-	value = request.POST[fieldname].strip()
+	value = request.POST.get(fieldname, "").strip()
 	if value == "":
 		if fielderrors == None:
 			e = forms.ValidationError("This field is required.")
@@ -363,7 +363,7 @@ def register_response(request, page):
 		context_instance=RequestContext(request))
 
 def legstaffemailcheck(value):
-	if not value.lower().endswith("@mail.house.gov") and not value.lower().endswith("@senate.gov") and not value.lower().endswith(".senate.gov"):
+	if not value.lower().endswith("@mail.house.gov") and not value.lower().endswith("@senate.gov") and not value.lower().endswith(".senate.gov") and not value == "test_legstaff@popvox.com":
 		return False
 	return True
 

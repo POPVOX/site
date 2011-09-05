@@ -34,7 +34,9 @@ MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 if DEBUG:
 	# this is the default when DEBUG is true, but we'll be explicit.
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-elif os.environ.get("EMAIL_BACKEND") == "AWS-SES" or True:
+elif os.environ.get("EMAIL_BACKEND") in ("", "AWS-SES"):
+	# This is the default when DEBUG is not true.
+	#
 	# For AWS SES:
 	#  The SERVER_EMAIL and EMAILVERIFICATION_FROMADDR must be 
 	#  verified with ./ses-verify-email-address.pl.
@@ -156,7 +158,7 @@ MIDDLEWARE_CLASSES = (
     'popvox.middleware.StandardCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'jquery.middleware.SessionFromPostMiddleware',
+    'popvox.middleware.SessionFromFormMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'trafficanalysis.middleware.TrafficAnalysisMiddleware',

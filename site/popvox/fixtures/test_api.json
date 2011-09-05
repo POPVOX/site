@@ -1,0 +1,2 @@
+[{"pk": 999, "model": "popvox.serviceaccount", "fields": {"created": "2011-06-27 08:22:14", "notes": "", "fb_page_id": "", "hosts": "razor.occams.info", "user": null, "beancounter_comments": 7, "org": null, "secret_key": "AJ2651BKQOD1RGNY", "api_key": "AQZUTLYRW4K1FK1O", "options": "", "permissions": [2, 3, 4, 5]}}]
+

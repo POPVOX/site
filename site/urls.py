@@ -114,6 +114,7 @@ urlpatterns = patterns('',
 	(r'^embed/salsa/action', 'popvox.views.embed.salsa_action'),
 	(r'^embed/fb_page', 'popvox.views.embed.facebook_page'),
 
+	# API
 	(r'^api/docs$', 'popvox.views.api.documentation'),
 	(r'^api/v1/bills/suggestions$', 'popvox.views.api.bill_suggestions'),
 	(r'^api/v1/bills/similarity$', 'popvox.views.api.bill_similarity'),
@@ -129,6 +130,11 @@ urlpatterns = patterns('',
 	(r'^api/v1/users/login$', 'popvox.views.api.user_login'),
 	(r'^api/v1/users/logout$', 'popvox.views.api.user_logout'),
 	(r'^api/v1/users/me$', 'popvox.views.api.user_get_info'),
+	(r'^api/v1/users/registration/fields$', 'popvox.views.api.user_registration_fields'),
+	(r'^api/v1/users/registration$', 'popvox.views.api.user_registration'),
+	
+	# Support Pages for Mobile Apps
+	(r'^mobileapps/ipad_billreader/welcome$', 'popvox.views.mobileapps.ipad_billreader_welcome'),
 
 	# external-ish apps
 	(r'^wyr/', include('writeyourrep.urls')),

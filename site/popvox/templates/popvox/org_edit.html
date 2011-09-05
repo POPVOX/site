@@ -33,7 +33,7 @@
 			    fileDesc: 'Images (*.jpg, *.jpeg, *.png, *.bmp, *.gif)',
 			    fileExt: '*.jpg;*.jpeg;*.png;*.bmp;*.gif',
 			    auto: true,
-			    scriptData: { session_key: "{{request.session.session_key}}" },
+			    scriptData: { session: "{{request.session.session_key}}" },
 			    onComplete: function(event, ID, fileObj, response, data) {
 				    $('#profileimage').attr('src', jQuery.parseJSON(response).url)
 				    $('#file-uploader-container').hide();

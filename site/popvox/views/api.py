@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.utils.importlib import import_module
 
 from popvox.models import *
+from popvox import govtrack
 from popvox.govtrack import CURRENT_CONGRESS
 
 import re, base64, json, urlparse, urllib
@@ -42,15 +43,8 @@ class BaseHandler(object):
 		return hasattr(self, "post")
 	
 	def __call__(self, request, *args, **kwargs):
-		# Clear the session state for this request since we should not be using cookies.
-		# We have to set a valid session object or things that hit the session state like
-		# user login will fail.
-		session_engine = import_module(settings.SESSION_ENGINE)
-		request.session = session_engine.SessionStore()
-		request.user = AnonymousUser()
-		
 		# Check the api_key query string parameter.
-		auth_string = request.GET.get('api_key', "").strip()
+		auth_string = request.REQUEST.get('api_key', "").strip()
 		if len(auth_string) == 0:
 			return HttpResponseForbidden("Authorization Required. Missing api_key parameter.")
 		try:
@@ -58,15 +52,19 @@ class BaseHandler(object):
 		except:
 			return HttpResponseForbidden("Authorization Required. Invalid api_key parameter.")
 		
-		# Set the request user, if the account is tied to a user account and if the session
-		# state has not already set a user.
-		if acct.user:
-			request.user = acct.user
+		# If there was a session parameter, then the SessionFromFormMiddleware already
+		# took care of it. Otherwise, clear the session state since we should not use
+		# a cookie-based session.
+		if "session" not in request.REQUEST:
+			# We have to set a valid session object or things that hit the session state like
+			# user login will fail.
+			session_engine = import_module(settings.SESSION_ENGINE)
+			request.session = session_engine.SessionStore()
 			
-		# Check a session state set in the session query string parameter.
-		if "session" in request.GET:
-			request.session = session_engine.SessionStore(request.GET["session"])
-			request.user = get_user(request)
+			# But if the account is associated with a user, then authorize access to that user.
+			if acct.user:
+				request.user = acct.user
+				
 			
 		# Get the handler function for this HTTP method.
 		f = None
@@ -78,7 +76,7 @@ class BaseHandler(object):
 			return HttpResponseBadRequest("Invalid operation: " + request.method)
 			
 		# Get the emitter for output.
-		format = request.GET.get("format", "json")
+		format = request.REQUEST.get("format", "json")
 		try:
 			emitter, mime_type = dataemitters.Emitter.get(format)
 		except Exception as e:
@@ -132,8 +130,8 @@ def make_simple_endpoint(f):
 	return f
 
 def paginate_items(items, request):
-	p = Paginator(items, int(request.GET.get("count", "25")))
-	pp = p.page(int(request.GET.get("page", "1")))
+	p = Paginator(items, int(request.REQUEST.get("count", "25")))
+	pp = p.page(int(request.REQUEST.get("page", "1")))
 	return OrderedDict([
 		("count", p.count),
 		("pages", p.num_pages),
@@ -309,6 +307,7 @@ class bill_documents(DocumentHandler):
 	
 	def read(self, request, acount, billid):
 		bill = Bill.objects.get(id=billid)
+		# The iPad app relies on the latest bill text version being listed first.
 		docs = bill.documents.all().order_by("-created")
 		if "type"  in request.GET:
 			docs = docs.filter(doctype=request.GET["type"])
@@ -392,26 +391,51 @@ document_page.has_read = True
 @api_handler
 class document_search(BaseHandler):
 	DocumentPage = ['page']
-	description = "Searches a document for text returning a list of page numbers."
-	response_summary = "Returns a list of page numbers."
+	description = "Searches a document for text, returning a list of matching pages and context."
+	response_summary = "Returns a list of matching pages and context within each page."
+	response_fields = (
+		('keywords', 'a list of tokens in the search string'),
+		('results', 'a list of matching pages and context'),
+		('results/page', 'the page number of the match'),
+		('results/context', 'text surrounding the match'),
+		)
 	url_pattern_args = (("000",'DOCUMENT_ID'),)
 	url_example_args = (248,)
 	qs_args = (('q', 'The search query.', 'budget authority'),)
 	
 	def read(self, request, acct, docid):
 		q = request.GET.get("q", "").strip()
-		if q == "":
-			return []
 		
 		c = SphinxClient()
 		c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
 		c.SetMatchMode(SPH_MATCH_EXTENDED)
 		c.SetFilter("document_id", [int(docid)])
-		ret = c.Query(q)
-		if ret == None:
-			return []
+		if q == "":
+			ret = { "matches": [] }
+		else:
+			ret = c.Query(q)
+			
+		pages = []
 		
-		return sorted([m["attrs"]["page"] for m in ret["matches"]])
+		for page in (m["attrs"]["page"] for m in ret["matches"]):
+			# compute context for this search result...
+			
+			# get the page content
+			text = DocumentPage.objects.filter(document = docid, page = page).values("text")[0]["text"]
+			text = re.sub(r"\s+", " ", text) # clean up whitespace
+			context = " ".join(c.BuildExcerpts([text], "doc_text", q, { "before_match": "", "after_match": ""}))
+			context = re.sub(r"^\s*\.\.\.\s*|\s*\.\.\.\s*$", "", context) # clean up whitespace
+				
+			pages.append(OrderedDict([
+				("page", page),
+				("context", context)]))
+		
+		pages.sort(key = lambda p : p["page"])
+		
+		return {
+			"keywords": [k["tokenized"] for k in c.BuildKeywords(q.encode("utf8"), "doc_text", 0)],
+			"results": pages,
+		}
 	
 @api_handler
 class comments(BaseHandler):
@@ -575,6 +599,145 @@ class user_get_info(BaseHandler):
 				}
 
 		return ret
+		
+@api_handler
+class user_registration_fields(BaseHandler):
+	description = "Gets field options for implementing the user registration API method."
+	response_fields = (
+		('legislative_staff', 'registration options for legislative staff'),
+		('legislative_staff/committee', 'a list of congressional committees in sorted order appropriate for showing the shortname field in a list'),
+		('legislative_staff/committee/id', 'the identifier for the committee. House members serve on committees whose id\'s start with H and J; Senate members serve on committees whose id\'s start with S and also J.'),
+		('legislative_staff/committee/name', 'the full name of the committee'),
+		('legislative_staff/committee/shortname', 'the short display name of the committee'),
+		('legislative_staff/office', 'a list of congressional member offices in sorted order appropriate for showing the listname field in a list'),
+		('legislative_staff/office/id', 'the identifier for the Member of Congress'),
+		('legislative_staff/office/name', 'the full name of the Member of Congress'),
+		('legislative_staff/office/listname', 'the name of the Member of Congress suitable for display in a sorted list'),
+		('legislative_staff/office/type', '"sen" for senators, "rep" for congressmen and House delegates'),
+		('legislative_staff/position', 'a list of choices for legislative staff position')
+		)
+	
+	# static field initialization
+	
+	# build committee list
+	committees = [
+	{ "id": c["id"], "name": c["name"], "shortname": c["shortname"] }
+	for c in govtrack.getCommitteeList() if not "parent" in c]
+	
+	# sort, putting joint committees at the end, then by shortname
+	committees.sort(key = lambda c : (c["id"][0] == "J", c["shortname"]))
+	
+	# build member list
+	members = [
+		{ "id": m["id"], "name": m["name"], "listname": m["sortkey"], "type": m["type"] }
+		for m in govtrack.getMembersOfCongress()]
+	members.sort(key = lambda m : m["listname"])
+	
+	# build position list
+	staff_positions = ('Legislative Assistant', 'Legislative Counsel', 'Other Legislative/Policy Staff', 'Legislative Correspondent', 'Press Secretary', 'Other Communications Staff', 'System Administrator / IT', 'Intern', 'Senator / Congressman/woman', 'Other')
+	
+	def read(self, request, acct):
+		return {
+			"legislative_staff": {
+				"office": self.members,
+				"committee": self.committees,
+				"position": self.staff_positions,
+			}
+		}
+
+@api_handler
+class user_registration(BaseHandler):
+	description = "Begins the registration process for a new POPVOX user."
+	post_args = (
+		('mode', 'the type of user being registered: "individual", "legislative_staff", or "member_of_congress"'),
+		('email', 'the user\'s email address'),
+		('password', 'the user\'s chosen POPVOX password'),
+		('username', 'for individual registrations, the user\'s chosen screen name'),
+		('fullname', 'for legislative_staff registrations, the user\'s full real name'),
+		('position', 'for legislative_staff registrations, the user\'s staff position, from the set of position choices given by the user registration fields API method'),
+		('member', 'for legislative_staff registrations the office the user works for, and for member_of_congress registrations the ID of the Member of Congress, from the "id" field of one of the entries in the office list given by the user registration fields API method; optional for legislative_staff registrations only (i.e. can be blank or missing)'),
+		('committee', 'for legislative_staff registrations, the committee the user works for, from the "id" field of one of the entries in the committee list given by the user registration fields API method; optional (i.e. can be blank or missing)'),
+		('next', 'a page on POPVOX to redirect the user to after confirming his or her email address, given as a relative URL starting with the "/" that comes after the popvox.com domain; optional'),
+		)
+	response_summary = "All user registrations require the user to confirm his or her email address before the registration is complete. A successful call to this method results \"success\" and a message instructing the user to check his email."
+	response_fields = (
+		('status', 'either "success" or "fail"'),
+		('message', 'a message to display to the user; always present when status is "success", sometimes present when status is "fail"'),
+		('errors', 'if present, a set of validation errors'),
+		('errors/email', 'if present, an error message corresponding to the email field'),
+		('errors/password', 'if present, an error message corresponding to the password field'),
+		('errors/username', 'if present, an error message corresponding to the username field'),
+		('errors/fullname', 'if present, an error message corresponding to the fullname field'),
+		('errors/position', 'if present, an error message corresponding to the position field'),
+		)
+	
+	def post(self, request, acct):
+		status = { }
+		
+		from registration.helpers import validate_email, validate_password, validate_username
+		from profile import legstaffemailcheck, test_field_provided, RegisterUserAction
+		
+		if not request.POST.get("mode", "") in ("individual", "legislative_staff", "member_of_congress"):
+			return { "status": "fail", "message": "missing or invalid parameter 'mode'" }
+		
+		email = validate_email(request.POST.get("email", ""), fielderrors = status)
+		password = validate_password(request.POST.get("password", ""), fielderrors = status)
+		
+		if request.POST["mode"] == "individual":
+			username = validate_username(request.POST.get("username", ""), fielderrors = status)
+			if legstaffemailcheck(email):
+				status["email"] = "Congressional staff should register in the House/Senate legislative staff section."
+		else:
+			# for leg staff and org staff, we'll use the email address for the username
+			# too, since we never actually use it for anything but Django needs it.
+			# TODO: The username field is quite a bit shorter than the email field
+			# which could result in a uniqueness clash.
+			username = email
+			
+		axn = RegisterUserAction()
+		axn.email = email
+		axn.username = username
+		axn.password = password
+
+		if "next" in request.POST:
+			axn.next = request.POST["next"]
+
+		if request.POST["mode"] in ("legislative_staff", "member_of_congress"):
+			if not legstaffemailcheck(axn.email):
+				 status["email"] = "Provide a mail.house.gov or senate.gov email address."
+	
+			axn.mode = "legstaff"
+			if request.POST["mode"] == "legislative_staff":
+				axn.fullname = test_field_provided(request, "fullname", fielderrors = status)
+				axn.member = int(request.POST["member"]) if request.POST.get("member", "") != "" else None
+				axn.committee = request.POST["committee"] if request.POST.get("committee", "") != "" else None
+				axn.position = test_field_provided(request, "position", fielderrors = status)
+			else:
+				try:
+					member = int(request.POST["member"])
+					axn.fullname = govtrack.getMemberOfCongress(member)["name"]
+				except:
+					return { "status": "fail", "message": "missing or invalid parameter 'member'" }					
+				axn.member = member
+				axn.committee = None
+				axn.position = "Senator / Congressman/woman"
+			
+		if len(status) != 0:
+			return { "status": "fail", "errors": status }
+
+		success_message = { "status": "success", "message": "Check your email. We need to confirm your email address before you can continue." }
+
+		try:
+			from emailverification.utils import send_email_verification
+			r = send_email_verification(email, None, axn)
+			if getattr(settings, "IS_TESTING", False):
+				success_message["testing_email_link"] = r.url()
+		except Exception, e:
+			return { "status": "fail", "message": "There was a problem sending you an email: " + unicode(e) }
+			
+		return success_message
+
+#####################################################################
 
 def documentation(request):
 	api_keys = list(request.user.userprofile.service_accounts(create=True)) if request.user.is_authenticated() else []

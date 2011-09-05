@@ -17,8 +17,18 @@ h4 {
 	<p>The POPVOX API provides programmatic RESTful access to many live resources on POPVOX.</p>
 	
 	<p>This API is experimental! Use at your own risk.</p>
+	
+	<h3>Overview</h3>
+	
+	<ul class="bullets">
+	<li><a href="#common_parameters">common parameters to all API methods</a></li>
+	{% for method in methods %}
+		<li><a href="#{{method.api_display_name}}">{{method.api_display_name}}</a></li>
+	{% endfor %}
+	</ul>
 
-	<h3>Common Parameters</h3>
+	<a name="common_parameters"></a>
+	<h3>Common Parameters to All API Methods</h3>
 	
 		<h4>Base URL</h4>
 		
@@ -36,8 +46,6 @@ h4 {
 			</p>
 		{% endfor %}
 		
-		<p>The API key should <i>always</i> be specified in the query string (i.e. a GET parameter) even on POST requests.</p>
-	
 		<h4>Data Format</h4>
 		
 		<p>The default result format is JSON. The output format can be changed to XML by adding "format=xml" to any API.</p>
@@ -57,6 +65,7 @@ h4 {
 		
 	{% for method in methods %}
 	
+		<a name="{{method.api_display_name}}"></a>
 		<h3>{{method.api_display_name}}</h3>
 		
 		<p>{{method.description}}</p>
