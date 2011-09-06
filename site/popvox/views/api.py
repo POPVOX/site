@@ -298,7 +298,7 @@ class DocumentHandler(BaseHandler):
 
 @api_handler
 class bill_documents(DocumentHandler):
-	positiondocument_fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats']
+	positiondocument_fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats', 'pdf_url']
 	url_pattern_args = [("000", "BILL_ID")]
 	url_example_args = (16412,)
 	qs_args = (('type', 'The document type. See the document metadata API method for type numbers.', '100'),)
@@ -316,7 +316,7 @@ class bill_documents(DocumentHandler):
 @api_handler
 class document_metadata(DocumentHandler):
 	bill_fields = ["id", "title"]
-	positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pages', 'formats', 'toc']
+	positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pages', 'formats', 'toc', 'pdf_url']
 	url_pattern_args = [("000", "DOCUMENT_ID")]
 	url_example_args = (248,)
 	description = "Returns metadata about a document."

@@ -693,6 +693,7 @@ class PositionDocument(models.Model):
 	title = models.CharField(max_length=128)
 	text = tinymce_models.HTMLField(blank=True) #models.TextField() # HTML document body
 	link = models.URLField(blank=True, null=True)
+	pdf_url = models.CharField(max_length=128, blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True, db_index=True)
 	key = models.CharField(max_length=16, blank=True, null=True)

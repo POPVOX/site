@@ -32,7 +32,7 @@ def pull_text(congressnumber):
 			"wrapperTemplate": "all" + str(congressnumber) + "bills_wrapper.html",
 			"billtype": "all" })
 	
-	for m in re.findall(r"cong_bills&docid=f:([a-z]+)(\d+)([a-z][a-z0-9]+)\.txt\s*", bill_list):
+	for m in re.findall(r"cong_bills&docid=f:([a-z]+)(\d+)([a-z][a-z0-9]+)\.txt\s*\"", bill_list):
 		billtype, billnumber, billstatus = m
 		
 		pull_bill_text(congressnumber, billtype, billnumber, billstatus)
@@ -48,7 +48,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 		return
 		
 	# check if we have this document already and have pages loaded
-	if DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, document__txt__isnull=False).exists():
+	if DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, document__txt__isnull=False, document__pdf_url__isnull=False).exists():
 		return
 		
 	bill_type_map = {
@@ -64,72 +64,93 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 	
 	billtype = bill_type_map[billtype] # map bill type to FDSys citationsearch
 	
-	pdf_info = fetch_page("http://www.gpo.gov/fdsys/search/citation2.result.CB.action",
-		{	"congressionalBills.congress": congressnumber,
-			"congressionalBills.billType": billtype,
-			"congressionalBills.billNumber": billnumber,
-			"congressionalBills.billVersion": billstatus.upper(),
-			"publication": "BILLS",
-			"action:citation2.result.CB": "Retrieve Document"
-		})
+	existing_records = list(PositionDocument.objects.filter(bill = bill, doctype = 100, key = billstatus))
+	while len(existing_records) > 1:
+		existing_records[0].delete()
 	
-	n = re.search(r'url = "(http://www.gpo.gov:80/fdsys/pkg/BILLS-[^/]*/pdf/BILLS-[^\.]*.pdf)";', pdf_info)
-	if n == None:
-		print "no bill text", m
-		return
+	if len(existing_records) == 0:
+		d = PositionDocument(
+			bill = bill,
+			doctype = 100,
+			key = billstatus)
+		isnew = True
+	else:
+		d = existing_records[0]
+		isnew = False
 		
-	pdf_url = n.group(1)
-
-	mods = fetch_page(re.sub("/pdf.*", "/mods.xml", pdf_url))
-	mods = etree.fromstring(mods)
+	d.text = "[not available]" # HTML
 	
-	ns = { "m": "http://www.loc.gov/mods/v3" }
+	what_did_we_fetch = []
 	
-	title = mods.xpath('string(m:titleInfo[@type="alternative"]/m:title)', namespaces=ns)
-	if not title:
-		title = mods.xpath('string(m:extension/m:searchTitle)', namespaces=ns)
-	if not title:
-		print "bill title not found in MODS", m
-		return
-	title = unicode(title) # force lxml object to unicode, otherwise it isn't handled right in Django db layer
+	if not d.pdf_url:
+		pdf_info = fetch_page("http://www.gpo.gov/fdsys/search/citation2.result.CB.action",
+			{	"congressionalBills.congress": congressnumber,
+				"congressionalBills.billType": billtype,
+				"congressionalBills.billNumber": billnumber,
+				"congressionalBills.billVersion": billstatus.upper(),
+				"publication": "BILLS",
+				"action:citation2.result.CB": "Retrieve Document"
+			})
 		
-	date = mods.xpath('string(m:originInfo/m:dateIssued)', namespaces=ns)
-
-	pdf = fetch_page(pdf_url)
+		n = re.search(r'url = "(http://www.gpo.gov:80/fdsys/pkg/BILLS-[^/]*/pdf/BILLS-[^\.]*.pdf)";', pdf_info)
+		if n == None:
+			print "no bill text", m
+			return
+		d.pdf_url = n.group(1)
+		what_did_we_fetch.append("url")
 	
-	text = fetch_page(pdf_url.replace("/pdf/", "/html/").replace(".pdf", ".htm"), decode=True)
-	text = text.replace("<html><body><pre>\n", "").replace("</pre></body></html>", "").decode("utf8")
-	text = text.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
+	if isnew or not d.title:
+		mods = fetch_page(re.sub("/pdf.*", "/mods.xml", d.pdf_url))
+		mods = etree.fromstring(mods)
+		
+		ns = { "m": "http://www.loc.gov/mods/v3" }
+		
+		title = mods.xpath('string(m:titleInfo[@type="alternative"]/m:title)', namespaces=ns)
+		if not title:
+			title = mods.xpath('string(m:extension/m:searchTitle)', namespaces=ns)
+		if not title:
+			print "bill title not found in MODS", m
+			return
+		title = unicode(title) # force lxml object to unicode, otherwise it isn't handled right in Django db layer
+		
+		date = mods.xpath('string(m:originInfo/m:dateIssued)', namespaces=ns)
 
-	xml = fetch_page(pdf_url.replace("/pdf/", "/xml/").replace(".pdf", ".xml"))
+		d.title = title
+		d.created = date # set if isnew
+		d.updated = date # set if isnew
+		
+		what_did_we_fetch.append("mods")
 	
-	d = PositionDocument.objects.create(
-		bill=bill,
-		doctype=100,
-		key=billstatus,
-		title=title,
-		text="[not available]", # HTML
-		pdf=base64.encodestring(pdf),
-		txt=text,
-		xml=base64.encodestring(xml)
-		)
-	d.created = date
-	d.updated = date
+	if not d.pdf:
+		d.pdf = base64.encodestring(fetch_page(d.pdf_url))
+		what_did_we_fetch.append("pdf")
+	
+	if not d.txt:
+		text = fetch_page(d.pdf_url.replace("/pdf/", "/html/").replace(".pdf", ".htm"), decode=True)
+		text = text.replace("<html><body><pre>\n", "").replace("</pre></body></html>", "").decode("utf8")
+		text = text.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
+		d.txt = text
+		what_did_we_fetch.append("txt")
+		
+	if not d.xml:
+		d.xml = base64.encodestring(fetch_page(d.pdf_url.replace("/pdf/", "/xml/").replace(".pdf", ".xml")))
+		what_did_we_fetch.append("xml")
+		
 	d.save()
 	
-	print "fetched", m, "PDF size:", len(pdf), "document id:", d.id, "bill id:", bill.id
+	print "fetched", m, " ".join(what_did_we_fetch), "document_id="+str(d.id), "bill_id="+str(bill.id)
 
+	if DocumentPage.objects.filter(document=d).exists():
+		return
+
+	return # don't worry about page data yet
+		
 	break_pages(d)
 		
 def break_pages(document):
 	# Generate PNG, text, and HTML representations of the pages in the PDF for
 	# fast access by the iPad app.
 	if document.pdf == None: raise ValueError("I don't have PDF data.")
-	
-	if document.txt == None: # correct
-		document.txt = document.text
-		document.text = "[not available]"
-		document.save()
 	
 	document.pages.all().delete()
 	
@@ -175,8 +196,6 @@ def break_pages(document):
 				png = base64.encodestring(png),
 				pdf = base64.encodestring(ppdf))
 
-		return
-		
 		# generate text
 		
 		# While the GPO text file has good layout, it doesn't indicate page boundaries.
