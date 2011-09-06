@@ -150,7 +150,7 @@ class Bill(models.Model):
 	current_status_date = models.DateTimeField()
 	num_cosponsors = models.IntegerField()
 	latest_action = models.TextField()
-	#reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True)
+	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True)
 	
 	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase.")
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")

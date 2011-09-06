@@ -55,15 +55,17 @@ function getshorturl() {
 
 	{% if canvote and deadbox %}
 		{% if bill.died %}
-			<div class="alert_dead">
-				<div class="col_6">
-					<h2 class="shadow_up">{% if not bill.street_name %}{{bill.displaynumber_nosession}}{% else %}{{bill.street_name|capfirst}} ({{bill.displaynumber_nosession}}){% endif %} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned.</h2>
-					<h2 class="shadow_up">It has not yet been reintroduced.</h2>
+			<div class="alert_dead" style="margin-bottom: 30px"> {% comment %} for the negative margin on the ads {% endcomment %}
+				<h2 class="shadow_up pad_top">{% if not bill.street_name %}{{bill.displaynumber_nosession}}{% else %}{{bill.street_name|capfirst}} ({{bill.displaynumber_nosession}}){% endif %} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned.</h2>
+				
+				{% if not bill.reintroduced_as %}
+				<h2 class="shadow_up">It has not yet been reintroduced.</h2>
+				<div class="col_6 col_top">
 					<input id="b_reintroduce" class="btn submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'" style="margin: 15px 0 15px 100px"/>
 					<p>You can increase the chances that the bill is revived in the new Congress by showing support for reintroduction.</p>
 				</div>
-				<div class="col_6 col_last">
-					<p style="margin-top: 80px">Just want to be notified when this bill is reintroduced?</p>
+				<div class="col_6 col_last col_top">
+					<p>Just want to be notified when this bill is reintroduced?</p>
 					{% if user.is_authenticated %}
 					<div class="track_as_notify">
 						{% with "+" as tracktype %}
@@ -76,12 +78,17 @@ function getshorturl() {
 					<div class="clear"> </div>
 
 					<ul style="margin-top: 30px">
-						<li><a href="{{bill.url}}/report">Archived Commments</a></li>
+						<li><a href="{{bill.url}}/report">View Archived Commments</a></li>
 						{% comment %}
 						<li><a href="#">Comments in Support of Reintroduction</a></li>
 						{% endcomment %}
 					</ul>
 				</div>
+				{% else %}
+					<h2 class="shadow_up">It was reintroduced in the {{bill.reintroduced_as.congressnumber|ordinal}} Congress as {{bill.reintroduced_as.displaynumber}}.</h2>
+					<p class="pad_top">If you weighed in on this bill, you can still <a href="{{bill.reintroduced_as.url}}">voice your opinion on {{bill.reintroduced_as.displaynumber}} &mdash; {{bill.reintroduced_as.congressnumber|ordinal}} Congress</a>.</p>
+					<p><a href="{{bill.url}}/report">View Archived Commments on {{bill.displaynumber}} &mdash; {{bill.congressnumber|ordinal}}</a></p>
+				{% endif %}
 			</div><!-- e: alert_dead -->
 		{% else %}
 			<div class="alert_dead">
