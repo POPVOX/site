@@ -9,6 +9,42 @@ c = Client()
 
 from popvox.models import *
 
+def login(email, password, login, page):
+
+    success = True
+
+    response = c.post('/accounts/login?next=/home', {'email': email, 'password': password},  follow=True)
+    status = response.status_code
+    pagecontents = response.content
+    
+    if login == 'good':
+        if int(status) != 200:
+            success = False
+            print "status code failed on login on ", page
+        elif "<title>Home - POPVOX.com</title>" not in pagecontents:
+            success = False
+            print page, "did not redirect to home."
+        elif 'Welcome, <a href="/accounts/profile">kosh</a>' not in pagecontents:
+            success = False
+            print page, "is not showing user as logged in."
+        else:
+            print page, " is good."
+        return success
+            
+    else:
+        if int(status) != 200:
+            success = False
+            print "status code failed on login on ", page
+        elif "<title>Sign In - POPVOX.com</title>" not in pagecontents:
+            success = False
+            print page, "did not reload login page."
+        elif 'Your email and password were incorrect' not in pagecontents:
+            success = False
+            print page, "did not inform user of bad login."
+        else:
+            print page, " is good."
+        return success
+
 class SampleTest(TestCase):
     
     def testTrue(self):
@@ -51,10 +87,10 @@ class StaticPageTest(TestCase):
 	    
         self.assertEqual(success, True)
 
-class SearchingTest(TestCase):
+class SearchTest(TestCase):
     fixtures = ['test_adserver', 'test_pvgeneral', 'test_sbills', 'test_orgs']
 
-    def BillWordsearchFail(self):
+    def testBillSearchFail(self):
         
         response = c.get('/bills/search', {'q': 'winnie the pooh'})
         status = response.status_code
@@ -69,11 +105,11 @@ class SearchingTest(TestCase):
             success = False
             print "term not found in ", page
         else:
-            print page, " is good--the honey is safe."
+            print page, " is good--returned 'no bills matched your search.'"
 
         self.assertEqual(success, True)
 
-    def BillWordsearchResults(self):
+    def testBillSearchResults(self):
 
         response = c.get('/bills/search', {'q': 'Internal Revenue Code'})
         status = response.status_code
@@ -88,12 +124,12 @@ class SearchingTest(TestCase):
             success = False
             print "term not found in ", page
         else:
-            print page, " loaded successfully."
+            print page, " is good--search results found and loaded."
 
         self.assertEqual(success, True)
         
 
-    def BillSearchRedirect(self):
+    def testBillSearchRedirect(self):
         
         #tests that the search redirects to the bill if a search term returns only one bill.
 
@@ -101,7 +137,7 @@ class SearchingTest(TestCase):
         status = response.status_code
         pagecontents = response.content
         success = True
-        page = 'S 12 page'
+        page = 'S 12 search'
 
         if int(status) != 200:
             success = False
@@ -110,11 +146,11 @@ class SearchingTest(TestCase):
             success = False
             print "term not found in ", page
         else:
-            print page, " loaded successfully."
+            print page, " redirected successfully to S12 page."
 
         self.assertEqual(success, True)
     
-    def OrgSearch(self):
+    def TestOrgsearch(self):
         
         #Org search returns a json file, not an html document. Test checks that search produces exactly one result for "save the martians."
 
@@ -150,48 +186,14 @@ class CredentialsTest(TestCase):
     
     def testLogin(self):
 
-        success = True
-
-        response = c.post('/accounts/login?next=/home', {'email': 'kosh@vorlons.gov', 'password': '3edgedsword'},  follow=True)
-        status = response.status_code
-        pagecontents = response.content
-        page = "login"
-                
-        if int(status) != 200:
-            success = False
-            print "status code failed on ", page
-        elif "<title>Home - POPVOX.com</title>" not in pagecontents:
-            success = False
-            print page, "did not redirect to home."
-        elif 'Welcome, <a href="/accounts/profile">kosh</a>' not in pagecontents:
-            success = False
-            print page, "is not showing user as logged in."
-        else:
-            print page, " is good."
+        success = login('kosh@vorlons.gov', '3edgedsword', 'good', 'login')
         
         self.assertEqual(success, True)
         
     def testBadLogin(self):
-
-        success = True
-
-        response = c.post('/accounts/login?next=/home', {'email': 'kosh@vorlons.gov', 'password': 'WhatDoYouWant'},  follow=True)
-        status = response.status_code
-        pagecontents = response.content
-        page = "bad login"
         
-        if int(status) != 200:
-            success = False
-            print "status code failed on ", page
-        elif "<title>Sign In - POPVOX.com</title>" not in pagecontents:
-            success = False
-            print page, "did not reload login page."
-        elif 'Your email and password were incorrect' not in pagecontents:
-            success = False
-            print page, "did not inform user of bad login."
-        else:
-            print page, " is good."
-        
+        success = login('kosh@vorlons.gov', 'WhatDoYouWant', 'bad', 'bad login')
+                
         self.assertEqual(success, True)
         
 class CommentTest(TestCase):

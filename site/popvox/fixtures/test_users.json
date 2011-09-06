@@ -1,0 +1,1 @@
+[{"pk": 13034, "model": "auth.user", "fields": {"username": "kosh", "first_name": "", "last_name": "", "is_active": true, "is_superuser": true, "is_staff": true, "last_login": "2011-07-25 15:32:27", "groups": [], "user_permissions": [], "password": "sha1$a7ed3$a8442bbe9bced72957d47bc4b53cac924fd969df", "email": "kosh@vorlons.gov", "date_joined": "2011-05-02 10:40:56"}}]
