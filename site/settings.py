@@ -9,6 +9,10 @@ execfile("/mnt/persistent/config/tokens.py")
 DEBUG = ("DEBUG" in os.environ)
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1') # used by django.core.context_processors.debug
+if os.path.exists("/home/www/slave"):
+	for line in open("/home/www/slave"):
+		name, val = line.strip().split("=")
+		os.environ[name] = val
 
 if not DEBUG:
 	# If the site is accessed from multiple domains, then this is going to be
