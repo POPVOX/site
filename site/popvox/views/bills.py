@@ -1423,12 +1423,17 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 		
 	## generate a tag cloud
 	#TODO: Cache
-	#text = { "+": "", "-": "" }
-	#for comment in bill_comments(bill).filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED)):
-	#	text[comment.position] += comment.message + " "
-	#from utils import compute_frequencies, make_tag_cloud
-	#text["+"] = compute_frequencies(text["+"], stop_list=["support"])
-	#text["-"] = compute_frequencies(text["-"], stop_list=["oppose"])
+	tag_cloud_support = False
+	tag_cloud_oppose = False
+	if False:
+		text = { "+": "", "-": "" }
+		for comment in bill_comments(bill).filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED)):
+			text[comment.position] += comment.message + " "
+		from utils import compute_frequencies, make_tag_cloud
+		text["+"] = compute_frequencies(text["+"], stop_list=["support"])
+		text["-"] = compute_frequencies(text["-"], stop_list=["oppose"])
+		tag_cloud_support = make_tag_cloud(text["+"], text["-"], 50*4, 7, 9, 22, count_by_chars=True, width=350)
+		tag_cloud_oppose = make_tag_cloud(text["-"], text["+"], 50*4, 7, 9, 22, count_by_chars=True, width=350)
 
 	return render_to_response('popvox/bill_report.html', {
 			'bill': bill,
@@ -1442,8 +1447,8 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
 			"statereps": getStateReps(),
 			"bot_comments": bot_comments,
-			#"tag_cloud_support": make_tag_cloud(text["+"], text["-"], 50*4, 7, 9, 22, count_by_chars=True, width=350),
-			#"tag_cloud_oppose": make_tag_cloud(text["-"], text["+"], 50*4, 7, 9, 22, count_by_chars=True, width=350),
+			"tag_cloud_support": tag_cloud_support,
+			"tag_cloud_oppose": tag_cloud_oppose,
 		}, context_instance=RequestContext(request))
 
 def can_appreciate(request, bill):

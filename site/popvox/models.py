@@ -133,7 +133,10 @@ class CongressionalCommittee(models.Model):
 class Bill(models.Model):
 	"""A bill in Congress."""
 	BILL_TYPE_CHOICES = [ ('h', 'H.R.'), ('s', 'S.'), ('hr', 'H.Res.'), ('sr', 'S.Res.'), ('hc', 'H.Con.Res.'), ('sc', 'S.Con.Res.'), ('hj', 'H.J.Res.'), ('sj', 'S.J.Res.') ]
+	
+	# the iPad app relies on the House/Senate distinction being made in the first character of the slug (h/s)
 	BILL_TYPE_SLUGS = [ ('h', 'hr'), ('s', 's'), ('hr', 'hres'), ('sr', 'sres'), ('hc', 'hconres'), ('sc', 'sconres'), ('hj', 'hjres'), ('sj', 'sjres') ]
+	
 	congressnumber = models.IntegerField()
 	billtype = models.CharField(max_length=2, choices=BILL_TYPE_CHOICES)
 	billnumber = models.IntegerField()
@@ -147,6 +150,7 @@ class Bill(models.Model):
 	current_status_date = models.DateTimeField()
 	num_cosponsors = models.IntegerField()
 	latest_action = models.TextField()
+	#reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True)
 	
 	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase.")
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
