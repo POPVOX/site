@@ -316,7 +316,7 @@ class bill_documents(DocumentHandler):
 @api_handler
 class document_metadata(DocumentHandler):
 	bill_fields = ["id", "title"]
-	positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pages', 'formats', 'toc', 'pdf_url']
+	positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pdf_url', 'pages', 'formats', 'toc']
 	url_pattern_args = [("000", "DOCUMENT_ID")]
 	url_example_args = (248,)
 	description = "Returns metadata about a document."
@@ -326,6 +326,7 @@ class document_metadata(DocumentHandler):
 		('title', 'the display title for the document'),
 		('created', 'for position documents, this is the date the document was uploaded. for bill text, this is the date the bill text was published.'),
 		('doctype', 'the type of the document: ' + ", ".join(str(kv[0]) + ": " + kv[1] for kv in PositionDocument.DOCTYPES)),
+		('pdf_url', 'the URL from which a PDF file can be downloaded of the whole document, probably not residing on popvox.com; may be null'),
 		('pages', 'the number of pages in the document, zero if the page content is not available'),
 		('formats', 'the formats available for page content'),
 		('toc', 'an auto-generated table of contents for the document, available for bill text documents only and this field is only returned in the document metadata API method. a flat list of TOC entries.'),

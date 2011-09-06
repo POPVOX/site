@@ -1,9 +1,15 @@
 #!/bin/sh
 
-# scp tauberer@tauberer.dyndns.org:dev/popvox/main/ec2/sysinit .
+# get this script onto the machine either using:
+#    bash preinit
+# or
+#    scp tauberer@tauberer.dyndns.org:dev/popvox/main/ec2/sysinit .
 #
 # master server:  sudo DISK=localhost DB=localhost CODE=localhost CRON=yes bash sysinit
-# slave server:   sudo DISK=$MASTER   DB=$MASTER   CODE=$MASTER   CRON=no  bash sysinit
+#
+# slave server:   export MASTER=...
+#                 sudo DISK=$MASTER   DB=$MASTER   CODE=$MASTER   CRON=no  bash sysinit
+#
 # testing server: sudo DISK=localhost DB=localhost CODE=XXXXX     CRON=no  bash sysinit
 #
 # if DB is localhost, then DISK has to be localhost too!
@@ -127,16 +133,18 @@ if [[ "$CRON" == "yes" ]]; then
 	crontab -u ubuntu /home/www/sources/scripts/crontab;
 fi
 
-#  Master config files.
-rm -f /etc/sphinxsearch/sphinx.conf
-ln -s /home/www/sources/conf/sphinx.conf /etc/sphinxsearch/
+# Main web config files and services.
 ln -s /home/www/sources/conf/httpd.conf /etc/apache2/conf.d/local.conf
 ln -s /home/www/sources/conf/nginx.conf /etc/nginx/conf.d/local.conf
 ln -s /home/www/sources/conf/logrotate.conf /etc/logrotate.d/local
-
-# Finish.
-searchd
 service apache2 restart
 service nginx restart
+
+# Additional services.
+if [[ "$DB" == "localhost" ]]; then
+	rm -f /etc/sphinxsearch/sphinx.conf;
+	ln -s /home/www/sources/conf/sphinx.conf /etc/sphinxsearch/;
+	searchd
+fi
 
 

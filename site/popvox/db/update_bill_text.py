@@ -48,8 +48,8 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 		return
 		
 	# check if we have this document already and have pages loaded
-	if DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, document__txt__isnull=False, document__pdf_url__isnull=False).exists():
-		return
+	#if DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, document__txt__isnull=False, document__pdf_url__isnull=False).exists():
+	#	return
 		
 	bill_type_map = {
 		"h": "HR",
@@ -140,11 +140,9 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 	
 	print "fetched", m, " ".join(what_did_we_fetch), "document_id="+str(d.id), "bill_id="+str(bill.id)
 
-	if DocumentPage.objects.filter(document=d).exists():
+	if d.toc != None and DocumentPage.objects.filter(document=d, png__isnull=False).exists():
 		return
 
-	return # don't worry about page data yet
-		
 	break_pages(d)
 		
 def break_pages(document):
@@ -152,14 +150,14 @@ def break_pages(document):
 	# fast access by the iPad app.
 	if document.pdf == None: raise ValueError("I don't have PDF data.")
 	
-	document.pages.all().delete()
-	
 	document.toc = None
 	document.save()
 	
 	import base64, tempfile, subprocess, shutil, glob
 	path = tempfile.mkdtemp()
 	try:
+		print "  bursting..."
+		
 		pdf = open(path + "/document.pdf", "w")
 		pdf.write(base64.decodestring(document.pdf))
 		pdf.close()
@@ -174,7 +172,9 @@ def break_pages(document):
 		subprocess.call(["pdftoppm", "-scale-to-x", "768", "-scale-to-y", "994", "-png", path + "/document.pdf", path + "/page"], cwd=path) # poppler-utils package
 		
 		subprocess.call(["pdftk", path + "/document.pdf", "burst", "compress"], cwd=path) # pdftk package
-		
+
+		max_page = 0
+
 		for fn in glob.glob(path + "/page-*.png"):
 			pagenum = int(fn[len(path)+6:-4])
 			
@@ -190,17 +190,22 @@ def break_pages(document):
 			ppdf = ppdffile.read()
 			ppdffile.close()
 
-			DocumentPage.objects.create(
-				document = document,
-				page = pagenum,
-				png = base64.encodestring(png),
-				pdf = base64.encodestring(ppdf))
+			dp, isnew = DocumentPage.objects.get_or_create(document = document, page = pagenum)
+			dp.png = base64.encodestring(png)
+			dp.pdf = base64.encodestring(ppdf)
+			dp.save()
+			
+			if pagenum > max_page: max_page = pagenum
 
+		document.pages.filter(page__gt = max_page).delete()
+		
 		# generate text
 		
 		# While the GPO text file has good layout, it doesn't indicate page boundaries.
 		# To get page boundaries, we compare the text to the result of pdftext on the PDF
 		# and look for \x0C new page characters.
+		
+		print "  page-by-page text format..."
 		
 		subprocess.call(["pdftotext", "-layout", "-enc", "UTF-8", path + "/document.pdf"], cwd=path) # poppler-utils package
 		f = open(path + "/document.txt")
@@ -235,6 +240,8 @@ def break_pages(document):
 		
 		# To make a table of contents, we look at the XML document structure and match that
 		# against the page-by-page text.
+		
+		print "  table of contents..."
 			
 		if document.xml:
 			from lxml import etree
@@ -252,7 +259,7 @@ def break_pages(document):
 					for child in node.iterdescendants():
 						if child.text:
 							label = truncatewords(label + (" " if len(label) > 0 else "") + child.text, 10)
-							if "..." in label or len(label) > 64:
+							if child.tag == "header" or "..." in label or len(label) > 64:
 								break
 					if label != "":
 						info["section_headings"].append( (len(info["tree_serialized"]), level, label) )
