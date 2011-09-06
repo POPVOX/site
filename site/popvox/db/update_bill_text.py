@@ -3,7 +3,7 @@
 # Fetches new bill text documents from GPO and pre-generates page
 # images for our iPad app.
 
-import sys, base64, re, urllib, urllib2, json
+import os, sys, base64, re, urllib, urllib2, json
 from lxml import etree
 from django.template.defaultfilters import truncatewords
 
@@ -26,7 +26,7 @@ def fetch_page(url, args=None, method="GET", decode=False):
 		ret = ret.decode(encoding)
 	return ret
 
-def pull_text(congressnumber):
+def pull_text(congressnumber, thread_index=None, thread_count=None):
 	bill_list = fetch_page("http://frwebgate.access.gpo.gov/cgi-bin/BillBrowse.cgi",
 		{	"dbname": str(congressnumber) + "_cong_bills",
 			"wrapperTemplate": "all" + str(congressnumber) + "bills_wrapper.html",
@@ -34,16 +34,25 @@ def pull_text(congressnumber):
 	
 	for m in re.findall(r"cong_bills&docid=f:([a-z]+)(\d+)([a-z][a-z0-9]+)\.txt\s*\"", bill_list):
 		billtype, billnumber, billstatus = m
+
+		if thread_count != None:
+			if int(billnumber) % thread_count != thread_index:
+				continue
 		
-		pull_bill_text(congressnumber, billtype, billnumber, billstatus)
+		pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_index=thread_index)
 		
-def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
+def pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_index=None):
 	m = (congressnumber, billtype, billnumber, billstatus)
+
+	def printthread():
+		if thread_index:
+			print thread_index,
 	
 	# our bill status codes match the GPO Access status codes
 	try:
 		bill = Bill.objects.get(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None)
 	except Bill.DoesNotExist:
+		printthread()
 		print "invalid bill", m
 		return
 		
@@ -94,6 +103,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 		
 		n = re.search(r'url = "(http://www.gpo.gov:80/fdsys/pkg/BILLS-[^/]*/pdf/BILLS-[^\.]*.pdf)";', pdf_info)
 		if n == None:
+			printthread()
 			print "no bill text", m
 			return
 		d.pdf_url = n.group(1)
@@ -109,6 +119,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 		if not title:
 			title = mods.xpath('string(m:extension/m:searchTitle)', namespaces=ns)
 		if not title:
+			printthread()
 			print "bill title not found in MODS", m
 			return
 		title = unicode(title) # force lxml object to unicode, otherwise it isn't handled right in Django db layer
@@ -138,17 +149,21 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus):
 		
 	d.save()
 	
+	printthread()
 	print "fetched", m, " ".join(what_did_we_fetch), "document_id="+str(d.id), "bill_id="+str(bill.id)
 
 	if d.toc != None and DocumentPage.objects.filter(document=d, png__isnull=False).exists():
 		return
 
-	break_pages(d)
+	break_pages(d, thread_index=thread_index)
 		
-def break_pages(document):
+def break_pages(document, thread_index=None):
 	# Generate PNG, text, and HTML representations of the pages in the PDF for
 	# fast access by the iPad app.
 	if document.pdf == None: raise ValueError("I don't have PDF data.")
+
+	def status(txt):
+		print "   " + (str(thread_index) + " " if thread_index != None else "") + txt
 	
 	import base64, tempfile, subprocess, shutil, glob
 	path = tempfile.mkdtemp()
@@ -158,7 +173,7 @@ def break_pages(document):
 		pdf.close()
 		
 		if not document.pages.filter(png__isnull=False).exists() and not document.pages.filter(pdf__isnull=False).exists():
-			print "  bursting..."
+			status("bursting...")
 			
 			#subprocess.call(["perl", "/usr/bin/pdfcrop", path + "/document.pdf"], cwd=path) # latex package
 				# if we do this, then the output size (scale-to-x/y) needs to be
@@ -203,7 +218,7 @@ def break_pages(document):
 		# To get page boundaries, we compare the text to the result of pdftext on the PDF
 		# and look for \x0C new page characters.
 		
-		print "  page-by-page text format..."
+		status("page-by-page text format...")
 		
 		subprocess.call(["pdftotext", "-layout", "-enc", "UTF-8", path + "/document.pdf"], cwd=path) # poppler-utils package
 		f = open(path + "/document.txt")
@@ -239,7 +254,7 @@ def break_pages(document):
 		# To make a table of contents, we look at the XML document structure and match that
 		# against the page-by-page text.
 		
-		print "  table of contents..."
+		status("table of contents...")
 			
 		if document.xml:
 			from lxml import etree
@@ -299,7 +314,19 @@ def break_pages(document):
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1: # no args
-		pull_text(CURRENT_CONGRESS)
+		if not "THREADS" in os.environ:
+			pull_text(CURRENT_CONGRESS)
+		else:
+			threads = int(os.environ["THREADS"])
+			from multiprocessing import Process
+			procs = []
+			for i in range(threads):
+				p = Process(target=pull_text, args=[CURRENT_CONGRESS],
+					kwargs={"thread_index": i, "thread_count": threads})
+				p.start()
+			for p in procs:
+				p.join()
+			
 
 	if len(sys.argv) == 2:
 		break_pages(PositionDocument.objects.get(id=sys.argv[-1]))
