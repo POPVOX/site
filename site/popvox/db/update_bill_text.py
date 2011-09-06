@@ -150,54 +150,52 @@ def break_pages(document):
 	# fast access by the iPad app.
 	if document.pdf == None: raise ValueError("I don't have PDF data.")
 	
-	document.toc = None
-	document.save()
-	
 	import base64, tempfile, subprocess, shutil, glob
 	path = tempfile.mkdtemp()
 	try:
-		print "  bursting..."
-		
 		pdf = open(path + "/document.pdf", "w")
 		pdf.write(base64.decodestring(document.pdf))
 		pdf.close()
 		
-		#subprocess.call(["perl", "/usr/bin/pdfcrop", path + "/document.pdf"], cwd=path) # latex package
-			# if we do this, then the output size (scale-to-x/y) needs to be
-			# adjusted because of an arbitrary aspect ratio that might come out,
-			# also the filename shifts
-		
-		# generate PNGs and PDFs for each page
-		
-		subprocess.call(["pdftoppm", "-scale-to-x", "768", "-scale-to-y", "994", "-png", path + "/document.pdf", path + "/page"], cwd=path) # poppler-utils package
-		
-		subprocess.call(["pdftk", path + "/document.pdf", "burst", "compress"], cwd=path) # pdftk package
-
-		max_page = 0
-
-		for fn in glob.glob(path + "/page-*.png"):
-			pagenum = int(fn[len(path)+6:-4])
+		if not document.pages.filter(png__isnull=False).exists() and not document.pages.filter(pdf__isnull=False).exists():
+			print "  bursting..."
 			
-			# use graphicsmagick mogrify to trim and convert the PNG to greyscale (to reduce file size),
-			# overwriting the file in place.
-			subprocess.call(["gm", "mogrify", "-trim", "-type", "Grayscale", fn])
+			#subprocess.call(["perl", "/usr/bin/pdfcrop", path + "/document.pdf"], cwd=path) # latex package
+				# if we do this, then the output size (scale-to-x/y) needs to be
+				# adjusted because of an arbitrary aspect ratio that might come out,
+				# also the filename shifts
 			
-			pngfile = open(fn)
-			png = pngfile.read()
-			pngfile.close()
+			# generate PNGs and PDFs for each page
 			
-			ppdffile = open(path + "/pg_%04d.pdf" % pagenum)
-			ppdf = ppdffile.read()
-			ppdffile.close()
-
-			dp, isnew = DocumentPage.objects.get_or_create(document = document, page = pagenum)
-			dp.png = base64.encodestring(png)
-			dp.pdf = base64.encodestring(ppdf)
-			dp.save()
+			subprocess.call(["pdftoppm", "-scale-to-x", "768", "-scale-to-y", "994", "-png", path + "/document.pdf", path + "/page"], cwd=path) # poppler-utils package
 			
-			if pagenum > max_page: max_page = pagenum
-
-		document.pages.filter(page__gt = max_page).delete()
+			subprocess.call(["pdftk", path + "/document.pdf", "burst", "compress"], cwd=path) # pdftk package
+	
+			max_page = 0
+	
+			for fn in glob.glob(path + "/page-*.png"):
+				pagenum = int(fn[len(path)+6:-4])
+				
+				# use graphicsmagick mogrify to trim and convert the PNG to greyscale (to reduce file size),
+				# overwriting the file in place.
+				subprocess.call(["gm", "mogrify", "-trim", "-type", "Grayscale", fn])
+				
+				pngfile = open(fn)
+				png = pngfile.read()
+				pngfile.close()
+				
+				ppdffile = open(path + "/pg_%04d.pdf" % pagenum)
+				ppdf = ppdffile.read()
+				ppdffile.close()
+	
+				dp, isnew = DocumentPage.objects.get_or_create(document = document, page = pagenum)
+				dp.png = base64.encodestring(png)
+				dp.pdf = base64.encodestring(ppdf)
+				dp.save()
+				
+				if pagenum > max_page: max_page = pagenum
+	
+			document.pages.filter(page__gt = max_page).delete()
 		
 		# generate text
 		
