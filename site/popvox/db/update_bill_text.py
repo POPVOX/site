@@ -45,7 +45,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_inde
 	m = (congressnumber, billtype, billnumber, billstatus)
 
 	def printthread():
-		if thread_index:
+		if thread_index != None:
 			print thread_index,
 	
 	# our bill status codes match the GPO Access status codes
@@ -152,7 +152,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_inde
 	printthread()
 	print "fetched", m, " ".join(what_did_we_fetch), "document_id="+str(d.id), "bill_id="+str(bill.id)
 
-	if d.toc != None and DocumentPage.objects.filter(document=d, png__isnull=False).exists():
+	if d.toc != None and DocumentPage.objects.filter(document=d, png__isnull=False, pdf__isnull=False, text__isnull=False).exists():
 		return
 
 	break_pages(d, thread_index=thread_index)
@@ -166,6 +166,8 @@ def break_pages(document, thread_index=None):
 		print "   " + (str(thread_index) + " " if thread_index != None else "") + txt
 	
 	import base64, tempfile, subprocess, shutil, glob
+	import diff_match_patch
+
 	path = tempfile.mkdtemp()
 	try:
 		pdf = open(path + "/document.pdf", "w")
@@ -212,58 +214,67 @@ def break_pages(document, thread_index=None):
 	
 			document.pages.filter(page__gt = max_page).delete()
 		
-		# generate text
-		
-		# While the GPO text file has good layout, it doesn't indicate page boundaries.
-		# To get page boundaries, we compare the text to the result of pdftext on the PDF
-		# and look for \x0C new page characters.
-		
-		status("page-by-page text format...")
-		
-		subprocess.call(["pdftotext", "-layout", "-enc", "UTF-8", path + "/document.pdf"], cwd=path) # poppler-utils package
-		f = open(path + "/document.txt")
-		text = f.read() # utf-8, binary string
-		f.close()
-		
-		dtext = document.txt.encode("utf8")
-		
-		import diff_match_patch
-		diff = diff_match_patch.diff(dtext, text)
-		
-		pages = [""]
-		lctr = 0
-		rctr = 0
-		for (op, length) in diff:
-			if op in ("-", "="):
-				pages[-1] += dtext[lctr:lctr+length]
-				lctr+=length
-			if op in ("+","="):
-				for i in xrange(text.count("\x0C", rctr, rctr+length)):
-					pages.append("")
-				rctr+=length
-		for i in xrange(len(pages)):
-			try:
-				p = DocumentPage.objects.get(document=document, page=i+1)
-			except:
-				break
-			p.text = pages[i].decode("utf8", "replace")
-			p.save()
+		if not document.pages.filter(text__isnull=False).exists():
+			# generate text
 			
-		# generate table of contents
-		
-		# To make a table of contents, we look at the XML document structure and match that
-		# against the page-by-page text.
-		
-		status("table of contents...")
+			# While the GPO text file has good layout, it doesn't indicate page boundaries.
+			# To get page boundaries, we compare the text to the result of pdftext on the PDF
+			# and look for \x0C new page characters.
 			
-		if document.xml:
+			status("page-by-page text format...")
+			
+			subprocess.call(["pdftotext", "-layout", "-enc", "UTF-8", path + "/document.pdf"], cwd=path) # poppler-utils package
+			f = open(path + "/document.txt")
+			text = f.read() # utf-8, binary string
+			f.close()
+			
+			dtext = document.txt.encode("utf8")
+			
+			diff = diff_match_patch.diff(dtext, text)
+			
+			pages = [""]
+			lctr = 0
+			rctr = 0
+			for (op, length) in diff:
+				if op in ("-", "="):
+					pages[-1] += dtext[lctr:lctr+length]
+					lctr+=length
+				if op in ("+","="):
+					for i in xrange(text.count("\x0C", rctr, rctr+length)):
+						pages.append("")
+					rctr+=length
+			for i in xrange(len(pages)):
+				try:
+					p = DocumentPage.objects.get(document=document, page=i+1)
+				except:
+					break
+				p.text = pages[i].decode("utf8", "replace")
+				p.save()
+			
+		if document.xml and not document.toc:
+			# generate table of contents
+			
+			# To make a table of contents, we look at the XML document structure and match that
+			# against the page-by-page text.
+		
+			status("table of contents...")
+			
+			subprocess.call(["pdftotext", "-layout", "-enc", "UTF-8", path + "/document.pdf"], cwd=path) # poppler-utils package
+			f = open(path + "/document.txt")
+			text = f.read() # utf-8, binary string
+			f.close()
+			
 			from lxml import etree
 			from StringIO import StringIO
 			
 			xml = base64.decodestring(document.xml)
 			xml = xml.replace("&nbsp;", " ") # hmm
 			
-			tree = etree.parse(StringIO(xml)).getroot()
+			try:
+				tree = etree.parse(StringIO(xml)).getroot()
+			except Exception as e:
+				print e
+				return
 			
 			def serialize_node(node, level, info):
 				label = None
