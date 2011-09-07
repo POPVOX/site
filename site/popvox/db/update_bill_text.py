@@ -225,10 +225,10 @@ def break_pages(document, thread_index=None, force=None):
 			
 			subprocess.call(["pdftotext", "-layout", "-enc", "UTF-8", path + "/document.pdf"], cwd=path) # poppler-utils package
 			f = open(path + "/document.txt")
-			text = f.read() # utf-8, binary string
+			text = f.read().replace("\x00", "") # utf-8, binary string... we're getting some null bytes somewhere
 			f.close()
 			
-			dtext = document.txt.encode("utf8")
+			dtext = document.txt.encode("utf8").replace("\x00", "") # we're getting some null bytes somewhere
 			
 			diff = diff_match_patch.diff(dtext, text)
 			
