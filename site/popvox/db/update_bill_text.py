@@ -157,7 +157,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_inde
 
 	break_pages(d, thread_index=thread_index)
 		
-def break_pages(document, thread_index=None):
+def break_pages(document, thread_index=None, force=None):
 	# Generate PNG, text, and HTML representations of the pages in the PDF for
 	# fast access by the iPad app.
 	if document.pdf == None: raise ValueError("I don't have PDF data.")
@@ -174,7 +174,7 @@ def break_pages(document, thread_index=None):
 		pdf.write(base64.decodestring(document.pdf))
 		pdf.close()
 		
-		if not document.pages.filter(png__isnull=False).exists() and not document.pages.filter(pdf__isnull=False).exists():
+		if (not document.pages.filter(png__isnull=False).exists() and not document.pages.filter(pdf__isnull=False).exists()) or force in ("all", "png", "pdf"):
 			status("bursting...")
 			
 			#subprocess.call(["perl", "/usr/bin/pdfcrop", path + "/document.pdf"], cwd=path) # latex package
@@ -214,7 +214,7 @@ def break_pages(document, thread_index=None):
 	
 			document.pages.filter(page__gt = max_page).delete()
 		
-		if not document.pages.filter(text__isnull=False).exists():
+		if not document.pages.filter(text__isnull=False).exists() or force in ("all", "txt"):
 			# generate text
 			
 			# While the GPO text file has good layout, it doesn't indicate page boundaries.
@@ -251,7 +251,7 @@ def break_pages(document, thread_index=None):
 				p.text = pages[i].decode("utf8", "replace")
 				p.save()
 			
-		if document.xml and not document.toc:
+		if document.xml and (not document.toc or force in ("all", "toc")):
 			# generate table of contents
 			
 			# To make a table of contents, we look at the XML document structure and match that
@@ -275,16 +275,34 @@ def break_pages(document, thread_index=None):
 			except Exception as e:
 				print e
 				return
-			
+				
+			header_levels = {
+				'chapter': 'Chapter',
+				'division': 'Division',
+				'part': 'Part',
+				'subchapter': 'Subchater',
+				'subdivision': 'Subdivision',
+				'subpart': 'Subpart',
+				'subtitle': 'Subtitle',
+				'title': 'Title',
+				'section': None,
+				'subsection': None,
+				'header': None,
+				'subheader': None,
+			}
 			def serialize_node(node, level, info):
 				label = None
-				if node.tag in ('chapter','division','header', 'part', 'section','subchapter', 'subdivision', 'subheader', 'subpart', 'subsection', 'subtitle', 'title'):
+				if node.tag in header_levels:
 					label = ""
+					if header_levels[node.tag] != None:
+						label += header_levels[node.tag] + " "
 					for child in node.iterdescendants():
 						if child.text:
 							label = truncatewords(label + (" " if len(label) > 0 else "") + child.text, 10)
 							if child.tag == "header" or "..." in label or len(label) > 64:
 								break
+							if child.tag == "enum" and not label.endswith("."):
+								label += "."
 					if label != "":
 						info["section_headings"].append( (len(info["tree_serialized"]), level, label) )
 				if node.text:
@@ -315,8 +333,35 @@ def break_pages(document, thread_index=None):
 							break
 					
 						lctr += 1
+						
+			# remove indentation levels when the average page separation is less than one
+			# i.e., roughly, most section headings at that level fall multiple per page
+			last_page = { }
+			pagediffs = { }
+			for section in sections:
+				if section["indentation"] in last_page and section["indentation"] > 0:
+					if section["indentation"] not in pagediffs:
+						pagediffs[section["indentation"]] = [0, 0]
+					pagediffs[section["indentation"]][0] += 1
+					pagediffs[section["indentation"]][1] += (section["page"] - last_page[section["indentation"]])
+				last_page[section["indentation"]] = section["page"]
+			kill_levels = []
+			for k, v in pagediffs.items():
+				if float(v[1])/float(v[0]) < 1.0:
+					kill_levels.append(k)
+			while max(rec["indentation"] for rec in sections) in kill_levels:
+				max_indent = max(rec["indentation"] for rec in sections)
+				sections = [s for s in sections if s["indentation"] < max_indent]
 			
-			document.toc = json.dumps(sections)
+			# don't let the toc be so darn long. if so, chop off innermost indentation level.
+			# if it's too long, it gets truncated in the db and causes errors in json.loads.
+			toc = json.dumps(sections)
+			while len(toc) > 10000:
+				max_indent = max(rec["indentation"] for rec in sections)
+				sections = [s for s in sections if s["indentation"] < max_indent]
+				toc = json.dumps(sections)
+			
+			document.toc = toc
 			document.save()
 			
 	finally:
@@ -337,8 +382,15 @@ if __name__ == "__main__":
 				p.start()
 			for p in procs:
 				p.join()
-			
+	
+	elif sys.argv[-1] == "validate-toc":
+		for p in PositionDocument.objects.filter(toc__isnull=False).only("id", "toc"):
+			try:
+				json.loads(p.toc)
+			except:
+				print p.id, p.title
+				break_pages(p, force="toc")
 
-	if len(sys.argv) == 2:
-		break_pages(PositionDocument.objects.get(id=sys.argv[-1]))
+	elif len(sys.argv) == 2:
+		break_pages(PositionDocument.objects.get(id=sys.argv[-1]), force="toc")
 	
