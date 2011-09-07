@@ -37,7 +37,7 @@ apt-get install -y \
  nfs-common nfs-kernel-server \
  sendmail-bin rdiff-backup \
  git-core subversion mercurial \
- apache2 apache2-mpm-worker libapache2-mod-wsgi nginx-full mysql-server \
+ nginx-full mysql-server python-flup \
  python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml sphinxsearch \
  memcached python-memcache \
  poppler-utils libqtcore4 pdftk graphicsmagick \
