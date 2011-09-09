@@ -15,7 +15,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 	list_display = ["user", "fullname", "staff_info"]
 
 class UserOrgRoleAdmin(admin.ModelAdmin):
-	raw_id_fields = ("user",)
+	raw_id_fields = ("user","org")
 	#readonly_fields = ("user",)
 	search_fields = ["user__username", "user__email", "user__userprofile__fullname"]
 
