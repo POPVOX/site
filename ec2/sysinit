@@ -102,20 +102,6 @@ if [[ "$DB" == "localhost" ]]; then
 	mysql mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
 fi
 
-# Apache, which handles private WSGI deployment of Django, oughttabealaw.com, and
-# the popvox domains on https: which includes proxying through to the blog on occams.
-# The alternative is to run Django via FastCGI via Nginx directly, which requires more config.
-# We proxy *to* our https: site in order to allow Facebook embedding over http.
-a2dissite default
-a2enmod proxy proxy_http ssl
-sed -i "s/Listen 443/#Listen 443/" /etc/apache2/ports.conf
-sed -i "s/Deny from all/#Deny from all/" /etc/apache2/mods-enabled/proxy.conf
-
-# Nginx which handles static content and caching as a reverse-proxy
-# to Apache. It also handles SSL processing, so behind Nginx is all
-# plain HTTP.
-rm /etc/nginx/sites-enabled/default
-
 # Deployments
 
 # get the inituser script
@@ -134,10 +120,10 @@ if [[ "$CRON" == "yes" ]]; then
 fi
 
 # Main web config files and services.
-ln -s /home/www/sources/conf/httpd.conf /etc/apache2/conf.d/local.conf
+rm /etc/nginx/sites-enabled/default
 ln -s /home/www/sources/conf/nginx.conf /etc/nginx/conf.d/local.conf
 ln -s /home/www/sources/conf/logrotate.conf /etc/logrotate.d/local
-service apache2 restart
+
 service nginx restart
 
 # Additional services.
