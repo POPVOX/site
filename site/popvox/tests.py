@@ -9,7 +9,9 @@ c = Client()
 
 from popvox.models import *
 
-def login(email, password, login, page):
+#-------------------Functions----------------#
+
+def login(email, password, login, page, self):
 
     success = True
 
@@ -27,9 +29,6 @@ def login(email, password, login, page):
         elif 'Welcome, <a href="/accounts/profile">kosh</a>' not in pagecontents:
             success = False
             print page, "is not showing user as logged in."
-        else:
-            print page, " is good."
-        return success
             
     else:
         if int(status) != 200:
@@ -41,9 +40,47 @@ def login(email, password, login, page):
         elif 'Your email and password were incorrect' not in pagecontents:
             success = False
             print page, "did not inform user of bad login."
-        else:
-            print page, " is good."
-        return success
+
+    self.assertEqual(success, True)
+    return success
+        
+def comment(congress, bill, position, self):
+    
+    success = login('kosh@vorlons.gov', '3edgedsword', 'good', 'login', self)
+    
+    response = c.post('/bills/us/'+congress+'/'+bill+'/comment/'+position, {
+            "message":                  "I support "+bill+" because I'm the testing robot.",
+            "submitmode":               "Submit Comment >",
+            "useraddress_address1":     "711 Ludlow St",
+            "useraddress_address2":     "",
+            "useraddress_city":         "Takoma Park",
+            "useraddress_firstname":    "Ambassador",
+            "useraddress_lastname":     "Kosh",
+            "useraddress_phonenumber":  "240-688-6685",
+            "useraddress_prefix":       "Mr.",
+            "useraddress_state":        "MD",
+            "useraddress_suffix":       "",
+            "useraddress_zipcode":      "20912-7309",
+            },  follow=True)
+    status = response.status_code
+    pagecontents = response.content
+    page = "leave comment"
+                
+    if int(status) != 200:
+        success = False
+        print "status code failed on ", page
+        print status
+    elif "<title>Share Your Comment" not in pagecontents:
+        success = False
+        print page, "did not redirect to share."
+    elif "What Others Think" not in pagecontents:
+        success = False
+        print page, "is not showing what others think."
+        
+    self.assertEqual(success, True)
+    return success
+    
+#-------------------Site Tests----------------#
 
 class SampleTest(TestCase):
     
@@ -186,55 +223,56 @@ class CredentialsTest(TestCase):
     
     def testLogin(self):
 
-        success = login('kosh@vorlons.gov', '3edgedsword', 'good', 'login')
+        success = login('kosh@vorlons.gov', '3edgedsword', 'good', 'login', self)
+        page = 'login'
         
         self.assertEqual(success, True)
+        
+        print page, " is good."
         
     def testBadLogin(self):
         
-        success = login('kosh@vorlons.gov', 'WhatDoYouWant', 'bad', 'bad login')
+        success = login('kosh@vorlons.gov', 'WhatDoYouWant', 'bad', 'bad login', self)
+        page = 'bad login'
                 
         self.assertEqual(success, True)
         
+        print page, " is good."
+        
 class CommentTest(TestCase):
-    fixtures = ['test_adserver', 'test_users']
+    fixtures = ['test_adserver', 'test_users', 'test_sbills']
     
     def testComment(self):
 
-        success = True
-        CredentialsTest().testLogin()
-
-        response = c.post('/bills/us/112/hr200/comment/support', {
-            "message":                  "I support H.R. 200 because it is a good http response.",
-            "submitmode":               "Submit Comment >",
-            "useraddress_address1":     "1220 East-West Highway",
-            "useraddress_address2":     "Apt 1716",
-            "useraddress_city":         "Silver Spring",
-            "useraddress_firstname":    "Ambassador",
-            "useraddress_lastname":     "Kosh",
-            "useraddress_phonenumber":  "240-688-6685",
-            "useraddress_prefix":       "Mr.",
-            "useraddress_state":        "MD",
-            "useraddress_suffix":       "",
-            "useraddress_zipcode":      "20910",
-            },  follow=True)
-        status = response.status_code
-        pagecontents = response.content
-        page = "send comment"
-                
-        if int(status) != 200:
-            success = False
-            print "status code failed on ", page
-        elif "<title>Share Your Comment" not in pagecontents:
-            success = False
-            print page, "did not redirect to share."
-        elif "What Others Think" not in pagecontents:
-            success = False
-            print page, "is not showing what others think."
-        else:
-            print page, " is good."
+        success = comment('112', 's12', 'support', self)
+        page = 'leave a comment'
         
         self.assertEqual(success, True)
+        
+        print page, " is good--comment completed successfully."
+    
+    def testCommentReport(self):
+        
+        #test that comments left appear on bill report
+
+        success = comment('112', 's12', 'support', self)
+        response = c.get('/ajax/bills/us/112/s12/report/getinfo')
+        status = response.status_code
+        pagecontents = response.content
+        page = 'bill report'
+        
+        if int(status) != 200:
+            success = False
+            print "problem loading ", page
+        elif "the testing robot" not in pagecontents:
+            success = False
+            print "comment not found on ", page
+        else:
+            print page, " is good--comment appears."
+        
+        self.assertEqual(success, True)
+        
+#-------------------API Tests----------------#        
        
 class APIRegistrationTest(TestCase):
 	fixtures = ['test_api', 'test_pvgeneral.json']
