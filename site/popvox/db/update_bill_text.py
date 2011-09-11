@@ -21,6 +21,8 @@ def fetch_page(url, args=None, method="GET", decode=False):
 	if resp.getcode() != 200:
 		raise Exception("Failed to load page: " + url)
 	ret = resp.read()
+	if "Content Unavailable" in ret:
+		raise Exception("Failed to load page ('Content Unavailable'): " + url)
 	if decode:
 		encoding = resp.info().getparam("charset")
 		ret = ret.decode(encoding)
@@ -38,8 +40,11 @@ def pull_text(congressnumber, thread_index=None, thread_count=None):
 		if thread_count != None:
 			if int(billnumber) % thread_count != thread_index:
 				continue
-		
-		pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_index=thread_index)
+
+		try:
+			pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_index=thread_index)
+		except Exception as e:
+			print "error in ", thread_index, m, e
 		
 def pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_index=None):
 	m = (congressnumber, billtype, billnumber, billstatus)
@@ -144,16 +149,27 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, thread_inde
 		what_did_we_fetch.append("txt")
 		
 	if not d.xml:
-		d.xml = base64.encodestring(fetch_page(d.pdf_url.replace("/pdf/", "/xml/").replace(".pdf", ".xml")))
+		try:
+			d.xml = base64.encodestring(fetch_page(d.pdf_url.replace("/pdf/", "/xml/").replace(".pdf", ".xml")))
+		except Exception as e:
+			printthread()
+			print m, "xml version not available", e
 		what_did_we_fetch.append("xml")
 		
 	d.save()
 	
-	printthread()
-	print "fetched", m, " ".join(what_did_we_fetch), "document_id="+str(d.id), "bill_id="+str(bill.id)
+	def printstatus():
+		printthread()
+		print "fetched", m, " ".join(what_did_we_fetch), "document_id="+str(d.id), "bill_id="+str(bill.id)
+
+	if len(what_did_we_fetch) > 0 or "THREADS" not in os.environ:
+		printstatus()
 
 	if d.toc != None and DocumentPage.objects.filter(document=d, png__isnull=False, pdf__isnull=False, text__isnull=False).exists():
 		return
+
+	if len(what_did_we_fetch) == 0 and "THREADS" in os.environ:
+		printstatus()
 
 	break_pages(d, thread_index=thread_index)
 		
