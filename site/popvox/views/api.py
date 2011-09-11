@@ -211,16 +211,63 @@ class bill_similarity(BillHandler):
 
 @api_handler
 class bill_search(BillHandler):
-	description = "Search bills by bill number or keywords in bill title."
-	qs_args = (('q', 'The search query.', 'H.R. 3'),)
-	response_summary = " Returns a paginated list of bills matching the search. For documentation for the returned fields, see the bill metadata API method."
+	description = "Search bills by bill number, keywords in bill titles, or bill full text."
+	qs_args = (
+		('q', 'The search query.', 'H.R. 3'),
+		('mode', 'Optional. The search mode: "titles" to search bill titles only, "text" to search bill full text. Default: "titles"', None),
+		)
+	response_summary = "Returns a paginated list of bills matching the search. When mode is \"titles\" and the search query looks like a bill number, that bill is returned alone without searching bill titles. For documentation for the returned fields, see the bill metadata API method."
+	response_fields = (
+		('context', 'When the search mode is "text", an additional field is available on each matching bill called context which is a string containing the context of the match search terms within the full text of the bill.'),
+		)
+	
+	def bill_fields(self, request, account):
+		f = BillHandler.bill_fields
+		if request.GET.get('mode', 'titles') == "text":
+			f = list(f) + ["context"]
+		return f
 	
 	@paginate
 	def read(self, request, account):
-		from bills import billsearch_internal
-		bills, status, error = billsearch_internal(request.GET.get("q", "").strip())
-		return bills
-
+		q = request.GET.get("q", "").strip()
+		mode = request.GET.get('mode', 'titles')
+		
+		if mode == 'titles':
+			from bills import billsearch_internal
+			bills, status, error = billsearch_internal(q)
+			return bills
+		elif mode == 'text':
+			c = SphinxClient()
+			c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
+			c.SetMatchMode(SPH_MATCH_EXTENDED)
+			c.SetFilter("doctype", [100])
+			matches = c.Query(q)
+			if not matches:
+				return []
+				
+			ret = []
+			seen_bills = set()
+			
+			for m in matches["matches"]:
+				doc = PositionDocument.objects.get(id=m["attrs"]["document_id"])
+				if doc.bill_id in seen_bills: continue
+				
+				seen_bills.add(doc.bill_id)
+				bill = doc.bill
+				
+				# compute context
+				text = doc.pages.filter(page=m["attrs"]["page"]).values("text")[0]["text"]
+				text = re.sub(r"\s+", " ", text) # clean up whitespace
+				context = " ".join(c.BuildExcerpts([text], "doc_text", q, { "before_match": "", "after_match": ""}))
+				context = re.sub(r"^\s*\.\.\.\s*|\s*\.\.\.\s*$", "", context) # clean up whitespace
+				bill.context = context
+				
+				ret.append(bill)
+			
+			return ret
+		else:
+			raise ValueError("Invalid value for 'mode' parameter.")
+			
 @api_handler
 class bill_metadata(BillHandler):
 	url_pattern_args = [("000", "BILL_ID")]
