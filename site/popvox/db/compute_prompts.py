@@ -14,7 +14,7 @@ from popvox.models import UserComment, BillSimilarity
 matrix = { }
 bills = []
 last_user = None
-for c in itertools.chain(UserComment.objects.order_by('user').iterator(), [None]):
+for c in itertools.chain(UserComment.objects.only("id", "user", "bill").order_by('user', '-message', '-created').iterator(), [None]):
 	if c == None or c.user_id != last_user:
 		# bills contains all of the bills commented on by the last user
 		for b1 in bills:
@@ -28,7 +28,11 @@ for c in itertools.chain(UserComment.objects.order_by('user').iterator(), [None]
 		if c == None: break # finished
 		
 	last_user = c.user_id
-	bills.append(c.bill_id)
+	
+	# only take the first 100 comments from a user, looking first at the comments
+	# they left messages on, and then the most recent.
+	if len(bills) < 100:
+		bills.append(c.bill_id)
 
 def dot(v1, v2):
 	# Compute dot product of two vectors, each stored in a sparse form as a dict.
@@ -54,11 +58,14 @@ for b1 in matrix:
 	# Compute similarity scores between this bill and all bills with a greater id.
 	sim = {}
 	for b2 in matrix[b1]: # limit the scoring to bills that at least one User commented on both
-		if b1 < b2:
+		if b1 < b2: # for any pair, we only need to do similarity score once
 			sim[b2] = cosine(matrix[b1], matrix[b2])
 			
-			# weight the score by the highest cooccurrence rate in each
-			sim[b2] *= max(matrix[b1].values())/max_val * max(matrix[b2].values())/max_val
+			# weight the score by the highest cooccurrence rate in each, if the cooccurrence
+			# rate is very low.
+			v = max(matrix[b1].values())/max_val * max(matrix[b2].values())/max_val
+			if v < .01:
+				sim[b2] *= 100.0*v
 	
 	# Sort the similarity scores in descending order.
 	sim = list(sim.items()) # make it a (k,v) list
