@@ -23,10 +23,10 @@
                 
                 
                 <li><a href="{{billrec.bill.url}}" data-transition="slide">
-                <h3 class="ui-li-heading">{{ billrec.bill.title_or_streetname }}</h3>
+                <h3 class="ui-li-heading">{{ billrec.bill.nicename }}</h3>
                 <p class="ui-li-desc">
-                	{% if bill.officialtitle %}
-                    {{ bill.officialtitle }}
+                	{% if bill.description %}
+                    {{ bill.description }}
                     {% endif %}
                 </p>
                 </a>

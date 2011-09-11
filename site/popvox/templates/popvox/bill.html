@@ -54,7 +54,7 @@ function getshorturl() {
 	{% endif %}
 
 	{% if canvote and deadbox %}
-		{% if bill.died %}
+		{% if bill.died %} {% comment %}non-bill actions are never "died" {% endcomment %}
 			<div class="alert_dead" style="margin-bottom: 30px"> {% comment %} for the negative margin on the ads {% endcomment %}
 				<h2 class="shadow_up pad_top">{% if not bill.street_name %}{{bill.displaynumber_nosession}}{% else %}{{bill.street_name|capfirst}} ({{bill.displaynumber_nosession}}){% endif %} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned.</h2>
 				
@@ -101,7 +101,7 @@ function getshorturl() {
 
 	<div class="col_9 col_top">
 		<a class="btn b_view_report" href="{{bill.url}}/report">
-			View {{bill.displaynumber}} report
+			View {{bill.shortname}} report
 		</a>
 		
 		{% if not user.userprofile.is_leg_staff %}
@@ -109,8 +109,7 @@ function getshorturl() {
 				<h1>What&rsquo;s your position on {{bill.displaynumber}}?</h1>
 			{% else %}
 				<h1 class="streetname">What&rsquo;s your position on</h1>
-				{% if not bill.street_name %}<h2 class="streetname">{{bill.title}}</h2>{% endif %}
-				{% if bill.street_name %}<h2 class="streetname">{{bill.street_name|capfirst}}</h2>{% endif %}
+				<h2 class="streetname">{% if bill.street_name %}{{bill.street_name}}{% else %}{{bill.title}}{% endif %}</h2>
 			{% endif %}
 		{% else %}
 		<h1>Bill Status and Org Positions</h1>
@@ -132,8 +131,8 @@ function getshorturl() {
 				{% endif %}
 				{{ bill.title }}
 			</h3>
-			{% if bill.officialtitle and not bill.notes %}
-			<p><strong>Summary: </strong>{{ bill.officialtitle }} {% if bill.is_bill %}(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>){% endif %}</p>
+			{% if bill.description and not bill.notes %}
+			<p><strong>Summary: </strong>{{ bill.description }} {% if bill.is_bill %}(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>){% endif %}</p>
 			{% else %}
 				{% if bill.is_bill %}<p>(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Information at GovTrack</a>)</p>{% endif %}
 			{% endif %}
@@ -240,8 +239,8 @@ function getshorturl() {
 		
 				<div style="display: none">
 					<div id="bill_endorse_oppose_colorbox" class="colorbox" style="width: 500px">
-					<h1><span id="bill_endorse_oppose_descr2"></span> {{ bill.displaynumber }}?</h1>
-					<p>You are about to <span id="bill_endorse_oppose_descr"></span> {{ bill.displaynumber }} in {{user_org.name}}&rsquo;s legislative agenda.</p>
+					<h1><span id="bill_endorse_oppose_descr2"></span> {{ bill.shortname }}?</h1>
+					<p>You are about to <span id="bill_endorse_oppose_descr"></span> {{ bill.shortname }} in {{user_org.name}}&rsquo;s legislative agenda.</p>
 					<p>Please provide a short explanation for your position in the form of a summary of what this {{bill.proposition_type}} does.</p>
 					<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%">{% for p in existing_org_positions %}{% if forloop.first %}{{p.comment}}{% endif %}{% endfor %}</textarea>
 					<div>

@@ -27,7 +27,7 @@ def synreq(request):
 		if termtype == "bill":
 			bill = Bill.from_hashtag(term)
 			term = bill.title
-			ot = bill.officialtitle()
+			ot = bill.description
 			if ot != None:
 				term += "\n\n" + ot
 

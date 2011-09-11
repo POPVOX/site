@@ -208,14 +208,14 @@
 			<td class="whatweknow">
 			<div>Bookmarked:
 				{% for bill in user.userprofile.tracked_bills.all %}
-					{{bill.displaynumber}}{% if not forloop.last %}, {% endif %}
+					{{bill.shortname}}{% if not forloop.last %}, {% endif %}
 				{% empty %}
 					None
 				{% endfor %}
 			</div>
 			<div>Hidden:
 				{% for bill in user.userprofile.antitracked_bills.all %}
-					{{bill.displaynumber}}{% if not forloop.last %}, {% endif %}
+					{{bill.shortname}}{% if not forloop.last %}, {% endif %}
 				{% empty %}
 					None
 				{% endfor %}
@@ -230,7 +230,7 @@
 			<td class="whatweknow">
 				<div style="max-height: 10em; overflow: auto">
 				{% for digg in user.commentdiggs.all %}
-					{{digg.comment.user.username}}&rsquo;s comment on {{digg.comment.bill.displaynumber}}{% if not forloop.last %}, {% endif %}
+					{{digg.comment.user.username}}&rsquo;s comment on {{digg.comment.bill.shortname}}{% if not forloop.last %}, {% endif %}
 				{% empty %}
 					None
 				{% endfor %}

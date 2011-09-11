@@ -505,11 +505,11 @@ def org_support_oppose(request):
 		support = "Neutral"
 
 	if cam.slug == "_default_":
-		message = "%s (%s) has been added to %s's legislative agenda. (%s)" % (p.bill.displaynumber(), support, org.name, p.bill.title)
+		message = "%s (%s) has been added to %s's legislative agenda. (%s)" % (p.bill.shortname, support, org.name, p.bill.title)
 	elif not newcam:
-		message = "%s (%s) has been added to the %s campaign. (%s)" % (p.bill.displaynumber(), support, cam.name, p.bill.title)
+		message = "%s (%s) has been added to the %s campaign. (%s)" % (p.bill.shortname, support, cam.name, p.bill.title)
 	else:
-		message = "A new campaign named %s was created and %s (%s) was added to its legislative agenda. (%s)" % (cam.name, p.bill.displaynumber(), support, p.bill.title)
+		message = "A new campaign named %s was created and %s (%s) was added to its legislative agenda. (%s)" % (cam.name, p.bill.shortname, support, p.bill.title)
 
 	# Send an email to all of the org's administrators.
 	send_mail("POPVOX: Legislative Agenda Changed: " + org.name,

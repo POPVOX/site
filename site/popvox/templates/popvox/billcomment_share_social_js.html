@@ -83,9 +83,9 @@ function share_tab(method) {
 		$('#sharetab_message').hide();
 	
 	if (method == "twitter") {
-		$('#share_message').val($('#share_message').val().replace("{{comment.bill.displaynumber}}", "{{comment.bill.hashtag}}"));
+		$('#share_message').val($('#share_message').val().replace("{{comment.bill.shortname|escapejs}}", "{{comment.bill.hashtag}}"));
 	} else {
-		$('#share_message').val($('#share_message').val().replace("{{comment.bill.hashtag}}", "{{comment.bill.displaynumber}}"));
+		$('#share_message').val($('#share_message').val().replace("{{comment.bill.hashtag}}", "{{comment.bill.shortname|escapejs}}"));
 	}
 
 	if (method == "email")

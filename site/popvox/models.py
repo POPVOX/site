@@ -152,13 +152,14 @@ class Bill(models.Model):
 	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills")
 	issues = models.ManyToManyField(IssueArea, blank=True, related_name="bills")
 	title = models.TextField()
+	description = models.TextField(blank=True, null=True)
 	current_status = models.TextField(help_text="For bill drafts, enter DRAFT.")
 	current_status_date = models.DateTimeField()
 	num_cosponsors = models.IntegerField()
 	latest_action = models.TextField(blank=True)
 	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True)
 	
-	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase.")
+	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase. For non-bill actions, this is an alternate short name for the action.")
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)
@@ -213,39 +214,54 @@ class Bill(models.Model):
 	def govtrack_link(self):
 		if not self.is_bill(): raise Exception("Invalid call on non-bill.")
 		return "http://www.govtrack.us/congress/bill.xpd?bill=" + self.govtrack_code()
-		
+	
+	@property
+	def nicename(self):
+		# The nice name of a bill is how a bill is referred to on first
+		# reference in a non-official context. It is the street name, if
+		# one is set, with the bill number, if the bill has one, otherwise
+		# the title.
+		if self.street_name:
+			if self.is_officially_numbered():
+				return self.displaynumber() + ": " + self.street_name[0].upper() + self.street_name[1:]
+			else:
+				return self.street_name[0].upper() + self.street_name[1:]
+		return self.title
+				
+	@property
+	def shortname(self):
+		# The short name of a bill is how a bill is normally referred to on
+		# second reference. For actual bills, it is the bill number. For
+		# non-bill items, it is the street name if one is assigned, otherwise
+		# the title.
+		if self.is_officially_numbered():
+			return self.displaynumber()
+		else:
+			if not self.street_name:
+				return self.title
+			else:
+				return self.street_name[0].upper() + self.street_name[1:]
+	
 	def displaynumber(self):
 		ret = self.displaynumber_nosession()
 		if self.congressnumber != govtrack.CURRENT_CONGRESS :
 			ret += " (" + str(self.congressnumber) + govtrack.ordinate(self.congressnumber) + ")"
 		return ret
 	def displaynumber_nosession(self):
-		if not self.is_officially_numbered(): return self.street_name
 		return self.get_billtype_display() + " " + str(self.billnumber)
 	def title_no_number(self):
 		if self.billtype in ('dh', 'ds', 'x'): # these don't have numbered titles
 			return self.title
 		return self.title[self.title.index(":")+2:]
-	def title_or_streetname(self):
-		if not self.street_name:
-			return self.title
-		elif self.is_officially_numbered():
-			return self.displaynumber() + ": " + self.street_name[0].upper() + self.street_name[1:]
-		else:
-			return self.street_name[0].upper() + self.street_name[1:]
 	def title_parens_if_too_long(self):
 		if not self.is_officially_numbered():
-			return self.street_name + " (" + self.title + ")"
+			return self.title
 		title = truncatewords(self.title, 15)
 		if "..." not in title:
 			return title
 		title = re.sub(r"To amend (section [^ ]+ of )?title [^ ,]+, United States Code, ", "", self.title_no_number())
 		return self.displaynumber() + " (\"" + truncatewords(title, 15).replace(" ...", "") + "\")"
-	def officialtitle(self):
-		if self.is_bill():
-			return govtrack.getBillTitle(self, self.govtrack_metadata(), "official")
-		else:
-			return None
+	
 	def status(self):
 		if self.is_bill():
 			return govtrack.getBillStatus(self)

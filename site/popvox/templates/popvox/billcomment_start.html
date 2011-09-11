@@ -10,7 +10,7 @@ mpmetrics.track('comment start', { 'bill': '{{bill.displaynumber|escapejs}}', 'p
 </script>
 {% endblock %}
 {% block head %}
-<script>var bill_display_number = "{{bill.displaynumber|escapejs}}";</script>
+<script>var bill_display_number = "{{bill.shortname|escapejs}}";</script>
 <script src="/media/js/lettertips.js"> </script>
 <script>
 function validate_form() {
@@ -68,7 +68,7 @@ function validate_form() {
 		{% if bill.died %}
 		<p>{{bill.displaynumber_nosession}} was introduced in a previous Congress. You are about to show your support for the reintroduction of this bill.</p>
 		{% else %}
-			<p style="padding: 15px 0 15px 30px; font-size: 120%; background: #d4d1ca;">&ldquo;I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_or_streetname|truncatewords:7 }}.&rdquo;</p>
+			<p style="padding: 15px 0 15px 30px; font-size: 120%; background: #d4d1ca;">&ldquo;I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.nicename|truncatewords:7 }}.&rdquo;</p>
 			{% if not message_is_new %}
 				<p style="padding: 8px 0 0 30px; font: normal italic 12px/18px georgia, serif;">change from {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} to <a href="{{bill.url}}/comment/{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}">{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}</a>
 				or <a href="{{bill.url}}/comment/clear">delete your comment</a></p>
@@ -105,7 +105,7 @@ function validate_form() {
 		
 		<div id="message_container" {% if not message %}style="display: none"{% endif %}>
 	
-		<p style="margin-top: 1.5em;">Explain why your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.displaynumber}}.</p>
+		<p style="margin-top: 1.5em;">Explain why your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.shortname}}.</p>
 		
 		<form name="yescomment" method="post" onsubmit="return validate_form()">
 		{% csrf_token %}

@@ -25,7 +25,7 @@
 	<script type="text/javascript" src="/media/js/mwheelIntent.js"></script>
 	<script type="text/javascript" src="/media/js/jquery.jscrollpane.min.js"></script>	
 	
-	<script>var bill_display_number = "{{bill.displaynumber|escapejs}}";</script>
+	<script>var bill_display_number = "{{bill.shortname|escapejs}}";</script>
 	<script src="/media/js/lettertips.js"> </script>
 	
 	<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('{{MIXPANEL_TOKEN}}'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
@@ -87,7 +87,7 @@
 		{% if not request.GET.demo %}
 		var mixpanel_properties = {
 			{% if campaign %}bucket: "{{campaign.mixpanel_bucket|escapejs}}",{% endif %}
-			bill: "{{bill.displaynumber|escapejs}}"
+			bill: "{{bill.shortname|escapejs}}"
 		};
 		mpmetrics.track('widget_writecongress_hit', mixpanel_properties);
 		{% endif %}
@@ -253,7 +253,7 @@
 			position = chosen_position;
 			$('.position_verb').text(position == "+" ? "support" : "oppose");
 			$('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
-			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.displaynumber|escapejs}} because...");
+			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
 			
 			if (identity) return show_address();
 			
@@ -432,7 +432,7 @@
 				$('#msg_preview .write_a_personal_message').hide();
 			} else {
 				if (position == "+") verb = "support"; else verb = "oppose";
-				msghtml = "<p><i>I " + verb + " {{bill.displaynumber}}.</i></p>";
+				msghtml = "<p><i>I " + verb + " {{bill.shortname}}.</i></p>";
 				$('#msg_preview .write_a_personal_message').show();
 			}
 			
@@ -599,9 +599,9 @@
 			
 					<div id="panel_login" class="widget_panel">
 						{% if position %}
-						<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.displaynumber}}</h1>
+						<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
 						{% else %}
-						<h1>Tell Congress What You Think About {{bill.displaynumber}}</h1>
+						<h1>Tell Congress What You Think About {{bill.shortname}}</h1>
 						{% endif %}
 
 						<p class="bill_name"><span>Official Title:</span> {{bill.title|truncatewords:15}}</p>
@@ -733,7 +733,7 @@
 						{% if reason %}
 						<div id="panel_write_why_reason">
 						<div class="why">
-							<h3>Why should I <span class="position_verb"> </span> {{bill.displaynumber}}?</h3>
+							<h3>Why should I <span class="position_verb"> </span> {{bill.shortname}}?</h3>
 							<a href="#" class="expand btn" onclick="return false;">expand</a>
 						</div><div class="clear"> </div>
 						<div class="reason" style="display: none">
@@ -748,7 +748,7 @@
 						{% endif %}
 										
 						<h3>Write a Personal Message</h3>
-						<h4>I <span class="position_verb"> </span> {{bill.displaynumber}} because...</h4>
+						<h4>I <span class="position_verb"> </span> {{bill.shortname}} because...</h4>
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
 		

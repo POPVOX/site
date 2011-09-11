@@ -137,7 +137,7 @@ function phone_number_twilio_callback() {
 				{% for comment in comments %}
 					<div class="{% if comment.position == "+" %}endorse{% else %}oppose{% endif %}">
 						<p class="date">{{comment.updated|date2}}</p>
-						<h4>You {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.displaynumber}}</a></h4>
+						<h4>You {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.shortname}}</a></h4>
 						{% if comment.message %}
 						<p style="margin-bottom: 0">&ldquo;{{comment.message|truncatewords:30}}&rdquo; </p>
 						<p style="margin-bottom: 0"><small>({{comment.delivery_status}})</small></p>
@@ -151,7 +151,7 @@ function phone_number_twilio_callback() {
 						<p style="margin-bottom: 0"><small>{{comment.bill.title_no_number|truncatewords:10}}</small></p>
 						{% endif %}
 						<div>
-							<!--<p class="tag">you {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.displaynumber}}</a></p>-->
+							<!--<p class="tag">you {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.shortname}}</a></p>-->
 							<p class="edit edit_box">
 								<a href="{{comment.bill.url}}/comment">change</a> |
 								<a href="{{comment.bill.url}}/comment/share">share</a> |

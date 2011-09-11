@@ -488,7 +488,7 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 				{% with cam.actionrecords.all.count as count %}
 				<div class="col_50">
 					<h4 style="margin-bottom: 1em">
-						{{cam.bill.title_or_streetname|truncatewords:10}}
+						{{cam.bill.nicename|truncatewords:10}}
 						<span style="color: #777"> ({% if cam.position == '+' %}Endorsing{% endif %}{% if cam.position == '-' %}Opposing{% endif %}{% if cam.position == '0' %}Neutral{% endif %})</span>
 					</h4>
 					
@@ -613,14 +613,14 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 	<ul class="ul_tags">
 		{% for acct in accts %}
 			{% for cam in acct.campaigns.all %}
-					<li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.displaynumber}}</a></li>
+					<li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
 					<script>
 					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
 					campaigns_info["{{cam.id}}"] = {
 						account_name: "{{acct|escapejs}}",
-						billnumber: "{{cam.bill.displaynumber|escapejs}}",
-						title: "{{cam.bill.title_or_streetname|truncatewords:10|escapejs}}",
-						descr: "{% if cam.bill.officialtitle %}{{cam.bill.officialtitle|truncatewords:25|escapejs}}{% endif %}",
+						billnumber: "{{cam.bill.shortname|escapejs}}",
+						title: "{{cam.bill.nicename|truncatewords:10|escapejs}}",
+						descr: "{% if cam.bill.description %}{{cam.bill.description|truncatewords:25|escapejs}}{% endif %}",
 						position: "{{cam.position|escapejs}}",
 						date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
 						date_end: "{{cam.last_action_date|date:'n-j-y'|escapejs}}",

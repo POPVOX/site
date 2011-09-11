@@ -92,7 +92,7 @@ def process_comment(comment, thread_id):
 	msg.county = comment.address.county # may be None!
 	msg.phone = comment.address.phonenumber
 	msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
-	msg.billnumber = comment.bill.displaynumber()
+	msg.billnumber = comment.bill.shortname
 
 	msg.message = comment.updated.strftime("%x") + ". "
 	if comment.message != None:

@@ -145,7 +145,7 @@ $(function() {
 						<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
 						{% endif %}
 						
-						<h4><a href="{{billrec.bill.url}}">{{ billrec.bill.title_or_streetname }}</a></h4>
+						<h4><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename }}</a></h4>
 						
 						<div class="bill_detail">
 						
@@ -167,7 +167,7 @@ $(function() {
 						{% endcomment %}
 						
 						{% comment %}
-						{% if bill.officialtitle %}<p class="bill_detail">{{ bill.officialtitle|truncatewords:18 }}</p>{% endif %}
+						{% if bill.description %}<p class="bill_detail">{{ bill.description|truncatewords:18 }}</p>{% endif %}
 						{% endcomment %}
 						
 						{% for org in billrec.orgs %}

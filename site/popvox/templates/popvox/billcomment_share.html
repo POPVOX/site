@@ -56,16 +56,16 @@
 			{% endif %}
 		
 			{% if not stats %}
-				<p class="tip_inline">You are one of the first people to comment on {{bill.displaynumber}}. Build support or opposition for this {{bill.proposition_type}} by sharing your {% if comment.message %}comment{% else %}position{% endif %} with others.</p>
+				<p class="tip_inline">You are one of the first people to comment on {{bill.shortname}}. Build support or opposition for this {{bill.proposition_type}} by sharing your {% if comment.message %}comment{% else %}position{% endif %} with others.</p>
 			{% endif %}
 			{% if stats and stats.total <= 50 %}
-				<p class="tip_inline">You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.displaynumber}}.</p>
+				<p class="tip_inline">You gave a big push to the pie chart because you are one of the first 50 people in {{stats.longdescription}} to comment on {{bill.shortname}}.</p>
 			{% endif %}
 			{% if stats and stats.total > 50 and stats.total <= 200 %}
 				<p class="tip_inline">You nudged the pie chart in your direction by about one percent! This {{bill.proposition_type}} is starting to get attention in {{stats.longdescription}} but it will take more people than that to get traction in Congress.</p>
 			{% endif %}
 			{% if stats and stats.total > 200 %}
-				<p class="tip_inline">This {{bill.proposition_type}} is becoming popular in {{stats.longdescription}}. Keep up the pressure in your Congressional district by spreading the word about {{bill.displaynumber}}.</p>
+				<p class="tip_inline">This {{bill.proposition_type}} is becoming popular in {{stats.longdescription}}. Keep up the pressure in your Congressional district by spreading the word about {{bill.shortname}}.</p>
 			{% endif %}
 		</div>
 		
@@ -75,7 +75,7 @@
 				{% include "popvox/bill_statistics_pie_simple.html" %}
 			{% else %}
 				<div class="no_pie">
-					<p>Too few constituents have commented on {{bill.displaynumber}} to display statistics.</p>
+					<p>Too few constituents have commented on {{bill.shortname}} to display statistics.</p>
 				</div>
 			{% endif %}
 		</div>

@@ -56,6 +56,7 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 		
 	# Title.
 	bill.title = getBillTitle(bill, dom, "short")
+	bill.description = getBillTitle(bill, dom, "official")
 
 	#print bill
 

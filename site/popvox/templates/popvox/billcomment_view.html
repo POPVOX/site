@@ -16,13 +16,13 @@
 	<div class="col_12 referred">
 		<h1>Someone shared this comment with you using POPVOX</h1>
 		<p>With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress.
-		Read this comment, see what others think, and then tell your Members of Congress what you think about {{bill.displaynumber}}.</p>
+		Read this comment, see what others think, and then tell your Members of Congress what you think about {{bill.shortname}}.</p>
 	</div>
 	{% endif %}
 	
 	<div class="col_12 {% if welcome %}rule{% endif %} clear">
 		{% if not welcome %}
-		<h1>{{comment.user.username}} commented on {{bill.displaynumber}}</h1>
+		<h1>{{comment.user.username}} commented on {{bill.shortname}}</h1>
 		{% endif %}
 	</div>
 
@@ -31,8 +31,8 @@
 			<div class="bill">
 				<h4 class="no_rule"><a class="orange" href="{{bill.url}}">{{ bill.title }}</a></h4>
 				<p>
-					{% if bill.officialtitle %}
-					<strong>Summary: </strong>{{ bill.officialtitle }}
+					{% if bill.description %}
+					<strong>Summary: </strong>{{ bill.description }}
 					{% endif %}
 				</p>
 			</div>
@@ -94,7 +94,7 @@
 
 		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin and user != comment.user %}
 		<div id="bill_endorse_oppose_holder_user" class="no_border">
-			<h3 class="no_rule orange">What Do You Think About {{bill.displaynumber}}?</h3>
+			<h3 class="no_rule orange">What Do You Think About {{bill.shortname}}?</h3>
 			{% include "popvox/bill_howshouldtheyvote.html" %}
 			{% include "popvox/bill_uservote.html" %}
 		</div>
@@ -111,7 +111,7 @@
 	<div class="col_6 col_top col_last">
 		<div class="block referred_quote_{% if comment.position == '+' %}endorse{% else %}opposed{% endif %}">
 			<p class="commenter"><strong>{{comment.user.username}}</strong> from {{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}
-			commented {{comment.updated|date2}} that he or she {{comment.verb}} {{bill.displaynumber}}:</p>
+			commented {{comment.updated|date2}} that he or she {{comment.verb}} {{bill.shortname}}:</p>
 			{% if comment.message %}
 				{% if not comment_rejected %}
 					<div class="usercomment">

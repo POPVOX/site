@@ -471,12 +471,12 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
 		# message.
 		request.session["comment-referrer"] = {"bill": bill.id, "referrer": request.session["shorturl"].owner, "shorturl": request.session["shorturl"].id }
 		if isinstance(request.session["shorturl"].owner, Org):
-			welcome = "Hello! " + request.session["shorturl"].owner.name + " wants to tell you about " + bill.displaynumber() + " on POPVOX.  Learn more about the issue and let POPVOX amplify your voice to Congress."
+			welcome = "Hello! " + request.session["shorturl"].owner.name + " wants to tell you about " + bill.shortname + " on POPVOX.  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			try:
 				welcome_tabname = "Organization's Position"
 				referral_orgposition = OrgCampaignPosition.objects.filter(campaign__org=request.session["shorturl"].owner, bill=bill)[0]
 				if referral_orgposition.position in ("+", "-"):
-					welcome = "Hello! " + request.session["shorturl"].owner.name + " wants you to " + ("support" if referral_orgposition.position == "+" else "oppose") + " " + bill.displaynumber() + ".  Learn more about the issue and let POPVOX amplify your voice to Congress."
+					welcome = "Hello! " + request.session["shorturl"].owner.name + " wants you to " + ("support" if referral_orgposition.position == "+" else "oppose") + " " + bill.shortname + ".  Learn more about the issue and let POPVOX amplify your voice to Congress."
 			except:
 				pass
 			
@@ -1085,7 +1085,7 @@ def billshare(request, congressnumber, billtype, billnumber, vehicleid, commenti
 	if "shorturl" in request.session and request.session["shorturl"].target == comment:
 		surl = request.session["shorturl"]
 		request.session["comment-referrer"] = {"bill": bill.id, "referrer": surl.owner, "shorturl": surl.id}
-		welcome = comment.user.username + " is using POPVOX to send their message to Congress. He or she left this comment on " + bill.displaynumber() + "."
+		welcome = comment.user.username + " is using POPVOX to send their message to Congress. He or she left this comment on " + bill.shortname + "."
 		del request.session["shorturl"] # so that we don't indefinitely display the message
 
 	comment_rejected = False
@@ -1311,7 +1311,7 @@ def billcomment_moderate(request, commentid, action):
 			comment.save()
 			
 			msg = EmailMessage(
-				subject = "Your comment on " + comment.bill.displaynumber() + " at POPVOX needs to be revised",
+				subject = "Your comment on " + comment.bill.shortname + " at POPVOX needs to be revised",
 				body = """Dear %s,
 
 After reviewing the comment you left on POPVOX about the bill %s, we have
@@ -1335,7 +1335,7 @@ Thank you,
 POPVOX
 
 (Please note that our decision is final.) 
-""" % (comment.user.username, comment.bill.displaynumber()),
+""" % (comment.user.username, comment.bill.shortname),
 				from_email = SERVER_EMAIL,
 				to = [comment.user.email])
 			msg.send(fail_silently=True)
@@ -1345,7 +1345,7 @@ POPVOX
 			comment.status = UserComment.COMMENT_ACCEPTED
 			comment.save()
 			msg = EmailMessage(
-				subject = "Your revised comment on " + comment.bill.displaynumber() + " at POPVOX has been accepted",
+				subject = "Your revised comment on " + comment.bill.shortname + " at POPVOX has been accepted",
 				body = """Dear %s,
 
 After reviewing the revisions you made to the comment you left on POPVOX
@@ -1356,7 +1356,7 @@ appears on bill reports and other pages of POPVOX.
 Thank you,
 
 POPVOX
-""" % (comment.user.username, comment.bill.displaynumber()),
+""" % (comment.user.username, comment.bill.shortname),
 				from_email = SERVER_EMAIL,
 				to = [comment.user.email])
 			msg.send(fail_silently=True)
