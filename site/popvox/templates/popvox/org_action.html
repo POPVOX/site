@@ -79,16 +79,18 @@ function validate(form) {
 			<div class="bills">
 				<div class="bill">
 					
-					<h4><a class="orange" href="{{position.bill.url}}">{{position.bill.title|truncatewords:30}}</a></h4>
+					<h4 style="margin-bottom: 10px"><a class="orange" href="{{position.bill.url}}">{{position.bill.title|truncatewords:30}}</a></h4>
 					{% if position.bill.sponsor %}
 					<p><strong>Sponsor:</strong>
 						<a href="http://www.govtrack.us/congress/person.xpd?id={{position.bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ position.bill.sponsor.name }}</a>
 					</p>
 					{% endif %}
 					
+					{% if bill.is_bill %}
 					<p><strong>Status:</strong>
 					<em>{{position.bill.status}}</em>
 					</p>
+					{% endif %}
 					
 					{% if position.bill.description %}<p class="bill_detail">{{ position.bill.description|truncatewords:18 }}</p>{% endif %}
 					
