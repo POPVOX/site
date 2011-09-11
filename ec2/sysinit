@@ -120,6 +120,7 @@ if [[ "$CRON" == "yes" ]]; then
 fi
 
 # Main web config files and services.
+ln -s /mnt/persistent/config/boto.cfg /etc/
 rm /etc/nginx/sites-enabled/default
 ln -s /home/www/sources/conf/nginx.conf /etc/nginx/conf.d/local.conf
 ln -s /home/www/sources/conf/logrotate.conf /etc/logrotate.d/local
