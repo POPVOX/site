@@ -145,7 +145,7 @@ class Bill(models.Model):
 	
 	congressnumber = models.IntegerField()
 	billtype = models.CharField(max_length=2, choices=BILL_TYPE_CHOICES)
-	billnumber = models.IntegerField()
+	billnumber = models.IntegerField(help_text="For House Draft/Senate Draft/Proposition-type bills, just number them sequentially starting with 1. For bills, resolutions, and amendments, this must be the official number.")
 	vehicle_for = models.ForeignKey('Bill', related_name='replaced_vehicle', blank=True, null=True)
 	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills")
 	committees = models.ManyToManyField(CongressionalCommittee, blank=True, related_name="bills")
@@ -153,8 +153,8 @@ class Bill(models.Model):
 	issues = models.ManyToManyField(IssueArea, blank=True, related_name="bills")
 	title = models.TextField()
 	description = models.TextField(blank=True, null=True)
-	current_status = models.TextField(help_text="For bill drafts, enter DRAFT.")
-	current_status_date = models.DateTimeField()
+	current_status = models.TextField(help_text="For non-bill actions, enter DRAFT.")
+	current_status_date = models.DateTimeField(help_text="For non-bill actions, just choose today.")
 	num_cosponsors = models.IntegerField()
 	latest_action = models.TextField(blank=True)
 	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True)
@@ -163,7 +163,7 @@ class Bill(models.Model):
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)
-	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House')], blank=True, null=True)
+	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House')], blank=True, null=True, help_text="This is required for Generic Proposition-type bill actions to route messages to the right place.")
 
 	srcfilehash = models.CharField(max_length=32, blank=True)
 	
@@ -242,18 +242,24 @@ class Bill(models.Model):
 			else:
 				return self.street_name[0].upper() + self.street_name[1:]
 	
+	# The display number returns the official number of a bill for display in a separate
+	# column from the bill title, or a hyphen if the bill item has no official number.
 	def displaynumber(self):
+		if not self.is_officially_numbered(): return u"\u2015"
 		ret = self.displaynumber_nosession()
 		if self.congressnumber != govtrack.CURRENT_CONGRESS :
 			ret += " (" + str(self.congressnumber) + govtrack.ordinate(self.congressnumber) + ")"
 		return ret
 	def displaynumber_nosession(self):
+		if not self.is_officially_numbered(): return u"\u2015"
 		return self.get_billtype_display() + " " + str(self.billnumber)
+		
 	def title_no_number(self):
 		if self.billtype in ('dh', 'ds', 'x'): # these don't have numbered titles
 			return self.title
 		return self.title[self.title.index(":")+2:]
 	def title_parens_if_too_long(self):
+		# this is used for pre-populating a comment on a bill
 		if not self.is_officially_numbered():
 			return self.title
 		title = truncatewords(self.title, 15)

@@ -129,7 +129,9 @@ function getshorturl() {
 				{% if user.userprofile.is_leg_staff and bill.street_name %}
 				<em>{{ bill.street_name|capfirst }}</em><br/>
 				{% endif %}
+				{% if bill.street_name and not bill.is_officially_numbered %}
 				{{ bill.title }}
+				{% endif %}
 			</h3>
 			{% if bill.description and not bill.notes %}
 			<p><strong>Summary: </strong>{{ bill.description }} {% if bill.is_bill %}(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>){% endif %}</p>

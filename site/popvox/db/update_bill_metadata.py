@@ -42,7 +42,7 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 		bill = Bill.objects.get(congressnumber=billsession, billtype=billtype, billnumber=billnumber, vehicle_for__isnull=True)
 		if bill.hold_metadata:
 			continue # manual override
-		if bill.srcfilehash == srcfilehash:
+		if bill.srcfilehash == srcfilehash and len(sys.argv) == 1:
 			continue # doesn't need update
 	except:
 		bill = Bill()

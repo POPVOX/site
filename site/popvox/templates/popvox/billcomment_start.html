@@ -10,7 +10,7 @@ mpmetrics.track('comment start', { 'bill': '{{bill.displaynumber|escapejs}}', 'p
 </script>
 {% endblock %}
 {% block head %}
-<script>var bill_display_number = "{{bill.shortname|escapejs}}";</script>
+<script>var bill_display_number = "{{bill.title_parens_if_too_long|escapejs}}";</script>
 <script src="/media/js/lettertips.js"> </script>
 <script>
 function validate_form() {

@@ -3,7 +3,7 @@
 
 {% bill_statistics bill as stats %}
 
-<h4>Constituent Sentiment</h4>
+<h4 style="margin-bottom: 8px">Constituent Sentiment</h4>
 {% with "{ small: true, bg: '#d9d6d2' }" as chart_opts %}
 {% with bill.id as chart_id %}
 	{% include "popvox/bill_statistics_pie_simple.html" %}
