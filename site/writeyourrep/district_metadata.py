@@ -17,6 +17,8 @@ def get_viewport(address_record):
 
 	if address_record.state == "MP":
 		return (145.7, 15.1, 11.0)
+	if address_record.state == "AS":
+		return (-170.255127, -14.514462, 8.0)
 	
 	# First try Google Geocoding on the zipcode to get an approximate location
 	# and a recommended bounding box (which we zoom out a bit).
