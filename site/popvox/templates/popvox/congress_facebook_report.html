@@ -14,9 +14,9 @@ h2 { font: normal 28px/42px 'BebasNeueRegular', helvetica, arial, sans-serif; }
 	width: 90px;
 	height: 50px;
 	overflow: hidden;
-	padding: 9px 0 0 9px;
+	padding: 4px 0 0 9px;
 	color: white;
-	font: normal 56px/66px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font: normal 56px/62px 'BebasNeueRegular', helvetica, arial, sans-serif;
 }
 #overall_stats_pie_legend span.label {
 	display: inline-block;
@@ -34,7 +34,7 @@ h2 { font: normal 28px/42px 'BebasNeueRegular', helvetica, arial, sans-serif; }
 	width: 30px;
 	height: 18px;
 	overflow: hidden;
-	padding: 6px 0 0 4px;
+	padding: 3px 0 0 4px;
 	color: white;
 	font: normal 16px/20px 'BebasNeueRegular', helvetica, arial, sans-serif;
 }
@@ -42,6 +42,13 @@ h2 { font: normal 28px/42px 'BebasNeueRegular', helvetica, arial, sans-serif; }
 	display: inline-block;
 	color: #747378;
 	font: bold 13px/20px helvetica, arial, sans-serif; 
+	padding: 2px 0 0 4px;
+	vertical-align: top;
+}
+#customized_stats_pie_legend span.raw {
+	display: inline-block;
+	color: #747378;
+	font: bold 11px/20px helvetica, arial, sans-serif; 
 	padding: 2px 0 0 4px;
 	vertical-align: top;
 }
@@ -77,7 +84,7 @@ function update(id) {
 		type:"GET",
 		url: "/ajax/congress/facebook",
 		data: {
-			id: id,
+			id: id
 		},
 		complete: function(res, status) {
 			if (status != "success") {
@@ -133,7 +140,7 @@ function update(id) {
 				{% endif %}
 				
 				if (data.type == "status") {
-					n.find('.from .what').text('wrote on your wall.');
+					n.find('.from .what').text('');
 					n.find('.content .picture').hide();
 					n.find('.content .title').text(data.message);
 					n.find('.content .description').hide();
@@ -272,7 +279,7 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 		 innerSize: '30%',
 		 data: [
 			{ name: 'Constituent', y: user_y, color: '#3b5998' },
-			{ name: 'Not A Constituent', y: user_n, color: '#d5d1ca' },
+			{ name: 'Not A Constituent', y: user_n, color: '#d5d1ca' }
 		 ],
 		 dataLabels: {
 			enabled: false, // not sure how to make them fit right
@@ -287,7 +294,7 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 		 innerSize: '48%',
 		 data: [
 			{ name: 'Constituent', y: postlike_y, color: '#bf2873' },
-			{ name: 'Not A Constituent', y: postlike_n, color: '#d5d1ca' },
+			{ name: 'Not A Constituent', y: postlike_n, color: '#d5d1ca' }
 		 ],
 		 dataLabels: {
 			enabled: false
@@ -300,7 +307,7 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 		 innerSize: '66%',
 		 data: [
 			{ name: 'Constituent', y: comment_y, color: '#578525' },
-			{ name: 'Not A Constituent', y: comment_n, color: '#d5d1ca' },
+			{ name: 'Not A Constituent', y: comment_n, color: '#d5d1ca' }
 		 ],
 		 dataLabels: {
 			enabled: false
@@ -312,10 +319,10 @@ function make_chart(id, size, postlike_y, postlike_n, comment_y, comment_n, post
 		 innerSize: '84%',
 		 data: [
 			{ name: 'Constituent', y: post_y, color: '#11aae3' },
-			{ name: 'Not A Constituent', y: post_n, color: '#d5d1ca' },
+			{ name: 'Not A Constituent', y: post_n, color: '#d5d1ca' }
 		 ],
 		 dataLabels: {
-			enabled: false,
+			enabled: false
 		 }
 	  }
 	  ]
