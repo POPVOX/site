@@ -368,7 +368,7 @@ def bill_from_url(url):
 	try :
 		congressnumber = int(fields[3])
 		m = re.match(r"([a-z]+)(\d+)(-\d+)?", fields[4])
-		billtype = Bill.slug_to_type[m.group(1)][0]
+		billtype = Bill.slug_to_type[m.group(1)]
 		billnumber = int(m.group(2))
 		vehicle_number = m.group(3)
 	except :
