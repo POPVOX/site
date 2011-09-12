@@ -604,7 +604,11 @@
 						<h1>Tell Congress What You Think About {{bill.shortname}}</h1>
 						{% endif %}
 
-						<p class="bill_name"><span>Official Title:</span> {{bill.title|truncatewords:15}}</p>
+						{% if bill.is_bill %}
+						<p class="bill_name" title="{{bill.title}}"><span>Official Title:</span> {{bill.title|truncatewords:15}}</p>
+						{% else %}
+						<p class="bill_name" title="{{bill.description}}">{{bill.description|truncatewords:17}}</p>
+						{% endif %}
 						<form class="form" action="#" onsubmit="return false;" autocomplete="off"><br />
 							<h3>Tell Congress who you are</h3>
 							
@@ -669,7 +673,7 @@
 							$("#email").keyup_delayed(check_email);
 						</script>
 						
-						<p style="margin-top: 110px; padding-right: 1em;">Your letter will be sent to your representative or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
+						<p style="margin-top: 95px; padding-right: 1em;">Your letter will be sent to your representative or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
 						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">A copy will also go to {{campaign.account}}.</p>{% endif %}
 					</div> <!-- e: panel_login -->
 

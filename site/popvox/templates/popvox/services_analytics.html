@@ -833,6 +833,9 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 		$('.tab_details .wDateStart').text(campaign_info.date_start);
 		$('.tab_details .wDateEnd').text(campaign_info.date_end);
 		
+		if (!campaign_info.counts.start) campaign_info.counts.start = 0;
+		if (!campaign_info.counts.address) campaign_info.counts.address = 0;
+		if (!campaign_info.counts.finished) campaign_info.counts.finished = 0;
 		var counts = [campaign_info.counts.hits, campaign_info.counts.total, campaign_info.counts.total-campaign_info.counts.start, campaign_info.counts.total-campaign_info.counts.start-campaign_info.counts.address, campaign_info.counts.finished];
 		for (var i in counts) {
 			//$('#analyticsFunnel #boxContain div.boxes:eq(' + i + ')').css({"height": 96+32*Math.log(counts[i]/counts[0]+1)/Math.log(2)});

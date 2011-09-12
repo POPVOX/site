@@ -401,7 +401,7 @@ a {
 	#panel_write h4 {
 		font: italic normal 18px/24px georgia, serif;
 		margin-bottom: 10px;
-		height: 32px;
+		/*height: 32px;*/
 		padding: 2px 0 0 46px;
 		}
 		#panel_write h4.support {

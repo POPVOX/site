@@ -911,7 +911,7 @@ def image(request, fn):
 
 @login_required
 def download_supporters(request, campaignid, dataformat):
-	if not request.user.is_superuser:
+	if not request.user.has_perm("popvox.can_snoop_service_analytics"):
 		user_accounts = request.user.userprofile.service_accounts(create=False)
 		campaign = get_object_or_404(ServiceAccountCampaign, id=campaignid, account__in=user_accounts)
 	else:

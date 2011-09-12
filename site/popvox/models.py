@@ -133,7 +133,7 @@ class CongressionalCommittee(models.Model):
 class Bill(models.Model):
 	"""A bill in Congress."""
 	
-	BILL_TYPE_CHOICES = [ ('h', 'H.R.'), ('s', 'S.'), ('hr', 'H.Res.'), ('sr', 'S.Res.'), ('hc', 'H.Con.Res.'), ('sc', 'S.Con.Res.'), ('hj', 'H.J.Res.'), ('sj', 'S.J.Res.'), ('ha', 'House Amendment'), ('sa', 'Senate Amendment'), ('dh', 'House Draft'), ('ds', 'Senate Draft'), ('x', 'Generic Proposition') ]
+	BILL_TYPE_CHOICES = [ ('h', 'H.R.'), ('s', 'S.'), ('hr', 'H.Res.'), ('sr', 'S.Res.'), ('hc', 'H.Con.Res.'), ('sc', 'S.Con.Res.'), ('hj', 'H.J.Res.'), ('sj', 'S.J.Res.'), ('ha', 'House Amendment'), ('sa', 'Senate Amendment'), ('dh', 'House Draft'), ('ds', 'Senate Draft'), ('x', 'Generic Proposal') ]
 
 	# the iPad app relies on the House/Senate distinction being made in the first character of the slug (h/s)
 	BILL_TYPE_SLUGS = [ ('h', 'hr'), ('s', 's'), ('hr', 'hres'), ('sr', 'sres'), ('hc', 'hconres'), ('sc', 'sconres'), ('hj', 'hjres'), ('sj', 'sjres'), ('ha', 'hamdt'), ('sa', 'samdt'), ('dh', 'hdraft'), ('ds', 'sdraft'), ('x', 'x') ]
@@ -145,7 +145,7 @@ class Bill(models.Model):
 	
 	congressnumber = models.IntegerField()
 	billtype = models.CharField(max_length=2, choices=BILL_TYPE_CHOICES)
-	billnumber = models.IntegerField(help_text="For House Draft/Senate Draft/Proposition-type bills, just number them sequentially starting with 1. For bills, resolutions, and amendments, this must be the official number.")
+	billnumber = models.IntegerField(help_text="For House Draft/Senate Draft/Proposal-type bills, just number them sequentially starting with 1. For bills, resolutions, and amendments, this must be the official number.")
 	vehicle_for = models.ForeignKey('Bill', related_name='replaced_vehicle', blank=True, null=True)
 	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills")
 	committees = models.ManyToManyField(CongressionalCommittee, blank=True, related_name="bills")
@@ -163,7 +163,7 @@ class Bill(models.Model):
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)
-	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House')], blank=True, null=True, help_text="This is required for Generic Proposition-type bill actions to route messages to the right place.")
+	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House')], blank=True, null=True, help_text="This is required for Generic Proposal-type bill actions to route messages to the right place.")
 
 	srcfilehash = models.CharField(max_length=32, blank=True)
 	
@@ -200,7 +200,7 @@ class Bill(models.Model):
 		if self.billtype in ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc'): return "bill"
 		if self.billtype in ('ha', 'sa'): return "amendment"
 		if self.billtype in ('dh', 'ds'): return "draft"
-		return "proposition"
+		return "proposal"
 
 	def govtrack_metadata(self):
 		if not self.is_bill(): raise Exception("Invalid call on non-bill.")

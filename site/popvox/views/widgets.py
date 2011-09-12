@@ -53,8 +53,8 @@ def commentmapus(request):
 	
 	elif "sac" in request.GET and request.user.is_authenticated():
 		
-		if not request.user.is_superuser:
-			# validate that the service account campaign is in one of the accounts accessible
+		if not request.user.has_perm("popvox.can_snoop_service_analytics"):
+			# validate the service account campaign is in one of the accounts accessible
 			# by the logged in user.
 			user_accounts = request.user.userprofile.service_accounts(create=False)
 			sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"], account__in=user_accounts)

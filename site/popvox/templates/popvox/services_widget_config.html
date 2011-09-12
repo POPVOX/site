@@ -455,7 +455,7 @@ function update_preview() {
 		if (bills[0] == "") bills = [];
 		$('#commentstream_bills_error').hide();
 		for (var i = 0; i < bills.length; i++) {
-			var bill_re = /^(supporting|opposing)?(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
+			var bill_re = /^(supporting|opposing)?(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES|X)(\d+)(\/(\d+))?$/i;
 			var match = bill_re.exec(bills[i].replace(/\s/g, "").replace(/\./g, ""));
 			if (!match) {
 				$('#commentstream_bills_error').text("I didn't understand <" + bills[i] + ">. Example bill numbers are H.R. 1, S. 2, H.Res. 3, etc. Precede a bill number with \"supporting\" or \"opposing\" to show only show supporting or opposing comments. Separate multiple bills with commas.");
@@ -465,6 +465,7 @@ function update_preview() {
 			
 			var support_oppose = match[1];
 			var billtype = match[2].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
+			if (billtype == "X") billtype = "Generic Proposal";
 			var billnumber = match[3];
 			var congressnumber = match[5]; // possibly undefined, GovTrack style prev congress search
 			if (!congressnumber) congressnumber = {{current_congress}};
@@ -486,7 +487,7 @@ function update_preview() {
 	if (widgettype == "writecongress") {
 		if (!writecongress_by_ocp) {
 			$('#writecongress_bill_error').hide();
-			var bill_re = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
+			var bill_re = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES|X)(\d+)(\/(\d+))?$/i;
 			var match = bill_re.exec($('#writecongress_bill').val().replace(/\s/g, "").replace(/\./g, ""));
 			if (!match) {
 				$('#writecongress_bill_error').text("Example bill numbers are H.R. 1, S. 2, H.Res. 3, etc.");
@@ -496,6 +497,7 @@ function update_preview() {
 			
 			var support_oppose = match[0];
 			var billtype = match[1].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
+			if (billtype == "X") billtype = "Generic Proposal";
 			var billnumber = match[2];
 			var congressnumber = match[4]; // possibly undefined, GovTrack style prev congress search
 			if (!congressnumber) congressnumber = {{current_congress}};
