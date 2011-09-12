@@ -37,6 +37,7 @@ def wraplines(value, arg):
 		return text[0:19] + "..." + text[-19:]
 	
 	def urlify(url):
+		if "links='false'" in arg: return url
 		r1 = r"(\b(http|https)://([-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]))"
 		return re.sub(r1,
 			lambda m : r'<a rel="nofollow" target="_blank" href="' + m.group(1) + '" style="font-weight: normal; color: #A62">'

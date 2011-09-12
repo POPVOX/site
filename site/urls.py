@@ -135,6 +135,7 @@ urlpatterns = patterns('',
 	
 	# Support Pages for Mobile Apps
 	(r'^mobileapps/ipad_billreader/welcome$', 'popvox.views.mobileapps.ipad_billreader_welcome'),
+	(r'^mobileapps/ipad_billreader/report$', 'popvox.views.mobileapps.ipad_billreader_report'),
 
 	# external-ish apps
 	(r'^wyr/', include('writeyourrep.urls')),
