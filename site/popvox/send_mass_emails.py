@@ -117,5 +117,4 @@ for userprof in users:
 	if "LIMIT" in os.environ and counter == int(os.environ["LIMIT"]):
 		break
 
-print counter
-
+#oprint "sent", sys.argv[-1], "email to", counter, "recipients"
