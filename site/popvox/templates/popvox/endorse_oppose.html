@@ -7,7 +7,7 @@ function billsearch_q_submit() {
 	var v = $('#billsearch_q').val();
 	v = v.replace(/\s/g, "").replace(/\./g, "")
 	if (v == "") return false; // don't do anything if blank
-	var billnumberre = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES)(\d+)(\/(\d+))?$/i;
+	var billnumberre = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES|X)(\d+)(\/(\d+))?$/i;
 	var match = billnumberre.exec(v);
 	if (!match) return true; // not a bill number, so submit form like normal
 	var billtype = match[1];
@@ -36,8 +36,18 @@ function billsearch_q_submit() {
 				});
 				
 				$('#billsearch_endorse_oppose_title').text(res.title);
-				$('#billsearch_endorse_oppose_sponsor span').text(res.sponsor.name);
-				$('#billsearch_endorse_oppose_status span').text(res.billstatus);
+				if (res.sponsor) {
+					$('#billsearch_endorse_oppose_sponsor span').text(res.sponsor.name);
+					$('#billsearch_endorse_oppose_sponsor').show();
+				} else {
+					$('#billsearch_endorse_oppose_sponsor').hide();
+				}
+				if (res.is_bill) {
+					$('#billsearch_endorse_oppose_status span').text(res.billstatus);
+					$('#billsearch_endorse_oppose_status').show();
+				} else {
+					$('#billsearch_endorse_oppose_status').hide();
+				}
 				selected_bill = res;
 			},
 			failure: function(res) {

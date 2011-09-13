@@ -143,9 +143,7 @@ function getshorturl() {
 				<p><strong>This {{bill.proposition_type}} {{bill.getDeadReason}}.</strong></p>
 			{% endif %}
 			{% if bill.notes %}
-				<div class="tip_inline" style="font: bold 14px/18px helvetica,arial,sans-serif">
-					{{bill.notes|safe}}
-				</div>
+				{{bill.notes|safe}}
 			{% endif %}
 			
 			<div class="clear"> </div> {% comment %}enforce a minimum height for the icon {% endcomment %}

@@ -173,7 +173,7 @@ def bills(request):
 		}, context_instance=RequestContext(request))
 
 def billsearch_internal(q, cn=CURRENT_CONGRESS):
-	bill_number_re = re.compile(r"(hr|s|hconres|sconres|hjres|sjres|hres|sres)(\d+)(/(\d+))?", re.I)
+	bill_number_re = re.compile(r"(hr|s|hconres|sconres|hjres|sjres|hres|sres|x)(\d+)(/(\d+))?", re.I)
 	m = bill_number_re.match(q.replace(" ", "").replace(".", "").replace("-", ""))
 	if m != None:
 		if m.group(3) != None:
@@ -268,6 +268,7 @@ def billsearch_ajax(request):
 		"url": bill.url(),
 		"title": bill.title,
 		"billstatus": bill.status_advanced(),
+		"is_bill": bill.is_bill(),
 		"sponsor": { "id": bill.sponsor.id, "name": bill.sponsor.name() } if bill.sponsor != None else None,
 		}
 	
