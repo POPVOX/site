@@ -1125,8 +1125,6 @@ def send_mail2(subject, message, from_email, recipient_list, fail_silently=False
 def billshare_share(request):
 	try:
 		comment = UserComment.objects.get(id = int(request.POST["comment"]))
-		if comment.status not in (UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED):
-			return { "status": "fail", "msg": "This comment cannot be shared." }
 	except:
 		return { "status": "fail", "msg": "Invalid call." }
 	
@@ -1165,6 +1163,9 @@ def billshare_share(request):
 		message = comment.bill.title
 		
 	else: # 1c/d
+		if comment.status not in (UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED):
+			return { "status": "fail", "msg": "This comment cannot be shared." }
+
 		includecomment = True
 		target = comment
 		

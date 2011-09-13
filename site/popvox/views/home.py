@@ -713,10 +713,12 @@ def get_legstaff_undelivered_messages(user):
 	# district that have not been successfully delivered to the office (and are
 	# not in an offline batch).
 	
+	return None # TOO DAMN SLOW
+		
 	role = user.legstaffrole
 	if not role.verified or role.member == None:
 		return None
-		
+
 	member = role.member.info()
 	if not member["current"]:
 		return None
