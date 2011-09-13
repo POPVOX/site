@@ -18,10 +18,11 @@
 		
 var chart;
 
-var categories =  [{% for bill, sup, opp, ratio in bills %}"{{bill.shortname|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
-var titles =  [{% for bill, sup, opp, ratio in bills %}"{{bill.title|truncatewords:16|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
-var data_support = [{% for bill, sup, opp, ratio in bills %}{{sup}}{% if not forloop.last %},{% endif %}{% endfor %}];
-var data_oppose = [{% for bill, sup, opp, ratio in bills %}{{opp}}{% if not forloop.last %},{% endif %}{% endfor %}];
+var categories =  [{% for bill, sup, opp, ratio, link in bills %}"{{bill.shortname|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+var titles =  [{% for bill, sup, opp, ratio, link in bills %}"{{bill.title|truncatewords:16|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+var data_support = [{% for bill, sup, opp, ratio, link in bills %}{{sup}}{% if not forloop.last %},{% endif %}{% endfor %}];
+var data_oppose = [{% for bill, sup, opp, ratio, link in bills %}{{opp}}{% if not forloop.last %},{% endif %}{% endfor %}];
+var data_links = [{% for bill, sup, opp, ratio, link in bills %}"{{link|escapejs}}"{% if not forloop.last %},{% endif %}{% endfor %}];
 
 $(document).ready(function() {
    chart = new Highcharts.Chart({
@@ -60,7 +61,15 @@ $(document).ready(function() {
       
       plotOptions: {
          series: {
-            stacking: 'normal'
+            stacking: 'normal',
+            cursor: 'pointer',
+			point: {
+				events: {
+					click: function() {
+						window.open(data_links[this.x]);
+					}
+				}
+			}
          },
          column: {
          	 groupPadding: .1,

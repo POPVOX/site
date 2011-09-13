@@ -182,7 +182,7 @@ def top_bills(request):
 		sup = b.usercomments.filter(position="+").count()
 		opp = b.usercomments.filter(position="-").count()
 		
-		bills.append( (b, sup, opp, float(sup)/float(sup+opp)) )
+		bills.append( (b, sup, opp, float(sup)/float(sup+opp), b.url()) )
 		
 		max_count = max(max_count, sup+opp)
 		max_sup = max(max_sup, sup)
