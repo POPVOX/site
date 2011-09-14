@@ -1,0 +1,180 @@
+{% load popvox_utils %}
+<!DOCTYPE html> 
+<html>
+	<head>
+		<title>POPVOX Bill Report</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		<link rel="stylesheet" href="/media/css/jquery.mobile-1.0b3.min.css" />
+		<script src="/media/js/jquery-1.6.2.min.js"></script>
+		<script src="/media/js/jquery.mobile-1.0b3.min.js"></script>
+		<script type="text/javascript" src="/media/js/highcharts.js"></script>
+		<script type="text/javascript" src="/media/js/charts.js"></script>
+		
+		<script>
+		var statereps = {{statereps|json}};
+		
+		var report_state = null;
+		var report_district = null;
+		
+		var comments_start = 0;
+		var comments_count = 20;
+		var comments_more = false;
+		
+		function update(control, value) {
+			if (control == "state") {
+				if (!value) {
+					report_state = null;
+					
+					$('#options_district_container').text('');
+					report_district = null
+				} else if (statereps[value].length == 0) {
+					report_state = value;
+					
+					report_district = null
+				} else {
+					report_state = value;
+
+					$('#options_district_container').text('');
+					var n = $('<label for="options_district">District</label><select id="options_district" onchange="update(\'district\', this.value)" data-inline="true"/>');
+					$('#options_district_container').append(n);
+					
+					report_district = null
+					$('#options_district').text(''); // clear
+					$('#options_district').
+						append($("<option></option>").
+							attr("value", "X").
+							text("Whole State"));
+					for (var i = 0; i < statereps[report_state].length; i++) {
+						$('#options_district').
+							append($("<option></option>").
+								attr("value", (i+1)).
+								text((i+1) + " -- " + statereps[report_state][i])); 
+					}
+					$('#options_district').selectmenu();
+				}
+				
+			} else if (control == "district") {
+				report_district = value;
+			}
+			
+			show_report();
+		}
+			
+		function show_report() {
+			$('#loadingstatus').text("");
+			
+			$.ajax({
+				type:"GET",
+				url: "/ajax{{bill.url}}/report/getinfo",
+				data: {
+					state: report_state ? report_state : "",
+					district: report_district ? report_district : "",
+					start: comments_start,
+					count: comments_count
+				},
+				complete: function(res, status) {
+					isloading = false;
+					
+					if (status != "success") {
+						$('#loadingstatus').text("Error loading report.");
+						return;
+					}
+					
+					$('#loadingstatus').text("");
+					
+					res = eval('(' + res.responseText + ')');
+					
+					if (res.debug_info)
+						$('#debug_info').text(res.debug_info);
+					
+					stats = res.stats.overall;
+					bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true });
+					bill_timeseries('chart_time', stats.timeseries);
+					
+				}
+			});
+		}
+		
+		$(function() { show_report(); });
+		</script>
+		
+		<style>
+		#select_district_box>div { display: inline-block; padding-right: 25px; }
+		</style>
+	</head>
+	<body>
+
+		<div data-role="page" id="stats"> 
+			<!--<div data-role="header">...</div>--> 
+			<div data-role="content">
+				
+				<div id="select_district_box">
+					<div>
+						<label for="options_state">State</label> 
+						<select id="options_state" onchange="update('state', this.value)" data-inline="true">
+							<option value="">POPVOX Nation</option>
+							{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+						</select>
+					</div>
+					<div id="options_district_container">
+					</div>
+					<span id="loadingstatus"></span>
+				</div>
+				
+				<div id="chart_pie"> </div>
+				<div id="chart_time"> </div>
+				
+			</div> 
+			<!--<div data-role="footer">...</div>--> 
+		</div>
+		
+		<div data-role="page" id="positions">
+			<fieldset data-role="controlgroup" data-type="horizontal" >
+				<input type="radio" name="positions_position" id="positions_position_endorsing" class="positions_position" value="+" checked="checked"/>
+				<label for="positions_position_endorsing">Endorsing</label>
+
+				<input type="radio" name="positions_position" id="positions_position_opposing" class="positions_position" value="-"/>
+				<label for="positions_position_opposing">Opposing</label>
+				
+				<input type="radio" name="positions_position" id="positions_position_other" class="positions_position"  value="0"/>
+				<label for="positions_position_other">Other</label>
+			</fieldset>
+			
+			<script>
+			$('.positions_position').bind( "change", function() {
+				$('.positions_group').hide();
+				$('.positions_group[group="' + this.value + '"]').show();
+			});
+			</script>
+			
+			{% for group, orglist in orgs %}
+			<div class="positions_group" group="{{group}}" {% if group != '+' %}style="display: none"{% endif %}>
+				{% for org, position in orglist %}
+					<h2>{{org.name}}</h2>
+
+					{% if position.comment %}
+						{{position.comment|wraplines:"p style='margin-bottom: .5em' links='false'"}}
+					{% endif %}
+					
+					{% comment %}
+					can't link out because it would stay inside our UIWebView control
+					{% for doc in position.documents %}
+						{% if forloop.first %}<ul class="bullets doc">{% endif %}
+						<li><a href="{{doc.url}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
+						{% if forloop.last %}</ul>{% endif %}
+					{% endfor %}
+					{% endcomment %}
+					
+					{% if org.createdbyus %}
+					<small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small>
+					{% endif %}
+
+					{% if not forloop.last %}<hr/>{% endif %}
+				{% empty %}
+					<p>POPVOX does not know of any organizations in this category.</p>
+				{% endfor %}
+			</div>
+			{% endfor %}
+		</div>
+	</body>
+</html>

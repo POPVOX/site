@@ -1,0 +1,72 @@
+POPVOX System Stack
+===================
+
+Network Solutions
+	
+	Domain registrations:
+	
+		popvox.com			expires April 26, 2016
+		pvox.co				expires October 23, 2012
+		oughttabealaw.com	expires January 5, 2012
+		
+		Domain Protect is On
+		
+	SSL Certificate
+	
+		expires April 25, 2012
+		
+	need to secure the account password
+	need to secure the associated email addresses
+
+Amazon Web Services
+
+	need to secure the password
+	need to secure the associated email addresses
+
+	additional logins for josh, annalee
+
+Server Boxes
+
+	ssh access template in ec2/authorized_keys:
+	josh, william, annalee
+
+	"intern test server": josh, joshlewis
+
+	
+Pivotal Tracker
+
+	access to: josh, william, annalee, marci, rachna, shane
+
+DropBox
+
+	teambox:
+	officerbox:
+
+Twitter
+
+	@popvox
+	@popvoxnation
+	
+	access to marci, miranda
+	
+	CrowdBooster, HootSuite, AngelList
+
+Flickr
+
+	?
+	
+Apple Developer Account
+
+	access to: marci, josh, ChaiOne
+
+iTunes Connect
+
+	access to: marci, josh, AppBackr
+
+	
+Scribd
+
+	not sure which acct it is under
+
+	access to: marci
+
