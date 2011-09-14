@@ -272,6 +272,35 @@ class CommentTest(TestCase):
         
         self.assertEqual(success, True)
         
+class BillReportTest(TestCase):
+    fixtures = ['test_adserver', 'test_users', 'test_sbills']
+    
+    def testPiechart(self):
+        #test that the pie charts are showing the right numbers
+        
+        #current error: need a fixture of bill comments, so that there's numbers to pull
+        
+        success = comment('112', 's12', 'support', self)
+        response = c.get('/ajax/bills/us/112/s12/report/getinfo')
+        status = response.status_code
+        pagecontents = response.content
+        parseddata = json.loads(pagecontents)
+        stats = parseddata["stats"]
+        page = 'bill report'
+        
+        print stats["overall"].keys()
+        
+        """if int(status) != 200:
+            success = False
+            print "problem loading ", page
+        elif "the testing robot" not in pagecontents:
+            success = False
+            print "comment not found on ", page
+        else:
+            print page, " is good--comment appears."
+        
+        self.assertEqual(success, True)"""
+        
 #-------------------API Tests----------------#        
        
 class APIRegistrationTest(TestCase):

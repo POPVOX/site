@@ -1,0 +1,5 @@
+Broken endpoints:
+
+685 Rep. Mick Mulvaney:
+    zipstage should be redirecting to https://mulvaney.house.gov/Forms/WriteYourRep/ (which it does when entered manually), but instead it's redirecting to  https://mulvaney.house.gov/Contact/ContactForm.htm , thus creating a form parse fail.
+

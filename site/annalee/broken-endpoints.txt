@@ -1,0 +1,37 @@
+Broken endpoints with the sectiontree=3,58 zipauthform,custom_formnX layout:
+
+280 Tsongas
+386 Engel (sectiontree=3,169)
+570 Labrador
+746 Lou Barletta (no zipstage)
+798 Mo Brooks
+
+Other broken HTTP Error endpoints:
+
+710 Smith FIXED.
+	remaining comments are too old to send.
+
+857 Silvestre Reyes fixed?
+	Need more messages for him to check.
+
+
+Broken endpoints with Form Parse problems:
+
+244 Biggert
+	These fields are already listed in the send message aliases, but it's still not working.
+	Unhandled field: (u'text', u'contactformcdtxtaddress', u'req_addrl', None)
+
+487 Doggett FIXED.
+	remaining comments are too old to send.
+
+683 Austin Scott fixed?
+	Need more messages to check.
+
+686 Charles Boustany
+	His forms are embedded in iframes. The system recognizes the zipstage when I enter the url of its iframe, but then it can't find the form within the iframe on the actual contact form page. Need to get it to redirect to the iframe of the contact page.
+
+770 Paul Ryan
+	All comments are returning "invalid email address."
+
+871 Scalise FIXED.
+	remaining comments are too old to send.
