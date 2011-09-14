@@ -12,6 +12,7 @@ egrep "(^|,)$USER[, ]" sources/ec2/authorized_keys | sed "s/[^ ]* //" > ~/.ssh/a
 
 cd sources
 
+# if the hostname changes, nginx will connect to some random dude
 cat conf/nginx_deployment_template.conf|sed "s/__USER__/$USER/g"|sed "s/__PORT__/`echo 1000+$UID | bc`/"\
 	|sed "s/__HOST__/`hostname`/" > ../nginx.conf
 

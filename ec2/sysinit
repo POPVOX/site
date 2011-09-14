@@ -120,9 +120,15 @@ if [[ "$CRON" == "yes" ]]; then
 fi
 
 # Main web config files and services.
+
+rm -f /etc/rc.local
+ln -s /home/www/sources/conf/rc.local /etc/rc.local
+
 ln -s /mnt/persistent/config/boto.cfg /etc/
+
 rm /etc/nginx/sites-enabled/default
 ln -s /home/www/sources/conf/nginx.conf /etc/nginx/conf.d/local.conf
+
 ln -s /home/www/sources/conf/logrotate.conf /etc/logrotate.d/local
 
 service nginx restart
@@ -135,3 +141,6 @@ if [[ "$DB" == "localhost" ]]; then
 fi
 
 
+# Execute other startup services that wouldn't normally start on boot.
+# This file is a symlink to a local configuration file.
+/etc/rc.local

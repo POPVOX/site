@@ -11,17 +11,32 @@ if [ -f $PIDFILE ]; then
     sleep 1;
 fi
 
+HOSTNAME=`hostname`
+PORT=`echo 1000+$UID|bc`
+
 if [ "$1" = "stop" ]; then
+    if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
+        # Inform the master that we are no longer accepting connections.
+        ./mysql_shell.sh -e "DELETE FROM farm WHERE hostport=\"$HOSTNAME:$PORT\";"
+    fi
+
     echo "Stopped.";
+
 else
+
     echo "Starting...";
-    
+
     ME=`readlink -m $0`
     MYDIR=`dirname $ME`
     cd $MYDIR
-    
-    ./manage runfcgi host=`hostname` port=`echo 1000+$UID|bc` pidfile=$PIDFILE \
+
+    ./manage runfcgi host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
                      workdir=$MYDIR umask=0002 \
                      maxchildren=8 \
                      outlog=~/logs/output_log errlog=~/logs/error_log ;
+
+    if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
+        # Inform the master that we are accepting connections.
+        ./mysql_shell.sh -e "INSERT IGNORE INTO farm SET hostport=\"$HOSTNAME:$PORT\";"
+    fi
 fi
