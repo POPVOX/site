@@ -78,7 +78,16 @@ def get_news():
 
 		import feedparser
 		feed = feedparser.parse("http://www.popvox.com/blog/atom")
-		_news_items = [{"link":entry.link, "title":decode_unicode_references(entry.title), "date":datetime(*entry.updated_parsed[0:6]), "content":decode_unicode_references(entry.content[0].value)} for entry in feed["entries"][0:4]]
+
+		seen_bill_picks = False
+		_news_items = []
+		for entry in feed["entries"]:
+			item = {"link":entry.link, "title":decode_unicode_references(entry.title), "date":datetime(*entry.updated_parsed[0:6]), "content":decode_unicode_references(entry.content[0].value)}
+			if "Bill Picks" in item["title"]:
+				if seen_bill_picks: continue
+				seen_bill_picks = True
+			_news_items.append(item)
+			if len(_news_items) == 4: break
 		_news_updated = datetime.now()
 	return _news_items
 
