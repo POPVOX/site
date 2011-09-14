@@ -1,0 +1,23 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+
+# This script is used to bring up extraneous services like our FastCGI
+# processes after system startup, especially when booting from a
+# custom AMI containing our slave configuration.
+#
+# Warning: This of course runs as root.
+
+su www -c "cd; cd sources/site; git pull --rebase; ./fcgi"
+
+exit 0
