@@ -42,7 +42,7 @@ apt-get install -y \
  nfs-common nfs-kernel-server \
  sendmail-bin rdiff-backup \
  git-core subversion mercurial \
- nginx-full mysql-server python-flup \
+ nginx-full python-flup \
  python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml sphinxsearch \
  memcached python-memcache \
  poppler-utils libqtcore4 pdftk graphicsmagick \
@@ -91,6 +91,10 @@ fi
 # Mysql
 if [[ "$DB" == "localhost" ]]; then
 if [[ "$DISK" != "root" ]]; then
+	# only install mysql server on the master machine, so we don't have to worry about
+	# setting the db root password on slaves.
+	apt-get install -y mysql-server
+
 	# "bind" the persistent mysql directory to /var/lib/mysql and trash the system-provided contents
 	service mysql stop;
 	rm -rf /var/lib/mysql/;
@@ -158,3 +162,4 @@ fi
 # Execute other startup services that wouldn't normally start on boot.
 # This file is a symlink to a local configuration file.
 /etc/rc.local
+

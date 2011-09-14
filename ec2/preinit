@@ -1,6 +1,6 @@
 #!/bin/bash
-export MASTER=10.86.238.192
+export MASTER=10.87.131.158
 sudo apt-get -y install git
 git clone --bare git://$MASTER/sources.git sources.git
 GIT_DIR=sources.git git show master:ec2/sysinit > sysinit
-GIT_DIR=sources.git git show master:ec2/inituser > inituser
+
