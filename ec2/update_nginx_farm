@@ -1,0 +1,18 @@
+#!/bin/bash
+
+SLAVES=
+for host in `../site/mysql_shell.sh -NBe "select hostport from farm"`; do
+	SLAVES="$SLAVES\n\tserver $host; # AUTO FARM SLAVE"
+done
+
+grep -v "AUTO FARM SLAVE" ../../nginx.conf > ../../nginx.conf.new
+sed -i -e "s/# SLAVE SERVERS HERE #/# SLAVE SERVERS HERE #$SLAVES/" ../../nginx.conf.new
+
+if [[ `md5sum ../../nginx.conf` != `md5sum ../../nginx.conf.new` ]]; then
+	mv ../../nginx.conf.new ../../nginx.conf;
+	sudo service nginx restart;
+else
+	echo no change
+	rm ../../nginx.conf.new
+fi
+
