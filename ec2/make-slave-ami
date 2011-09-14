@@ -1,0 +1,16 @@
+#!/bin/bash
+
+rm -f /etc/apt/sources.list.d/local.sources.list
+echo 'deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ natty multiverse' >> /etc/apt/sources.list.d/local.sources.list
+echo 'deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ natty-updates multiverse' >> /etc/apt/sources.list.d/local.sources.list
+
+apt-get update
+apt-get install -y ec2-api-tools ec2-ami-tools
+
+ec2-bundle-vol -s 10240 -c /mnt/persistent/config/aws/cert.pem -k /mnt/persistent/config/aws/pk.pem -u `cat /mnt/persistent/config/aws/account_id.txt`
+
+source /mnt/persistent/config/aws/access_key
+ec2-upload-bundle -b "ami-images.popvox.com/slave-ami" -m /tmp/image.manifest.xml -a "$aws_access_key_id" -s "$aws_secret_access_key"
+
+ec2-register ami-images.popvox.com/slave-ami/image.manifest.xml -n "popvox_web_slave_`date +%Y-%m-%dT%H%M`" -K /mnt/persistent/config/aws/pk.pem  -C /mnt/persistent/config/aws/cert.pem 
+
