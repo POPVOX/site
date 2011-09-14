@@ -4,14 +4,14 @@
 # last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
 #      ami-1aad5273 also works on a micro instance
 # if disk is local: us-east-1a / attach EBS volume on /dev/sdf (which to Ubuntu is /dev/xvdf)
+# assign the elastic IP?
 
 # get this script onto the machine either using:
 #    bash preinit
 # or
 #    scp tauberer@tauberer.dyndns.org:dev/popvox/main/ec2/sysinit .
 
-#
-# or copy preinit code and run CODE=XXXXX sh preinit.sh
+# start the system configuration:
 #
 # master server:  sudo DISK=localhost DB=localhost CODE=localhost CRON=yes bash sysinit
 #
@@ -72,8 +72,8 @@ elif [[ "$DISK" == "localhost" ]]; then
 	# Grant anyone read-only access to the disk via NFS (who can make it past the security group).
 	echo "/mnt/persistent $NFS_GRANT(ro,no_root_squash,no_subtree_check)" >> /etc/exports;
 	exportfs  -a;
-	/etc/init.d/portmap start;
-	/etc/init.d/nfs start;
+	service portmap start;
+	service nfs-kernel-server start;
 		
 else
 	echo "$DISK:/mnt/persistent      /mnt/persistent  nfs" >> /etc/fstab;
@@ -109,7 +109,8 @@ if [[ "$DISK" != "root" ]]; then
 	mysqladmin -u root password "$MYSQL_PASSWORD";
 	
 	# grant anyone access with username 'slave' and the same password 
-	mysql mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
+	# this should be taken care of in the database already
+	#mysql mysql -p'qsg;5TtC' -e "INSERT INTO user (Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv)    VALUES('%','slave',PASSWORD('qsg;5TtC'),'Y','Y','Y', 'Y'); FLUSH PRIVILEGES;";
 fi
 fi
 
@@ -123,7 +124,6 @@ else
 	git clone --bare git://$CODE/sources.git sources.git
 	GIT_DIR=sources.git git show master:ec2/createuser > createuser
 	GIT_DIR=sources.git git show master:ec2/inituser > inituser
-	GIT_DIR=sources.git git show master:ec2/createuser > createuser
 fi
 
 DB=$DB CODE=$CODE bash createuser www
