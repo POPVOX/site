@@ -141,6 +141,8 @@ fi
 
 rm -f /etc/rc.local
 ln -s /home/www/sources/conf/rc.local /etc/rc.local
+ln -s /home/www/sources/conf/rc.shutdown /etc/rc0.d/K00local
+ln -s /home/www/sources/conf/rc.shutdown /etc/rc6.d/K00local
 
 ln -s /mnt/persistent/config/boto.cfg /etc/
 
