@@ -1,9 +1,15 @@
 #!/bin/sh
 
+# Start a new machine instance...
+# last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
+#      ami-1aad5273 also works on a micro instance
+# if disk is local: us-east-1a / attach EBS volume on /dev/sdf (which to Ubuntu is /dev/xvdf)
+
 # get this script onto the machine either using:
 #    bash preinit
 # or
 #    scp tauberer@tauberer.dyndns.org:dev/popvox/main/ec2/sysinit .
+
 #
 # master server:  sudo DISK=localhost DB=localhost CODE=localhost CRON=yes bash sysinit
 #
@@ -14,10 +20,6 @@
 #
 # if DB is localhost, then DISK has to be localhost too!
 # the master server should be assocated with the elastic IP address tied to popvox.com
-#
-# last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
-#      ami-1aad5273 also works on a micro instance
-# if disk is local: us-east-1a / attach EBS volume on /dev/sdf (which to Ubuntu is /dev/xvdf)
 #
 # Although it seems like we allow MySQL, NFS, and Git from any Amazon EC2 instance,
 # we obviously have a strict firewall in place to allow only connections from within
@@ -110,6 +112,7 @@ if [[ "$CODE" == "localhost" ]]; then
 else
 	git clone --bare git://$CODE/sources.git sources.git
 	GIT_DIR=sources.git git show master:ec2/inituser > inituser
+	GIT_DIR=sources.git git show master:ec2/createuser > createuser
 fi
 
 DB=$DB CODE=$CODE bash createuser www
