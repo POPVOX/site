@@ -20,6 +20,8 @@ if [[ `md5sum < $USERHOME/nginx.conf` != `md5sum < /tmp/nginx.conf.new` ]]; then
 	sudo mv /tmp/nginx.conf.new $USERHOME/nginx.conf;
 	sudo chown www.www $USERHOME/nginx.conf;
 	sudo service nginx restart;
+	echo Current slaves:
+	echo $SLAVES;
 else
 	rm /tmp/nginx.conf.new
 	if [[ "$1" != "-q" ]]; then

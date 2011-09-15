@@ -33,11 +33,11 @@
 				{% if not message %}
 					{% if comment.user == user %}
 						if ($('#share_includecomment').attr('checked'))
-							$('#share_message').val("I'm using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.shortname}}. Check out my comment.");
+							$('#share_message').val("I'm using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.shortname|escapejs}}. Check out my comment.");
 						else
-							$('#share_message').val("I'm using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.shortname}}. Make sure your voice is heard too.");
+							$('#share_message').val("I'm using POPVOX.com to {% if comment.position == "+" %}support{% else %}oppose{% endif %} {{comment.bill.shortname|escapejs}}. Make sure your voice is heard too.");
 					{% else %}
-						$('#share_message').val("Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.shortname}}.");
+						$('#share_message').val("Check out this comment in {% if comment.position == "+" %}support of{% else %}opposition to{% endif %} {{comment.bill.shortname|escapejs}}.");
 					{% endif %}
 				{% endif %}
 			}

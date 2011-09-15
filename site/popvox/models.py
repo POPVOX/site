@@ -327,6 +327,8 @@ class Bill(models.Model):
 		return qs
 	
 	def hashtag(self, always_include_session=False):
+		if self.hashtags not in (None, ""):
+			return self.hashtags
 		bt = self.billtypeslug()
 		bs = ""
 		if self.congressnumber < govtrack.CURRENT_CONGRESS or always_include_session:
