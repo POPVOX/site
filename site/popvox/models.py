@@ -158,6 +158,7 @@ class Bill(models.Model):
 	num_cosponsors = models.IntegerField()
 	latest_action = models.TextField(blank=True)
 	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True)
+	migrate_to = models.ForeignKey('Bill', related_name='migrate_from', blank=True, null=True)
 	
 	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase. For non-bill actions, this is an alternate short name for the action.")
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
@@ -358,6 +359,12 @@ class Bill(models.Model):
 		newbill.save()
 
 		return newbill
+
+	def migrate(self):
+		if not self.migrate_to: raise ValueError("Set migrate_to.")
+		OrgCampaignPosition.objects.filter(bill=self).update(bill=self.migrate_to)
+		PositionDocument.objects.filter(bill=self).exclude(doctype=100).update(bill=self.migrate_to)
+		UserComment.objects.filter(bill=self).update(bill=self.migrate_to)
 
 def bill_from_url(url):
 	fields = url.split("/")

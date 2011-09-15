@@ -6,7 +6,7 @@ class BillAdmin(admin.ModelAdmin):
 	list_display_links = ("title",)
 	search_fields = ("title", "street_name")
 	#readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "num_cosponsors", "latest_action")
-	raw_id_fields = ('vehicle_for','sponsor','reintroduced_as')
+	raw_id_fields = ('vehicle_for','sponsor','reintroduced_as', 'migrate_to')
 	exclude = ('srcfilehash',)
 
 class UserProfileAdmin(admin.ModelAdmin):

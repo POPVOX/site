@@ -422,6 +422,8 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 @csrf_protect_if_logged_in
 def bill(request, congressnumber, billtype, billnumber, vehicleid):
 	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
+	if bill.migrate_to:
+		return HttpResponseRedirect(bill.migrate_to.url())
 	
 	# Get the organization that the user is an admin of, if any, so he can
 	# have the org take a position on it.
@@ -1013,6 +1015,10 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
 			# If we see more than one, we'll update the first and delete the rest.
 			c.delete()
 	
+	# When migrating one bill (typically a non-bill action) to another bill,
+	# start saving comments on the original to the new bill.
+	if bill.migrate_to: bill = bill.migrate_to
+
 	# If we're not updating an existing comment record, then create a new one.
 	if comment == None:
 		comment = UserComment()
@@ -1023,6 +1029,7 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
 	
 	# We're updating an existing record.
 	else:
+		comment.bill = bill # make sure existing comment record gets migrated
 		if comment.position != position:
 			comment.position = position
 			# When the user switches sides, any comment diggs he previously left on the
@@ -1078,7 +1085,13 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
 @csrf_protect_if_logged_in
 def billshare(request, congressnumber, billtype, billnumber, vehicleid, commentid = None):
 	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
-	
+
+	if bill.migrate_to:
+		if not commentid:
+			return HttpResponseRedirect(bill.migrate_to.url() + "/comment")
+		else:
+			return HttpResponseRedirect(bill.migrate_to.url() + "/comment/" + commentid)
+			
 	# Get the user's comment.
 	user_position = None
 	if commentid != None:
@@ -1424,6 +1437,9 @@ def get_default_statistics_context(user, individuals=True):
 @csrf_protect_if_logged_in
 def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
+
+	if bill.migrate_to:
+		return HttpResponseRedirect(bill.migrate_to.url() + "/report")
 
 	if not request.user.is_anonymous():
 		import home
