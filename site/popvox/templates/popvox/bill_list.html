@@ -13,7 +13,7 @@ $(function() {
 		type:"POST",
 		url: "/ajax/activity",
 		data: {
-			count: 8
+			count: 7
 		},
 		complete: function(res, status) {
 			$('#activity').html(res.responseText);
@@ -136,23 +136,31 @@ $(function() {
 			</div>
 			
 			<div class="col_6 col_last">
-				<h3 class="no_rule">Trending Bills of the Week</h3>
+				<h3 class="no_rule">Trending Bills</h3>
 				{% for billrec in trending_bills %}
+					
 					<div class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}">
+						{% comment %}{% ifchanged %}<p style="margin-top: -40px; text-align: right"><em>in the last {{billrec.bill.trending_time_period}}</em></p>{% endifchanged %}{% endcomment %}
+						
 						{% with billrec.bill as bill %}
 						
 						{% if billrec.pos == "" %}
 						<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
 						{% endif %}
 						
-						<h4><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename }}</a></h4>
+						<h4><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h4>
 						
 						<div class="bill_detail">
-						
+
 						{% if bill.sponsor %}
-						<p><strong>Sponsor:</strong>
-						<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
-						</p>
+						<p>Sponsored by {{ bill.sponsor.name }}.</p>
+						{% endif %}
+						
+						
+						{% if billrec.bill.new_positions < 50 %}
+							<p><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
+						{% else %}
+							<p><strong>{{billrec.bill.new_positions}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
 						{% endif %}
 						
 						{% comment %}

@@ -14,13 +14,11 @@ from django.core.cache import cache
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
 
-import os
-import re
+import os, re, math
 from xml.dom import minidom
-import urllib
+import urllib, urllib2
 import datetime
 import json
-import urllib2
 
 from popvox.models import *
 from registration.helpers import captcha_html, validate_captcha
@@ -64,16 +62,57 @@ def get_popular_bills():
 		
 	popular_bills = []
 
-	# Select bills with the most number of recent comments.
-	# TODO: Is this SQL fast enough? Well, it's not run often.
-	for b in Bill.objects.filter(usercomments__created__gt=datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]:
-		if b.usercomments__count == 0:
-			break
-		if not b in popular_bills:
-			popular_bills.append(b)
-			if len(popular_bills) > 12:
+	if False:
+		# Select bills with the most number of comments in the last week.
+		for b in Bill.objects.filter(usercomments__created__gt=datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]:
+			if b.usercomments__count == 0:
 				break
-	
+			if not b in popular_bills:
+				popular_bills.append(b)
+				if len(popular_bills) > 12:
+					break
+	else:
+		# Look at multiple time periods and compute the top bills that have
+		# the highest number of comments with the time period relative to
+		# comments within a longer time period, meaning show bills that are
+		# moving fast relative to past performance.
+		seen_bills = set()
+		for time_period_name, time_period, how_many in (('few hours', timedelta(hours=3), 1), ('day', timedelta(days=1), 1), ('two days', timedelta(days=2), 2), ('week', timedelta(days=7), 2), ('month', timedelta(days=30), 3)):
+			# Collect counts grouped by bill and time period.
+			bill_data = { }
+			max_count = 0
+			for rec in UserComment.objects\
+				.exclude(bill__in=seen_bills)\
+				.filter(created__gt=datetime.now() - 5*time_period)\
+				.extra(select={"half":"created>='%s'" % (datetime.now() - time_period).isoformat()})\
+				.values("half", "bill")\
+				.annotate(count=Count('id')).order_by('-count')\
+				[0:50]:
+				if not rec["bill"] in bill_data: bill_data[rec["bill"]] = [None, None]
+				bill_data[rec["bill"]][rec["half"]] = rec["count"]
+				max_count = max(max_count, rec["count"])
+				
+			if max_count < 5: continue
+				
+			# Sort.
+			for bill, (half_a, half_b) in bill_data.items():
+				# compute the score, accounting for zeros that come back as missing data
+				# the score is based on a ratio, but half_a is de-exaggerated so that
+				# bills with high counts are a little more prominant, rather than just
+				# looking at percent change.
+				bill_data[bill] = (half_b, float(half_b if half_b else 0) / math.pow(float(half_a if half_a>max_count/5 else max_count/5), .85))
+			bill_data = list(bill_data.items())
+			bill_data.sort(key = lambda x : -x[1][1]) # take the top how_many with highest score
+			bill_data = bill_data[0:how_many]
+			bill_data.sort(key = lambda x : x[1][0]) # then resort to put them in ascending order of raw count, so they display better
+			
+			for bill, (commentcount, score) in bill_data:
+				bill = Bill.objects.get(id=bill)
+				bill.trending_time_period = time_period_name
+				bill.new_positions = commentcount
+				popular_bills.append(bill)
+				seen_bills.add(bill.id)
+		
 	popular_bills_cache = (datetime.now(), popular_bills)
 	
 	return popular_bills
