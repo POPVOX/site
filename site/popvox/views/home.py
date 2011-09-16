@@ -902,7 +902,7 @@ def legstaff_facebook_report(request):
 @json_response
 @user_passes_test(lambda u : u.is_authenticated() and u.userprofile.is_leg_staff())
 def legstaff_facebook_report_getinfo(request):
-	id = int(request.GET.get('id', '0'))
+	id = request.user.legstaffrole.member_id  # int(request.GET.get('id', '0'))
 	
 	#id = 400029 # DEBUG  412326
 	
