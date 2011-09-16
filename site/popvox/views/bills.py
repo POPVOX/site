@@ -1542,7 +1542,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 		
 		q = bill_comments(bill, position=p, state=state, congressionaldistrict=district)\
 			.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))\
-			.only("id", "created", "updated", "message", "position", "state", "congressionaldistrict", "bill__id", "bill__congressnumber", "bill__billtype", "bill__billnumber", "user__username")\
+			.only("id", "created", "updated", "message", "position", "state", "congressionaldistrict", "bill__id", "bill__congressnumber", "bill__billtype", "bill__billnumber", "user__username", "address__id", "user__email")\
 			.order_by("-created")
 		limited = False
 		if q.count() > limit:
@@ -1596,6 +1596,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 		if district != None:
 			return None
 		if state != None:
+			if c.congressionaldistrict == 0:
+				return None
 			return "Congressional District " + str(c.congressionaldistrict)
 		if c.congressionaldistrict > 0:
 			return statenames[c.state] + "'s " + ordinal(c.congressionaldistrict) + " District"
@@ -1638,7 +1640,13 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 		.values("comment_id", "num_diggs")
 	for c in q:
 		num_appreciations[c["comment_id"]] = c["num_diggs"]
-
+		
+	# Legislative staff?
+	show_private_info = False
+	if state != None and request.user.is_authenticated() and request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member:
+		moc = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
+		show_private_info = moc["current"] and moc["state"] == state and (moc["type"] == "sen" or moc["district"] == district)
+			
 	# Return.
 	
 	bill_url = bill.url()
@@ -1659,6 +1667,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 		
 		"debug_info": debug_info,
 		
+		"approved_for_private_info": show_private_info,
+	
 		"comments":
 			[ {
 				"id": c.id,
@@ -1669,6 +1679,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 				"pos": c.position,
 				"share": bill_url + "/comment/" + str(c.id), #c.url(),
 				"verb": verb(c), #c.verb(tense="past"),
+				"private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
 				"appreciates": num_appreciations[c.id] if c.id in num_appreciations else 0,
 				"appreciated": c.id in user_appreciated,
 				} for c in comments ],

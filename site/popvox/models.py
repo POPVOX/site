@@ -148,11 +148,13 @@ class Bill(models.Model):
 	billnumber = models.IntegerField(help_text="For House Draft/Senate Draft/Proposal-type bills, just number them sequentially starting with 1. For bills, resolutions, and amendments, this must be the official number.")
 	vehicle_for = models.ForeignKey('Bill', related_name='replaced_vehicle', blank=True, null=True)
 	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills")
+	cosponsors = models.ManyToManyField(MemberOfCongress, blank=True, related_name="cosponsoredbills")
 	committees = models.ManyToManyField(CongressionalCommittee, blank=True, related_name="bills")
 	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills")
 	issues = models.ManyToManyField(IssueArea, blank=True, related_name="bills")
 	title = models.TextField()
 	description = models.TextField(blank=True, null=True)
+	introduced_date = models.DateField()
 	current_status = models.TextField(help_text="For non-bill actions, enter DRAFT.")
 	current_status_date = models.DateTimeField(help_text="For non-bill actions, just choose today.")
 	num_cosponsors = models.IntegerField()
@@ -284,11 +286,6 @@ class Bill(models.Model):
 			return govtrack.getBillStatusAdvanced(self, True)
 		else:
 			return "N/A"
-	def cosponsors(self):
-		if self.is_bill():
-			return govtrack.getBillCosponsors(self.govtrack_metadata())
-		else:
-			return []
 	def isAlive(self):
 		# alive = pending further Congressional action
 		if not self.is_bill(): return self.congressnumber == govtrack.CURRENT_CONGRESS

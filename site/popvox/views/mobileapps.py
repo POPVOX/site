@@ -16,13 +16,30 @@ def ipad_billreader_report(request):
 		p = pos.position
 		if not pos.campaign.org in orgs[p]:
 			orgs[p][pos.campaign.org] = pos
+	if len(orgs["+"]) + len(orgs["-"]) > 0:
+		org_support_percent = 100 * len(orgs["+"]) / (len(orgs["+"]) + len(orgs["-"]))
+	else:
+		org_support_percent = None
+	
 	for k in orgs:
 		orgs[k] = list(orgs[k].items())
 		orgs[k].sort(key = lambda x : x[0].name.replace("The ", ""))
+		
+	cosponsors = { "D": [], "R": [], "I": [] }
+	for m in bill.cosponsors.all():
+		cosponsors[m.party()].append(m)
+	if bill.cosponsors.all().count() == 0:
+		cosponsors_bar = -1
+	else:
+		cosponsors_bar = int( float(len(cosponsors["R"]))/float(bill.cosponsors.all().count()) *264 )
 
 	return render_to_response('popvox/mobile/report.html', {
 			'bill': bill,
+			"cosponsors": cosponsors,
+			"cosponsors_bar": cosponsors_bar,
 			"orgs": orgs.items(),
+			"org_support_percent": org_support_percent,
+			"org_support_oppose_count": (len(orgs["+"]), len(orgs["-"])),
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
 			"statereps": govtrack.getStateReps(),

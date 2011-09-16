@@ -180,7 +180,7 @@ h2 span {
 					elem.find("p").text('');
 					var msgpars = c.msg.split("\n");
 					for (var j = 0; j < msgpars.length; j++) {
-						var par = $('<div/>');
+						var par = $('<div style="margin-bottom: 5px"/>');
 						par.text(msgpars[j]);
 						elem.find("p").append(par);
 					}
@@ -505,22 +505,22 @@ h2 span {
 		</div>
 
 	{% if user.userprofile.is_leg_staff or user.userprofile.is_org_admin %}
-	{% if bill.is_bill or bill.cosponsors|length > 0 %}
+	{% if bill.is_bill or bill.cosponsors.all|length > 0 %}
 	<div class="col_6 rule btm_10"> 
 		<div class="cosponsor"> 
 			<h3 class="no_rule">Co-Sponsors</h3> 
-			{% if bill.cosponsors|length == 0 %}
+			{% if bill.cosponsors.all|length == 0 %}
 				<ul class="smalllist"> 
 					<li>(none)</li>
 				</ul>
 			{% endif %}
-			{% for col in bill.cosponsors|split_in_two %}
+			{% for col in bill.cosponsors.all|split_in_two %}
 				{% with forloop.counter0 as coli %}
 				<div class="col_3 {% if forloop.last %}col_last{% endif %}">
 				<ul class="smalllist">
 				{% for grp in col|split_at:5 %}
 					{% if coli == 1 and forloop.counter0 == 1 %}
-						<p id="cosponsors_more"><a href="#" onclick="$('#cosponsors01, #cosponsors11').fadeIn(); $('#cosponsors_more').hide(); $('#cosponsors_less').show(); return false;">show {{bill.cosponsors|length|add:-10}} more</a></p>
+						<p id="cosponsors_more"><a href="#" onclick="$('#cosponsors01, #cosponsors11').fadeIn(); $('#cosponsors_more').hide(); $('#cosponsors_less').show(); return false;">show {{bill.cosponsors.all|length|add:-10}} more</a></p>
 					{% endif %}
 					<div id="cosponsors{{coli}}{{forloop.counter0}}" {% if forloop.counter0 == 1 %}style="display: none"{% endif %}>
 					{% for cs in grp %}

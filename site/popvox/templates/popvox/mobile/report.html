@@ -1,12 +1,23 @@
 {% load popvox_utils %}
-<!DOCTYPE html> 
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
 		<title>POPVOX Bill Report</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1"> 
-		<link rel="stylesheet" href="/media/css/jquery.mobile-1.0b3.min.css" />
+		<meta name="viewport" content="width=700, initial-scale=1">
+		<link rel="stylesheet" type="text/css" media="screen,projection" href="/media/mobile/css/style.css" />
+		<link rel="stylesheet" type="text/css" media="print" href="/media/mobile/css/print.css" />
+		<!--[if lte IE 9]>
+			<link rel="stylesheet" type="text/css" media="screen,projection" href="/media/mobile/css/ie.css" />
+		<![endif]-->
+		<script type="text/javascript">
+		<!--
+		if(navigator.userAgent.indexOf('Mac') > 0 ){
+			document.documentElement.className += "mac";
+		}
+		//-->
+		</script>
+
 		<script src="/media/js/jquery-1.6.2.min.js"></script>
-		<script src="/media/js/jquery.mobile-1.0b3.min.js"></script>
 		<script type="text/javascript" src="/media/js/highcharts.js"></script>
 		<script type="text/javascript" src="/media/js/charts.js"></script>
 		
@@ -17,8 +28,20 @@
 		var report_district = null;
 		
 		var comments_start = 0;
+		var comments_loaded = 0;
 		var comments_count = 20;
-		var comments_more = false;
+		
+		function ordinal(num) {
+			if (num % 100 >= 11 && num % 100 <= 13)
+				return "th"
+			else if (num % 10 == 1)
+				return "st"
+			else if (num % 10 == 2)
+				return "nd"
+			else if (num % 10 == 3)
+				return "rd"
+			return "th"
+		}
 		
 		function update(control, value) {
 			if (control == "state") {
@@ -31,6 +54,7 @@
 					report_state = value;
 					
 					report_district = null
+					$('#options_district_container').text('');
 				} else {
 					report_state = value;
 
@@ -42,7 +66,7 @@
 					$('#options_district').text(''); // clear
 					$('#options_district').
 						append($("<option></option>").
-							attr("value", "X").
+							attr("value", "").
 							text("Whole State"));
 					for (var i = 0; i < statereps[report_state].length; i++) {
 						$('#options_district').
@@ -50,18 +74,30 @@
 								attr("value", (i+1)).
 								text((i+1) + " -- " + statereps[report_state][i])); 
 					}
-					$('#options_district').selectmenu();
 				}
 				
 			} else if (control == "district") {
 				report_district = value;
 			}
 			
+			comments_start = 0;
+			comments_loaded = 0;
+			comments_count = 20;
+			
 			show_report();
 		}
 			
-		function show_report() {
+		function show_report(is_more) {
 			$('#loadingstatus').text("");
+			
+			if (!is_more) {
+				$('.b_more_comments, .more_comments_loading').hide();
+			} else {
+				$('.b_more_comments').hide();
+				$('.more_comments_loading').show();
+				comments_start = comments_loaded;
+				comments_count *= 2;
+			}
 			
 			$.ajax({
 				type:"GET",
@@ -74,6 +110,7 @@
 				},
 				complete: function(res, status) {
 					isloading = false;
+					comments_loaded = comments_start + comments_count;
 					
 					if (status != "success") {
 						$('#loadingstatus').text("Error loading report.");
@@ -81,18 +118,119 @@
 					}
 					
 					$('#loadingstatus').text("");
+					$('.more_comments_loading').hide();
 					
 					res = eval('(' + res.responseText + ')');
 					
 					if (res.debug_info)
 						$('#debug_info').text(res.debug_info);
 					
-					stats = res.stats.overall;
-					bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true });
-					bill_timeseries('chart_time', stats.timeseries);
+					// Charts
+					{% if request.GET.tab == "report" %}
+					$('#stats_nation .popvox-fav').text(res.stats.overall.pro_pct + "%");
+					$('#stats_nation .popvox-opp').text(res.stats.overall.con_pct + "%");
+					$('#stats_nation .popbox-box-outer').attr('style', "width: " + res.stats.overall.pro_pct + "%");
+					$('#stats_nation_positions .num').text(res.stats.overall.total);
+					$('#stats_nation_comments .num').text("???");
+					$('#stats_nation .summ-support').text(res.stats.overall.pro);
+					$('#stats_nation .summ-oppose').text(res.stats.overall.con);
 					
+					//bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "bg": "white" });
+					if (!report_state) {
+						$('#stats_state, #stats_district').hide();
+						$('#chart_time').show();
+						bill_timeseries('chart_time', res.stats.overall.timeseries, { "bg": "white" });
+						$('#stats_state_none').hide();
+					} else if (!res.stats.state) {
+						$('#stats_state_none').show();
+						$('#chart_time, #stats_state, #stats_district').hide();
+					} else {
+						$('#chart_time, #stats_state_none').hide();
+						$('#stats_state').show();
+						
+						$('#stats_state .txt-outer').text(report_state);
+						$('#stats_state .num').text(res.stats.state.total);
+						$('#stats_state .summary .fav').text(res.stats.state.pro_pct + "%");
+						$('#stats_state .summary .opp').text(res.stats.state.con_pct + "%");
+						
+						if (report_district && res.stats.district) {
+							$('#stats_district').show();
+							$('#stats_district .txt-outer .num').text(report_district);
+							$('#stats_district .txt-outer .ord').text(ordinal(report_district));
+							$('#stats_district .users .num').text(res.stats.district.total);
+							$('#stats_district .summary .fav').text(res.stats.district.pro_pct + "%");
+							$('#stats_district .summary .opp').text(res.stats.district.con_pct + "%");
+							$('#stats_district_none').hide();
+						} else if (report_district) {
+							$('#stats_district_none').show();
+							$('#stats_district').hide();
+						} else {
+							$('#stats_district_none').hide();
+							$('#stats_district').hide();
+						}
+					}
+					{% endif %}
+					
+					// Comments
+					{% if request.GET.tab == "comments" %}
+					var containers = [$('#supporting_comments'), $('#opposing_comments')];
+					var counts = [0, 0];
+					var words = ["supporting", "opposing"];
+					
+					if (!is_more)
+						for (var i in containers)
+							containers[i].text("");
+					
+					$('.left-column .b_more_comments').toggle(res.pro_more);
+					$('.right-column .b_more_comments').toggle(res.con_more);
+					
+					for (var i = 0; i < res.comments.length; i++) {
+						c = res.comments[i];
+						
+						var elem = $('#templates .comment').clone();
+						
+						if (counts[(c.pos == "+") ? 0 : 1] == 0)
+							elem.find('h4').addClass("first");
+						counts[(c.pos == "+") ? 0 : 1]++;
+						
+						if (!c.private_info) {
+							elem.find("h4 span.screenname").text(c.user);
+							elem.find('.who').addClass('when_only');
+						} else {
+							elem.find("h4 span.screenname").text(c.private_info.name);
+							
+							addrpars = (c.private_info.address + "\n" + c.private_info.email).split("\n");
+							for (var j = 0; j < addrpars.length; j++) {
+								elem.find(".who .address").append($('<div/>').text(addrpars[j]));
+							}
+						}
+						if (c.location) {
+							elem.find("h4 span.where").text(c.location)
+							elem.find("h4 span.wherein").text("in")
+						}
+						elem.find(".who .when").text(c.date);
+	
+						elem.find(".message").text('');
+						var msgpars = c.msg.split("\n");
+						for (var j = 0; j < msgpars.length; j++) {
+							var par = $('<div style="margin-bottom: 5px"/>');
+							par.text(msgpars[j]);
+							elem.find(".message").append(par);
+						}
+						elem.appendTo(containers[(c.pos == "+") ? 0 : 1]);
+					}
+					
+					for (var i in words) {
+						if (counts[i] == 0) {
+							containers[i].append($("<p>No " + words[i] + " comments have been left" + (report_district ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
+						}
+					}
+					{% endif %}
+										
 				}
 			});
+			
+			return false;
 		}
 		
 		$(function() { show_report(); });
@@ -103,78 +241,300 @@
 		</style>
 	</head>
 	<body>
+	
+	<div class="wrapper">
 
-		<div data-role="page" id="stats"> 
-			<!--<div data-role="header">...</div>--> 
-			<div data-role="content">
-				
-				<div id="select_district_box">
-					<div>
-						<label for="options_state">State</label> 
-						<select id="options_state" onchange="update('state', this.value)" data-inline="true">
-							<option value="">POPVOX Nation</option>
-							{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-						</select>
-					</div>
-					<div id="options_district_container">
-					</div>
-					<span id="loadingstatus"></span>
-				</div>
-				
-				<div id="chart_pie"> </div>
-				<div id="chart_time"> </div>
-				
-			</div> 
-			<!--<div data-role="footer">...</div>--> 
+	<div id="select_district_box">
+		<div>
+			<label for="options_state">State</label> 
+			<select id="options_state" onchange="update('state', this.value)" data-inline="true">
+				<option value="">POPVOX Nation</option>
+				{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+			</select>
 		</div>
+		<div id="options_district_container">
+		</div>
+		<span id="loadingstatus"></span>
+	</div>
+			
+	<div class="header" id="header">
+		<a href="#" class="logo" onclick="return false;">BILL REPORT</a>
+		<!--
+		<div class="header-right">
+			<a href="#">STATE</a>
+				&#160;(WHO)<br />
+			<a href="#">District XXX</a>
+				&#160;(WHO)
+		</div>--><!-- header-right -->
+	</div><!-- header -->
+	
+	<div class="subtitle">
+		{{bill.title}}
+	</div><!-- subtitle -->
+	
+	{% if request.GET.tab == "report" %}
+		<div class="columns report-data" id="container">
+			<div class="left-column">
+				<p>
+					<span>Sponsor:</span>&#160; {{bill.sponsor.name}}
+				</p>
+				{% if bill.is_bill %}
+				<p>
+					<span>Introduced:</span>&#160; {{bill.introduced_date|date:"DATE_FORMAT"}}
+				</p>
+				{% if not bill.description %}</div><!-- left-column --> <div class="right-column">{% endif %} {% comment %} break column here if there is no description {% endcomment %}
+				<p>
+					<span>Status:</span>&#160; {{bill.status_advanced}}
+				</p>
+				{% endif %}
+			{% if bill.description %}
+			</div><!-- left-column -->
+			<div class="right-column">
+				<p>
+					<span>Summary:</span>&#160; {{bill.description}}
+				</p>
+			{% endif %}
+			</div><!-- right-column -->
+		</div><!-- container columns report-data -->
+
+		<div class="columns stats">
+			<div class="left-column">
+				<h3 class="sponsors">
+					Co-Sponsors
+				</h3><!-- sponsors -->
+				{% if cosponsors_bar != -1 %}
+				<div class="stat-bar">
+					<div class="stat-bar-inner">
+						<div class="stat-bar-bg" style="background-position: -{{cosponsors_bar}}px 0;">
+						</div><!-- stat-bar-bg -->
+					</div><!-- stat-bar-inner -->
+					<div class="box1">
+						D-{{cosponsors.D|length}}
+					</div><!-- box1 -->
+					{% if cosponsors.I|length %}
+					<div class="box2" style="right:{{cosponsors_bar|add:-19}}px;">
+						I-{{cosponsors.I|length}}
+					</div><!-- box2 -->
+					{% endif %}
+					<div class="box3">
+						R-{{cosponsors.R|length}}
+					</div><!-- box3 -->
+				</div><!-- stat-bar -->
+				{% else %}
+				(none)
+				{% endif %}
+			</div><!-- left-column -->
+			<div class="right-column">
+				<h3 class="organizations">
+					Organizations
+				</h3><!-- organizations -->
+				{% if orgs %}
+				<div class="stat-bar2">
+					<div class="stat-bar2-inner">
+						<div class="stat-bar-bg" style="width:{{org_support_percent}}%;">
+						</div><!-- stat-bar-bg -->
+					</div><!-- stat-bar2-inner -->
+					<div class="box-fav">
+						{{org_support_oppose_count.0}}
+					</div><!-- box-fav -->
+					<div class="box-opp">
+						{{org_support_oppose_count.1}}
+					</div><!-- box-opp -->
+				</div><!-- stat-bar2 -->
+				{% else %}
+				(none)
+				{% endif %}
+			</div><!-- right-column -->
+		</div><!-- columns stats -->
 		
-		<div data-role="page" id="positions">
-			<fieldset data-role="controlgroup" data-type="horizontal" >
-				<input type="radio" name="positions_position" id="positions_position_endorsing" class="positions_position" value="+" checked="checked"/>
-				<label for="positions_position_endorsing">Endorsing</label>
+		<div class="columns">
+			<div class="left-column2" id="stats_nation">
+				<h3 class="popvox">
+					POPVOX Nation
+				</h3><!-- popvox -->
+				<div class="popvox-box">
+					<div class="popbox-box-outer" style="width:0%;">
+					</div><!-- popbox-box-outer -->
+					<div class="popvox-box-inner">
+						<div class="popvox-box-bg">
+						</div><!-- popvox-box-bg -->
+					</div><!-- popvox-box-inner -->
+					<div class="popvox-fav">
+					</div><!-- popvox-fav -->
+					<div class="popvox-opp">
+					</div><!-- popvox-opp -->
+					<div class="info-fav">
+						Support
+					</div><!-- info-fav -->
+					<div class="info-opp">
+						Oppose
+					</div><!-- info-fav -->
+				</div><!-- popvox-box -->
+				<div class="summary">
+					<div class="summary-line">
+						<div class="summ-users" id="stats_nation_positions"><span class="num"></span> <span>USERS</span>
+						</div><!-- summ-users -->
+						<div class="summ-support">
+							<span> </span>
+						</div><!-- summ-support -->
+					</div><!-- summary-line -->
+					<div class="summary">
+						<div class="summ-users" id="stats_nation_comments"><span class="num"></span> <span>COMMENTS</span>
+						</div><!-- summ-users -->
+						<div class="summ-oppose">
+							<span> </span>
+						</div><!-- summ-oppose -->
+					</div><!-- summary -->
+				</div><!-- summary -->
+			</div><!-- left-column2 -->
 
-				<input type="radio" name="positions_position" id="positions_position_opposing" class="positions_position" value="-"/>
-				<label for="positions_position_opposing">Opposing</label>
+			<div class="right-column2">
+				<div id="chart_time"> </div>
+				<div id="stats_state_none" style="display: none">Not enough constituents have weighed in to display statistics from this state.</div>
+				<div id="stats_state" style="display: none">
+				<h3 class="state">
+					State
+				</h3><!-- state -->
+				<div>
+					<div class="txt-outer">
+						STATE
+					</div><!-- txt-outer -->
+					<div class="users">
+						<span class="num">QQ</span><span>USERS</span>
+					</div><!-- users -->
+				</div>
+				<div class="summary">
+					<div class="fav">
+						XX%
+					</div><!-- fav -->
+					<div class="opp">
+						YY%
+					</div><!-- opp -->
+				</div><!-- summary -->
+				</div>
+				<div id="stats_district_none" style="display: none">Not enough constituents have weighed in to display statistics from this district.</div>
+				<div id="stats_district" style="display: none">
+				<h3 class="district">
+					District
+				</h3><!-- district -->
+				<div>
+					<div class="txt-outer">
+						<span class="num">DD</span> <span class="ord">dd</span>
+					</div><!-- txt-outer -->
+					<div class="users">
+						<span class="num">QQ</span> <span>USERS</span>
+					</div><!-- users -->
+				<div>
+				<div class="summary">
+					<div class="fav">
+						XX%
+					</div><!-- fav -->
+					<div class="opp">
+						YY%
+					</div><!-- opp -->
+				</div><!-- summary -->
+				</div>
+			</div><!-- right-column2 -->
+		</div><!-- columns -->
+	{% endif %}
+
+	{% if request.GET.tab == "positions" %}
+		<fieldset data-role="controlgroup" data-type="horizontal" >
+			<input type="radio" name="positions_position" id="positions_position_endorsing" class="positions_position" value="+" checked="checked"/>
+			<label for="positions_position_endorsing">Endorsing</label>
+
+			<input type="radio" name="positions_position" id="positions_position_opposing" class="positions_position" value="-"/>
+			<label for="positions_position_opposing">Opposing</label>
+			
+			<input type="radio" name="positions_position" id="positions_position_other" class="positions_position"  value="0"/>
+			<label for="positions_position_other">Other</label>
+		</fieldset>
+		
+		<script>
+		$('.positions_position').bind( "change", function() {
+			$('.positions_group').hide();
+			$('.positions_group[group="' + this.value + '"]').show();
+		});
+		</script>
+		
+		{% for group, orglist in orgs %}
+		<div class="positions_group" group="{{group}}" {% if group != '+' %}style="display: none"{% endif %}>
+			{% for org, position in orglist %}
+				<h2>{{org.name}}</h2>
+
+				{% if position.comment %}
+					{{position.comment|wraplines:"p style='margin-bottom: .5em' links='false'"}}
+				{% endif %}
 				
-				<input type="radio" name="positions_position" id="positions_position_other" class="positions_position"  value="0"/>
-				<label for="positions_position_other">Other</label>
-			</fieldset>
-			
-			<script>
-			$('.positions_position').bind( "change", function() {
-				$('.positions_group').hide();
-				$('.positions_group[group="' + this.value + '"]').show();
-			});
-			</script>
-			
-			{% for group, orglist in orgs %}
-			<div class="positions_group" group="{{group}}" {% if group != '+' %}style="display: none"{% endif %}>
-				{% for org, position in orglist %}
-					<h2>{{org.name}}</h2>
-
-					{% if position.comment %}
-						{{position.comment|wraplines:"p style='margin-bottom: .5em' links='false'"}}
-					{% endif %}
-					
-					{% comment %}
-					can't link out because it would stay inside our UIWebView control
-					{% for doc in position.documents %}
-						{% if forloop.first %}<ul class="bullets doc">{% endif %}
-						<li><a href="{{doc.url}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
-						{% if forloop.last %}</ul>{% endif %}
-					{% endfor %}
-					{% endcomment %}
-					
-					{% if org.createdbyus %}
-					<small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small>
-					{% endif %}
-
-					{% if not forloop.last %}<hr/>{% endif %}
-				{% empty %}
-					<p>POPVOX does not know of any organizations in this category.</p>
+				{% comment %}
+				can't link out because it would stay inside our UIWebView control
+				{% for doc in position.documents %}
+					{% if forloop.first %}<ul class="bullets doc">{% endif %}
+					<li><a href="{{doc.url}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
+					{% if forloop.last %}</ul>{% endif %}
 				{% endfor %}
-			</div>
+				{% endcomment %}
+				
+				{% if org.createdbyus %}
+				<small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small>
+				{% endif %}
+
+				{% if not forloop.last %}<hr/>{% endif %}
+			{% empty %}
+				<p>POPVOX does not know of any organizations in this category.</p>
 			{% endfor %}
 		</div>
+		{% endfor %}
+	{% endif %}
+	
+	{% if request.GET.tab == "comments" %}
+		<div class="columns datacolumn ipadcomments">
+			<div class="left-column">
+				<h3 class="for2">
+					SUPPORTING COMMENTS
+				</h3><!-- for2 -->
+				
+				<div id="supporting_comments"> </div>
+				
+				<div class="more_comments_loading">Loading...</div>
+				<a href="#" class="b_more_comments" onclick="return show_report(1)">more comments</a>
+			</div><!-- left-column -->
+			<div class="right-column">
+				<h3 class="opp2">
+					OPPOSING COMMENTS
+				</h3><!-- opp2 -->
+				
+				<div id="opposing_comments"> </div>
+				
+				<div class="more_comments_loading">Loading...</div>
+				<a href="#" class="b_more_comments" onclick="return show_report(1)">more comments</a>
+			</div><!-- right-column -->
+		</div><!-- columns datacolumn -->
+		
+		<div class="footer" id="footer">
+		<!--
+			<p>
+				<a href="#">https://www.popvox.com/bills/us/112/s968</a>
+			</p>
+		-->
+		</div><!-- footer -->
+		
+	</div>
+	{% endif %}
+	
+	<div id="templates" style="display: none">
+		<div class="comment">
+			<h4>
+				<span class="screenname"></span> <span class="wherein"></span> <span class="where"></span>
+			</h4>
+			<p class="who">
+				<span class="when"></span>
+				<span class="address"></span>
+			</p>
+			<p class="message">
+			</p>
+		</div>
+	</div>
+	
 	</body>
 </html>

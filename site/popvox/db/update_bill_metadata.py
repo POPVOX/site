@@ -29,7 +29,7 @@ counter = 0
 for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	m = fre.search(fn)
 	
-	if os.stat(fn).st_mtime < updatetime - 1000000:
+	if os.stat(fn).st_mtime < updatetime - 1000000 and len(sys.argv) == 1:
 		continue
 
 	srcfilehash = hashlib.new("md5")
@@ -58,7 +58,7 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	bill.title = getBillTitle(bill, dom, "short")
 	bill.description = getBillTitle(bill, dom, "official")
 
-	#print bill
+	bill.introduced_date = parse_govtrack_date(dom.getElementsByTagName('introduced')[0].getAttribute("datetime"))
 
 	# Status.
 	bill.current_status = dom.getElementsByTagName('state')[0].firstChild.data
@@ -107,7 +107,14 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 	latest_actions = []
 	activity_start = datetime.now() - timedelta(days=7)
 	
-	# New cosponsors?
+	# Cosponsors
+	bill.cosponsors.clear()
+	for cs in dom.getElementsByTagName("cosponsor"):
+		if cs.hasAttribute("withdrawn"): # not indicating cosponsor removals
+			continue
+		bill.cosponsors.add(MemberOfCongress.objects.get(id=cs.getAttribute("id")))
+	
+	# Activity: New cosponsors?
 	new_cosponsors_date = None # the last date of a new cosponsor
 	new_cosponsors = []
 	for cs in dom.getElementsByTagName("cosponsor"):

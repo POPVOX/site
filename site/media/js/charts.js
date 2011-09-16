@@ -45,7 +45,7 @@ function bill_timeseries(container, data, opts) {
 	$(function() {
       new Highcharts.Chart({
 	 chart: {
-	    backgroundColor: "#e8e5df",
+	 	backgroundColor: (!opts || !opts.bg) ? "#e8e5df" : opts.bg,
 	    renderTo: container,
 	    margin: [10,0,10,40],
 	    defaultSeriesType: 'line',
