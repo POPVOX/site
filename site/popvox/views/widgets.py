@@ -165,7 +165,7 @@ def commentmapus(request):
 @do_not_track_compliance
 def top_bills(request):
 	congressnumber = CURRENT_CONGRESS
-	count = 12
+	count = 8
 	
 	# Select bills with the most number of recent comments.
 	bills = []

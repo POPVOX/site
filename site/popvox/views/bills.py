@@ -77,7 +77,7 @@ def get_popular_bills():
 		# comments within a longer time period, meaning show bills that are
 		# moving fast relative to past performance.
 		seen_bills = set()
-		for time_period_name, time_period, how_many in (('few hours', timedelta(hours=3), 1), ('day', timedelta(days=1), 1), ('two days', timedelta(days=2), 2), ('week', timedelta(days=7), 2), ('month', timedelta(days=30), 3)):
+		for time_period_name, time_period, how_many in (('few hours', timedelta(hours=3), 1), ('day', timedelta(days=1), 2), ('two days', timedelta(days=2), 3), ('week', timedelta(days=7), 3), ('month', timedelta(days=30), 4)):
 			# Collect counts grouped by bill and time period.
 			bill_data = { }
 			max_count = 0
@@ -1638,7 +1638,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 		.values("comment_id", "num_diggs")
 	for c in q:
 		num_appreciations[c["comment_id"]] = c["num_diggs"]
-			
+
 	# Return.
 	
 	bill_url = bill.url()
@@ -1658,7 +1658,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 		"con_more": con_limited,
 		
 		"debug_info": debug_info,
-	
+		
 		"comments":
 			[ {
 				"id": c.id,

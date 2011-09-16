@@ -12,6 +12,7 @@
 			}
 		</style> 
 		
+		<link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" />
 		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 		<script type="text/javascript" src="/media/js/highcharts.js"></script>
 		<script>
@@ -29,16 +30,26 @@ $(document).ready(function() {
       chart: {
          renderTo: 'container',
          defaultSeriesType: 'column',
-         backgroundColor: "#E8E5DF"
+         backgroundColor: "#E8E5DF",
+         height: $(window).height()
       },
       title: {
-         text: 'Most Commented-On Bills in Congress'
+         text: 'Top Bills',
+         style: { color: "black", font: "normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif" }
       },
+	  credits: { enabled: false },
+	  legend: {
+	  	  floating: true,
+	  	  align: "right",
+	  	  verticalAlign: "top",
+	  	  borderWidth: 0
+	  },
       /*subtitle: {
          text: '...'
       },*/
       xAxis: [{
-         categories: categories
+         categories: categories,
+         opposite: true
          //reversed: false
       }/*, { // mirror axis on right side
          opposite: true,
@@ -48,7 +59,7 @@ $(document).ready(function() {
       }*/],
       yAxis: {
          title: {
-            text: "Comments"
+            text: ""
          },
          labels: {
             /*formatter: function(){
@@ -56,7 +67,9 @@ $(document).ready(function() {
             }*/
          },
          min: 0,
-         max: {{max}}
+         max: {{max}},
+         reversed: true,
+         gridLineWidth: 0
       },
       
       plotOptions: {
@@ -66,7 +79,7 @@ $(document).ready(function() {
 			point: {
 				events: {
 					click: function() {
-						window.open(data_links[this.x]);
+						window.open(data_links[this.x], "_top");
 					}
 				}
 			}
@@ -74,7 +87,8 @@ $(document).ready(function() {
          column: {
          	 groupPadding: .1,
          	 borderWidth: 1,
-         	 shadow: false
+         	 shadow: false,
+         	 borderColor: '#E8E5DF'
          }
       },
       
@@ -106,7 +120,7 @@ $(document).ready(function() {
 		</script>
 	</head>
 	<body>
-		<div id="container"> </div>
+		<div id="container" style="height: 100%"> </div>
 	</body>
 </html>
 

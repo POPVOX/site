@@ -7,13 +7,15 @@
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
 <script>
 $(function() {
 	$.ajax({
 		type:"POST",
 		url: "/ajax/activity",
 		data: {
-			count: 7
+			count: 5
 		},
 		complete: function(res, status) {
 			$('#activity').html(res.responseText);
@@ -98,34 +100,29 @@ $(function() {
 		<p style="margin-bottom: 2em">With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress.</p>
 		{% endif %}
 		
-		<div class="userrichtextcontent">
-			<div class="col_6 col_top">
-				{% rawtext "bills_left" %}
-			</div>
-			<div class="col_3 col_top col_last rightcol" style="margin-top: -15px">
-				<h3>Other Highlights</h3>
+		<iframe src="/widgets/top-bills" width="700" height="150" frameborder="0" scrolling="no" style="margin-bottom: 15px"> </iframe>
+		
+	</div>
+
+	{% include "ads/rightbar.html" %}
+
+	<div class="col_7" id="activity_container">
+		<div style="padding-right: 20px">
+			<div id="highlights">
+				<h3 class="no_rule">Highlights</h3>
+				<div class="userrichtextcontent">
+					{% rawtext "bills_left" %}
+				</div>
 				
-				{% rawtext "bills_right" %}
-				
-				<div class="clear block bill_search search_orange" style="margin-top: 25px">
-					<div class="search_box" style="height: 85px">
+				<div class="clear block bill_search search_orange" style="margin-top: 30px; float: right">
+					<div class="search_box">
 						<p style="float: none"><strong>Bill Search</strong> {% comment %} <span>search by bill number or keyword</span>{% endcomment %}</p> 
 						{% include "popvox/billsearch_form.html" %}
 						{% comment %}<p class="help">Don&rsquo;t know what to search for? Use the <a href="/orgs">Organization Directory</a> to find legislation tracked by organizations you support.</p>{% endcomment %}
 					</div>
 				</div>
-			
-			</div>
-		</div>
-		
-	</div>
-	
-	{% include "ads/rightbar.html" %}
-		
-	<div class="clear block bills rule col_12">
-			
-			<div class="col_6 col_activity">
-				<h3 class="no_rule">Recent Activity</h3>
+				
+				<h3 class="no_rule clear">Recent Activity</h3>
 				<div class="hr"> </div>
 				
 				<div id="activity"> </div>
@@ -133,85 +130,77 @@ $(function() {
 				<div style="text-align: center">
 					(<a href="/activity">more</a>)
 				</div>
-			</div>
-			
-			<div class="col_6 col_last">
-				<h3 class="no_rule">Trending Bills</h3>
-				{% for billrec in trending_bills %}
-					
-					<div class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}">
-						{% comment %}{% ifchanged %}<p style="margin-top: -40px; text-align: right"><em>in the last {{billrec.bill.trending_time_period}}</em></p>{% endifchanged %}{% endcomment %}
-						
-						{% with billrec.bill as bill %}
-						
-						{% if billrec.pos == "" %}
-						<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
-						{% endif %}
-						
-						<h4><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h4>
-						
-						<div class="bill_detail">
-
-						{% if bill.sponsor %}
-						<p>Sponsored by {{ bill.sponsor.name }}.</p>
-						{% endif %}
-						
-						
-						{% if billrec.bill.new_positions < 50 %}
-							<p><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
-						{% else %}
-							<p><strong>{{billrec.bill.new_positions}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
-						{% endif %}
-						
-						{% comment %}
-						<p><strong>Status:</strong>
-						<em>
-						{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-							{{bill.status_advanced}}  ({{bill.current_status_date|date2}})
-						{% else %}
-							{{bill.status}}
-						{% endif %}
-						</em></p>
-						{% endcomment %}
-						
-						{% comment %}
-						{% if bill.description %}<p class="bill_detail">{{ bill.description|truncatewords:18 }}</p>{% endif %}
-						{% endcomment %}
-						
-						{% for org in billrec.orgs %}
-						<div class="bill_endorseoppose">
-							<p>
-								{% if org.position == "+" %}Endorsed{% endif %}
-								{% if org.position == "-" %}Opposed{% endif %}
-								by
-								<a href="{{org.url}}">{{org.name}}</a>
-							</p>
-							{% comment %}
-							{% for cam in org.campaigns %}
-								<p style="margin-left: 1.5em"><a href="{{cam.url}}">{{cam.name}}</a>{% if cam.description %}: {{ cam.description|truncatewords:50 }}{% endif %}</p>
-							{% endfor %}
-							{% endcomment %}
-						</div>
-						{% endfor %}
-						
-						</div>
-					</div>
-					
-					{% endwith %}
-					
-				{% empty %}
 				
-					<p>We will list trending bills as our users begin weighing in on the new bills introduced by the new Congress.</p> 
-					
-				{% endfor %}
+			</div>
 		</div>
 	</div>
 		
-	<div class="clear block bills rule col_12">
+	<div id="trending_bills" class="col_5 col_last bills">
+		<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px;">Trending Bills</h3>
+		{% for billrec in trending_bills %}
+			
+			<div class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}" {% if forloop.first %}style="background: url(/media/master/bg_bills.png) no-repeat scroll left -1px transparent;"{% endif %}>
+				{% comment %}{% ifchanged %}<p style="margin-top: -40px; text-align: right"><em>in the last {{billrec.bill.trending_time_period}}</em></p>{% endifchanged %}{% endcomment %}
+				
+				{% with billrec.bill as bill %}
+				
+				{% if billrec.pos == "" %}
+				<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
+				{% endif %}
+				
+				<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
+				{% if bill.sponsor %}
+				<p style="margin-top: 4px; font-size: 11px">Sponsored by {{ bill.sponsor.name }}.</p>
+				{% endif %}
+				
+				
+				<div class="bill_detail">
+				
+				{% if billrec.bill.new_positions < 50 %}
+					<p style="margin-top: -10px;"><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
+				{% else %}
+					<p style="margin-top: -10px;"><strong>{{billrec.bill.new_positions}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
+				{% endif %}
+				
+				{% comment %}
+				<p><strong>Status:</strong>
+				<em>
+				{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
+					{{bill.status_advanced}}  ({{bill.current_status_date|date2}})
+				{% else %}
+					{{bill.status}}
+				{% endif %}
+				</em></p>
 
-		<iframe src="/widgets/top-bills" width="940" height="450"  frameborder="0" scrolling="no"> </iframe>
-
+				{% if bill.description %}<p class="bill_detail">{{ bill.description|truncatewords:18 }}</p>{% endif %}
+				
+				{% for org in billrec.orgs %}
+				<div class="bill_endorseoppose">
+					<p>
+						{% if org.position == "+" %}Endorsed{% endif %}
+						{% if org.position == "-" %}Opposed{% endif %}
+						by
+						<a href="{{org.url}}">{{org.name}}</a>
+					</p>
+					{% for cam in org.campaigns %}
+						<p style="margin-left: 1.5em"><a href="{{cam.url}}">{{cam.name}}</a>{% if cam.description %}: {{ cam.description|truncatewords:50 }}{% endif %}</p>
+					{% endfor %}
+				</div>
+				{% endfor %}
+				{% endcomment %}
+				
+				</div>
+			</div>
+			
+			{% endwith %}
+			
+		{% empty %}
+		
+			<p>We will list trending bills as our users begin weighing in on the new bills introduced by the new Congress.</p> 
+			
+		{% endfor %}
 	</div>
+		
 </div>
 		    
 {% endblock %}
