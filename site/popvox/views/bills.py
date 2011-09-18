@@ -1489,8 +1489,8 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 		from utils import compute_frequencies, make_tag_cloud
 		text["+"] = compute_frequencies(text["+"], stop_list=["support"])
 		text["-"] = compute_frequencies(text["-"], stop_list=["oppose"])
-		tag_cloud_support = make_tag_cloud(text["+"], text["-"], 50*4, 7, 9, 22, count_by_chars=True, width=350)
-		tag_cloud_oppose = make_tag_cloud(text["-"], text["+"], 50*4, 7, 9, 22, count_by_chars=True, width=350)
+		tag_cloud_support = make_tag_cloud(text["+"], text["-"], 50*4, 7, 9, 22, count_by_chars=True, width=350, color="#CC6A11")
+		tag_cloud_oppose = make_tag_cloud(text["-"], text["+"], 50*4, 7, 9, 22, count_by_chars=True, width=350, color="#CC6A11")
 
 	return render_to_response('popvox/bill_report.html', {
 			'bill': bill,

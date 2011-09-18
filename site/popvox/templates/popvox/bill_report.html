@@ -434,7 +434,7 @@ h2 span {
 	<div class="tag_cloud" style="margin-right: 40px">
 		{% for line in tag_cloud_support %}
 		<div class="line">
-			{% for word, fontsize, lpad in line %}<span class="tag" style="font-size: {{fontsize}}px; padding-left: {{lpad}}px;">{{ word }}</span>{% endfor %}
+			{% for word in line %}<span class="tag" style="font-size: {{word.fontsize}}px; padding-left: {{word.left_padding}}px; color: {{word.color}};">{{ word.text }}</span>{% endfor %}
 		</div>
 		{% endfor %}
 	</div>
@@ -444,7 +444,7 @@ h2 span {
 	<div class="tag_cloud">
 		{% for line in tag_cloud_oppose %}
 		<div class="line">
-			{% for word, fontsize, lpad in line %}<span class="tag" style="font-size: {{fontsize}}px; padding-left: {{lpad}}px;">{{ word }}</span>{% endfor %}
+			{% for word in line %}<span class="tag" style="font-size: {{word.fontsize}}px; padding-left: {{word.left_padding}}px; color: {{word.color}};">{{ word.text }}</span>{% endfor %}
 		</div>
 		{% endfor %}
 	</div>

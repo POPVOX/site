@@ -118,7 +118,7 @@ def get_facebook_app_access_token():
 
 def compute_frequencies(text, stop_list=[]):
 	# split the text on non-word characters
-	words = [w for w in re.split(r"[\s,-]+", text) if not "." in w]
+	words = [w for w in re.split(r",?[\s\-]+", text) if not "." in w]
 	if len(words) == 0: return None
 	
 	# get frequency totals
@@ -130,7 +130,9 @@ def compute_frequencies(text, stop_list=[]):
 
 	return freq
 
-def make_tag_cloud(freq, base_freq, N, num_lines, min_font, max_font, count_by_chars=False, width=None, font_ar=.5):
+def make_tag_cloud(freq, base_freq, N, num_lines, min_font, max_font, count_by_chars=False, width=None, font_ar=.5, color=None):
+	import random
+
 	if base_freq != None:
 		# if base frequencies are given, turn freq into TF/IDF
 		freq = dict((term, freq[term] / (base_freq[term] if term in base_freq else 1.0)) for term in freq)
@@ -153,21 +155,31 @@ def make_tag_cloud(freq, base_freq, N, num_lines, min_font, max_font, count_by_c
 	# convert frequencies to font sizes. to avoid the range being skewed by very popular
 	# terms, don't base the font size on the frequency directly, but instead simply on
 	# the index of the term in the top N, modified to make fewer big terms.
+	#
+	# similarly for colors, by taking the hue and lightness from the provided target
+	# color and varying the saturation from 0 to 1.
+	if color:
+		import grapefruit
+		color = grapefruit.Color.NewFromHtml(color)
+		color = color.hsv
 	for i in xrange(len(freq)):
 		r = float(i)/(float(len(freq))-1) # 0.0 to 1.0
 		r = r*r # punch the curve down
-		freq[i] = (freq[i][0], min_font + (max_font-min_font)*r)
-
-	freq.sort(key = lambda w_f : w_f[0].lower())	# sort the remainder alphabetically
+		if color:
+			c = grapefruit.Color.NewFromHsv(color[0], r, color[2]*r).html
+		else:
+			c = None
+		freq[i] = { "text": freq[i][0], "fontsize": min_font + (max_font-min_font)*r, "color": c }
+		freq[i]["width"] = len(freq[i]["text"]) * freq[i]["fontsize"]
 
 	# divide words into num_lines lines so that each line has approximately the same
 	# number of characters, weighted by their font size (i.e. larger characters take
 	# up more space). solve using dynamic programming to minimize the standard deviation
 	# of the characters per line.
 	def solve_lines(words, n):
-		total_chars = sum(len(w)*f for w,f in words)
+		total_chars = sum(w["width"] for w in words)
 			
-		# find the optimal way to split words (w,f tuples) into n lines, returns
+		# find the optimal way to split words into n lines, returns
 		# the lines and the weighted character count on each line.
 		if n == 1:
 			return ([words], [total_chars])
@@ -178,19 +190,19 @@ def make_tag_cloud(freq, base_freq, N, num_lines, min_font, max_font, count_by_c
 		split_possibilities = []
 		for i in xrange(n-1, len(words)): # start here because n-1 lines requires n-1 words 
 			# how many characters would remain
-			chars_on_right = sum(len(w)*f for w,f in words[i:])
+			chars_on_right = sum(w["width"] for w in words[i:])
 			split_possibilities.append( (i, abs(float(chars_on_right) - float(total_chars)/float(n))) )
 		split_possibilities.sort(key = lambda x : x[1])
 		split_possibilities = [s[0] for s in split_possibilities]
 			
 		best_score = None
 		best_solution = None
-		for i in split_possibilities[0:3]: 
+		for i in split_possibilities[0:4]: 
 			# try putting the first line break after the i'th word
 			words_on_left, chars_on_left = solve_lines(words[0:i], n-1)
 
 			# how many characters remain, include "space" characters between words
-			chars_on_right = sum(len(w)*f for w,f in words[i:])
+			chars_on_right = sum(w["width"] for w in words[i:])
 
 			# the score for this split is the standard deviation of the character counts per line
 			char_counts = chars_on_left + [chars_on_right]
@@ -202,12 +214,36 @@ def make_tag_cloud(freq, base_freq, N, num_lines, min_font, max_font, count_by_c
 	
 	if num_lines > len(freq):
 		num_lines = len(freq)
+
+	# although we have a bag of words to display, we have to divide them evenly
+	# across num_lines lines. the goal is to have all of the lines be an equal
+	# width, taking into account some words are longer than others.
+
+	# to do this, we'll first choose an optimalish display order, then we'll
+	# split the words across num_lines lines in a way that gets the lines
+	# closest to equal character lengths.
+	
+	# Group words by their width.
+	wordwidths = { }
+	for word in freq:
+		w = word["width"] / 3 # exact width doesn't matter
+		if not w in wordwidths: wordwidths[w] = []
+		wordwidths[w].append(word)
+	# Split each group evenly across the lines.
+	for w, words in wordwidths.items():
+		seed = random.randint(0, num_lines+1)
+		for i in xrange(len(words)):
+			words[i]["linepref"] = ((i+seed) % num_lines)
+
+	# Order them by their line preference, then alphabetically.
+	freq.sort(key = lambda w : (w["linepref"], w["text"].lower()))
+
 	lines, chars = solve_lines(freq, num_lines)
 
 	if len(lines) == 1:
 		return lines
 
-	# because the split is not exact, some lines will be longer than others. to fix
+	# wecause the split is not exact, some lines will be longer than others. to fix
 	# this in the display we'll tweak the left padding beside each word to add space
 	# on lines that need the words to be more spread out.
 	#
@@ -223,10 +259,8 @@ def make_tag_cloud(freq, base_freq, N, num_lines, min_font, max_font, count_by_c
 		else:
 			extra_spacing = (max_chars_per_line - chars[i]) / (len(lines[i]) - 1) * font_ar
 		for j in xrange(len(lines[i])):
-			if j == 0: # no left padding on the first word
-				lines[i][j] = (lines[i][j][0], lines[i][j][1], 0)
-			else:
-				lines[i][j] = (lines[i][j][0], lines[i][j][1], extra_spacing)
+			if j > 0: # no left padding on the first word
+				lines[i][j]["left_padding"] = extra_spacing
 
 	return lines
 
