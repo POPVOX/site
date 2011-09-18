@@ -209,9 +209,9 @@ def break_pages(document, thread_index=None, force=None):
 			for fn in glob.glob(path + "/page-*.png"):
 				pagenum = int(fn[len(path)+6:-4])
 				
-				# use graphicsmagick mogrify to trim and convert the PNG to greyscale (to reduce file size),
+				# use graphicsmagick mogrify to (trim and??) convert the PNG to greyscale (to reduce file size),
 				# overwriting the file in place.
-				subprocess.call(["gm", "mogrify", "-trim", "-type", "Grayscale", fn])
+				subprocess.call(["gm", "mogrify", "-type", "Grayscale", fn]) # "-trim", 
 				
 				pngfile = open(fn)
 				png = pngfile.read()
@@ -408,5 +408,5 @@ if __name__ == "__main__":
 				break_pages(p, force="toc")
 
 	elif len(sys.argv) == 2:
-		break_pages(PositionDocument.objects.get(id=sys.argv[-1]), force="toc")
+		break_pages(PositionDocument.objects.get(id=sys.argv[-1]), force="png")
 	

@@ -341,6 +341,12 @@ class Bill(models.Model):
 			billtype = Bill.slug_to_type[m.group(1)],
 			billnumber = m.group(2),
 			vehicle_for = None)
+		
+	def current_text(self):
+		try:
+			return self.documents.filter(doctype=100).order_by('-created')[0]
+		except IndexError:
+			return None
 
 	def make_vehicle(self):
 		import copy

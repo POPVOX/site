@@ -10,6 +10,8 @@ from popvox.govtrack import statenames, ordinate, CURRENT_CONGRESS
 
 from settings import SITE_ROOT_URL
 
+import urllib
+
 def do_not_track_compliance(f):
 	def g(request, *args, **kwargs):
 		# Do-Not-Track Compliance: Don't record in traffic stats. Don't set a session cookie
@@ -198,8 +200,29 @@ def top_bills(request):
 		"max_opp": max_opp,
 	}, context_instance=RequestContext(request))
 
-#@cache_page(60 * 60 * 2) # two hours
+@cache_page(60 * 60 * 2) # two hours
 @do_not_track_compliance
 def bill_text(request):
 	return render_to_response('popvox/widgets/billtext.html', {
 	}, context_instance=RequestContext(request))
+	
+@cache_page(60 * 60 * 2) # two hours
+@do_not_track_compliance
+def bill_text_js(request):
+	width = int(float(request.GET.get("width", "600")))
+	height = int(float(request.GET.get("height", str(width*11/8.5))))
+	
+	# TODO parse fragment to set page, zoomed, format parameters...
+	return HttpResponse("""
+var pv_fargs = window.location.hash.substring(1).split(",");
+var pv_qsargs = "";
+for (var pv_fargs_i = 0; pv_fargs_i < pv_fargs.length; pv_fargs_i++) {
+	if (pv_fargs[pv_fargs_i].substring(0, 5) == "page=") pv_qsargs += "&" + pv_fargs[pv_fargs_i];
+	if (pv_fargs[pv_fargs_i].substring(0, 7) == "zoomed=") pv_qsargs += "&" + pv_fargs[pv_fargs_i];
+	if (pv_fargs[pv_fargs_i].substring(0, 7) == "format=") pv_qsargs += "&" + pv_fargs[pv_fargs_i];
+}
+var pv_qs_loc = document.location.href;
+if (pv_qs_loc.indexOf("#") >= 0) pv_qs_loc = pv_qs_loc.substring(0, pv_qs_loc.indexOf("#"));
+document.write("<iframe src='https://%s/widgets/bill-text?%s&baseurl=" + escape(pv_qs_loc) + pv_qsargs + "' width='%d' height='%d' border='0' marginheight='0' marginwidth='0' frameborder='0'></iframe>");
+""" % (request.get_host(), urllib.urlencode(request.GET), width, height)
+	, mimetype="text/javascript")

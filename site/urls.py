@@ -95,6 +95,7 @@ urlpatterns = patterns('',
 	(r'^widgets/js/bill.js$', 'popvox.views.widgets.bill_js'),
 	(r'^widgets/bill-comment-map$', "popvox.views.widgets.commentmapus"),
 	(r'^widgets/top-bills$', "popvox.views.widgets.top_bills"),
+	(r'^widgets/bill-text.js$', "popvox.views.widgets.bill_text_js"),
 	(r'^widgets/bill-text$', "popvox.views.widgets.bill_text"),
 		
 	(r'^services/widgets$', "popvox.views.services.widget_config"),
