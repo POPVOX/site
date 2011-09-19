@@ -38,7 +38,7 @@ MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 if DEBUG:
 	# this is the default when DEBUG is true, but we'll be explicit.
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-elif os.environ.get("EMAIL_BACKEND") in ("", "AWS-SES"):
+elif os.environ.get("EMAIL_BACKEND") in ("AWS-SES",):
 	# This is the default when DEBUG is not true.
 	#
 	# For AWS SES:
