@@ -1428,6 +1428,12 @@ class ServiceAccount(models.Model):
 		
 		super(ServiceAccount, self).save(*args, **kwargs)
 
+	@property
+	def owner(self):
+		if self.user: return self.user
+		if self.org: return self.org
+		return None
+
 	def has_permission(self, name):
 		return self.permissions.filter(name=name).exists()
 		

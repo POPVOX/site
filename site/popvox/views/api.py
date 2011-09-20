@@ -101,11 +101,26 @@ class BaseHandler(object):
 			
 			# Get the field mapping for the model class, which is a list of fields to serialize for the model.
 			fieldlist = getattr(self, obj_class.__name__.lower() + "_fields", None)
+			
+			# Hide the "hidden" fields if no fields are requested specifically.
+			if not callable(fieldlist) and not "fields" in request.REQUEST:
+				hidden_fields = getattr(self, obj_class.__name__.lower() + "_hidden_fields", [])
+				fieldlist = [f for f in fieldlist if not f in hidden_fields]
+			
 			if not fieldlist:
 				cached_type_info[obj_class] = None
 				return None
 			if callable(fieldlist):
 				fieldlist = fieldlist(request, acct)
+				
+			if "fields" in request.REQUEST:
+				# Only return the specified fields. Check that the specified fields are valid field names.
+				specified_fields = request.REQUEST["fields"].split(",")
+				_fieldlist = []
+				for field in specified_fields:
+					if field in fieldlist:
+						_fieldlist.append(field)
+				fieldlist = _fieldlist
 			
 			# For each field, get the function that returns that value.
 			def getvaluefunc(attrname):
@@ -148,7 +163,8 @@ def paginate(func):
 	return g
 
 class BillHandler(BaseHandler):
-	bill_fields = ('id', 'congressnumber', 'billtype', 'billnumber', 'title', 'street_name', 'status', 'status_advanced', 'status_advanced_abbreviated', 'current_status_date', 'sponsor', 'topterm',  'num_cosponsors', 'notes', 'link')
+	bill_fields = ('id', 'congressnumber', 'billtype', 'billnumber', 'title', 'street_name', 'status', 'status_advanced', 'status_advanced_abbreviated', 'current_status_date', 'sponsor', 'topterm',  'num_cosponsors', 'notes', 'link', 'shorturl')
+	bill_hidden_fields = ('shorturl',)
 	issuearea_fields = ('id', 'name')
 	memberofcongress_fields = ('id', 'name')
 
@@ -159,6 +175,17 @@ class BillHandler(BaseHandler):
 	@staticmethod
 	def link(bill, request, acct):
 		return SITE_ROOT_URL + bill.url()
+		
+	@staticmethod
+	def shorturl(bill, request, acct):
+		owner = acct.owner
+		if request.user.is_authenticated():
+			owner = request.user
+		
+		import shorturl
+		surl, created = shorturl.models.Record.objects.get_or_create(owner=owner, target=bill)
+		
+		return surl.url()
 		
 @api_handler
 class bill_suggestions(BillHandler):
@@ -294,6 +321,7 @@ class bill_metadata(BillHandler):
 		('num_cosponsors', 'the number of cosponsors for the bill (not including the bill\'s primary sponsor)'),
 		('notes', 'special notes to indicate any procedural oddities about the bill; HTML formatted; optional'),
 		('link', 'absolute URL to the primary page for the bill on POPVOX'),
+		('shorturl', 'a "pvox.co" short URL to the primary page for the bill on POPVOX. the short URL is owned by the user specified in a session token, if provided, otherwise by the owner of the API key used in the request. this field is only returned if explicitly requested with fields=shorturl.'),
 		)
 	def read(self, request, account, billid):
 		return Bill.objects.get(id=billid)
