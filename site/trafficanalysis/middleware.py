@@ -2,7 +2,7 @@ from models import *
 
 class TrafficAnalysisMiddleware:
 	def process_request(self, request):
-		if "HTTP_USER_AGENT" in request.META:
+		if request.META.get("HTTP_USER_AGENT", "").strip() != "":
 			request.ua = uas_parser.parse(request.META["HTTP_USER_AGENT"])
 		return None
 	
