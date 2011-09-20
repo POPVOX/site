@@ -8,11 +8,20 @@ if [ -f $PIDFILE ]; then
     echo "Stopping...";
     kill `cat -- $PIDFILE`;
     rm -f -- $PIDFILE;
-    sleep 1;
 fi
 
 HOSTNAME=`hostname`
 PORT=`echo 1000+$UID|bc`
+
+CTR=0
+while [ "`netstat -tln |grep $PORT`" != "" ]; do
+	if [ $CTR -gt 1 ]; then
+		echo "Port still bound...";
+		netstat -tln |grep $PORT;
+	fi
+	CTR=$CTR+1
+	sleep 1;
+done
 
 if [ "$1" = "stop" ]; then
     if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
