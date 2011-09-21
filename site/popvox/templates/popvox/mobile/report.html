@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
 		<title>POPVOX Bill Report</title>
-		<meta name="viewport" content="width=700, initial-scale=1">
+		<meta name="viewport" content="width=720, initial-scale=1">
 		<link rel="stylesheet" type="text/css" media="screen,projection" href="/media/mobile/css/style.css" />
 		<link rel="stylesheet" type="text/css" media="print" href="/media/mobile/css/print.css" />
 		<!--[if lte IE 9]>
@@ -59,7 +59,7 @@
 					report_state = value;
 
 					$('#options_district_container').text('');
-					var n = $('<label for="options_district">District</label><select id="options_district" onchange="update(\'district\', this.value)" data-inline="true"/>');
+					var n = $('<select id="options_district" onchange="update(\'district\', this.value)" data-inline="true"/>'); // <label for="options_district">District</label>
 					$('#options_district_container').append(n);
 					
 					report_district = null
@@ -139,7 +139,7 @@
 					if (!report_state) {
 						$('#stats_state, #stats_district').hide();
 						$('#chart_time').show();
-						bill_timeseries('chart_time', res.stats.overall.timeseries, { "bg": "white" });
+						bill_timeseries('chart_time', res.stats.overall.timeseries, { "bg": "white", "tooltip": false, "xlabels": true });
 						$('#stats_state_none').hide();
 					} else if (!res.stats.state) {
 						$('#stats_state_none').show();
@@ -148,15 +148,15 @@
 						$('#chart_time, #stats_state_none').hide();
 						$('#stats_state').show();
 						
-						$('#stats_state .txt-outer').text(report_state);
+						$('#stats_state .txt-outer h3 span').text(report_state);
 						$('#stats_state .num').text(res.stats.state.total);
 						$('#stats_state .summary .fav').text(res.stats.state.pro_pct + "%");
 						$('#stats_state .summary .opp').text(res.stats.state.con_pct + "%");
 						
 						if (report_district && res.stats.district) {
 							$('#stats_district').show();
-							$('#stats_district .txt-outer .num').text(report_district);
-							$('#stats_district .txt-outer .ord').text(ordinal(report_district));
+							$('#stats_district .txt-outer span').text(report_district);
+							$('#stats_district .txt-outer em').text(ordinal(report_district));
 							$('#stats_district .users .num').text(res.stats.district.total);
 							$('#stats_district .summary .fav').text(res.stats.district.pro_pct + "%");
 							$('#stats_district .summary .opp').text(res.stats.district.con_pct + "%");
@@ -240,23 +240,28 @@
 		#select_district_box>div { display: inline-block; padding-right: 25px; }
 		</style>
 	</head>
-	<body>
+	<body id="ipad">
 	
-	<div class="wrapper">
-
+	{% if request.GET.tab != "positions" %}
 	<div id="select_district_box">
-		<div>
-			<label for="options_state">State</label> 
-			<select id="options_state" onchange="update('state', this.value)" data-inline="true">
-				<option value="">POPVOX Nation</option>
-				{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-			</select>
-		</div>
-		<div id="options_district_container">
-		</div>
+		<h2>Change State</h2> 
+		<select id="options_state" onchange="update('state', this.value)" data-inline="true">
+			<option value="">POPVOX Nation</option>
+			{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+		</select>
+		<span id="options_district_container">
+		</span>
 		<span id="loadingstatus"></span>
 	</div>
-			
+	{% endif %}
+
+	<div class="wrapper">
+
+	<div class="subtitle"> 
+		<!--<a href="#" id="annotations">annotations</a>--> 
+		{{bill.title}}
+	</div><!-- subtitle --> 
+
 	<div class="header" id="header">
 		<a href="#" class="logo" onclick="return false;">BILL REPORT</a>
 		<!--
@@ -267,10 +272,6 @@
 				&#160;(WHO)
 		</div>--><!-- header-right -->
 	</div><!-- header -->
-	
-	<div class="subtitle">
-		{{bill.title}}
-	</div><!-- subtitle -->
 	
 	{% if request.GET.tab == "report" %}
 		<div class="columns report-data" id="container">
@@ -299,6 +300,16 @@
 
 		<div class="columns stats">
 			<div class="left-column">
+				<div class="b_people"> 
+					<div class="co-sponsors"> 
+						<h4>Co-Sponsors</h4> 
+						<ul>
+							{% for c in bill.cosponsors.all %}
+								<li>{{c.name}}</li>
+							{% endfor %}
+						</ul> 
+					</div> 
+				</div> 
 				<h3 class="sponsors">
 					Co-Sponsors
 				</h3><!-- sponsors -->
@@ -325,6 +336,23 @@
 				{% endif %}
 			</div><!-- left-column -->
 			<div class="right-column">
+				<div class="b_people right"> 
+					<div class="organizations"> 
+						<h4>Organizations</h4>
+						{% for group, orglist in orgs %}
+							{% if orglist %}
+							{% if group == "+" %}<h5>Endorsing</h5>{% endif %}
+							{% if group == "-" %}<h5>Opposing</h5>{% endif %}
+							{% if group == "0" %}<h5>Other</h5>{% endif %}
+							<ul>
+								{% for org, pos in orglist %}
+									<li>{{org.name}}</li>
+								{% endfor %}
+							</ul>
+							{% endif %}
+						{% endfor %}
+					</div> 
+				</div> 
 				<h3 class="organizations">
 					Organizations
 				</h3><!-- organizations -->
@@ -346,6 +374,9 @@
 				{% endif %}
 			</div><!-- right-column -->
 		</div><!-- columns stats -->
+
+		<div class="column-end"> 
+		</div><!-- column-end --> 
 		
 		<div class="columns">
 			<div class="left-column2" id="stats_nation">
@@ -397,10 +428,10 @@
 				</h3><!-- state -->
 				<div>
 					<div class="txt-outer">
-						STATE
+						<h3 id="state" class="txt"><span>STATE</span></h3> 
 					</div><!-- txt-outer -->
 					<div class="users">
-						<span class="num">QQ</span><span>USERS</span>
+						<span class="num">QQ</span><em></em><span>USERS</span>
 					</div><!-- users -->
 				</div>
 				<div class="summary">
@@ -419,7 +450,7 @@
 				</h3><!-- district -->
 				<div>
 					<div class="txt-outer">
-						<span class="num">DD</span> <span class="ord">dd</span>
+						<h3 id="district" class="txt"><span>2</span><em>nd</em></h3> 
 					</div><!-- txt-outer -->
 					<div class="users">
 						<span class="num">QQ</span> <span>USERS</span>
@@ -439,47 +470,50 @@
 	{% endif %}
 
 	{% if request.GET.tab == "positions" %}
-		<fieldset data-role="controlgroup" data-type="horizontal" >
-			<input type="radio" name="positions_position" id="positions_position_endorsing" class="positions_position" value="+" checked="checked"/>
-			<label for="positions_position_endorsing">Endorsing</label>
-
-			<input type="radio" name="positions_position" id="positions_position_opposing" class="positions_position" value="-"/>
-			<label for="positions_position_opposing">Opposing</label>
-			
-			<input type="radio" name="positions_position" id="positions_position_other" class="positions_position"  value="0"/>
-			<label for="positions_position_other">Other</label>
-		</fieldset>
-		
-		<script>
-		$('.positions_position').bind( "change", function() {
-			$('.positions_group').hide();
-			$('.positions_group[group="' + this.value + '"]').show();
-		});
-		</script>
-		
+	<div class="columns datacolumn"> 
 		{% for group, orglist in orgs %}
-		<div class="positions_group" group="{{group}}" {% if group != '+' %}style="display: none"{% endif %}>
+			{% if group == "+" %}
+				<div class="left-column"> 
+				<h3 class="for1"> 
+					ENDORSING
+				</h3><!-- for1 -->
+			{% endif %}
+			{% if group == "-" %}
+				<div class="right-column"> 
+				<h3 class="opp1"> 
+					OPPOSING
+				</h3><!-- opp1 -->
+			{% endif %}
+			{% if group == "0" %}
+				<div class="clear" {% if not orglist %}style="display: none;"{% endif %}>
+				<h3 class="other1"> 
+					OTHER POSITIONS
+				</h3><!-- other1 -->
+			{% endif %}
 			{% for org, position in orglist %}
-				<h2>{{org.name}}</h2>
+				<p>
+					<a href="{{org.url}}" target="_blank" class="link">{{org.name}}</a>
 
-				{% if position.comment %}
-					{{position.comment|wraplines:"p style='margin-bottom: .5em' links='false'"}}
-				{% endif %}
+					{% if position.comment %}
+						{{position.comment|wraplines:"div style='margin-bottom: .5em' links='false'"}}
+					{% else %}
+						(no comment)
+					{% endif %}
 				
-				{% comment %}
-				can't link out because it would stay inside our UIWebView control
-				{% for doc in position.documents %}
-					{% if forloop.first %}<ul class="bullets doc">{% endif %}
-					<li><a href="{{doc.url}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
-					{% if forloop.last %}</ul>{% endif %}
-				{% endfor %}
-				{% endcomment %}
+					{% comment %}
+					can't link out because it would stay inside our UIWebView control
+					{% for doc in position.documents %}
+						{% if forloop.first %}<ul class="bullets doc">{% endif %}
+						<li><a href="{{doc.url}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
+						{% if forloop.last %}</ul>{% endif %}
+					{% endfor %}
+					{% endcomment %}
 				
-				{% if org.createdbyus %}
-				<small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small>
-				{% endif %}
+					{% if org.createdbyus %}
+					<small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small>
+					{% endif %}
 
-				{% if not forloop.last %}<hr/>{% endif %}
+				</p>
 			{% empty %}
 				<p>POPVOX does not know of any organizations in this category.</p>
 			{% endfor %}

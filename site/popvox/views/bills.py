@@ -406,7 +406,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		ndays = (lastcommentdate - firstcommentdate).days + 1
 		days = sorted(bins.keys())
 		time_series = {
-			"xaxis": [(firstcommentdate + timedelta(x)).strftime("%x") for x in days],
+			"xaxis": [(firstcommentdate + timedelta(x)).strftime("/%x").replace("/0", "/")[1:] for x in days],
 			"pro": [sum([bins[y]["+"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in days],
 			"con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in days],
 			}

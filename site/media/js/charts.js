@@ -47,17 +47,18 @@ function bill_timeseries(container, data, opts) {
 	 chart: {
 	 	backgroundColor: (!opts || !opts.bg) ? "#e8e5df" : opts.bg,
 	    renderTo: container,
-	    margin: [10,0,10,40],
+	    margin: [10,0,(!opts || !opts.xlabels) ? 10 : 55, 40],
 	    defaultSeriesType: 'line',
 	    width: 220
 	 },
     tooltip: {
+    	enabled: (!opts || opts.tooltip == null) ? true : opts.tooltip,
 	    formatter: function() {
 		    return this.x + ": " + this.y + " " + this.series.name
 		}
     },
 	 credits: { enabled: false },
-	 xAxis: { categories: data.xaxis, labels: { enabled: false } },
+	 xAxis: { categories: data.xaxis, labels: { enabled: (!opts || !opts.xlabels) ? false : opts.xlabels, step: 5, rotation: -70, y: 25,  } },
 	 yAxis: { min: 0, title: { text: "Cumulative Users", style: { fontSize: "10px", fontWeight: "normal" } } },
 	 plotOptions: {
 		    line: {

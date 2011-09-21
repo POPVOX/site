@@ -212,7 +212,6 @@ def bill_text_js(request):
 	width = int(float(request.GET.get("width", "600")))
 	height = int(float(request.GET.get("height", str(width*11/8.5))))
 	
-	# TODO parse fragment to set page, zoomed, format parameters...
 	return HttpResponse("""
 var pv_fargs = window.location.hash.substring(1).split(",");
 var pv_qsargs = "";
