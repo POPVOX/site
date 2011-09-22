@@ -323,13 +323,11 @@ function getshorturl() {
 
 			{% if bill.is_bill %}
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
-			{% comment %}
 			<script>if (!initial_tab) initial_tab = "billstatus";</script>
 				{% if bill.current_text %}
 					<li id="billtext_tab"><a href="#" onclick="return showtab('billtext')">Bill Text</a></li>
 					<script>if (!initial_tab) initial_tab = "billtext";</script>
 				{% endif %}
-			{% endcomment %}
 			{% endif %}
 
 			<li id="widgetpane_tab"><a href="#" onclick="return showtab('widgetpane')">Add POPVOX to your site</a></li>

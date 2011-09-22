@@ -37,7 +37,9 @@
 	}
 	.page_view { display: none; background-color: white; }
 	#page_paper .container { padding: 15px; }
+	#page_paper img { display: block; } /* prevent side by side alignment for the scrolling */
 	#page_text { padding: 15px; }
+	.loading { position: absolute; background-color: white; padding: 1em; font-size: 14px; font-weight: bold; font-family: Verdana, Tahoma, Arial, sans-serif; } 
 	
 	body {
 		background: #fff;
@@ -174,6 +176,8 @@ function show_page(format) {
 }
 
 function load_page(pagenum, direction) {
+	prevpage = _curpage;
+	
 	if (pagenum == _curpage) return;
 	if (pagenum) _curpage = pagenum;
 	
@@ -210,14 +214,46 @@ function load_page(pagenum, direction) {
 		// normally reset scroll bar to top, unless we are paging backwards
 		// in which case scroll to the bottom
 		if (direction != -1)
-			$('#center, #page_paper').scrollTop(0);
+			$('#center').scrollTop(0);
 		else
-			$('#center, #page_paper').scrollTop($("#center").innerHeight());
+			$('#center').scrollTop($("#center").innerHeight());
 		
 		update_embed_links();
 	}});
 	
-	$('#page_paper img').attr('src', "/api/v1/document/" + _docid + "/page/" + _curpage + ".png")
+	var imgold = $('#page_paper img');
+	imgold.addClass("old");
+	var img = $("<img/>").hide().css({cursor: "move"});
+	var anim_target;
+	var anim_value;
+	if (direction == 1 || pagenum > prevpage || !imgold.length) {
+		$('#page_paper .container').append(img);
+		anim_target = $('#page_paper img.old');
+		anim_value = -$('#page_paper .container').height();
+	} else {
+		img.insertBefore(imgold);
+		img.css({"margin-top": -imgold.height()});
+		anim_target = img;
+		anim_value = 0;
+	}
+	img.load(function() {
+		$('.loading').hide();
+		img.show();
+		anim_target.animate(
+			{ "margin-top": anim_value },
+			function() {
+				imgold.remove();
+				
+				/*if (direction != -1) // messes with the animation
+					$('#page_paper').scrollTop(0);
+				else
+					$('#page_paper').scrollTop($("#page_paper").innerHeight());
+				*/
+			});
+	});
+	$(window).resize(); // reset image size
+	img.attr('src', "/api/v1/document/" + _docid + "/page/" + _curpage + ".png");
+	$('.loading').fadeIn();
 	
 	//$('#arrowUp').toggle(_curpage > 1);
 	//$('#arrowDown').toggle(_curpage < _pagecount);
@@ -299,9 +335,9 @@ $(function() {
 		// but not the text view.
 		$('#center, #page_paper').height($(window).height() - $('#header').height() - $('#footer').height());
 		//$('#footer .zoom').toggle($(window).height() > 500);
-		if ($(window).height() <= 700 && !_zoomed)
-			$('#page_paper img').attr('height', 700).attr('width', '');
-		else if ($(window).height() > 700 && !_zoomed)
+		if ($(window).height() <= 600 && !_zoomed)
+			$('#page_paper img').attr('height', 600).attr('width', '');
+		else if ($(window).height() > 600 && !_zoomed)
 			$('#page_paper img').attr('height', $('#page_paper').height() - 35).attr('width', '');
 		else if ($(window).width() > 768 && !_zoomed)
 			$('#page_paper img').attr('width', 768-60).attr('height', '');
@@ -313,13 +349,14 @@ $(function() {
 		$('#footer').show(); // don't show until the sizes have been set to avoid flicker
 	});
 	$(window).resize();
-		
+	
 	load_document(parseInt("{{request.GET.docid|escapejs}}"));
 	
 	$('#searchBill input').keydown_enter(search);
 	
-	$("#page_paper img").css({cursor: "move"})
 	$("#page_paper").scrollview({});
+	
+	$('#center').click(function() { $('#embed_info').hide(); });
 });
 	</script>
 	</head>
@@ -339,7 +376,7 @@ $(function() {
 			
 			<div id="page_paper" class="page_view">
 				<div class="container">
-					<img />
+					<div class="loading">Loading...</div>
 				</div>
 			</div>
 		

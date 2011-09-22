@@ -8,6 +8,12 @@ class BillAdmin(admin.ModelAdmin):
 	#readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "num_cosponsors", "latest_action")
 	raw_id_fields = ('vehicle_for','sponsor','reintroduced_as', 'migrate_to')
 	exclude = ('srcfilehash',)
+	fieldsets = (
+		("Primary Key", { "fields": ('congressnumber', 'billtype', 'billnumber', 'vehicle_for')}),
+		("Required Metadata", { "fields": ('title', 'introduced_date', 'current_status', 'current_status_date', 'num_cosponsors')}),
+		("Usual Metadata", { "fields": ('description', 'street_name', 'notes', 'hashtags', 'comments_to_chamber')}),
+		("Optional Metadata", { "fields": ('sponsor', 'cosponsors', 'committees', 'topterm', 'issues', 'latest_action', 'reintroduced_as', 'migrate_to', 'hold_metadata')}),
+		)
 
 class UserProfileAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user",)
