@@ -638,8 +638,7 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 							recipients: "{{item.completed_comment.get_recipients_display|escapejs}}",
 							position1: "{{item.completed_comment.position|escapejs}}",
 							position: "{{item.completed_comment.verb_imp|escapejs}}"
-						}{% if not forloop.last %},{% endif %}{% endfor %}],
-						null: null
+						}{% if not forloop.last %},{% endif %}{% endfor %}]
 					};
 					</script>
 			{% endfor %}
