@@ -306,6 +306,7 @@
 						<ul>
 							{% for c in bill.cosponsors.all %}
 								<li>{{c.name}}</li>
+								<!-- josh, limit to 11 -->
 							{% endfor %}
 						</ul> 
 					</div> 
@@ -339,18 +340,44 @@
 				<div class="b_people right"> 
 					<div class="organizations"> 
 						<h4>Organizations</h4>
-						{% for group, orglist in orgs %}
-							{% if orglist %}
-							{% if group == "+" %}<h5>Endorsing</h5>{% endif %}
-							{% if group == "-" %}<h5>Opposing</h5>{% endif %}
-							{% if group == "0" %}<h5>Other</h5>{% endif %}
+							{% for group, orglist in orgs %}
+								{% if orglist %}
+								{% if group == "+" %}<h5>Endorsing</h5>{% endif %}
+								{% if group == "-" %}<h5>Opposing</h5>{% endif %}
+								{% if group == "0" %}<h5>Other</h5>{% endif %}
+								<ul>
+									{% for org, pos in orglist %}
+										<li>{{org.name}}</li>
+									{% endfor %}
+								</ul>
+								{% endif %}
+							{% endfor %}
+					
+					
+<!-- i need orgs like this
+					<div class="organizations">
+						<div class="col_l first">
+							<h4>Support</h4>
 							<ul>
-								{% for org, pos in orglist %}
-									<li>{{org.name}}</li>
-								{% endfor %}
+								<li>Americans for Democratic Action</li>
+								<li>NETWORK - A National Catholic Social Justice Lobby</li>
+								<li>National Council of Women's Organizations</li>
 							</ul>
-							{% endif %}
-						{% endfor %}
+						</div>
+						<div class="col_l">
+							<h4>Oppose</h4>
+							<ul>
+								<li>Americans for Democratic Action</li>
+								<li>NETWORK - A National Catholic Social Justice Lobby</li>
+								<li>National Council of Women's Organizations</li>
+								<li>Middle GA Tea Party</li>
+								<li>OnLibertySchool.com</li>
+								<li><a href="#">view more ></a></li>
+							</ul>
+						</div>
+					</div>
+-->					
+					
 					</div> 
 				</div> 
 				<h3 class="organizations">
@@ -402,15 +429,16 @@
 					</div><!-- info-fav -->
 				</div><!-- popvox-box -->
 				<div class="summary">
+<!-- problem here is that I am targeting spans and you have added more spans -->				
 					<div class="summary-line">
-						<div class="summ-users" id="stats_nation_positions"><span class="num"></span> <span>USERS</span>
+						<div class="summ-users" id="stats_nation_positions"><em class="num"></em> <span>USERS</span>
 						</div><!-- summ-users -->
 						<div class="summ-support">
 							<span> </span>
 						</div><!-- summ-support -->
 					</div><!-- summary-line -->
 					<div class="summary">
-						<div class="summ-users" id="stats_nation_comments"><span class="num"></span> <span>COMMENTS</span>
+						<div class="summ-users" id="stats_nation_comments"><em class="num"></em> <span>COMMENTS</span>
 						</div><!-- summ-users -->
 						<div class="summ-oppose">
 							<span> </span>

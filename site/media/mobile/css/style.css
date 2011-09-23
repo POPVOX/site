@@ -1,3 +1,5 @@
+/* @override https://william.popvox.com/media/mobile/css/style.css */
+
 /* Css reset
 ------------------------------------------------------------------------------*/
 
@@ -54,12 +56,14 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 ------------------------------------------------------------------------------*/
 
 /* wrappr */
-.wrapper { margin: 0 auto; width: 558px; padding: 27px 0 41px; }
+.wrapper { margin: 0 auto; width: 699px; padding: 27px 20px 41px; }
 
 /* ipad interfacey things */
 #ipad .wrapper {
 	padding-top: 7px;
 	position: relative;
+	border:  1px solid #efefef;
+	border-width: 0 1px;
 }
 
 #annotations {
@@ -77,11 +81,11 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 	background: none;
 	padding: 0 14px 15px 0;
 	margin-bottom: 20px;
-	width: 544px;
+	width: 685px;
 }
 #select_district_box {
 	background: url(../images/bg_ipad_menu.png) left top repeat-x;
-	width: 585px;
+	width: 689px;
 	height: 50px;
 	margin: 0 auto;
 	padding: 10px 25px 0;
@@ -90,7 +94,7 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 		font-size: 20px;
 		color: #fff;
 		float: left;
-		margin: 5px 25px 0 60px;		
+		margin: 5px 25px 0 0px;		
 	}
 #options_state,
 #options_district {
@@ -116,21 +120,31 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 	float: right;
 }
 
-.b_people div {
+.b_people a {
+	color: #CC6A11;
+	text-decoration: none;
+	}
+
+.b_people div.co-sponsors {
 	display: none;
 	background: url(../images/bg_drop_top.png) left top no-repeat;
 	width: 238px;
-	height: 298px;
+	height: 318px;
 	position: absolute;
-	left: 123px;
-	top: 315px;
+	left: 208px;
+	top: 285px;
 	z-index: 100;
 	padding: 40px 25px;
 }
-	.b_people.right div {
+	.b_people.right div.organizations {
 		background: url(../images/bg_drop_top_r.png) left top no-repeat;
-		left: 320px;
+		position: absolute;
+		left: 0px;
 		top: 315px;
+		width: 508px;
+		z-index: 100;
+		display: none;
+		padding: 40px 25px;
 	}
 	.b_people div h4 {
 		font: bold 18px/20px helvetica, arial, san-serif;
@@ -142,13 +156,53 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 		color: #75747C;
 	}
 	
+	.b_people.right div div.col_l {
+		width: 244px;
+		float: left;
+		display: block;
+		margin-left: 20px;
+	}
+		.b_people.right div div.col_l h4 {
+			padding: 0 0 8px 38px;
+		}
+		.b_people.right div div.col_l.first {
+			margin-left: 0;
+		}
+	
+	
 .b_people:hover {
 	cursor: pointer;
 }
 
-.b_people:hover div {
+.b_people:hover div,
+.b_people:hover div.organizations {
 	display: block;
 	cursor: default;
+}
+
+div.comment {
+	margin-bottom: 15px;
+}
+
+a.b_more_comments {
+	background: #CC6A11;
+	font-weight: bold;
+	color: #fff;
+	padding: 2px 20px 3px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 8px;
+	-khtml-border-radius: 5px;
+	border-radius: 8px;
+	margin-left: 100px;
+	}
+	
+	a.b_more_comments:hover {
+		background: #75747c;
+		text-decoration: none;
+	}
+
+div#highcharts-0.highcharts-container {
+	width: 300px;
 }
 
 
@@ -196,7 +250,7 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 
 /* right-column2 */
 .right-column2 { float: right; width: 266px; }
-.right-column2 em { font-size: .6em; margin-left: 2px}
+.right-column2 em#district { font-size: .6em; margin-left: 2px}
 .right-column2 fieldset { width: 100%; display: block; overflow: hidden; }
 .right-column2 h3 {font: 12px Helvetica,Arial,sans-serif; }
 .right-column2 h3 span {float: left; margin-top: 6px; color: #75747C;}
@@ -236,7 +290,6 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 	} 
 	
 	.datacolumn p.who.when_only { 
-		width: 40px;
 		height: 15px;
 		margin: 0 0 5px 10px;
 		float: right;
@@ -260,12 +313,12 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 .datacolumn .ads2 a img { display: block; margin: 0 auto; }
 
 /* popvox-box */
-.popvox-box { width: 100%; height: 196px; position: relative; overflow: hidden; }
-.popvox-box .popbox-box-outer { height: 196px; background: url(../images/bgr-map-on.png) no-repeat 100% 0; position: absolute; left: 7px; top: 11px; z-index: 1; }
-.popvox-box .popvox-box-inner { width: 300px; height: 196px; background: #fc3; }
-.popvox-box .popvox-box-bg { width: 300px; height: 196px; position: absolute; left: -7px; top: 0; background: url(../images/bgr-map.png) no-repeat; z-index: 2; }
-.popvox-box .popvox-fav { color: #fff; font-size: 20px; text-align: center; vertical-align: middle; line-height: 36px; height: 36px; width: 36px; position: absolute; left: 1px; top: 10px; font-family: 'BebasNeue'; z-index: 3; }
-.popvox-box .popvox-opp { color: #fff; font-size: 20px; text-align: center; vertical-align: middle; line-height: 36px; height: 36px; width: 36px; position: absolute; right: 10px; bottom: 17px; font-family: 'BebasNeue'; z-index: 3; }
+.popvox-box { width: 330px; height: 224px; position: relative; overflow: hidden; }
+.popvox-box .popbox-box-outer { height: 224px; background: url(../images/bgr-map-on.png) no-repeat 100% 0; position: absolute; left: 7px; top: 11px; z-index: 1; }
+.popvox-box .popvox-box-inner { width: 340px; height: 224px; background: #fc3; }
+.popvox-box .popvox-box-bg { width: 340px; height: 224px; position: absolute; left: -7px; top: 0; background: url(../images/bgr-map-lg.png) 2px top no-repeat; z-index: 2; }
+.popvox-box .popvox-fav { color: #fff; font-size: 20px; text-align: center; vertical-align: middle; line-height: 36px; height: 36px; width: 42px; position: absolute; left: 1px; top: 10px; font-family: 'BebasNeue'; z-index: 3; }
+.popvox-box .popvox-opp { color: #fff; font-size: 20px; text-align: center; vertical-align: middle; line-height: 36px; height: 36px; width: 42px; position: absolute; right: 14px; bottom: 17px; font-family: 'BebasNeue'; z-index: 3; }
 .popvox-box .info-fav { color: #75747c; font-size: 11px; font-family: 'HelveticaNeueBold'; padding: 0 0 0 16px; line-height: 12px; height: 12px; vertical-align: middle; background: url(../images/bgr-dot-fav.png) no-repeat left; position: absolute; left: 0; bottom: 37px; z-index: 3; }
 .popvox-box .info-opp { color: #75747c; font-size: 11px; font-family: 'HelveticaNeueBold'; padding: 0 0 0 16px; line-height: 12px; height: 12px; vertical-align: middle; background: url(../images/bgr-dot-opp.png) no-repeat left; position: absolute; left: 0; bottom: 17px; z-index: 3; }
 
@@ -275,9 +328,9 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 .summary .summ-users { float: left; font-size: 51px; color: #75747c; line-height: 40px; vertical-align: top; font-family: 'BebasNeue'; position: relative; height: 55px; }
 .summary .summ-users span { display: block; position: absolute; left: 0; bottom: 0; font-size: 17px; vertical-align: baseline; height: 27px; color: #75747c; font-family: 'HelveticaNeueBold'; }
 .summary .summ-support { float: right; background: url(../images/bgr-usr-fav.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; }
-.summary .summ-support span { display: block; position: absolute; left: 66px; top: 0; font-family: 'BebasNeue'; color: #ff9700; font-size: 73px; vertical-align: top; line-height: 58px; }
+.summary .summ-support em { display: block; position: absolute; left: 66px; top: 0; font-family: 'BebasNeue'; color: #ff9700; font-size: 73px; vertical-align: top; line-height: 58px; }
 .summary .summ-oppose { float: right; background: url(../images/bgr-usr-opp.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; }
-.summary .summ-oppose span { display: block; position: absolute; left: 66px; top: 0; color: #fc3; font-size: 73px; vertical-align: top; line-height: 55px; font-family: 'BebasNeue'; }
+.summary .summ-oppose em { display: block; position: absolute; left: 66px; top: 0; color: #fc3; font-size: 73px; vertical-align: top; line-height: 55px; font-family: 'BebasNeue'; }
 .summary.two .summ-support, .summary.two .summ-oppose { width: 125px;}
 .summary.three .summ-support, .summary.three .summ-oppose { width: 158px;}
 
@@ -285,10 +338,10 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 .column-end { width: 100%; margin: 16px 0 13px; border-top: 1px solid #d5d5d7; }
 
 /* left-column */
-.left-column { float: left; width: 264px; }
+.left-column { float: left; width: 328px; padding-bottom: 10px;}
 
 /* right-column */
-.right-column { float: right; width: 266px; }
+.right-column { float: right; width: 331px; padding-bottom: 10px;}
 
 /* columns */
 .columns { width: 100%; overflow: hidden; }

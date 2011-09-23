@@ -19,7 +19,7 @@ while [ "`netstat -tln |grep $PORT`" != "" ]; do
 		echo "Port still bound...";
 		netstat -tln |grep $PORT;
 	fi
-	CTR=$CTR+1
+	CTR=`echo $CTR+1|bc`
 	sleep 1;
 done
 
