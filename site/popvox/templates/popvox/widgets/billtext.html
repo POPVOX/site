@@ -105,6 +105,7 @@
 	<script>
 var _docid = null;
 var _pagecount = null;
+var _formats = null;
 var _curpage = null;
 var _curview = 'meta';
 var _lastview = "paper";
@@ -114,6 +115,7 @@ var _searchnavindex = null;
 var _zoomed = {% if not request.GET.zoomed == '1' %}false{% else %}true{% endif %};
 var _startpage = {% if not request.GET.page %}1{% else %}parseInt("{{request.GET.page|escapejs}}"){% endif %};
 var _startformat = {% if not request.GET.format %}"paper"{% else %}"{{request.GET.format|escapejs}}"{% endif %};
+var _pagetextcontent = { };
 
 if (_startformat != "paper" && _startformat != "text") _startformat = "paper";
 
@@ -145,8 +147,22 @@ function load_document(docid) {
 		
 		// State.
 		_pagecount = data.pages;
+		_formats = data.formats;
 		
 		// Display.
+		if (!_formats.png) {
+			_startformat = "text";
+			$('#footer .pagemode').hide();
+			$('#footer .zoom').hide();
+		}
+		if (!_formats.text) {
+			_startformat = "paper";
+			$('#footer .pagemode').hide();
+		}
+		if (!_formats.png && !_formats.text) {
+			$('#center').text("This document is not currently available.");
+			return;
+		}
 		$('#pageN span').text("/ " + _pagecount);
 		show_page(_startformat);
 	}});
@@ -181,46 +197,67 @@ function load_page(pagenum, direction) {
 	if (pagenum == _curpage) return;
 	if (pagenum) _curpage = pagenum;
 	
-	$('#page_text pre').text("Loading...");
-	$.ajax({
-	type:"GET",
-	url: "/api/v1/document/" + _docid + "/page/" + _curpage + ".txt",
-	dataType: "text",
-	success: function(data, status) {
-		$('#page_text pre').text(data);
+	if (_pagetextcontent[_curpage]) {
+		// Load the text from cache.
+		load_page_text(_pagetextcontent[_curpage], direction);
+	} else if (_formats.text)  {
+		// Load the text via AJAX.
+		$('#page_text .loading').show();
+		$.ajax({
+		type:"GET",
+		url: "/api/v1/document/" + _docid + "/page/" + _curpage + ".txt",
+		dataType: "text",
+		success: function(data, status) {
+			$('#page_text .loading').hide();
+			load_page_text(data, direction);
+		}});
+	} else {
 		$('#pageN input').val(_curpage);
-		if (_curview == "meta") { // make sure page view is visible and not meta view
-			if (!_searchterms)
-				show_page(_lastview);
-			else
-				show_page("text");
-		}
-		
-		if (_searchterms) {
-			for (var i in _searchterms) {
-				// create HTML-escaped and span-wrapped representation of the match
-				function wrap(text) {
-					var st_html = $('<div><span class="search_match"/></div>');
-					st_html.find('span').text(text);
-					return st_html.html();
-				}
-				
-				// replace instances of the term with that
-				st_text = _searchterms[i].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"); // make a regex out of it so we can do case-insensitive matching
-				$('#page_text pre').html( $('#page_text pre').html().replace(new RegExp(st_text, "gi"), wrap) );
-			}
-		}
-		
-		// normally reset scroll bar to top, unless we are paging backwards
-		// in which case scroll to the bottom
-		if (direction != -1)
-			$('#center').scrollTop(0);
-		else
-			$('#center').scrollTop($("#center").innerHeight());
-		
-		update_embed_links();
-	}});
+	}
 	
+	// Load the PNG by referening the URL of the image directly.
+	
+	if (_formats.png) load_page_image(pagenum, prevpage, direction);
+}
+
+function load_page_text(text, direction) {
+	$('#page_text pre').text(text);
+	_pagetextcontent[_curpage] = text;
+	
+	$('#pageN input').val(_curpage);
+	if (_curview == "meta") { // make sure page view is visible and not meta view
+		if (!_searchterms)
+			show_page(_lastview);
+		else
+			show_page("text");
+	}
+	
+	if (_searchterms) {
+		for (var i in _searchterms) {
+			// create HTML-escaped and span-wrapped representation of the match
+			function wrap(text) {
+				var st_html = $('<div><span class="search_match"/></div>');
+				st_html.find('span').text(text);
+				return st_html.html();
+			}
+			
+			// replace instances of the term with that
+			st_text = _searchterms[i].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"); // make a regex out of it so we can do case-insensitive matching
+			$('#page_text pre').html( $('#page_text pre').html().replace(new RegExp(st_text, "gi"), wrap) );
+		}
+	}
+	
+	// normally reset scroll bar to top, unless we are paging backwards
+	// in which case scroll to the bottom
+	if (direction != -1)
+		$('#center').scrollTop(0);
+	else
+		$('#center').scrollTop($("#center").innerHeight());
+	
+	update_embed_links();
+}
+
+function load_page_image(pagenum, prevpage, direction) {
 	var imgold = $('#page_paper img');
 	imgold.addClass("old");
 	var img = $("<img/>").hide().css({cursor: "move"});
@@ -381,6 +418,7 @@ $(function() {
 			</div>
 		
 			<div id="page_text" class="page_view">
+				<div class="loading">Loading...</div>
 				<pre/>
 			</div>
 		
