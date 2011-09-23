@@ -190,7 +190,10 @@ def break_pages(document, thread_index=None, force=None):
 		pdf.write(base64.decodestring(document.pdf))
 		pdf.close()
 		
-		if (not document.pages.filter(png__isnull=False).exists() and not document.pages.filter(pdf__isnull=False).exists()) or force in ("all", "png", "pdf"):
+		needs_png = (not document.pages.exists() or document.pages.filter(png__isnull=True).exists()) or force in ("all", "png")
+		needs_pdf = (not document.pages.exists() or document.pages.filter(pdf__isnull=True).exists()) or force in ("all", "pdf")
+		
+		if needs_png or needs_pdf:
 			status("bursting...")
 			
 			#subprocess.call(["perl", "/usr/bin/pdfcrop", path + "/document.pdf"], cwd=path) # latex package
@@ -198,52 +201,69 @@ def break_pages(document, thread_index=None, force=None):
 				# adjusted because of an arbitrary aspect ratio that might come out,
 				# also the filename shifts
 			
-			# generate PNGs for each page
+			if needs_png:
+				# generate PNGs for each page
+				
+				subprocess.call(["pdftoppm", "-scale-to-x", "1024", "-scale-to-y", "1325", "-png", path + "/document.pdf", path + "/page"], cwd=path) # poppler-utils package
+				
+				# the first page has an an "authenticated GPO document" seal, which we want to overwrite
+				# with a white rectangle for legal purposes. and we want to do this before we determine
+				# the crop rectangle so we don't crop with the assumption it is there. hopefully the
+				# seal is in the same place on page 1 of every bill.
+				for fn in glob.glob(path + "/page-*.png"):
+					pagenum = int(fn[len(path)+6:-4])
+					if pagenum == 1:
+						subprocess.call(["gm", "mogrify", "-fill", "white", "-draw", "rectangle 20,5,200,60", fn])
+				
+				# zealously crop the resulting images, but crop each page the same way. so, we have to
+				# scan each image to see the minimum of the zealous crops.
+				extents = [None, None, None, None]
+				from PIL import Image, ImageChops
+				for fn in glob.glob(path + "/page-*.png"):
+					im = Image.open(fn)
+					im = ImageChops.invert(im) # make white black (i.e zeroes)
+					bb = im.getbbox() # returns bounding box that excludes zero pixels
+					if bb:
+						for i in xrange(4):
+							if extents[i] == None or bb[i] < extents[i]: extents[i] = bb[i]
 			
-			subprocess.call(["pdftoppm", "-scale-to-x", "768", "-scale-to-y", "994", "-png", path + "/document.pdf", path + "/page"], cwd=path) # poppler-utils package
-			
-			# zealously crop the resulting images, but crop the images the same way. so, we have to
-			# scan each image to see the minimum of the zealous crops.
-			extents = [None, None, None, None]
-			from PIL import Image, ImageChops
-			for fn in glob.glob(path + "/page-*.png"):
-				im = Image.open(fn)
-				im = ImageChops.invert(im) # make white black (i.e zeroes)
-				bb = im.getbbox() # returns bounding box that excludes zero pixels
-				if bb:
-					for i in xrange(4):
-						if extents[i] == None or bb[i] < extents[i]: extents[i] = bb[i]
-			
-			# generate PDFs for each page
-			
-			subprocess.call(["pdftk", path + "/document.pdf", "burst", "compress"], cwd=path) # pdftk package
+			if needs_pdf:
+				# generate PDFs for each page
+				
+				subprocess.call(["pdftk", path + "/document.pdf", "burst", "compress"], cwd=path) # pdftk package
 	
 			# load each PNG/PDF into the database
 	
 			max_page = 0
 	
-			for fn in glob.glob(path + "/page-*.png"):
+			for fn in glob.glob(path + "/page-*.p*"):
 				pagenum = int(fn[len(path)+6:-4])
 				
-				# use graphicsmagick mogrify to crop convert the PNG to greyscale (to reduce file size),
-				# overwriting the file in place.
-				subprocess.call(["gm", "mogrify"] + (["-crop", "%dx%d+%d+%d" % (extents[2]-extents[0], extents[3]-extents[1], extents[0], extents[1])] if extents else []) + ["-type", "Grayscale", fn]) # "-trim", 
-				
-				pngfile = open(fn)
-				png = pngfile.read()
-				pngfile.close()
-				
-				ppdffile = open(path + "/pg_%04d.pdf" % pagenum)
-				ppdf = ppdffile.read()
-				ppdffile.close()
-	
 				dp, isnew = DocumentPage.objects.get_or_create(document = document, page = pagenum)
-				dp.png = base64.encodestring(png)
-				dp.pdf = base64.encodestring(ppdf)
+				
+				if needs_png:
+					# use graphicsmagick mogrify to crop, convert the PNG to greyscale (to reduce file size),
+					# overwriting the file in place.
+					subprocess.call(["gm", "mogrify"] + (["-crop", "%dx%d+%d+%d" % (extents[2]-extents[0], extents[3]-extents[1], extents[0], extents[1])] if extents else []) + ["-type", "Grayscale", fn])
+					
+					pngfile = open(fn)
+					png = pngfile.read()
+					pngfile.close()
+				
+					dp.png = base64.encodestring(png)
+					
+				if needs_pdf:
+					ppdffile = open(path + "/pg_%04d.pdf" % pagenum)
+					ppdf = ppdffile.read()
+					ppdffile.close()
+	
+					dp.pdf = base64.encodestring(ppdf)
+				
 				dp.save()
 				
 				if pagenum > max_page: max_page = pagenum
 	
+			# clear out any unused page objects
 			document.pages.filter(page__gt = max_page).delete()
 		
 		if not document.pages.filter(text__isnull=False).exists() or force in ("all", "txt"):

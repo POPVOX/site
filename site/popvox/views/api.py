@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.utils.importlib import import_module
+from django.views.decorators.cache import cache_page
 
 from popvox.models import *
 from popvox import govtrack
@@ -441,6 +442,7 @@ class document_pages(BaseHandler):
 			raise Http404("Invalid document ID.")
 
 @make_simple_endpoint
+@cache_page(60*60*2)
 def document_page(request, docid, pagenum, format):
 	try:
 		doc = PositionDocument.objects.get(id=docid)
