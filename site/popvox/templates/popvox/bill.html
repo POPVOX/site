@@ -19,6 +19,11 @@ function showtab(tab) {
 	$('.tab_pane .tab_panel').hide();
 	$('#' + tab + "_tab").addClass('active');
 	$('#' + tab).fadeIn();
+	
+	// lazy load the bill text iframe until the tab is clicked
+	if (tab == "billtext")
+		$("#billtext iframe").attr("src", "/widgets/bill-text?width=675&docid={{bill.current_text.id}}&height=500&baseurl={{bill.url|urlencode}}");
+		
 	return false; // cancel click
 }
 {% if user_org %}
@@ -453,7 +458,7 @@ function getshorturl() {
 		{% endif %}
 
 		<div id="billtext" style="display: none" class="tab_panel">
-			<script src="/widgets/bill-text.js?docid={{bill.current_text.id}}&width=675&height=500"> </script>
+			<iframe width="675" height="500" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe>
 		</div>
 		
 		<div id="widgetpane" style="display: none" class="tab_panel">

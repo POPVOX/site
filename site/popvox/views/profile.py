@@ -629,7 +629,10 @@ def switch_to_demo_account(request, acct):
 	
 	if acct == "demo_user":
 		acct = "POPVOXTweets"
-	user = authenticate(user_object = User.objects.get(username = acct))
+	if not acct.isdigit():
+		user = authenticate(user_object = User.objects.get(username = acct))
+	else:
+		user = authenticate(user_object = User.objects.get(id = acct))
 	login(request, user)
 	
 	return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/home"))

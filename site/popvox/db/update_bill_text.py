@@ -224,8 +224,10 @@ def break_pages(document, thread_index=None, force=None):
 					im = ImageChops.invert(im) # make white black (i.e zeroes)
 					bb = im.getbbox() # returns bounding box that excludes zero pixels
 					if bb:
-						for i in xrange(4):
+						for i in (0, 1):
 							if extents[i] == None or bb[i] < extents[i]: extents[i] = bb[i]
+						for i in (2, 3):
+							if extents[i] == None or bb[i] > extents[i]: extents[i] = bb[i]
 			
 			if needs_pdf:
 				# generate PDFs for each page
