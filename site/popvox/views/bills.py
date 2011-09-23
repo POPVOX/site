@@ -375,8 +375,9 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 			"longdescription": longdescription,
 			"total": 0, "pro":0, "con":0,
 			"pro_pct": 0, "con_pct": 0,
+			"total_comments": bill_comments(bill, **filterargs).filter(message__isnull=False).count(),
 			"timeseries": None,
-			"pro_reintro": pro_reintro
+			"pro_reintro": pro_reintro,
 			}
 	
 	time_series = None
@@ -416,6 +417,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 		"longdescription": longdescription,
 		"total": pro+con, "pro":pro, "con":con,
 		"pro_pct": int(round(100.0*pro/float(pro+con))), "con_pct": int(round(100.0*con/float(pro+con))),
+		"total_comments": bill_comments(bill, **filterargs).filter(message__isnull=False).count(),
 		"timeseries": time_series,
 		"pro_reintro": pro_reintro}
 	

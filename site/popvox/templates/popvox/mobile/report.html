@@ -127,13 +127,25 @@
 					
 					// Charts
 					{% if request.GET.tab == "report" %}
+					function set_scaled_num(target, num) {
+						if (num < 1000) {
+							$(target + " .num").text(num);
+							$(target + " .scale").text("");
+						} else if ($(target + " .scale").length) {
+							$(target + " .num").text(Math.round(num/100)/10);
+							$(target + " .scale").text("K");
+						} else {
+							$(target + " .num").text(Math.round(num/100)/10 + "k");
+						}
+					}
+					
 					$('#stats_nation .popvox-fav').text(res.stats.overall.pro_pct + "%");
 					$('#stats_nation .popvox-opp').text(res.stats.overall.con_pct + "%");
 					$('#stats_nation .popbox-box-outer').attr('style', "width: " + res.stats.overall.pro_pct + "%");
-					$('#stats_nation_positions .num').text(res.stats.overall.total);
-					$('#stats_nation_comments .num').text("???");
-					$('#stats_nation .summ-support').text(res.stats.overall.pro);
-					$('#stats_nation .summ-oppose').text(res.stats.overall.con);
+					set_scaled_num("#stats_nation_positions", res.stats.overall.total);
+					set_scaled_num("#stats_nation_comments", res.stats.overall.total_comments);
+					set_scaled_num('#stats_nation .summ-support', res.stats.overall.pro);
+					set_scaled_num('#stats_nation .summ-oppose', res.stats.overall.con);
 					
 					//bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "bg": "white" });
 					if (!report_state) {
@@ -305,8 +317,9 @@
 						<h4>Co-Sponsors</h4> 
 						<ul>
 							{% for c in bill.cosponsors.all %}
-								<li>{{c.name}}</li>
-								<!-- josh, limit to 11 -->
+								{% if forloop.counter < 11 %}
+									<li>{{c.name}}</li>
+								{% endif %}
 							{% endfor %}
 						</ul> 
 					</div> 
@@ -338,46 +351,24 @@
 			</div><!-- left-column -->
 			<div class="right-column">
 				<div class="b_people right"> 
-					<div class="organizations"> 
-						<h4>Organizations</h4>
-							{% for group, orglist in orgs %}
-								{% if orglist %}
-								{% if group == "+" %}<h5>Endorsing</h5>{% endif %}
-								{% if group == "-" %}<h5>Opposing</h5>{% endif %}
-								{% if group == "0" %}<h5>Other</h5>{% endif %}
-								<ul>
-									{% for org, pos in orglist %}
-										<li>{{org.name}}</li>
-									{% endfor %}
-								</ul>
-								{% endif %}
-							{% endfor %}
-					
-					
-<!-- i need orgs like this
 					<div class="organizations">
-						<div class="col_l first">
-							<h4>Support</h4>
+						{% for group, orglist in orgs %}
+							{% if orglist %}
+							<div class="col_l {% if forloop.first %}first{% endif %}">
+							{% if group == "+" %}<h4>Endorsing</h4>{% endif %}
+							{% if group == "-" %}<h4>Opposing</h4>{% endif %}
+							{% if group == "0" %}<h4>Other</h4>{% endif %}
 							<ul>
-								<li>Americans for Democratic Action</li>
-								<li>NETWORK - A National Catholic Social Justice Lobby</li>
-								<li>National Council of Women's Organizations</li>
+								{% for org, pos in orglist %}
+									{% if forloop.counter < 8 %}
+										<li>{{org.name}}</li>
+									{% endif %}
+								{% endfor %}
+								<!--<li><a href="#">view more ></a></li>-->
 							</ul>
-						</div>
-						<div class="col_l">
-							<h4>Oppose</h4>
-							<ul>
-								<li>Americans for Democratic Action</li>
-								<li>NETWORK - A National Catholic Social Justice Lobby</li>
-								<li>National Council of Women's Organizations</li>
-								<li>Middle GA Tea Party</li>
-								<li>OnLibertySchool.com</li>
-								<li><a href="#">view more ></a></li>
-							</ul>
-						</div>
-					</div>
--->					
-					
+							</div>
+							{% endif %}
+						{% endfor %}
 					</div> 
 				</div> 
 				<h3 class="organizations">
@@ -431,17 +422,17 @@
 				<div class="summary">
 <!-- problem here is that I am targeting spans and you have added more spans -->				
 					<div class="summary-line">
-						<div class="summ-users" id="stats_nation_positions"><em class="num"></em> <span>USERS</span>
+						<div class="summ-users" id="stats_nation_positions"><strong class="num"></strong><em class="scale"></em> <span>PEOPLE</span>
 						</div><!-- summ-users -->
 						<div class="summ-support">
-							<span> </span>
+							<strong class="num"></strong>
 						</div><!-- summ-support -->
 					</div><!-- summary-line -->
 					<div class="summary">
-						<div class="summ-users" id="stats_nation_comments"><em class="num"></em> <span>COMMENTS</span>
+						<div class="summ-users" id="stats_nation_comments"><strong class="num"></strong><em class="scale"></em> <span>COMMENTS</span>
 						</div><!-- summ-users -->
 						<div class="summ-oppose">
-							<span> </span>
+							<strong class="num"></strong>
 						</div><!-- summ-oppose -->
 					</div><!-- summary -->
 				</div><!-- summary -->
@@ -459,7 +450,7 @@
 						<h3 id="state" class="txt"><span>STATE</span></h3> 
 					</div><!-- txt-outer -->
 					<div class="users">
-						<span class="num">QQ</span><em></em><span>USERS</span>
+						<em class="num">QQ</em><em></em><span>PEOPLE</span>
 					</div><!-- users -->
 				</div>
 				<div class="summary">
@@ -481,7 +472,7 @@
 						<h3 id="district" class="txt"><span>2</span><em>nd</em></h3> 
 					</div><!-- txt-outer -->
 					<div class="users">
-						<span class="num">QQ</span> <span>USERS</span>
+						<strong class="num">QQ</strong> <span>PEOPLE</span>
 					</div><!-- users -->
 				<div>
 				<div class="summary">

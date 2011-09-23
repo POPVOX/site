@@ -244,7 +244,7 @@ div#highcharts-0.highcharts-container {
 .stat-bar2 .box-opp { float: right; height: 25px; background: url(../images/bgr-org-opp.png) no-repeat 100% 0; padding: 0 30px 0 0; color: #75747c; font-size: 18px; line-height: 26px; vertical-align: middle; font-family: 'HelveticaNeueBold'; }
 
 /* left-column2 */
-.left-column2 { float: left; width: 272px; }
+.left-column2 { float: left; width: 320px; }
 .left-column2 em { font-size: .6em; margin-left: 2px}
 .left-column2 .popvox { color: #c76825; font-weight: normal; font-size: 11px; font-family: 'HelveticaNeueBold'; }
 
@@ -254,7 +254,7 @@ div#highcharts-0.highcharts-container {
 .right-column2 fieldset { width: 100%; display: block; overflow: hidden; }
 .right-column2 h3 {font: 12px Helvetica,Arial,sans-serif; }
 .right-column2 h3 span {float: left; margin-top: 6px; color: #75747C;}
-.right-column2 h3 em {float: left; margin-top: -.15em;}
+.right-column2 h3 em {float: left; margin-top: -.15em; font-size: .6em;}
 .right-column2 .state { color: #c76825; font-weight: normal; font-size: 11px; font-family: 'HelveticaNeueBold'; margin: 0 0 17px; }
 .right-column2 .users { color: #75747c; font-size: 63px; float: left; font-family: 'BebasNeue'; line-height: 48px; vertical-align: top; position: relative; height: 70px; margin-left: 15px; }
 .right-column2 .users span { color: #75747c;  font-size: 24px; font-family: 'HelveticaNeueBold'; display: block; line-height: 18px; position: absolute; left: 0; bottom: 0; vertical-align: bottom; }
@@ -327,10 +327,10 @@ div#highcharts-0.highcharts-container {
 .summary .summary-line { width: 100%; overflow: hidden; padding: 0 0 30px; }
 .summary .summ-users { float: left; font-size: 51px; color: #75747c; line-height: 40px; vertical-align: top; font-family: 'BebasNeue'; position: relative; height: 55px; }
 .summary .summ-users span { display: block; position: absolute; left: 0; bottom: 0; font-size: 17px; vertical-align: baseline; height: 27px; color: #75747c; font-family: 'HelveticaNeueBold'; }
-.summary .summ-support { float: right; background: url(../images/bgr-usr-fav.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; }
-.summary .summ-support em { display: block; position: absolute; left: 66px; top: 0; font-family: 'BebasNeue'; color: #ff9700; font-size: 73px; vertical-align: top; line-height: 58px; }
-.summary .summ-oppose { float: right; background: url(../images/bgr-usr-opp.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; }
-.summary .summ-oppose em { display: block; position: absolute; left: 66px; top: 0; color: #fc3; font-size: 73px; vertical-align: top; line-height: 55px; font-family: 'BebasNeue'; }
+.summary .summ-support { float: right; background: url(../images/bgr-usr-fav.png) no-repeat 0 100%; width: 180px; position: relative; height: 55px; }
+.summary .summ-support strong { display: block; position: absolute; left: 66px; top: 0; font-family: 'BebasNeue'; color: #ff9700; font-size: 73px; vertical-align: top; line-height: 58px; }
+.summary .summ-oppose { float: right; background: url(../images/bgr-usr-opp.png) no-repeat 0 100%; width: 180px; position: relative; height: 55px; }
+.summary .summ-oppose strong { display: block; position: absolute; left: 66px; top: 0; color: #fc3; font-size: 73px; vertical-align: top; line-height: 55px; font-family: 'BebasNeue'; }
 .summary.two .summ-support, .summary.two .summ-oppose { width: 125px;}
 .summary.three .summ-support, .summary.three .summ-oppose { width: 158px;}
 
