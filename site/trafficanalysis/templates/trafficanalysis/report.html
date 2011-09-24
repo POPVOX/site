@@ -1,108 +1,36 @@
-		<h1>Traffic Analysis</h1>
-		
-		<p>Enter a traffic pattern. Each request goes on its own line and is either a path, dotted view function name, or goal name.</p>
-		
-		<form method="post">
-			<div>Max Minutes Between Requests: <input type="text" name="maxminsbetweenreq" value="{{ maxminsbetweenreq }}"/></div>
-			<div><textarea name="path" wrap="virtual" cols="60" rows="5">{{path}}</textarea></div>
-			<div><input type="submit"/></div>
-		</form>
-		
-		{% if report %}
-			<div id="report">
-			</div>
+{% extends "master.html" %}
 
-<script>			
-var chart;
-$(document).ready(function() {
-   chart = new Highcharts.Chart({
-      chart: {
-         renderTo: 'report',
-         defaultSeriesType: 'column',
-         margin: [ 50, 50, 100, 80]
-      },
-      title: {
-         text: 'Traffic Drop-off'
-      },
-      xAxis: {
-         categories: [
-	    {% for col in categories %}
-	    "{{col|escapejs}}",
-	    {% endfor %}
-         ],
-         labels: {
-            rotation: -45,
-            align: 'right',
-            style: {
-                font: 'normal 13px Verdana, sans-serif'
-            }
-         }
-      },
-      yAxis: {
-         min: 0,
-         title: {
-		    text: '{{yaxis|escapejs}}'
-         }
-      },
-      legend: {
-         enabled: false,
-	    align: "right",
-	    layout: "vertical",
-	    verticalAlign: "top",
-	    y: 5,
-      },
-      tooltip: {
-         formatter: function() {
-		  if (!this.point.y) return;
-            return this.series.options.labels[this.point.x];
-         }
-      },
-	 plotOptions: {
-         column: {
-            stacking: 'normal',
-		  dataLabels: {
-			  enabled: true,
-			    formatter: function() {
-				  if (!this.point.y) return;
-				  return this.series.options.labels[this.point.x];
-			    }
-		  }
-         }
-      },
-      series: [
-	 {% for series in report %}
-	 {
-	    labels: [{% for cat in series.categories %}"{{cat|escapejs}}",{% endfor %} ,],
-         data: [ {% for count in series.counts %} {{count}}, {% endfor %} ],
-         },
-	  {% endfor %}         
-      ],
-   });
-   
-   
+{% block title %}Traffic Analysis{% endblock %}
+
+{% block head %}
+<script>
+var start = ["path", "/"];
+
+function load_chart() {
+	$.ajax({
+		type:"GET",
+		url: document.location.pathname + "/data",
+		dataType: "json",
+		data: {
+			start_type: start[0],
+			start_value: start[1]
+		},
+		success: function(data) {
+			alert(data);
+		}
+	});
+}
+
+$(function() {
+	load_chart();
 });
-</script>			
-		{% endif %}
-		
-		<table style="margin-top: 2em">
-		<tr valign="top">
-		<td style="padding-right: 2em">
-			<h3>Top Paths</h3>
-			{% for path in counts.path %}
-			<div>{{path.0}} ({{path.1}})</div>
-			{% endfor %}
-		</td>
-		<td style="padding-right: 2em">
-			<h3>Top Views</h3>
-			{% for view in counts.view %}
-			<div>{{view.0}} ({{view.1}})</div>
-			{% endfor %}
-		</td>
-		<td>
-			<h3>Top Goals</h3>
-			{% for goal in counts.goal %}
-			<div>{{goal.0}} ({{goal.1}})</div>
-			{% endfor %}
-		</td>
-		</tr>
-		</table>
+
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>Traffic Analysis Report</h1>
+
+
+{% endblock %}
+

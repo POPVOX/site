@@ -12,84 +12,40 @@ from datetime import datetime
 from uasparser import UASparser  
 uas_parser = UASparser(update_interval = None)
 
-class Session(models.Model):
-	"""A user session whose path through the website we are tracking."""
+class LiveRecord(models.Model):
+	"""The LiveRecord table is intended to record data as it streams in and should
+	have a fast write time, so there are no extra indexes. Because many fields are fixed-length,
+	the encoding of the data in each of these fields must be robust to truncation."""
 	
-	# the starting and ending time (last seen time) of the session
-	start = models.DateTimeField(auto_now_add=True, db_index=True)
-	end = models.DateTimeField(auto_now=True, db_index=True)
+	time = models.DateTimeField(auto_now_add=True)
+
+	session_key = models.CharField(max_length=40)
+	user = models.ForeignKey(User, blank=True, null=True)
+
+	path = models.CharField(max_length=64) # request path
+	view = models.CharField(max_length=64) # the name of the view class handling the request
+	goal = models.CharField(max_length=64) # custom event name
+	ua = models.CharField(max_length=64)
+	referrer = models.CharField(max_length=64, blank=True, null=True)
+	ipaddr = models.CharField(max_length=15)
+	response_code = models.IntegerField()
+	properties = models.CharField(max_length=128) # urlencoded
+
+	batch = models.IntegerField(blank=True, null=True) # helps to move this to an indexed table
+
+class Hit(models.Model):
+	"""The Hit table is just an indexed version of the LiveRecord populated by the trafficanalysis_index management command."""
 	
-	# The user associated with the session, if any, so we can resume
-	# a previous session.
+	time = models.DateTimeField(db_index=True)
+
+	session_key = models.CharField(max_length=40, db_index=True)
 	user = models.ForeignKey(User, blank=True, null=True, db_index=True)
-	
-	# The path is a list of PathEntry objects.
-	ua = models.TextField(default="") # last seen user agent sring, parsed and pickled
-	path = models.TextField(default="")
-	
-	class Meta:
-		ordering = ["-end"]
-		
-	def set_ua(self, request):
-		self.ua = base64.b64encode(cPickle.dumps(request.ua))
-	def get_ua(self):
-		return cPickle.loads(base64.b64decode(self.ua))
-			
-	def path_append(self, pe):
-		self.path += base64.b64encode(cPickle.dumps(pe)) + "\n"
-	def get_path(self):
-		return (cPickle.loads(base64.b64decode(pe)) for pe in self.path.split("\n") if pe != "")
 
-	def matches_only_path(self, path):
-		for p in self.get_path():
-			if not path in p.path:
-				return False
-		return True
-	def dump(self):
-		print self.start, self.end, self.user
-		for p in self.get_path():
-			print "\t", p
-	
-class PathEntry:
-	time = None
-	
-	path = None # path string
-	view = None # the name of the class handling the request
-	method = None # GET, POST, ...
-	qs = None # querystring dictionary
-	loggedin = False # true/false if user is logged in at the time of this request
-
-	referrer = None # referrer string
-	ip = None # string IP address of user
-	
-	rcode = None # integer response code of the request, i.e. 200
-
-	def __init__(self, request, response):
-		self.time = datetime.now()
-		self.path = request.path
-		try:
-			self.view, self.viewargs, self.viewkwargs = resolve(self.path)
-			self.view = self.view.__module__ + "." + self.view.__name__
-		except:
-			pass
-		self.method = request.method
-		self.qs = dict(request.GET)
-		self.loggedin = (request.user.is_authenticated())
-		if "HTTP_REFERER" in request.META:
-			self.referrer = request.META["HTTP_REFERER"]
-			if self.referrer[0:len(SITE_ROOT_URL)+1] == SITE_ROOT_URL + "/":
-				self.referrer = None
-		if "REMOTE_ADDR" in request.META:
-			self.ip = request.META["REMOTE_ADDR"]
-		self.rcode = response.status_code
-		
-		# Copy any properties set in the goal attribute of the
-		# request and response objects into attributes of this object.
-		for rr in (request, response):
-			extra = getattr(rr, "goal", { })
-			for k, v in extra.items():
-				setattr(self, k, v)
-
-	def __repr__(self):
-		return unicode(self.__dict__)
+	path = models.CharField(max_length=64, db_index=True) # request path
+	view = models.CharField(max_length=64, db_index=True) # the name of the view class handling the request
+	goal = models.CharField(max_length=64, db_index=True) # custom event name
+	referrer = models.CharField(max_length=64, blank=True, null=True, db_index=True)
+	ipaddr = models.CharField(max_length=15)
+	response_code = models.IntegerField()
+	properties = models.CharField(max_length=128) # urlencoded
 
