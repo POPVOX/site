@@ -23,7 +23,7 @@ def ipad_billreader_report(request):
 	
 	for k in orgs:
 		orgs[k] = list(orgs[k].items())
-		orgs[k].sort(key = lambda x : x[0].name.replace("The ", ""))
+		orgs[k].sort(key = lambda x : -x[0].fan_count_sort_order)
 		
 	cosponsors = { "D": [], "R": [], "I": [] }
 	for m in bill.cosponsors.all():
@@ -37,7 +37,7 @@ def ipad_billreader_report(request):
 			'bill': bill,
 			"cosponsors": cosponsors,
 			"cosponsors_bar": cosponsors_bar,
-			"orgs": orgs.items(),
+			"orgs": [kv for kv in orgs.items() if len(kv[1]) != 0],
 			"org_support_percent": org_support_percent,
 			"org_support_oppose_count": (len(orgs["+"]), len(orgs["-"])),
 			"stateabbrs": 

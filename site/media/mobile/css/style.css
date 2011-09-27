@@ -314,7 +314,7 @@ div#highcharts-0.highcharts-container {
 
 /* popvox-box */
 .popvox-box { width: 330px; height: 224px; position: relative; overflow: hidden; }
-.popvox-box .popbox-box-outer { height: 224px; background: url(../images/bgr-map-on.png) no-repeat 100% 0; position: absolute; left: 7px; top: 11px; z-index: 1; }
+.popvox-box .popbox-box-outer { height: 224px; background: url(../images/bgr-map-on.png) no-repeat 100% 0; position: absolute; left: 0px; top: 11px; z-index: 1; }
 .popvox-box .popvox-box-inner { width: 340px; height: 224px; background: #fc3; }
 .popvox-box .popvox-box-bg { width: 340px; height: 224px; position: absolute; left: -7px; top: 0; background: url(../images/bgr-map-lg.png) 2px top no-repeat; z-index: 2; }
 .popvox-box .popvox-fav { color: #fff; font-size: 20px; text-align: center; vertical-align: middle; line-height: 36px; height: 36px; width: 42px; position: absolute; left: 1px; top: 10px; font-family: 'BebasNeue'; z-index: 3; }
