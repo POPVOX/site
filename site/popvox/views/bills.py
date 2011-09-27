@@ -126,7 +126,7 @@ def get_popular_bills2():
 	popular_bills = get_popular_bills()
 
 	# Get the campaigns that support or oppose any of the bills, in batch.
-	cams = OrgCampaign.objects.filter(positions__bill__in = popular_bills, visible=True, org__visible=True).select_related() # note recursive SQL which goes from OrgCampaign to Org
+	#cams = OrgCampaign.objects.filter(positions__bill__in = popular_bills, visible=True, org__visible=True).select_related() # note recursive SQL which goes from OrgCampaign to Org
 	
 	# Annotate the list of popular bills with the org information.
 	popular_bills2 = [ ]
@@ -135,51 +135,8 @@ def get_popular_bills2():
 		b = { }
 		popular_bills2.append(b)
 		b["bill"] = bill
-		b["orgs"] = {}
 		bmap[bill.id] = b
-	for cam in cams:
-		for pos in cam.positions.all().select_related(): # note recursive SQL which goes from OrgCampaignPosition to Bill
-			if pos.position == "0": # not showing neutral positions in hot bills list
-				continue
-			if not pos.bill.id in bmap:
-				continue
-			b = bmap[pos.bill.id]
-			if not cam.org.slug in b["orgs"]:
-				b["orgs"][cam.org.slug] = {
-					"name": cam.org.name,
-					"url": cam.org.url(),
-					"object": cam.org,
-					"position": pos.position,
-					"campaigns": []
-				}
-			if not cam.default:
-				b["orgs"][cam.org.slug]["campaigns"].append(
-					{ "name": cam.name,
-						 "url": cam.url(),
-						 "position": pos.position,
-						 "description": cam.description,
-						 "message": cam.message
-						 })
-			
-	# For each bill, sort the organizations by fan count.
-	# Get the fan counts in batch and store in a dict.
-	org_fan_count = { }
-	for cam in cams:
-			org_fan_count[cam.org.slug] = { }
-			for s in OrgExternalMemberCount.SOURCE_TYPES:
-				org_fan_count[cam.org.slug][s] = 0
-	for ofc in OrgExternalMemberCount.objects.filter(org__in = [cam.org for cam in cams]):
-		org_fan_count[ofc.org.slug][ofc.source] = ofc.count
-	# Do the sorting.
-	for billrec in popular_bills2:
-		# Sort orgs by fan counts.
-		orgs = list(billrec["orgs"].values())
-		orgs.sort(key = lambda org : -(
-			org_fan_count[org["object"].slug][OrgExternalMemberCount.FACEBOOK_FANS]
-			+ org_fan_count[org["object"].slug][OrgExternalMemberCount.TWITTER_FOLLOWERS]
-			))
-		billrec["orgs"] = orgs[0:4]
-		
+
 	popular_bills_cache_2 = (datetime.now(), popular_bills2)
 	
 	return popular_bills2
@@ -499,7 +456,7 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
 	# Sort orgs by fan counts.
 	def sort_orgs(orgs):
 		orgs = list(orgs)
-		orgs.sort(key = lambda org : -(org["object"].facebook_fan_count() + org["object"].twitter_follower_count()))
+		orgs.sort(key = lambda org : -org["object"].fan_count_sort_order)
 		return orgs
 	for grp in orgs:
 		grp[1] = sort_orgs(grp[1].values())

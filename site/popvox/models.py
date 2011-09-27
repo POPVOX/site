@@ -443,10 +443,11 @@ class Org(models.Model):
 	issues = models.ManyToManyField(IssueArea, blank=True)
 	logo = models.ImageField(upload_to="submitted/org/profilelogo", blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
-	updated = models.DateTimeField(auto_now=True)
+	updated = models.DateTimeField(auto_now_add=True)
 	visible = models.BooleanField(default=False)
 	createdbyus = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	fan_count_sort_order = models.IntegerField(default=0, db_index=True)
 	
 	documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_org")
 	
@@ -602,8 +603,6 @@ class Org(models.Model):
 			return OrgExternalMemberCount.objects.get(org=self, source=OrgExternalMemberCount.TWITTER_FOLLOWERS).count
 		except:
 			return 0
-	def estimated_fan_count(self):
-		return self.facebook_fan_count() + self.twitter_follower_count()
 
 	def service_account(self, create=False):
 		if not create:

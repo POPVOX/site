@@ -110,6 +110,8 @@ def org_update_fields(request, field, value, validate_only):
 	if not org.is_admin(request.user) :
 		return HttpResponseForbidden("You do not have permission to view this page.")
 	
+	org.updated = datetime.now() # update on save
+	
 	if field == "slug":
 		value = forms.SlugField().clean(value) # raises ValidationException
 		if value == org.slug:
@@ -273,6 +275,8 @@ def org_update_field(request, field, value, validate_only):
 	org = get_object_or_404(Org, slug=request.POST["org"])
 	if not org.is_admin(request.user) :
 		return HttpResponseForbidden("You do not have permission to view this page.")
+		
+	org.updated = datetime.now() # update on save
 		
 	if field == "visible":
 		if not org.approved:

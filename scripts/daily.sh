@@ -6,8 +6,8 @@ $SCRIPTS/rsync.sh
 cd /home/www/sources/site
 export PYTHONPATH=.
 export DJANGO_SETTINGS_MODULE=settings
-$SCRIPTS/update_fans.py
 #SEND=SEND python popvox/send_mass_emails.py survey
+python popvox/db/update_fans.py
 python popvox/db/update_bill_metadata.py
 python popvox/db/compute_prompts.py
 ./manage cleanup

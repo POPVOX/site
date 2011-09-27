@@ -14,6 +14,8 @@ twitterers = Org.objects.filter(twittername__isnull=False).count()
 drop_rate = 150.0 / float(twitterers)
 print "updating", drop_rate, "of orgs"
 
+fb_tw_ratio = []
+
 for org in Org.objects.filter(visible=True):
 	if org.twittername == "":
 		org.twittername = None
@@ -27,7 +29,22 @@ for org in Org.objects.filter(visible=True):
 		continue
 
 	# twitter rate limiting
-	if random.random() > drop_rate: continue
-		
-	org.sync_external_members()
+	if random.random() <= drop_rate:
+		org.sync_external_members()
 
+	ft = (org.facebook_fan_count(), org.twitter_follower_count())
+	if not 0 in ft:
+		fb_tw_ratio.append( float(ft[0])/float(ft[1]) )
+
+# Compute the median of the facebook-to-twitter ratios. Better than the
+# mean which is thrown off by outliers. Probably more accurate than
+# the ratio of the means. And a least squares fit isn't giving sensible results.
+import numpy
+fb_tw_ratio = numpy.median(fb_tw_ratio)
+
+# Update the fan_count_sort_order based on a single number that takes into
+# account this ratio.
+for org in Org.objects.filter(visible=True):
+	org.fan_count_sort_order = org.facebook_fan_count() + fb_tw_ratio * org.twitter_follower_count()
+	org.save()
+	
