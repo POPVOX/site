@@ -256,8 +256,10 @@
 		}
 		
 		$(function() {
-			$('.wrapper').height($(window).height() - $('#select_district_box').height() - 60);
-			$('.wrapper').css({ overflow: "auto" });
+			// can't do overflow: auto because it requires double-touch
+			//$('.wrapper').height($(window).height() - $('#select_district_box').height() - 60);
+			//$('.wrapper').css({ overflow: "auto" });
+			
 			show_report();
 		});
 		</script>
