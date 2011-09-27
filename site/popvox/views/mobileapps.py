@@ -5,13 +5,15 @@ from django.template import RequestContext, TemplateDoesNotExist
 from popvox.models import Bill
 from popvox import govtrack
 
+import collections
+
 def ipad_billreader_welcome(request):
 	return HttpResponse("Welcome!")
 
 def ipad_billreader_report(request):
 	bill = get_object_or_404(Bill, id=request.GET.get('bill', 0))
 
-	orgs = { "+": { }, "-": { }, "0": { } }
+	orgs = collections.OrderedDict([("+", { }), ("-", { }), ("0", { })])
 	for pos in bill.campaign_positions():
 		p = pos.position
 		if not pos.campaign.org in orgs[p]:
@@ -31,7 +33,12 @@ def ipad_billreader_report(request):
 	if bill.cosponsors.all().count() == 0:
 		cosponsors_bar = -1
 	else:
-		cosponsors_bar = int( float(len(cosponsors["R"]))/float(bill.cosponsors.all().count()) *264 )
+		cosponsors_bar = int( float(len(cosponsors["R"]))/float(bill.cosponsors.all().count()) *323 )
+	
+	# order the groups by count
+	cosponsors = list(cosponsors.items())
+	cosponsors.sort(key = lambda kv : -len(kv[1]))
+	cosponsors = collections.OrderedDict(cosponsors)
 
 	return render_to_response('popvox/mobile/report.html', {
 			'bill': bill,

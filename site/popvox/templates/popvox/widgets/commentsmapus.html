@@ -9,6 +9,7 @@
 			body {
 				margin: 0;
 				padding: 0;
+				{% if request.GET.background == "white" %}background: white;{% endif %}
 			}
 		</style>
 		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
@@ -101,7 +102,11 @@
 	<body class="colormode_1">
 		<div id="mapdots">
 		{% for district, count in data %}
-			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}" onmouseover="show('{{district}}', '{{count.label|escapejs}}', {% if bill %}{{count.sentiment}}, {{count.count}},{% endif %} {{count.coord.left}}, {{count.coord.top}})" onmouseout="hide()" {% if request.GET.sac %}onclick="return false;"{% endif %}>
+			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}"
+				{% if not request.GET.hover == "0" %}
+				onmouseover="show('{{district}}', '{{count.label|escapejs}}', {% if bill %}{{count.sentiment}}, {{count.count}},{% endif %} {{count.coord.left}}, {{count.coord.top}})" onmouseout="hide()"
+				{% endif %}
+				{% if request.GET.sac or request.GET.hover == "0" %}onclick="return false;"{% endif %}>
 				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"></div>
 			</a>
 		{% endfor %}

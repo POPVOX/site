@@ -280,14 +280,14 @@ def bill_comments(bill, **filterargs):
 		.select_related("user")
 
 def bill_statistics_cache(f):
-	def g(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
+	def g(bill, shortdescription, longdescription, want_timeseries=False, force_data=False, **filterargs):
 		cache_key = ("bill_statistics_cache:%d,%s,%s" % (bill.id, shortdescription.replace(" ", ""), want_timeseries)) 
 		
 		ret = cache.get(cache_key)
 		if ret != None and want_timeseries:
 			return ret
 		
-		ret = f(bill, shortdescription, longdescription, want_timeseries, **filterargs)
+		ret = f(bill, shortdescription, longdescription, want_timeseries, force_data, **filterargs)
 		
 		cache.set(cache_key, ret, 60*60*2) # two hours
 
@@ -295,7 +295,7 @@ def bill_statistics_cache(f):
 	return g
 
 @bill_statistics_cache # the arguments must match in the decorator!
-def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, **filterargs):
+def bill_statistics(bill, shortdescription, longdescription, want_timeseries, force_data, **filterargs):
 	# If any of the filters is None, meaning it is based on demographic info
 	# that the user has not set, return None for the whole statistic group.
 	for key in filterargs:
@@ -323,19 +323,11 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
 	# Don't display statistics when there's very little data,
 	# and definitely not when pro+con == 0 since that'll gen
 	# an error down below.
-	if pro+con+pro_reintro < 10:
+	if (pro+con+pro_reintro < 10 and not force_data) or pro+con+pro_reintro == 0:
 		return None
 
 	if pro+con < 10:
-		return {
-			"shortdescription": shortdescription,
-			"longdescription": longdescription,
-			"total": 0, "pro":0, "con":0,
-			"pro_pct": 0, "con_pct": 0,
-			"total_comments": bill_comments(bill, **filterargs).filter(message__isnull=False).count(),
-			"timeseries": None,
-			"pro_reintro": pro_reintro,
-			}
+		want_timeseries = False
 	
 	time_series = None
 	if want_timeseries:
@@ -1643,7 +1635,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 				"appreciated": c.id in user_appreciated,
 				} for c in comments ],
 		"stats": {
-			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True),
+			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True, force_data=True),
 			"state": bill_statistics(bill,
 				state,
 				govtrack.statenames[state],

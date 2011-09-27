@@ -159,9 +159,9 @@
 					if (!report_state) {
 						$('#stats_state, #stats_district').hide();
 						$('#stats_state_none').hide();
-						if (res.stats.overall) {
+						if (res.stats.overall && res.stats.overall.timeseries) {
 							$('#chart_time').show();
-							bill_timeseries('chart_time', res.stats.overall.timeseries, { "bg": "white", "tooltip": false, "xlabels": true });
+							bill_timeseries('chart_time', res.stats.overall.timeseries, { "bg": "white", "tooltip": false, "xlabels": true, "width": 260 });
 						}
 					} else if (!res.stats.state) {
 						$('#stats_state_none').show();
@@ -255,17 +255,18 @@
 			return false;
 		}
 		
-		$(function() { show_report(); });
+		$(function() {
+			$('.wrapper').height($(window).height() - $('#select_district_box').height() - 60);
+			$('.wrapper').css({ overflow: "auto" });
+			show_report();
+		});
 		</script>
-		
-		<style>
-		#select_district_box>div { display: inline-block; padding-right: 25px; }
-		</style>
 	</head>
 	<body id="ipad">
 	
 	{% if request.GET.tab != "positions" %}
 	<div id="select_district_box">
+	<div class="select_district_box_wrapper">
 		<h2>Change State</h2> 
 		<select id="options_state" onchange="update('state', this.value)" data-inline="true">
 			<option value="">POPVOX Nation</option>
@@ -274,6 +275,7 @@
 		<span id="options_district_container">
 		</span>
 		<span id="loadingstatus"></span>
+	</div>
 	</div>
 	{% endif %}
 
@@ -329,39 +331,19 @@
 				{% if cosponsors_bar != -1 %}
 				<div class="b_people"> 
 					<div class="co-sponsors">
-						<span class="tick">tick</span> 
+						<!--<span class="tick">tick</span>--> 
 						<h4>Co-Sponsors</h4> 
-						<div class="col_l first">
-							<ul class="co-r">
-								<li>Rep. Earl Blumenauer [R, OR-3]</li>
-								<li>Rep. Michael Capuano [R, MA-8]</li>
-								<li>Rep. John Conyers [R, MI-14]</li>
-								<li>Rep. Sam Farr [R, CA-17]</li>
-								<li>Rep. Raul Grijalva [R, AZ-7]</li>
-							</ul>
-							<ul class="co-i">
-								<li>Rep. Michael Honda [I, CA-15]</li>
-								<li>Rep. Barbara Lee [I, CA-9]</li>
+						{% for k, v in cosponsors.items %}
+						<div class="col_l {% if forloop.first %}first{% endif %}">
+							<ul class="co-{{k|lower}}">
+								{% for c in v %}
+									{% if forloop.counter < 11 %}
+										<li>{{c.name}}</li>
+									{% endif %}
+								{% endfor %}
 							</ul>
 						</div><!-- col_l -->
-						<div class="col_l">
-							<ul class="co-d">
-								<li>Rep. Michael Honda [D, CA-15]</li>
-								<li>Rep. Barbara Lee [D, CA-9]</li>
-								<li>Rep. James McDermott [D, WA-7]</li>
-								<li>Rep. Jerrold Nadler [D, NY-8]</li>
-								<li>Del. Eleanor Norton [D, DC-0]</li>
-							</ul>
-						</div><!-- col_l -->
-						<!-- 
-						<ul>
-							{% for c in bill.cosponsors.all %}
-								{% if forloop.counter < 11 %}
-									<li>{{c.name}}</li>
-								{% endif %}
-							{% endfor %}
-						</ul> 
-						 -->
+						{% endfor %}
 					</div> 
 				</div> 
 				{% endif %}
@@ -395,56 +377,19 @@
 				<div class="b_people right"> 
 					<div class="organizations">
 						<span class="tick"></span> 
-						<div class="col_l first">
-							<h4 class="h4_endorse">Endorsing</h4>
-							<ul>
-								<li>American Hunanist Association</li>
-								<li>Americans For Forfeiture Reform</li>
-								<li>Drug Policy Alliance</li>
-								<li>Marijuana Policy Project</li>
-								<li>National Organization for Reform of Marijuana Laws (NORML)</li>
-								<li>Students for Sensible Drug Policy</li>
-								<li>Unemployed Workers Action Group </li>
-							</ul>
-							<h4 class="h4_other">Other</h4>
-							<ul>
-								<li>GeoChaching Association</li>
-								<li>Americans For Forfeiture Reform</li>
-								<li>Drug Policy Alliance</li>
-							</ul>
-						</div><!-- col_l -->
-						<div class="col_l">
-							<h4 class="h4_oppose">Opposing</h4>
-							<ul>
-								<li>American Humanist Association</li>
-								<li>Americans For Forfeiture Reform</li>
-								<li>Drug Policy Alliance</li>
-								<li>Marijuana Policy Project</li>
-								<li>National Organization for Reform of Marijuana Laws (NORML)</li>
-								<li>Students for Sensible Drug Policy</li>
-								<li>Unemployed Workers Action Group </li>
-							</ul>
-						</div><!-- col_l -->
-						<!--
 						{% for group, orglist in orgs %}
-							{% if orglist %}
-							<div class="col_l {% if forloop.first %}first{% endif %}">
-							{% if group == "+" %}<h4>Endorsing</h4>{% endif %}
-							{% if group == "-" %}<h4>Opposing</h4>{% endif %}
-							{% if group == "0" %}<h4>Other</h4>{% endif %}
+						<div class="col_l {% if forloop.first %}first{% endif %}">
+							{% if group == "+" %}<h4 class="h4_endorse">Endorsing</h4>{% endif %}
+							{% if group == "-" %}<h4 class="h4_oppose">Opposing</h4>{% endif %}
+							{% if group == "0" %}<h4 class="h4_other">Other</h4>{% endif %}
 							<ul>
 								{% for org, pos in orglist %}
 									{% if forloop.counter < 8 %}
 										<li>{{org.name}}</li>
 									{% endif %}
 								{% endfor %}
-							-->
-								<!--<li><a href="#">view more ></a></li>-->
-							<!--
 							</ul>
-							</div>
-							-->
-							{% endif %}
+						</div><!-- col_l -->
 						{% endfor %}
 					</div> <!-- organizations -->
 				</div> <!-- b_people -->
@@ -565,7 +510,7 @@
 			</div><!-- right-column2 -->
 		</div><!-- columns -->
 		
-		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}" height="590" border="0" marginheight="0" marginwidth="0" frameborder="0" style="width: 739px; margin: 20px -20px 0 -20px;"></iframe><!--height="690"-->
+		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&background=white&hover=0" height="590" border="0" marginheight="0" marginwidth="0" frameborder="0" style="width: 720px; margin: 20px -20px 0 -20px;"></iframe><!--height="690"-->
 	{% endif %}
 
 	{% if request.GET.tab == "positions" %}
