@@ -101,8 +101,7 @@ class TrafficAnalysisMiddleware:
 				del extra["goal"]
 			properties.update(extra)
 		properties.update(view_kwargs)
-		properties.update(dict( ("view_arg_%d" % x[0], str(x[1])) for x in enumerate(view_args) ))
-		
+		properties.update(collections.OrderedDict( ("view_arg_%d" % x[0], str(x[1])) for x in enumerate(view_args) ))		
 		rec.properties = urllib.urlencode(properties)[0:128]
 
 		rec.save()

@@ -3,8 +3,48 @@
 {% block title %}Traffic Analysis{% endblock %}
 
 {% block head %}
+<style>
+#path_chart {
+	border-top: 1px solid black;
+	border-right: 1px solid black;
+	border-bottom: 1px solid black;
+	background: white;
+}
+#path_chart .item {
+	border-left: 1px solid black;
+	border-top: 1px solid black;
+	margin-top: -1px;
+	cursor: default;
+}
+#path_chart .item.success {
+	background-color: #DED;
+}
+#path_chart .label.hover {
+	display: none;
+	position: absolute;
+	border: 1px solid black;
+	background: white;
+	margin: -4px 0 0 -4px;
+	padding: 3px;
+}
+#path_chart .label.main, #path_chart .next {
+	display: inline-block;
+	vertical-align: top;
+	height: 100%;
+	overflow: hidden;
+}
+#path_chart .text, #path_chart .count, #path_chart .converted {
+	display: block;
+	padding: 2px;
+}
+</style>
+
 <script>
-var start = ["path", "/"];
+var depth = 10;
+var start = ["goal", "comment-nomessage"];
+var goal = ["goal", "comment-submit"];
+
+var _hover_last = null;
 
 function load_chart() {
 	$.ajax({
@@ -13,16 +53,68 @@ function load_chart() {
 		dataType: "json",
 		data: {
 			start_type: start[0],
-			start_value: start[1]
+			start_value: start[1],
+			goal_type: goal[0],
+			goal_value: goal[1],
+			depth: depth
 		},
 		success: function(data) {
-			alert(data);
+			$('#path_chart').text('');
+			
+			function path_build_node(container, path, height_scale, parent_count, d) {
+				var n = $("<div class='item'><div class='hover label'><span class='text'></span><span class='count'></span><span class='converted'></span></div> <div class='label main'><span class='text'></span><span class='count'></span><span class='converted'></span></div><div class='next'> </div></div>");
+				
+				container.append(n);
+				
+				n.find('.label.main').width($('#path_chart').width() / depth - depth);
+				n.height(path.count * height_scale + 10);
+				
+				n.find('.label .text').text(path.label);
+				n.find('.label .count').text(path.count + " hits (" + Math.round(path.count/parent_count*100) + "%)");
+				n.find('.label .converted').text(Math.round(path.converted/path.count*100) + "% conv");
+				
+				if (path.converted == path.count)
+					n.addClass("success");
+				
+				var c = n.find('.next');
+				
+				var has_next = false;
+				for (var next in path.next) {
+					path_build_node(c, path.next[next], height_scale, path.count, d+1);
+					has_next = true;
+				}
+				
+				if (!has_next) {
+					n.find('.label.main').css({"display": "block"});
+					n.find('.next').remove();
+					n.find('.label.main').width($('#path_chart').width() * (depth-d) / depth - 1);
+				}
+				
+				n.find('.label.main').mouseover(function() {
+					$('#path_chart').mouseleave();
+					$(this).css({"background": "#EEE", "overflow": "shown"});
+					$(this.parentNode).css({"background": "#DDD"});
+					$(this.parentNode).find('>.hover').show();
+					_hover_last = this;
+				});
+			}
+			
+			path_build_node($('#path_chart'), data, ($(window).height()-200)/data.count, data.count, 0);
 		}
 	});
 }
 
 $(function() {
 	load_chart();
+	
+	$('#path_chart').mouseleave(function() {
+		if (!_hover_last) return;
+		$(_hover_last).css({"background": ""});
+		$(_hover_last.parentNode).css({"background": ""});
+		$(_hover_last.parentNode).find('>.hover').hide();
+		_hover_last = null;
+	});
+
 });
 
 </script>
@@ -31,6 +123,7 @@ $(function() {
 {% block content %}
 <h1>Traffic Analysis Report</h1>
 
+<div id="path_chart"> </div>
 
 {% endblock %}
 
