@@ -328,8 +328,32 @@
 			<div class="left-column">
 				{% if cosponsors_bar != -1 %}
 				<div class="b_people"> 
-					<div class="co-sponsors"> 
+					<div class="co-sponsors">
+						<span class="tick">tick</span> 
 						<h4>Co-Sponsors</h4> 
+						<div class="col_l first">
+							<ul class="co-r">
+								<li>Rep. Earl Blumenauer [R, OR-3]</li>
+								<li>Rep. Michael Capuano [R, MA-8]</li>
+								<li>Rep. John Conyers [R, MI-14]</li>
+								<li>Rep. Sam Farr [R, CA-17]</li>
+								<li>Rep. Raul Grijalva [R, AZ-7]</li>
+							</ul>
+							<ul class="co-i">
+								<li>Rep. Michael Honda [I, CA-15]</li>
+								<li>Rep. Barbara Lee [I, CA-9]</li>
+							</ul>
+						</div><!-- col_l -->
+						<div class="col_l">
+							<ul class="co-d">
+								<li>Rep. Michael Honda [D, CA-15]</li>
+								<li>Rep. Barbara Lee [D, CA-9]</li>
+								<li>Rep. James McDermott [D, WA-7]</li>
+								<li>Rep. Jerrold Nadler [D, NY-8]</li>
+								<li>Del. Eleanor Norton [D, DC-0]</li>
+							</ul>
+						</div><!-- col_l -->
+						<!-- 
 						<ul>
 							{% for c in bill.cosponsors.all %}
 								{% if forloop.counter < 11 %}
@@ -337,6 +361,7 @@
 								{% endif %}
 							{% endfor %}
 						</ul> 
+						 -->
 					</div> 
 				</div> 
 				{% endif %}
@@ -369,6 +394,38 @@
 				{% if orgs %}
 				<div class="b_people right"> 
 					<div class="organizations">
+						<span class="tick"></span> 
+						<div class="col_l first">
+							<h4 class="h4_endorse">Endorsing</h4>
+							<ul>
+								<li>American Hunanist Association</li>
+								<li>Americans For Forfeiture Reform</li>
+								<li>Drug Policy Alliance</li>
+								<li>Marijuana Policy Project</li>
+								<li>National Organization for Reform of Marijuana Laws (NORML)</li>
+								<li>Students for Sensible Drug Policy</li>
+								<li>Unemployed Workers Action Group </li>
+							</ul>
+							<h4 class="h4_other">Other</h4>
+							<ul>
+								<li>GeoChaching Association</li>
+								<li>Americans For Forfeiture Reform</li>
+								<li>Drug Policy Alliance</li>
+							</ul>
+						</div><!-- col_l -->
+						<div class="col_l">
+							<h4 class="h4_oppose">Opposing</h4>
+							<ul>
+								<li>American Humanist Association</li>
+								<li>Americans For Forfeiture Reform</li>
+								<li>Drug Policy Alliance</li>
+								<li>Marijuana Policy Project</li>
+								<li>National Organization for Reform of Marijuana Laws (NORML)</li>
+								<li>Students for Sensible Drug Policy</li>
+								<li>Unemployed Workers Action Group </li>
+							</ul>
+						</div><!-- col_l -->
+						<!--
 						{% for group, orglist in orgs %}
 							{% if orglist %}
 							<div class="col_l {% if forloop.first %}first{% endif %}">
@@ -381,15 +438,18 @@
 										<li>{{org.name}}</li>
 									{% endif %}
 								{% endfor %}
+							-->
 								<!--<li><a href="#">view more ></a></li>-->
+							<!--
 							</ul>
 							</div>
+							-->
 							{% endif %}
 						{% endfor %}
-					</div> 
-				</div> 
+					</div> <!-- organizations -->
+				</div> <!-- b_people -->
 				{% endif %}
-				<h3 class="organizations">
+				<h3 class="org">
 					Organizations
 				</h3><!-- organizations -->
 				{% if orgs %}
@@ -443,7 +503,7 @@
 						<div class="summ-users" id="stats_nation_positions"><strong class="num"></strong><em class="scale"></em> <span>PEOPLE</span>
 						</div><!-- summ-users -->
 						<div class="summ-support">
-							<strong class="num"></strong>
+							<strong class="num"><em>K</em></strong>
 						</div><!-- summ-support -->
 					</div><!-- summary-line -->
 					<div class="summary">
