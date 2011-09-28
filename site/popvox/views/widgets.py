@@ -135,7 +135,7 @@ def commentmapus(request):
 
 	mapscale = float(width) / widgets_usmap.map_scale[0]
 	xoffset = int(8 * float(width)/720)
-	yoffset = int(196 * float(width)/720)
+	yoffset = int(190 * float(width)/720)+6
 	
 	for district in count:
 		# Some invalid congressional districts!

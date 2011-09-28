@@ -3,12 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
 		<title>POPVOX Bill Report</title>
-		<meta name="viewport" content="width=720, initial-scale=1">
 		<link rel="stylesheet" type="text/css" media="screen,projection" href="/media/mobile/css/style.css" />
 		<link rel="stylesheet" type="text/css" media="print" href="/media/mobile/css/print.css" />
-		<!--[if lte IE 9]>
-			<link rel="stylesheet" type="text/css" media="screen,projection" href="/media/mobile/css/ie.css" />
-		<![endif]-->
 		<script type="text/javascript">
 		<!--
 		if(navigator.userAgent.indexOf('Mac') > 0 ){
@@ -160,14 +156,15 @@
 						$('#stats_state, #stats_district').hide();
 						$('#stats_state_none').hide();
 						if (res.stats.overall && res.stats.overall.timeseries) {
-							$('#chart_time').show();
+							$('#chart_time, #chart_time_title').show();
+							$('#chart_time_title').text("National Sentiment Since " + res.stats.overall.timeseries.xaxis[0]);
 							bill_timeseries('chart_time', res.stats.overall.timeseries, { "bg": "white", "tooltip": false, "xlabels": true, "width": 260 });
 						}
 					} else if (!res.stats.state) {
 						$('#stats_state_none').show();
-						$('#chart_time, #stats_state, #stats_district').hide();
+						$('#chart_time, #chart_time_title, #stats_state, #stats_district').hide();
 					} else {
-						$('#chart_time, #stats_state_none').hide();
+						$('#chart_time, #chart_time_title, #stats_state_none').hide();
 						$('#stats_state').show();
 						
 						$('#stats_state .txt-outer h3 span').text(report_state);
@@ -261,12 +258,15 @@
 			//$('.wrapper').css({ overflow: "auto" });
 			
 			show_report();
+			
+			$('.left-column .b_people').click(function() { $('.b_people .co-sponsors').toggle(); });
+			$('.right-column .b_people').click(function() { $('.b_people .organizations').toggle(); });
 		});
 		</script>
 	</head>
 	<body id="ipad">
 	
-	{% if request.GET.tab != "positions" %}
+	{% if request.GET.tab == "comments" %}
 	<div id="select_district_box">
 	<div class="select_district_box_wrapper">
 		<h2>Change State</h2> 
@@ -328,7 +328,7 @@
 			</div><!-- right-column -->
 		</div><!-- container columns report-data -->
 
-		<div class="columns stats">
+		<div class="columns stats" style="overflow: visible">
 			<div class="left-column">
 				{% if cosponsors_bar != -1 %}
 				<div class="b_people"> 
@@ -416,11 +416,22 @@
 				(none)
 				{% endif %}
 			</div><!-- right-column -->
+			<div style="clear: both;"> </div>
 		</div><!-- columns stats -->
 
-		<div class="column-end"> 
-		</div><!-- column-end --> 
-		
+		<div id="select_district_box" style="margin: 15px 0 25px 0">
+		<div class="select_district_box_wrapper">
+			<h2>Change State</h2> 
+			<select id="options_state" onchange="update('state', this.value)" data-inline="true">
+				<option value="">POPVOX Nation</option>
+				{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+			</select>
+			<span id="options_district_container">
+			</span>
+			<span id="loadingstatus"></span>
+		</div>
+		</div>
+
 		<div class="columns">
 			<div class="left-column2" id="stats_nation">
 				<h3 class="popvox">
@@ -445,26 +456,26 @@
 					</div><!-- info-fav -->
 				</div><!-- popvox-box -->
 				<div class="summary">
-<!-- problem here is that I am targeting spans and you have added more spans -->				
 					<div class="summary-line">
 						<div class="summ-users" id="stats_nation_positions"><strong class="num"></strong><em class="scale"></em> <span>PEOPLE</span>
 						</div><!-- summ-users -->
 						<div class="summ-support">
-							<strong class="num"><em>K</em></strong>
+							<strong><span class="num"></span><em class="scale">K</em></strong>
 						</div><!-- summ-support -->
 					</div><!-- summary-line -->
 					<div class="summary">
 						<div class="summ-users" id="stats_nation_comments"><strong class="num"></strong><em class="scale"></em> <span>LETTERS</span>
 						</div><!-- summ-users -->
 						<div class="summ-oppose">
-							<strong class="num"></strong>
+							<strong><span class="num"></span><em class="scale">K</em></strong>
 						</div><!-- summ-oppose -->
 					</div><!-- summary -->
 				</div><!-- summary -->
 			</div><!-- left-column2 -->
 
 			<div class="right-column2">
-				<div id="chart_time"> </div>
+				<h3 id="chart_time_title"> </h3>
+				<div id="chart_time" style="height: 250px"> </div>
 				<div id="stats_state_none" style="display: none">Not enough constituents have weighed in to display statistics from this state.</div>
 				<div id="stats_state" style="display: none">
 				<h3 class="state">
@@ -512,7 +523,7 @@
 			</div><!-- right-column2 -->
 		</div><!-- columns -->
 		
-		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&background=white&hover=0" height="590" border="0" marginheight="0" marginwidth="0" frameborder="0" style="width: 720px; margin: 20px -20px 0 -20px;"></iframe><!--height="690"-->
+		<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&background=white&hover=0&width=558" width="558" height="500" border="0" marginheight="0" marginwidth="0" frameborder="0" style="margin: 20px 0 0 -10px;"></iframe>
 	{% endif %}
 
 	{% if request.GET.tab == "positions" %}

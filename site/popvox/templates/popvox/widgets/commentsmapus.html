@@ -88,12 +88,12 @@
 			function togglecolors() {
 				if (curcolmode == "1") {
 					curcolmode = "2";
-					//$('#colormode').addClass('active');
 				} else {
 					curcolmode = "1";
-					//$('#colormode').removeClass('active');
 				}
-				$('body').attr('class', 'colormode_' + curcolmode);
+				$('body').removeClass('colormode_1');
+				$('body').removeClass('colormode_2');
+				$('body').addClass('colormode_' + curcolmode);
 				$('#colormode').text(curcolmode == "1" ? "Alternate Colors" : "Original Colors");
 			}
 

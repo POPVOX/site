@@ -1,4 +1,4 @@
-/* @override https://william.popvox.com/media/mobile/css/style.css */
+l34/* @override https://william.popvox.com/media/mobile/css/style.css */
 
 /* Css reset
 ------------------------------------------------------------------------------*/
@@ -86,21 +86,20 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 }
 #select_district_box .select_district_box_wrapper {
 	width: 585px;
-	height: 50px;
 	margin: 0 auto;
-	padding: 10px 25px 0;
+	padding: 10px 0 10px 0;
 }
 	#select_district_box h2 {
 		font-size: 20px;
 		color: #fff;
 		float: left;
-		margin: 5px 25px 0 60px;		
+		margin: 5px 25px 0 15px;		
 	}
 #options_state,
 #options_district {
 	width: 160px;
 	height: 25px;
-	padding: 5px 0 0 5px;
+	padding: 5px 0 5px 5px;
 	background: url(../images/bg_ipad_select.png) left top repeat-x;
 	color: #fff;
 	outline: none;
@@ -108,7 +107,7 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 #options_state option {
 	height: 12px;
 }
-#options_district {
+#options_district_container {
 	margin-left: 9px;
 }
 
@@ -118,6 +117,7 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 	height: 32px;
 	display: block;
 	float: right;
+	cursor: pointer;
 }
 
 .b_people a {
@@ -126,7 +126,7 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 	}
 
 .b_people div.co-sponsors {
-	display: block;
+	display: none;
 	background: #fff;
 	border: 6px solid #404045;
 	-webkit-border-radius: 8px;
@@ -209,10 +209,6 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 		}
 	
 	
-.b_people:hover {
-	cursor: pointer;
-}
-
 .b_people:hover div,
 .b_people:hover div.organizations {
 	display: block;
@@ -240,7 +236,7 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 /* stats */
 .stats .left-column { border-top: 1px solid #d5d5d7; padding: 12px 0 0; }
 .stats .right-column { border-top: 1px solid #d5d5d7; padding: 12px 0 0; }
-.stats h3 { color: #c76825; font-size: 11px; font-weight: normal; font-family: 'HelveticaNeueBold'; margin: 0 0 16px; }
+.stats h3, h3#chart_time_title { color: #c76825; font-size: 11px; font-weight: normal; font-family: 'HelveticaNeueBold'; margin: 0 0 16px; }
 
 /* stat-bar */
 .stat-bar { width: 100%; height: 48px; overflow: hidden; position: relative; }
@@ -343,9 +339,9 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 .summary .summ-users { float: left; font-size: 51px; color: #75747c; line-height: 40px; vertical-align: top; font-family: 'BebasNeue'; position: relative; height: 55px; }
 .summary .summ-users span { display: block; position: absolute; left: 0; bottom: 0; font-size: 17px; vertical-align: baseline; height: 27px; color: #75747c; font-family: 'HelveticaNeueBold'; }
 .summary .summ-support { float: right; background: url(../images/bgr-usr-fav.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; }
-.summary .summ-support span { display: block; position: absolute; left: 66px; top: 0; font-family: 'BebasNeue'; color: #ff9700; font-size: 73px; vertical-align: top; line-height: 58px; }
+.summary .summ-support strong { display: block; position: absolute; left: 66px; top: 0; font-family: 'BebasNeue'; color: #ff9700; font-size: 73px; vertical-align: top; line-height: 58px; }
 .summary .summ-oppose { float: right; background: url(../images/bgr-usr-opp.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; }
-.summary .summ-oppose span { display: block; position: absolute; left: 66px; top: 0; color: #fc3; font-size: 73px; vertical-align: top; line-height: 55px; font-family: 'BebasNeue'; }
+.summary .summ-oppose strong { display: block; position: absolute; left: 66px; top: 0; color: #fc3; font-size: 73px; vertical-align: top; line-height: 55px; font-family: 'BebasNeue'; }
 .summary.two .summ-support, .summary.two .summ-oppose { width: 125px;}
 .summary.three .summ-support, .summary.three .summ-oppose { width: 158px;}
 
@@ -360,12 +356,29 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 
 /* columns */
 .columns { width: 100%; overflow: hidden; position: relative;}
-.columns span { color: #c76825; }
 
 /* footer */
 .footer { width: 100%; border-top: 1px solid #d5d5d7; padding: 2px 0 0; margin: 33px 0 0; }
 .footer a,
 .footer a:visited { color: #404045; font-size: 9px; }
+
+.b_more_comments {
+    height: 22px;
+    margin: 20px auto;
+    position: relative;
+    width: 137px;
+    background: url(/media/master/b_more_comments.png) center top no-repeat;
+    text-indent: -9999em;
+    display: block;
+    }
+
+a.b_more_comments:hover {
+    background-position: center bottom;
+    cursor: pointer;
+    text-decoration: none;
+    border: 0;
+    }
+
 
 /* Print styles
 ------------------------------------------------------------------------------*/

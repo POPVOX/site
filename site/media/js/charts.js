@@ -47,7 +47,7 @@ function bill_timeseries(container, data, opts) {
 	 chart: {
 	 	backgroundColor: (!opts || !opts.bg) ? "#e8e5df" : opts.bg,
 	    renderTo: container,
-	    margin: [10,0,(!opts || !opts.xlabels) ? 10 : 55, 50],
+	    margin: [10,0,(!opts || !opts.xlabels) ? 10 : 65, 50],
 	    defaultSeriesType: 'line',
 	    width: (!opts || !opts.xlabels) ? 220 : opts.width
 	 },
