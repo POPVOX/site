@@ -21,14 +21,22 @@ body {
 }
 
 #mapdots {
-	background: url(/media/gis/map_background_cds.png) no-repeat;
 	position: absolute;
 	top: 23px;
 	left: 0;
-	width: 719px;
-	height: 522px;
+	}
+		
+	body.width_720 #mapdots {
+		background: url(/media/gis/map_background_cds.png) no-repeat;
+		width: 719px;
+		height: 522px;
 	}
 	
+	body.width_558 #mapdots {
+		background: url(/media/gis/map_background_cds_558.png) no-repeat;
+		width: 558px;
+		height: 405px;
+	}	
 	
 /*  for oppose, mostly oppose, mixed, mostly support, support */
 
@@ -122,28 +130,33 @@ body {
 	
 #legend_sz, #legend_clr, #legend_text {
 	position: absolute;
-	left: 370px;
+	left: 320px;
 	font: bold 13px/18px helvetica, arial, sans-serif;
 	color: #404045;
 	}
+	body.width_558  #legend_sz, body.width_558  #legend_clr, body.width_558  #legend_text {
+		left: 280px;
+	}
+	
 #legend_clr {
 	top: 493px;
-	left: 320px;
 	color: #666;
 	}
+	body.width_558  #legend_clr { top: 380px; }
 #legend_sz {
 	top: 515px;
-	left: 320px;
 	color: #666;
 	}
+	body.width_558  #legend_sz { top: 402px; }
 #legend_text {
 	font-weight: normal;
 	top: 455px;
-	left: 400px;
+	margin-left: 80px;
 	width: 250px;
 	font-size: 11px;
 	color: #666;
 	}
+	body.width_558  #legend_text { margin-left: 20px; top: 355px; }
 	
 #legend_sz div, #legend_clr div {
 	float: left;
@@ -170,6 +183,10 @@ body {
 	position: absolute;
 	left: 570px;
 	top: 500px;
+	}
+	body.width_558 #colormode {
+		left: 365px;
+		top: 430px;
 	}
 #colormode:hover {
 	background-position: left bottom;
@@ -239,4 +256,6 @@ body {
     opacity:0.7;
 	}
 	
-	
+	body.width_558 #brought_to_you {
+		top: 280px;
+	}

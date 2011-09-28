@@ -42,6 +42,7 @@ def commentmapus(request):
 	count = { }
 	max_count = 0
 	bill = None
+	width = int(request.GET.get("width", "720"))
 	
 	comments = None
 
@@ -132,9 +133,9 @@ def commentmapus(request):
 					)
 		
 
-	mapscale = 720.0 / widgets_usmap.map_scale[0]
-	xoffset = 8
-	yoffset = 196
+	mapscale = float(width) / widgets_usmap.map_scale[0]
+	xoffset = int(8 * float(width)/720)
+	yoffset = int(196 * float(width)/720)
 	
 	for district in count:
 		# Some invalid congressional districts!
@@ -161,6 +162,7 @@ def commentmapus(request):
 		"data": count.items(),
 		"min_sz_num": int(float(max_count)/5.0) if max_count > 5 else 1,
 		"max_sz_num": max_count,
+		"width": width,
 	}, context_instance=RequestContext(request))
 
 @cache_page(60 * 60 * 2) # two hours
