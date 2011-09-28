@@ -370,7 +370,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, fo
 		"shortdescription": shortdescription,
 		"longdescription": longdescription,
 		"total": pro+con, "pro":pro, "con":con,
-		"pro_pct": int(round(100.0*pro/float(pro+con))), "con_pct": int(round(100.0*con/float(pro+con))),
+		"pro_pct": int(round(100.0*pro/float(pro+con))) if pro+con > 0 else 0, "con_pct": int(round(100.0*con/float(pro+con))) if pro+con > 0 else 0,
 		"total_comments": bill_comments(bill, **filterargs).filter(message__isnull=False).count(),
 		"timeseries": time_series,
 		"pro_reintro": pro_reintro}

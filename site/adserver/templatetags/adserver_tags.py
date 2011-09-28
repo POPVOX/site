@@ -55,7 +55,7 @@ def show_ad(parser, token):
 				# Requires RequestContext...
 				return show_banner(format, context["request"], context, targets, context["request"].path)
 			else:
-				return mark_safe("<script src=\"") + reverse("adserver.views.banner", args=[str(format.id)]) + "?targets=" + ",".join([t.key for t in targets]) + "&method=js&DNT=0" + mark_safe("\"> </script>")
+				return mark_safe("<script src=\"") + reverse("adserver.views.banner", args=[str(format.id), 'js']) + "?targets=" + ",".join([t.key for t in targets]) + "&DNT=0" + mark_safe("\"> </script>")
 
 	fields = token.split_contents()[1:]
 	

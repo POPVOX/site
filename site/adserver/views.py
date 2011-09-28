@@ -10,7 +10,7 @@ import re
 from models import *
 from adselection import show_banner
 
-def banner(request, formatid):
+def banner(request, formatid, outputformat):
 	# To comply with Do-Not-Track, we should not set a session cookie.
 	# To prevent this, we'll clear the session state ahead of time.
 	# But not if a DNT=0 query string parameter is set.
@@ -31,9 +31,9 @@ def banner(request, formatid):
 
 	html = show_banner(format, request, RequestContext(request), targets, path)
 	
-	if request.GET.get("method", '') == "":
+	if outputformat == "html":
 		response = HttpResponse(html, mimetype="text/html")
-	elif request.GET.get("method", '') == "js":
+	elif outputformat == "js":
 		js = "document.write(\"" + escapejs(html) + "\");"
 		response = HttpResponse(js, mimetype="text/javascript")
 	else:
