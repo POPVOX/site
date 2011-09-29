@@ -1384,6 +1384,7 @@ class ServiceAccount(models.Model):
 	
 	user = models.OneToOneField(User, blank=True, null=True)
 	org = models.OneToOneField(Org, blank=True, null=True)
+	name = models.CharField(max_length=100, blank=True, null=True)
 	
 	permissions = models.ManyToManyField(ServiceAccountPermission, blank=True)
 	notes = models.TextField(blank=True)
@@ -1411,6 +1412,7 @@ class ServiceAccount(models.Model):
 	options = PickledObjectField(default={})
 
 	def __unicode__(self):
+		if self.name: return self.name
 		if self.user and self.org: return unicode(self.user) + "/" + unicode(self.org)
 		if self.user: return unicode(self.user)
 		if self.org: return unicode(self.org)
