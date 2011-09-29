@@ -90,14 +90,14 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 	padding: 10px 0 10px 0;
 }
 	#select_district_box h2 {
-		font-size: 20px;
+		font-size: 16px;
 		color: #fff;
 		float: left;
 		margin: 5px 25px 0 15px;		
 	}
 #options_state,
 #options_district {
-	width: 160px;
+	width: 150px;
 	height: 25px;
 	padding: 5px 0 5px 5px;
 	background: url(../images/bg_ipad_select.png) left top repeat-x;
@@ -109,6 +109,10 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 }
 #options_district_container {
 	margin-left: 9px;
+}
+#options_jump {
+	margin-left: 9px;
+	padding: 5px 0 5px 5px;
 }
 
 .b_people {
@@ -292,7 +296,6 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
     padding: 5px 10px; 
 	}
 	.datacolumn p.who span {
-		float: right;
 		font-family: Helvetica, arial;
 		font-weight: bold;
 		font-style: normal;

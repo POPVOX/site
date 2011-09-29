@@ -39,8 +39,10 @@
 			return "th"
 		}
 		
-		function update(control, value) {
-			if (control == "state") {
+		function update(control, value, value2) {
+			if (control == "state" || control == "state_district") {
+				if (control == "state_district") $('#options_state').val(value);
+				
 				if (!value) {
 					report_state = null;
 					
@@ -70,9 +72,15 @@
 								attr("value", (i+1)).
 								text((i+1) + " -- " + statereps[report_state][i])); 
 					}
+					
+					if (control == "state_district" && value2) {
+						$('#options_district').val(value2);
+						report_district = value2;
+					}
 				}
 				
 			} else if (control == "district") {
+				if (value == "") value = null;
 				report_district = value;
 			}
 			
@@ -85,6 +93,9 @@
 			
 		function show_report(is_more) {
 			$('#loadingstatus').text("");
+			$('#options_jump').toggle(
+				report_state != '{{private_info_for.0}}'
+				|| report_district != {% if private_info_for.1 %}'{{private_info_for.1}}'{% else %}null{% endif %});
 			
 			if (!is_more) {
 				$('.b_more_comments, .more_comments_loading').hide();
@@ -155,6 +166,7 @@
 					if (!report_state) {
 						$('#stats_state, #stats_district').hide();
 						$('#stats_state_none').hide();
+						$('h3.district').hide();
 						if (res.stats.overall && res.stats.overall.timeseries) {
 							$('#chart_time, #chart_time_title').show();
 							$('#chart_time_title').text("National Sentiment Since " + res.stats.overall.timeseries.xaxis[0]);
@@ -180,12 +192,15 @@
 							$('#stats_district .summary .fav').text(res.stats.district.pro_pct + "%");
 							$('#stats_district .summary .opp').text(res.stats.district.con_pct + "%");
 							$('#stats_district_none').hide();
+							$('h3.district').show();
 						} else if (report_district) {
 							$('#stats_district_none').show();
 							$('#stats_district').hide();
+							$('h3.district').show();
 						} else {
 							$('#stats_district_none').hide();
 							$('#stats_district').hide();
+							$('h3.district').hide();
 						}
 					}
 					{% endif %}
@@ -270,7 +285,7 @@
 	{% if request.GET.tab == "comments" %}
 	<div id="select_district_box">
 	<div class="select_district_box_wrapper">
-		<h2>Change State</h2> 
+		<h2>Filter Comments</h2> 
 		<select id="options_state" onchange="update('state', this.value)" data-inline="true">
 			<option value="">POPVOX Nation</option>
 			{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
@@ -278,6 +293,9 @@
 		<span id="options_district_container">
 		</span>
 		<span id="loadingstatus"></span>
+		{% if private_info_for %}
+			<input id="options_jump" type="button" value="Go to {{private_info_for.0}}{% if private_info_for.1 %}{{private_info_for.1}}{% endif %}" onclick="update('state_district', '{{private_info_for.0}}', {% if private_info_for.1 %}'{{private_info_for.1}}'{% else %}null{% endif %});"/>
+		{% endif %}
 	</div>
 	</div>
 	{% endif %}
@@ -422,13 +440,16 @@
 
 		<div id="select_district_box" style="margin: 15px 0 25px 0">
 		<div class="select_district_box_wrapper">
-			<h2>Change State</h2> 
+			<h2>Drill Down</h2> 
 			<select id="options_state" onchange="update('state', this.value)" data-inline="true">
 				<option value="">POPVOX Nation</option>
 				{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
 			</select>
 			<span id="options_district_container">
 			</span>
+			{% if private_info_for %}
+				<input id="options_jump" type="button" value="Go to {{private_info_for.0}}{% if private_info_for.1 %}{{private_info_for.1}}{% endif %}" onclick="update('state_district', '{{private_info_for.0}}', {% if private_info_for.1 %}'{{private_info_for.1}}'{% else %}null{% endif %});"/>
+			{% endif %}
 			<span id="loadingstatus"></span>
 		</div>
 		</div>
@@ -499,11 +520,11 @@
 					</div><!-- opp -->
 				</div><!-- summary -->
 				</div>
-				<div id="stats_district_none" style="display: none">Not enough constituents have weighed in to display statistics from this district.</div>
-				<div id="stats_district" style="display: none">
 				<h3 class="district">
 					District
 				</h3><!-- district -->
+				<div id="stats_district_none" style="display: none">Not enough constituents have weighed in to display statistics from this district.</div>
+				<div id="stats_district" style="display: none">
 				<div>
 					<div class="txt-outer">
 						<h3 id="district" class="txt"><span>2</span><em>nd</em></h3> 
@@ -583,6 +604,10 @@
 	{% endif %}
 	
 	{% if request.GET.tab == "comments" %}
+		{% if private_info_for %}
+			<p>Constituent names and addresses are shown when you view comments <a href="#" onclick="update('state_district', '{{private_info_for.0}}', {% if private_info_for.1 %}'{{private_info_for.1}}'{% else %}null{% endif %}); return false;">in your state/district</a>. You received comments in your state/district as constituent mail if the bill is pending a vote in your chamber.</p>
+		{% endif %}
+		
 		<div class="columns datacolumn ipadcomments">
 			<div class="left-column">
 				<h3 class="for2">

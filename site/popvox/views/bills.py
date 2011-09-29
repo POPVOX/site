@@ -1549,7 +1549,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 		if state != None:
 			if c.congressionaldistrict == 0:
 				return None
-			return "Congressional District " + str(c.congressionaldistrict)
+			return c.state + "-" + str(c.congressionaldistrict)
 		if c.congressionaldistrict > 0:
 			return statenames[c.state] + "'s " + ordinal(c.congressionaldistrict) + " District"
 		return statenames[c.state] + " At Large"

@@ -39,6 +39,13 @@ def ipad_billreader_report(request):
 	cosponsors = list(cosponsors.items())
 	cosponsors.sort(key = lambda kv : -len(kv[1]))
 	cosponsors = collections.OrderedDict(cosponsors)
+	
+	
+	private_info_for = None
+	if request.user.is_authenticated() and request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member:
+		moc = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
+		if moc["current"]:
+			private_info_for = (moc["state"], moc["district"])
 
 	return render_to_response('popvox/mobile/report.html', {
 			'bill': bill,
@@ -47,6 +54,7 @@ def ipad_billreader_report(request):
 			"orgs": [kv for kv in orgs.items() if len(kv[1]) != 0],
 			"org_support_percent": org_support_percent,
 			"org_support_oppose_count": (len(orgs["+"]), len(orgs["-"])),
+			"private_info_for": private_info_for,
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
 			"statereps": govtrack.getStateReps(),

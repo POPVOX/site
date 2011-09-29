@@ -102,13 +102,15 @@
 	<body class="colormode_1 width_{{width}}">
 		<div id="mapdots">
 		{% for district, count in data %}
+			{% if request.GET.hover != "0" %}
 			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}"
-				{% if not request.GET.hover == "0" %}
 				onmouseover="show('{{district}}', '{{count.label|escapejs}}', {% if bill %}{{count.sentiment}}, {{count.count}},{% endif %} {{count.coord.left}}, {{count.coord.top}})" onmouseout="hide()"
-				{% endif %}
 				{% if request.GET.sac or request.GET.hover == "0" %}onclick="return false;"{% endif %}>
+			{% endif %}
 				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"></div>
+			{% if request.GET.hover != "0" %}
 			</a>
+			{% endif %}
 		{% endfor %}
 		<div id="infobox" style="display: none;">
 			<div id="district"> </div>

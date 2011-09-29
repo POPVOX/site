@@ -395,8 +395,9 @@ def register_validation(request):
 			# for leg staff and org staff, we'll use the email address for the username
 			# too, since we never actually use it for anything but Django needs it.
 			# TODO: The username field is quite a bit shorter than the email field
-			# which could result in a uniqueness clash.
-			username = email
+			# which could result in a uniqueness clash. Also truncate to length
+			# of User.username field or risk a truncation warning.
+			username = email[0:30]
 			
 		if request.POST["mode"] != "legstaff" and legstaffemailcheck(email):
 			status["email"] = "Congressional staff should register in the Congressional Staffer section. Click the Congressional Staffer button at the top of the page."

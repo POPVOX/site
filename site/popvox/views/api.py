@@ -769,8 +769,9 @@ class user_registration(BaseHandler):
 			# for leg staff and org staff, we'll use the email address for the username
 			# too, since we never actually use it for anything but Django needs it.
 			# TODO: The username field is quite a bit shorter than the email field
-			# which could result in a uniqueness clash.
-			username = email
+			# which could result in a uniqueness clash. Also truncate to length
+			# of User.username field or risk a truncation warning.
+			username = email[0:30]
 			
 		axn = RegisterUserAction()
 		axn.email = email
@@ -779,7 +780,7 @@ class user_registration(BaseHandler):
 
 		if "next" in request.POST:
 			axn.next = request.POST["next"]
-		elif acct.id == 1191:
+		elif acct.id == 1191: # special redirect for the ipad application
 			axn.next = "/ipad/registration/welcome"
 
 		if request.POST["mode"] in ("legislative_staff", "member_of_congress"):
