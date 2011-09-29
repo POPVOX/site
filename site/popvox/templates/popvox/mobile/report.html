@@ -239,6 +239,7 @@
 						elem.appendTo(containers[(c.pos == "+") ? 0 : 1]);
 					}
 					
+					if (!is_more)
 					for (var i in words) {
 						if (counts[i] == 0) {
 							containers[i].append($("<p>No " + words[i] + " comments have been left" + (report_district ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));

@@ -1,0 +1,35 @@
+{% extends "master.html" %}
+{% block title %}POPVOX Markup on the iPad - Welcome{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}POPVOX iPad application for Congressional staff to browse, search, read, and annotate or take notes on bills in the U.S. Congress.{% endblock %}
+{% block head %}
+<style>
+h1 span { font-family: Arial, Helvetica; font-size: 16px; color: #777; }
+strong { font-weight: bold; }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="content">
+
+	<h1 style="text-align: center">Registration Complete</h1>
+
+	<div class="col_6 col_top">
+		<img src="/media/mobile/pub/ipad-markup-3.png" width="466" height="387"/>
+	</div>
+	
+	<div class="col_6 col_top col_last">
+	<div style="padding: 2em 0 0 2em;">
+		<p>Your POPVOX registration is complete.</p>
+
+		<p><strong>Go back to POPVOX Markup on your iPad and log in with the email address and password you used to register.</strong></p>
+
+		<p>Your registration also works here POPVOX.com.
+		{% if user.userprofile.is_leg_staff %}You can use POPVOX.com to read your constituent mail coming from POPVOX, access bill reports, and organization contact details.
+		{% else %}Use POPVOX.com to explore bill reports, create your organization profile, or weigh-in on legislation.{% endif %}</p>
+	</div>
+	</div>
+	
+</div>
+
+{% endblock %}

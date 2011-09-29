@@ -779,6 +779,8 @@ class user_registration(BaseHandler):
 
 		if "next" in request.POST:
 			axn.next = request.POST["next"]
+		elif acct.id == 1191:
+			axn.next = "/ipad/registration/welcome"
 
 		if request.POST["mode"] in ("legislative_staff", "member_of_congress"):
 			if not legstaffemailcheck(axn.email):

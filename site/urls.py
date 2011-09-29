@@ -135,7 +135,7 @@ urlpatterns = patterns('',
 	(r'^api/v1/users/registration$', 'popvox.views.api.user_registration'),
 	
 	# Support Pages for Mobile Apps
-	(r'^(ipad)$', 'popvox.views.main.staticpage'),
+	(r'^(ipad|ipad/registration/welcome)$', 'popvox.views.main.staticpage'),
 	(r'^mobileapps/ipad_billreader/welcome$', 'popvox.views.mobileapps.ipad_billreader_welcome'),
 	(r'^mobileapps/ipad_billreader/report$', 'popvox.views.mobileapps.ipad_billreader_report'),
 
