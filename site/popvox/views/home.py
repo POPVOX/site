@@ -66,6 +66,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 		})
 	
 	if boss != None:
+		moc = popvox.govtrack.getMemberOfCongress(boss.id)
 		suggestions.append({
 			"id": "sponsor",
 			"type": "sponsor",
@@ -73,10 +74,27 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			"shortname": boss.lastname(),
 			"bills": select_bills(sponsor = boss)
 			})
+		
+		if "committees" in moc and user.legstaffrole.committee == None:
+			for cid in sorted(moc["committees"]):
+				try:
+					cx = CongressionalCommittee.objects.get(code=cid)
+				except:
+					continue
+				name = cx.name()
+				shortname = cx.abbrevname()
+				committeename = cx.shortname()
+				suggestions.append({
+					"id": "committee_" + cid,
+					"type": "committeereferral",
+					"name": "Referred to the " + name,
+					"shortname": shortname + " (Referral)",
+					"bills": select_bills(committees = cx)
+					})
+				
 
 	localbills = get_legstaff_district_bills(user)
 	if localbills != None and len(localbills) > 0:
-		moc = popvox.govtrack.getMemberOfCongress(boss.id)
 		d = moc["state"] + ("" if moc["type"] == "sen" else "-" + str(moc["district"]))
 		suggestions.append({
 			"id": "local",
@@ -108,6 +126,8 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
 			"shortname": shortname + " (Member)",
 			"bills": select_bills(sponsor__in = govtrack.getCommittee(user.legstaffrole.committee.code)["members"])
 			})
+		
+	
 
 	for ix in prof.issues.all():
 		suggestions.append({

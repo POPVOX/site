@@ -5,6 +5,12 @@ class RecordAdmin(admin.ModelAdmin):
 	readonly_fields = ("email", "code", "searchkey", "action")
 	search_fields = ["email"]
 	list_display = ["created", "email", "link", "description"]
+	actions = ['visit']
+
+	def visit(self, request, queryset):
+		from django.http import HttpResponseRedirect
+		return HttpResponseRedirect(queryset[0].url())
+	visit.short_description = "Visit Link"
 
 	def link(self, obj):
 		return obj.url()

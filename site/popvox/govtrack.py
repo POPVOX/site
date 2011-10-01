@@ -118,6 +118,20 @@ def loadpeople():
 					px["sortkey"] += " (House)"
 					px["office_id"] = ("%s-H%02d" % (px["state"], px["district"]))
 
+	# committee assignments
+	xml = minidom.parse(open_govtrack_file("us/%d/committees.xml" % CURRENT_CONGRESS))
+	for node in xml.getElementsByTagName("committee") + xml.getElementsByTagName("subcommittee"):
+		cid = node.getAttribute("code")
+		if cid == "": continue # subcommittee without a code?
+		if node.tagName == "subcommittee":
+			cid = node.parentNode.getAttribute("code") + cid
+		for mnode in node.getElementsByTagName("member"):
+			pid = int(mnode.getAttribute("id"))
+			if not pid in people: continue
+			px = people[pid]
+			if not "committees" in px: px["committees"] = []
+			if not cid in px["committees"]: px["committees"].append(cid)
+
 	people_list = [ ]
 	people_list.extend([p for p in people.values() if p["current"]])
 	people_list.sort(key = lambda x : x["sortkey"])

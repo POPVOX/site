@@ -22,7 +22,7 @@ from sphinxapi import SphinxClient, SPH_MATCH_EXTENDED
 import dataemitters
 
 from django.conf import settings
-from settings import SITE_ROOT_URL
+from settings import SITE_ROOT_URL, DEBUG
 
 api_endpoints = []
 
@@ -101,11 +101,15 @@ class BaseHandler(object):
 			return HttpResponseBadRequest("Invalid format: " + format + ". " + str(e))
 
 		# Call the handler function, adding the account argument.
-		try:
+		if not DEBUG:
+			# let exceptions be caught higher up
 			ret = f(request, acct, *args, **kwargs)
-		except:
-			import traceback
-			return HttpResponse(traceback.format_exc())#), status_code=500
+		else:
+			try:
+				ret = f(request, acct, *args, **kwargs)
+			except:
+				import traceback
+				return HttpResponse(traceback.format_exc(), status_code=500)
 			
 		if isinstance(ret, HttpResponse):
 			return ret
@@ -224,13 +228,29 @@ class bill_suggestions(BillHandler):
 		if request.GET.get("can_comment", '') == "1":
 			pop_bills = [b for b in ret["popular"] if b.isAlive()]
 		
-		return [
+		ret = [
 			OrderedDict([
 				("name", "Popular Bills This Week"),
 				("type", "popular"),
 				("bills", pop_bills),
 			]),
 		]
+		
+		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
+			from home import get_legstaff_suggested_bills
+			for category in get_legstaff_suggested_bills(request.user, include_extras=False):
+				if not category["count"]: continue
+				bills = category["bills"]
+				if category["id"] != "local":
+					bills = bills.order_by('-current_status_date')[0:10]
+				ret.append(OrderedDict([
+					("name", category["name"] if category["type"] != "committeereferral" else category["shortname"]),
+					("type", category["id"]),
+					("bills", bills),
+				]))
+				
+		
+		return ret
 
 @api_handler
 class bill_similarity(BillHandler):
