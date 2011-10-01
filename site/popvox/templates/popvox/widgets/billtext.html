@@ -3,23 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
 		<title>POPVOX Bill Text Widget</title>
-		<meta name="viewport" content="width=700, initial-scale=1">
-		<link rel="stylesheet" type="text/css" media="screen,projection" href="/media/mobile/css/style.css" />
-		<link rel="stylesheet" type="text/css" media="print" href="/media/mobile/css/print.css" />
-		<!--[if lte IE 9]>
-			<link rel="stylesheet" type="text/css" media="screen,projection" href="/media/mobile/css/ie.css" />
-		<![endif]-->
-		<script type="text/javascript">
-		<!--
-		if(navigator.userAgent.indexOf('Mac') > 0 ){
-			document.documentElement.className += "mac";
-		}
-		//-->
-		</script>
+		<link rel="stylesheet" type="text/css" media="screen,projection" href="/media/master/reset.css" />
 
 		<script src="/media/js/jquery-1.6.2.min.js" type="text/javascript"></script>
 		<script src="/media/js/jquery.scrollview.js" type="text/javascript"></script>
 		<script src="/media/js/ajaxforms.js" type="text/javascript"></script>
+
+		<link rel="stylesheet" href="/media/css/colorbox/colorbox.css" type="text/css" />
+		<script src="/media/js/jquery.colorbox-min.js"></script>
 		
 	<style>
 	.meta_view { display: none; }
@@ -36,7 +27,7 @@
 		font-weight: bold;
 	}
 	.page_view { display: none; background-color: white; }
-	#page_paper .container { padding: 15px; }
+	#page_paper .container { padding: 15px; cursor: move; }
 	#page_paper img { display: block; } /* prevent side by side alignment for the scrolling */
 	#page_text { padding: 15px; }
 	.loading { position: absolute; background-color: white; padding: 1em; font-size: 14px; font-weight: bold; font-family: Verdana, Tahoma, Arial, sans-serif; } 
@@ -66,13 +57,14 @@
 	a#arrowDown:hover { background: #c7bab0 url(/media/billtext/arrowDownH.png) no-repeat center center; }
 	
 	/**The page number input**/
-	li#pageN input { width: 35px; background: #d5cbc3; border: 1px solid #aea298; padding: 2px; vertical-align: top; text-align: center }
+	#footer li#pageN { border: none; }
+	li#pageN input { width: 35px; background: #d5cbc3; border: 1px solid #aea298; padding: 0 2px 0 2px; vertical-align: top; text-align: center }
 	li#pageN { height: 24px; width: 100px; padding-top: 4px; text-align: center; border-right: none; }
 	li#pageN span { display: inline-block; padding-top: 2px; }
 	
 	/**The Search input**/
 	li#searchBill input { width: 110px; background: #d5cbc3; border: 1px solid #aea298; padding: 2px 2px 2px 6px; vertical-align: center; }
-	ul.barNav li#searchBill { height: 26px; padding-top: 4px; text-align: center; border-right: none; }
+	ul.barNav li#searchBill { height: 26px; padding-top: 2px; text-align: center; border-right: none; }
 	
 	/**Full screen icon**/
 	a#fullScreen { background: url(/media/billtext/fullScreen.png) no-repeat center center; height: 30px; display: block; }
@@ -97,10 +89,15 @@
 	ul.barNav li.toc, ul.barNav li.pagemode, ul.barNav li.zoom { padding: 0 10px 0 10px; }
 	ul.barNav li.pagemode a { width: 30px; text-align: center; }
 	ul.barNav li.search_nav { padding: 0 10px 0 10px; }
+	ul.barNav li.logo a { display: block; background: url(/media/billtext/logo.png); width: 29px; height: 24px;  text-indent: -999em; margin: 0; }
+	#footer ul.barNav li.logo { float: right; border: none; margin: 3px 4px 2px 4px; }
 	#search_results { padding: 7px 10px 0 10px; height: 30px; }
 	
-	#embed_info { display: none; position: absolute; left: 50px; top: 150px; background: white; border: 1px solid black; padding: 10px; }
+	/*#embed_info { display: none; position: absolute; left: 50px; top: 150px; background: white; border: 1px solid black; padding: 10px; }*/
 	
+	#embed_info { width: 450px; height: 220px;}
+	#embed_info p { font-weight: bold; margin: 10px 0 5px 0; }
+
 	</style>
 	<script>
 var _docid = null;
@@ -132,6 +129,7 @@ function load_document(docid) {
 	success: function(data, status) {
 		// Document metadata.
 		$('li.title').text(data.title);
+		$('#footer li.logo a').attr("href", data.bill.link);
 		
 		// Build the Table of Contents.
 		var toc = $('#table_of_contents');
@@ -361,7 +359,24 @@ function search_advance(direction) {
 
 function update_embed_links() {
 	$('#embed_link').val("{{request.GET.baseurl|escapejs}}#page=" + _curpage + (_zoomed ? ",zoomed=1" : "") + (_curview != "paper" ? ",format=text" : ""));
-	$('#embed_widget').val("<script src=\"https://{{request.get_host|escapejs}}/widgets/bill-text.js?docid={{request.GET.docid|escapejs}}" + (_curpage > 1 ? "&page=" + _curpage : "") + (_zoomed ? "&zoomed=1" : "") + (_curview != "paper" ? "&format=text" : "") + "\"> <" + "/script>");
+	$('#embed_widget').val("<script src=\"https://{{request.get_host|escapejs}}/widgets/bill-text.js?docid={{request.GET.docid|escapejs}}" + (_curpage > 1 ? "&page=" + _curpage : "") + (_zoomed ? "&zoomed=1" : "") + (_curview != "paper" ? "&format=text" : "") + "&account=anonymous\"> <" + "/script>");
+}
+
+function update_embed_links_2() {
+	// Update the links with lazy information.
+	
+	if ($('#embed_widget').val().indexOf("&account=anonymous") == -1) return;
+	
+	// Trace who owns this widget by getting an API key for the logged in user
+	// (note: not the owner of the public API key we use to make this widget
+	// go, which is the POPVOX api key).
+	$.ajax({
+	type:"GET",
+	url: "/api/v1/users/me",
+	dataType: "json",
+	success: function(data, status) {
+		$('#embed_widget').val( $('#embed_widget').val().replace("&account=anonymous", "&api_key=" +  data.public_api_key) );
+	}});
 }
 
 $(function() {
@@ -381,7 +396,7 @@ $(function() {
 		else
 			$('#page_paper img').attr('width', $(window).width()-60).attr('height', '');
 		
-		$('#embed_info').width($(window).width() - 120);
+		//$('#embed_info').width($(window).width() - 120);
 		
 		$('#footer').show(); // don't show until the sizes have been set to avoid flicker
 	});
@@ -393,7 +408,7 @@ $(function() {
 	
 	$("#page_paper").scrollview({});
 	
-	$('#center').click(function() { $('#embed_info').hide(); });
+	//$('#center').click(function() { $('#embed_info').hide(); });
 });
 	</script>
 	</head>
@@ -430,7 +445,7 @@ $(function() {
 				<li><a href="#" id="arrowDown" onclick="return page_advance(1)"></a></li>
 				<li id="pageN"><input value="__" onchange="return page_go_to(this.value);"></input> <span>__</span></li>
 				
-				<li id="searchBill"><input placeholder="Search"></input></li>
+				<li id="searchBill"><input placeholder="Search Text"></input></li>
 				<li class="search_nav search_prev"><a href="#" onclick="return search_advance(-1)">&lt; Prev</a></li>
 				<li class="search_nav search_next"><a href="#" onclick="return search_advance(+1)">Next&gt;</a></li>
 				<li id="search_results"></li>
@@ -442,18 +457,24 @@ $(function() {
 				
 				<li class="zoom"><a href="#" onclick="_zoomed = !_zoomed; $(window).resize(); update_embed_links(); return false;">Zoom</a></li>
 				
-				<li class="embed"><a id="embedPage" href="#" onclick="$('#embed_info').toggle(); return false;"></a></li>
+				<li class="embed"><a id="embedPage" href="#" onclick="update_embed_links_2(); $.colorbox({transition: 'none', inline: true, href:'#embed_info', opacity: .5}); return false;"></a></li>
+				
+				<li class="logo">
+					<a href="http://www.popvox.com" title="Embeddable bill text powered by POPVOX: Click here to weigh in." target="_top">
+						POPVOX.com
+					</a>
+				</li>
 			</ul>
 		</div>
 		
 		<div id="embed_info">
 			{% if request.GET.baseurl %}
 			<p>Link to this page:</p>
-			<textarea id="embed_link" style="width: 100%;" rows="2"></textarea>
+			<textarea id="embed_link" style="width: 90%;" rows="2"></textarea>
 			{% endif %}
 			
 			<p>Embed widget:</p>
-			<textarea id="embed_widget" style="width: 100%;" rows="2"></textarea>
+			<textarea id="embed_widget" style="width: 90%;" rows="2"></textarea>
 		</div>
 	</div>
 	</body>

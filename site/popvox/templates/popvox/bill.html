@@ -22,7 +22,7 @@ function showtab(tab) {
 	
 	// lazy load the bill text iframe until the tab is clicked
 	if (tab == "billtext")
-		$("#billtext iframe").attr("src", "/widgets/bill-text?width=675&docid={{bill.current_text.id}}&height=500&baseurl={{bill.url|urlencode}}");
+		$("#billtext iframe").attr("src", "/widgets/bill-text?width=675&docid={{bill.current_text.id}}&height=500&baseurl=http://www.popvox.com{{bill.url|urlencode}}");
 		
 	return false; // cancel click
 }
