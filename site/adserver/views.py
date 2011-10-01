@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -45,7 +45,19 @@ def banner(request, formatid, outputformat):
 	return response
 
 def click(request):
-	impr = get_object_or_404(Impression, code=request.GET["imx"])
+	try:
+		impr = Impression.objects.get(code=request.GET.get("imx", ""))
+	except Impression.DoesNotExist:
+		# Can't count the click toward anything. Use the banner id as a backup
+		# to at least complete the request.
+		try:
+			b = Banner.objects.get(id=request.GET.get("b", ""))
+			return HttpResponseRedirect(b.targeturl)
+		except ValueError:
+			return HttpResponseBadRequest("Invalid request.")
+		except Banner.DoesNotExist:
+			return HttpResponseBadRequest("Invalid request.")
+
 	ImpressionBlock.objects.filter(id=impr.block.id).update(clicks=F('clicks')+1, clickcost=F("clickcost")+impr.cpccost)
 
 	request.goal = None
