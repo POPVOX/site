@@ -9,6 +9,12 @@ h4 {
 	font-weight: bold;
 	text-decoration: underline;
 }
+table th {
+	font-weight: bold;
+}
+table td, table th {
+	padding: .5em;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -36,15 +42,19 @@ h4 {
 
 		<h4>Authentication</h4>
 		
-		<p>All POPVOX API methods require an <tt>api_key</tt> parameter.
-			{% if not accounts %}<a href="/accounts/login">Log in</a> to get an API key.
-			{% else %}Your API key is:{% endif %}</p>
+		<p>All POPVOX API methods require an <tt>api_key</tt> parameter. Everyone has a public API key that can be shared publicly and a private API key that must not be shared. All methods accept your private API key. Methods that accept a public API key are noted in the documentation for the API method.</p>
 			
+		<p>{% if not accounts %}<a href="/accounts/login">Log in</a> to get an API key.
+			{% else %}Your API keys are shown below:{% endif %}</p>
+		
+		{% if accounts %}
+		<table style="margin-left: 2em">
+		<tr><th>Account Name</th> <th>Private API Key</th> <th>Public API Key</th></tr>
 		{% for acct in accounts %}	
-			<p style="margin-left: 2em">
-				{{acct.secret_key}} (account: {{acct}})
-			</p>
+			<tr><td>{{acct}}</td> <td>{{acct.secret_key}}</td> <td>{{acct.api_key}}</td></tr>
 		{% endfor %}
+		</table>
+		{% endif %}
 		
 		<h4>Data Format</h4>
 		
@@ -107,6 +117,10 @@ h4 {
 				{% for key, descr in method.response_fields %}
 					<p style="margin-bottom: .66em"><tt style="display: inline-block; min-width: 6em; margin-right: .5em;">{{key}}</tt> {{descr}}</p>
 				{% endfor %}
+			{% endif %}
+			
+			{% if method.allow_public_api_key %}
+			<p style="font-style: italic">This method accepts a public API key.</p>
 			{% endif %}
 		</div>
 	

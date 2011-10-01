@@ -34,6 +34,9 @@ def api_handler(f):
 	return instance
 
 class BaseHandler(object):
+	allow_empty_api_key = False
+	allow_public_api_key = False
+	
 	def __init__(self):
 		global api_endpoints
 		api_endpoints.append(self)
@@ -47,23 +50,37 @@ class BaseHandler(object):
 		# Check the api_key query string parameter.
 		auth_string = request.REQUEST.get('api_key', "").strip()
 		if len(auth_string) == 0:
-			return HttpResponseForbidden("Authorization Required. Missing api_key parameter.")
-		try:
-			acct = (ServiceAccount.objects.filter(secret_key=auth_string) | ServiceAccount.objects.filter(api_key=auth_string)).get()
-		except:
-			return HttpResponseForbidden("Authorization Required. Invalid api_key parameter.")
+			# If the user is logged in and no api_key is specified and the API endpoint
+			# allows for automatic creation of a ServiceAccount for the user, then
+			# create a ServiceAccount if necessary for the user and use that.
+			if self.allow_empty_api_key and request.user.is_authenticated():
+				acct = request.user.userprofile.service_accounts(create=True)[0]
+			else:
+				return HttpResponseForbidden("Authorization Required. Missing api_key parameter.")
+		else:
+			try:
+				acct = ServiceAccount.objects.filter(secret_key=auth_string)
+				
+				# only allow public api keys to be used on methods that don't return private information
+				if self.allow_public_api_key:
+					acct |= ServiceAccount.objects.filter(api_key=auth_string)
+					
+				acct = acct.get()
+			except:
+				return HttpResponseForbidden("Authorization Required. Invalid api_key parameter.")
 		
 		# If there was a session parameter, then the SessionFromFormMiddleware already
 		# took care of it. Otherwise, clear the session state since we should not use
 		# a cookie-based session.
-		if "session" not in request.REQUEST:
+		if "session" not in request.REQUEST or self.allow_public_api_key:
 			# We have to set a valid session object or things that hit the session state like
 			# user login will fail.
 			session_engine = import_module(settings.SESSION_ENGINE)
 			request.session = session_engine.SessionStore()
 			
-			# But if the account is associated with a user, then authorize access to that user.
-			if acct.user:
+			# But if the account is associated with a user, then authorize access to that user,
+			# unless the API method allows public keys in which case we should not need this.
+			if acct.user and not self.allow_public_api_key:
 				request.user = acct.user
 				
 			
@@ -143,6 +160,7 @@ class BaseHandler(object):
 def make_simple_endpoint(f):
 	global api_endpoints
 	api_endpoints.append(f)
+	f.allow_public_api_key = True
 	return f
 
 def paginate_items(items, request):
@@ -221,6 +239,7 @@ class bill_similarity(BillHandler):
 		("similar_to", "A comma-separated list of bill IDs to get similar bills for.", "14402"),
 		('can_comment', 'Optional. Set to "1" to restrict the output to bills that can be commented on.', None))
 	response_summary = "Returns a paginated list of similar bills, ordered from most similar to least similar. For documentation of the returned bill metadata, see the bill metadata API method."
+	allow_public_api_key = True
 	def read(self, request, account):
 		targets = {}
 		for source_bill in Bill.objects.filter(id__in=request.GET["similar_to"].split(",")):
@@ -248,6 +267,7 @@ class bill_search(BillHandler):
 	response_fields = (
 		('context', 'When the search mode is "text", an additional field is available on each matching bill called context which is a string containing the context of the match search terms within the full text of the bill.'),
 		)
+	allow_public_api_key = True
 	
 	def bill_fields(self, request, account):
 		f = BillHandler.bill_fields
@@ -324,6 +344,7 @@ class bill_metadata(BillHandler):
 		('link', 'absolute URL to the primary page for the bill on POPVOX'),
 		('shorturl', 'a "pvox.co" short URL to the primary page for the bill on POPVOX. the short URL is owned by the user specified in a session token, if provided, otherwise by the owner of the API key used in the request. this field is only returned if explicitly requested with fields=shorturl.'),
 		)
+	allow_public_api_key = True
 	def read(self, request, account, billid):
 		return Bill.objects.get(id=billid)
 
@@ -346,6 +367,7 @@ class bill_positions(BaseHandler):
 		('comment', 'a comment on the bill from the organization; plain text format; optional'),
 		('created', 'the date and time when the position record was entered into POPVOX'),
 		)
+	allow_public_api_key = True
 	
 	@paginate
 	def read(self, request, acount, billid):
@@ -380,6 +402,7 @@ class bill_documents(DocumentHandler):
 	qs_args = (('type', 'The document type. See the document metadata API method for type numbers.', '100'),)
 	description = "Returns documents associated with a bill, including bill text (type 100)."
 	response_summary = "This API method returns two sorts of documents: position documents uploaded by advocacy organizations and other entities, and the text of a bill. Note that bills may have more than one text document associated with it as bill text changes through the legislative process. Each bill text version remains on file as the bill changes. See the document metadata API method for documentation for the returned fields."
+	allow_public_api_key = True
 	
 	def read(self, request, acount, billid):
 		bill = Bill.objects.get(id=billid)
@@ -391,7 +414,7 @@ class bill_documents(DocumentHandler):
 
 @api_handler
 class document_metadata(DocumentHandler):
-	bill_fields = ["id", "title"]
+	bill_fields = ["id", "title", "link"]
 	positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pdf_url', 'pages', 'formats', 'toc']
 	url_pattern_args = [("000", "DOCUMENT_ID")]
 	url_example_args = (248,)
@@ -410,6 +433,7 @@ class document_metadata(DocumentHandler):
 		('toc/label', 'the text label of the TOC entry'),
 		('toc/page', 'the one-based page number for the TOC entry'),
 		)
+	allow_public_api_key = True
 	
 	def read(self, request, acct, docid):
 		try:
@@ -420,7 +444,11 @@ class document_metadata(DocumentHandler):
 	@staticmethod
 	def toc(item, request, acct):
 		return json.loads(item.toc) if item.toc else None
-
+		
+	@staticmethod
+	def link(bill, request, acct):
+		return SITE_ROOT_URL + bill.url()
+		
 @api_handler
 class document_pages(BaseHandler):
 	documentpage_fields = ['page', 'text']
@@ -432,6 +460,7 @@ class document_pages(BaseHandler):
 		('page', 'the one-based page number'),
 		('text', 'the plain text content of the page'),
 		)
+	allow_public_api_key = True
 	
 	@paginate
 	def read(self, request, acct, docid):
@@ -480,6 +509,7 @@ class document_search(BaseHandler):
 	url_pattern_args = (("000",'DOCUMENT_ID'),)
 	url_example_args = (248,)
 	qs_args = (('q', 'The search query.', 'budget authority'),)
+	allow_public_api_key = True
 	
 	def read(self, request, acct, docid):
 		q = request.GET.get("q", "").strip()
@@ -658,6 +688,8 @@ class user_get_info(BaseHandler):
 		('locality/district', 'the user\'s congressional district'),
 		('locality/is_leg_staff', 'true if the user is a legislative staffer for this district and will be able to access the private information of her or her constituents in this state or district, false or not set otherwise'),
 		)
+	allow_empty_api_key = True
+	
 	def read(self, request, acct):
 		if not request.user.is_authenticated():
 			return HttpResponseBadRequest("No valid session token was specified and your API key is not associated with a user account.")
@@ -665,6 +697,8 @@ class user_get_info(BaseHandler):
 			"screenname": request.user.username,
 			"email": request.user.email,
 			"name": request.user.get_profile().fullname,
+			"secret_api_key": acct.secret_key,
+			"public_api_key": acct.api_key,
 		}
 
 		if request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
@@ -835,6 +869,11 @@ def documentation(request):
 		return url
 	
 	def prepare_documentation(f):
+		if len(api_keys) > 0:
+			api_key = api_keys[0].secret_key
+			if f.allow_public_api_key:
+				api_key = api_keys[0].api_key
+		
 		f.api_display_name = f.__name__.replace("_", " ")
 
 		try:
@@ -852,7 +891,7 @@ def documentation(request):
 				if example:
 					additional_args.append( (name, example) )
 			if len(api_keys) > 0:
-				additional_args.append( ('api_key', api_keys[0].secret_key) )
+				additional_args.append( ('api_key', api_key) )
 			if len(additional_args) > 0:
 				f.url_example += "?" + urllib.urlencode(additional_args)
 			
