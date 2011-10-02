@@ -1,6 +1,9 @@
 POPVOX System Stack
 ===================
 
+This file documents all components of our live system stack, including any
+external service that affects any deployed services (POPVOX.com, iPad, etc.).
+
 Network Solutions
 	
 	Domain registrations:
@@ -18,6 +21,13 @@ Network Solutions
 	need to secure the account password
 	need to secure the associated email addresses
 
+DNS on occams.info
+
+	72.249.66.163, with reverse DNS to www.popvox.com
+	named.conf.local has entries for thevoxpop.us, popvox.com, popvox.net, pvox.co...
+	all use popvox.hosts zone file
+	sendonary slave dns @ rimuhosting
+
 Amazon Web Services
 
 	need to secure the password
@@ -32,29 +42,8 @@ Server Boxes
 
 	"intern test server": josh, joshlewis
 
-	
-Pivotal Tracker
+	CHECK: SSH disallows password authentication
 
-	access to: josh, william, annalee, marci, rachna, shane
-
-DropBox
-
-	teambox:
-	officerbox:
-
-Twitter
-
-	@popvox
-	@popvoxnation
-	
-	access to marci, miranda
-	
-	CrowdBooster, HootSuite, AngelList
-
-Flickr
-
-	?
-	
 Apple Developer Account
 
 	access to: marci, josh, ChaiOne
@@ -63,10 +52,36 @@ iTunes Connect
 
 	access to: marci, josh, AppBackr
 
+Twitter
+
+	@popvox
+	@popvoxnation
 	
-Scribd
+	access to marci, miranda
+	
+	as oauth login into CrowdBooster, HootSuite, AngelList
+	
+	POPVOX app:
+		owned by @popvox
+		callback URL https://www.popvox.com/twitter_oauth_callback is used by the iPad app
 
-	not sure which acct it is under
+Google OAuth
 
-	access to: marci
+	The OAuth key is configured under tauberer@gmail.com. But we're not using that anyway
+	since we do login with OpenID.
+	
+Facebook App
+
+	The application is configured under Josh's personal account.
+	
+LinkedIn
+	
+	The application is owned by Josh.
+
+WordPress on occams.info
+	/etc/wordpress/config-www.popvox.com.php
+	A symlink is in /usr/share/wordpress/wp-content/themes to blog-theme
+	The admin account has tauberer@gmail.com as its email address,
+	but the site's contact address is josh@popvox.com.
+
 

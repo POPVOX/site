@@ -1,0 +1,43 @@
+External Services
+=================
+
+
+Other services we use...
+
+
+Google Apps (g.popvox.com)
+
+	admins: josh, annalee
+	
+	We've agreed to provide mail forwarding for a year (until
+	the end of August 2011) for David Troy:
+	  dave@popvox.com -> davetroy@gmail.com
+	  jennifer@popvox.com -> jtroy@roundhousetech.com (updated from jennifer.troy1@gmail.com on 8/19/10)
+
+Twilio:
+	we have a local 202 number
+	if someone dials it, a URL is set in twilio to receive the call
+
+Pivotal Tracker
+
+	access to: josh, william, annalee, marci, rachna, shane
+
+DropBox
+
+	teambox:
+	officerbox:
+
+Flickr
+
+	?
+	
+Scribd
+
+	not sure which acct it is under
+
+	access to: marci
+
+Google/Doubleclick for Publishers Small Business
+	josh@popvox.com
+	
+
