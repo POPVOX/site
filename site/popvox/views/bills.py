@@ -200,7 +200,12 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
 				status = "overflow"
 				break
 
-	return (Bill.objects.filter(id__in=bills), status, error)
+	# Pull in the bill objects for the search result matches. Order
+	# by the number of user comments in the last three weeks.
+	return (
+		Bill.objects.filter(id__in=bills) \
+			.filter(usercomments__created__gt=datetime.now()-timedelta(days=21)).annotate(Count('usercomments')).order_by('-usercomments__count'),
+		status, error)
 
 @csrf_protect_if_logged_in
 def billsearch(request):
