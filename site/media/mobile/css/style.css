@@ -241,6 +241,7 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 .stats .left-column { border-top: 1px solid #d5d5d7; padding: 12px 0 0; }
 .stats .right-column { border-top: 1px solid #d5d5d7; padding: 12px 0 0; }
 .stats h3, h3#chart_time_title { color: #c76825; font-size: 11px; font-weight: normal; font-family: 'HelveticaNeueBold'; margin: 0 0 16px; }
+#chart_time_title { text-align: center; }
 
 /* stat-bar */
 .stat-bar { width: 100%; height: 48px; overflow: hidden; position: relative; }
@@ -303,7 +304,7 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 	} 
 	
 	.datacolumn p.who.when_only { 
-		width: 40px;
+		/*width: 40px;*/
 		height: 15px;
 		margin: 0 0 5px 10px;
 		float: right;
@@ -341,10 +342,10 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 .summary .summary-line { width: 100%; overflow: hidden; padding: 0 0 30px; }
 .summary .summ-users { float: left; font-size: 51px; color: #75747c; line-height: 40px; vertical-align: top; font-family: 'BebasNeue'; position: relative; height: 55px; }
 .summary .summ-users span { display: block; position: absolute; left: 0; bottom: 0; font-size: 17px; vertical-align: baseline; height: 27px; color: #75747c; font-family: 'HelveticaNeueBold'; }
-.summary .summ-support { float: right; background: url(../images/bgr-usr-fav.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; }
-.summary .summ-support strong { display: block; position: absolute; left: 66px; top: 0; font-family: 'BebasNeue'; color: #ff9700; font-size: 73px; vertical-align: top; line-height: 58px; }
+.summary .summ-support { float: right; background: url(../images/bgr-usr-fav.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; line-height: 80px; }
+.summary .summ-support strong { display: block; position: absolute; left: 66px; top: 0; font-family: 'BebasNeue'; color: #ff9700; font-size: 73px; vertical-align: top; line-height: 80px; }
 .summary .summ-oppose { float: right; background: url(../images/bgr-usr-opp.png) no-repeat 0 100%; width: 160px; position: relative; height: 55px; }
-.summary .summ-oppose strong { display: block; position: absolute; left: 66px; top: 0; color: #fc3; font-size: 73px; vertical-align: top; line-height: 55px; font-family: 'BebasNeue'; }
+.summary .summ-oppose strong { display: block; position: absolute; left: 66px; top: 0; color: #fc3; font-size: 73px; vertical-align: top; line-height: 55px; font-family: 'BebasNeue'; line-height: 80px;  }
 .summary.two .summ-support, .summary.two .summ-oppose { width: 125px;}
 .summary.three .summ-support, .summary.three .summ-oppose { width: 158px;}
 
@@ -382,6 +383,11 @@ a.b_more_comments:hover {
     border: 0;
     }
 
+.more_comments_loading {
+    height: 22px;
+    margin: 20px auto;
+    display: block;
+    }
 
 /* Print styles
 ------------------------------------------------------------------------------*/

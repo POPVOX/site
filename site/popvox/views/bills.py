@@ -1631,7 +1631,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 				"user": c.user.username,
 				"msg": msg(c.message),
 				"location": location(c),
-				"date": formatDateTime(c.updated),
+				"date": formatDateTime(c.created),
 				"pos": c.position,
 				"share": bill_url + "/comment/" + str(c.id), #c.url(),
 				"verb": verb(c), #c.verb(tense="past"),

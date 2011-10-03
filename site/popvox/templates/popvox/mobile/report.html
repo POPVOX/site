@@ -23,7 +23,6 @@
 		var report_state = null;
 		var report_district = null;
 		
-		var comments_start = 0;
 		var comments_loaded = 0;
 		var comments_count = 20;
 		
@@ -84,7 +83,6 @@
 				report_district = value;
 			}
 			
-			comments_start = 0;
 			comments_loaded = 0;
 			comments_count = 20;
 			
@@ -97,6 +95,7 @@
 				report_state != '{{private_info_for.0}}'
 				|| report_district != {% if private_info_for.1 %}'{{private_info_for.1}}'{% else %}null{% endif %});
 			
+			var comments_start = 0;
 			if (!is_more) {
 				$('.b_more_comments, .more_comments_loading').hide();
 			} else {
@@ -117,7 +116,6 @@
 				},
 				complete: function(res, status) {
 					isloading = false;
-					comments_loaded = comments_start + comments_count;
 					
 					if (status != "success") {
 						$('#loadingstatus').text("Error loading report.");
@@ -252,6 +250,7 @@
 							elem.find(".message").append(par);
 						}
 						elem.appendTo(containers[(c.pos == "+") ? 0 : 1]);
+						comments_loaded++;
 					}
 					
 					if (!is_more)
@@ -479,14 +478,14 @@
 				</div><!-- popvox-box -->
 				<div class="summary">
 					<div class="summary-line">
-						<div class="summ-users" id="stats_nation_positions"><strong class="num"></strong><em class="scale"></em> <span>PEOPLE</span>
+						<div class="summ-users" id="stats_nation_positions"><strong class="num"></strong><em class="scale"></em> <span>USERS</span>
 						</div><!-- summ-users -->
 						<div class="summ-support">
 							<strong><span class="num"></span><em class="scale">K</em></strong>
 						</div><!-- summ-support -->
 					</div><!-- summary-line -->
-					<div class="summary">
-						<div class="summ-users" id="stats_nation_comments"><strong class="num"></strong><em class="scale"></em> <span>LETTERS</span>
+					<div class="summary-line">
+						<div class="summ-users" id="stats_nation_comments"><strong class="num"></strong><em class="scale"></em> <span>COMMENTS</span>
 						</div><!-- summ-users -->
 						<div class="summ-oppose">
 							<strong><span class="num"></span><em class="scale">K</em></strong>
@@ -508,7 +507,7 @@
 						<h3 id="state" class="txt"><span>STATE</span></h3> 
 					</div><!-- txt-outer -->
 					<div class="users">
-						<em class="num">QQ</em><em></em><span>PEOPLE</span>
+						<em class="num">QQ</em><em></em><span>USERS</span>
 					</div><!-- users -->
 				</div>
 				<div class="summary">
@@ -530,7 +529,7 @@
 						<h3 id="district" class="txt"><span>2</span><em>nd</em></h3> 
 					</div><!-- txt-outer -->
 					<div class="users">
-						<strong class="num">QQ</strong> <span>PEOPLE</span>
+						<strong class="num">QQ</strong> <span>USERS</span>
 					</div><!-- users -->
 				</div>
 				<div class="summary">
