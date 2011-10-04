@@ -34,13 +34,13 @@
 	
 	{% if "widget_theme" in permissions %}
 	#comment_widget #widget_top {
-		background: #{{request.GET.sbg}} url("comments_widget_head_grad.png") left top repeat-x;
+		background: #{{request.GET.sbg}}; /* url("comments_widget_head_grad.png") left top repeat-x; */
 		color: #{{request.GET.sfg}};
 		border: #000;
 		}
 		
 	#comment_widget #widget_body {
-		background: #{{request.GET.bg}} url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top;
+		background: #{{request.GET.bg}}; /* url("bg_widget_comment_body_grad_2.png") repeat-x scroll left top; */
 		}
 		
 	#comment_widget h1,

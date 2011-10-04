@@ -152,7 +152,7 @@
 					} else {
 						$('#stats_nation .popvox-fav').text(res.stats.overall.pro_pct + "%");
 						$('#stats_nation .popvox-opp').text(res.stats.overall.con_pct + "%");
-						$('#stats_nation .popbox-box-outer').attr('style', "width: " + Math.round(45 + (380-45)*res.stats.overall.pro_pct/100.0) + "px");
+						$('#stats_nation .popbox-box-outer').attr('style', "width: " + Math.round(30 + (301-30)*res.stats.overall.pro_pct/100.0) + "px");
 						set_scaled_num("#stats_nation_positions", res.stats.overall.total);
 						set_scaled_num("#stats_nation_comments", res.stats.overall.total_comments);
 						set_scaled_num('#stats_nation .summ-support', res.stats.overall.pro);
@@ -432,7 +432,7 @@
 			<div style="clear: both;"> </div>
 		</div><!-- columns stats -->
 
-		<div id="select_district_box" style="margin: 15px 0 25px 0">
+		<div id="select_district_box" style="margin: 15px 0 25px 0;">
 		<div class="select_district_box_wrapper">
 			<h2>Drill Down</h2> 
 			<select id="options_state" onchange="update('state', this.value)" data-inline="true">

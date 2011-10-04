@@ -212,13 +212,13 @@ class BillHandler(BaseHandler):
 		
 @api_handler
 class bill_suggestions(BillHandler):
-	description = "Retreives suggested bills, including popular bills."
+	description = "Retreives suggested bills, including trending bills."
 	qs_args = (
 		('can_comment', 'Optional. Set to "1" to restrict the output to bills that can be commented on.', None), )
 	response_summary = "Returns groups of recommendations, i.e. a list of lists. Each group has a title, an identification code, and a list of bills. The list of bills may be ordered from most relevant to least relevant. For documentation of the returned bill metadata, see the bill metadata API method."
 	response_fields = (
 		('name', 'the display name for the list'),
-		('type', 'a string code identifying the type of the list (currently just "popular")'),
+		('type', 'a string code identifying the type of the list (currently just "trending")'),
 		('bills', 'a list of bills in the list'),
 		)
 	def read(self, request, account):
@@ -230,8 +230,8 @@ class bill_suggestions(BillHandler):
 		
 		ret = [
 			OrderedDict([
-				("name", "Popular Bills This Week"),
-				("type", "popular"),
+				("name", "Trending Bills"),
+				("type", "trending"),
 				("bills", pop_bills),
 			]),
 		]
