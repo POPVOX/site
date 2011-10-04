@@ -54,6 +54,7 @@ class UserCommentDiggAdmin(admin.ModelAdmin):
 
 class PostalAddressAdmin(admin.ModelAdmin):
 	search_fields = ("user__username","user__email","firstname","lastname","address1")
+	raw_id_fields = ('user',)
 
 class OrgCampaignInline(admin.TabularInline):
     model = OrgCampaign

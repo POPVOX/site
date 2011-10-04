@@ -1383,7 +1383,7 @@ def get_default_statistics_context(user, individuals=True):
 				default_state = member["state"]
 				if member["type"] == "rep":
 					default_district = member["district"]
-		elif individuals:
+		elif individuals and False: # individuals dont seem to like to see local statistics
 			addresses = user.postaladdress_set.order_by("-created")
 			if len(addresses) > 0:
 				default_state = addresses[0].state
