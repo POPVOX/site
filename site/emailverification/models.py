@@ -10,7 +10,7 @@ import random
 from datetime import datetime, timedelta
 
 CODE_LENGTH = 16
-EXPIRATION_DAYS = 7
+EXPIRATION_DAYS = 14
 RETRY_DELAYS = [
 	timedelta(minutes=15), 	# first retry is 15 minutes
 	timedelta(hours=10), 		# second retry is 10 hours after the 1st retry
