@@ -430,7 +430,7 @@ def register_validation(request):
 		axn.orgname = test_field_provided(request, "orgname", fielderrors=status)
 		
 		axn.orgwebsite = request.POST["orgwebsite"]
-		if axn.orgwebsite != "" and axn.orgwebsite[0:7] != "http://":
+		if axn.orgwebsite != "" and axn.orgwebsite[0:7] != "http://"and axn.orgwebsite[0:8] != "https://":
 			axn.orgwebsite = "http://" + axn.orgwebsite
 		if axn.orgwebsite == "http://":
 			status["orgwebsite"] = "This field is required."
