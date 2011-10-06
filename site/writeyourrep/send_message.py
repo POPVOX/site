@@ -389,6 +389,7 @@ radio_choices = {
 }
 
 custom_mapping = {
+    "23_field_db3de26e-1334-48c8-ac2a-d173968c6236_radio": "response_requested",
 	"24_i02": "message",
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
 	"37_affl3": "enews_subscribe",
@@ -427,7 +428,7 @@ custom_overrides = {
 	"18_prefix2_select": "Yes",
 	"29_subject_radio": "CRNR", # no response requested
 	"37_state_id_select": "83c503f1-e583-488d-ac7f-9ff476cfec25", #WTF Feinstein's form, seriously.
-	"37_field_a3ffd5e3-91d9-4394-8aa0-52c160f1a94c_radio": "",
+	"37_field_a3ffd5e3-91d9-4394-8aa0-52c160f1a94c_radio": "Y",
 	"38_subsubject_select": "Other",
 	"44_nl_radio": "no",
 	"44_nl_format_radio": "text",
@@ -763,7 +764,9 @@ def test_zipcode_rejected(webform, deliveryrec):
 		or "This authentication has failed" in webform\
 		or "<li>Zip Extension is required</li>" in webform\
 		or "the zip code you entered is incomplete or lies outside of the boundaries" in webform\
-		or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform:
+		or "Access to the requested form is denied, the zip code which you entered" in webform\
+		or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform\
+        or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
 		deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
 		raise DistrictDisagreementException()
 	
