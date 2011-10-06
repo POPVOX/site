@@ -93,7 +93,7 @@
 	#footer ul.barNav li.logo { float: right; border: none; margin: 3px 4px 2px 4px; }
 	#search_results { padding: 7px 10px 0 10px; height: 30px; }
 	
-	/*#embed_info { display: none; position: absolute; left: 50px; top: 150px; background: white; border: 1px solid black; padding: 10px; }*/
+	#embed_info { display: none; }
 	
 	#embed_info { width: 450px; height: 220px;}
 	#embed_info p { font-weight: bold; margin: 10px 0 5px 0; }
@@ -123,7 +123,7 @@ function load_document(docid) {
 	type:"GET",
 	url: "/api/v1/document/" + docid,
 	data: {
-		api_key: "DQZUTLYRW4K1FK1O", // popvox public api key
+		api_key: "DQZUTLYRW4K1FK1O" // popvox public api key
 	},
 	dataType: "json",
 	success: function(data, status) {
@@ -287,8 +287,8 @@ function load_page_image(pagenum, prevpage, direction) {
 			});
 	});
 	$(window).resize(); // reset image size
-	img.attr('src', "/api/v1/document/" + _docid + "/page/" + _curpage + ".png");
 	$('.loading').fadeIn();
+	img.attr('src', "/api/v1/document/" + _docid + "/page/" + _curpage + ".png");
 	
 	//$('#arrowUp').toggle(_curpage > 1);
 	//$('#arrowDown').toggle(_curpage < _pagecount);
@@ -388,13 +388,13 @@ $(function() {
 		$('#center, #page_paper').height($(window).height() - $('#header').height() - $('#footer').height());
 		//$('#footer .zoom').toggle($(window).height() > 500);
 		if ($(window).height() <= 600 && !_zoomed)
-			$('#page_paper img').attr('height', 600).attr('width', '');
+			$('#page_paper img').attr('height', 600).removeAttr('width');
 		else if ($(window).height() > 600 && !_zoomed)
-			$('#page_paper img').attr('height', $('#page_paper').height() - 35).attr('width', '');
+			$('#page_paper img').attr('height', $('#page_paper').height() - 35).removeAttr('width');
 		else if ($(window).width() > 768 && !_zoomed)
-			$('#page_paper img').attr('width', 768-60).attr('height', '');
+			$('#page_paper img').attr('width', 768-60).removeAttr('height');
 		else
-			$('#page_paper img').attr('width', $(window).width()-60).attr('height', '');
+			$('#page_paper img').attr('width', $(window).width()-60).removeAttr('height');
 		
 		//$('#embed_info').width($(window).width() - 120);
 		

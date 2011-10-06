@@ -58,7 +58,7 @@ function bill_timeseries(container, data, opts) {
 		}
     },
 	 credits: { enabled: false },
-	 xAxis: { categories: data.xaxis, labels: { enabled: (!opts || !opts.xlabels) ? false : opts.xlabels, step: 5, rotation: -70, y: 25,  } },
+	 xAxis: { categories: data.xaxis, labels: { enabled: (!opts || !opts.xlabels) ? false : opts.xlabels, step: 5, rotation: -70, y: 25 } },
 	 yAxis: { min: 0, title: { text: "Cumulative Users", style: { fontSize: "10px", fontWeight: "normal" } } },
 	 plotOptions: {
 		    line: {
