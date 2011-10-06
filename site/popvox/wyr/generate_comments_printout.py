@@ -2,7 +2,13 @@
 
 # Takes all of the batched UserCommentOfflineDeliveryRecord objects
 # and generates a PDF of comments to be delivered to Members of Congress.
-# It first generates a LaTeX file.
+# It first generates a LaTeX file and then runs xelatex to make the PDF.
+
+# At the bottom of each page, a footer "cover letter" is embedded. On
+# one occassion when I embedded the PDF directly, something with the font
+# got messed up and FedEx printed garbage. So now the cover letter footer
+# is rasterized to a PNG first with:
+# pdftoppm -png -cropbox -r 300 popvox/wyr/coverletter.pdf > popvox/wyr/coverletter.png
 
 from django.db.models import Max
 from django.core.mail import EmailMultiAlternatives
@@ -34,6 +40,7 @@ def create_tex(tex, serial):
 	outfile = O()
 	outfile.write = lambda x : outfile_.write(x.encode("utf8", "replace"))
 	def escape_latex(x):
+		if not isinstance(x, (str, unicode)): raise ValueError(type(x))
 		x = re.sub(r"(\S{15})(\S{15})", r"\1" + u"\u00AD" + r"\2", x) # break up long sequences of otherwise unbreakable characters with soft hyphens, which just show up as hyphens so we replace then with LaTeX discretionary breaks below 
 		x = x.replace("\\", r"\\").replace("#", r"\#").replace("$", r"\$").replace("%", r"\%").replace("&", r"\&").replace("~", r"\~").replace("_", r"\_").replace("^", r"\^").replace("{", r"\{").replace("}", r"\}").replace(u"\u00AD", r"\discretionary{}{}{}")
 		x = re.sub(r'(\s)"', r'\1' + u"\u201C", x)
@@ -58,7 +65,7 @@ def create_tex(tex, serial):
 	outfile.write(r"            \setlength{\@tempdimc}{0in}" + "\n")
 	outfile.write(r"            \setlength{\unitlength}{1pt}" + "\n")
 	outfile.write(r"            \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){" + "\n")
-	outfile.write(r"        \includegraphics{" + os.path.abspath(os.path.dirname(__file__) + "/coverletter.pdf") + r"}" + "\n")
+	outfile.write(r"        \includegraphics[width=8.5in]{" + os.path.abspath(os.path.dirname(__file__) + "/coverletter.png") + r"}" + "\n")
 	outfile.write(r"            }" + "\n")
 	outfile.write(r"}" + "\n")
 	outfile.write(r"\makeatother" + "\n")
@@ -131,7 +138,7 @@ def create_tex(tex, serial):
 			
 			outfile.write("\\noindent (see http://popvox.com" + bill.url() + "/report)\n\n\n\\bigskip")
 			
-			for t3 in UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position):
+			for t3 in UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__message__isnull=False):
 				# Move this into the new batch number if it's not in a numbered batch.
 				if batch == None:
 					t3.batch = batch_no
@@ -150,6 +157,8 @@ def create_tex(tex, serial):
 				outfile.write(r"\hrule\bigskip" + "\n\n")
 				outfile.write(r"\noindent ")
 				outfile.write_esc(address.nameprefix + " " + address.firstname + " " + address.lastname + " " + address.namesuffix)
+				outfile.write(r"\hfill" + "\n")
+				outfile.write_esc(comment.updated.strftime("%x"))
 				outfile.write(r"\\\nopagebreak" + "\n")
 				outfile.write_esc(address.address1)
 				outfile.write(r"\\\nopagebreak" + "\n")
@@ -158,12 +167,11 @@ def create_tex(tex, serial):
 					outfile.write(r"\\\nopagebreak" + "\n")
 				outfile.write_esc(address.city + ", " + address.state + " " + address.zipcode)
 				outfile.write(r"\\\nopagebreak" + "\n")
-				if address.phonenumber != "":
-					outfile.write_esc(address.phonenumber)
-					outfile.write(r"\\\nopagebreak" + "\n")
+				outfile.write_esc(address.phonenumber)
+				outfile.write(r" --- " + "\n")
 				outfile.write_esc(comment.user.email)
-				outfile.write(r"\\\nopagebreak" + "\n")
-				outfile.write_esc(comment.updated.strftime("%x"))
+				#outfile.write(r"\\\nopagebreak" + "\n")
+				#outfile.write_esc(comment.updated.strftime("%x"))
 				outfile.write(r"\\\nopagebreak" + "\n\n" + r"\nopagebreak ")
 			
 				outfile.write_esc(comment.message)
@@ -220,7 +228,8 @@ def create_tex(tex, serial):
 	outfile_.close()
 	
 if len(sys.argv) == 2 and sys.argv[1] == "resetbatchnumbers":
-	UserCommentOfflineDeliveryRecord.objects.all().delete()
+	#UserCommentOfflineDeliveryRecord.objects.all().delete()
+	UserCommentOfflineDeliveryRecord.objects.all().update(batch=None)
 elif len(sys.argv) == 3 and sys.argv[1] == "kill":
 	UserCommentOfflineDeliveryRecord.objects.filter(batch = sys.argv[2]).delete()
 elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":

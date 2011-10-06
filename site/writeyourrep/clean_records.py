@@ -18,7 +18,7 @@ def delete(descr, **filters):
 			return "(" + ", ".join([fmt(x) for x in v]) + ")"
 		return str(v)
 	print "Deleting", objs.count(), descr, "where", ", ".join([str(k)+"="+fmt(v) for k,v in filters.items()])
-	#objs.delete()
+	objs.delete()
 
 # General cleanup.
 
