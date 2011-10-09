@@ -1104,6 +1104,9 @@ def send_message_housewyr(msg, deliveryrec):
 	return True
 
 def send_message(msg, moc, previous_attempt, loginfo):
+	global extra_cookies
+	global http_last_url
+
 	cookiejar.clear()
 	extra_cookies = { }
 	http_last_url = ""

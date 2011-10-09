@@ -76,6 +76,31 @@ def district_lookup_zipcode(zipcode):
 			return rows[0][0], rows[0][1]
 
 	return None
+	
+def district_lookup_zipcode_housedotgov(zipcode):
+	import re, socket, urllib, urllib2
+	
+	from popvox.govtrack import statenames
+	
+	statenames_inverse = dict((kv[1], kv[0]) for kv in statenames.items())
+	
+	socket.setdefaulttimeout(10) # ten seconds
+	http = urllib2.build_opener()
+	http.addheaders = [
+		('User-agent', "POPVOX.com Message Delivery <info@popvox.com>"),
+		]
+	
+	url = "http://house.gov/htbin/findrep?" + urllib.urlencode({ "ZIP": zipcode })
+	ret = http.open(url)
+	
+	resp = ret.read()
+	
+	m = re.search(r"is located in the \s*(\d+)(st|nd|rd|th) Congressional district of (\w+( \w+)?)\.", resp)
+	if not m: return None
+	
+	state = statenames_inverse[m.group(3)]
+	
+	return state, int(m.group(1))
 
 def district_lookup_address(addr):
 	# Use the Google API to geocode. Note that we have to display the
