@@ -1628,65 +1628,9 @@ div.neutral {
         padding-top: 5px;
         }
 
-.tab_pane.share_some_pie .col_5 {     }
-
-.tab_pane.share_some_pie .col_5.col_last {
-    margin-right: 0;
-    width: 320px;
-    }
-
-.tab_pane.share_some_pie h1 {   }
-
-.tab_pane.share_some_pie h3 { margin-top: 0     }
-
 .c5 h3 { padding-top: 0     }
 
-.share_some_pie .c5.share_social,
-.share_some_pie .c5 {
-    width: 250px;
-    margin-top: 0;
-    padding-top: 0;
-    }
-
 .c5.share_social h3 { margin-top: 15px;  }
-
-.share_some_pie .c5.share_social h3,
-.share_some_pie .social_share_btns { width: 235px; margin-left: 30px;   }
-
-.share_some_pie .message_preview {
-    margin-top: 0;
-    background: none;
-    width: 400px;
-    padding-top: 0;
-    }
-    
-.share_some_pie .message_preview p {
-	background: none;
-	width: 400px;
-	padding-left: 0;
-	margin-left: 0;
-
-}
-
-.share_some_pie .form textarea.c5 {
-    width: 230px;
-    padding: 5px;
-    }
-
-.share_some_pie .form label.checkbox {
-    width: 220px;
-    margin-right: 0;
-    }
-
-.tab_pane.share_some_pie .col_4 {
-    width: 320px;
-    margin-right: 20px;
-    }
-
-.tab_pane.share_some_pie .col_4.col_last {
-    margin-right: 0;
-    width: 220px;
-    }
 
 .check_inbox .col_7 {
     background: #d4d1ca url(http://b3.s3.quickshareit.com/screenshot20110307at349pmjpg30e28.jpg)  -95px -193px no-repeat;
@@ -2349,18 +2293,20 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
 		background: url("../widget/bg_opposed_bubl_l.png") no-repeat scroll 0px 8px transparent;
 		}
     
-	.message_preview p {
+	.message_preview div.inner {
 		background: url(letter_middle.png) center repeat-y;
 		margin-left: -21px;
 		margin-bottom: 0;
 		padding: 0 50px 15px;
 		width: 581px;
+	 }
+	 .message_preview p {
 		font-family: Georgia, serif;
 		font-size: 16px;
 		}
 		
 	.message_preview p.signature {
-		padding-left: 400px;
+		padding-left: 340px;
 		width: 230px; /* prevent wrap */
 		}
 		
@@ -3077,8 +3023,14 @@ a.b_get_started {
 .btn { text-indent: -9999em     }
 
 .btn:hover,
-.btn.force_hover_state {
+.btn.force_hover_state,
+.invert_hover_state .btn {
     background-position: left bottom;
+    border: none;
+    cursor: pointer;
+    }
+.invert_hover_state .btn:hover, .no_hover_state .btn:hover {
+    background-position: left top;
     border: none;
     cursor: pointer;
     }
@@ -3646,25 +3598,6 @@ p.hint {
     float: left;
     width: 210px;
     }
-
-ul.social_share_btns {
-    margin-bottom: 10px;
-    margin-top: 10px;
-    }
-
-    ul.social_share_btns li {
-        float: left;
-        clear: right;
-        }
-
-        ul.social_share_btns li a {
-            text-indent: -9999em;
-            display: block;
-            width: 50px;
-            height: 31px;
-            border: none;
-            margin-bottom: 20px;
-            }
 
 .b_login_facebook,
 .b_login_twitter {

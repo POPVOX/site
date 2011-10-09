@@ -1189,6 +1189,8 @@ class UserComment(models.Model):
 					return "oppose the reintroduction of"
 	def verb_imp(self):
 		return self.verb(tense="imp")
+	def verb_ing(self):
+		return self.verb(tense="ing")
 
 	def shares(self):
 		import shorturl
@@ -1230,8 +1232,10 @@ class UserComment(models.Model):
 		recips = self.get_recipients()
 		if not type(recips) == list:
 			return "[" + recips + "]"
-		
-		recips = [m["name"] for m in recips]
+		def nicename(name):
+			import re
+			return re.sub(r"\s*\[.*\]", "", name)
+		recips = [nicename(m["name"]) for m in recips]
 		if len(recips) > 1:
 			recips[-1] = "and " + recips[-1]
 		if len(recips) <= 2:
@@ -1239,7 +1243,7 @@ class UserComment(models.Model):
 		else:
 			return ", ".join(recips)
 	
-	def delivery_status(self):
+	def delivery_status(self, ref1="Your message", ref2="you"):
 		recips_ = self.get_recipients()
 		recips = [g["id"] for g in recips_] if type(recips_) == list else []
 		
@@ -1253,7 +1257,7 @@ class UserComment(models.Model):
 					retd[d.created.strftime("%x")] = []
 				retd[d.created.strftime("%x")].append(d.target.govtrackid)
 			elif self.message != None: # don't talk about failures
-				retd[govtrack.getMemberOfCongress(d.target.govtrackid)["sortkey"]] = "We had trouble delivering your message to " + govtrack.getMemberOfCongress(d.target.govtrackid)["name"] + " but we will try again. "
+				retd[govtrack.getMemberOfCongress(d.target.govtrackid)["sortkey"]] = "We had trouble delivering " + ref1.lower() + " to " + govtrack.getMemberOfCongress(d.target.govtrackid)["name"] + " but we will try again. "
 		
 		# Serialize into text for the user.
 		retk = list(retd.keys())
@@ -1261,7 +1265,7 @@ class UserComment(models.Model):
 		ret = ""
 		for k in retk:
 			if type(k) == str:
-				ret += "Your comment was delivered to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in retd[k]]) + " on " + k + ". "
+				ret += ref1 + " was delivered to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in retd[k]]) + " on " + k + ". "
 			else:
 				ret += retd[k]
 				
@@ -1269,7 +1273,7 @@ class UserComment(models.Model):
 		if ret == "" and len(recips) == 0:
 			if type(recips_) == str:
 				return recips_
-			return "The comment cannot be delivered at this time because the Congressional office(s) that represents you is/are currently vacant."
+			return "The comment cannot be delivered at this time because the Congressional office(s) that represents " + ref2 + " is/are currently vacant."
 			
 		# Don't pre-sage these deliveries because if we can't deliver electronically we don't bother.
 		# But we can report what was delivered.
@@ -1277,9 +1281,12 @@ class UserComment(models.Model):
 			return ret
 		
 		if len(recips) > 0:
-			ret += "Your comment is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
+			ret += ref1 + " is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
 			
 		return ret
+
+	def delivery_status_public(self):
+		return self.delivery_status(ref1="This letter", ref2=self.user.username)
 		
 	def has_been_delivered(self):
 		return self.delivery_attempts.filter(success=True).exists()

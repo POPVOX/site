@@ -3,7 +3,6 @@
 {% load humanize %}
 <script>
 var working = false;
-var current_share_tab = null;
 function share(method, isauto, linkcallback) {
 	if (method == "email" && $('#share_email_field').hasClass("default")) {
 		alert("Enter some email addresses.");
@@ -21,7 +20,7 @@ function share(method, isauto, linkcallback) {
 			"message": $('#share_message').val(),
 			"method": method,
 			"emails": $('#share_email_field').val(),
-			"includecomment": $('#share_includecomment').attr('checked') ? "1" : "0",
+			"includecomment": $('#share_includecomment').attr('checked') ? "1" : "0"
 		},
 		{ "savebutton": "share_" + method + "_button",
 		   "statusfield": "share_" + method + "_status",
@@ -29,11 +28,8 @@ function share(method, isauto, linkcallback) {
 			   working = false;
 			   if (method == "email") { $('#share_email_field').val(''); $('#share_email_field').blur(); }
 			   //if (method == "email") $("#share_" + method + "_status").delay(6000).fadeOut();
-			   if (res.url) {
-				   $('#sharetab_link p').html("Copy the link <tt>" + res.url + "</tt> to share this bill with others.");
-				   if (linkcallback)
-					   linkcallback(res.url);
-			   }
+			   if (res.url && linkcallback)
+			       linkcallback(res.url);
 		   },
 		   "failure": function(res) {
 			   if (res.error == "not-authorized" && !isauto) {
@@ -45,70 +41,34 @@ function share(method, isauto, linkcallback) {
 			   }
 			   if (linkcallback)
 				   linkcallback("{{SITE_ROOT_URL|escapejs}}{{comment.url|escapejs}}");
-		   },
+		   }
 		});
 	mpmetrics.track('comment share', { 'bill': '{{comment.bill.displaynumber|escapejs}}', method: method });
 	return false;
 }
-function share_tab(method) {
-	{% if not facebook %}
-	if (method == "facebook")
+function start_share(method) {
+	if (method == "facebook") {
 		share("link", null, facebook_share_simple);
-	{% endif %}
-	
-	{% if not twitter %}
-	if (method == "twitter")
+	} else if (method == "twitter") {
 		share("link", null, twitter_share_simple);
-	{% endif %}
-	
-	if (current_share_tab == method) {
-		$('#sharetab_email').fadeOut();
-		$('#sharetab_facebook').fadeOut();
-		$('#sharetab_twitter').fadeOut();
-		$('#sharetab_message').fadeOut();
-		current_share_tab = null;
-		return false;
+	} else if (method == "link") {
+		share("link", true, function (url) {
+			$('#share_link_box input').val(url);
+			$.colorbox({
+				transition: "none",
+				inline: true,
+				href:"#share_link_box",
+				opacity: .5});
+		});
+	} else if (method == "email") {
+		$.colorbox({
+			transition: "none",
+			inline: true,
+			href:"#share_email_box",
+			opacity: .5});
 	}
-
-	$('#sharetab_email').hide();
-	$('#sharetab_facebook').hide();
-	$('#sharetab_twitter').hide();
-	$('#sharetab_link').hide();
-	
-	current_share_tab = method;
-
-	if (0 {% if user.is_authenticated %}|| method == "email"{% endif %} {% if twitter %}|| method == "twitter"{% endif %} {% if facebook %}|| method == "facebook"{% endif %})
-		$('#sharetab_message').fadeIn();
-	else
-		$('#sharetab_message').hide();
-	
-	if (method == "twitter") {
-		$('#share_message').val($('#share_message').val().replace("{{comment.bill.shortname|escapejs}}", "{{comment.bill.hashtag}}"));
-	} else {
-		$('#share_message').val($('#share_message').val().replace("{{comment.bill.hashtag}}", "{{comment.bill.shortname|escapejs}}"));
-	}
-
-	if (method == "email")
-		$('#sharetab_message p strong').text("Send an Email");
-	if (method == "facebook")
-		$('#sharetab_message p strong').text("Post to Your Facebook Wall");
-	if (method == "twitter")
-		$('#sharetab_message p strong').text("Tweet");
-	$('#sharetab_' + method).fadeIn();
-	
-	if (method == "link")
-		share(method, true);
 	
 	return false;
-}
-if (window.location.hash == "#twitter" || window.location.hash == "#facebook") {
-	$(function() {
-		method = window.location.hash.substring(1);
-		share_tab(method);
-		$(window).scrollTop($('.social_share_btns').offset().top - 150);
-		{% if message %}share(method, true){% endif %}
-		window.location.hash = "";
-	});
 }
 
 function share_simple_open(url1, url2) {
@@ -131,12 +91,40 @@ function facebook_share_simple(targeturl) {
 }
 
 function twitter_share_simple(targeturl) {
-	var t = $('#share_message').val();
-	if (t.indexOf("{{comment.bill.hashtag|escapejs}}") == -1)
-		t += " {{comment.bill.hashtag|escapejs}}"
-	t += " " + targeturl;
-	var p1 = "http://twitter.com/intent/tweet?text=" + encodeURIComponent(t);
-	var p2 = "http://twitter.com/home?status=" + encodeURIComponent(t);
+	var ht = encodeURIComponent("{{bill.hashtag|escapejs}}".replace("#", ""));
+	{% if comment.user == request.user %}
+		var text = "I'm using POPVOX to {{comment.verb_imp}} ";
+		var sfx = ".";
+	{% else %}
+		var text = "Check out {{comment.user.username}}'s letter {{comment.verb_ing}} ";
+		var sfx = " on POPVOX.";
+	{% endif %}
+	
+	{% if bill.is_officially_numbered %}
+		{% if not bill.street_name %}
+			text += "{{bill.hashtag|escapejs}}";
+			ht = "";
+		{% else %}
+			text += "{{bill.street_name|escapejs}}";
+		{% endif %}
+	{% else %}
+		text += "{{bill.shortname|escapejs}}";
+	{% endif %}
+	
+	text += sfx;
+
+	{% if stats %}
+	var pct = {% if comment.position == "+" %}{{stats.pro_pct}}{% else %}{{stats.con_pct}}{% endif %};
+	if (pct > 50)
+		text += " " + pct + "% of {{stats.shortdescription|escapejs}} agrees.";
+		{% if comment.user == request.user %}
+		else
+			text += " I need your help.";
+		{% endif %}
+	{% endif %}
+	
+	var p1 = "http://twitter.com/intent/tweet?related=popvox&hashtags=" + ht + "&url=" + encodeURIComponent(targeturl) + "&text=" + encodeURIComponent(text);
+	var p2 = "http://twitter.com/home?status=" + encodeURIComponent(text + " " + ht + " " + targeturl);
 	share_simple_open(p1, p2);
 }
 </script>

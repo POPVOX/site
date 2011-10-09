@@ -896,7 +896,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 				
 			del request.session["comment-referrer"]
 
-		save_user_comment(request.user, bill, position, referrer, message, address_record, campaign, UserComment.METHOD_SITE)
+		comment = save_user_comment(request.user, bill, position, referrer, message, address_record, campaign, UserComment.METHOD_SITE)
 			
 		# Clear the session state set in the preview. Don't clear until the end
 		# because if the user is redirected back to ../finish we need the session
@@ -906,7 +906,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 		except:
 			pass
 		
-		return HttpResponseRedirect(bill.url() + "/comment/share")
+		return HttpResponseRedirect(comment.url())
 			
 	elif request.POST["submitmode"] == "Create Account >":
 		# The user is creating an account.
@@ -1074,47 +1074,28 @@ def billshare(request, congressnumber, billtype, billnumber, vehicleid, commenti
 	except:
 		pass
 
-	# What social auth is available?
-	
-	twitter = None
-	try:
-		twitter = request.user.singlesignon.get(provider="twitter")
-	except:
-		pass
-	
-	facebook = None
-	try:
-		facebook = request.user.singlesignon.get(provider="facebook")
-	except:
-		pass
-	
 	# Referral?
 	
-	welcome = None
 	if "shorturl" in request.session and request.session["shorturl"].target == comment:
 		surl = request.session["shorturl"]
 		request.session["comment-referrer"] = {"bill": bill.id, "referrer": surl.owner, "shorturl": surl.id}
-		welcome = comment.user.username + " is using POPVOX to send their message to Congress. He or she left this comment on " + bill.shortname + "."
 		del request.session["shorturl"] # so that we don't indefinitely display the message
 
 	comment_rejected = False
 	if comment.status > UserComment.COMMENT_ACCEPTED and (not request.user.is_authenticated() or (not request.user.is_staff and not request.user.is_superuser)):
 		comment_rejected = True
 
-	# ADD ME IN
-	#if "follow_up" in request.session:
-	#	del request.session["follow_up"]
+	# Widget follow-up session state.
+	follow_up = request.session.get("follow_up", "")
+	if "follow_up" in request.session: del request.session["follow_up"]
 
-	return render_to_response(
-			'popvox/billcomment_share.html' if commentid == None else 'popvox/billcomment_view.html', {
+	return render_to_response('popvox/billcomment_view.html', {
 			'bill': bill,
 			"comment": comment,
 			"message": message,
 			"includecomment": includecomment,
-			"twitter": twitter,
-			"facebook": facebook,
+			"follow_up": follow_up,
 			"user_position": user_position,
-			"welcome": welcome,
 			"SITE_ROOT_URL": SITE_ROOT_URL,
 		}, context_instance=RequestContext(request))
 
@@ -1170,9 +1151,11 @@ def billshare_share(request):
 		
 		message = comment.bill.title
 		
+		extra_message_default = "There is a " + comment.bill.proposition_type() + " on POPVOX.com that I thought you would be interested in."
+		
 	else: # 1c/d
-		if comment.status not in (UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED):
-			return { "status": "fail", "msg": "This comment cannot be shared." }
+		#if comment.status not in (UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED):
+		#	return { "status": "fail", "msg": "This comment cannot be shared." }
 
 		includecomment = True
 		target = comment
@@ -1180,10 +1163,12 @@ def billshare_share(request):
 		if request.user == comment.user: # 2
 			subject = "I " + comment.verb(tense="past")
 			message = comment.message
+			extra_message_default = "I am sharing with you this letter I wrote to Congress using POPVOX.com."
 		else:
 			subject = "Check out this message " + comment.verb(tense="ing")
-			message = comment.user.username + " wrote:\n\n" + comment.message
-	
+			message = comment.user.username + " wrote:\n\n" + comment.message	
+			extra_message_default = "I found this letter to Congress using POPVOX.com."
+
 	subject += " " + truncatewords(comment.bill.title, 10) + " at POPVOX"
 	
 	import shorturl
@@ -1208,15 +1193,17 @@ def billshare_share(request):
 		if len(emails) > 10:
 			return { "status": "fail", "msg": "You can only share your message with 10 recipients at a time." }
 		
+		extra_message = request.POST["message"].strip()
+		if extra_message == "":
+			extra_message = extra_message_default
+		
 		###
-		body = """Hi!
-	
-%s
+		body = """%s
 
 %s
 
 Go to %s to have your voice be heard!""" % (
-			request.POST["message"],
+			extra_message,
 			message,
 			url)
 		###

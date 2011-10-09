@@ -789,7 +789,7 @@ your comment and check on its status.
 		if user.comments.filter(bill=bill).exists():
 			# the session state will be used if we need to pop-up a lightbox
 			# to get more info
-			return HttpResponseRedirect(bill.url() + "/comment/share")
+			return HttpResponseRedirect(user.comments.get(bill=bill).url())
 		else:
 			# Fill in the address.
 			p = PostalAddress()
@@ -807,7 +807,7 @@ your comment and check on its status.
 				comment = save_user_comment(user, bill, self.post["position"], referrer, message, p, campaign, UserComment.METHOD_WIDGET)
 				
 				# the session state will be used if we need to pop up a lightbox
-				return HttpResponseRedirect(bill.url() + "/comment/share")
+				return HttpResponseRedirect(comment.url())
 	
 			# Otherwise prepare session state for later and take the user
 			# to the drag-your-home map.
