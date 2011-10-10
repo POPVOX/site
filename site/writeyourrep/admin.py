@@ -1,6 +1,7 @@
 from models import *
 from django.contrib import admin
 from django.db import IntegrityError
+from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 
 class EndpointAdmin(admin.ModelAdmin):
 	list_display = ("govtrackid", "method", "office", "mocname", "notes")
@@ -71,6 +72,17 @@ class SynonymRequiredAdmin(admin.ModelAdmin):
 
 		else:
 			obj.save()
+			
+	def change_view(self, request, object_id, extra_context=None):
+		response = super(SynonymRequiredAdmin, self).change_view(request, object_id, extra_context=extra_context)
+		if "_savenext" in request.POST and SynonymRequired.objects.count() > 0:
+			# move to next sr by id
+			try:
+				next_id = SynonymRequired.objects.filter(id__gt = object_id).order_by('id')[0].id
+			except:
+				next_id = SynonymRequired.objects.all()[0].id
+			return HttpResponseRedirect("/admin/writeyourrep/synonymrequired/" + str(next_id))
+		return response
 		
 admin.site.register(Endpoint, EndpointAdmin)
 admin.site.register(DeliveryRecord, DeliveryRecordAdmin)

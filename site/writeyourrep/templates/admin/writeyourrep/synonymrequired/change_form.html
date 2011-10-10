@@ -5,6 +5,12 @@
 	
 <p>To add a synonym, edit the fields so that there is one line in the first box and one line in the second box, deleting the rest, and then save.</p>
 
+<script>
+django.jQuery(function() {
+		django.jQuery('.submit-row').append(django.jQuery('<input type="submit" value="Save and Go to Next" name="_savenext" {{ onclick_attrib }}/>'));
+});
+</script>
+
 {% endif %}{% endif %}
 {% endblock %}
 
