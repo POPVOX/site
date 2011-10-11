@@ -356,9 +356,7 @@
 						<div class="col_l {% if forloop.first %}first{% endif %}">
 							<ul class="co-{{k|lower}}">
 								{% for c in v %}
-									{% if forloop.counter < 11 %}
-										<li>{{c.name}}</li>
-									{% endif %}
+									<li>{{c.name}}</li>
 								{% endfor %}
 							</ul>
 						</div><!-- col_l -->
@@ -403,9 +401,7 @@
 							{% if group == "0" %}<h4 class="h4_other">Other</h4>{% endif %}
 							<ul>
 								{% for org, pos in orglist %}
-									{% if forloop.counter < 8 %}
-										<li>{{org.name}}</li>
-									{% endif %}
+									<li>{{org.name}}</li>
 								{% endfor %}
 							</ul>
 						</div><!-- col_l -->
