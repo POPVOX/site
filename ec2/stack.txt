@@ -84,4 +84,8 @@ WordPress on occams.info
 	The admin account has tauberer@gmail.com as its email address,
 	but the site's contact address is josh@popvox.com.
 
+Disqus
+
+	primary moderator is Annalee
+	
 
