@@ -308,6 +308,15 @@ class Bill(models.Model):
 		if self.billtype in ('sa', 'ds'): return 's'
 		if self.billtype in ('x', ): raise Exception("comments_to_chamber is not set on x-type bill record")
 		return govtrack.getChamberOfNextVote(self)
+	def reintroduced_from_all(self):
+		ret = []
+		br = (self,)
+		while True:
+			rein = list(Bill.objects.filter(reintroduced_as__in=br))
+			if len(rein) == 0: break
+			ret.extend(rein)
+			br = rein
+		return ret
 		
 	def latest_action_formatted(self):
 		def parse_line(line):
@@ -1231,7 +1240,13 @@ class UserComment(models.Model):
 	def get_recipients_display(self):
 		recips = self.get_recipients()
 		if not type(recips) == list:
-			return "[" + recips + "]"
+			# Normally, show recipients that we would deliver to now.
+			# But if the bill is dead, show who we delivered to already, if any.
+			delivered_recips = self.delivery_attempts.filter(success=True, next_attempt__isnull=True)
+			if delivered_recips.count():
+				recips = [govtrack.getMemberOfCongress(d.target.govtrackid) for d in delivered_recips]
+			else:
+				return "[" + recips + "]"
 		def nicename(name):
 			import re
 			return re.sub(r"\s*\[.*\]", "", name)
