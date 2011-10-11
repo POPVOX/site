@@ -865,7 +865,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 				"useraddress_states": govtrack.statelist,
 				"captcha": captcha_html(getattr(e, "recaptcha_error", None)) if require_captcha else "",
 				"error": validation_error_message(e), # accepts ValidationError, KeyError, ValueError
-				"error_is_validation": isinstance(e, AddressVerificationError),
+				"error_is_validation": isinstance(e, AddressVerificationError) and not e.mandatory,
 				"recipients": get_comment_recipients(bill, address_record),
 				}, context_instance=RequestContext(request))
 		

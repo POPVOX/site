@@ -6,7 +6,9 @@ import json
 last_response = None
 
 class AddressVerificationError(ValueError):
-	pass
+	def __init__(self, message, mandatory=False):
+		super(AddressVerificationError, self).__init__(message)
+		self.mandatory = mandatory
 
 def verify_adddress(address, validate=True):
 	global last_response
@@ -14,9 +16,19 @@ def verify_adddress(address, validate=True):
 	# import here so we can set env variables in the __main__ code
 	from settings import CDYNE_LICENSE_KEY
 
+	if validate and "pobox" in address.address1.replace(" ", "").lower() and address.address2.strip() != "":
+		raise AddressVerificationError("A PO Box address cannot have a second address line.", mandatory=True)
+	if validate and "pobox" in address.address2.replace(" ", "").lower():
+		raise AddressVerificationError("A PO Box cannot be placed in the second address line.", mandatory=True)
+
+	if validate and len([s for s in address.phonenumber if s.isdigit()]) != 10:
+		raise AddressVerificationError("Congressional offices only accept ten digit phone numbers without extensions. Please provide a ten digit phone number.", mandatory=True)
+
 	if validate and address.state.lower() != "ak" and "pobox" in address.address1.replace(" ", "").lower():
 		raise AddressVerificationError("Please enter the address of your residence so that we can determine your Congressional district. We cannot find your district based on a PO Box.")
 
+	if address.address1.lower().strip() == address.address2.lower().strip():
+		address.address2 = ""
 	
 	req = urllib2.Request("http://pav3.cdyne.com/PavService.svc/VerifyAddressAdvanced",
 		json.dumps(
@@ -68,6 +80,9 @@ def verify_adddress_cached(address, ret, validate=True):
 	for a, b in [('address1', 'PrimaryDeliveryLine'), ('address2', 'SecondaryDeliveryLine'), ('city', 'PreferredCityName'), ('state', 'StateAbbreviation'), ('zipcode', 'ZipCode')]:
 		if hasattr(address, a) and nrml(getattr(address, a)) != nrml(ret[b]):
 			setattr(address, a, ret[b])
+			
+	if address.address1.lower().strip() == address.address2.lower().strip():
+		address.address2 = ""
 	
 	if ret["LegislativeInfo"]["CongressionalDistrictNumber"] == "AL": # hmm
 		address.congressionaldistrict = 0
