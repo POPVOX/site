@@ -168,6 +168,104 @@ def bills(request):
 		'trending_bills': popular_bills2,
 		}, context_instance=RequestContext(request))
 
+#@cache_page(60*60*2)
+def bills_issues(request):
+	issues = IssueArea.objects\
+		.filter(toptermbills__congressnumber=CURRENT_CONGRESS)\
+		.annotate(billcount=Count("toptermbills"))
+	
+	# since we can't annotate on two things at once (messes up the counts)
+	# and we also want a count of bills and also of comments...
+	issues_dict = dict((ix.id, ix) for ix in issues)
+	for issue in \
+		IssueArea.objects\
+		.filter(toptermbills__congressnumber=CURRENT_CONGRESS)\
+		.annotate(commentcount=Count("toptermbills__usercomments")):
+		issues_dict[issue.id].commentcount = issue.commentcount
+	
+	for i, ix in enumerate(issues):
+		ix.primaryorder = i
+	
+	return render_to_response('popvox/bill_list_issues.html', {
+		'issues': issues,
+		}, context_instance=RequestContext(request))
+
+@cache_page(60*2*2)
+def bills_issues_bills(request):
+	ix = get_object_or_404(IssueArea, id=request.GET.get('ix', 0))
+	
+	bills = Bill.objects.filter(topterm=ix, congressnumber=CURRENT_CONGRESS)
+	
+	# order by number of recent comments.... but don't exclude bills without
+	# any comments, by adding them back after by unioning with the whole set.
+	# does that really work and not create dupes?
+	bills = bills.\
+		filter(usercomments__created__gt=datetime.now()-timedelta(days=21))\
+		.annotate(Count('usercomments')).order_by('-usercomments__count') \
+		| bills
+	
+	if len(bills) < 16:
+		groups = [{"name": ix.name, "bills": bills}]
+	else:
+		groups = []
+		
+		# take the top out and make a category for them
+		if len(bills) > 24:
+			groups.append({"name": "Top Bills", "bills": bills[0:6]})
+			bills = bills[6:]
+		
+		# Automatically group the bills by sub-issue areas smartly.
+		# A smart grouping is one that divides the bills into N evenly sized groups
+		# of sqrt(N) bills with minimal overlap between groups.
+		
+		# create possibly-overlapping groups for each sub-issue area
+		# use an OrderedDict so that the issues for the top bills go first,
+		# which is preserved in the greedy function below
+		import collections
+		issue_groups = collections.OrderedDict()
+		for bill in bills:
+			for issue in bill.issues.all():
+				if issue == ix: continue # exclude top term from reappearing
+				if not issue in issue_groups: issue_groups[issue] = []
+				issue_groups[issue].append(bill)
+		
+		# greedily choose issue areas
+		ngroups = int(len(bills) / math.sqrt(len(bills)))
+		if ngroups > len(issue_groups): ngroups = len(issue_groups)
+		bills_per_group = len(bills) / ngroups
+		
+		seen_issues = set()
+		seen_bills = set()
+		for i in xrange(ngroups):
+			# choose the next issue area with a count of unseen
+			# bills closest to bills_per_group.
+			best_item = None
+			best_score = None
+			for issue_obj, issue_bills in issue_groups.items():
+				if issue_obj in seen_issues: continue
+				unique_bills = [bill for bill in issue_bills if not bill in seen_bills]
+				if len(unique_bills) == 0: continue
+				score = int(math.sqrt(abs(len(unique_bills) - bills_per_group)))
+					# the score doesn't need int(sqrt(...)) but this lets us priorities
+					# issues that came first (i.e. top bills) when the scores are similar; useful??
+				if score > bills_per_group: issue_bills = unique_bills # show only uniques when sub-issue is really wide
+				if best_score == None or score < best_score:
+					best_score = score
+					best_item = (issue_obj, issue_bills)
+			if best_score == None: break # no more issue areas to add in
+			groups.append({"name": best_item[0], "bills": best_item[1]})
+			seen_issues.add(best_item[0])
+			for b in best_item[1]: seen_bills.add(b)
+		
+		# put the remaining bills into an other category
+		other_bills = [b for b in bills if not b in seen_bills]
+		if len(other_bills):
+			groups.append({"name": "Other Bills" if len(groups) else ix.name, "bills": other_bills})
+	
+	return render_to_response('popvox/bill_list_issues_bills.html', {
+		'groups': groups,
+		}, context_instance=RequestContext(request))
+
 def billsearch_internal(q, cn=CURRENT_CONGRESS):
 	bill_number_re = re.compile(r"(hr|s|hconres|sconres|hjres|sjres|hres|sres|x)(\d+)(/(\d+))?", re.I)
 	m = bill_number_re.match(q.replace(" ", "").replace(".", "").replace("-", ""))

@@ -1,0 +1,61 @@
+{% load popvox_utils %}
+
+<table width="100%">
+{% for group in groups %}
+<tr class="heading">
+	<td colspan="4">
+		<h3 class="{% if forloop.first %}first{% endif %}">{{group.name}}</h3>
+	</td>
+</tr>
+{% for bill in group.bills %}
+	<tr class="bill">
+		<td style="padding-left: 5px; padding-right: 1em">
+			<nobr><a href="{{bill.url}}{% if is_leg_staff %}/report{% endif %}">
+				{{bill.displaynumber}}
+			</a></nobr>
+		</td>
+		<td style="padding-right: 1em";>
+			<div style="width: {% if is_leg_staff %}190{% else %}430{% endif %}px; overflow: hidden; " title="{{bill.title}}">
+				<div style="width: 1000px; height: 1.2em;">
+					<a href="{{bill.url}}{% if is_leg_staff %}/report{% endif %}">
+						{{bill.title_no_number}}
+					</a>
+				</div>
+			</div>
+		</td>
+		<td style="padding-right: 1em;">
+			<div style="width: 95px; overflow: hidden;" title="{{bill.sponsor.name}}">
+				<div style="width: 1000px; height: 1.2em;">
+					{{bill.sponsor.lastname}}
+					({{bill.sponsor.party}}) 
+				</div>
+			</div>
+		</td>
+		
+		{% if is_leg_staff %}
+		<td style="padding-right: 1em">
+			{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endcomment %}
+			{% if bill.num_cosponsors %}
+			<div title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
+				{{bill.num_cosponsors}}
+			</div>
+			{% endif %}
+		</td>
+		<td style="padding-right: 1em;">
+			<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}} ({{bill.current_status_date|date2}})">
+				<div style="width: 1000px; height: 1.2em;">
+					{{bill.status_advanced_abbreviated}} ({{bill.current_status_date|date2}})
+				</div>
+			</div>
+		</td>
+		{% endif %}
+		<td class="flipcolor">
+			{% with "+" as tracktype %}
+			{% include "popvox/track.html" %}
+			{% endwith %}
+		</td>
+	</tr>
+{% endfor %}
+{% endfor %}
+</table>
+
