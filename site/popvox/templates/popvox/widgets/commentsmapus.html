@@ -37,7 +37,12 @@
 			}
 			$(document).mousemove(mousemove);*/
 
-			function show(district, label, {% if bill %}support, count, {% endif %}x, y){
+			function show(){
+				var district = this.getAttribute("pv_district");
+				var label = this.getAttribute("pv_label");
+				var x = parseInt(this.getAttribute("pv_left"));
+				var y = parseInt(this.getAttribute("pv_top"));
+				
 				$('#infobox').show();
 				showing = true;
 
@@ -52,6 +57,8 @@
 				$('#infobox div').text(label);
 				
 				{% if bill %}
+				var support = parseInt(this.getAttribute("pv_support"));
+				var count = parseInt(this.getAttribute("pv_count"));
 				$('#support').text(Math.round(support*100) + "%")
 				$('#oppose').text(Math.round((1.0-support)*100) + "%")
 				$('#activity').text("(" + count + " user" + (count > 1 ? "s" : "") + ")")
@@ -60,7 +67,7 @@
 				$('#infobox').removeClass("lefty");
 				dot_x = x;
 				x += 50 + 5;
-				if (x + 252 > 940) {
+				if (x + 252 > {{width}}) {
 					$('#infobox').addClass("lefty");
 					x = x - 252 - 50 - 5;
 				}
@@ -102,21 +109,29 @@
 	<body class="colormode_1 width_{{width}}">
 		<div id="mapdots">
 		{% for district, count in data %}
-			{% if request.GET.hover != "0" %}
-			<a href="{{bill.url}}/report#{{count.href}}" target="_top" xxx_title="{{count.label}}"
-				onmouseover="show('{{district}}', '{{count.label|escapejs}}', {% if bill %}{{count.sentiment}}, {{count.count}},{% endif %} {{count.coord.left}}, {{count.coord.top}})" onmouseout="hide()"
-				{% if request.GET.sac or request.GET.hover == "0" %}onclick="return false;"{% endif %}>
-			{% endif %}
+			<a href="{{bill.url}}/report#{{count.href}}" target="_top"
+				pv_district="{{district}}" pv_label="{{count.label}}"
+				{% if bill %}pv_support="{{count.sentiment}}" pv_count="{{count.count}}"{% endif %}
+				pv_left="{{count.coord.left}}" pv_top="{{count.coord.top}}">
 				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"></div>
-			{% if request.GET.hover != "0" %}
 			</a>
-			{% endif %}
 		{% endfor %}
 		<div id="infobox" style="display: none;">
 			<div id="district"> </div>
 			{% if bill %}<p><span id="support"></span> <span id="oppose"> </span> <span id="activity"> </span></p>{% endif %}
 		</div>
 		</div>
+		
+		<script>
+		{% if request.GET.hover != "0" %}
+			$('#mapdots a').hover(show, hide);
+			{% if request.GET.sac %}$('#mapdots a').click(function(event) { event.preventDefault(); });{% endif %}
+		{% else %}
+			$('#mapdots a').click(show);
+			$('#mapdots a').click(function(event) { event.preventDefault(); event.stopPropagation(); });
+			$('#mapdots').click(hide);
+		{% endif %}
+		</script>
 		
 		<div id="colormode" title="Switch Colors" onclick="togglecolors()">Alternate Colors</div>
 	
