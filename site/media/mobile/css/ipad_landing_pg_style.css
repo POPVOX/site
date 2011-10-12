@@ -1,0 +1,191 @@
+/*
+
+
+ _| _ _. _  _  __ |_.(_. _   _ _  _ . _  _ _ _. _  _   |_    
+(_|(-_)|(_)| )    |_|| |(_  (-| )(_)|| )(-(-| || )(_)  |_)\/ 
+        _/                       _/               _/      /  
+ ____            _ _                 _   _       _                        
+/ ___|  ___   __| (_)_   _ _ __ ___ | | | | __ _| | ___   __ _  ___ _ __  
+\___ \ / _ \ / _` | | | | | '_ ` _ \| |_| |/ _` | |/ _ \ / _` |/ _ \ '_ \ 
+ ___) | (_) | (_| | | |_| | | | | | |  _  | (_| | | (_) | (_| |  __/ | | |
+|____/ \___/ \__,_|_|\__,_|_| |_| |_|_| |_|\__,_|_|\___/ \__, |\___|_| |_|.com
+                                                         |___/           
+
+
+*/
+
+/* colors 
+
+#CC6A11 orange
+#8c4607 orangedk
+#c6c5b9 mid 
+#75747c grey
+#cb1919 error_red
+#e8e5de site_bg     
+
+*/
+
+strong { font-weight: bold }
+
+/* ipad ad */
+
+
+.ipad {
+/*	background: url(../images_landing/http://sodiumhalogen.com/up/junk_6509.jpg) -130px -110px no-repeat;*/
+	}
+	
+	.ipad .col_last {
+		padding-left: 10px;
+		width: 450px;
+		}
+		
+	.ipad .col_6 {
+		margin-bottom: 25px;
+		}
+	
+.ipad h2#coffee {
+	background: url(../images_landing/../images_landing/ipad_coffee.jpg) left top no-repeat;
+	display: block;
+	width: 450px;
+	height: 452px;
+	text-indent: -9999em;
+	}	
+
+.ipad h1 {
+	background: url(../images_landing/h1_ipad_markup.jpg) left -12px no-repeat;
+	display: block;
+	width: 450px;
+	height: 106px;
+	margin-bottom: 10px;
+	text-indent: -9999em;
+	}
+
+#ipad_block {
+	height: 275px;
+	padding: 25px 30px;
+	background: #d4d1ca;
+	}
+	#ipad_block h2 {
+		font: italic normal 22px/26px georgia, serif;
+		margin-bottom: 20px;
+		}
+	
+	a.app_store {
+		background: url(../images_landing/a_store_link.png) left top no-repeat;
+		display: block;
+		width: 388px;
+		height: 57px;
+		margin-bottom: 20px;
+		text-indent: -9999em;
+		}
+		
+		a.app_store:hover {
+			background-position: left bottom;
+			border: none;
+			text-decoration: none;
+			}
+	
+	#ipad_block p {
+		padding-top: 23px;
+		border-top: 1px solid #a7a49b;
+		font: normal 21px/27px helvetica, arial, sans-serif;
+		color: #404045;
+		}
+
+.ipad ul.ipad_icons {
+	margin-bottom: 20px;
+	}
+	
+.ipad ul.ipad_icons li {
+	padding: 5px 0 10px 60px;
+	font-size: 16px;
+	min-height: 20px;
+	height: auto !important;
+	height: 20px;
+	}
+	
+	.ipad ul.ipad_icons li em {
+		font-size: 14px;
+		}
+	
+	.ipad ul.ipad_icons li.i_search {
+		background: url(../images_landing/i_search.png) left top no-repeat;
+		}
+	
+	.ipad ul.ipad_icons li.i_email {
+		background: url(../images_landing/i_email.png) left top no-repeat;
+		margin-top: 15px;
+		}
+
+	.ipad ul.ipad_icons li.i_read {
+		background: url(../images_landing/i_read.png) left top no-repeat;
+		margin-top: 14px;
+		}
+
+	.ipad ul.ipad_icons li.i_share {
+		background: url(../images_landing/i_share.png) left top no-repeat;
+		padding-top: 13px;
+		}
+
+	.ipad ul.ipad_icons li.i_info {
+		background: url(../images_landing/i_info.png) left top no-repeat;
+		padding-top: 14px;
+		}
+
+	.ipad ul.ipad_icons li.i_stats {
+		background: url(../images_landing/i_stats.png) left top no-repeat;
+		margin-top: 5px;
+		}
+
+	.ipad ul.ipad_icons li.i_notes {
+		background: url(../images_landing/i_notes.png) left top no-repeat;
+		margin-top: 10px
+		}
+
+	.ipad ul.ipad_icons li.i_org {
+		background: url(../images_landing/i_org.png) left top no-repeat;
+		padding-top: 13px;
+		height: 47px;
+		}
+		
+	.ipad ul.ipad_icons li.i_toc {
+		background: url(../images_landing/i_toc.png) left 3px no-repeat;
+		padding-top: 13px;
+		height: 47px;
+		}
+
+	.ipad ul.ipad_icons li.i_search {
+		background: url(../images_landing/i_search.png) left top no-repeat;
+		margin-top: 5px;
+		}
+
+a.b_ipad_feedback {
+	background: url(../images_landing/b_ipad_contact.png) left top no-repeat;
+	display: block;
+	width: 341px;
+	height: 83px;
+	margin: 30px 0 20px 10px;
+	text-indent: -9999em;
+	}
+	
+	a.b_ipad_feedback:hover {
+		background-position: left bottom;
+		border: none;
+		}
+		
+p.ipad_note {
+	font: italic normal 16px/22px georgia, serif;
+	margin-top: 45px;
+	}
+	
+.ipad .hr {
+	background: url(../images_landing/bg_rule.gif) left top repeat-x;
+	}
+
+.center_it {
+	margin-top: 25px;
+	}
+	
+.center_it a.app_store{
+	margin-left: 258px;
+	}
