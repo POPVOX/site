@@ -10,7 +10,7 @@ if [ -f $PIDFILE ]; then
     rm -f -- $PIDFILE;
 fi
 
-HOSTNAME=`hostname`
+HOSTNAME=`hostname -I | tr -d ' '` # assumes only one interface
 PORT=`echo 1000+$UID|bc`
 
 CTR=0

@@ -37,6 +37,9 @@ def staticpage(request, page):
 	except TemplateDoesNotExist:
 		raise Http404()
 
+def raise_error(request):
+	raise ValueError("Hmmph!")
+
 @json_response
 def subscribe_to_mail_list(request):
 	email = request.POST["email"]
