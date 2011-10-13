@@ -45,7 +45,9 @@ def get_page_wall_poster_uids(pageid):
 
 	return uids
 
-def get_uid_stats(uids, state, district):
+def get_uid_stats(uids, state, district, pageid):
+	global logoutput
+
 	authrecords = AuthRecord.objects.filter(provider="facebook", uid__in=set(uids))
 	authrecords = dict([ (ar.uid, ar.user) for ar in authrecords ])
 	
@@ -76,6 +78,8 @@ def get_uid_stats(uids, state, district):
 						uid_info[uid]["count_index"] = 2 # yes
 						
 			in_district_unique[uid_info[uid]["count_index"]] += 1
+
+			logoutput.writerow([ pageid, uid, '' if not uid_info[uid]["has_district"] else addr.id, uid_info[uid]["count_index"]  ])
 					
 		uid_info[uid]["count"] += 1
 		in_district_total[uid_info[uid]["count_index"]] += 1
@@ -92,10 +96,10 @@ def get_page_stats(pageid, pid, pname, state, district, pagecategory):
 	
 	uidsets = get_page_wall_poster_uids(pageid)
 	
-	uniques = get_uid_stats(uidsets["posts"]+uidsets["comments"]+uidsets["likes"], state, district)
-	posts = get_uid_stats(uidsets["posts"], state, district)
-	comments = get_uid_stats(uidsets["comments"], state, district)
-	postlikes = get_uid_stats(uidsets["likes"], state, district)
+	uniques = get_uid_stats(uidsets["posts"]+uidsets["comments"]+uidsets["likes"], state, district, pageid)
+	posts = get_uid_stats(uidsets["posts"], state, district, pageid)
+	comments = get_uid_stats(uidsets["comments"], state, district, pageid)
+	postlikes = get_uid_stats(uidsets["likes"], state, district, pageid)
 		
 	output.writerow([pid, pageid, pagecategory, pname, state, district]
 		+ uniques["unique"]
@@ -115,6 +119,8 @@ output.writerow(["personid", "pageid", "name", "state", "district",
 	"posts_total", "posts_known", "posts_indistrict",
 	"comments_total", "comments_known", "comments_indistrict",
 	"postlikes_total", "postlikes_known", "postlikes_indistrict"])
+
+logoutput = csv.writer(open("popvox/analysis/output/facebook_constituents_log.csv", "w"))
 
 for moc in getMembersOfCongress():
 	if not moc["current"]: continue
