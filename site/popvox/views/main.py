@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext, TemplateDoesNotExist
+from django.template import RequestContext, TemplateDoesNotExist, Context, loader
 from django.views.generic.simple import direct_to_template
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -39,6 +39,13 @@ def staticpage(request, page):
 
 def raise_error(request):
 	raise ValueError("Hmmph!")
+
+def sitedown(request):
+	t = loader.get_template("static/site_down.html")
+	response = HttpResponse(t.render(Context({})), status=503)
+	response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+	response.goal = None
+	return response
 
 @json_response
 def subscribe_to_mail_list(request):

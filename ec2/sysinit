@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Start a new machine instance...
-# last tested AMI: ubuntu-images/ubuntu-natty-11.04-amd64-server-20110426 (ami-68ad5201)
+# last tested AMI: ubuntu-images-us/ubuntu-oneiric-11.10-amd64-server-20111011 (ami-21f53948)
 #      ami-1aad5273 also works on a micro instance
 # if disk is local: us-east-1a / attach EBS volume on /dev/sdf (which to Ubuntu is /dev/xvdf)
 # assign the elastic IP?
@@ -76,7 +76,7 @@ elif [[ "$DISK" == "localhost" ]]; then
 	service nfs-kernel-server start;
 		
 else
-	echo "$DISK:/mnt/persistent      /mnt/persistent  nfs" >> /etc/fstab;
+	echo "$DISK:/mnt/persistent      /mnt/persistent  nfs auto" >> /etc/fstab;
 	service start portmap;
 	mount -a;
 fi
@@ -100,7 +100,7 @@ if [[ "$DISK" != "root" ]]; then
 	rm -rf /var/lib/mysql/;
 	mkdir /var/lib/mysql;
 	#mount --bind /mnt/persistent/mysql/ /var/lib/mysql;
-	echo "/mnt/persistent/mysql/  /var/lib/mysql  none bind" >> /etc/fstab;
+	echo "/mnt/persistent/mysql/  /var/lib/mysql  none bind,auto" >> /etc/fstab;
 	mount -a;
 	
 	# make mysql listen on all interfaces to support additional servers
