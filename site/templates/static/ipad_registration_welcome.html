@@ -4,30 +4,31 @@
 {% block description %}POPVOX iPad application for Congressional staff to browse, search, read, and annotate or take notes on bills in the U.S. Congress.{% endblock %}
 {% block head %}
 <style>
-h1 span { font-family: Arial, Helvetica; font-size: 16px; color: #777; }
-strong { font-weight: bold; }
+h1 { font-size: 48px; }
+strong { font-weight: bold; color: #333; }
+p { font-size: 17px; line-height: 24px; color: #555; }
 </style>
 {% endblock %}
 {% block content %}
 
-<div class="content">
+<div class="content" style="padding-top: 30px">
 
-	<h1 style="text-align: center">Registration Complete</h1>
+	<div class="col_5 col_top">
+	<div style="padding: 0 15px 0 0">
+		<h1>Registration Complete</h1>
 
-	<div class="col_6 col_top">
-		<img src="/media/mobile/pub/ipad-markup-3.png" width="466" height="387"/>
-	</div>
-	
-	<div class="col_6 col_top col_last">
-	<div style="padding: 2em 0 0 2em;">
 		<p>Your POPVOX registration is complete.</p>
 
-		<p><strong>Go back to POPVOX Markup on your iPad and log in with the email address and password you used to register.</strong></p>
-
+		<p><strong>Go back to POPVOX MarkUp on your iPad and log in.</strong></p>
+		
 		<p>Your registration also works here POPVOX.com.
-		{% if user.userprofile.is_leg_staff %}You can use POPVOX.com to read your constituent mail coming from POPVOX, access bill reports, and organization contact details.
-		{% else %}Use POPVOX.com to explore bill reports, create your organization profile, or weigh-in on legislation.{% endif %}</p>
+		{% if user.userprofile.is_leg_staff %}You can use POPVOX.com to read your constituent mail coming from POPVOX, access bill reports, and <a href="/orgs">organization contact details</a>.
+		{% else %}Use POPVOX.com to explore bill reports, <a href="/organization">create your organization profile</a>, or <a href="/bills">weigh-in on legislation</a>.{% endif %}</p>
 	</div>
+	</div>
+	
+	<div class="col_7 col_top col_last">
+		<img src="/media/mobile/pub/ipad-markup-3.png" width="536" height="396"/>
 	</div>
 	
 </div>
