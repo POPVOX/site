@@ -204,7 +204,7 @@ INSTALLED_APPS = (
     'feedback',
     'picklefield',
     'django_ses',
-    #'stockphoto',
+    'articles',
     'jquery',
     'writeyourrep',
     'phone_number_twilio',
@@ -219,11 +219,13 @@ INSTALLED_APPS = (
 TINYMCE_JS_URL = '/media/tiny_mce/tiny_mce.js'
 TINYMCE_DEFAULT_CONFIG = {
     #'plugins': "table,spellchecker,paste,searchreplace",
-    'theme': "simple",
+    'theme': "advanced",
     'cleanup_on_startup': True,
     'content_css': "/media/admin.css",
     'width': '640px',
-    'height': '300px'
+    'height': '300px',
+    'theme_advanced_toolbar_location': "top",
+    'theme_advanced_toolbar_align': "left",
 }
 
 # registration app
@@ -240,6 +242,13 @@ FACEBOOK_AUTH_SCOPE = "email" #,offline_access,publish_stream,user_location"
 STOCKPHOTO_URL = "/about/photos"
 
 BENCHMARKING = False
+
+#Articles app
+DISQUS_USER_API_KEY = '' #Your user API key from Disqus. http://disqus.com/api/get_my_key/
+DISQUS_FORUM_SHORTNAME = "popvoxnation" #The name of your Disqus site. Used to link comments to your site.
+
+ARTICLES_TEASER_LIMIT = 100 #The number of words to display in the teaser. Defaults to 75.
+ARTICLES_AUTO_TAG = False #Whether or not to automatically tag articles. Defaults to True.
 
 
 

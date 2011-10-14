@@ -232,7 +232,9 @@
 		</ul>
 		{% endif %}	
 	
+		{% block body %} {% comment %} the articles app uses 'content' for the article content, so we surround it here with 'body' so we kill "content" if a "body" is given {% endcomment %}
 		{% block content %}
+		{% endblock %}
 		{% endblock %}
 		
 		<div class="clear"> </div> 

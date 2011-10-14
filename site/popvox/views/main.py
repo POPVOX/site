@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist, Context, loader
 from django.views.generic.simple import direct_to_template
@@ -36,7 +36,7 @@ def staticpage(request, page):
 			}, context_instance=RequestContext(request))
 	except TemplateDoesNotExist:
 		raise Http404()
-
+    
 def raise_error(request):
 	raise ValueError("Hmmph!")
 
@@ -47,6 +47,20 @@ def sitedown(request):
 	response.goal = None
 	return response
 
+def press_page(request):
+    import articles.models
+    
+    arts = articles.models.Article.objects.filter(tags__name__in=("release", "clip")).select_related("tags")
+    arts = list(arts)
+    for art in arts:
+        art.article_type = art.tags.filter(name__in=('release', 'clip'))[0].name # grab name of tag
+        description = re.sub(r'<p>', '', art.description)
+        description = re.sub(r'</p>', '', description)
+        art.description = description
+        
+    arts.sort(key = lambda art : (art.publish_date.year, art.publish_date.month, art.article_type), reverse = True)
+    return render_to_response("popvox/press.html", { "press": arts }, context_instance=RequestContext(request))
+    
 @json_response
 def subscribe_to_mail_list(request):
 	email = request.POST["email"]

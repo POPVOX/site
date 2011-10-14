@@ -616,6 +616,27 @@ table.form_fields td {
     padding-left: 1.3em;
     font: normal 13px/18px helvetica, arial, sans-serif;
     }
+    
+.userrichtextcontent h3 {
+    font: 13px/18px Verdana, Arial, serif;
+    margin-bottom: .5em;
+    padding-bottom: 0;
+    background: none;
+}
+
+.userrichtextcontent table th {
+	font-weight: bold;
+}
+.userrichtextcontent table td {
+	padding: 4px;
+	background-color: #EEE;
+	border: 2px solid #E8E5DF;
+}
+.userrichtextcontent img {
+	display: block;
+	margin: 15px auto 15px auto;
+	border: 5px solid #DED7CB !important; 
+}
 
 .usercomment,
 .usercomment p {
@@ -3493,28 +3514,6 @@ p.hint {
     }
 
 .col_3 ul.social li a.linked_in:hover { background-position: left bottom    }
-
-/* ----press---- */
-
-.press a img {
-    background: none;
-    float: left;
-    }
-
-.press a.blank {
-    background: none;
-    height: inherit;
-    }
-
-.press .col_4_5 h4,
-.press .col_4_5 h5,
-.press .col_4_5 p { margin-left: 160px  }
-
-.press .col_4_5 h4 { margin-bottom: 10px    }
-
-.press .col_4_5 h5 { font-weight: bold  }
-
-.press .col_4_5 p span { font: italic normal 11px/16px georgia, serif   }
 
 /* ----more social---- */
 
