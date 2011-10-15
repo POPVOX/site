@@ -83,6 +83,11 @@
 	a#helpNotify { background: url(/media/billtext/notify.png) no-repeat center center; height: 30px; display: block; }
 	a#helpNotify:hover { background: #c7bab0 url(/media/billtext/notifyH.png) center center no-repeat; }
 	
+	/**Download icon**/
+	ul/barNav li.download { border-right: none; width: 30px; margin-left: 5px; }
+	a#downloadPDF { background: url(/media/billtext/downloadpdf.png) no-repeat center center; width: 30px; height: 30px; display: block; margin: 0; }
+	a#downloadPDF:hover { background: #c7bab0 url(/media/billtext/downloadpdfH.png) center center no-repeat; }
+	
 	/**Table of Contents styling**/
 	ul.barNavFooter a { display: block; font-family: Tahoma, Arial; font-size: 11px; text-transform: uppercase; text-decoration: none; font-weight: bold; color: #6a6767; margin-top: 8px; }
 	ul.barNav a:visited { color: #6a6767; }
@@ -93,8 +98,6 @@
 	ul.barNav li.logo a { display: block; background: url(/media/billtext/logo.png); width: 29px; height: 24px;  text-indent: -999em; margin: 0; }
 	#footer ul.barNav li.logo { float: right; border: none; margin: 3px 4px 2px 4px; }
 	#search_results { padding: 7px 10px 0 10px; height: 30px; }
-	
-	#embed_info { display: none; }
 	
 	#embed_info { width: 450px; height: 220px;}
 	#embed_info p { font-weight: bold; margin: 10px 0 5px 0; }
@@ -132,6 +135,7 @@ function load_document(docid) {
 		$('li.title a').text(data.bill.title);
 		$('li.title a').attr("href", data.bill.link);
 		$('#footer li.logo a').attr("href", data.bill.link);
+		$('#downloadPDF').attr('href', data.pdf_url);
 		
 		// Build the Table of Contents.
 		var toc = $('#table_of_contents');
@@ -459,7 +463,8 @@ $(function() {
 				
 				<li class="zoom"><a href="#" onclick="_zoomed = !_zoomed; $(window).resize(); update_embed_links(); return false;">Zoom</a></li>
 				
-				<li class="embed"><a id="embedPage" href="#" onclick="update_embed_links_2(); $.colorbox({transition: 'none', inline: true, href:'#embed_info', opacity: .5}); return false;"></a></li>
+				<li class="embed"><a id="embedPage" href="#" onclick="update_embed_links_2(); $.colorbox({transition: 'none', inline: true, href:'#embed_info', opacity: .5}); return false;" title="Embed"></a></li>
+				<li class="download"><a id="downloadPDF" href="#" target="_blank" title="Download PDF"></a></li>
 				
 				<li class="logo">
 					<a href="http://www.popvox.com" title="Embeddable bill text powered by POPVOX: Click here to weigh in." target="_top">
@@ -469,14 +474,17 @@ $(function() {
 			</ul>
 		</div>
 		
+	</div>
+	
+	<div style="display: none">
 		<div id="embed_info">
 			{% if request.GET.baseurl %}
 			<p>Link to this page:</p>
-			<textarea id="embed_link" style="width: 90%;" rows="2"></textarea>
+			<textarea id="embed_link" style="width: 90%;" rows="3"></textarea>
 			{% endif %}
 			
 			<p>Embed widget:</p>
-			<textarea id="embed_widget" style="width: 90%;" rows="2"></textarea>
+			<textarea id="embed_widget" style="width: 90%;" rows="3"></textarea>
 		</div>
 	</div>
 	</body>
