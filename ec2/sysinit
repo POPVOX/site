@@ -97,7 +97,7 @@ if [[ "$DISK" != "root" ]]; then
 
 	# "bind" the persistent mysql directory to /var/lib/mysql and trash the system-provided contents
 	service mysql stop;
-	rm -rf /var/lib/mysql/;
+	mv /var/lib/mysql/ /var/lib/mysql-old;
 	mkdir /var/lib/mysql;
 	#mount --bind /mnt/persistent/mysql/ /var/lib/mysql;
 	echo "/mnt/persistent/mysql/  /var/lib/mysql  none bind,auto" >> /etc/fstab;

@@ -33,7 +33,7 @@ if [ "$1" = "stop" ]; then
 
 else
 
-    echo "Starting...";
+    echo "Starting $HOSTNAME:$PORT...";
 
     ME=`readlink -m $0`
     MYDIR=`dirname $ME`

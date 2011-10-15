@@ -41,6 +41,7 @@ def raise_error(request):
 	raise ValueError("Hmmph!")
 
 def sitedown(request):
+	request.session = None
 	t = loader.get_template("static/site_down.html")
 	response = HttpResponse(t.render(Context({})), status=503)
 	response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
@@ -101,18 +102,19 @@ def get_news():
 		    return re.sub("&#(\d+)(;|(?=\s))", _callback, data)
 
 		import feedparser
-		feed = feedparser.parse("http://www.popvox.com/blog/atom")
+		feed = feedparser.parse("http://www.popvox.com/blog/feeds/latest")
 
 		seen_bill_picks = False
 		_news_items = []
+		_news_updated = datetime.now()
 		for entry in feed["entries"]:
+			break
 			item = {"link":entry.link, "title":decode_unicode_references(entry.title), "date":datetime(*entry.updated_parsed[0:6]), "content":decode_unicode_references(entry.content[0].value)}
 			if "Bill Picks" in item["title"]:
 				if seen_bill_picks: continue
 				seen_bill_picks = True
 			_news_items.append(item)
 			if len(_news_items) == 4: break
-		_news_updated = datetime.now()
 	return _news_items
 
 def citygrid_ad_plugin(banner, request):

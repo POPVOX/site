@@ -14,18 +14,13 @@ if os.path.exists("/home/www/slave"):
 		name, val = line.strip().split("=")
 		os.environ[name] = val
 
-if not DEBUG:
-	# If the site is accessed from multiple domains, then this is going to be
-	# a problem since we filter redirects to this path to make sure we aren't
-	# redirecting just anywhere.
-	SITE_ROOT_URL = "http://www.popvox.com" # doubles as openid2 authentication realm, which means if we change it, then people's Google logins will invalidate
-	SITE_SHORT_ROOT_URL = "http://pvox.co"
-	DATADIR = os.path.dirname(__file__) + "/data/"
-	SESSION_COOKIE_SECURE = True
-else:
-	SITE_ROOT_URL = "http://localhost:8000"
-	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-	DATADIR = "/home/tauberer/data/popvox/data/"
+# If the site is accessed from multiple domains, then this is going to be
+# a problem since we filter redirects to this path to make sure we aren't
+# redirecting just anywhere.
+SITE_ROOT_URL = "http://www.popvox.com" # doubles as openid2 authentication realm, which means if we change it, then people's Google logins will invalidate
+SITE_SHORT_ROOT_URL = "http://pvox.co"
+DATADIR = os.path.dirname(__file__) + "/data/"
+SESSION_COOKIE_SECURE = True
 
 APP_NICE_SHORT_NAME = "POPVOX"
 EMAIL_SUBJECT_PREFIX = "[POPVOX] "
@@ -96,8 +91,6 @@ else:
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3.S3Storage'
 AWS_STORAGE_BUCKET_NAME = "static.popvox.com"
-if DEBUG and not "REMOTEDB" in os.environ:
-	AWS_STORAGE_BUCKET_NAME = "static-demo.popvox.com"
 AWS_S3_SECURE_URLS = True
 AWS_CALLING_FORMAT = 1 # we can't use vanity calling format (i.e. static.popvox.com => static.popvox.com.s3.amazonaws.com) under HTTPS for obvious reasons
 
