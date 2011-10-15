@@ -33,7 +33,8 @@ body {
     text-align: center;
     color: #404045;
     font-family: Helvetica, Arial, sans-serif;
-    background: #e8e5df url(bg_pg2.gif) left top repeat-x;
+    background: #e8e5df url(http://www.sodiumhalogen.com/up_s/blog_85ac.jpg) -63px -1px repeat-x;
+	background: url("bg_pg2.gif") repeat-x scroll left top #E8E5DF;
     }
 
 body.grid { background: #e8e5df url("http://www.sodiumhalogen.com/_images/grid.png") repeat-y scroll center top     }
@@ -618,7 +619,7 @@ table.form_fields td {
     }
     
 .userrichtextcontent h3 {
-    font: 13px/18px Verdana, Arial, serif;
+    font: bold 14px/18px Verdana, Arial, serif;
     margin-bottom: .5em;
     padding-bottom: 0;
     background: none;
@@ -4810,6 +4811,5 @@ p#issueareachooser_listnone {
 .commentTipInline {
 	min-height: 20px;
 	}
-
 
 

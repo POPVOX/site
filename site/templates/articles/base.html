@@ -4,6 +4,115 @@
 {% block extra-head %}
 {{ block.super }}
 <link rel="alternate" type="application/rss+xml" title="Latest Blog Articles RSS Feed" href="{% url articles_feed 'latest' %}" />
+<style>
+
+.press h1 a, .press h2, .press h3 a {
+	color: #434247;
+	}
+	
+.press h1 {
+	margin-top: 30px;
+	color: #434247;
+	font-size: 50px;
+	}
+
+.press h2.title {
+    margin: 15px 0 22px 0;
+    font: normal 30px/36px arial, sans-serif;
+}
+
+.article-list>li {
+	clear: both;
+	border-bottom: 1px solid #AAA;
+}
+
+.article-list > li > h3 {
+	margin: 20px 0 10px 0;
+	font-family: Tahoma, sans-serif;
+	font-weight: bold;
+	background: none;
+}
+
+#article-meta p.byline {
+	text-transform: uppercase;
+}
+#article-meta p.byline span {
+	text-transform: none;
+	font-style: italic;
+}
+#article-content .share {
+	float: right;
+	margin: 0 0 20px 20px;
+	padding: 0;
+	width: auto;	
+}
+.sub p.inquiries {
+	margin: 0 0 20px 0;
+	font-weight: normal;
+	font-size: 12px;
+}
+.pagination-pages {
+	margin: 20px;
+}
+.pagination-pages li {
+	display: inline-block;
+}
+
+.press .article-list .bill-picks h2, .press .bill-picks .userrichtextcontent h2 {
+		padding-left: 40px;
+	}
+	
+	.press h2.i_cal {
+		background: url(/media/press/i_cal.png) left top no-repeat;
+		}
+	
+	.press h2.i_trend {
+		background: url(/media/press/i_trending.png) left top no-repeat;
+		}
+
+	.press h2.i_users {
+		background: url(/media/press/i_user.png) left top no-repeat;
+		}
+		
+	.press h2.i_updates {
+		background: url(/media/press/i_updates.png) left top no-repeat;
+		}
+
+.article-list > li.bill-picks > h3 {
+	width: 340px;
+	padding: 20px;
+	margin: 30px 20px 20px 0;
+	background: #DCD9D2;
+	font: bold 25px/30px helvetica, san-serif;
+	float: left;
+	display: block;
+}
+
+li.bill-picks p.byline {
+	width: 270px;
+	float: left;
+	display: block;
+	margin-top: 30px;
+	border-bottom: 1px solid #666;
+	font-size: 14px;
+}
+
+.press li {
+	background: none;
+}
+
+.press li ul li {
+	margin-left: 80px;
+}
+
+.press li ul li span {
+	margin-left: -95px;
+	background: url(/media/press/bg_arrow.png) left top no-repeat;
+	color: #fff;
+	padding: 7px 40px 5px 10px;
+	
+	}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -67,6 +176,10 @@
         </li>
     {% if forloop.last %}</ul>{% endif %}
     {% endfor %}
+    
+    <div>
+    	<a href="{% url articles_feed 'latest' %}">RSS</a>
+    </div>
 </div>
 {% endblock %}
 

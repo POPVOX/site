@@ -1,14 +1,15 @@
 {% load i18n humanize %}
-<div id="article-content" class="article">
+<div id="article-content" class="article {% for tag in article.tags.all %}{{tag.slug}}{% endfor %}">
+	<div class="share">
+		<script type="application/javascript" src="http://tweetmeme.com/i/scripts/button.js"></script>
+	</div>
+
     <h2 class="title">{% trans article.title %}</h2>
 
 	<div id="article-meta">
-		<div class="share">
-			<script type="application/javascript" src="http://tweetmeme.com/i/scripts/button.js"></script>
-		</div>
-
 		<p class="byline"><span>by</span> <a href="{% url articles_by_author article.author.username %}" title="{% trans 'Read other articles by this author' %}">{{ article.author.get_name }}</a> <span>on</span> {{ article.publish_date|date:"F j, Y" }}</p>
 	</div>
+	<div class="clear"> </div>
 
 	<div class="userrichtextcontent">
     	{{ article.rendered_content|safe }}

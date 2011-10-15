@@ -1,12 +1,13 @@
 {% load i18n %}
 {% if forloop.first %}<ol class="article-list">{% endif %}
-    <li>
+    <li class="{% for tag in article.tags.all %}{{tag.slug}}{% endfor %}">
         <h3><a href="{{ article.get_absolute_url }}" title="{% trans 'Read this article' %}">{{ article.title }}</a></h3>
         
 		<div id="article-meta">
 			<p class="byline"><span>by</span> <a href="{% url articles_by_author article.author.username %}" title="{% trans 'Read other articles by this author' %}">{{ article.author.get_name }}</a> <span>on</span> {{ article.publish_date|date:"F j, Y" }}</p>
 		</div>
-		
+		<div class="clear"> </div>
+
 		<div class="userrichtextcontent">
 		{{ article.rendered_content|safe }}
 		<div class="clear"> </div>

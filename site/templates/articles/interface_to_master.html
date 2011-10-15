@@ -2,60 +2,21 @@
 
 {% load article_tags %}
 
+{% block loginblock %}{% endblock %}
+
 {% block title %}Blog{% endblock %}
 
 {% block head %}
 <meta name="keywords" content="{% block meta-keywords %}{% endblock %}" />
 <meta name="description" content="{% block meta-description %}{% endblock %}" />
 {% block extra-head %}{% endblock %}
-<style>
-h1 a {
-	color: black;
-}
-.article-list h3 {
-	margin: 20px 0 10px 0;
-	font-family: Tahoma, sans-serif;
-	font-weight: bold;
-	background: none;
-}
-	.article-list h3 a {
-		color: black;
-	}
-.article-list>li {
-	clear: both;
-	border-bottom: 1px solid #AAA;
-	}
-#article-content h2.title {
-	margin: 20px 0 20px 0;
-	font-family: Tahoma, sans-serif;
-	font-weight: bold;
-}
-#article-meta p.byline {
-	text-transform: uppercase;
-}
-#article-meta p.byline span {
-	text-transform: none;
-	font-style: italic;
-}
-#article-meta .share {
-	float: right;
-}
-.sub p.inquiries {
-	margin: 0 0 20px 0;
-	font-weight: normal;
-	font-size: 12px;
-}
-.pagination-pages li {
-	display: inline-block;
-}
-</style>
 {% endblock %}
 
 {% block body %}
 <div class="content">
 
 <div class="col_9 col_top press">
-<h1><a href="/articles">Building a Nation <small>The POPVOX Blog</small></a></h1>
+<h1><a href="/blog">The POPVOX Blog</a></h1>
 
 {% block content %}{% endblock %}
 </div>
@@ -65,7 +26,7 @@ h1 a {
 		<p class="inquiries">(For media inquiries, please contact Marci Harris, POPVOX&rsquo;s CEO, at <a href="mailto:info@popvox.com">info@popvox.com</a>.)</p>
 		<h2>MEDIA KIT</h2>
 		<ul class="sub_side">
-			<li><a href="/articles">Blog Home</a></li>
+			<li><a href="/blog">Blog Home</a></li>
 			<li><a href="/press">Press Releases &amp; Clips</a></li>
 			<li><a href="/about/whyitworks">Why POPVOX Works</a></li>
 			<li><a href="/about/team">Team Bios</a></li>
