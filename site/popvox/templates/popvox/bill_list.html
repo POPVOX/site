@@ -1,6 +1,6 @@
 {% extends "master.html" %}
 {% load cache %}
-{% load popvox_utils %}
+{% load popvox_utils humanize %}
 {% block title %}Bills in Congress{% endblock%}
 {%block nav_legstaff_class_bills%}active{%endblock%}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
@@ -157,9 +157,13 @@ $(function() {
 				<div class="bill_detail">
 				
 				{% if billrec.bill.new_positions < 50 %}
-					<p style="margin-top: -10px;"><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
+					{% if billrec.bill.total_positions < 350 %}
+						<p style="margin-top: -10px;"><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
+					{% else %}
+						<p style="margin-top: -10px;"><strong>{{billrec.bill.total_positions|intcomma}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}}</p>
+					{% endif %}
 				{% else %}
-					<p style="margin-top: -10px;"><strong>{{billrec.bill.new_positions}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
+					<p style="margin-top: -10px;"><strong>{{billrec.bill.new_positions|intcomma}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
 				{% endif %}
 				
 				{% comment %}

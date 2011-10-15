@@ -1,10 +1,18 @@
 {% load adserver_tags %}
 
 <div class="col_3 col_top col_last col_ad"> 
-	
+	<h4>System Notice</h4>
+
+	<p>On October 14, POPVOX had a technical problem that caused some data on the site 
+	to be deleted. Please see <a 
+	href="https://www.popvox.com/blog/2011/apology-data-loss-oct-14/">this post</a> for 
+	details. The entire POPVOX team enormously regrets this inconvenience to our users.</p>
+
+	{% comment %}
 	<h4>Advertisements</h4>
 	
 	{% show_ad std180x150 "rightbar_slot1" %}
+	{% endcomment %}
 	{% comment %}{% show_ad std180x150 "rightbar_slot2" %}{% endcomment %}
 	
 	{% if not debug %}
