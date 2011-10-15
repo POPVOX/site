@@ -22,7 +22,16 @@ def staticpage(request, page):
 		page = "homepage"
 		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 			return HttpResponseRedirect("/home")
-		news = get_news()
+			
+		import articles.models
+		news = []
+		has_bill_picks = False
+		for art in articles.models.Article.objects.all():
+			if "Bill Picks" in art.title:
+				if has_bill_picks: continue
+				has_bill_picks = True
+			news.append(art)
+			if len(news) == 5: break
 	
 	if page.startswith("press/"):
 		page = "press_releases/" + page[6:].replace("/", "_")
@@ -80,42 +89,6 @@ def subscribe_to_mail_list(request):
 	u.email = email
 	u.save()
 	return { "status": "success" }
-
-
-_news_items = None
-_news_updated = None
-def get_news():
-	global _news_items
-	global _news_updated
-	# Load the blog RSS feed for items tagged frontpage.
-	if _news_items == None or datetime.now() - _news_updated > timedelta(minutes=60):
-		
-		# c/o http://stackoverflow.com/questions/1208916/decoding-html-entities-with-python
-		import re
-		def _callback(matches):
-		    id = matches.group(1)
-		    try:
-			   return unichr(int(id))
-		    except:
-			   return id
-		def decode_unicode_references(data):
-		    return re.sub("&#(\d+)(;|(?=\s))", _callback, data)
-
-		import feedparser
-		feed = feedparser.parse("http://www.popvox.com/blog/feeds/latest")
-
-		seen_bill_picks = False
-		_news_items = []
-		_news_updated = datetime.now()
-		for entry in feed["entries"]:
-			break
-			item = {"link":entry.link, "title":decode_unicode_references(entry.title), "date":datetime(*entry.updated_parsed[0:6]), "content":decode_unicode_references(entry.content[0].value)}
-			if "Bill Picks" in item["title"]:
-				if seen_bill_picks: continue
-				seen_bill_picks = True
-			_news_items.append(item)
-			if len(_news_items) == 4: break
-	return _news_items
 
 def citygrid_ad_plugin(banner, request):
 	if not request.user.is_authenticated():

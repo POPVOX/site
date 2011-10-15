@@ -98,8 +98,8 @@ function subscribe(validate) {
 		<h3 id="news_feed">News Feed</h3>
 		
 		{% for entry in news %}
-			<h4>{{ entry.date|date:"M j, Y" }}</h4>
-			<p><a href="{{entry.link}}">{{ entry.title|safe }}</a>. {{ entry.content|striptags|truncatewords:7}}</p>
+			<h4>{{ entry.publish_date|date:"M j, Y" }}</h4>
+			<p><a href="{{entry.link}}">{{ entry.title }}</a>. {{ entry.rendered_content|striptags|truncatewords:7}}</p>
 		{% endfor %}
 	</div>
 
