@@ -4,8 +4,56 @@ POPVOX System Stack
 This file documents all components of our live system stack, including any
 external service that affects any deployed services (POPVOX.com, iPad, etc.).
 
-Network Solutions
+Google Apps (g.popvox.com)
+--------------------------
+
+	Google Apps is at the top of the stack because most other services are
+	tied to email accounts, which means a compromised email account could
+	compromise the whole stack.
 	
+	Admin accounts:
+	
+		josh, annalee
+	
+	Settings:
+	
+		The option to send an admin password reset to the outside address
+		is disabled.
+	
+		"Enable SSL" is on for the domain.
+	
+		"Two-step verification" is enabled first for the domain (let's user
+		choose option) and then enabled for the admins for Google Apps.
+			
+			additionally, josh has stored a one-time backup verification code
+			for two-step verification in the ICJIM file.
+			
+			Two-step verification sends a code to a cell phone to grant login
+			from a new computer. Thus, if a cell phone number changes, this
+			configuration must be updated.
+			
+				josh:    his cell phone
+				annalee: her google voice account
+			
+		*Even with two-step verification, the question is: who can read email
+		to an account that is used for the registration of another service?*
+	
+	We've agreed to provide mail forwarding for a year (until
+	the end of August 2011) for David Troy:
+	  dave@popvox.com -> davetroy@gmail.com
+	  jennifer@popvox.com -> jtroy@roundhousetech.com (updated from jennifer.troy1@gmail.com on 8/19/10)
+
+
+Network Solutions
+-----------------
+	
+	The login information is stored in the ICJIM file.
+	
+		email: domain.contact@popvox.com
+		           --- should not be easily readable to avoid hijacking by grabbing a password reset,
+		           --- but right now just forwards to josh
+		secondary email: an off-site email address that josh has that would be hard to guess
+
 	Domain registrations:
 	
 		popvox.com			expires April 26, 2016
@@ -17,11 +65,9 @@ Network Solutions
 	SSL Certificate
 	
 		expires April 25, 2012
-		
-	need to secure the account password
-	need to secure the associated email addresses
 
 DNS on occams.info
+------------------
 
 	72.249.66.163, with reverse DNS to www.popvox.com
 	named.conf.local has entries for thevoxpop.us, popvox.com, popvox.net, pvox.co...
