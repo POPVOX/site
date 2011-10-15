@@ -99,7 +99,7 @@ function subscribe(validate) {
 		
 		{% for entry in news %}
 			<h4>{{ entry.publish_date|date:"M j, Y" }}</h4>
-			<p><a href="{{entry.link}}">{{ entry.title }}</a>. {{ entry.rendered_content|striptags|truncatewords:7}}</p>
+			<p><a href="{{entry.get_absolute_url}}">{{ entry.title }}</a>. {{ entry.rendered_content|striptags|truncatewords:7}}</p>
 		{% endfor %}
 	</div>
 
