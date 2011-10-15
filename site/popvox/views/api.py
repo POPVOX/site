@@ -497,13 +497,13 @@ def document_page(request, docid, pagenum, format):
 		doc = PositionDocument.objects.get(id=docid)
 		page = doc.pages.only("id").get(page=pagenum) # defer fields
 		if format == "png":
-			return HttpResponse(base64.decodestring(page.png), "image/png")
+			return HttpResponse(base64.decodestring(page.png if page.png else ""), "image/png")
 		elif format == "html":
 			return HttpResponse(page.html, "text/html")
 		elif format == "txt":
 			return HttpResponse(page.text, "text/plain")
 		elif format == "pdf":
-			return HttpResponse(base64.decodestring(page.pdf), "application/pdf")
+			return HttpResponse(base64.decodestring(page.pdf if page.pdf else ""), "application/pdf")
 		else:
 			raise Http404("Invalid page format.")
 	except PositionDocument.DoesNotExist:
