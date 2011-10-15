@@ -43,7 +43,8 @@
 	/**The bar itself giving it a height, width, background, ignore margin  ***/
 	#header, #footer { height: 30px; background: #e2d8d0; overflow: hidden; }
 	
-	#header li.title { margin: 0 0 0 10px; font: bold 14px/28px Verdana, Arial, sans-serif;  }
+	#header li.title { margin: 0 0 0 10px; }
+	#header li.title a { font: bold 14px/28px Verdana, Arial, sans-serif; color: black; }
 	
 	/**styling the UL list for the icons**/
 	ul.barNav { list-style-type: none; }
@@ -83,7 +84,7 @@
 	a#helpNotify:hover { background: #c7bab0 url(/media/billtext/notifyH.png) center center no-repeat; }
 	
 	/**Table of Contents styling**/
-	ul.barNav a { display: block; font-family: Tahoma, Arial; font-size: 11px; text-transform: uppercase; text-decoration: none; font-weight: bold; color: #6a6767; margin-top: 8px; }
+	ul.barNavFooter a { display: block; font-family: Tahoma, Arial; font-size: 11px; text-transform: uppercase; text-decoration: none; font-weight: bold; color: #6a6767; margin-top: 8px; }
 	ul.barNav a:visited { color: #6a6767; }
 	ul.barNav a:hover { color: #514f4f; }
 	ul.barNav li.toc, ul.barNav li.pagemode, ul.barNav li.zoom { padding: 0 10px 0 10px; }
@@ -128,7 +129,8 @@ function load_document(docid) {
 	dataType: "json",
 	success: function(data, status) {
 		// Document metadata.
-		$('li.title').text(data.title);
+		$('li.title a').text(data.bill.title);
+		$('li.title a').attr("href", data.bill.link);
 		$('#footer li.logo a').attr("href", data.bill.link);
 		
 		// Build the Table of Contents.
@@ -416,7 +418,7 @@ $(function() {
 	<div class="content">
 		<div id="header">
 			<ul class="barNav">
-				<li class="title"></li>
+				<li class="title"><a href="http://www.popvox.com" title="Embeddable bill text powered by POPVOX: Click here to weigh in." target="_top"> </a></li>
 			</ul>
 		</div>
 		
@@ -440,7 +442,7 @@ $(function() {
 		</div>
 		
 		<div id="footer" style="display: none;">
-			<ul class="barNav">
+			<ul class="barNav barNavFooter">
 				<li class="first"><a href="#" id="arrowUp" onclick="return page_advance(-1)"></a></li>
 				<li><a href="#" id="arrowDown" onclick="return page_advance(1)"></a></li>
 				<li id="pageN"><input value="__" onchange="return page_go_to(this.value);"></input> <span>__</span></li>
