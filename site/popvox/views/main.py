@@ -26,7 +26,7 @@ def staticpage(request, page):
 		import articles.models
 		news = []
 		has_bill_picks = False
-		for art in articles.models.Article.objects.all():
+		for art in articles.models.Article.objects.filter(status__is_live=True):
 			if "Bill Picks" in art.title:
 				if has_bill_picks: continue
 				has_bill_picks = True
