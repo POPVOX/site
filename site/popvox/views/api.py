@@ -514,6 +514,7 @@ document_page.description = "Retreives one page of a document as either a PNG, a
 document_page.url_pattern_args = (("000",'DOCUMENT_ID'), ("001",'PAGE_NUMBER'), ('aaa', '{png|pdf|txt}'))
 document_page.url_example_args = (248,20,'png')
 document_page.has_read = True
+document_page.has_post = False
 
 @api_handler
 class document_search(BaseHandler):
@@ -894,17 +895,27 @@ def documentation(request):
 			if f.allow_public_api_key:
 				api_key = api_keys[0].api_key
 		
-		f.api_display_name = f.__name__.replace("_", " ")
-
+		ret = {
+			"api_display_name": f.__name__.replace("_", " "),
+			"description": getattr(f, "description", "(no description)"),
+			"has_read": f.has_read,
+			"qs_args": getattr(f, "qs_args", []),
+			"has_post": f.has_post,
+			"post_args": getattr(f, "post_args", []),
+			"response_summary": getattr(f, "response_summary", ""),
+			"response_fields": getattr(f, "response_fields", []),
+			"allow_public_api_key": f.allow_public_api_key,
+		}
+		
 		try:
 			args = getattr(f, "url_pattern_args", [])
-			f.url_pattern = reformat_args_2(reverse('popvox.views.api.' + f.__name__, args=reformat_args_1(args)), args)
-			f.url_pattern += getattr(f, "url_pattern_qs", "")
+			ret["url_pattern"] = reformat_args_2(reverse('popvox.views.api.' + f.__name__, args=reformat_args_1(args)), args)
+			ret["url_pattern"] += getattr(f, "url_pattern_qs", "")
 		except Exception as e:
-			f.url_pattern =  str(e)
+			ret["url_pattern"] =  str(e)
 
 		try:
-			f.url_example = reverse('popvox.views.api.' + f.__name__, args=getattr(f, "url_example_args", []))
+			ret["url_example"] = reverse('popvox.views.api.' + f.__name__, args=getattr(f, "url_example_args", []))
 			
 			additional_args = []
 			for name, descr, example in getattr(f, "qs_args", []):
@@ -913,12 +924,12 @@ def documentation(request):
 			if len(api_keys) > 0:
 				additional_args.append( ('api_key', api_key) )
 			if len(additional_args) > 0:
-				f.url_example += "?" + urllib.urlencode(additional_args)
+				ret["url_example"] += "?" + urllib.urlencode(additional_args)
 			
 		except Exception as e:
-			f.url_example = str(e)
+			ret["url_example"] = str(e)
 			
-		return f
+		return ret
 			
 	return render_to_response('popvox/apidoc.html', {
 		'accounts': api_keys,
