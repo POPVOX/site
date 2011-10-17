@@ -6,112 +6,147 @@
 <link rel="alternate" type="application/rss+xml" title="Latest Blog Articles RSS Feed" href="{% url articles_feed 'latest' %}" />
 <style>
 
+/* press */
+
 .press h1 a, .press h2, .press h3 a {
 	color: #434247;
 	}
 	
 .press h1 {
-	margin-top: 30px;
+	margin: 30px 0 5px;
+	padding-bottom: 20px;
 	color: #434247;
 	font-size: 50px;
+	background: url("bg_rule.gif") repeat-x scroll left bottom transparent;
+	}
+	
+.press h2 {
+	font-size: 18px;
+	padding-left: 45px;
+	border-bottom: 1px solid #a9a59b;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	}
+	
+	.press h2.i_cal {
+		background: url(/media/press/i_cal.png) left top no-repeat;
+		margin: 30px 0 20px;
+		}
+	
+	.press h2.i_trend {
+		background: url(/media/press/i_trending.png) left top no-repeat;
+		margin: 30px 0 20px;
+		}
+
+	.press h2.i_users {
+		background: url(/media/press/i_user.png) left top no-repeat;
+		margin: 30px 0 20px;
+		}
+		
+	.press h2.i_updates {
+		background: url(/media/press/i_updates.png) left top no-repeat;
+		margin: 30px 0 20px;
+		}
+		
+.press h3 {
+	background: none;
+	font-size: 18px;
+	}
+	
+.article h2.title {
+	min-height: 60px;
+}
+
+.article-list li > h3  {
+	/*width: 340px;*/
+	padding: 20px;
+	margin-left: -20px;
+	/*margin: 30px 20px 20px 0;*/
+	/*min-height: 80px;*/
+	background: #DCD9D2;
+	font: bold 25px/30px helvetica, san-serif;
+	/*float: left;*/
+	display: block;
 	}
 
-.press h2.title {
-    margin: 15px 0 22px 0;
-    font: normal 30px/36px arial, sans-serif;
-}
-
-.article-list>li {
-	clear: both;
-	border-bottom: 1px solid #AAA;
-}
-
-.article-list > li > h3 {
-	margin: 20px 0 10px 0;
-	font-family: Tahoma, sans-serif;
-	font-weight: bold;
-	background: none;
-}
-
 #article-meta p.byline {
+	margin-top: 20px;
 	text-transform: uppercase;
 }
 #article-meta p.byline span {
 	text-transform: none;
 	font-style: italic;
 }
-#article-content .share {
+	
+/*p.byline {
+	width: 270px;
+	height: 30px;
 	float: right;
-	margin: 0 0 20px 20px;
-	padding: 0;
-	width: auto;	
-}
-.sub p.inquiries {
-	margin: 0 0 20px 0;
-	font-weight: normal;
-	font-size: 12px;
-}
-.pagination-pages {
-	margin: 20px;
-}
-.pagination-pages li {
-	display: inline-block;
-}
+	display: block;
+	margin-top: 50px;
+	font-size: 14px;
+	}*/
 
-.press .article-list .bill-picks h2, .press .bill-picks .userrichtextcontent h2 {
-		padding-left: 40px;
+.press ul {
 	}
 	
-	.press h2.i_cal {
-		background: url(/media/press/i_cal.png) left top no-repeat;
-		}
+.press .article-list > li {
+	background: none;
+	margin-left: 0;
+	/*border-bottom: 1px solid #a9a59b;*/
+	margin-bottom: 40px;
+	}
 	
-	.press h2.i_trend {
-		background: url(/media/press/i_trending.png) left top no-repeat;
+	.press .userrichtextcontent ol li {
+		border: none;
+		list-style-type: square;
+		list-style-position: inside;
 		}
 
-	.press h2.i_users {
-		background: url(/media/press/i_user.png) left top no-repeat;
+	.press .userrichtextcontent ul li {
+		padding-left: 100px;
+		padding-top: 4px;
+		background: url(/media/press/bg_arrow.png) left 5px no-repeat;
+		width: 580px;
+		border: none;
+		min-height: 30px;
+		}
+
+	.press .userrichtextcontent ul li span {
+		margin-left: -100px;
+		color: #fff;
+		padding: 5px 0px 2px 10px;
+		width: 60px;
+		float: left;
 		}
 		
-	.press h2.i_updates {
-		background: url(/media/press/i_updates.png) left top no-repeat;
-		}
-
-.article-list > li.bill-picks > h3 {
-	width: 340px;
-	padding: 20px;
-	margin: 30px 20px 20px 0;
-	background: #DCD9D2;
-	font: bold 25px/30px helvetica, san-serif;
-	float: left;
-	display: block;
-}
-
-li.bill-picks p.byline {
-	width: 270px;
-	float: left;
-	display: block;
-	margin-top: 30px;
-	border-bottom: 1px solid #666;
-	font-size: 14px;
-}
-
-.press li {
-	background: none;
-}
-
-.press li ul li {
-	margin-left: 80px;
-}
-
-.press li ul li span {
-	margin-left: -95px;
-	background: url(/media/press/bg_arrow.png) left top no-repeat;
-	color: #fff;
-	padding: 7px 40px 5px 10px;
-	
+p.inquiries {
+	font: italic normal 14px/18px georgia, serif;
+	margin: 0 0 20px;
 	}
+
+ul.pagination-pages ul {
+	text-align: center;
+	}
+
+ul.pagination-pages li {
+	display: block;
+	float: left;
+	border: none;
+	margin: 10px 1px;
+	}
+	
+ul.pagination-pages li a{
+	padding: 2px 5px;
+	background: #DED7CB
+	}
+	
+	ul.pagination-pages li a:hover {
+		color: #fff;
+		background: #cc6a11;
+		text-decoration: none;
+		border: none;
+		}
 </style>
 {% endblock %}
 
@@ -182,4 +217,3 @@ li.bill-picks p.byline {
     </div>
 </div>
 {% endblock %}
-
