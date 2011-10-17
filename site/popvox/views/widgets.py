@@ -211,7 +211,7 @@ def bill_text(request):
 @cache_page(60 * 60 * 2) # two hours
 @do_not_track_compliance
 def bill_text_js(request):
-	width = int(float(request.GET.get("width", "600")))
+	width = int(float(request.GET.get("width", "675")))
 	height = int(float(request.GET.get("height", str(width*11/8.5))))
 	
 	return HttpResponse("""
