@@ -61,7 +61,7 @@ class Advertiser(models.Model):
 class Order(models.Model):
 	"""An Order is a group of banners with a starting and ending date, a bid price,
 	a maximum cost per day, and targetting criteria."""
-	advertiser = models.ForeignKey(Advertiser, db_index=True, related_name = "orders", help_text="The advertiser placing the order.")
+	advertiser = models.ForeignKey(Advertiser, db_index=True, related_name = "orders", help_text="The advertiser placing the order.", on_delete=models.CASCADE)
 	notes = models.TextField(blank=True)
 	starttime = models.DateTimeField(null=True, blank=True, verbose_name="Start Date", help_text="The date the advertising will begin. Leave blank to start immediately.")
 	endtime = models.DateTimeField(null=True, blank=True, verbose_name="End Date", help_text="The date the advertising will end. Leave blank to continue indefinitely.")
@@ -165,8 +165,8 @@ class Order(models.Model):
 			
 class Banner(models.Model):
 	"""A Banner is text or an image provided by an advertiser."""
-	order = models.ForeignKey(Order, db_index=True, related_name = "banners", help_text="The advertisement order that this banner is a part of.")
-	format = models.ForeignKey(Format, db_index=True, related_name = "banners", help_text="The ad format for this banner.")
+	order = models.ForeignKey(Order, db_index=True, related_name = "banners", help_text="The advertisement order that this banner is a part of.", on_delete=models.CASCADE)
+	format = models.ForeignKey(Format, db_index=True, related_name = "banners", help_text="The ad format for this banner.", on_delete=models.PROTECT)
 	name = models.CharField(max_length=128, help_text="A name for this banner.")
 	active = models.BooleanField(default=True, help_text="Whether this banner is currently running")
 	notes = models.TextField(blank=True)
@@ -288,8 +288,8 @@ class ImpressionBlock(models.Model):
 	An ImpressionBlock tracks the number of impressions, clicks, and the
 	cost for a given banner, path, date combination."""
 	
-	banner = models.ForeignKey(Banner, db_index=True, related_name="impressions")
-	path = models.ForeignKey(SitePath, db_index=True, related_name="impressions")
+	banner = models.ForeignKey(Banner, db_index=True, related_name="impressions", on_delete=models.PROTECT)
+	path = models.ForeignKey(SitePath, db_index=True, related_name="impressions", on_delete=models.PROTECT)
 	date = models.DateField(auto_now_add=True)
 	cpmcost = models.FloatField(default=0) # average cpm cost over all impressions
 	impressions = models.IntegerField(default=0) # total number of impressions
@@ -317,7 +317,7 @@ class Impression(models.Model):
 	
 	created = models.DateTimeField(auto_now_add=True, db_index=True)
 	code = models.CharField(max_length=CODE_LENGTH, db_index=True)
-	block = models.ForeignKey(ImpressionBlock)
+	block = models.ForeignKey(ImpressionBlock, on_delete=models.CASCADE)
 	cpccost = models.FloatField(default=0)
 	targeturl = models.CharField(max_length=128)
 	
@@ -330,8 +330,8 @@ class TargetImpressionBlock(models.Model):
 	triggers multiple targets, the sum of the impressions over all
 	target blocks doesn't add to the total number of impressions."""
 	
-	target = models.ForeignKey(Target, db_index=True, related_name="impressions")
-	path = models.ForeignKey(SitePath, db_index=True, related_name="targetimpressions")
+	target = models.ForeignKey(Target, db_index=True, related_name="impressions", on_delete=models.PROTECT)
+	path = models.ForeignKey(SitePath, db_index=True, related_name="targetimpressions", on_delete=models.PROTECT)
 	date = models.DateField(auto_now_add=True)
 	impressions = models.IntegerField(default=0)
 	class Meta:

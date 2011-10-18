@@ -62,12 +62,12 @@ class DeliveryRecord(models.Model):
 	FAILURE_DISTRICT_DISAGREEMENT = 7
 	FAILURE_ADDRESS_REJECTED = 8
 	
-	target = models.ForeignKey(Endpoint)
+	target = models.ForeignKey(Endpoint, on_delete=models.PROTECT)
 	trace = models.TextField()
 	success = models.BooleanField()
 	failure_reason = models.IntegerField(choices=[(FAILURE_NO_FAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response"), (FAILURE_NO_DELIVERY_METHOD, "No Delivery Method Available"), (FAILURE_DISTRICT_DISAGREEMENT, "District Disagreement"), (FAILURE_ADDRESS_REJECTED, "Address Rejected")])
 	method = models.IntegerField(choices=Endpoint.METHOD_CHOICES)
-	next_attempt = models.OneToOneField("DeliveryRecord", blank=True, null=True, related_name="previous_attempt")
+	next_attempt = models.OneToOneField("DeliveryRecord", blank=True, null=True, related_name="previous_attempt", on_delete=models.PROTECT)
 	created = models.DateTimeField(auto_now_add=True)
 	
 	class Meta:

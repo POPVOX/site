@@ -20,7 +20,7 @@ class LiveRecord(models.Model):
 	time = models.DateTimeField(auto_now_add=True)
 
 	session_key = models.CharField(max_length=40)
-	user = models.ForeignKey(User, blank=True, null=True)
+	user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
 
 	path = models.CharField(max_length=64) # request path
 	view = models.CharField(max_length=64) # the name of the view class handling the request
@@ -39,7 +39,7 @@ class Hit(models.Model):
 	time = models.DateTimeField(db_index=True)
 
 	session_key = models.CharField(max_length=40, db_index=True)
-	user = models.ForeignKey(User, blank=True, null=True, db_index=True)
+	user = models.ForeignKey(User, blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
 
 	path = models.CharField(max_length=64, db_index=True) # request path
 	view = models.CharField(max_length=64, db_index=True) # the name of the view class handling the request

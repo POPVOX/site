@@ -43,11 +43,11 @@ class Record(models.Model):
 	code = models.CharField(max_length=CODE_LENGTH, db_index=True)
 	created = models.DateTimeField(auto_now_add=True)
 	
-	target_content_type = models.ForeignKey(ContentType, related_name="shorturlsto")
+	target_content_type = models.ForeignKey(ContentType, related_name="shorturlsto", on_delete=models.PROTECT)
 	target_object_id = models.PositiveIntegerField()
 	target = generic.GenericForeignKey('target_content_type', 'target_object_id')
 	
-	owner_content_type = models.ForeignKey(ContentType, blank=True, null=True, db_index=True, related_name="shorturlsof")
+	owner_content_type = models.ForeignKey(ContentType, blank=True, null=True, db_index=True, related_name="shorturlsof", on_delete=models.PROTECT)
 	owner_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
 	owner = generic.GenericForeignKey('owner_content_type', 'owner_object_id')
 
@@ -100,7 +100,7 @@ class Record(models.Model):
 
 class SimpleRedirect(models.Model):
 	url = models.CharField(max_length=128, blank=True, null=True)
-	target_content_type = models.ForeignKey(ContentType, blank=True, null=True, related_name="simpleshorturlsto")
+	target_content_type = models.ForeignKey(ContentType, blank=True, null=True, related_name="simpleshorturlsto", on_delete=models.PROTECT)
 	target_object_id = models.PositiveIntegerField(blank=True, null=True)
 	target = generic.GenericForeignKey('target_content_type', 'target_object_id')
 	meta_pickled = models.TextField(blank=True)

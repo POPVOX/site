@@ -17,7 +17,7 @@ LOCKED_DAYS = 120
 
 class PhoneNumber(models.Model):
 	"""Phone number information associated with a user."""
-	user = models.ForeignKey(User, unique=True, related_name="phonenumber")
+	user = models.ForeignKey(User, unique=True, related_name="phonenumber", on_delete=models.CASCADE)
 	date = models.DateTimeField()
 	verified = models.BooleanField()
 	phonenumber = models.CharField(max_length=40, db_index=True) # 40 is long enough for SHA1 hashes of phone numbers

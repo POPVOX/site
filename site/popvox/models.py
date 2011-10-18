@@ -57,7 +57,7 @@ class IssueArea(models.Model):
 	slug = models.SlugField(db_index=True, unique=True)
 	name = models.CharField(max_length=100)
 	shortname = models.CharField(max_length=16, blank=True, null=True)
-	parent = models.ForeignKey('self', blank=True, null=True, db_index=True, related_name = "subissues")
+	parent = models.ForeignKey('self', blank=True, null=True, db_index=True, related_name = "subissues", on_delete=models.SET_NULL)
 	class Meta:
 		ordering = ['name']
 	def __unicode__(self):
@@ -146,11 +146,11 @@ class Bill(models.Model):
 	congressnumber = models.IntegerField()
 	billtype = models.CharField(max_length=2, choices=BILL_TYPE_CHOICES)
 	billnumber = models.IntegerField(help_text="For House Draft/Senate Draft/Proposal-type bills, just number them sequentially starting with 1. For bills, resolutions, and amendments, this must be the official number.")
-	vehicle_for = models.ForeignKey('Bill', related_name='replaced_vehicle', blank=True, null=True)
-	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills")
+	vehicle_for = models.ForeignKey('Bill', related_name='replaced_vehicle', blank=True, null=True, on_delete=models.SET_NULL)
+	sponsor = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, related_name = "sponsoredbills", on_delete=models.PROTECT)
 	cosponsors = models.ManyToManyField(MemberOfCongress, blank=True, related_name="cosponsoredbills")
 	committees = models.ManyToManyField(CongressionalCommittee, blank=True, related_name="bills")
-	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills")
+	topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermbills", on_delete=models.SET_NULL)
 	issues = models.ManyToManyField(IssueArea, blank=True, related_name="bills")
 	title = models.TextField()
 	description = models.TextField(blank=True, null=True)
@@ -159,8 +159,8 @@ class Bill(models.Model):
 	current_status_date = models.DateTimeField(help_text="For non-bill actions, just choose today.")
 	num_cosponsors = models.IntegerField()
 	latest_action = models.TextField(blank=True)
-	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True)
-	migrate_to = models.ForeignKey('Bill', related_name='migrate_from', blank=True, null=True)
+	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
+	migrate_to = models.ForeignKey('Bill', related_name='migrate_from', blank=True, null=True, on_delete=models.SET_NULL)
 	
 	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase. For non-bill actions, this is an alternate short name for the action.")
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
@@ -578,11 +578,11 @@ class Org(models.Model):
 					import json
 					fbdata = json.load(urlopen("http://graph.facebook.com/" + fbid))
 					if type(fbdata) == dict and "likes" in fbdata:
-						updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, int(fbdata["likes"])) # if no likes key, just skip by raising Exception, catching it, and passing on
+						updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, int(fbdata["likes"]))
 			except Exception, e:
 				print e
 				pass
-		
+
 		# Twitter Followers.
 		if self.twittername == None: # clear record
 			updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, None)
@@ -622,7 +622,7 @@ class Org(models.Model):
 class OrgContact(models.Model):
 	"""A contact record for an Org displayed to legislative staff."""
 	
-	org = models.ForeignKey(Org, related_name="contacts", db_index=True)
+	org = models.ForeignKey(Org, related_name="contacts", db_index=True, on_delete=models.CASCADE)
 	name = models.CharField(max_length=100)
 	title = models.CharField(max_length=100, blank=True, null=True)
 	phonenumber = models.TextField(blank=True, null=True)
@@ -640,7 +640,7 @@ class OrgContact(models.Model):
 
 class OrgCampaign(models.Model):
 	"""An organization's campaign."""
-	org = models.ForeignKey(Org) # implicitly indexed by the unique-together
+	org = models.ForeignKey(Org, on_delete=models.CASCADE) # implicitly indexed by the unique-together
 	slug = models.SlugField()
 	name = models.CharField(max_length=100)
 	website = models.URLField(blank=True, null=True)
@@ -673,7 +673,7 @@ class OrgExternalMemberCount(models.Model):
 	FACEBOOK_FANS = 1
 	TWITTER_FOLLOWERS = 2
 	SOURCE_TYPES = [0, 1, 2]
-	org = models.ForeignKey(Org) # implicitly indexed by the unique_together
+	org = models.ForeignKey(Org, on_delete=models.CASCADE) # implicitly indexed by the unique_together
 	source = models.IntegerField(choices=[(AS_REPORTED, 'As Reported'), (FACEBOOK_FANS, 'Facebook Fans'), (TWITTER_FOLLOWERS, 'Twitter Followers')])
 	count = models.IntegerField()
 	updated = models.DateTimeField(auto_now=True)
@@ -691,8 +691,8 @@ class OrgExternalMemberCount(models.Model):
 class OrgCampaignPosition(models.Model):
 	"""A position on a bill within an OrgCampaign."""
 	POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
-	campaign = models.ForeignKey(OrgCampaign, related_name="positions") # implicitly indexed by the unique_together
-	bill = models.ForeignKey(Bill)
+	campaign = models.ForeignKey(OrgCampaign, related_name="positions", on_delete=models.CASCADE) # implicitly indexed by the unique_together
+	bill = models.ForeignKey(Bill, on_delete=models.PROTECT)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
 	comment = models.TextField(blank=True, null=True)
 	action_headline = models.CharField(max_length=128, blank=True, null=True)
@@ -732,7 +732,7 @@ class OrgCampaignPosition(models.Model):
 
 class PositionDocument(models.Model):
 	DOCTYPES = [(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text')]
-	bill = models.ForeignKey(Bill, related_name="documents", db_index=True)
+	bill = models.ForeignKey(Bill, related_name="documents", db_index=True, on_delete=models.PROTECT)
 	doctype = models.IntegerField(choices=DOCTYPES)
 	title = models.CharField(max_length=128)
 	text = tinymce_models.HTMLField(blank=True) #models.TextField() # HTML document body
@@ -763,7 +763,7 @@ class PositionDocument(models.Model):
 		return self.get_absolute_url()
 		
 class DocumentPage(models.Model):
-	document = models.ForeignKey(PositionDocument, related_name="pages")
+	document = models.ForeignKey(PositionDocument, related_name="pages", on_delete=models.CASCADE)
 	page = models.IntegerField()
 	png = models.TextField(blank=True, null=True) # base64 encoded
 	text = models.TextField(blank=True, null=True) # base64 encoded utf-8
@@ -781,7 +781,7 @@ class UserProfile(models.Model):
 	# user_saved_callback to initialize the fields on new user profiles
 	# or put in a default value.
 	
-	user = models.OneToOneField(User)
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	
 	fullname = models.CharField(max_length=100, blank=True, null=True)
 	
@@ -901,8 +901,8 @@ if not "LOADING_DUMP_DATA" in os.environ:
 	django.db.models.signals.post_save.connect(user_saved_callback, sender=User)
 
 class UserOrgRole(models.Model):
-	user = models.ForeignKey(User, related_name="orgroles") # implicitly indexed by the unique_together
-	org = models.ForeignKey(Org, related_name="admins", db_index=True)
+	user = models.ForeignKey(User, related_name="orgroles", on_delete=models.CASCADE) # implicitly indexed by the unique_together
+	org = models.ForeignKey(Org, related_name="admins", db_index=True, on_delete=models.CASCADE)
 	title = models.CharField(max_length=50)
 	class Meta:
 		verbose_name = "organization administrator"
@@ -914,9 +914,9 @@ class UserOrgRole(models.Model):
 		return self.org.name
 
 class UserLegStaffRole(models.Model):
-	user = models.OneToOneField(User, related_name="legstaffrole", db_index=True)
-	member = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, db_column="member")
-	committee = models.ForeignKey(CongressionalCommittee, blank=True, null=True, db_index=True, to_field="code", db_column="committee")
+	user = models.OneToOneField(User, related_name="legstaffrole", db_index=True, on_delete=models.CASCADE)
+	member = models.ForeignKey(MemberOfCongress, blank=True, null=True, db_index=True, db_column="member", on_delete=models.PROTECT)
+	committee = models.ForeignKey(CongressionalCommittee, blank=True, null=True, db_index=True, to_field="code", db_column="committee", on_delete=models.PROTECT)
 	position = models.CharField(max_length=50)
 	verified = models.BooleanField(default=False)
 	class Meta:
@@ -955,7 +955,7 @@ class PostalAddress(models.Model):
 
 	# An address is tied to a user so that if we delete a user account, we also
 	# delete any addresses they have entered.
-	user = models.ForeignKey(User, db_index=True)
+	user = models.ForeignKey(User, db_index=True, on_delete=models.CASCADE)
 
 	nameprefix = models.CharField(max_length=32, blank=True)
 	firstname = models.CharField(max_length=64)
@@ -1104,8 +1104,8 @@ class UserComment(models.Model):
 	METHOD_CUSTOMIZED_PAGE = 1
 	METHOD_WIDGET = 2
 
-	user = models.ForeignKey(User, related_name="comments", db_index=True) # user authoring the comment
-	bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True)
+	user = models.ForeignKey(User, related_name="comments", db_index=True, on_delete=models.CASCADE) # user authoring the comment
+	bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True, on_delete=models.PROTECT)
 	
 	# if this value changes, we should delete the UserCommentDiggs the user left on
 	# this bill.
@@ -1113,7 +1113,7 @@ class UserComment(models.Model):
 	
 	message = models.TextField(blank=True, null=True)
 
-	address = models.ForeignKey(PostalAddress, db_index=True, related_name="usercomments") # current address at time of writing
+	address = models.ForeignKey(PostalAddress, db_index=True, related_name="usercomments", on_delete=models.PROTECT) # current address at time of writing
 
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now_add=True)
@@ -1330,8 +1330,8 @@ class UserComment(models.Model):
 class UserCommentReferral(models.Model):
 	# This class is used to avoid cascaded deletes on UserComment objects
 	# if a referring object is deleted.
-	comment = models.ForeignKey(UserComment) # implicitly indexed by the unique_together
-	referrer_content_type = models.ForeignKey(ContentType, db_index=True)
+	comment = models.ForeignKey(UserComment, on_delete=models.CASCADE) # implicitly indexed by the unique_together
+	referrer_content_type = models.ForeignKey(ContentType, db_index=True, on_delete=models.CASCADE)
 	referrer_object_id = models.PositiveIntegerField(db_index=True)
 	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')
 	class Meta:
@@ -1356,8 +1356,8 @@ class UserCommentReferral(models.Model):
 				pass
 
 class UserCommentOfflineDeliveryRecord(models.Model):
-	comment = models.ForeignKey(UserComment, db_index=True)
-	target = models.ForeignKey(MemberOfCongress) # implicitly indexed by the unique_together
+	comment = models.ForeignKey(UserComment, db_index=True, on_delete=models.CASCADE)
+	target = models.ForeignKey(MemberOfCongress, on_delete=models.PROTECT) # implicitly indexed by the unique_together
 	failure_reason = models.CharField(max_length=16)
 	batch = models.CharField(max_length=20, blank=True, null=True)
 	failure_reason = models.CharField(max_length=16)
@@ -1371,15 +1371,15 @@ class UserCommentDigg(models.Model):
 	
 	DIGG_TYPES = [ (DIGG_TYPE_APPRECIATE, 'Appreciate') ]
 
-	comment = models.ForeignKey(UserComment, related_name="diggs", db_index=True)
+	comment = models.ForeignKey(UserComment, related_name="diggs", db_index=True, on_delete=models.CASCADE)
 	diggtype = models.IntegerField(choices=DIGG_TYPES)
-	user = models.ForeignKey(User, related_name="commentdiggs", db_index=True)
+	user = models.ForeignKey(User, related_name="commentdiggs", db_index=True, on_delete=models.CASCADE)
 	
 	# the source_comment track's the user's position on the same bill: a user can only digg
 	# a comment if he expressed the same position on the bill. by using a ForeignKey, we
 	# ensure that if the user deletes his comment, his diggs on that bill also disappear.
 	# we allow leg staff to appreciate all comments, so this can be null
-	source_comment = models.ForeignKey(UserComment, related_name="my_diggs", db_index=True, blank=True, null=True)
+	source_comment = models.ForeignKey(UserComment, related_name="my_diggs", db_index=True, blank=True, null=True, on_delete=models.CASCADE)
 
 	created = models.DateTimeField(auto_now_add=True)
 
@@ -1387,8 +1387,8 @@ class UserCommentDigg(models.Model):
 
 class BillSimilarity(models.Model):
 	"""Stores a similarity value between two bills, where bill1.id < bill2.id."""
-	bill1 = models.ForeignKey(Bill, related_name="similar_bills_one", db_index=True)
-	bill2 = models.ForeignKey(Bill, related_name="similar_bills_two", db_index=True)
+	bill1 = models.ForeignKey(Bill, related_name="similar_bills_one", db_index=True, on_delete=models.CASCADE)
+	bill2 = models.ForeignKey(Bill, related_name="similar_bills_two", db_index=True, on_delete=models.CASCADE)
 	similarity = models.FloatField()
 	class Meta:
 		unique_together = (("bill1", "bill2"),)
@@ -1404,8 +1404,8 @@ class ServiceAccount(models.Model):
 	"""A ServiceAccount contains billing information for an account holder. It may be associated
 	with either a User for an individual account or an Org."""
 	
-	user = models.OneToOneField(User, blank=True, null=True)
-	org = models.OneToOneField(Org, blank=True, null=True)
+	user = models.OneToOneField(User, blank=True, null=True, on_delete=models.PROTECT)
+	org = models.OneToOneField(Org, blank=True, null=True, on_delete=models.PROTECT)
 	name = models.CharField(max_length=100, blank=True, null=True)
 	
 	permissions = models.ManyToManyField(ServiceAccountPermission, blank=True)
@@ -1489,8 +1489,8 @@ class ServiceAccount(models.Model):
 class ServiceAccountCampaign(models.Model):
 	"""A position on a bill within a ServiceAccount."""
 	POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
-	account = models.ForeignKey(ServiceAccount, related_name="campaigns") # implicitly indexed by the unique_together
-	bill = models.ForeignKey(Bill)
+	account = models.ForeignKey(ServiceAccount, related_name="campaigns", on_delete=models.CASCADE) # implicitly indexed by the unique_together
+	bill = models.ForeignKey(Bill, on_delete=models.PROTECT)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
 	created = models.DateTimeField(auto_now_add=True)
 	mpbucket = models.CharField(max_length=16, blank=True, null=True)
@@ -1559,14 +1559,14 @@ class ServiceAccountCampaign(models.Model):
 			rec.save()
 
 class ServiceAccountCampaignActionRecord(models.Model):
-	campaign = models.ForeignKey(ServiceAccountCampaign, related_name="actionrecords") # implicitly indexed by the unique_together
+	campaign = models.ForeignKey(ServiceAccountCampaign, related_name="actionrecords", on_delete=models.CASCADE) # implicitly indexed by the unique_together
 	firstname = models.CharField(max_length=64, blank=True, db_index=True)
 	lastname = models.CharField(max_length=64, blank=True, db_index=True)
 	zipcode = models.CharField(max_length=16, blank=True, db_index=True)
 	email = models.EmailField(db_index=True)
 	created = models.DateTimeField(auto_now_add=True, db_index=True)
 	updated = models.DateTimeField(auto_now=True)
-	completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord")
+	completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord", on_delete=models.SET_NULL)
 	completed_stage = models.CharField(max_length=16, blank=True, null=True)
 	request_dump = models.TextField(blank=True, null=True)
 	# various indexing above is for the data table sort on the analytics page
