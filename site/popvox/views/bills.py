@@ -110,7 +110,6 @@ def get_popular_bills():
 				bill = Bill.objects.get(id=bill)
 				bill.trending_time_period = time_period_name
 				bill.new_positions = commentcount
-				bill.total_positions = bill.usercomments.count()
 				popular_bills.append(bill)
 				seen_bills.add(bill.id)
 		
