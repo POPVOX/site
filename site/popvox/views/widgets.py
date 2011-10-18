@@ -36,7 +36,7 @@ def bill_js(request):
 	}, context_instance=RequestContext(request),
 	mimetype="text/javascript")
 
-@cache_page(60 * 60 * 2) # two hours
+#@cache_page(60 * 60 * 2) # two hours
 @do_not_track_compliance
 def commentmapus(request):
 	count = { }

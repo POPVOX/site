@@ -33,11 +33,6 @@ def staticpage(request, page):
 			news.append(art)
 			if len(news) == 5: break
 	
-	if page.startswith("press/"):
-		page = "press_releases/" + page[6:].replace("/", "_")
-	else:
-		page = page.replace("/", "_") # map URL structure to static files
-			
 	try:
 		return render_to_response("static/%s.html" % page, {
 				"page": page,

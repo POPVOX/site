@@ -5,15 +5,13 @@ import sys
 from popvox.models import PostalAddress
 from writeyourrep.models import DeliveryRecord
 
+from writeyourrep.district_lookup import district_lookup_zipcode_housedotgov
+
 for addr in PostalAddress.objects.filter(
-	usercomment__delivery_attempts__next_attempt__isnull=True,
-	usercomment__delivery_attempts__failure_reason=DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT,
+	usercomments__delivery_attempts__next_attempt__isnull=True,
+	usercomments__delivery_attempts__failure_reason=DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT,
 	zipcode__contains="-")\
-	.distinct():
+	.distinct().order_by('-created'):
 
-	print addr.zipcode, addr.state, addr.congressionaldistrict,
-	if sys.argv[-1] == "full":
-		print addr.address1, addr.city, addr.state, addr.zipcode,
-
-	print
+	print addr.created, addr.usercomments.all()[0].id, addr.zipcode, addr.state, addr.congressionaldistrict, district_lookup_zipcode_housedotgov(addr.zipcode)
 

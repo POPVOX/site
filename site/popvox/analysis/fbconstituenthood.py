@@ -114,7 +114,7 @@ access_token = get_facebook_app_access_token()
 
 output = csv.writer(open("popvox/analysis/output/facebook_constituents.csv", "w"))
 
-output.writerow(["personid", "pageid", "name", "state", "district",
+output.writerow(["personid", "pageid", "pagetype", "name", "state", "district",
 	"uniques_total", "uniques_known", "uniques_indistrict",
 	"posts_total", "posts_known", "posts_indistrict",
 	"comments_total", "comments_known", "comments_indistrict",
