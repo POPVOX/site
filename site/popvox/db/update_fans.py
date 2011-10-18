@@ -1,6 +1,6 @@
 #!runscript
 
-import random
+import random, sys
 
 import settings
 from popvox.models import Org
@@ -12,11 +12,17 @@ from popvox.models import Org
 # hours.
 twitterers = Org.objects.filter(twittername__isnull=False).count()
 drop_rate = 150.0 / float(twitterers)
-print "updating", drop_rate, "of orgs"
+
+orgs_to_update = Org.objects.filter(visible=True)
+
+if len(sys.argv) == 2:
+	drop_rate = 1
+	orgs_to_update = Org.objects.filter(slug=sys.argv[1])
+else:
+	print "updating", drop_rate, "of orgs"
 
 fb_tw_ratio = []
-
-for org in Org.objects.filter(visible=True):
+for org in orgs_to_update:
 	if org.twittername == "":
 		org.twittername = None
 	if org.facebookurl == "":
@@ -35,6 +41,9 @@ for org in Org.objects.filter(visible=True):
 	ft = (org.facebook_fan_count(), org.twitter_follower_count())
 	if not 0 in ft:
 		fb_tw_ratio.append( float(ft[0])/float(ft[1]) )
+
+if len(orgs_to_update) < 5:
+	sys.exit()
 
 # Compute the median of the facebook-to-twitter ratios. Better than the
 # mean which is thrown off by outliers. Probably more accurate than

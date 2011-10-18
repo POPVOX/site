@@ -576,13 +576,27 @@ class Org(models.Model):
 				if fbid != None:
 					from urllib import urlopen, quote_plus
 					import json
-					fbdata = json.load(urlopen("http://graph.facebook.com/" + fbid))
-					if type(fbdata) == dict and "likes" in fbdata:
+					fbdata = json.load(urlopen("http://graph.facebook.com/" + fbid + "?metadata=1"))
+					if type(fbdata) != dict:
+						pass
+					elif "likes" in fbdata:
 						updateRecord(OrgExternalMemberCount.FACEBOOK_FANS, int(fbdata["likes"]))
+					elif fbdata.get("type", "") == "user":
+						# look for an org administrator who has a Facebook login for the user
+						# so that we can count the number of friends....
+						from registration.models import AuthRecord
+						for ar in AuthRecord.objects.filter(provider="facebook", uid=fbdata.get("id", ""),
+							user__orgroles__org=self):
+							frienddata = json.load(urlopen("https://graph.facebook.com/" + fbid + "?access_token=" + quote_plus(ar.auth_token["access_token"])))
+							print frienddata
+							print len(frienddata["data"])
+							break
+						else:
+							print "facebook person page without auth", self
 			except Exception, e:
 				print e
 				pass
-
+		return
 		# Twitter Followers.
 		if self.twittername == None: # clear record
 			updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, None)
