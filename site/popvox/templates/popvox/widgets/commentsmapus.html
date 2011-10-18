@@ -11,6 +11,8 @@
 				padding: 0;
 				{% if request.GET.background == "white" %}background: white;{% endif %}
 			}
+			
+			#mapdots .dots { display: none; }
 		</style>
 		<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
 		<script>
@@ -104,6 +106,13 @@
 				$('#colormode').text(curcolmode == "1" ? "Alternate Colors" : "Original Colors");
 			}
 
+			$(function() {
+				$('#mapdots .dot_sz_1').fadeIn(4000);
+				$('#mapdots .dot_sz_2').fadeIn(3000);
+				$('#mapdots .dot_sz_3').fadeIn(2000);
+				$('#mapdots .dot_sz_4').fadeIn(1000);
+				$('#mapdots .dot_sz_5').fadeIn(0500);
+			});
 		</script>
 	</head>
 	<body class="colormode_1 width_{{width}}">
