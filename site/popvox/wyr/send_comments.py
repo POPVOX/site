@@ -8,7 +8,7 @@ import datetime
 # email address.
 os.environ["EMAIL_BACKEND"] = "BASIC"
 
-from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, OrgCampaign, Bill, MemberOfCongress
+from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, OrgCampaign, Bill, MemberOfCongress, IssueArea
 from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress
 
 from writeyourrep.send_message import Message, send_message, Endpoint, DeliveryRecord
@@ -30,6 +30,16 @@ needs_attention = 0
 held_for_offline = 0
 pending = 0
 target_counts = { }
+
+# Build a Baysean classification model to assign bills without top terms
+# into subject areas automatically.
+from reverend.thomas import Bayes
+top_term_model = Bayes()
+excluded_top_terms = (IssueArea.objects.get(name="Private Legislation"), IssueArea.objects.get(name="Native Americans"))
+def get_bill_model_text(bill):
+	return bill.title_no_number() + " " + (bill.description if bill.description else "")
+for bill in Bill.objects.filter(topterm__isnull=False).exclude(topterm__in=excluded_top_terms).iterator():
+	top_term_model.train(bill.topterm_id, get_bill_model_text(bill))
 
 # it would be nice if we could skip comment records that we know we
 # don't need to send but what are those conditions, given that there
@@ -108,12 +118,26 @@ def process_comment(comment, thread_id):
 		msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","no response needed","WEBNRN","")
 		
 	topterm = comment.bill.topterm
+	
+	# if the bill has no top term assigned, look at another bill with the same number
+	# from a previous Congress that has the same title.
 	if topterm == None:
 		b2 = Bill.objects.filter(billtype=comment.bill.billtype, billnumber=comment.bill.billnumber, topterm__isnull=False)
 		if len(b2) > 0 and comment.bill.title_no_number() == b2[0].title_no_number():
 			topterm = b2[0].topterm
+	
+	# Private Legislation, Native Americans are too vague. Don't use those.
+	if topterm in excluded_top_terms:
+		topterm = None
 		
-	if topterm != None and topterm.name != "Private Legislation" and topterm.name != "Native Americans":
+	# if there is still no top term, guess using the Baysean model
+	if topterm == None:
+		ix, score = top_term_model.guess(get_bill_model_text(comment.bill))[0]
+		if score > .03:
+			topterm = IssueArea.objects.get(id = ix)
+			print topterm, comment.bill
+	
+	if topterm != None:
 		msg.topicarea = (topterm.name, "legislation")
 	else:
 		msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title, "legislation")
