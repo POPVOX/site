@@ -380,6 +380,7 @@ radio_choices = {
 	"affl": "",
 	"aff11": "",
 	"aff12": "",
+	"affl21": "",
 	"aff1": "",
 	"affl12": "",
 	"updates": "no",
