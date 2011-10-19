@@ -47,7 +47,7 @@ apt-get install -y \
  memcached python-memcache \
  poppler-utils libqtcore4 pdftk graphicsmagick \
  python-mechanize python-matplotlib python-scipy python-rsvg \
- texlive-latex-base texlive-latex-recommended texlive-xetex fontconfig ttf-linux-libertine
+ python-reverend texlive-latex-base texlive-latex-recommended texlive-xetex fontconfig ttf-linux-libertine
 
 ## Custom packages
 #DJANGO=python-django_1.2.5-1ubuntu1_all.deb
