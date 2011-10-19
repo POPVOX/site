@@ -128,7 +128,13 @@ ADMIN_MEDIA_PREFIX = '/admin_media/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '#hk(--a8dq@6$z%476=mmf7*rgg-x204xm5@t5^jcco6x#)u2r'
 
-CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+CACHES = {
+	'default': {
+		"BACKEND": 'django.core.cache.backends.memcached.MemcachedCache',
+		"LOCATION": '127.0.0.1:11211',
+		"VERSION": 2,
+	},
+}
 
 AUTH_PROFILE_MODULE = 'popvox.UserProfile'
 LOGIN_URL = "/accounts/login"

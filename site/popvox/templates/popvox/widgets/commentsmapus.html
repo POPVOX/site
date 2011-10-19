@@ -59,7 +59,7 @@
 				$('#infobox div').text(label);
 				
 				{% if bill %}
-				var support = parseInt(this.getAttribute("pv_support"));
+				var support = parseFloat(this.getAttribute("pv_support"));
 				var count = parseInt(this.getAttribute("pv_count"));
 				$('#support').text(Math.round(support*100) + "%")
 				$('#oppose').text(Math.round((1.0-support)*100) + "%")
