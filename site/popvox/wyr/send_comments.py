@@ -135,7 +135,6 @@ def process_comment(comment, thread_id):
 		ix, score = top_term_model.guess(get_bill_model_text(comment.bill))[0]
 		if score > .03:
 			topterm = IssueArea.objects.get(id = ix)
-			print topterm, comment.bill
 	
 	if topterm != None:
 		msg.topicarea = (topterm.name, "legislation")
