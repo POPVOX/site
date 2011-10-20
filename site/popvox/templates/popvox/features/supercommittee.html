@@ -97,22 +97,23 @@ $(function() {
 </script>
 {% endblock %}
 {% block content %}
-<div class="content">
+
+{% comment %}
+Tell the Supercommittee Which Cuts You Support
+Tell the Supercommittee How You'd Cut $1.2 Trillion from the Federal Budget
+POPVOXNation: Tell the Supercommittee How to Cut $1.2 Trillion
+{% endcomment %}
+
+<div class="content sc_pg">
 	
 	<div class="col_12 col_top">
-		{% comment %}
-			Tell the Supercommittee Which Cuts You Support
-	
-	Tell the Supercommittee How You'd Cut $1.2 Trillion from the Federal Budget
-	
-	POPVOXNation: Tell the Supercommittee How to Cut $1.2 Trillion
-	{% endcomment %}
-	
-		<div class="what_is_it">What is a &ldquo;supercommittee&rdquo;?</div>
-	
-		<h1 class="mar_no_btm">Tell the &ldquo;Supercommittee&rdquo; How to Trim $1.2 Trillion</h1>
 		
-		<h2>The Supercommittee has until <span>November 23</span> to reduce the federal budget deficit by <span>$1.2 trillion</span> over 10 years.</h2>
+	
+		<h3 id="what_is_it">What is a &ldquo;supercommittee&rdquo;?</h3>
+	
+		<h1 class="mar_no_btm" id="sc_h1">Tell the &ldquo;Supercommittee&rdquo; How to Trim $1.2 Trillion</h1>
+		
+		<h2 class="sc_explain">The Supercommittee has until <span>November 23</span> to reduce the federal budget deficit by <span>$1.2 trillion</span> over 10 years.</h2>
 		
 		<h3 class="timeline">Timeline</h3>
 		
@@ -127,7 +128,18 @@ $(function() {
 			</div>
 		</div>
 		
+		<div id="social">
+			<p>share this page</p>
+			<ul>
+				<li><a class="twitter" href="#">twitter</a></li>
+				<li><a class="facebook" href="#">facebook</a></li>
+				<li><a class="favorite" href="#">favorite</a></li>
+				<li><a class="email" href="#">email</a></li>
+			</ul>
+		</div>
+		
 		<h3 class="proposals">Proposals</h3>
+		<div class="clear"> </div>
 		
 		<div id="proposal_list">
 		<div class="proposal heading">
@@ -138,12 +150,13 @@ $(function() {
 			<div class="cell action_buttons">Take Action</div>
 		</div>
 		
+		
 		{% for proposal in bills|dictsortreversed:"savings" %}
 		<div class="proposal"
 			bill_id="{{proposal.bill.id}}"  bill_url="{{proposal.bill.url}}"
 			category="{{proposal.category}}" description="{{proposal.title}}" score="{{proposal.savings}}" sentiment="{% firstof proposal.sentiment.scaled_pro "0" %}">
-			<div class="cell category">
-				{{proposal.category}}
+			<div class="cell category {{proposal.category_icon}}">
+				{{proposal.category_name}}
 			</div>
 			<div class="cell description">
 				<div class="small">

@@ -10,44 +10,52 @@ def supercommittee(request):
 		{
 			"bill": Bill.objects.get(id=19773),
 			"savings": 453,
-			"category": "Tax",
+			"category_name": "Tax",
+			"category_icon": "i_tax",
 		},
 		{
 			"bill": Bill.objects.get(id=19774),
 			"savings": 106,
-			"category": "Tax",
+			"category_name": "Tax",
+			"category_icon": "i_tax",
 		},
 		{
 			"bill": Bill.objects.get(id=19775),
 			"savings": 410,
-			"category": "Tax",
+			"category_name": "Tax",
+			"category_icon": "i_tax",
 		},
 		{
 			"bill": Bill.objects.get(id=19776),
 			"savings": 240,
-			"category": "Health",
+			"category_name": "Health",
+			"category_icon": "i_health",
 		},
 		{
 			"bill": Bill.objects.get(id=19777),
 			"savings": 17,
-			"category": "Health",
+			"category_name": "Health",
+			"category_icon": "i_health",
 		},
 		{
 			"bill": Bill.objects.get(id=19778),
 			"savings": 73,
-			"category": "Defense",
+			"category_name": "Defense",
+			"category_icon": "i_defense",
 		},
 		{
 			"bill": Bill.objects.get(id=19357),
 			"savings": 100,
-			"category": "Government Reform",
+			"category_name": "Government Reform",
+			"category_icon": "i_govreform",
 			"title": "Reducing the Size of the Federal Government Through Attrition",
 			"description": "Reduces the total number of federal employees by 10 percent over a five year period, lowering the deficit by $100 billion over 10 years. This is a proposal the Supercommittee may be considering and was proposed by Americans for Prosperity."
 		},
 		{
 			"bill": Bill.objects.get(id=19780),
 			"savings": 166,
-			"category": "Financial Services",
+			"category_name": "Financial Services",
+			"category_icon": "i_financial",
 		},
 	]
 
