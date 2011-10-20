@@ -796,6 +796,10 @@ def send_message_webform(di, msg, deliveryrec):
 	else:
 		webform = urlopen(webformurl, {}, "GET", deliveryrec).read()
 
+	if len(webform_stages) > 0 and webform_stages[0] == "add-district-zip-cookie":
+		webform_stages.pop(0)
+		extra_cookies["District"] = msg.zipcode
+
 	# Some webforms are in two stages: first enter your zipcode to verify,
 	# and then enter the rest of the info. To signal this, we'll give a pair
 	# of form IDs.
