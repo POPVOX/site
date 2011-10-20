@@ -1,0 +1,209 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}The Supercommittee{% endblock%}
+{% block description %}The Supercommittee is charged with finding $1.2 trillion in deficit reduction by November 23, 2011.{% endblock%}
+{% block head %}
+<script src="/media/js/jquery.tools.min.js"></script>
+
+<style>
+#timeline > div { display: inline-block; }
+
+.proposal { height: 2.5em; background-color: white; }
+	.proposal > .cell { display: inline-block;  vertical-align: top; padding: 4px; }
+
+	.proposal .category { width: 25px; }
+	.proposal .description { width: 400px; overflow: hidden; }
+		.proposal .description .small { width: 1000px; }
+		.proposal .description .large { position: absolute; display: none; background-color: white; margin: -4px; padding: 4px; width: 400px; }
+	.proposal .score { width: 100px; }
+	.proposal .sentiment { width: 160px; }
+		.bar_pro { display: inline-block; background-color: red; height: 1em; }
+		.bar_con { display: inline-block; background-color: blue; height: 1em; }
+	.proposal > .action_buttons { width: 150px; }
+
+#map_iframe_container { width: 580px; float: left; }
+#map_proposal_list { width: 220px; float: left; }
+#map_proposal_list > div.active { font-weight: bold; }
+</style>
+
+<script>
+jQuery.fx.off = false; // we will be careful not to animate any fonts that Firefox screws up when opacity is set
+
+$(function() {
+	$('#timeline>div').tooltip({position: "bottom center", offset: [0, 5], effect: "fade"}).tooltip();
+	
+	var last_pro = null;
+	$('.proposal .description').mouseenter(function() {
+		if (last_pro) return;
+		var n = $(this).find('.large');
+		n.css({ "left": $(this).find('.small').position().left });
+		n.css({ "top": $(this).find('.small').position().top });
+		n.show();
+		last_pro = n;
+	});
+	$('.proposal .description .large').mouseleave(function() {
+		if (!last_pro) return;
+		last_pro.hide();
+		last_pro = null;
+	});
+	
+	function show_map(bill_id, bill_title, bill_url) {
+		$('#map_colorbox h1').text(bill_title);
+		$('#map_colorbox .b_view_report').attr('href', bill_url + "/report");
+		$('#map_iframe_container').html('<iframe src="/widgets/bill-comment-map?bill=' + bill_id + '&background=white&width=558" width="558" height="500" border="0" marginheight="0" marginwidth="0" frameborder="0" style="height: 500px"></iframe>');
+		$('#map_proposal_list>div').removeClass("active");
+		$('#map_proposal_list>div[bill_id="' + bill_id + '"]').addClass("active");
+	}
+	$('.maplink').click(function() {
+		var prop = $(this).parents('.proposal');
+		show_map(prop.attr('bill_id'), prop.attr("description"), prop.attr('bill_url'));
+		$.colorbox({
+			transition: "none",
+			inline: true,
+			href:'#map_colorbox',
+			opacity: .5,
+			onComplete: function() { }
+		});
+	});
+	$('#map_proposal_list > div').click(function() {
+		show_map($(this).attr('bill_id'), $(this).text(), $(this).attr('bill_url'));
+	});
+	
+	var cur_sort_col = 'score';
+	var cur_sort_order = -1;
+	$('.sorter').click(function() {
+		var f = $(this).attr("field");
+		if (f == cur_sort_col) {
+			cur_sort_order *= -1;
+		} else {
+			cur_sort_col = f;
+			cur_sort_order = 1;
+		}
+		
+		var elems = $('#proposal_list  .proposal:not(.heading)');
+		
+		var compare_transf = function(v) {
+			if (cur_sort_col == "score" || cur_sort_col == "sentiment")
+				return parseInt(v);
+			return v;
+		};
+		elems.sortElements(function(a,b) { return compare_transf($(a).attr(cur_sort_col)) > compare_transf($(b).attr(cur_sort_col)) ? cur_sort_order : -cur_sort_order });
+		
+		elems.css({opacity: 0});
+		for (var i = 0; i < elems.length; i++)
+			$(elems[i]).delay(i*100).animate({opacity: 1}, 600);
+	});
+});
+</script>
+{% endblock %}
+{% block content %}
+<div class="content">
+	
+	<div class="col_12 col_top">
+		{% comment %}
+			Tell the Supercommittee Which Cuts You Support
+	
+	Tell the Supercommittee How You'd Cut $1.2 Trillion from the Federal Budget
+	
+	POPVOXNation: Tell the Supercommittee How to Cut $1.2 Trillion
+	{% endcomment %}
+	
+		<div class="what_is_it">What is a &ldquo;supercommittee&rdquo;?</div>
+	
+		<h1 class="mar_no_btm">Tell the &ldquo;Supercommittee&rdquo; How to Trim $1.2 Trillion</h1>
+		
+		<h2>The Supercommittee has until <span>November 23</span> to reduce the federal budget deficit by <span>$1.2 trillion</span> over 10 years.</h2>
+		
+		<h3 class="timeline">Timeline</h3>
+		
+		<div id="timeline">
+			<div class="secondary" title="The committee members were appointed.">
+			</div>
+			<div class="main" title="The committee will vote on a plan.">
+				<span>Nov. 23</span> Committee Vote
+			</div>
+			<div class="main" title="The House and Senate must vote on the plan by this date to avoid across-the-board cuts.">
+				<span>Dec. 23</span> Congress Votes
+			</div>
+		</div>
+		
+		<h3 class="proposals">Proposals</h3>
+		
+		<div id="proposal_list">
+		<div class="proposal heading">
+			<div class="cell category"> <div class="sorter" field="category">sort</div></div>
+			<div class="cell description">Description <div class="sorter" field="description">sort</div></div>
+			<div class="cell score">Score <div class="sorter" field="score">sort</div></div>
+			<div class="cell sentiment">POPVOX Sentiment <div class="sorter" field="sentiment">sort</div></div>
+			<div class="cell action_buttons">Take Action</div>
+		</div>
+		
+		{% for proposal in bills|dictsortreversed:"savings" %}
+		<div class="proposal"
+			bill_id="{{proposal.bill.id}}"  bill_url="{{proposal.bill.url}}"
+			category="{{proposal.category}}" description="{{proposal.title}}" score="{{proposal.savings}}" sentiment="{% firstof proposal.sentiment.scaled_pro "0" %}">
+			<div class="cell category">
+				{{proposal.category}}
+			</div>
+			<div class="cell description">
+				<div class="small">
+					<div class="title"><a href="{{proposal.bill.url}}">{{proposal.title}}</a></div>
+					<div class="hashtag">{{proposal.bill.hashtag}}</div>
+				</div>
+				<div class="large">
+					<div class="title"><a href="{{proposal.bill.url}}">{{proposal.title}}</a></div>
+					<div class="description">{{proposal.description}}</div>
+					<div class="hashtag">{{proposal.bill.hashtag}}</div>
+					<div class="action_buttons">
+						<div class="support">Support</div>
+						<div class="oppose">Oppose</div>
+					</div>
+				</div>
+			</div>
+			<div class="cell score">${{proposal.savings}} <span>B</span></div>
+			<div class="cell sentiment">
+				{% if proposal.sentiment %}
+					<div class="bar_pro" style="width: {{proposal.sentiment.scaled_pro}}px"> </div><div class="bar_con" style="width: {{proposal.sentiment.scaled_con}}px"> </div>
+					<div class="maplink">map</div>
+				{% else %}
+					<span class="nodata">Be the first to weigh in.</span>
+				{% endif %}
+			</div>
+			<div class="cell action_buttons">
+				<div class="support">Support</div>
+				<div class="oppose">Oppose</div>
+			</div>
+		</div>
+		{% endfor %}
+		</div>
+
+		<div style="height: 120px"> </div> <!-- buffer -->
+	</div> <!-- col_12 -->
+
+</div><!-- e: content -->
+
+<div style="display: none">
+	<div id="map_colorbox" class="colorbox">
+		<h1></h1>
+		
+		<a class="btn b_view_report" href="#">
+			View Report &amp; Comments
+		</a>
+		
+		<div id="map_iframe_container">
+		</div>
+		
+		<div id="map_proposal_list">
+		{% for proposal in bills|dictsort:"title" %}
+		{% if proposal.sentiment or 1 %}
+		<div bill_id="{{proposal.bill.id}}" bill_url="{{proposal.bill.url}}">
+			{{proposal.title}}
+		</div>
+		{% endif %}
+		{% endfor %}
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
