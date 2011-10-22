@@ -11,10 +11,6 @@
 	/*background: url(/media/features/supercommittee/superco mmittee.jpg) -130px -118px no-repeat;*/
 	}
 	
-	.sc_pg .col_9 {
-		width: 750px;
-		}
-	
 	h1#sc_h1 {
 		font-size: 34px;
 		}
@@ -48,36 +44,34 @@
 	#timeline {
 		height: 150px;
 		padding-top: 10px;
-		background: url(/media/features/supercommittee/bg_timeline_end.png) 0px 38px no-repeat;
+		background: url(/media/features/supercommittee/bg_timeline_end.png) 0px 38px repeat-x;
 		border-bottom: 1px solid #a9a59b
 		}
 
 		#timeline > div { 
+			display: none; /* animated in */
 			position: absolute;
+			background: url(/media/features/supercommittee/i_dots.png) left top no-repeat;
+			width: 40px;
+			height: 20px;
+			text-indent: -9999em;
+			z-index: 100;
+			margin-top: 43px;
 			}
 			
-			#timeline .main, #timeline .secondary {
-				background: url(/media/features/supercommittee/i_dots.png) left top no-repeat;
-				width: 40px;
-				height: 20px;
-				text-indent: -9999em;
-				z-index: 100;
-				margin-top: 27px;
+			#timeline > .secondary {
+				background: url(/media/features/supercommittee/i_dots.png) left -23px no-repeat;
+				}
+			
+			#timeline > div:hover {
+				background-position: left -60px;
+				cursor: pointer;
 				}
 				
-				#timeline .secondary {
-					background: url(/media/features/supercommittee/i_dots.png) left -23px no-repeat;
-					}
-				
-				#timeline .main:hover {
-					background-position: left -60px;
-					cursor: pointer;
-					}
-					
-				#timeline .secondary:hover {
-					background-position: left -53px;
-					cursor: pointer;
-					}
+			#timeline > .secondary:hover {
+				background-position: left -53px;
+				cursor: pointer;
+				}
 
 		
 		h3.timeline {
@@ -285,7 +279,7 @@
 				border: none;
 				}
 			
-			.proposal .description .small .hashtag{ 
+			.proposal .description .hashtag { 
 				font-size: 12px;
 				padding-top: 2px;
 				}
@@ -294,9 +288,14 @@
 			position: absolute;
 			display: none;
 			background-color: white;
-			margin: -4px;
-			padding: 4px;
-			width: 400px;
+			margin: -10px -5px -5px -5px;
+			padding: 12px 5px 12px 9px;
+			width: 490px;
+			border: 1px solid black;
+			}
+			
+			.proposal .description .large .prop_description {
+				margin: 10px 0 10px 0;
 			}
 			
 		.proposal .score {
@@ -362,20 +361,44 @@
 		.proposal > .action_buttons {
 			width: 80px;
 			}
-		
+			.proposal .action_buttons a:hover {
+				border: none;
+				}
+
+				
+		#map_colorbox h1 {
+			text-align: center;
+			}
+
+		#map_colorbox h2 {
+			margin: 0 0 10px 0;
+			}
+			
 		#map_iframe_container {
 			width: 580px;
 			float: left;
 			}
 			
 		#map_proposal_list {
-			width: 220px;
+			width: 260px;
 			float: left;
 			}
 			
-		#map_proposal_list > div.active {
+		#map_proposal_list > div {
+			background-color: #D4D1CA;
+			color: #666;
+			padding: 6px;
 			font-weight: bold;
+			margin-bottom: 4px;
+			cursor: pointer;
 			}
+			#map_proposal_list > div:hover {
+				color: black;
+				}
+			#map_proposal_list > div.active {
+				background-color: #CC6A11;
+				color: white;
+				}
 			
 		.sc_pg .support {
 			background: url(/media/features/supercommittee/i_action.png) left top no-repeat;
@@ -421,11 +444,6 @@
 		background: url(/media/features/supercommittee/bg_proposal_btm.png) -10px bottom no-repeat;
 		height: 20px;
 		}
-
-
-#map_iframe_container { width: 580px; float: left; }
-#map_proposal_list { width: 220px; float: left; }
-#map_proposal_list > div.active { font-weight: bold; }
 </style>
 
 <script>
@@ -445,16 +463,31 @@ function show_what_is_it() {
 $(function() {
 	// line up the timeline elements
 	var timeline_top = $('#timeline').position().top;
-	var timeline_left = $('#timeline').position().left + 80;
+	var timeline_left = $('#timeline').position().left + 156;
+	var timeline_width = $('#timeline').width() - 156*2 - 5;
 	var timeline_elems = $('#timeline>div');
 	var timeline_elems_not_today = $('#timeline>div[class!="today"]');
-	timeline_elems_not_today.tooltip({position: "bottom center", offset: [0, 5], effect: "fade"}).tooltip();
-	var min_date = new Date(timeline_elems_not_today[0].getAttribute("date")).getTime();
-	var max_date = new Date(timeline_elems_not_today[timeline_elems_not_today.length-1].getAttribute("date")).getTime();
+	timeline_elems_not_today
+	var min_date = new Date($('#timeline').attr("start")).getTime();
+	var max_date = new Date($('#timeline').attr("end")).getTime();
+	var found_first = false;
 	for (var i = 0; i < timeline_elems.length; i++) {
 		var date = timeline_elems[i].getAttribute("date");
-		if (date == "today") date = new Date(); else date = new Date(date);
-		$(timeline_elems[i]).css({"top": timeline_top, "left": timeline_left + (date.getTime()-min_date)*700/(max_date-min_date) })
+		var elem = $(timeline_elems[i]);
+		if (date == "today") {
+			date = new Date();
+		} else {
+			date = new Date(date);
+			elem.tooltip({position: "bottom " + "center", offset: [0, 5], effect: "fade"});
+		}
+		var x = (date.getTime()-min_date)*timeline_width/(max_date-min_date);
+		elem.css({"top": timeline_top, "left": timeline_left + x})
+		elem.delay(i*100).fadeIn();
+		if (date > new Date() && !found_first) {
+			elem.show();
+			elem.data("tooltip").show();
+			found_first = true;
+		}
 	}
 	
 	var last_pro = null;
@@ -549,6 +582,9 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 			<h2 class="sc_explain">The Super Committee has until <span>November 23</span> to reduce the federal budget deficit by <span>$1.5 trillion</span> over 10 years.</h2>
 		</div><!-- e: contain -->
 	</div><!-- e: col_9 -->	
+	
+	{% include "ads/rightbar_single.html" %}
+	
 	<div class="clear"> </div>
 
 	<div class="col_12 col_top">
@@ -556,7 +592,7 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 		
 		<h3 class="timeline">Timeline</h3>
 		
-		<div id="timeline">
+		<div id="timeline" start="September 1, 2011" end="January 1. 2013">
 			<div date="today" class="today">Today</div>
 			<div date="September 8, 2011" title="Sept. 8. Organizational Meeting: Members of the Committee made opening statements and considered proposed committee rules."> </div>
 			<div date="September 13, 2011" title="Sept. 13. Members of the Committee held a hearing on “The History and Drivers of Our Nation’s Debt and Its Threats”"> </div>
@@ -587,23 +623,24 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 		{% for proposal in bills|dictsortreversed:"savings" %}
 		<div class="proposal"
 			bill_id="{{proposal.bill.id}}"  bill_url="{{proposal.bill.url}}"
-			category="{{proposal.category}}" description="{{proposal.title}}" score="{{proposal.savings}}" sentiment="{% firstof proposal.sentiment.scaled_pro "0" %}">
+			category="{{proposal.category_name}}" description="{{proposal.title}}" score="{{proposal.savings}}" sentiment="{% firstof proposal.sentiment.scaled_pro "0" %}">
 			<div class="cell category {{proposal.category_icon}}" title="{{proposal.category_name}}"> {% comment %}i_farm i_tax i_health i_financial i_tax i_govreform i_defense{% endcomment %}
 				{{proposal.category_name}}
 			</div>
 			<div class="cell description">
-				<a class="i_eye">view</a>
 				<div class="small">
+					<a class="i_eye" href="{{proposal.bill.url}}">view</a>
 					<div class="title"><a href="{{proposal.bill.url}}">{{proposal.title}}</a></div>
 					<div class="hashtag">{{proposal.bill.hashtag}}</div>
 				</div>
 				<div class="large">
+					<a class="i_eye" href="{{proposal.bill.url}}">view</a>
 					<div class="title"><a href="{{proposal.bill.url}}">{{proposal.title}}</a></div>
-					<div class="description">{{proposal.description}}</div>
+					<div class="prop_description">{{proposal.description}}</div>
 					<div class="hashtag">{{proposal.bill.hashtag}}</div>
 					<div class="action_buttons">
-						<div class="support">Support</div> {% comment %}inactive{% endcomment %}
-						<div class="oppose">Oppose</div>
+						<a class="support" href="{{proposal.bill.url}}/comment/support">Support</a> {% comment %}inactive{% endcomment %}
+						<a class="oppose" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
 					</div>
 				</div>
 			</div>
@@ -613,12 +650,12 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 					<div class="bar_pro" style="width: {{proposal.sentiment.scaled_pro}}px"> </div><div class="bar_con" style="width: {{proposal.sentiment.scaled_con}}px"> </div>
 					<div class="maplink">map</div>
 				{% else %}
-					<span class="nodata"><a href="#">Be the first to weigh in</a></span>
+					<span class="nodata"><a href="{{proposal.bill.url}}">Be the first to weigh in</a></span>
 				{% endif %}
 			</div>
 			<div class="cell action_buttons">
-				<div class="support">Support</div> {% comment %}inactive{% endcomment %}
-				<div class="oppose">Oppose</div>
+				<a class="support" href="{{proposal.bill.url}}/comment/support">Support</a> {% comment %}inactive{% endcomment %}
+				<a class="oppose" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
 			</div>
 		</div>
 		{% endfor %}
@@ -645,16 +682,17 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 	<div id="map_colorbox" class="colorbox">
 		<h1></h1>
 		
-		<a class="btn b_view_report" href="#">
-			View Report &amp; Comments
-		</a>
+		<div style="width: 568px">
+			<a class="btn b_view_report" href="#">View Report &amp; Comments</a>
+		</div>
 		
 		<div id="map_iframe_container">
 		</div>
 		
 		<div id="map_proposal_list">
+		<h2>All Proposals</h2>
 		{% for proposal in bills|dictsort:"title" %}
-		{% if proposal.sentiment or 1 %}
+		{% if proposal.sentiment %}
 		<div bill_id="{{proposal.bill.id}}" bill_url="{{proposal.bill.url}}">
 			{{proposal.title}}
 		</div>
