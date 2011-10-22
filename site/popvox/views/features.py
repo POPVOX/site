@@ -66,8 +66,8 @@ def supercommittee(request):
 			bill["description"] = bill["bill"].description
 		bill["sentiment"] = bill_statistics(bill["bill"], "POPVOX Nation", "POPVOX Nation")
 		if bill["sentiment"]:
-			bill["sentiment"]["scaled_pro"] = 150 * bill["sentiment"]["pro_pct"] / 100
-			bill["sentiment"]["scaled_con"] = 150 - bill["sentiment"]["scaled_pro"]
+			bill["sentiment"]["scaled_pro"] = 142 * bill["sentiment"]["pro_pct"] / 100
+			bill["sentiment"]["scaled_con"] = 142 - bill["sentiment"]["scaled_pro"]
 	
 	return render(request, "popvox/features/supercommittee.html",
 		{
