@@ -1,12 +1,11 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
-{% block title %}The Supercommittee{% endblock%}
-{% block description %}The Supercommittee is charged with finding $1.2 trillion in deficit reduction by November 23, 2011.{% endblock%}
+{% block title %}The Super Committee{% endblock%}
+{% block description %}The Super Committee is charged with finding $1.5 trillion in deficit reduction by November 23, 2011.{% endblock%}
 {% block head %}
 <script src="/media/js/jquery.tools.min.js"></script>
 
 <style>
-
 /* Super Committee */
 .sc_pg {
 	/*background: url(/media/features/supercommittee/superco mmittee.jpg) -130px -118px no-repeat;*/
@@ -54,7 +53,7 @@
 		}
 
 		#timeline > div { 
-			display: inline-block; 
+			position: absolute;
 			}
 			
 			#timeline .main, #timeline .secondary {
@@ -432,8 +431,31 @@
 <script>
 jQuery.fx.off = false; // we will be careful not to animate any fonts that Firefox screws up when opacity is set
 
+function show_what_is_it() {
+	$.colorbox({
+		transition: "none",
+		inline: true,
+		href:'#what_is_it_colorbox',
+		opacity: .5,
+		onComplete: function() { }
+	});
+	return false;
+}
+
 $(function() {
-	$('#timeline>div').tooltip({position: "bottom center", offset: [0, 5], effect: "fade"}).tooltip();
+	// line up the timeline elements
+	var timeline_top = $('#timeline').position().top;
+	var timeline_left = $('#timeline').position().left + 80;
+	var timeline_elems = $('#timeline>div');
+	var timeline_elems_not_today = $('#timeline>div[class!="today"]');
+	timeline_elems_not_today.tooltip({position: "bottom center", offset: [0, 5], effect: "fade"}).tooltip();
+	var min_date = new Date(timeline_elems_not_today[0].getAttribute("date")).getTime();
+	var max_date = new Date(timeline_elems_not_today[timeline_elems_not_today.length-1].getAttribute("date")).getTime();
+	for (var i = 0; i < timeline_elems.length; i++) {
+		var date = timeline_elems[i].getAttribute("date");
+		if (date == "today") date = new Date(); else date = new Date(date);
+		$(timeline_elems[i]).css({"top": timeline_top, "left": timeline_left + (date.getTime()-min_date)*700/(max_date-min_date) })
+	}
 	
 	var last_pro = null;
 	$('.proposal .description').mouseenter(function() {
@@ -503,15 +525,16 @@ $(function() {
 
 {% comment %}
 Tell the Supercommittee Which Cuts You Support
-Tell the Supercommittee How You'd Cut $1.2 Trillion from the Federal Budget
-POPVOXNation: Tell the Supercommittee How to Cut $1.2 Trillion
+Tell the Supercommittee How You'd Cut $1.5 Trillion from the Federal Budget
+POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 {% endcomment %}
+
 
 <div class="content sc_pg">
 	
 	<div class="col_9 col_top">
 	
-		<h1 class="mar_no_btm" id="sc_h1">Tell the &ldquo;Supercommittee&rdquo; How to Trim $1.2 Trillion</h1>
+		<h1 class="mar_no_btm" id="sc_h1">Tell the &ldquo;Super Committee&rdquo; How to Trim $1.5 Trillion</h1>
 		
 		<div id="contain">
 			<div id="social">
@@ -523,24 +546,29 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.2 Trillion
 					<li><a class="email" href="#">email</a></li>
 				</ul>
 			</div>
-			<h2 class="sc_explain">This Supercommittee has until <span>November 23</span> to reduce the federal budget deficit by <span>$1.2 trillion</span> over 10 years.</h2>
+			<h2 class="sc_explain">The Super Committee has until <span>November 23</span> to reduce the federal budget deficit by <span>$1.5 trillion</span> over 10 years.</h2>
 		</div><!-- e: contain -->
 	</div><!-- e: col_9 -->	
 	<div class="clear"> </div>
 
 	<div class="col_12 col_top">
-		<h3 id="what_is_it"><a href="#">What is a &ldquo;Supercommittee&rdquo;?</a></h3>
+		<h3 id="what_is_it"><a href="#" onclick="return show_what_is_it();">What is a &ldquo;Super Committee&rdquo;?</a></h3>
+		
 		<h3 class="timeline">Timeline</h3>
 		
 		<div id="timeline">
-			<div class="secondary" title="The committee members were appointed.">
-			</div>
-			<div class="main" title="The committee will vote on a plan.">
-				<span>Nov. 23</span> Committee Vote
-			</div>
-			<div class="main" title="The House and Senate must vote on the plan by this date to avoid across-the-board cuts.">
-				<span>Dec. 23</span> Congress Votes
-			</div>
+			<div date="today" class="today">Today</div>
+			<div date="September 8, 2011" title="Sept. 8. Organizational Meeting: Members of the Committee made opening statements and considered proposed committee rules."> </div>
+			<div date="September 13, 2011" title="Sept. 13. Members of the Committee held a hearing on “The History and Drivers of Our Nation’s Debt and Its Threats”"> </div>
+			<div date="September 22, 2011" title="Sept. 22. Members of the Committee held a hearing entitled “Overview: Revenue Options and Reforming the Tax Code&rdquo;"> </div>
+			<div date="October 26, 2011" title="Oct. 26. Members of the Committee will hold a hearing entitled “Overview: Discretionary Outlays, Security and Non-Security”"> </div>
+			<div date="November 23, 2011" title="Nov. 23. The Committee will vote on a report including findings, conclusions, recommendations, a CBO estimate and legislative language designed to achieve at least $1.5 trillion in deficit reduction over the period FY 2012-FY 2021. Any CBO estimates must be available at least 48 hours prior to a vote of the Committee."> </div>
+			<div date="December 2, 2011" title="Dec. 2. If the Committee approves a report and legislative language by a majority vote of at least seven members, it must submit the report and the legislative language to the President, the House and the Senate."> </div>
+			<div date="December 9, 2011" title="Dec. 9. House &amp; Senate committees to which the Committee’s report has been referred must report it without amendment."> </div>
+			<div date="December 23, 2011" title="Dec. 23. Both the House and Senate must vote up or down without amendment on the report of the Committee."> </div>
+			<div date="January 15, 2012" title="Jan. 15, 2012. Unless a bill achieving at least $1.2 trillion in deficit reduction is enacted by this date, the discretionary caps are revised for FY 2012-FY 2021."> </div>
+			<div date="April 15, 2012" title="April 15, 2012. The Chair of the Senate Budget Committee must report allocations for FY 2012 and FY 2013 to the Appropriations Committee based on the new discretionary caps"> </div>
+			<div date="January 2, 2013" title="Jan. 2, 2013. If Congress has not adopted the Super Committee’s report to reduce the deficit by at least $1.2 trillion, sequestration of both defense and non-exempt domestic programs will occur as calculated by OMB and ordered by the President. If Congress adopts deficit reduction of less than $1.2 trillion, the sequester shall make up the difference."> </div>
 		</div>
 		
 		<h3 class="proposals">Proposals</h3>
@@ -602,6 +630,18 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.2 Trillion
 </div><!-- e: content -->
 
 <div style="display: none">
+	<div id="what_is_it_colorbox" class="colorbox">
+		<h1>What is the &ldquo;Super Committee&rdquo;?
+	
+		<p>The &ldquo;Super Committee&rdquo; was established in the Budget Control Act of 2011 and is charged with issuing a formal recommendation on how to reduce the deficit by at least $1.5 trillion over the next ten years.</p>
+		
+		<p>If the Super Committee fails to submit a proposal that wins Congressional approval by December 23, $1.2 trillion in across-the-board cuts will be triggered in January 2013.</p>
+			
+		<p>The panel is officially called the <a href="http://www.deficitreduction.gov/public/" target="_blank">Joint Select Committee on Deficit Reduction</a>. It is comprised of six Senators (three Republicans and three Democrats) and six Members of the House of Representatives (three Republicans and three Democrats). The Super Committee proposal must be approved by at least seven of the twelve members of the committee by November 23 and then must receive an &ldquo;up-or-down&rdquo; vote (no amendments) in the House and Senate before December 23, 2011.</p>
+	
+		<p><a href="http://www.washingtonpost.com/business/economy/supercommittees-lack-of-progress-on-debt-reduction-raises-alarms-on-hill/2011/10/19/gIQAxXagyL_print.html" target="_blank">According to the Washington Post</a>, &ldquo;Super Committee members have discussed a two-stage process that would first cut entitlement spending and close several tax loopholes . . . Then, the tax-writing committees in the House and Senate would be instructed to overhaul the tax code to lower rates and raise sufficient additional revenue to meet the committee’s overall target.&rdquo;</p>
+	</div>
+	
 	<div id="map_colorbox" class="colorbox">
 		<h1></h1>
 		
