@@ -365,6 +365,10 @@ button, input, select, textarea { font: 12px Helvetica, Arial, sans-serif; }
 .footer a,
 .footer a:visited { color: #404045; font-size: 9px; }
 
+.comment { margin-top: 15px; }
+.comment h4 .wherein { font: 12px Arial; font-style: italic; }
+.comment h4 .where { font: 12px Arial; }
+
 .b_more_comments {
     height: 22px;
     margin: 20px auto;

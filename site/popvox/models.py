@@ -632,6 +632,33 @@ class Org(models.Model):
 			return ServiceAccount.objects.get(org=self)
 		else:
 			return ServiceAccount.get_or_create(org=self)
+			
+	def partisan_points(self):
+		# Count up the number of endorsed/opposed bills for which the sponsor's party is known,
+		# and a "net Democrat" score that adds 1 for each Democratic bill endorsed or each
+		# Republican bill opposed, and -1 for the reverse.
+		count = 0
+		net_dem = 0
+		for p in OrgCampaignPosition.objects.filter(campaign__org=self).exclude(position="0").select_related("bill", "sponsor"):
+			m = p.bill.sponsor
+			if m == None: continue
+			count += 1
+			s = 0
+			if m.party() == "D": s = 1
+			if m.party() == "R": s = -1
+			if p.position == "-": s *= -1
+			net_dem += s
+			
+		# A low total count means we don't have enough data.
+		if count < 3: return ("nodata", "This organization's legislative agenda on POPVOX does not have enough bills to judge its partisanship.", count)
+		
+		net_dem = float(net_dem) / float(count)
+		if net_dem < -.5:
+			return ("republican", "Organization tends to endorse Republican bills.", count)
+		elif net_dem < .5:
+			return ("independent", "Organization's legislative agenda is split between Democratic and Republican bills.", count)
+		else:
+			return ("democrat", "Organization tends to endorse Democratic bills.", count)
  
 class OrgContact(models.Model):
 	"""A contact record for an Org displayed to legislative staff."""

@@ -16,6 +16,18 @@
 		<script type="text/javascript" src="/media/js/highcharts.js"></script>
 		<script type="text/javascript" src="/media/js/charts.js"></script>
 		
+		<style>
+		.org_entry { margin-top: 15px; }
+		
+		.bullets { list-style: square; margin: 1em 0 1em 2em; }
+		.bullets a { color: #C76825; }
+			
+		.partisan_points { display: inline-block; width: .9em; height: .9em; margin-right: .5em; }
+		.partisan_points.democrat { background-color: #0041a1; }
+		.partisan_points.republican { background-color: #e60e13; }
+		.partisan_points.independent { background-color: #921b85; }
+		</style>
+		
 		<script>
 		var statereps = {{statereps|json}};
 		
@@ -365,7 +377,7 @@
 				</div> 
 				{% endif %}
 				<h3 class="sponsors">
-					Co-Sponsors
+					Co-Sponsors {% if bill.num_cosponsors %}({{bill.num_cosponsors}}){% endif %}
 				</h3><!-- sponsors -->
 				{% if cosponsors_bar != -1 %}
 				<div class="stat-bar">
@@ -567,29 +579,40 @@
 				</h3><!-- other1 -->
 			{% endif %}
 			{% for org, position in orglist %}
-				<p>
-					<a href="{{org.url}}" target="_blank" class="link">{{org.name}}</a>
+				{% with org.partisan_points as partisan_points %}
+				<div class="org_entry">
+					<p style="margin-bottom: 5px">
+						{% if partisan_points.0 != "nodata" %}<span class="partisan_points {{partisan_points.0}}"> </span>{% endif %}
+						<a href="{{org.url}}" target="_blank" class="link" style="display: inline">{{org.name}}</a>
+					</p>
 
 					{% if position.comment %}
-						{{position.comment|wraplines:"div style='margin-bottom: .5em' links='false'"}}
-					{% else %}
-						(no comment)
+						<p style="margin-bottom: 5px" onclick="$(this).hide(); $(this.parentNode).find('div').show()"><span style="border-bottom: 1px dotted #BBB">
+							&ldquo;{{position.comment|striptags|truncatewords:15}}&rdquo;
+						</span></p>
+						<div style="display: none; border-left: 1px dotted #BBB; padding-left: .5em;" onclick="$(this).hide(); $(this.parentNode).find('>p').show()">
+							{{position.comment|wraplines:"p style='margin-bottom: .5em' links='false'"}}
+						</div>
 					{% endif %}
 				
-					{% comment %}
-					can't link out because it would stay inside our UIWebView control
 					{% for doc in position.documents %}
 						{% if forloop.first %}<ul class="bullets doc">{% endif %}
-						<li><a href="{{doc.url}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
+						<li><a href="{{doc.url}}" target="_blank">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
 						{% if forloop.last %}</ul>{% endif %}
 					{% endfor %}
-					{% endcomment %}
-				
-					{% if org.createdbyus %}
-					<small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small>
+					
+					<ul class="bullets">
+					{% if partisan_points.0 != "nodata" %}
+					<li><small><em>{{partisan_points.1}} Analysis based on {{partisan_points.2}} bills.</em></small></li>
 					{% endif %}
+					
+					{% if org.createdbyus %}
+					<li><small><em>The organization&rsquo;s position on this bill was entered by POPVOX.</em></small></li>
+					{% endif %}
+					</ul>
 
-				</p>
+				</div>
+				{% endwith %}
 			{% empty %}
 				<p>POPVOX does not know of any organizations in this category.</p>
 			{% endfor %}
