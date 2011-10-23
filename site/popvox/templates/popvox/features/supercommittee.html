@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
 {% block title %}The Super Committee{% endblock%}
-{% block description %}The Super Committee is charged with finding $1.5 trillion in deficit reduction by November 23, 2011.{% endblock%}
+{% block description %}Tell the Super Committee how to trim $1.5 trillion from the federal deficit. POPVOX is listing {{bills|length}} proposals to weigh in on.{% endblock%}
 {% block head %}
 <script src="/media/js/jquery.tools.min.js"></script>
 
@@ -199,7 +199,10 @@
 			.proposal.heading .sorter.active {
 				background-position: left bottom;
 				}
-		
+	
+	.proposal.active .cell {
+		/* what to do? */
+		}
 			
 	.cell.description {
 		display: block;
@@ -279,7 +282,7 @@
 				border: none;
 				}
 			
-			.proposal .description .hashtag { 
+			.proposal .description .hashtag, .proposal .description .how_should_they_vote { 
 				font-size: 12px;
 				padding-top: 2px;
 				}
@@ -296,7 +299,12 @@
 			
 			.proposal .description .large .prop_description {
 				margin: 10px 0 10px 0;
-			}
+				font-size: 12px;
+				}
+			
+			.proposal .description .large .hashtag, .proposal .description .how_should_they_vote {
+				margin: 10px 0 10px 0;
+				}
 			
 		.proposal .score {
 			width: 73px;
@@ -466,8 +474,6 @@ $(function() {
 	var timeline_left = $('#timeline').position().left + 156;
 	var timeline_width = $('#timeline').width() - 156*2 - 5;
 	var timeline_elems = $('#timeline>div');
-	var timeline_elems_not_today = $('#timeline>div[class!="today"]');
-	timeline_elems_not_today
 	var min_date = new Date($('#timeline').attr("start")).getTime();
 	var max_date = new Date($('#timeline').attr("end")).getTime();
 	var found_first = false;
@@ -492,15 +498,20 @@ $(function() {
 	
 	var last_pro = null;
 	$('.proposal .description').mouseenter(function() {
-		if (last_pro) return;
+		if (last_pro) {
+			last_pro.parents(".proposal").removeClass("active");
+			last_pro.hide();
+		}
 		var n = $(this).find('.large');
 		n.css({ "left": $(this).find('.small').position().left });
 		n.css({ "top": $(this).find('.small').position().top });
 		n.show();
 		last_pro = n;
+		n.parents(".proposal").addClass("active");
 	});
 	$('.proposal .description .large').mouseleave(function() {
 		if (!last_pro) return;
+		last_pro.parents(".proposal").removeClass("active");
 		last_pro.hide();
 		last_pro = null;
 	});
@@ -552,6 +563,35 @@ $(function() {
 			$(elems[i]).delay(i*100).animate({opacity: 1}, 600);
 	});
 });
+
+// generic share code
+function share_simple_open(url1, url2) {
+	a = function() {
+		if (!window.open(url1,"sharer","toolbar=0,status=0,resizable=1,width=626,height=436"))
+			document.location.href=url2;
+	}
+	if (/Firefox/.test(navigator.userAgent))
+		setTimeout(a,0);
+	else
+		a();
+	return false;
+}
+function facebook_share_simple() {
+	// based on share bookmarklet: http://www.facebook.com/share_options.php
+	var f="http://www.facebook.com/share";
+	var p=".php?src=bm&v=4&i=1299162093&u=" + encodeURIComponent(document.location.href) + "&t=" + encodeURIComponent(document.title);
+	share_simple_open(f+"r"+p, f+p);
+	return false;
+}
+
+function twitter_share_simple(text, hashtag) {
+	var p1 = "http://twitter.com/intent/tweet?related=popvox&hashtags=" + encodeURIComponent(hashtag ? hashtag.replace("#", "") : "") + "&url=" + encodeURIComponent(document.location.href) + "&text=" + encodeURIComponent(text ? text : "");
+	var p2 = "http://twitter.com/home?status=" + encodeURIComponent(text + " " + hashtag + " " + document.location.href);
+	share_simple_open(p1, p2);
+	return false;
+}
+</script>
+
 </script>
 {% endblock %}
 {% block content %}
@@ -573,10 +613,12 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 			<div id="social">
 				<p>share this page</p>
 				<ul>
-					<li><a class="twitter" href="#">twitter</a></li>
-					<li><a class="facebook" href="#">facebook</a></li>
+					<li><a class="twitter" href="#" onclick="return twitter_share_simple();">twitter</a></li>
+					<li><a class="facebook" href="#" onclick="return facebook_share_simple();">facebook</a></li>
+					{% comment %}
 					<li><a class="favorite" href="#">favorite</a></li>
 					<li><a class="email" href="#">email</a></li>
+					{% endcomment %}
 				</ul>
 			</div>
 			<h2 class="sc_explain">The Super Committee has until <span>November 23</span> to reduce the federal budget deficit by <span>$1.5 trillion</span> over 10 years.</h2>
@@ -638,9 +680,10 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 					<div class="title"><a href="{{proposal.bill.url}}">{{proposal.title}}</a></div>
 					<div class="prop_description">{{proposal.description}}</div>
 					<div class="hashtag">{{proposal.bill.hashtag}}</div>
+					<div class="how_should_they_vote">Tell your Members of Congress what you think:</div>
 					<div class="action_buttons">
-						<a class="support" href="{{proposal.bill.url}}/comment/support">Support</a> {% comment %}inactive{% endcomment %}
-						<a class="oppose" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
+						<a class="support {% if proposal.user_position == "-" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/support">Support</a>
+						<a class="oppose {% if proposal.user_position == "+" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
 					</div>
 				</div>
 			</div>
@@ -654,8 +697,8 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 				{% endif %}
 			</div>
 			<div class="cell action_buttons">
-				<a class="support" href="{{proposal.bill.url}}/comment/support">Support</a> {% comment %}inactive{% endcomment %}
-				<a class="oppose" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
+				<a class="support  {% if proposal.user_position == "-" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/support">Support</a>
+				<a class="oppose  {% if proposal.user_position == "+" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
 			</div>
 		</div>
 		{% endfor %}

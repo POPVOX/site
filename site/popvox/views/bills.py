@@ -1188,6 +1188,13 @@ def billshare(request, congressnumber, billtype, billnumber, vehicleid, commenti
 	follow_up = request.session.get("follow_up", "")
 	if "follow_up" in request.session: del request.session["follow_up"]
 
+	finished_url = "/home"
+	
+	# supercommittee feature redirect
+	from features import supercommittee_bill_list_ids
+	if bill.id in supercommittee_bill_list_ids:
+		finished_url = "/supercommittee"
+
 	return render_to_response('popvox/billcomment_view.html', {
 			'bill': bill,
 			"comment": comment,
@@ -1196,6 +1203,7 @@ def billshare(request, congressnumber, billtype, billnumber, vehicleid, commenti
 			"follow_up": follow_up,
 			"user_position": user_position,
 			"SITE_ROOT_URL": SITE_ROOT_URL,
+			"finished_url": finished_url,
 		}, context_instance=RequestContext(request))
 
 def send_mail2(subject, message, from_email, recipient_list, fail_silently=False):

@@ -183,7 +183,7 @@ ul.social_share_btns {
 				<p>Keep up the pressure in your Congressional district by spreading the word about {{bill.shortname}}.</p>
 			{% endif %}
 			
-			<div class="btn b_finished" value="Finished >" onclick="document.location = '/home'" style="float: right;"> </div>
+			<div class="btn b_finished" value="Finished >" onclick="document.location = '{{finished_url|escapejs}}'" style="float: right;"> </div>
 			<div class="clear"> </div>
 			<div class="hr" style="margin: 20px 0 20px 0;"> </div>
 		{% endif %}
