@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% block after_related_objects %}
+{% if change %}{% if not is_popup %}
+
+<div style="height: 20em; overflow: auto">
+ {{adminform.form.instance.trace_safeify|safe}}
+</div>
+
+{% endif %}{% endif %}
+{% endblock %}
+

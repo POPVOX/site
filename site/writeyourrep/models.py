@@ -75,6 +75,10 @@ class DeliveryRecord(models.Model):
 	
 	def __unicode__(self):
 		return ("OK " if self.success else "FAIL ") + self.created.strftime("%x") + " " + unicode(self.get_failure_reason_display()) + " " + self.trace[0:30] + "..."
+		
+	def trace_safeify(self):
+		from jquery.ajax import sanitize_html
+		return sanitize_html(self.trace)
 	
 class Synonym(models.Model):
 	term1 = models.CharField(max_length=128, db_index=True)
