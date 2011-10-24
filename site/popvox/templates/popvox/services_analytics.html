@@ -908,7 +908,7 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 				node.find(".district").text(campaign_info.latest_data[i].district);
 				node.find(".recipients").text(campaign_info.latest_data[i].recipients);
 				node.find(".date").text(campaign_info.latest_data[i].date);
-				node.find(".messagep").addClass(campaign_info.latest_data[i].position == "+" ? "support" : "oppose");
+				node.find(".messagep").addClass(campaign_info.latest_data[i].position == "support" ? "support" : "oppose");
 				node.find(".message").text(campaign_info.latest_data[i].message ? campaign_info.latest_data[i].message : "I " + campaign_info.latest_data[i].position + " " + campaign_info.billnumber + ".");
 				node.find("a").toggle(campaign_info.latest_data[i].message ? true : false).attr("href", campaign_info.latest_data[i].link);
 				node.insertBefore(templ);
