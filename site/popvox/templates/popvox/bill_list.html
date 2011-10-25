@@ -148,7 +148,7 @@ $(function() {
 				<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
 				{% endif %}
 				
-				<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
+				<h5 {% if not bill.sponsor %}style="margin-bottom: 25px"{% endif %}><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
 				{% if bill.sponsor %}
 				<p style="margin-top: 4px; font-size: 11px">Sponsored by {{ bill.sponsor.name }}.</p>
 				{% endif %}

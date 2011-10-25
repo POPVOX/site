@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 
@@ -6,6 +6,9 @@ from popvox.models import Bill
 from popvox import govtrack
 
 import collections
+
+def ipad_billreader_appstoreredirect(request):
+	return HttpResponseRedirect("http://itunes.apple.com/gb/app/popvox.../id469953577")
 
 def ipad_billreader_welcome(request):
 	return HttpResponse("Welcome!")

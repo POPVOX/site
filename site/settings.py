@@ -228,6 +228,8 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme_advanced_toolbar_align': "left",
 }
 
+FEEDBACK_BLOCKED_IPS = ["91.212.226.143"]
+
 # registration app
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
 USERNAME_BLACKLIST_TERMS = ["admin", "popvox", "fuck"]
