@@ -587,16 +587,15 @@ class Org(models.Model):
 						from registration.models import AuthRecord
 						for ar in AuthRecord.objects.filter(provider="facebook", uid=fbdata.get("id", ""),
 							user__orgroles__org=self):
-							frienddata = json.load(urlopen("https://graph.facebook.com/" + fbid + "?access_token=" + quote_plus(ar.auth_token["access_token"])))
-							print frienddata
-							print len(frienddata["data"])
+							frienddata = json.load(urlopen("https://graph.facebook.com/" + fbid + "/friends?access_token=" + quote_plus(ar.auth_token["access_token"])))
+							updateRecord(OrgExternalMemberCount.FACEBOOK_FANS,  len(frienddata["data"]))
 							break
 						else:
 							print "facebook person page without auth", self
 			except Exception, e:
 				print e
 				pass
-		return
+
 		# Twitter Followers.
 		if self.twittername == None: # clear record
 			updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, None)
