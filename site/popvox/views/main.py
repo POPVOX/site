@@ -33,6 +33,8 @@ def staticpage(request, page):
 			news.append(art)
 			if len(news) == 5: break
 	
+	page = page.replace("/", "_")
+
 	try:
 		return render_to_response("static/%s.html" % page, {
 				"page": page,

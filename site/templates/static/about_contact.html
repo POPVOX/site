@@ -11,10 +11,22 @@
 			  $('#contactformfeedback').find('button').attr('disabled', '1');
 			  return true;
 		   },
-		   'success':function() {
+		   'success':function(data) {
+			   $('#contactformfeedback').find('.error').text("");
 			   $('#contactformfeedback').find('button').attr('disabled', '');
+			   data = eval('(' + data + ')');
+			   if (data.error) {
+					$('#contactformfeedback').find('.formerror.error').text(data.error).show();
+					return;
+			   }
+			   if (data.errors) {
+					for (var key in data.errors) {
+						$('#contactformfeedback').find('.error.' + key).text(data.errors[key][0]).show();
+					}
+					return;
+			   }
 			   $('#contactformfeedback').find('textarea').val('');
-			   $('.thanks').fadeIn().delay(2000).fadeOut();
+			   $('.thanks').fadeIn().delay(5000).fadeOut();
 		   },
 		   'error':function(jqXHR, textStatus, errorThrown) {
 			   $('#contactformfeedback').find('.formeror').text('There was a problem submitting your feedback. Please email us instead.').show();
