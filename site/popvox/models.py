@@ -171,7 +171,7 @@ class Bill(models.Model):
 	srcfilehash = models.CharField(max_length=32, blank=True)
 	
 	class Meta:
-			ordering = ['congressnumber', 'billtype', 'billnumber']
+			ordering = ['-congressnumber', '-billtype', '-billnumber']
 			unique_together = (("congressnumber", "billtype", "billnumber", "vehicle_for"),)
 
 	_govtrack_metadata = None

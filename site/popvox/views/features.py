@@ -55,21 +55,69 @@ supercommittee_bill_list = [
 		"source": "Project on Government Oversight",
 		"source_url": "http://www.pogo.org/pogo-files/reports/national-security/spending-less-spending-smarter-ns-wds-20110721.html#Cancel%20one%20version%20of%20the%20Littoral%20Combat%20Ship%20%28LCS%29",
 	},
-	#{
-	#	"bill": Bill.objects.get(id=19357), # attrition
-	#	"savings": 100,
-	#	"category_name": "Government Reform",
-	#	"category_icon": "i_govreform",
-	#	"title": "Reducing the Size of the Federal Government Through Attrition",
-	#	"description": "Reduces the total number of federal employees by 10 percent over a five year period, lowering the deficit by $100 billion over 10 years. This is a proposal the Supercommittee may be considering and was proposed by Americans for Prosperity.",
-	#	"source": "Americans for Prosperity",
-	#	"source_url": "http://www.americansforprosperity.org/files/Policy_Paper_JSC_Recommendations.pdf",
-	#},
 	{
 		"bill": Bill.objects.get(id=19780), # auction remaining tarp
 		"savings": 166,
 		"category_name": "Financial Services",
 		"category_icon": "i_financial",
+		"source": "Americans for Prosperity",
+		"source_url": "http://www.americansforprosperity.org/files/Policy_Paper_JSC_Recommendations.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=19837), # eliminate student loans
+		"savings": 43,
+		"category_name": "Education",
+		"category_icon": "i_edu",
+		"source": "The President's National Commission on Fiscal Responsibility and Reform",
+		"source_url": "http://www.fiscalcommission.gov/sites/fiscalcommission.gov/files/documents/TheMomentofTruth12_1_2010.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=19838), # cut aircraft carriers
+		"savings": 7,
+		"category_name": "Defense",
+		"category_icon": "i_defense",
+		"source": "Project on Government Oversight",
+		"source_url": "http://www.pogo.org/pogo-files/reports/national-security/spending-less-spending-smarter-ns-wds-20110721.html#Cancel%20one%20version%20of%20the%20Littoral%20Combat%20Ship%20%28LCS%29",
+	},
+	{
+		"bill": Bill.objects.get(id=19278), # currency optimization
+		"savings": 1.8,
+		"category_name": "Financial Services",
+		"category_icon": "i_financial",
+		"title": "Currency Optimization, Innovation, and National Savings Act",
+		"description": "Improves the circulation of $1 coins, to remove barrier to the circulation of such coins, and for other purposes, reducing the deficit by $1.8 billion over ten years. This is a bill in Congress and the Super Committee may be considering it.",
+		"source": "Rep. David Schweikert",
+		"source_url": "https://www.popvox.com/bills/us/112/hr2977",
+	},
+	{
+		"bill": Bill.objects.get(id=19839), # financial crisis responsibility
+		"savings": 71,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": "Congressional Progressive Caucus",
+		"source_url": "http://cpc.grijalva.house.gov/index.cfm?sectionid=79&sectiontree=5,79",
+	},
+	{
+		"bill": Bill.objects.get(id=19840), # eliminate commodity crop
+		"savings": 51,
+		"category_name": "Agriculture",
+		"category_icon": "i_farm",
+		"source": "Taxpayers for Common Sense",
+		"source_url": "http://www.taxpayer.net/user_uploads/file/FederalBudget/2011/TCS_Super_Cuts_Sept2011.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=19841), # modify mortgage interest
+		"savings": 390,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": "Taxpayers for Common Sense",
+		"source_url": "http://www.taxpayer.net/user_uploads/file/FederalBudget/2011/TCS_Super_Cuts_Sept2011.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=19842), # reform and reduce
+		"savings": 100,
+		"category_name": "Government Reform",
+		"category_icon": "i_govreform",
 		"source": "Americans for Prosperity",
 		"source_url": "http://www.americansforprosperity.org/files/Policy_Paper_JSC_Recommendations.pdf",
 	},
