@@ -68,20 +68,32 @@
 				background: url(/media/features/supercommittee/bg_timeline_end.png) left top no-repeat;
 				height: 22px;
 				margin-top: 38px;
+				}
 
 			.tooltip {
+				display: none;
 				position: relative;
+				background: #fff;
+				font-size: 12px;
+				width: 260px;
+				height: 70px;
 				padding: 10px 15px 15px;
-				z-index: 20;
-				}
+				color: #404045;
+				z-index: 120;
 				
+				-moz-box-shadow: 0 0 36px rgba(0,0,0,.3);
+				-webkit-box-shadow: 0 0 36px rgba(0,0,0,.3);
+				box-shadow: 0 0 36px rgba(0,0,0,.3);
+				filter:progid:DXImageTransform.Microsoft.Shadow(color='#aaaaaa',direction='120',strength='10');	
+				}
+			
 			.tooltip span {
 				background: url("/media/features/supercommittee/bg_tip.png") left center;
 				width: 20px;
 				height: 11px;
 				position: absolute;
 				top: -11px;
-				left: 10px;
+				left: 103px;
 				}
 			
 			#timeline > div.even:hover {
@@ -95,6 +107,15 @@
 			margin-top: 20px;
 			padding: 25px 0 0 50px;
 			font-size: 36px;
+			}
+			
+		#timeline > div.today {
+			display: block;
+			background: url(/media/features/supercommittee/today.png) left top no-repeat;
+			width: 76px;
+			height: 50px;
+			margin-top: -5px;
+			margin-left: -33px;
 			}
 	
 .col_12 h3#what_is_it {
