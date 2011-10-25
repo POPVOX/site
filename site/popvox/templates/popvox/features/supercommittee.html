@@ -68,6 +68,20 @@
 				background: url(/media/features/supercommittee/bg_timeline_end.png) left top no-repeat;
 				height: 22px;
 				margin-top: 38px;
+
+			.tooltip {
+				position: relative;
+				padding: 10px 15px 15px;
+				z-index: 20;
+				}
+				
+			.tooltip span {
+				background: url("/media/features/supercommittee/bg_tip.png") left center;
+				width: 20px;
+				height: 11px;
+				position: absolute;
+				top: -11px;
+				left: 10px;
 				}
 			
 			#timeline > div.even:hover {
@@ -295,7 +309,7 @@
 			margin: -10px -5px -5px -5px;
 			padding: 12px 5px 12px 9px;
 			width: 490px;
-			border: 1px solid black;
+			border: 1px solid #CC6A11;
 			}
 			
 			.proposal .description .large p {
@@ -376,24 +390,31 @@
 			}
 
 		#map_colorbox h2 {
-			margin: 0 0 10px 0;
+			margin: 0 0 2px 10px;
+			font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
 			}
 			
 		#map_iframe_container {
 			width: 580px;
 			float: left;
+			margin: 10px 10px 0;
 			}
 			
+			#map_colorbox .b_view_report {
+				margin: 0 0 30px;
+				}
+			
 		#map_proposal_list {
-			width: 260px;
+			width: 290px;
 			float: left;
+			margin: 10px 0 0 10px;
 			}
 			
 		#map_proposal_list > div {
-			background-color: #D4D1CA;
-			color: #666;
-			padding: 6px;
-			font-weight: bold;
+			background-color: #F0F0F2;
+			color: #75747c;
+			padding: 8px 5px 5px 10px;
+			font-weight: normal;
 			margin-bottom: 4px;
 			cursor: pointer;
 			}
@@ -414,6 +435,16 @@
 			float: left;
 			text-indent: -9999em;
 			}
+			
+			.sc_pg .support.lg {
+				background: url(/media/features/supercommittee/b_support_sc.png) left top no-repeat;
+				display: block;
+				margin: 2px 9px 0 0;
+				width: 115px;
+				height: 34px;
+				float: left;
+				text-indent: -9999em;
+				}
 
 			.sc_pg .support:hover, .sc_pg .support.inactive:hover {
 				background-position: left -60px;
@@ -423,6 +454,9 @@
 			.sc_pg .support.inactive {
 				background-position: left -134px;
 				}
+				
+			
+
 				
 		.sc_pg .oppose {
 			background: url(/media/features/supercommittee/i_action.png) -41px top no-repeat;
@@ -434,11 +468,25 @@
 			float: left;
 			text-indent: -9999em;
 			}
+			
+			.sc_pg .oppose.lg {
+				background: url(/media/features/supercommittee/b_oppose_sc.png) left top no-repeat;
+				display: block;
+				margin: 2px 9px 0 0;
+				width: 115px;
+				height: 34px;
+				float: left;
+				text-indent: -9999em;
+				}
 
 			.sc_pg .oppose:hover, .sc_pg .oppose.inactive:hover {
 				background-position: -41px -60px;
 				cursor: pointer;
 				}
+				
+				.sc_pg .oppose.lg:hover {
+					background-position: left -60px;
+					}
 				
 			.sc_pg .oppose.inactive {
 				background-position: -41px -134px;
@@ -485,7 +533,7 @@ $(function() {
 			date = new Date(date);
 			if (timeline_elems[i].getAttribute("class") == "event") {
 				has_tooltip = true;
-				elem.tooltip({position: "bottom " + "center", offset: [0, 5], effect: "fade"});
+				elem.tooltip({position: "bottom " + "center", offset: [0, 5], effect: "fade", layout: "<div><span class=''></span></div>"});
 			}
 		}
 		
@@ -714,8 +762,8 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 					<p class="hashtag">{{proposal.bill.hashtag}}</p>
 					<p class="how_should_they_vote">Tell your Members of Congress what you think:</p>
 					<div class="action_buttons">
-						<a class="support {% if proposal.user_position == "-" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/support">Support</a>
-						<a class="oppose {% if proposal.user_position == "+" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
+						<a class="support lg {% if proposal.user_position == "-" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/support">Support</a>
+						<a class="oppose lg {% if proposal.user_position == "+" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
 					</div>
 				</div>
 			</div>
