@@ -44,7 +44,7 @@
 	#timeline {
 		height: 150px;
 		padding-top: 10px;
-		background: url(/media/features/supercommittee/bg_timeline_end.png) 0px 38px repeat-x;
+		background: url(/media/features/supercommittee/bg_timeline.png) 0px 38px repeat-x;
 		border-bottom: 1px solid #a9a59b
 		}
 
@@ -59,21 +59,22 @@
 			margin-top: 43px;
 			}
 			
-			#timeline > .secondary {
-				background: url(/media/features/supercommittee/i_dots.png) left -23px no-repeat;
+			#timeline > div.month {
+				background: url(/media/features/supercommittee/bg_timeline_mid.png) left top no-repeat;
+				height: 22px;
+				margin-top: 38px;
+				}
+			#timeline > div.year {
+				background: url(/media/features/supercommittee/bg_timeline_end.png) left top no-repeat;
+				height: 22px;
+				margin-top: 38px;
 				}
 			
-			#timeline > div:hover {
+			#timeline > div.even:hover {
 				background-position: left -60px;
 				cursor: pointer;
 				}
-				
-			#timeline > .secondary:hover {
-				background-position: left -53px;
-				cursor: pointer;
-				}
-
-		
+						
 		h3.timeline {
 			border-top:  1px solid #a9a59b;
 			background: url(/media/features/supercommittee/i_cal.png) 10px 17px no-repeat;
@@ -297,15 +298,11 @@
 			border: 1px solid black;
 			}
 			
-			.proposal .description .large .prop_description {
+			.proposal .description .large p {
 				margin: 10px 0 10px 0;
 				font-size: 12px;
 				}
-			
-			.proposal .description .large .hashtag, .proposal .description .how_should_they_vote {
-				margin: 10px 0 10px 0;
-				}
-			
+					
 		.proposal .score {
 			width: 73px;
 		    letter-spacing: .02em;
@@ -471,25 +468,36 @@ function show_what_is_it() {
 $(function() {
 	// line up the timeline elements
 	var timeline_top = $('#timeline').position().top;
-	var timeline_left = $('#timeline').position().left + 156;
-	var timeline_width = $('#timeline').width() - 156*2 - 5;
+	var timeline_left = $('#timeline').position().left;
+	var timeline_width = $('#timeline').width();
 	var timeline_elems = $('#timeline>div');
 	var min_date = new Date($('#timeline').attr("start")).getTime();
 	var max_date = new Date($('#timeline').attr("end")).getTime();
 	var found_first = false;
+	var ctr = 0;
 	for (var i = 0; i < timeline_elems.length; i++) {
 		var date = timeline_elems[i].getAttribute("date");
 		var elem = $(timeline_elems[i]);
+		var has_tooltip = false;
 		if (date == "today") {
 			date = new Date();
 		} else {
 			date = new Date(date);
-			elem.tooltip({position: "bottom " + "center", offset: [0, 5], effect: "fade"});
+			if (timeline_elems[i].getAttribute("class") == "event") {
+				has_tooltip = true;
+				elem.tooltip({position: "bottom " + "center", offset: [0, 5], effect: "fade"});
+			}
 		}
-		var x = (date.getTime()-min_date)*timeline_width/(max_date-min_date);
-		elem.css({"top": timeline_top, "left": timeline_left + x})
-		elem.delay(i*100).fadeIn();
-		if (date > new Date() && !found_first) {
+		
+		var x = (date.getTime()-min_date)/(max_date-min_date);
+		x = Math.log(x*10 + 1) / Math.log(1*10 + 1);
+		elem.css({"top": timeline_top, "left": timeline_left + x*timeline_width})
+		
+		if (has_tooltip)
+			elem.delay((ctr++)*100).fadeIn();
+		else
+			elem.show();
+		if (date > new Date() && has_tooltip && !found_first) {
 			elem.show();
 			elem.data("tooltip").show();
 			found_first = true;
@@ -634,19 +642,42 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 		
 		<h3 class="timeline">Timeline</h3>
 		
-		<div id="timeline" start="September 1, 2011" end="January 1. 2013">
+		<div id="timeline" start="August 15, 2011" end="July 1. 2013">
 			<div date="today" class="today">Today</div>
-			<div date="September 8, 2011" title="Sept. 8. Organizational Meeting: Members of the Committee made opening statements and considered proposed committee rules."> </div>
-			<div date="September 13, 2011" title="Sept. 13. Members of the Committee held a hearing on “The History and Drivers of Our Nation’s Debt and Its Threats”"> </div>
-			<div date="September 22, 2011" title="Sept. 22. Members of the Committee held a hearing entitled “Overview: Revenue Options and Reforming the Tax Code&rdquo;"> </div>
-			<div date="October 26, 2011" title="Oct. 26. Members of the Committee will hold a hearing entitled “Overview: Discretionary Outlays, Security and Non-Security”"> </div>
-			<div date="November 23, 2011" title="Nov. 23. The Committee will vote on a report including findings, conclusions, recommendations, a CBO estimate and legislative language designed to achieve at least $1.5 trillion in deficit reduction over the period FY 2012-FY 2021. Any CBO estimates must be available at least 48 hours prior to a vote of the Committee."> </div>
-			<div date="December 2, 2011" title="Dec. 2. If the Committee approves a report and legislative language by a majority vote of at least seven members, it must submit the report and the legislative language to the President, the House and the Senate."> </div>
-			<div date="December 9, 2011" title="Dec. 9. House &amp; Senate committees to which the Committee’s report has been referred must report it without amendment."> </div>
-			<div date="December 23, 2011" title="Dec. 23. Both the House and Senate must vote up or down without amendment on the report of the Committee."> </div>
-			<div date="January 15, 2012" title="Jan. 15, 2012. Unless a bill achieving at least $1.2 trillion in deficit reduction is enacted by this date, the discretionary caps are revised for FY 2012-FY 2021."> </div>
-			<div date="April 15, 2012" title="April 15, 2012. The Chair of the Senate Budget Committee must report allocations for FY 2012 and FY 2013 to the Appropriations Committee based on the new discretionary caps"> </div>
-			<div date="January 2, 2013" title="Jan. 2, 2013. If Congress has not adopted the Super Committee’s report to reduce the deficit by at least $1.2 trillion, sequestration of both defense and non-exempt domestic programs will occur as calculated by OMB and ordered by the President. If Congress adopts deficit reduction of less than $1.2 trillion, the sequester shall make up the difference."> </div>
+			<div date="September 1, 2011" class="month"> </div>
+			<div date="October 1, 2011" class="month"> </div>
+			<div date="November 1, 2011" class="month"> </div>
+			<div date="December 1, 2011" class="month"> </div>
+			<div date="January 1, 2012" class="year"> </div>
+			<div date="February 1, 2012" class="month"> </div>
+			<div date="March 1, 2012" class="month"> </div>
+			<div date="April 1, 2012" class="month"> </div>
+			<div date="May 1, 2012" class="month"> </div>
+			<div date="June 1, 2012" class="month"> </div>
+			<div date="July 1, 2012" class="month"> </div>
+			<div date="August 1, 2012" class="month"> </div>
+			<div date="September 1, 2012" class="month"> </div>
+			<div date="October 1, 2012" class="month"> </div>
+			<div date="November 1, 2012" class="month"> </div>
+			<div date="December 1, 2012" class="month"> </div>
+			<div date="January 1, 2013" class="year"> </div>
+			<div date="February 1, 2013" class="month"> </div>
+			<div date="March 1, 2013" class="month"> </div>
+			<div date="April 1, 2013" class="month"> </div>
+			<div date="May 1, 2013" class="month"> </div>
+			<div date="June 1, 2013" class="month"> </div>
+			<div date="July 1, 2013" class="month"> </div>
+			<div date="September 8, 2011" class="event" title="Sept. 8. Organizational Meeting: Members of the Committee made opening statements and considered proposed committee rules."> </div>
+			<div date="September 13, 2011" class="event" title="Sept. 13. Members of the Committee held a hearing on “The History and Drivers of Our Nation’s Debt and Its Threats”"> </div>
+			<div date="September 22, 2011" class="event" title="Sept. 22. Members of the Committee held a hearing entitled “Overview: Revenue Options and Reforming the Tax Code&rdquo;"> </div>
+			<div date="October 26, 2011" class="event" title="Oct. 26. Members of the Committee will hold a hearing entitled “Overview: Discretionary Outlays, Security and Non-Security”"> </div>
+			<div date="November 23, 2011" class="event" title="Nov. 23. The Committee will vote on a report including findings, conclusions, recommendations, a CBO estimate and legislative language designed to achieve at least $1.5 trillion in deficit reduction over the period FY 2012-FY 2021. Any CBO estimates must be available at least 48 hours prior to a vote of the Committee."> </div>
+			<div date="December 2, 2011" class="event" title="Dec. 2. If the Committee approves a report and legislative language by a majority vote of at least seven members, it must submit the report and the legislative language to the President, the House and the Senate."> </div>
+			<div date="December 9, 2011" class="event" title="Dec. 9. House &amp; Senate committees to which the Committee’s report has been referred must report it without amendment."> </div>
+			<div date="December 23, 2011" class="event" title="Dec. 23. Both the House and Senate must vote up or down without amendment on the report of the Committee."> </div>
+			<div date="January 15, 2012" class="event" title="Jan. 15, 2012. Unless a bill achieving at least $1.2 trillion in deficit reduction is enacted by this date, the discretionary caps are revised for FY 2012-FY 2021."> </div>
+			<div date="April 15, 2012" class="event" title="April 15, 2012. The Chair of the Senate Budget Committee must report allocations for FY 2012 and FY 2013 to the Appropriations Committee based on the new discretionary caps"> </div>
+			<div date="January 2, 2013" class="event" title="Jan. 2, 2013. If Congress has not adopted the Super Committee’s report to reduce the deficit by at least $1.2 trillion, sequestration of both defense and non-exempt domestic programs will occur as calculated by OMB and ordered by the President. If Congress adopts deficit reduction of less than $1.2 trillion, the sequester shall make up the difference."> </div>
 		</div>
 		
 		<h3 class="proposals">Proposals</h3>
@@ -678,9 +709,10 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 				<div class="large">
 					<a class="i_eye" href="{{proposal.bill.url}}">view</a>
 					<div class="title"><a href="{{proposal.bill.url}}">{{proposal.title}}</a></div>
-					<div class="prop_description">{{proposal.description}}</div>
-					<div class="hashtag">{{proposal.bill.hashtag}}</div>
-					<div class="how_should_they_vote">Tell your Members of Congress what you think:</div>
+					<p>{{proposal.description}}</p>
+					<p><strong>Source: </strong> <a href="{{proposal.source_url}}" target="_blank">{{proposal.source}}</a></p>
+					<p class="hashtag">{{proposal.bill.hashtag}}</p>
+					<p class="how_should_they_vote">Tell your Members of Congress what you think:</p>
 					<div class="action_buttons">
 						<a class="support {% if proposal.user_position == "-" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/support">Support</a>
 						<a class="oppose {% if proposal.user_position == "+" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
