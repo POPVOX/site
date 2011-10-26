@@ -221,12 +221,6 @@
 		font-size: 12px;
 		}
 		
-		.proposal.heading .cell.sentiment {
-			padding-top: 5px;
-			padding-left: 10px;
-			width: 184px;
-			}
-		
 		.proposal.heading .sorter {
 			background: url(/media/features/supercommittee/b_triangle.png) left top no-repeat;
 			display: block;
@@ -235,10 +229,22 @@
 			height: 12px;
 			float: right;
 			text-indent: -9999em;
+			cursor: pointer;
 			}
 			
 			.proposal.heading .sorter.active {
 				background-position: left bottom;
+				}
+			
+			.proposal.heading .description {
+				padding-left: 9px;
+				}
+			.proposal.heading .score {
+				padding-left: 11px;
+				}
+			.proposal.heading .sentiment {
+				padding-left: 40px;
+				width: 155px;
 				}
 	
 	.proposal.active .cell {
@@ -357,23 +363,20 @@
 					
 		.proposal .score {
 			width: 73px;
+			}
+		
+		.proposal.body .score {
 		    letter-spacing: .02em;
 		    padding: 12px 11px 0 15px;
 			font: normal 28px 'BebasNeueRegular', helvetica, arial, sans-serif;
 			}
 			
-		.proposal.heading .cell.score {
-			width: 76px;
-			font-size: 12px;
-			font-family: helvetica, arial, sans-serif;
-			padding: 5px 0 0 10px;
-			margin: 0;
-			}
-			
 		.proposal .sentiment {
 			width: 194px;
-			padding: 0;
 			}
+			.proposal.body .sentiment {
+				padding: 0;
+				}
 			
 			.proposal .sentiment span.nodata a {
 				padding-top: 12px;
@@ -794,7 +797,7 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 		
 		
 		{% for proposal in bills|dictsortreversed:"savings" %}
-		<div class="proposal"
+		<div class="proposal body"
 			bill_id="{{proposal.bill.id}}"  bill_url="{{proposal.bill.url}}"
 			category="{{proposal.category_name}}" description="{{proposal.title}}" score="{{proposal.savings}}" sentiment="{% firstof proposal.sentiment.scaled_pro "0" %}">
 			<div class="cell category {{proposal.category_icon}}" title="{{proposal.category_name}}"> {% comment %}i_farm i_tax i_health i_financial i_tax i_govreform i_defense{% endcomment %}
