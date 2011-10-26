@@ -308,10 +308,9 @@
 			}
 			
 	.proposal > .cell { 
-		display: inline-block;  
-		vertical-align: top; 
-		/*margin: 0 2px 2px 0;*/ 
-		padding: 5px; 
+		display: block;
+		float: left;
+		padding: 5px;
 		}
 
 	.proposal .category { 
@@ -359,7 +358,7 @@
 		.proposal .score {
 			width: 73px;
 		    letter-spacing: .02em;
-		    padding: 12px 0 0 15px;
+		    padding: 12px 11px 0 15px;
 			font: normal 28px 'BebasNeueRegular', helvetica, arial, sans-serif;
 			}
 			
@@ -389,17 +388,19 @@
 					}
 					
 		.bar_pro {
-			display: inline-block;
+			display: block;
+			float: left;
 			background: #fb9919 url(/media/features/supercommittee/bg_percent_heart.png) 5px 5px no-repeat;
 			height: 44px;
 			margin: 2px 0;
 			}
 			
 		.bar_con {
-			display: inline-block;
+			display: block;
+			float: left;
 			background: #fdcc32 url(/media/features/supercommittee/bg_percent_anti.png) right 5px no-repeat;
 			height: 44px;
-			margin: 2px 0;
+			margin: 2px 5px 0 0;
 			}
 			
 		.proposal .sentiment .maplink {
@@ -407,7 +408,7 @@
 			width: 46px;
 			height: 44px;
 			display: block;
-			float: right;
+			float: left;
 			text-indent: -9999em;
 			}
 
@@ -418,6 +419,7 @@
 			
 		.proposal > .action_buttons {
 			width: 80px;
+			padding-left: 10px;
 			}
 			.proposal .action_buttons a:hover {
 				border: none;
@@ -430,7 +432,7 @@
 
 		#map_colorbox h2 {
 			margin: 0 0 2px 10px;
-			font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
+			font: normal 24px/28px 'BebasNeueRegular', helvetica, arial, sans-serif;
 			}
 			
 		#map_iframe_container {
@@ -444,9 +446,12 @@
 				}
 			
 		#map_proposal_list {
-			width: 290px;
+			width: 260px;
 			float: left;
 			margin: 10px 0 0 10px;
+			padding: 0 10px 0 0;
+			height: 460px;
+			overflow: auto;
 			}
 			
 		#map_proposal_list > div {
@@ -584,7 +589,7 @@ $(function() {
 			elem.delay(Math.sqrt((ctr++)*10000)).fadeIn();
 		else
 			elem.show();
-		if (date > new Date() && has_tooltip && !found_first) {
+		if (date.getTime() >= new Date().getTime()-60*60*24*1000 && has_tooltip && !found_first) {
 			elem.show();
 			elem.data("tooltip").show();
 			found_first = true;
@@ -838,7 +843,7 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 
 <div style="display: none">
 	<div id="what_is_it_colorbox" class="colorbox">
-		<h1>What is the &ldquo;Super Committee&rdquo;?
+		<h1>What is the &ldquo;Super Committee&rdquo;?</h1>
 	
 		<p>The &ldquo;Super Committee&rdquo; was established in the Budget Control Act of 2011 and is charged with issuing a formal recommendation on how to reduce the deficit by at least $1.5 trillion over the next ten years.</p>
 		
@@ -850,7 +855,7 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 	</div>
 	
 	<div id="map_colorbox" class="colorbox">
-		<h1></h1>
+		<h1> </h1>
 		
 		<div style="width: 568px">
 			<a class="btn b_view_report" href="#">View Report &amp; Comments</a>
