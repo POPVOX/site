@@ -34,11 +34,14 @@ def staticpage(request, page):
 			if len(news) == 5: break
 	
 	page = page.replace("/", "_")
+	
+	from features import supercommittee_bill_list
 
 	try:
 		return render_to_response("static/%s.html" % page, {
 				"page": page,
 				"news": news,
+				"supercommittee_bill_list": supercommittee_bill_list,
 			}, context_instance=RequestContext(request))
 	except TemplateDoesNotExist:
 		raise Http404()

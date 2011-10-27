@@ -46,7 +46,92 @@ function subscribe(validate) {
 		   "statussuccess": (validate ? null : "Thanks!")} );
 	return false;
 }
+
+var last_elem = 0; // prevent same one twice
+function supercommittee_rotate() {
+	var elems = $("#super_container ul li");
+	elems.fadeOut();
+	var item = Math.floor(Math.random()*(elems.length-1));
+	if (item >= last_elem) item++;
+	$(elems[item]).fadeIn();
+	window.setTimeout("supercommittee_rotate()", 7500);
+	last_elem = item;
+}
+window.setTimeout("supercommittee_rotate()", 7500);
 </script>
+<style>
+/* super committee ad */
+#super_container {
+	background: url("/media/features/supercommittee/tell_supercommittee.gif") no-repeat scroll left top transparent;
+    display: block;
+    height: 100px;
+    width: 940px;
+   	overflow: hidden;
+	}
+	
+	#super_container ul li {
+background: none repeat scroll 0 0;
+    color: #FFFFFF;
+    display: block;
+    font-weight: bold;
+    height: 55px;
+    margin-bottom: 10px;
+	width: 980px;
+	height: 80px;
+	}
+		
+	#super_container ul li a {
+color: #FFFFFF;
+font-size: 16px;
+    display: block;
+    float: left;
+    font-weight: bold;
+    height: 55px;
+    margin-bottom: 10px;
+    padding: 25px 0 0 10px;
+    width: 442px;
+    background: url(/media/features/supercommittee/b_go_sc.png) 356px 14px no-repeat;
+		}
+		
+			#super_container ul li a:hover {
+				background-position: 356px -52px;
+				border: none;
+				}
+				
+	#super_container ul li a div {
+		width: 320px;
+		height: 1.3em;
+		overflow: hidden;
+	}
+		
+	#super_container ul li > span {
+background: url("/media/features/supercommittee/supercommittee_sprites_lg.png") no-repeat scroll left top transparent;
+display: block;
+float: left;
+height: 80px;
+margin-left: 418px;
+width: 70px;
+		}
+		
+		#super_container ul li.i_financial span.icon {
+			background-position: -433px 2px;
+			}
+
+		#super_container ul li.i_health span.icon {
+			background-position: -283px 2px;
+			}
+
+		#super_container ul li.i_tax span.icon {
+			background-position: 6px 2px;
+			}
+	
+
+	#super_container ul li a > span {	
+		display: block;
+		font-size: 14px;
+		font-weight: normal; 
+		}
+</style>
 {% endblock %}
 {% block head_r_content %}
 <h1 id="landing">Your Voice. Verified. Quantified. Amplified</h1>
@@ -70,6 +155,17 @@ function subscribe(validate) {
 
 		</div>
 	</div>
+</div>
+<div class="clear"> </div>
+
+<div id="super_container">
+	<ul>
+		{% for proposal in supercommittee_bill_list %}
+		{% if proposal.category_icon == "i_financial" or proposal.category_icon == "i_tax" or proposal.category_icon == "i_health" %}
+		<li class="{{proposal.category_icon}}"><span class="icon"></span><a href="/supercommittee"><div>{{proposal.title}}?</div> <span>reduces the deficit by ${{proposal.savings}} billion over 10 years</span></a></li>
+		{% endif %}
+		{% endfor %}
+	</ul>
 </div>
 <div class="clear"> </div>
 

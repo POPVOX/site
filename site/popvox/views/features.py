@@ -122,6 +122,12 @@ supercommittee_bill_list = [
 		"source_url": "http://www.americansforprosperity.org/files/Policy_Paper_JSC_Recommendations.pdf",
 	},
 ]
+for bill in supercommittee_bill_list:
+	if not "title" in bill:
+		bill["title"] = bill["bill"].nicename.replace(" (Proposal to Super Committee)", "")
+	if not "description" in bill:
+		bill["description"] = bill["bill"].description
+
 supercommittee_bill_list_ids = [bill["bill"].id for bill in supercommittee_bill_list]
 	
 def supercommittee(request):
@@ -129,10 +135,6 @@ def supercommittee(request):
 	for i in xrange(len(bill_list)):
 		bill_list[i] = dict(bill_list[i]) # clone
 		bill = bill_list[i]
-		if not "title" in bill:
-			bill["title"] = bill["bill"].nicename.replace(" (Proposal to Super Committee)", "")
-		if not "description" in bill:
-			bill["description"] = bill["bill"].description
 		bill["sentiment"] = bill_statistics(bill["bill"], "POPVOX Nation", "POPVOX Nation")
 		if bill["sentiment"]:
 			bill["sentiment"]["scaled_pro"] = 142 * bill["sentiment"]["pro_pct"] / 100
