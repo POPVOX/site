@@ -63,14 +63,14 @@ supercommittee_bill_list = [
 		"source": "Americans for Prosperity",
 		"source_url": "http://www.americansforprosperity.org/files/Policy_Paper_JSC_Recommendations.pdf",
 	},
-	{
-		"bill": Bill.objects.get(id=19837), # eliminate student loans
-		"savings": 43,
-		"category_name": "Education",
-		"category_icon": "i_edu",
-		"source": "The President's National Commission on Fiscal Responsibility and Reform",
-		"source_url": "http://www.fiscalcommission.gov/sites/fiscalcommission.gov/files/documents/TheMomentofTruth12_1_2010.pdf",
-	},
+	#{
+	#	"bill": Bill.objects.get(id=19837), # eliminate student loans
+	#	"savings": 43,
+	#	"category_name": "Education",
+	#	"category_icon": "i_edu",
+	#	"source": "The President's National Commission on Fiscal Responsibility and Reform",
+	#	"source_url": "http://www.fiscalcommission.gov/sites/fiscalcommission.gov/files/documents/TheMomentofTruth12_1_2010.pdf",
+	#},
 	{
 		"bill": Bill.objects.get(id=19838), # cut aircraft carriers
 		"savings": 7,
@@ -120,6 +120,86 @@ supercommittee_bill_list = [
 		"category_icon": "i_govreform",
 		"source": "Americans for Prosperity",
 		"source_url": "http://www.americansforprosperity.org/files/Policy_Paper_JSC_Recommendations.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=19701), # Employee Misclassification Act
+		"title": "Employee Misclassification Act",
+		"description": "Requires employers to keep records of non-employees who perform labor or services for remuneration and to provide a special penalty for employers who misclassify employees as non-employees.",
+		"savings": 57,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": "House Education & Labor Committee Minority",
+		"source_url": "http://www.democraticleader.gov/pdf/EducationWorkforce101311.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=17180), # New Spectrum Auction
+		"title": "Auction New Spectrum",
+		"description": "Establishes the sense of Congress that Congress should enact, and the President should sign, bipartisan legislation to strengthen public safety and to enhance wireless communications.",
+		"savings": 6,
+		"category_name": "Wireless Spectrum",
+		"category_icon": "i_spectrum",
+		"source": "Energy & Commerce Committee Minority, the President's proposal, and the Republican Budget",
+		"source_url": "https://www.popvox.com/bills/us/112/s911",
+	},
+	{
+		"bill": Bill.objects.get(id=14246), # Preserve Access to Affordable Generics
+		"title": "Preserve Access to Affordable Generics",
+		"description": "Limits the ability for brand name drug companies to pay generics manufacturers to delay their entry into the market",
+		"savings": 3,
+		"category_name": "Health",
+		"category_icon": "i_health",
+		"source": "Energy & Commerce Committee Minority and the President's Plan",
+		"source_url": "https://www.popvox.com/bills/us/112/s27",
+	},
+	{
+		"bill": Bill.objects.get(id=19874), # Big Bank fee
+		"savings": 20,
+		"category_name": "Financial Services",
+		"category_icon": "i_financial",
+		"source": "House Financial Services Minority",
+		"source_url": "http://www.democraticleader.gov/pdf/FinancialServices101311.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=15883), # "Internet Gambling Regulation, Consumer Protection, and Enforcement Act
+		"title": "Regulate and Tax Internet Gambling",
+		"description": "Legalizes, regulates and taxes Internet gambling.",
+		"savings": 42,
+		"category_name": "Financial Services",
+		"category_icon": "i_financial",
+		"source": "House Financial Services Committee Minority",
+		"source_url": "http://www.democraticleader.gov/pdf/FinancialServices101311.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=19875), # Tax carried interest as ordinary income
+		"savings": 13,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": u"President\u2019s proposal",
+		"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2012/assets/jointcommitteereport.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=19876), # End oil and gas tax preferences
+		"savings": 42,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": u"President\u2019s proposal",
+		"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2012/assets/jointcommitteereport.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=19877), # Derivatives and Speculation Tax
+		"savings": 432,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": "Congressional Progressive Caucus",
+		"source_url": "http://cpc.grijalva.house.gov/index.cfm?sectionid=79&sectiontree=5,79",
+	},
+	{
+		"bill": Bill.objects.get(id=19878), # Chained CPI
+		"savings": 299,
+		"category_name": "Government Reform",
+		"category_icon": "i_govreform",
+		"source": "Bowles-Simpson recommendations",
+		"source_url": "http://www.momentoftruthproject.org/sites/default/files/MeasuringUp5_11_2011.pdf",
 	},
 ]
 for bill in supercommittee_bill_list:
