@@ -55,7 +55,7 @@ class RawText(models.Model):
 class IssueArea(models.Model):
 	"""An issue area."""
 	slug = models.SlugField(db_index=True, unique=True)
-	name = models.CharField(max_length=100)
+	name = models.CharField(max_length=100, db_index=True, unique=True)# uniqueness is crucial for parsing LoC data, assumed by scrapers
 	shortname = models.CharField(max_length=16, blank=True, null=True)
 	parent = models.ForeignKey('self', blank=True, null=True, db_index=True, related_name = "subissues", on_delete=models.SET_NULL)
 	class Meta:
