@@ -151,6 +151,18 @@ function validate_form() {
 	<div class="clear"> </div>
 	
 	</div>
+
+        {% if not user.is_authenticated %}
+	<div class="col_3 col_last commentProcessHints">
+	<div>
+		<h3>Registration is Next</h3>
+		<p>Verifying that you are a constituent is a crucial part of making your message more effective.
+		We know that from our experience here in DC.</p>
+
+		<p>One of the only ways we can verify constituents and limit gaming of the system is to require an account. Just like you have to have a Gmail account to send a message through the Gmail system, you have to have a POPVOX account to send a message through the POPVOX system.</p>
+	</div>
+	</div>
+	{% endif %}
 </div>
 <script>
 if (!document.cookie)
