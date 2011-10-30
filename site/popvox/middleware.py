@@ -17,6 +17,9 @@ class IE6BlockMiddleware:
 
 class AdserverTargetsMiddleware:
 	def process_request(self, request):
+		if request.is_ajax(): # don't bother
+			return None
+		
 		user = request.user
 		if not user.is_authenticated():
 			return None
