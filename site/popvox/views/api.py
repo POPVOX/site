@@ -309,7 +309,7 @@ class bill_search(BillHandler):
 			c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
 			c.SetMatchMode(SPH_MATCH_EXTENDED)
 			c.SetFilter("doctype", [100])
-			matches = c.Query(q)
+			matches = c.Query(q, "doc_text")
 			if not matches:
 				return []
 				
@@ -542,7 +542,7 @@ class document_search(BaseHandler):
 		if q == "":
 			ret = { "matches": [] }
 		else:
-			ret = c.Query(q)
+			ret = c.Query(q, "doc_text")
 			
 		pages = []
 		
