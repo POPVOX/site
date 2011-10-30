@@ -77,20 +77,55 @@ function clear_default_fields(form) {
 	}
 }
 
-// This provides a delayed keyup event that fires once
-// even if there are multiple keyup events between the
-// first and the time the event handler is called.
+// This provides a delayed keyup event that fires once shortly after
+// a sequence of one or more quickly entered keystrokes. The delay
+// time is optimized to guess when the user is done typing.
+var jQuery_fn_keyup_delayed_callback_wrapper;
 jQuery.fn.keyup_delayed = function(callback, delay) {
   if (!delay) delay = 450;
   return this.each(function(){
-	var last_press = null;
+	var hit_n = 0;
+	var hit_times = [];
 	var n = jQuery(this);
 	n.textchange(function() {
-		last_press = (new Date()).getTime();
-		n.delay(delay);
-		n.queue(function(next) { if (last_press != null && ((new Date()).getTime() - last_press > delay*.75)) { callback.call(n[0]); last_press = null; } next(); } );
+		// Optimize the delay according to the rate of keystrokes
+		// actually being entered. Don't let it be longer than the
+		// default.
+		
+		// Track the times of the last 10 key presses.
+		if (hit_times.length > 10) hit_times.shift();
+		hit_times.push(new Date().getTime());
+		
+		// Compute the consecutive differences. Seed the array with
+		// the default delay so that it always has some value.
+		var hit_delays = [delay];
+		for (var i = 0; i < hit_times.length-1; i++)
+			hit_delays.push(hit_times[i+1] - hit_times[i])
+		
+		// Find the median value. (For odd-length array, just round down.)
+		hit_delays.sort(function (a,b) { return a - b; });
+		var median_delay = hit_delays[Math.floor(hit_delays.length/2)];
+		
+		// Schedule it a little after the predicted next keystroke.
+		median_delay *= 2;
+		
+		// Set a delay on the next queued function. Use the median key
+		// press delay if it is shorter than the default delay, othewise
+		// use the default delay.
+		var actual_delay = median_delay < delay ? median_delay : delay;
+		
+		// Track a sequence number for each key press. Only execute the
+		// queued callback if no further keypresses have been made.
+		jQuery_fn_keyup_delayed_callback_wrapper = function(my_hit) { if (hit_n == my_hit) callback.call(n[0]); };
 			// callback is called with .call(n[0]) to set 'this' back to the original this, rather than the window
 			// element, which seems to be what is set on any delayed callback?
+			
+		// We can't use jQuery's delay/queue mechanism if we only execute
+		// the callback when no keypresses were made after the callback
+		// was queued because successive delays accumulate, and we want
+		// to execute the callback a fixed time from now.
+		hit_n++;
+		window.setTimeout("jQuery_fn_keyup_delayed_callback_wrapper(" + hit_n + ")", actual_delay)
 	});
   });
 }
