@@ -9,7 +9,7 @@ function bill_chart(container, pro_pct, con_pct, opts) {
 		tooltip: {
 			enabled: false, //opts && opts.small,
 			formatter: function() {
-				return this.point.name + "<br>" + this.y + "%"
+				return this.point.name + "<br>" + this.y + "%";
 			}
 		},
 		credits: { enabled: false },
@@ -19,13 +19,14 @@ function bill_chart(container, pro_pct, con_pct, opts) {
 				//enableMouseTracking: false,
 				stickyTracking: false,
 				dataLabels: {
-					enabled: false,
+					enabled: (opts && opts.labels ? true : false),
+					distance: -30,
 					formatter: function() {
-						return "";
+						return this.point.name + "<br>" + this.y + "%";
 					},
 					color: 'white',
 					style: {
-						font: '13px Trebuchet MS, Verdana, sans-serif'
+						font: 'bold 14px Verdana, sans-serif'
 					}
 				}
 			}
