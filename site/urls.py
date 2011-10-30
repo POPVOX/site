@@ -62,6 +62,7 @@ urlpatterns = patterns('',
 	
 	(r'^bills/search$', "popvox.views.bills.billsearch"),
 	(r'^ajax/bills/search$', "popvox.views.bills.billsearch_ajax"),
+	(r'^ajax/bills/recommend_from_text$', "popvox.views.home.recommend_from_text"),
 	
 	(r'^ajax/issues/chooser_list$', "popvox.views.bills.issuearea_chooser_list"),
 	

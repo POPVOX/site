@@ -1067,3 +1067,119 @@ def delete_account_confirmed(request):
         return render_to_response('popvox/delete_account_confirmed.html', {},
         
     context_instance=RequestContext(request))
+    
+@json_response	
+def recommend_from_text(request):
+	q = request.GET.get("q", "").strip()
+	if q == "": return { "autocomplete": None, "bills": [] }
+	
+	q = re.sub(r"\s+", " ", q)
+	
+	# Recommend bills based on a short English phrase like "I lost my job."
+	
+	from sphinxapi import SphinxClient, SPH_MATCH_PHRASE, SPH_MATCH_ANY
+	from django.template.defaultfilters import truncatewords, escape
+
+	c = SphinxClient()
+	c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
+	c.SetFilter("congressnumber", [popvox.govtrack.CURRENT_CONGRESS])
+	
+	def fetch_dict(model, ids, only=[]):
+		objs = model.objects.filter(id__in=ids)
+		if only:
+			objs = objs.only(*only)
+		if model == Bill: # count up total comments
+			objs = objs.annotate(comment_count=Count('usercomments'))
+		return dict((obj.id, obj) for obj in objs)
+	
+	def pull_bills(bill_list):
+		# bulk transform the bill ids into url and title, prune bills
+		# that are not alive for commenting, and sort by total comments
+		# left on the bill.
+		bills = fetch_dict(Bill, [b["bill"] for b in bill_list])
+		for b in bill_list:
+			if b["bill"] in bills:
+				bill = bills[b["bill"]]
+				if bill.isAlive() or True:
+					b["url"] = bill.url()
+					b["name"] = bill.nicename
+					b["comment_count"] = bill.comment_count
+					continue
+			b["bill"] = None
+		bills = [b for b in bill_list if b["bill"] != None]
+		bills.sort(key = lambda x : (-x["sort_group"], x["hit_count"], x["comment_count"]), reverse=True)
+		return bills
+	
+	autocomplete = None
+	prompts = []
+	bills = { }
+
+	# First try to match exact strings against the index of user comments.
+	# Use the string match to fill an autocomplete.
+	
+	for sort_group, match_mode in [(0, SPH_MATCH_PHRASE), (1, SPH_MATCH_ANY)]:
+		c.SetMatchMode(match_mode) # exact phrase
+		ret = c.Query(q, "comments")
+		if ret == None:
+			return { "error": c.GetLastError() }
+		
+		# batch retrieve matching comments
+		comments = fetch_dict(UserComment, [match["id"] for match in ret["matches"]])
+		users = fetch_dict(User, [comment.user_id for comment in comments.values()])
+		
+		for match in ret["matches"]:
+			if match["id"] not in comments: continue
+			comment = comments[match["id"]]
+			if comment.status not in (UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED): continue
+			
+			message = re.sub(r"\s+", " ", comment.message.lower())
+			if not autocomplete and q in message:
+				i = message.lower().index(q.lower())
+				autocomplete = truncatewords(message[i:], 5).replace(" ...", "")
+			
+			if match["attrs"]["bill_id"] not in bills:
+				# generate context
+				text = re.sub(r"\s+", " ", message) # clean up whitespace
+				text = escape(text) # turn into HTML before <b></b> is added by context generator, hopefully won't get in the way
+				context = " ".join(c.BuildExcerpts([text], "comments", q, { "before_match": "<b>", "after_match": "</b>", "exact_phrase": True, "single_passage": True})).decode("utf8")
+				context = re.sub(r"^\s*\.\.\.\s*|\s*\.\.\.\s*$", "", context) # clean up whitespace
+				if comment.user_id in users:
+					context = escape(users[comment.user_id].username + " wrote: ") + context
+				
+				entry = {"bill": match["attrs"]["bill_id"], "context": context, "sort_group": sort_group, "hit_count": 0}
+				bills[match["attrs"]["bill_id"]] = entry
+				prompts.append(entry)
+				if len(bills) == 10:
+					break
+			else:
+				bills[match["attrs"]["bill_id"]]["hit_count"] += 1
+				
+		if len(bills) > 10:
+			return { "autocomplete": autocomplete, "bills": pull_bills(prompts) }
+		
+	# Add additional bills by searching bill text.
+	
+	c.SetMatchMode(SPH_MATCH_ANY) # any words
+	c.SetFilter("doctype", [100]) # clear this in any future searches....
+	ret = c.Query(q, "doc_text")
+	if ret == None:
+		return { "error": c.GetLastError() }
+
+	# batch retrieve matching documents
+	docs = fetch_dict(PositionDocument, [match["attrs"]["document_id"] for match in ret["matches"]], only=["bill"])
+
+	for match in ret["matches"]:
+		if match["attrs"]["document_id"] not in docs: continue
+		doc = docs[match["attrs"]["document_id"]]
+		bill_id = doc.bill_id
+		if bill_id not in bills:
+			entry = {"bill": bill_id, "sort_group": 2, "hit_count": 0}
+			prompts.append(entry)
+			bills[bill_id] = entry
+		else:
+			bills[bill_id]["hit_count"] += 1
+		if len(bills) == 10:
+			break
+	
+	return { "autocomplete": autocomplete, "bills": pull_bills(prompts) }
+	

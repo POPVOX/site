@@ -1,0 +1,36 @@
+
+<input id="prompt" type="text"/> <div id="autocomplete"> </div> <div id="suggestions"> </div>
+<script>
+var seq = 0;
+$('#prompt').input_default("I lost my job");
+$('#prompt').keyup_delayed(function() {
+	seq++;
+	$('#autocomplete').text(seq);
+	var seq_at_start = seq;
+	$.ajax({
+		url: "/ajax/bills/recommend_from_text",
+		data: { q: this.value },
+		dataType: "json",
+		success: function(data) {
+			if (seq != seq_at_start) return;
+			$('#autocomplete').text(data.autocomplete);
+			$('#suggestions').text("");
+			for (var i = 0; i < data.bills.length; i++) {
+				var divnode = $("<div class='suggestion'/>");
+				var anode = $("<a/>");
+				anode.attr("href", data.bills[i].url);
+				anode.text(data.bills[i].name);
+				divnode.append(anode);
+				if (data.bills[i].context) {
+					var cnode = $("<div class='context'/>");
+					cnode.html(data.bills[i].context);
+					divnode.append(cnode);
+				}
+				$('#suggestions').append(divnode);
+			}
+		}
+	});
+});
+</script>
+
+
