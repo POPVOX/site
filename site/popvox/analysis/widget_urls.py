@@ -19,18 +19,26 @@ hits = { }
 for fn in ('/home/www/logs/access.log.1', '/home/www/logs/access.log'):
 	for line in open(fn):
 		lp = p.parse(line)
+
+		referrer = lp['%{Referer}i']
+		if referrer == "https://www.popvox.com/services/widgets": continue
+		referrer = referrer.replace("http://www.", "").replace("https://www.", "").replace("http://", "").replace("https://", "") # normalize a little
+
 		path = lp['%r']
 		
 		m = widget_paths.match(path)
 		if not m: continue
 
-		referrer = lp['%{Referer}i']
 		date = datetime.datetime.strptime( apachelog.parse_date(lp["%t"])[0], "%Y%m%d%H%M%S" )
 
 		api_key = m.group(1)
 		widget = m.group(2)
 		
-		acct = ServiceAccount.objects.get(api_key=api_key)
+		try:
+			acct = ServiceAccount.objects.get(api_key=api_key)
+		except ServiceAccount.DoesNotExist:
+			print "invalid api key", api_key
+			continue
 		
 		key = (acct, widget)
 		if not key in hits: hits[key] = { "account": acct, "widget": widget, "count": 0, "start_date": date, "urls": { } }
