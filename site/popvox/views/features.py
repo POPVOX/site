@@ -137,7 +137,7 @@ supercommittee_bill_list = [
 		"description": "Establishes the sense of Congress that Congress should enact, and the President should sign, bipartisan legislation to strengthen public safety and to enhance wireless communications.",
 		"savings": 6,
 		"category_name": "Wireless Spectrum",
-		"category_icon": "i_spectrum",
+		"category_icon": "i_wireless",
 		"source": "Energy & Commerce Committee Minority, the President's proposal, and the Republican Budget",
 		"source_url": "https://www.popvox.com/bills/us/112/s911",
 	},
