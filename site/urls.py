@@ -11,7 +11,7 @@ import settings
 import popvox.views.api
 
 urlpatterns = patterns('',
-	#(r'', 'popvox.views.main.sitedown'),
+	(r'site-down', 'popvox.views.main.sitedown'),
 	
 	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|legal|advertising|faq|blog_template)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	(r'^press$', 'popvox.views.main.press_page'),
