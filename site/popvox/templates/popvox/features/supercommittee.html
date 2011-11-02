@@ -376,7 +376,6 @@
 			}
 			.proposal.body .sentiment {
 				padding: 0;
-				position: relative;
 				z-index: 1;
 				}
 			
@@ -394,16 +393,12 @@
 					
 		.proposal .sentiment .tooltip_sent {
 			display: none;
-			}
-			
-		.proposal .sentiment:hover .tooltip_sent {
-			display: block;
 			background: url("/media/features/supercommittee/bg_tooltip_sentiment.png") left center;
 			width: 163px;
 			height: 69px;
 			position: absolute;
-			top: -7px;
-			left: -10px;
+			margin-top: -40px;
+			margin-left: -10px;
 			z-index: 100;
 			}
 			
@@ -660,6 +655,15 @@ $(function() {
 		last_pro = null;
 	});
 	
+	$('.proposal .sentiment').hover(
+		function() {
+			var n = $(this).find('.tooltip_sent');
+			n.css({ "left": $(this).position().left });
+			n.css({ "top": $(this).position().top });
+			n.show();
+		},
+		function() { $(this).find('.tooltip_sent').hide() });
+	
 	function show_map(bill_id, bill_title, bill_url) {
 		$('#map_colorbox h1').text(bill_title);
 		$('#map_colorbox .b_view_report').attr('href', bill_url + "/report");
@@ -867,7 +871,7 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 			<div class="cell score">${{proposal.savings}} <span>B</span></div>
 			<div class="cell sentiment">
 				{% if proposal.sentiment %}
-<!-- -->			<div class="tooltip_sent"><p><span class="heart">90%</span><span class="anti">10%</span></p><p class="total">418 total users</p></div> 
+					<div class="tooltip_sent"><p><span class="heart">{{proposal.sentiment.pro_pct}}%</span><span class="anti">{{proposal.sentiment.con_pct}}%</span></p><p class="total">{{proposal.sentiment.total}} total users</p></div> 
 					<div class="bar_pro" style="width: {{proposal.sentiment.scaled_pro}}px"> </div><div class="bar_con" style="width: {{proposal.sentiment.scaled_con}}px"> </div>
 					<div class="maplink">map</div>
 				{% else %}
