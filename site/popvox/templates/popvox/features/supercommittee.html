@@ -376,6 +376,8 @@
 			}
 			.proposal.body .sentiment {
 				padding: 0;
+				position: relative;
+				z-index: 1;
 				}
 			
 			.proposal .sentiment span.nodata a {
@@ -390,6 +392,44 @@
 					color: #404045;
 					}
 					
+		.proposal .sentiment .tooltip_sent {
+			display: none;
+			}
+			
+		.proposal .sentiment:hover .tooltip_sent {
+			display: block;
+			background: url("/media/features/supercommittee/bg_tooltip_sentiment.png") left center;
+			width: 163px;
+			height: 69px;
+			position: absolute;
+			top: -7px;
+			left: -10px;
+			z-index: 100;
+			}
+			
+			.tooltip_sent p {
+				display: block;
+				color: #fff;
+				height: 13px;
+				font-size: 12px;
+				}
+				
+				.tooltip_sent p span.heart {
+					float: left;
+					margin: 13px 0 0 35px;
+					}
+
+				.tooltip_sent p span.anti {
+					float: right;
+					margin: 13px 33px 0 0;
+					}
+					
+				.tooltip_sent p.total {
+					text-align: center;
+					text-transform: uppercase;
+					}
+
+
 		.bar_pro {
 			display: block;
 			float: left;
@@ -405,6 +445,7 @@
 			height: 44px;
 			margin: 2px 5px 0 0;
 			}
+			
 			
 		.proposal .sentiment .maplink {
 			background: url(/media/features/supercommittee/i_map.png) 5px 15px no-repeat;
@@ -826,6 +867,7 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 			<div class="cell score">${{proposal.savings}} <span>B</span></div>
 			<div class="cell sentiment">
 				{% if proposal.sentiment %}
+<!-- -->			<div class="tooltip_sent"><p><span class="heart">90%</span><span class="anti">10%</span></p><p class="total">418 total users</p></div> 
 					<div class="bar_pro" style="width: {{proposal.sentiment.scaled_pro}}px"> </div><div class="bar_con" style="width: {{proposal.sentiment.scaled_con}}px"> </div>
 					<div class="maplink">map</div>
 				{% else %}
