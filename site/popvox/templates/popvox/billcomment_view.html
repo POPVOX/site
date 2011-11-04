@@ -32,6 +32,25 @@ ul.social_share_btns {
             border: none;
             margin-bottom: 20px;
             }
+            
+.message_preview p.signature {
+	padding-left: 240px;
+}
+.private {
+	font-size: 13px;
+	line-height: 110%;
+	color: #666;
+}
+#screenname {
+	color: #404045;
+	border: none;
+	padding-right: 15px;
+	background: url(/media/master/b_pencil_sm.png) right top no-repeat;
+	border-image: initial;
+}
+	#screenname:hover {
+		color: #CC6A11;
+	}
 </style>
 
 {% bill_statistics bill as stats %}
@@ -111,7 +130,7 @@ ul.social_share_btns {
 				</ul>
 				
 				<p style="text-align: right;">{{comment.updated|date2}}</p>
-			
+
 				{% if comment.message %}
 				<p style="padding-top: 20px"><span style="border-bottom: 1px solid black"><strong>{{comment.verb_imp|capfirst}}</strong> {{bill.title}}</span></p>
 				{% endif %}
@@ -129,7 +148,18 @@ ul.social_share_btns {
 				{% endif %}
 	
 				<p class="signature">
-					<span class="name">{{comment.user.username}}</span> <br>
+					{% if user == comment.user %}
+						<span class="private">Signature seen by Members of Congress:</span> <br>
+						<span class="name">{{comment.address.name_string}}</span> <br>
+						<span class="citystatezip">{{comment.address.address1}}</span> <br>
+						{% if comment.address.address2 %}<span class='citystatezip'>{{comment.address.address2}}</span> <br>{% endif %}
+						<span class="citystatezip">{{comment.address.city}}, {{comment.address.state}} {{comment.address.zipcode|slice:"0:5"}}</span> <br><br>
+						<span class="private">Signature seen by other POPVOX users:</span> <br>
+						
+						<span class="name"><a href="/accounts/profile" id="screenname">{{comment.user.username}}</a></span> <br>
+					{% else %}
+						<span class="name">{{comment.user.username}}</span> <br>
+					{% endif %}
 					<span class="citystatezip">{{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}</span>
 				</p>
 				
