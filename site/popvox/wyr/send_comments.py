@@ -198,10 +198,6 @@ def process_comment(comment, thread_id):
 			print thread_id, "Normalize Address", comment.address.id
 			comment.address.normalize()
 			msg.county = comment.address.county
-		if gid in (400616,400055,412469,412249):
-			msg.phone = "".join([d for d in msg.phone if d.isdigit()][0:10])
-			if gid == 412249 and msg.phone != "":
-				msg.phone = ("%s-%s-%s" % (msg.phone[0:3], msg.phone[3:6], msg.phone[6:10]))
 		if msg.address2.lower() == msg.city.lower():
 			msg.address2 = ""
 		

@@ -20,5 +20,5 @@ class Command(BaseCommand):
 			records = records.filter(user__email=options["user"]) | records.filter(user__username=options["user"])
 		
 		for hit in reversed(records):
-			print hit.id, hit.user, hit.time, hit.response_code, hit.path
+			print hit.id, hit.ipaddr, hit.user, hit.time, hit.response_code, hit.path
 
