@@ -36,7 +36,8 @@ urlpatterns = patterns('',
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),
 	(r'^waiting-for-reintroduction$', 'popvox.views.home.waiting_for_reintroduction'),
 	(r'^delivery-status-report$', 'popvox.views.home.delivery_status_report'),
-	(r'^metrics$', 'popvox.views.main.metrics'),
+	(r'^metrics$', 'popvox.views.metrics.metrics_by_period'),
+	(r'^reports/(\w+)$', 'popvox.views.metrics.metrics_report_spreadsheet'),
 	
 	(r'^calendar$', 'popvox.views.home.calendar'),
 	
