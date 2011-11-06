@@ -228,10 +228,12 @@ def create_tex(tex, serial):
 	outfile_.close()
 	
 if len(sys.argv) == 2 and sys.argv[1] == "resetbatchnumbers":
-	#UserCommentOfflineDeliveryRecord.objects.all().delete()
 	UserCommentOfflineDeliveryRecord.objects.all().update(batch=None)
 elif len(sys.argv) == 3 and sys.argv[1] == "kill":
-	UserCommentOfflineDeliveryRecord.objects.filter(batch = sys.argv[2]).delete()
+	if sys.argv[2] == "all":
+		UserCommentOfflineDeliveryRecord.objects.all().delete()
+	else:
+		UserCommentOfflineDeliveryRecord.objects.filter(batch = sys.argv[2]).delete()
 elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 	recs = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False)
 	if sys.argv[2] != "all":

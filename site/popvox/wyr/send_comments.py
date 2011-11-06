@@ -83,7 +83,7 @@ def process_comment(comment, thread_id):
 
 	# since we don't deliver message-less comments, when we activate an endpoint we
 	# end up sending the backlog of those comments. don't bother.
-	if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=21):
+	if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=31):
 		return
 	
 	# Who are we delivering to? Anyone?
@@ -252,7 +252,7 @@ def process_comment(comment, thread_id):
 		# take a look) then skip electronic delivery till we can resolve it.
 		if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE:
 			needs_attention += 1
-			mark_for_offline("unexp-response")
+			mark_for_offline("UE")
 			continue
 			
 		# If the delivery resulted in a FAILURE_DISTRICT_DISAGREEMENT/ADDRESS_REJECTED then don't retry
@@ -263,7 +263,7 @@ def process_comment(comment, thread_id):
 		   and "ADDR" not in os.environ \
 		   and False: #and datetime.datetime.now() - last_delivery_attempt.created < datetime.timedelta(days=7):
 			needs_attention += 1
-			mark_for_offline("district-disagr")
+			mark_for_offline("DD")
 			continue
 	
 		# if the name has no prefix, or if we know we need a phone number but don't have one,
@@ -338,11 +338,11 @@ def process_comments_group(thread_index, thread_count):
 	#
 	# thread_index should be in range 0 <= thread_index < thread_count so that
 	# the modulus operator works right. the modulus is applied to the commenting
-	# user's ID since a single user targets the same endpoints so they should be
-	# kept to a single thread.
+	# user's state so that each endpoint is confined to a particular thread so that
+	# endpoint delays are properly executed in a serial fashion.
 	
 	for comment in comments_iter\
-		.extra(where=["auth_user.id MOD %d = %d" % (thread_count, thread_index)])\
+		.extra(where=["(ORD(MID(state,1,1))+ORD(MID(state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
 		.order_by('created')\
 		.select_related("bill", "user")\
 		.iterator():

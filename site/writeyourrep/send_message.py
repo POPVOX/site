@@ -369,7 +369,7 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
 	"org",
 	"h03", "H03",
-	"name-title",
+	"name-title", 'military',
 	"organization",
 	"unsubscribe",
 	"email.optin",
@@ -963,6 +963,16 @@ def send_message_webform(di, msg, deliveryrec):
 	ret = urlopen(formaction, postdata, formmethod, deliveryrec)
 	ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
+	# if the response is the same form again, modulo changes to
+	# VIEWSTATE and EVENTVALIDATION fields, then obviously it
+	# failed because there will be no success message.
+	compare = [webform, ret]
+	for i in xrange(len(compare)):
+		compare[i] = re.sub('id="__(VIEWSTATE|EVENTVALIDATION)" value=".*?"', "", compare[i]).strip()
+	if compare[0] == compare[1]:
+		deliveryrec.trace += u"\n" + ret.decode('utf8', 'replace') + u"\n\n"
+		raise WebformParseException("Page did not change after form submission.")
+	
 	if di.id != 361: # text is always present in form
 		test_zipcode_rejected(ret, deliveryrec)
 
@@ -1202,7 +1212,7 @@ def send_message(msg, moc, previous_attempt, loginfo):
 			msg.phone = ("(%s)%s-%s" % (msg.phone[0:3], msg.phone[3:6], msg.phone[6:10]))
 	if govtrackrecipientid == 400295:
 		# for Rep. Norton, the street address is split
-		m = re.match(r"(\d+)\s+(.+?)\s+(N\.?E\.?|N\.?W\.?|S\.?E\.?|S\.?W\.?)\s*(.*)", msg.address1, re.I)
+		m = re.match(r"(\d+[a-zA-Z]?)\s+(.+?)\s+(N\.?E\.?|N\.?W\.?|S\.?E\.?|S\.?W\.?)\s*(.*)", msg.address1, re.I)
 		if m:
 			msg.address_split_number = m.group(1)
 			msg.address_split_street = m.group(2)
