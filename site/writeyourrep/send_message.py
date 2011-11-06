@@ -1202,14 +1202,15 @@ def send_message(msg, moc, previous_attempt, loginfo):
 			msg.phone = ("(%s)%s-%s" % (msg.phone[0:3], msg.phone[3:6], msg.phone[6:10]))
 	if govtrackrecipientid == 400295:
 		# for Rep. Norton, the street address is split
-		m = re.match(r"(\d+)\s+(.+?)\s+(NE|NW|SE|SW)\s*(.*)", msg.address1, re.I)
+		m = re.match(r"(\d+)\s+(.+?)\s+(N\.?E\.?|N\.?W\.?|S\.?E\.?|S\.?W\.?)\s*(.*)", msg.address1, re.I)
 		if m:
 			msg.address_split_number = m.group(1)
 			msg.address_split_street = m.group(2)
-			msg.address_split_quadrant = m.group(3)
+			msg.address_split_quadrant = m.group(3).replace(".", "")
 			msg.address_split_suite = m.group(4)
 		else:
 			# can't deliver without those fields
+			print msg.address1
 			return None
 
 	# Begin the delivery attempt.

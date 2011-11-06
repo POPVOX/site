@@ -326,11 +326,9 @@ def process_comment(comment, thread_id):
 			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_ADDRESS_REJECTED:
 				mark_for_offline("AR")
 			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_FORM_PARSE_FAILURE:
-				# don't queue for offline print because these are almost certainly our fault
-				pass
+				mark_for_offline("FP")
 			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_HTTP_ERROR:
-				# don't queue for offline print because these are almost certainly our fault
-				pass
+				mark_for_offline("HTTP")
 			else:
 				mark_for_offline("OTHER")
 
