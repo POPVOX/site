@@ -10,7 +10,7 @@ from django.conf import settings
 from popvox.models import UserComment, Org, OrgContact, UserLegStaffRole
 
 from math import log, exp
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 from scipy import stats
 
@@ -206,6 +206,41 @@ def metrics_report_spreadsheet(request, sheet):
 			"firstname": lambda obj : obj.postaladdress_set.order_by('-created')[0].firstname,
 			"lastname": lambda obj : obj.postaladdress_set.order_by('-created')[0].lastname
 		}
+		
+	elif sheet == "supercommittee":
+		header = ["title"]
+		nweeks = 2
+		for i in range(nweeks):
+			header.extend([str(i) + "_support", str(i) + "_oppose", str(i) + "_total", str(i) + "_sup_pct", str(i) + "_opp_pct"])
+		header.extend(["total" + "_support", "total" + "_oppose", "total" + "_total", "total" + "_sup_pct", "total" + "_opp_pct"])
+		qs = []
+		from features import supercommittee_bill_list
+		for b in supercommittee_bill_list:
+			bill = b["bill"]
+			bill.title = b["title"]
+			
+			for i in range(nweeks):
+				d1 = datetime(2011, 10, 24) + timedelta(days=7*i)
+				d2 = d1 + timedelta(days=7)
+				q = bill.usercomments.filter(created__gte=d1, created__lt=d2)
+				c_a = q.filter(position="+").count()
+				c_b = q.filter(position="-").count()
+				c_c = c_a + c_b
+				setattr(bill, str(i) + "_support", c_a)
+				setattr(bill, str(i) + "_oppose", c_b)
+				setattr(bill, str(i) + "_total", c_c)
+				setattr(bill, str(i) + "_sup_pct", 100 * c_a / c_c if c_c > 0 else "")
+				setattr(bill, str(i) + "_opp_pct", 100 * c_b / c_c if c_c > 0 else "")
+			q = bill.usercomments.filter(created__gte=datetime(2011, 10, 24))
+			c_a = q.filter(position="+").count()
+			c_b = q.filter(position="-").count()
+			c_c = c_a + c_b
+			setattr(bill, "total" + "_support", c_a)
+			setattr(bill, "total" + "_oppose", c_b)
+			setattr(bill, "total" + "_total", c_c)
+			setattr(bill, "total" + "_sup_pct", 100 * c_a / c_c if c_c > 0 else "")
+			setattr(bill, "total" + "_opp_pct", 100 * c_b / c_c if c_c > 0 else "")
+			qs.append(bill)
 
 	else:
 		raise Http404()
