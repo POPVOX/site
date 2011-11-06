@@ -179,7 +179,7 @@ def metrics_by_period(request):
 def metrics_report_spreadsheet(request, sheet):
 	if not settings.DEBUG:
 		response = HttpResponse(mimetype='text/csv')
-		response['Content-Disposition'] = attach + '; filename=' + sheet + "_" + datetime.now().strftime("%Y-%m-%d_%H%M").strip() + '.csv'
+		response['Content-Disposition'] = 'attachment; filename=' + sheet + "_" + datetime.now().strftime("%Y-%m-%d_%H%M").strip() + '.csv'
 	else:
 		response = HttpResponse(mimetype='text/plain')
 	
@@ -192,7 +192,7 @@ def metrics_report_spreadsheet(request, sheet):
 		qs = Org.objects.all()
 		
 	elif sheet == "orgcontacts":
-		header = ['id', 'org__slug', 'org__name', 'org__website', 'name', 'email', 'issues', 'registered']
+		header = ['id', 'org__slug', 'org__name', 'org__website', 'name', 'email', 'org__issues', 'registered']
 		qs = OrgContact.objects.all().order_by('org__slug', 'name')
 		extra_fields = {
 			"registered": lambda obj : "yes" if User.objects.filter(email=obj.email).exists() else "no"
@@ -216,7 +216,7 @@ def metrics_report_spreadsheet(request, sheet):
 			ret = getattr(ret, ff, "")
 		
 		if str(type(ret)) == "<class 'django.db.models.fields.related.ManyRelatedManager'>":
-			ret = ", ".join(r for r in ret.all())
+			ret = ", ".join(unicode(r) for r in ret.all())
 			
 		return ret
 	
