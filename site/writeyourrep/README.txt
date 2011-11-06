@@ -117,8 +117,10 @@ Some environment variable settings can help with debugging:
 	LAST_ERR=... popvox/wyr/send_comments.py send
 	send only messages that had a previous failure
 		LAST_ERR=SR			for synonym required
-		LAST_ERR=TIMEOUT	for HTTP timeout failure
+		LAST_ERR=HTTP			for HTTP failures
+		LAST_ERR=TIMEOUT	for HTTP timeout failures only
 		LAST_ERR=UE			for an unhandled exception failure
+		LAST_ERR=DD			for district disagreement failures
 	
 Field Name Configuration
 ==============

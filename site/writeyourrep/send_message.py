@@ -27,11 +27,17 @@ extra_cookies = { }
 
 def urlopen(url, data, method, deliveryrec):
 	global http_last_url
+	global cookiejar
+	
+	# haven't seen that this is important for any form, but you never know
+	def get_origin(url):
+		p = urlparse.urlparse(http_last_url)
+		return p.scheme + "://" + p.hostname.lower()
 	http.addheaders = [
 		('User-agent', "POPVOX.com Message Delivery <info@popvox.com>"),
 		('Referer', http_last_url),
+		('Origin', "" if http_last_url == "" else get_origin(http_last_url)),
 		]
-	
 	cookiestate = repr([("%s=%s" % (c.name, c.value)) for c in cookiejar])
 
 	if extra_cookies:
@@ -367,7 +373,7 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"organization",
 	"unsubscribe",
 	"email.optin",
-	"enewssign", "enewsletter",
+	"enewssign", "enewsletter", "newsletteraction",
 	"personalcode")
 
 radio_choices = {
@@ -420,7 +426,7 @@ custom_mapping = {
 	"832_phone2_text" : "phone_prefix",
 	"832_phone3_text" : "phone_line",
 	"839_field_310ab902-1d78-4444-849d-077807c25eaf_text" : "address2",
-	"839_field_f4ae3cf6-0ea3-4385-8eb4-501a767776b2_text" : "zip4",
+	"839_field_83770021-924f-4be5-b642-98871ec90dee_text" : "zip5",
 	"839_field_ad57e3b4-5705-489d-be8a-ee887514258c_select": "topicarea",
 	"839_field_88cf096a-902e-4abd-9832-f24dcc3b9ee2_textarea": "message",
 	"842_J01": "subjectline",
@@ -600,6 +606,7 @@ def parse_webform(webformurl, webform, webformid, id):
 					opttext = re.sub("^\W+", "", opttext)
 					opttext = re.sub("\s+$", "", opttext)
 					opttext = re.sub("\s+", " ", opttext)
+					opttext = re.sub(u"\xa0", "", opttext) # ?
 					if opttext == "" or "select" in opttext or "=" in opttext or opttext[0] == "-":
 						continue
 					if "required-" in field.getAttribute("name") and opt.hasAttribute("value") and opt.getAttribute("value").strip() == "":
@@ -838,7 +845,8 @@ def send_message_webform(di, msg, deliveryrec):
 			
 		webform = urlopen(webformurl, postdata, formmethod, deliveryrec).read()
 		
-		test_zipcode_rejected(webform, deliveryrec)
+		if di.id != 361: # text is always present in form
+			test_zipcode_rejected(webform, deliveryrec)
 		
 	if len(webform_stages) > 0 and webform_stages[0] == "add-district-zip-cookie":
 		webform_stages.pop(0)
@@ -854,12 +862,11 @@ def send_message_webform(di, msg, deliveryrec):
 	# Make sure that we've found the equivalent of all of the fields
 	# that the form should be accepting.
 	for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined", "address_split_street"), ("address2", "address_combined", "address_split_street"), ("city", "address_split_quadrant"), ("zipcode", "zip5"), "message"):
+		if field == "email" and di.id == 839: #form doesn't actually collect email address
+			continue
 		if type(field) == str:
 			field = [field]
 		for f in field:
-			#if f == "email":
-				#if di.id == 839: #form doesn't collect email address
-					#continue
 			if f in field_map.values():
 				break
 		else:
@@ -939,7 +946,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 37, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 280, 341, 386, 426, 570, 585, 588, 598, 599, 600, 604, 605, 607, 608, 611, 613, 639, 641, 646, 665, 678, 693, 703, 706, 709, 710, 713, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 784, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
+	if di.id in (13, 37, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 280, 324, 341, 386, 426, 570, 577, 585, 588, 598, 599, 600, 604, 605, 607, 608, 611, 613, 639, 641, 646, 665, 678, 693, 703, 706, 709, 710, 713, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 784, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -956,7 +963,8 @@ def send_message_webform(di, msg, deliveryrec):
 	ret = urlopen(formaction, postdata, formmethod, deliveryrec)
 	ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
-	test_zipcode_rejected(ret, deliveryrec)
+	if di.id != 361: # text is always present in form
+		test_zipcode_rejected(ret, deliveryrec)
 
 	# If this form has a final stage where the user is supposed to verify
 	# what he entered, then re-submit the verification form presented to
@@ -984,10 +992,10 @@ def send_message_webform(di, msg, deliveryrec):
 		ret = urlopen(formaction, postdata, formmethod, deliveryrec)
 		ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
 	
+		test_zipcode_rejected(ret, deliveryrec)
+	
 	if ret_code == 404:
 		raise IOError("Form POST resulted in a 404.")
-	
-	test_zipcode_rejected(ret, deliveryrec)
 	
 	if type(ret) == str:
 		ret = ret.decode('utf8', 'replace')
@@ -1001,6 +1009,9 @@ def send_message_webform(di, msg, deliveryrec):
 	
 	if "&success=true" in ret_url:
 		return
+		
+	if ret.strip() in ("", "<BR>"):
+		raise IOError("Response is empty or essentially empty.")
 		
 	re_red_error = re.compile('<span id=".*_(.*Error)"><font color="Red">(.*?)</font></span>')
 	m = re_red_error.search(ret)

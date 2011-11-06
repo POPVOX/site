@@ -67,7 +67,7 @@ class DeliveryRecord(models.Model):
 	success = models.BooleanField()
 	failure_reason = models.IntegerField(choices=[(FAILURE_NO_FAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response"), (FAILURE_NO_DELIVERY_METHOD, "No Delivery Method Available"), (FAILURE_DISTRICT_DISAGREEMENT, "District Disagreement"), (FAILURE_ADDRESS_REJECTED, "Address Rejected")])
 	method = models.IntegerField(choices=Endpoint.METHOD_CHOICES)
-	next_attempt = models.OneToOneField("DeliveryRecord", blank=True, null=True, related_name="previous_attempt", on_delete=models.PROTECT)
+	next_attempt = models.OneToOneField("DeliveryRecord", blank=True, null=True, db_index=True, related_name="previous_attempt", on_delete=models.CASCADE)
 	created = models.DateTimeField(auto_now_add=True)
 	
 	class Meta:

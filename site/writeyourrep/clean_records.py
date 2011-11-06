@@ -8,7 +8,7 @@ from writeyourrep.models import DeliveryRecord
 # For privacy and space reasons, clear out old delivery records.
 
 def delete(descr, **filters):
-	objs = DeliveryRecord.objects.filter(**filters)
+	objs = DeliveryRecord.objects.filter(**filters)#.exclude(previous_attempt__id__isnull=False)
 	if objs.count() == 0:
 		return
 	def fmt(v):

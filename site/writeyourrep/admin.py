@@ -12,7 +12,7 @@ class EndpointAdmin(admin.ModelAdmin):
 class DeliveryRecordAdmin(admin.ModelAdmin):
 	raw_id_fields = ("target", "next_attempt")
 	readonly_fields = ("created", "next_attempt", "method") #, "trace") #, "success", "failure_reason")
-	date_hierarchy = "created"
+	#date_hierarchy = "created"
 	list_display = ("created", "target", "success", "failure_reason", "method")
 	list_filter = ("success", "failure_reason", "created", "method")
 	search_fields = ('trace',)
@@ -20,7 +20,7 @@ class DeliveryRecordAdmin(admin.ModelAdmin):
 
 	def queryset(self, request):
 		qs = super(DeliveryRecordAdmin, self).queryset(request)
-		return qs.filter(next_attempt__isnull=True).exclude(target__method=Endpoint.METHOD_NONE)
+		return qs.filter(next_attempt__isnull=True)#.exclude(target__method=Endpoint.METHOD_NONE)
 
 	def make_success(self, request, queryset):
 		queryset.update(success=True, failure_reason=DeliveryRecord.FAILURE_NO_FAILURE)

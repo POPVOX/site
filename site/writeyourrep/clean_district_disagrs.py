@@ -24,7 +24,7 @@ for d in DeliveryRecord.objects.filter(next_attempt__isnull=True, failure_reason
 		if sd:
 			new_state, new_dist = sd
 			if new_state != addr.state or new_dist != addr.congressionaldistrict:			
-				print addr.id, addr.state, addr.congressionaldistrict, addr.zipcode, new_state, new_dist
+				print comment.created, addr.id, addr.state, addr.congressionaldistrict, addr.zipcode, new_state, new_dist
 				if new_state != addr.state:
 					print "\tchanged state!"
 				else:

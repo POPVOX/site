@@ -38,8 +38,12 @@ top_term_model = Bayes()
 excluded_top_terms = (IssueArea.objects.get(name="Private Legislation"), IssueArea.objects.get(name="Native Americans"))
 def get_bill_model_text(bill):
 	return bill.title_no_number() + " " + (bill.description if bill.description else "")
-for bill in Bill.objects.filter(topterm__isnull=False).exclude(topterm__in=excluded_top_terms).iterator():
-	top_term_model.train(bill.topterm_id, get_bill_model_text(bill))
+if os.path.exists("writeyourrep/crs-training-model"):
+	top_term_model.load("writeyourrep/crs-training-model")
+else:
+	for bill in Bill.objects.filter(topterm__isnull=False).exclude(topterm__in=excluded_top_terms).iterator():
+		top_term_model.train(bill.topterm_id, get_bill_model_text(bill))
+	top_term_model.save("writeyourrep/crs-training-model")
 
 # it would be nice if we could skip comment records that we know we
 # don't need to send but what are those conditions, given that there
@@ -65,8 +69,12 @@ if "LAST_ERR" in os.environ:
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE)
 	if os.environ["LAST_ERR"] == "TIMEOUT":
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR, delivery_attempts__trace__contains="timed out")
+	if os.environ["LAST_ERR"] == "HTTP":
+		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR)
 	if os.environ["LAST_ERR"] == "UE":
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_UNHANDLED_EXCEPTION)
+	if os.environ["LAST_ERR"] == "DD":
+		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT)
 if "RECENT" in os.environ:
 	comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=7))
 	
@@ -267,7 +275,7 @@ def process_comment(comment, thread_id):
 			continue
 
 		# If we know we have no delivery method for this target, fail fast.
-		if endpoint != None and endpoint.method == Endpoint.METHOD_NONE and endpoint.tested == True:
+		if endpoint != None and endpoint.method == Endpoint.METHOD_NONE:
 			failure += 1
 			mark_for_offline("bad-webform")
 			continue
@@ -311,14 +319,20 @@ def process_comment(comment, thread_id):
 		else:
 			failure += 1
 			if delivery_record.failure_reason == DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE:
-				mark_for_offline("unexp-response")
+				mark_for_offline("UR")
 				#sys.stdin.readline()
 			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT:
-				mark_for_offline("district-disagr")
+				mark_for_offline("DD")
 			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_ADDRESS_REJECTED:
-				mark_for_offline("address-rejected")
+				mark_for_offline("AR")
+			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_FORM_PARSE_FAILURE:
+				# don't queue for offline print because these are almost certainly our fault
+				pass
+			elif delivery_record.failure_reason == DeliveryRecord.FAILURE_HTTP_ERROR:
+				# don't queue for offline print because these are almost certainly our fault
+				pass
 			else:
-				mark_for_offline("failure-other")
+				mark_for_offline("OTHER")
 
 def process_comments_group(thread_index, thread_count):
 	# divide work among the threads by taking only comments by users whose id
