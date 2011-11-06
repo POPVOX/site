@@ -201,6 +201,89 @@ supercommittee_bill_list = [
 		"source": "Bowles-Simpson recommendations",
 		"source_url": "http://www.momentoftruthproject.org/sites/default/files/MeasuringUp5_11_2011.pdf",
 	},
+	
+	{
+		"bill": Bill.objects.get(id=20063), # Reinstate Superfund Tax
+		"savings": 18,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": u"President\u2019s proposal",
+		"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2012/assets/jointcommitteereport.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=20064), # Make .02% unemployment tax permanent
+		"savings": 15,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": u"President\u2019s proposal",
+		"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2012/assets/jointcommitteereport.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=20065), # Tort Reform
+		"savings": 62,
+		"category_name": "Health",
+		"category_icon": "i_health",
+		"source": "House Republicans Road Map Plan",
+		"source_url": "http://www.roadmap.republicans.budget.house.gov/Plan/#Healthsecurity",
+	},
+	{
+		"bill": Bill.objects.get(id=20066), # Raising Medicare cost-sharing
+		"savings": 70,
+		"category_name": "Health",
+		"category_icon": "i_health",
+		"source": "Lieberman-Coburn Health Proposal",
+		"source_url": "http://lieberman.senate.gov/index.cfm/issues-legislation/health-and-social-policy/saving-medicare-the-liebermancoburn-plan",
+	},
+	{
+		"bill": Bill.objects.get(id=20067), # Reducing Post-Acute care payments
+		"savings": 42,
+		"category_name": "Health",
+		"category_icon": "i_health",
+		"source": u"President\u2019s proposal",
+		"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2012/assets/jointcommitteereport.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=20068), # Raise Medicare eligibility age
+		"savings": 124,
+		"category_name": "Health",
+		"category_icon": "i_health",
+		"source": u"Lieberman-Coburn Health Proposal",
+		"source_url": "http://lieberman.senate.gov/index.cfm/issues-legislation/health-and-social-policy/saving-medicare-the-liebermancoburn-plan",
+	},
+	{
+		"bill": Bill.objects.get(id=20069), # Increasing aviation and security fees 
+		"savings": 25,
+		"category_name": "Aviation",
+		"category_icon": "i_aviation",
+		"source": u"President\u2019s proposal",
+		"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2012/assets/jointcommitteereport.pdf",
+	},
+	{
+		"bill": Bill.objects.get(id=20070), # Withdraw 20,000 troops from Europe 
+		"savings": 30,
+		"category_name": "Defense",
+		"category_icon": "i_defense",
+		"source": "Project on Government Oversight",
+		"source_url": "http://www.pogo.org/pogo-files/reports/national-security/spending-less-spending-smarter-ns-wds-20110721.html#Cancel%20one%20version%20of%20the%20Littoral%20Combat%20Ship%20%28LCS%29",
+	},
+	{
+		"bill": Bill.objects.get(id=15771), # Disposal of Excess Federal Lands Act
+		"title": "Dispose of Excess Federal Lands",
+		"savings": 1,
+		"category_name": "Government Reform",
+		"category_icon": "i_govreform",
+		"source": "Rep. Chaffetz",
+		"source_url": "http://chaffetz.house.gov/in-the-news/2011/03/chaffetz-introduces-federal-lands-disposal-bill-1.shtml",
+	},
+	{
+		"bill": Bill.objects.get(id=15780), # Fairness in Taxation Act
+		"title": "Fairness in Taxation Act",
+		"savings": 873,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": "Congressional Progressive Caucus",
+		"source_url": "http://cpc.grijalva.house.gov/index.cfm?sectionid=79&sectiontree=5,79",
+	},
 ]
 for bill in supercommittee_bill_list:
 	if not "title" in bill:
