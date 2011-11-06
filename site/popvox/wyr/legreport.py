@@ -72,7 +72,7 @@ def generate_report(recipients, office, report_start_date, report_end_date, down
 		bill["bill"] = Bill.objects.get(id=bill["bill"])
 		bill["relevant"] = False
 		if bill["bill"].isAlive():
-			bill["relevant"] = (bill["bill"].getChamberOfNextVote() == chamber.lower())
+			bill["relevant"] = (bill["bill"].getChamberOfNextVote() in (chamber.lower(), 'c'))
 	bills.sort(key = lambda x : (not x["relevant"], -x["count"]))
 	
 	# Only the top 25 bills, and pull out just the bill part.

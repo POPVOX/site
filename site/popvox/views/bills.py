@@ -499,7 +499,8 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
 		
 	user_position = None
 	mocs = []
-	ch = bill.getChamberOfNextVote() if bill.is_bill() else ""
+	ch = bill.getChamberOfNextVote() if bill.is_bill() else None
+	if not ch: ch = ""
 
 	if request.user.is_authenticated():
 		# Get the user's current position on the bill.

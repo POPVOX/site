@@ -166,7 +166,7 @@ class Bill(models.Model):
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)
-	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House')], blank=True, null=True, help_text="This is required for Generic Proposal-type bill actions to route messages to the right place.")
+	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House',), ('c', 'Congress House+Senate')], blank=True, null=True, help_text="This is required for Generic Proposal-type bill actions to route messages to the right place.")
 
 	srcfilehash = models.CharField(max_length=32, blank=True)
 	
@@ -303,10 +303,10 @@ class Bill(models.Model):
 		return govtrack.billFinalStatus(self, "died") == "died"
 	def getChamberOfNextVote(self):
 		# bill must be alive
-		if self.comments_to_chamber: return self.comments_to_chamber # for x-type bills and to override
-		if self.billtype in ('ha', 'dh'): return 'h'
-		if self.billtype in ('sa', 'ds'): return 's'
-		if self.billtype in ('x', ): raise Exception("comments_to_chamber is not set on x-type bill record")
+		if self.comments_to_chamber and self.comments_to_chamber in ('h', 's'): return self.comments_to_chamber # for x-type bills and to override
+		if self.billtype in ('ha', 'dh'): return 'h' # house drafts, amendments
+		if self.billtype in ('sa', 'ds'): return 's' # senate drafts, amendments
+		if self.billtype in ('x', ): return None # not applicable
 		return govtrack.getChamberOfNextVote(self)
 	def reintroduced_from_all(self):
 		ret = []
@@ -1249,9 +1249,12 @@ class UserComment(models.Model):
 		return self.shares().aggregate(models.Sum("hits"))["hits__sum"]
 
 	def get_recipients(self):
-		ch = self.bill.getChamberOfNextVote()
-		if ch == None:
-			return "The comment will not be delivered because the bill is not pending a vote in Congress."
+		if self.bill.comments_to_chamber:
+			ch = self.bill.comments_to_chamber # s, h, or c to direct message to both chambers of Congress
+		else:
+			ch = self.bill.getChamberOfNextVote()
+			if ch == None:
+				return "The comment will not be delivered because the bill is not pending a vote in Congress."
 			
 		d = self.address.state + str(self.address.congressionaldistrict)
 		
@@ -1264,8 +1267,10 @@ class UserComment(models.Model):
 			if len(govtrackrecipients) == 0:
 				# state has no senators, fall back to representative
 				govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
-		else:
+		elif ch == "h":
 			govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
+		else: # ch == "c", direct messages to all reps
+			govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d)
 			
 		# Remove recipients for whom we've already delivered to another Member in the same
 		# office, because of e.g. a resignation followed by a replacement. This would raise a M2M
