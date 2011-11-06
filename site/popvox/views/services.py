@@ -147,6 +147,7 @@ def widget_render_commentstream(request, account, permissions):
 		#url = SITE_ROOT_URL + "/activity#state=" + request.GET["state"]
 
 	cx = []
+	bx = []
 	
 	if "bills" in request.GET:
 		for b in request.GET["bills"].split(","):
@@ -164,6 +165,7 @@ def widget_render_commentstream(request, account, permissions):
 					cx.append(comments.filter(bill=b))
 				else:
 					cx.append(comments.filter(bill=b, position=position))
+				bx.append(b)
 			except:
 				# invalid bill
 				title1 = "Comments sent to Congress"
@@ -172,8 +174,8 @@ def widget_render_commentstream(request, account, permissions):
 		if len(cx) == 1: # the bills have to be processed first
 			show_bill_number = False
 			title1 = "Comments sent to Congress"
-			title2 = b.title
-			url = SITE_ROOT_URL + b.url()
+			title2 = bx[0].title
+			url = SITE_ROOT_URL + bx[0].url()
 
 	if "issue" in request.GET:
 		ix = IssueArea.objects.get(id=request.GET["issue"])
