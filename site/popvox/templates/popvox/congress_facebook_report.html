@@ -335,10 +335,10 @@ $(function() {
 	update({{user.legstaffrole.member.id}});
 	{% endif %}
 	make_chart('overall_stats_pie', 340,
-		15, 100-15, // post likes
-		62, 100-62, // comments
+		19, 100-19, // post likes
+		56, 100-56, // comments
 		23, 100-23, // wall posts
-		22, 100-22, // unique users
+		24, 100-24, // unique users
 		"%");
 });
 </script>
@@ -491,7 +491,7 @@ border-bottom: solid black 3px;
 		<div class="tab_panel tab_overall">
 		{% endif %}
 		
-		<p class="pad_btm" style="font-size: 17px; line-height: 145%;"">We looked at the 369 Facebook Pages of Members of Congress to see whether the individuals interacting on the page are constituents of the congressman or senator.</p>
+		<p class="pad_btm" style="font-size: 17px; line-height: 145%;">We looked at the 372 Facebook Pages of Members of Congress to see whether the individuals interacting on the page are constituents of the congressman or senator.</p>
 
 		<div id="overall_stats_pie"> </div>
 		<div id="overall_stats_pie_legend" class="pie_legend">
@@ -510,13 +510,13 @@ border-bottom: solid black 3px;
 
 		<div class="clear"> </div>
 		
-		<p style="margin: 20px 0 20px 0; font-size: 17px; line-height: 145%;">While a large majority of users interacting with Congressional Facebook Pages are not constituents, we do find that <strong>most comments on wall posts are from constituents</strong>. On Senate pages, 75% of comments are from constituents.</p>
+		<p style="margin: 20px 0 20px 0; font-size: 17px; line-height: 145%;">While a large majority of users interacting with Congressional Facebook Pages are not constituents, we do find that <strong>most comments on wall posts are from constituents</strong>. On Senate pages, 63% of comments are from constituents.</p>
 		
 		<table id="breakdowns">
 		<tr><th></th><th colspan="4" style="text-align: center">How Many Are From Constituents?</th></tr>
 		<tr class="header"><th></th> <th>Wall Posts</th> <th>Comments</th> <th>Likes on Posts</th> <th>Page Users</th> <th class="shade">Number of Pages</th></tr>
-		<tr><th>Senate Pages</th> <td>46%</td> <td>75%</td> <td>33%</td> <td>40%</td> <td class="shade">61</td></tr>
-		<tr><th>House Pages</th> <td>17%</td> <td>58%</td> <td>12%</td> <td>17%</td> <td class="shade">308</td></tr>
+		<tr><th>Senate Pages</th> <td>38%</td> <td>63%</td> <td>35%</td> <td>40%</td> <td class="shade">62</td></tr>
+		<tr><th>House Pages</th> <td>19%</td> <td>53%</td> <td>16%</td> <td>19%</td> <td class="shade">310</td></tr>
 		</table>
 
 		
@@ -537,7 +537,7 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 		
 		<h2>Methodology</h2>
 		
-		<p>This analysis is based on the subset of users of Congressional Facebook Pages who are also registered on POPVOX and use their Facebook account to log in to POPVOX. We looked at 369 official Congressional Facebook Pages (those with category government official or government organization). Of the 100,936 users interacting recently with those pages, 1.4% or 1,378 were also POPVOX users. The analysis was conducted on August 11, 2011. The margin of error is around 7%.</p>
+		<p>This analysis is based on the subset of users of Congressional Facebook Pages who are also registered on POPVOX and use their Facebook account to log in to POPVOX. We looked at 372 official Congressional Facebook Pages (those with category government official or government organization). Of the 112,706 users interacting recently with those pages, 1.5% or 1,725 were also POPVOX users. The analysis was conducted on October 13, 2011. The margin of error for the statistics above is around 7%.</p>
 
 		<p>Because POPVOX users may have different behaviors than the general population, our results may not be reflective of all Page interactions.</p>
 
@@ -575,7 +575,7 @@ source for understanding constituents’ views and opinions.&rdquo; We hope that
 
 		<h2 class="mar_top clear">Methodology</h2>
 		
-		<p>As of August 11, 2011, about 1.4% of users interacting with your Facebook page are also POPVOX users. We are able to identify those individuals as either within or outside of your state or district based on the mailing address they used to send you a letter through POPVOX.</p>
+		<p>As of October 13, 2011, about 1.5% of users interacting with your Facebook page are also POPVOX users. We are able to identify those individuals as either within or outside of your state or district based on the mailing address they used to send you a letter through POPVOX.</p>
 		
 		<p>Wall posts, comments, and likes on Congressional Facebook Pages are public information and can be accessed by anyone comprehensively through the <a href="http://www.facebook.com">Facebook</a> <a href="http://developers.facebook.com/docs/reference/api/">Graph API</a>. For those POPVOX users who choose to log in to POPVOX using their Facebook account, we are able to match their Facebook activity with their POPVOX profile. All information in POPVOX profiles remains private following our <a href="/legal">privacy policy</a>. We show you the name and address of your constituents only. Email questions or concerns to {% obfuscated_email "privacy@popvox.com" %}.</p>
 		

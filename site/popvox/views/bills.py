@@ -168,7 +168,6 @@ def bills(request):
 		'trending_bills': popular_bills2,
 		}, context_instance=RequestContext(request))
 
-#@cache_page(60*60*2)
 def bills_issues(request):
 	issues = IssueArea.objects\
 		.filter(toptermbills__congressnumber=CURRENT_CONGRESS)\
