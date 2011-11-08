@@ -369,12 +369,11 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"flag_name", "flag_send", "flag_address", "tour_arrive", "tour_leave", "tour_requested", "tour_dates", "tour_adults", "tour_children", "tour_needs", "tour_comment",
 	"org",
 	"h03", "H03",
-	"name-title", 'military',
+	"name-title", 'military', "personalcode",
 	"organization",
-	"unsubscribe",
-	"email.optin",
+	"unsubscribe", "newsletteraction", "email.optin",
 	"enewssign", "enewsletter", "newsletteraction",
-	"personalcode")
+	"countdown")
 
 radio_choices = {
 	"reason": "legsitemail",
@@ -781,6 +780,7 @@ def test_zipcode_rejected(webform, deliveryrec):
 		or "<li>Zip Extension is required</li>" in webform\
 		or "the zip code you entered is incomplete or lies outside of the boundaries" in webform\
 		or "Access to the requested form is denied, the zip code which you entered" in webform\
+		or "The zip code (or zip+4) entered is not a valid" in webform\
 		or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform\
         or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
 		deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
