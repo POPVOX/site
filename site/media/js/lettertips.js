@@ -34,6 +34,8 @@ function validate(box) {
 		$('#' + box + "error").text("That's too long. Reduce your message by " + (v.length-charlimit) + " characters.");
 	
 	// suggestions and tips
+	else if (v.match(/(\d{3}|\D)\d{3}\W?\d{4}(\D|$)/))
+		$('#' + box + "tip").text("Don't include your phone number here! Your comment will be public. We'll ask for your personal information separately.");
 	else if (capscount(v) > 10 && capscount(v) < .75*v.length)
 		$('#' + box + "tip").text("Capital letters are often understood as shouting. Try using fewer capital letters.");
 	else if (bangcount(v) > 4)
