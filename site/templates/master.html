@@ -78,18 +78,19 @@
 		else
 			on_master_state_load.push(func);
 	}
-	$.ajax({
-		url: "/ajax/master-state",
-		data: { url: window.location.pathname },
-		dataType: "json",
-		success: function(res) {
-			master_state_obj = res;
-			for (var i = 0; i < on_master_state_load.length; i++)
-				on_master_state_load[i](res);
-		},
-		error: function() { alert("There was an error loading the page. Please try again."); }
-	});
-		
+	if (window.location.protocol == "https:" && document.cookie != "") {
+		$.ajax({
+			url: "/ajax/master-state",
+			data: { url: window.location.pathname },
+			dataType: "json",
+			success: function(res) {
+				master_state_obj = res;
+				for (var i = 0; i < on_master_state_load.length; i++)
+					on_master_state_load[i](res);
+			},
+			error: function() { alert("There was an error loading the page. Please try again."); }
+		});
+	}	
 	
 	var kkeys = [], konami = "38,38,40,40,37,39,37,39,66,65";
 	$(document).keydown(function(e) {
@@ -201,7 +202,7 @@
 					<li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Find Bills</a></li>
 					<li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
 				</div>
-				<div class="individual_role" style="display: none;">
+				<div class="individual_role">
 					<li class="homelink {%block nav_citzen_class_home%}{%endblock%}"><a href="/">Home</a></li>
 					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
@@ -242,8 +243,10 @@
 			
 			if (res.user.legstaffrole) {
 				$('#nav_2 .legstaff_role').show();
+				$('#nav_2 .individual_role').hide();
 				$('#whoami a').text(res.user.fullname);
 			} else if (res.user.orgs.length > 0) {
+				$('#nav_2 .individual_role').hide();
 				$('#nav_2 .orgadmin_role').show();
 				if (res.user.orgs.length == 1) {
 					$('#master_profile_orglist_li a').attr('href', res.user.orgs[0].url)

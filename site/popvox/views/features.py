@@ -2,6 +2,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.core.cache import cache
 
+from popvox.views.main import strong_cache
 from popvox.models import Bill, UserComment
 from popvox.views.bills import bill_statistics, get_default_statistics_context
 
@@ -292,7 +293,8 @@ for bill in supercommittee_bill_list:
 		bill["description"] = bill["bill"].description
 
 supercommittee_bill_list_ids = [bill["bill"].id for bill in supercommittee_bill_list]
-	
+
+@strong_cache
 def supercommittee(request):
 	bill_list = list(supercommittee_bill_list) # clone
 	for i in xrange(len(bill_list)):
@@ -302,15 +304,22 @@ def supercommittee(request):
 		if bill["sentiment"]:
 			bill["sentiment"]["scaled_pro"] = 142 * bill["sentiment"]["pro_pct"] / 100
 			bill["sentiment"]["scaled_con"] = 142 - bill["sentiment"]["scaled_pro"]
-		if request.user.is_authenticated():
-			try:
-				c = UserComment.objects.get(user=request.user, bill=bill_list[i]["bill"])
-				bill_list[i]["user_position"] = c.position
-			except UserComment.DoesNotExist:
-				pass
 	
 	return render(request, "popvox/features/supercommittee.html",
 		{
 			"bills": bill_list
 		})
+
+def supercommittee_userstate(request):
+	resp = []
+	if request.user.is_authenticated():
+		for entry in supercommittee_bill_list:
+			bill = entry["bill"]
+			try:
+				c = UserComment.objects.get(user=request.user, bill=bill)
+				resp.append( (bill.id, c.position) )
+			except UserComment.DoesNotExist:
+				pass
+	return { "positions": resp }
+supercommittee.user_state = supercommittee_userstate
 

@@ -714,6 +714,18 @@ $(function() {
 		for (var i = 0; i < elems.length; i++)
 			$(elems[i]).delay(i*100).animate({opacity: 1}, 600);
 	});
+	
+	master_state(function(res) {
+		if (res.page && res.page.positions) {
+			for (var i = 0; i < res.page.positions.length; i++) {
+				var n = $('.proposal.body[bill_id="' + res.page.positions[i][0] + '"]');
+				if (res.page.positions[i][1] == "+")
+					n.find('.action_buttons .oppose').addClass("inactive");
+				else
+					n.find('.action_buttons .support').addClass("inactive");
+			}
+		}
+	});
 });
 
 // generic share code
@@ -867,8 +879,8 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 					<p class="hashtag">{{proposal.bill.hashtag}}</p>
 					<p class="how_should_they_vote">Tell your Members of Congress what you think:</p>
 					<div class="action_buttons">
-						<a class="support lg {% if proposal.user_position == "-" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/support">Support</a>
-						<a class="oppose lg {% if proposal.user_position == "+" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
+						<a class="support lg" href="{{proposal.bill.url}}/comment/support">Support</a>
+						<a class="oppose lg" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
 					</div>
 				</div>
 			</div>
@@ -883,8 +895,8 @@ POPVOXNation: Tell the Supercommittee How to Cut $1.5 Trillion
 				{% endif %}
 			</div>
 			<div class="cell action_buttons">
-				<a class="support  {% if proposal.user_position == "-" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/support">Support</a>
-				<a class="oppose  {% if proposal.user_position == "+" %}inactive{% endif %}" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
+				<a class="support" href="{{proposal.bill.url}}/comment/support">Support</a>
+				<a class="oppose" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
 			</div>
 		</div>
 		{% endfor %}

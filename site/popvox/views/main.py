@@ -4,6 +4,7 @@ from django.template import RequestContext, TemplateDoesNotExist, Context, loade
 from django.views.generic.simple import direct_to_template
 from django.core.cache import cache
 from django.contrib.auth.models import AnonymousUser
+from django.core.urlresolvers import resolve
 from django import forms
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
@@ -16,7 +17,7 @@ from datetime import datetime, timedelta
 from popvox.models import *
 
 def master_state(request):
-	response = HttpResponse(json.dumps({
+	data = {
 		"user": {
 			"id": request.user.id,
 			"screenname": request.user.username,
@@ -37,7 +38,16 @@ def master_state(request):
 					"name": unicode(acct),
 				} for acct in request.user.userprofile.service_accounts()],
 		} if request.user.is_authenticated() else None
-	}), mimetype="text/json")
+	}
+	
+	try:
+		m = resolve(request.GET["url"])
+		if hasattr(m.func, "user_state"):
+			data["page"] = m.func.user_state(request, *m.args, **m.kwargs)
+	except Exception as e:
+		data["error"] = str(e)
+	
+	response = HttpResponse(json.dumps(data), mimetype="text/json")
 	response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
 	return response
 
@@ -51,6 +61,8 @@ def strong_cache(f):
 		request.session = None
 		request.user = AnonymousUser()
 		return f(request, *args, **kwargs)
+	if hasattr(f, "user_state"):
+		g.user_state = f.user_state
 	return g
 
 @strong_cache
