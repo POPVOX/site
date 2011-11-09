@@ -13,8 +13,11 @@ import popvox.views.api
 urlpatterns = patterns('',
 	(r'site-down', 'popvox.views.main.sitedown'),
 	
-	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|legal|advertising|faq|blog_template)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
+	(r'ajax/master-state', 'popvox.views.main.master_state'),
+	
+	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|advertising|faq|blog_template)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	(r'^press$', 'popvox.views.main.press_page'),
+	(r'^legal$', 'popvox.views.main.legal_page'),
 	(r'^blog/', include('articles.urls')),
 
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),

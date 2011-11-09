@@ -21,9 +21,18 @@ p { font-size: 17px; line-height: 24px; color: #555; }
 
 		<p><strong>Go back to POPVOX MarkUp on your iPad and log in.</strong></p>
 		
-		<p>Your registration also works here POPVOX.com.
-		{% if user.userprofile.is_leg_staff %}You can use POPVOX.com to read your constituent mail coming from POPVOX, access bill reports, and <a href="/orgs">organization contact details</a>.
-		{% else %}Use POPVOX.com to explore bill reports, <a href="/organization">create your organization profile</a>, or <a href="/bills">weigh-in on legislation</a>.{% endif %}</p>
+		<p id="welcometext_general">Your registration also works here POPVOX.com. Use POPVOX.com to explore bill reports, <a href="/organization">create your organization profile</a>, or <a href="/bills">weigh-in on legislation</a>.</p>
+		
+		<p id="welcometext_legstaff" style="display: none">Your registration also works here POPVOX.com. You can use POPVOX.com to read your constituent mail coming from POPVOX, access bill reports, and <a href="/orgs">organization contact details</a>.</p>
+		
+		<script>
+		master_state(function(res) {
+				if (res.user && res.user.legstaffrole) {
+					$('#welcometext_general').hide();
+					$('#welcometext_legstaff').show();
+				}
+		});
+		</script>
 	</div>
 	</div>
 	

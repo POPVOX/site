@@ -27,8 +27,9 @@ class TrafficAnalysisMiddleware:
 			return response
 		
 	def do_process_response(self, request, response):
-		# Can't do traffic analysis if there is no session state.
-		if getattr(request, "session", None) == None:
+		# Don't set any cookies if request.strong_cache is set, so don't
+		# attempt traffic analysis.
+		if getattr(request, "strong_cache", False):
 			return response
 		
 		# Assume the ua has been set in the request handler and ignore

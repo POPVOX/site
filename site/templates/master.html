@@ -35,8 +35,12 @@
 	<link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> 
 	
 	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
-	<script>$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); });</script>
-	{% if request.ua.ua_family == "Firefox" %}<script>jQuery.fx.off = true</script>{% endif %}
+	<script>
+		var csrf_token = "{{csrf_token}}";
+		$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", csrf_token); });
+
+		if (/Firefox[\/\s](\d+\.\d+)/.test(navigator.userAgent)) { jQuery.fx.off = true; }
+	</script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
 	
 	<link href="/media/css/jquery-ui-1.8.14.custom.css" rel="stylesheet" type="text/css"/> <!-- autocomplete -->
@@ -65,6 +69,27 @@
 			eval(tinyMCE.activeEditor.id + "_on_save()");
 		return false;
 	}
+	
+	var master_state_obj = null;
+	var on_master_state_load = [];
+	function master_state(func) {
+		if (master_state_obj)
+			func(master_state_obj);
+		else
+			on_master_state_load.push(func);
+	}
+	$.ajax({
+		url: "/ajax/master-state",
+		data: { url: window.location.pathname },
+		dataType: "json",
+		success: function(res) {
+			master_state_obj = res;
+			for (var i = 0; i < on_master_state_load.length; i++)
+				on_master_state_load[i](res);
+		},
+		error: function() { alert("There was an error loading the page. Please try again."); }
+	});
+		
 	
 	var kkeys = [], konami = "38,38,40,40,37,39,37,39,66,65";
 	$(document).keydown(function(e) {
@@ -107,9 +132,11 @@
 	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	  })();
 	</script>
+	{% comment %} this is disabled since cached pages don't know who the user is
 	<script>
 	_gaq.push(['_setCustomVar', 1, 'usertype', {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}, 1]);
 	</script>
+	{% endcomment %}
 	{% endif %}
 </head>
 <body {% block bodyattributes %}{% endblock %}>
@@ -128,15 +155,10 @@
 		<div {% block navattributes %}id="content_head_r"{% endblock %}>
 			<ul id="nav"> 
 				{% block navbarlinks %}{% endblock %}
-				{% if user.is_admin or user.is_staff %}
-					<li class="last"><a style="font-weight: bold; color: #FCC" href="/admin">ADMIN</a></li>
-				{% endif %}
+				<li class="last admin" style="display: none;"><a style="font-weight: bold; color: #FCC" href="/admin">ADMIN</a></li>
 				{% block loginblock %}
-				{% if user.is_authenticated %}
-					<li><a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a></li>
-				{% else %}
-					<li><a href="/accounts/login" onclick="document.location = '/accounts/login' + login_redirect; return false;">Join or Login</a></li>
-				{% endif %}
+				<li class="logoutlink" style="display: none;"><a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a></li>
+				<li class="loginlink" style="display: none;"><a href="/accounts/login" onclick="document.location = '/accounts/login' + login_redirect; return false;">Join or Login</a></li>
 				{% endblock %}
 				<li><a href="/blog">Blog</a></li>
 				<li><a href="/press">Press</a></li>
@@ -157,48 +179,34 @@
 			{% block head_r_content %}
 				{% comment %} On the homepage, this is replaced by Verified, Quantified, ... {% endcomment %}
 			<ul id="nav_2"> 
-				{% if user.userprofile.is_leg_staff %}
+				<div class="legstaff_role" style="display: none;">
 					<li class="{%block nav_legstaff_class_dashboard%}{%endblock%}"><a href="/home">Dashboard</a></li>
 					<li class="{%block nav_legstaff_class_docket%}{%endblock%}"><a href="/docket">Docket</a></li>
 					<li class="{%block nav_legstaff_class_comments%}{%endblock%}"><a href="/activity">Comments</a></li>
 					<li class="last {%block nav_legstaff_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
 					<li class="last {%block nav_legstaff_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
-				{% endif %}
-				{% if user.userprofile.is_org_admin %}
+				</div>
+				<div class="orgadmin_role" style="display: none;">
 					<li class="{%block nav_orgadmin_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>
-					<li id="master_profile_orglist_li" class="{%block nav_orgadmin_class_profile%}{%endblock%}"
-					{% if user.orgroles.all|length == 1 %}
-					><a href="{{user.orgroles.all.0.org.url}}">Profile</a></li>
-					{% else %}
-					onmouseover="$('#master_profile_orglist').show();"><a href="#" onclick="return false;">Profiles</a>
-						<div id="master_profile_orglist">
+					<li id="master_profile_orglist_li" class="{%block nav_orgadmin_class_profile%}{%endblock%}">
+						<a href="#">Profile</a>
+						<div id="master_profile_orglist" style="display: none">
 							<div style="height: 19px;"> </div> 
 							<div class="orglist_li">
-							{% for role in user.orgroles.all %}
-								<a href="{{role.org.url}}">{{role.org.name}}</a>
-							{% endfor %}
 							</div>
-						</div>
-						<script>$('#master_profile_orglist_li').mouseleave(function() { $('#master_profile_orglist').fadeOut() });</script>					
+						</div>					
 					</li>
-					{% endif %}
 					<li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/services/analytics">Analytics</a></li>
 					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Find Orgs</a></li>
 					<li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Find Bills</a></li>
 					<li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
-				{% endif %}
-				{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
-					{% if not user.is_authenticated %}
-					<li><a href="/">Home</a></li>
-					{% else %}
-					<li class="{%block nav_citzen_class_home%}{%endblock%}"><a href="/home">Home</a></li>
-					{% endif %}
+				</div>
+				<div class="individual_role" style="display: none;">
+					<li class="homelink {%block nav_citzen_class_home%}{%endblock%}"><a href="/">Home</a></li>
 					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
-					{% if user.userprofile.has_active_service_account %}
-					<li class="{%block nav_user_class_reports%}{%endblock%}"><a href="/services/analytics">Analytics</a></li>
-					{% endif %}
-				{% endif %}
+					<li class="analyticslink {%block nav_user_class_reports%}{%endblock%}" style="display: none"><a href="/services/analytics">Analytics</a></li>
+				</div>
 				<div id="search_head">
 					<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
 						<input type="text" value="" name="q" class="search" id="master_billsearch_q"><br />
@@ -210,28 +218,61 @@
 			{% endblock %}
 			<div id="whoami">
 				<p>
-					{% if user.is_authenticated %}
-					Welcome, <a href="/accounts/profile">{% filter force_escape %}{% firstof user.userprofile.fullname user.username %}{% endfilter %}</a>
-					{% for orgrole in user.orgroles.all %} &mdash; <a href="{{ orgrole.org.url }}">{{ orgrole.org.name|truncatewords:10 }}</a>{% endfor %}
-					{% if user.legstaffrole %} &mdash; {{ user.legstaffrole.as_string|truncatewords:10 }}{% endif %}
-					{% else %}
-						<script>if (document.cookie == "") document.write("NOTE: Many features of POPVOX will not work correctly when cookies are disabled.");</script>
-						<noscript>NOTE: Many features of POPVOX will not work correctly with Javascript disabled.</noscript>
-					{% endif %}
+					<span style="display: none">
+					Welcome, <a href="/accounts/profile"></a>
+					</span>
+					
+					<script>if (document.cookie == "") document.write("NOTE: Many features of POPVOX will not work correctly when cookies are disabled.");</script>
+					<noscript>NOTE: Many features of POPVOX will not work correctly with Javascript disabled.</noscript>
 				</p>
 			</div>
 		</div>
 	</div><!-- e: head --> 
+
+	<script>master_state(function (res) {
+		if (!res.user) {
+			$('#nav .loginlink').show();
+			$('#nav_2 .individual_role').show();
+		} else {
+			$('#nav .logoutlink').show();
+			if (res.user.admin)
+				$('#nav .admin').show();
+
+			$('#whoami span').show();
+			
+			if (res.user.legstaffrole) {
+				$('#nav_2 .legstaff_role').show();
+				$('#whoami a').text(res.user.fullname);
+			} else if (res.user.orgs.length > 0) {
+				$('#nav_2 .orgadmin_role').show();
+				if (res.user.orgs.length == 1) {
+					$('#master_profile_orglist_li a').attr('href', res.user.orgs[0].url)
+				} else {
+					$('#master_profile_orglist_li a').attr('onclick', 'return false;');
+					$('#master_profile_orglist_li').hover(function() {
+						$('#master_profile_orglist').show();
+					}, function() {
+						$('#master_profile_orglist').fadeOut();
+					});
+					for (var i = 0; i < res.user.orgs.length; i++)
+						$('#master_profile_orglist_li .orglist_li').append(
+							$("<a href=''/>").attr('href', res.user.orgs[i].url)
+								.text(res.user.orgs[i].name)
+							);
+				}
+				$('#whoami a').text(res.user.fullname);
+			} else {
+				$('#nav_2 .individual_role').show();
+				$('#nav_2 .individual_role .homelink a').attr('href', '/home');
+				if (res.user.serviceaccounts.length > 0)
+					$('#nav_2 .individual_role .analyticslink').show();
+				$('#whoami a').text(res.user.screenname);
+			}
+		}
+	});
+	</script>
 	
 	<div id="page"> 
-		{% if messages %}
-		<ul class="messages">
-		    {% for message in messages %}
-		    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
-		    {% endfor %}
-		</ul>
-		{% endif %}	
-	
 		{% block body %} {% comment %} the articles app uses 'content' for the article content, so we surround it here with 'body' so we kill "content" if a "body" is given {% endcomment %}
 		{% block content %}
 		{% endblock %}
@@ -253,13 +294,18 @@
 			<li><a href="/legal">Privacy and Terms</a></li>
 		</ul>
 		
-		{% if user.is_staff or user.username == "POPVOXTweets" or user.username == "demo_org_staffer" or user.username == "demo_leg_staffer" %}
-		<ul>
+		<ul id="staff_switch_user" style="display: none">
 			<li><a href="/accounts/switchuser/demo_user">demo_user</a></li>
 			<li><a href="/accounts/switchuser/demo_leg_staffer">demo_leg_staffer</a></li>
 			<li><a href="/accounts/switchuser/demo_org_staffer">demo_org_staffer</a></li>
 		</ul>
-		{% endif %}
+		<script>
+		master_state(function(res) {
+			if (!res.user) return;
+			if (res.user.admin || res.user.screenname == "POPVOXTweets" || res.user.screenname == "demo_org_staffer" || res.user.screenname == "demo_leg_staffer")
+				$('#staff_switch_user').show();
+		});
+		</script>
 
 		{% block footer %}{% endblock %}
 		
@@ -289,6 +335,7 @@ $(function() {
 <!-- mixpanel -->
 <script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('6db7097c351adc437da30e64e0d86d12'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
 <script>
+{% comment %}wont work on cached page...
 mpmetrics.register({
 	'user type': {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}
 });
@@ -298,6 +345,7 @@ mpmetrics.register({
 		mpmetrics.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
 	{% endif %}
 {% endwith %}
+{% endcomment %}
 </script>
 
 {% if request.META.HTTP_DNT != 1 %}

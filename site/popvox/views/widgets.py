@@ -5,6 +5,7 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Count
 
 from popvox.models import *
+from popvox.views.main import strong_cache
 from popvox.views.bills import bill_comments
 from popvox.govtrack import statenames, ordinate, CURRENT_CONGRESS
 
@@ -22,7 +23,7 @@ def do_not_track_compliance(f):
 		return f(request, *args, **kwargs)
 	return g
 		
-@cache_page(60 * 60 * 2) # two hours
+@strong_cache
 @do_not_track_compliance
 def bill_js(request):
 	try:
@@ -36,7 +37,7 @@ def bill_js(request):
 	}, context_instance=RequestContext(request),
 	mimetype="text/javascript")
 
-#@cache_page(60 * 60 * 2) # two hours
+@strong_cache
 @do_not_track_compliance
 def commentmapus(request):
 	count = { }
@@ -165,7 +166,7 @@ def commentmapus(request):
 		"width": width,
 	}, context_instance=RequestContext(request))
 
-@cache_page(60 * 60 * 2) # two hours
+@strong_cache
 @do_not_track_compliance
 def top_bills(request):
 	congressnumber = CURRENT_CONGRESS
@@ -202,13 +203,12 @@ def top_bills(request):
 		"max_opp": max_opp,
 	}, context_instance=RequestContext(request))
 
-@cache_page(60 * 60 * 2) # two hours
 @do_not_track_compliance
 def bill_text(request):
 	return render_to_response('popvox/widgets/billtext.html', {
 	}, context_instance=RequestContext(request))
 	
-@cache_page(60 * 60 * 2) # two hours
+@strong_cache
 @do_not_track_compliance
 def bill_text_js(request):
 	width = int(float(request.GET.get("width", "615")))

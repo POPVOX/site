@@ -48,7 +48,8 @@
 		{% csrf_token %}
 		<input type="hidden" name="body" value="..."/>
 		   <label for="email">email (optional)</label>
-			  <input name="email" value="{{user.email}}"/>
+			  <input id="my_email" name="email" value=""/>
+			  <script>master_state(function(res) { if (res.user) $('#my_email').val(res.user.email);  });</script>
 			   <div class="email error"> </div>
 		   <label for="subject">subject (optional)</label>
 			  <input name="subject"/>

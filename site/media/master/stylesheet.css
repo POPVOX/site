@@ -136,14 +136,14 @@ ul#nav_2 {
     height: 35px;
     }
 
-#nav_2>li {
+#nav_2>div>li {
     float: left;
     margin: 0;
     padding: 0 5px;
     background: url(bg_nav2_active.png) right top no-repeat;
     }
 
-#nav_2>li>a {
+#nav_2>div>li>a {
     float: left;
     height: 35px;
     line-height: 24px;
@@ -155,8 +155,8 @@ ul#nav_2 {
     text-transform: uppercase;
     }
 
-#nav_2>li>a:hover,
-#nav_2>li.active>a {
+#nav_2>div>li>a:hover,
+#nav_2>div>li.active>a {
     background: url(bg_nav2_active.png) center top no-repeat;
     color: #e47816;
     }
@@ -282,12 +282,12 @@ ul#nav_2 {
     }
 
 #nav a,
-#nav_2>li>a,
+#nav_2>div>li>a,
 #logo,
 #footer a { border: none    }
 
 #nav a:hover,
-#nav_2>li>a:hover,
+#nav_2>div>li>a:hover,
 #logo:hover { text-decoration: none     }
 
 #footer {

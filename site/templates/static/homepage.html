@@ -5,7 +5,10 @@
 {% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
 {% block bodyattributes %}class="land"{% endblock %}
 {% block navattributes %}id="head_r"{% endblock %}
-{% block navbarlinks %}{% if user.is_authenticated %}<li><a href="/home">Home</a></li>{% endif %}{% endblock %}
+{% block navbarlinks %}
+	<li id="landing_home_link" style="display: none"><a href="/home">Home</a></li>
+	<script>master_state(function(res) { if (res.user) $('#landing_home_link').show(); });</script>
+{% endblock %}
 {% block disable_login_redirect %}{% endblock %}
 {% block finalscript %}<script>mpmetrics.track('splash page');</script>{% endblock %}
 {% block head %}
@@ -148,12 +151,7 @@ width: 70px;
 				<li class="three">Share your opinion with Congress &amp; the world.</li>
 			</ul>
 			
-			{% if user.is_anonymous %}
-				<p style="margin-top: 15px"><a class="b_get_started_l btn" href="/bills">Get Started</a></p>
-			{% else %}
-				<p><a class="b_get_started_l btn" href="/home">Get Started</a></p>
-			{% endif %}
-
+			<p style="margin-top: 15px"><a class="b_get_started_l btn" href="/bills">Get Started</a></p>
 		</div>
 	</div>
 </div>

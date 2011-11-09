@@ -5,7 +5,6 @@
 {% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
 {% block bodyattributes %}class="land olp"{% endblock %}
 {% block navattributes %}id="head_r"{% endblock %}
-{% block navbarlinks %}{% if user.is_authenticated %}<li><a href="/home">Home</a></li>{% endif %}{% endblock %}
 {% block disable_login_redirect %}{% endblock %}
 {% block head %}
 <style>
@@ -135,13 +134,6 @@ function subscribe(validate) {
 			</div>
 			<div class="clear"> </div>
 						
-<!--
-			{% if user.is_anonymous %}
-				<p><a class="b_get_started_l btn" href="/accounts/register/legstaff">Get Started</a></p>
-			{% else %}
-				<p><a class="b_get_started_l btn" href="/home">Get Started</a></p>
-			{% endif %}
--->
 		</div>
 	</div>
 </div>

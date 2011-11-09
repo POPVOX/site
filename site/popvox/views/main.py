@@ -3,24 +3,63 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist, Context, loader
 from django.views.generic.simple import direct_to_template
 from django.core.cache import cache
+from django.contrib.auth.models import AnonymousUser
 from django import forms
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
+import json
 import re
 from xml.dom import minidom
 from datetime import datetime, timedelta
 
 from popvox.models import *
 
+def master_state(request):
+	response = HttpResponse(json.dumps({
+		"user": {
+			"id": request.user.id,
+			"screenname": request.user.username,
+			"fullname": request.user.userprofile.fullname,
+			"email": request.user.email,
+			"admin": request.user.is_superuser or request.user.is_staff,
+			"orgs": [{
+					"name": orgrole.org.name,
+					"url": orgrole.org.url(),
+					"title": orgrole.title,
+				} for orgrole in request.user.orgroles.all()],
+			"legstaffrole": {
+					"membername": request.user.legstaffrole.member.name() if request.user.legstaffrole.member else None,
+					"committeename": request.user.legstaffrole.committee.name() if request.user.legstaffrole.committee else None,
+					"position": request.user.legstaffrole.position,
+				} if request.user.userprofile.is_leg_staff() else None,
+			"serviceaccounts": [{
+					"name": unicode(acct),
+				} for acct in request.user.userprofile.service_accounts()],
+		} if request.user.is_authenticated() else None
+	}), mimetype="text/json")
+	response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+	return response
+
+def strong_cache(f):
+	# Marks a view as being strongly cached, meaning that all
+	# user state is acquired through the AJAX call to master-state.
+	# A strongly cached view has no access to Django session
+	# state and is marked for upstream caching.
+	def g(request, *args, **kwargs):
+		request.strong_cache = True
+		request.session = None
+		request.user = AnonymousUser()
+		return f(request, *args, **kwargs)
+	return g
+
+@strong_cache
 def staticpage(request, page):
 	news = None
 	
 	if page == "":
 		page = "homepage"
-		if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
-			return HttpResponseRedirect("/home")
-			
+
 		import articles.models
 		news = []
 		has_bill_picks = False
@@ -55,6 +94,7 @@ def sitedown(request):
 	response.goal = None
 	return response
 
+@strong_cache
 def press_page(request):
     import articles.models
     
@@ -68,7 +108,10 @@ def press_page(request):
         
     arts.sort(key = lambda art : (art.publish_date.year, art.publish_date.month, art.article_type), reverse = True)
     return render_to_response("popvox/press.html", { "press": arts }, context_instance=RequestContext(request))
-    
+
+def legal_page(request):
+    return render_to_response("popvox/legal.html", context_instance=RequestContext(request))
+
 @json_response
 def subscribe_to_mail_list(request):
 	email = request.POST["email"]
