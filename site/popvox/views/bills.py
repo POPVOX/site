@@ -21,6 +21,7 @@ import datetime
 import json
 
 from popvox.models import *
+from popvox.views.main import strong_cache
 from registration.helpers import captcha_html, validate_captcha
 from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, open_govtrack_file, statenames, getStateReps
 from emailverification.utils import send_email_verification
@@ -140,32 +141,11 @@ def get_popular_bills2():
 	popular_bills_cache_2 = (datetime.now(), popular_bills2)
 	
 	return popular_bills2
-		
+
+@strong_cache
 def bills(request):
-	popular_bills2 = get_popular_bills2()
-	
-	# Annotate a copy of the popular_bills dict with whether the user
-	# or the user on behalf of an org has taken a position on each
-	# bill.
-	# TODO: Simplify SQL calls. This does a lot of SQL.
-	for b in popular_bills2:
-		b["pos"] = ""
-		if request.user.is_authenticated() and request.user.userprofile.is_org_admin():
-			for orgrole in request.user.orgroles.all():
-				for cam in orgrole.org.orgcampaign_set.all():
-					for pos in cam.positions.all():
-						if pos.bill.id == b["bill"].id:
-							if b["pos"] == "" or b["pos"] == pos.position:
-								b["pos"] = pos.position
-							else:
-								b["pos"] = "CONFLICT"
-		elif request.user.is_authenticated():
-			c = request.user.comments.filter(bill = b["bill"])
-			if len(c) > 0:
-				b["pos"] = c[0].position
-	
 	return render_to_response('popvox/bill_list.html', {
-		'trending_bills': popular_bills2,
+		'trending_bills': get_popular_bills2(),
 		}, context_instance=RequestContext(request))
 
 def bills_issues(request):
@@ -471,53 +451,16 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, fo
 		"total_comments": bill_comments(bill, **filterargs).filter(message__isnull=False).count(),
 		"timeseries": time_series,
 		"pro_reintro": pro_reintro}
-	
-@csrf_protect_if_logged_in
+
+@strong_cache
 def bill(request, congressnumber, billtype, billnumber, vehicleid):
 	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	if bill.migrate_to:
 		return HttpResponseRedirect(bill.migrate_to.url())
 	
-	# Get the organization that the user is an admin of, if any, so he can
-	# have the org take a position on it.
-	user_org = None
-	existing_org_positions = []
-	if request.user.is_authenticated() and request.user.get_profile() != None:
-		import home
-		home.annotate_track_status(request.user.userprofile, [bill])
-	
-		user_org = request.user.orgroles.all()
-		if len(user_org) == 0: # TODO down the road
-			user_org = None
-		else:
-			posdescr = {"+": "endorsed", "-": "opposed", "0": "listed neutral with a statement" }
-			user_org = user_org[0].org
-			for cam in user_org.orgcampaign_set.all():
-				for p in cam.positions.filter(bill = bill):
-					existing_org_positions.append({"bill": bill, "campaign": cam, "position": posdescr[p.position], "comment": p.comment, "id": p.id, "documents": p.documents()})
-		
-	user_position = None
-	mocs = []
 	ch = bill.getChamberOfNextVote() if bill.is_bill() else None
 	if not ch: ch = ""
 
-	if request.user.is_authenticated():
-		# Get the user's current position on the bill.
-		# In principle by the data model, a user might take multiple positions
-		# on a single bill. But we try to prevent that.
-		for c in request.user.comments.filter(bill=bill):
-			user_position = c
-		
-		# Get the list of Members of Congress who could vote on this bill
-		# based on the user's most recent comment's congressional district.
-		district = request.user.userprofile.most_recent_comment_district()
-		if district != None:
-			if ch != None:
-				if ch == "s":
-					mocs = getMembersOfCongressForDistrict(district, moctype="sen")
-				else:
-					mocs = getMembersOfCongressForDistrict(district, moctype="rep")
-			
 	# Get the orgs who support or oppose the bill, and the relevant campaigns
 	# within the orgs.
 	orgs = [ ["support", {}], ["oppose", {}], ["neutral", {}], ["administration", {}] ]
@@ -556,61 +499,84 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
 	for grp in orgs:
 		grp[1] = sort_orgs(grp[1].values())
 	
-	# Welcome message?
-	welcome = None
-	welcome_tabname = None
-	referral_orgposition = None
+	return render_to_response('popvox/bill.html', {
+			'bill': bill,
+			"deadbox": not bill.isAlive(),
+			"nextchamber": ch,
+			"orgs": orgs,
+		}, context_instance=RequestContext(request))
+
+def bill_userstate(request, congressnumber, billtype, billnumber, vehicleid):
+	ret = { }
+
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	
 	if "shorturl" in request.session and request.session["shorturl"].target == bill:
-		# Referral to this bill. If the link owner left a comment on the bill,
-		# then we can use that comment as the basis of the welcome
-		# message.
+		# Referral to this bill.
 		request.session["comment-referrer"] = {"bill": bill.id, "referrer": request.session["shorturl"].owner, "shorturl": request.session["shorturl"].id }
-		if isinstance(request.session["shorturl"].owner, Org):
-			welcome = "Hello! " + request.session["shorturl"].owner.name + " wants to tell you about " + bill.shortname + " on POPVOX.  Learn more about the issue and let POPVOX amplify your voice to Congress."
-			try:
-				welcome_tabname = "Organization's Position"
-				referral_orgposition = OrgCampaignPosition.objects.filter(campaign__org=request.session["shorturl"].owner, bill=bill)[0]
-				if referral_orgposition.position in ("+", "-"):
-					welcome = "Hello! " + request.session["shorturl"].owner.name + " wants you to " + ("support" if referral_orgposition.position == "+" else "oppose") + " " + bill.shortname + ".  Learn more about the issue and let POPVOX amplify your voice to Congress."
-			except:
-				pass
-			
-			# If an org admin follows their own link, let them see it from the
-			# user's perspective.
-			if user_org == request.session["shorturl"].owner:
-				user_org = None
-				
 		del request.session["shorturl"]
-	
-	users_tracking_this_bill = None
-	users_commented_on_this_bill = None
+		
+	ret["canvote"] = (request.user.is_anonymous() or (not request.user.userprofile.is_leg_staff() and not request.user.userprofile.is_org_admin()))
+
+	if request.user.is_authenticated():
+		# Get the user's current position on the bill.
+		# In principle by the data model, a user might take multiple positions
+		# on a single bill. But we try to prevent that.
+		for c in request.user.comments.filter(bill=bill):
+			ret["user_position"] = {
+				"position": c.position,
+				"updated": formatDateTime(c.updated),
+				"message": truncatewords(c.message, 30) if c.message else None,
+				"url": c.url(),
+			}
+		
+		# Get the list of Members of Congress who could vote on this bill
+		# based on the user's most recent comment's congressional district.
+		district = request.user.userprofile.most_recent_comment_district()
+		if district != None:
+			ch = bill.getChamberOfNextVote() if bill.is_bill() else None
+			if ch == "s":
+				ret["mocs"] = getMembersOfCongressForDistrict(district, moctype="sen")
+			elif ch == "h":
+				ret["mocs"] = getMembersOfCongressForDistrict(district, moctype="rep")
+			if "mocs" in ret:
+				ret["mocs"] = [m["name"] for m in ret["mocs"]]
+				if len(ret["mocs"]) == 1:
+					ret["mocs"] = ret["mocs"][0]
+				elif len(ret["mocs"]) == 2:
+					ret["mocs"] = " and ".join(ret["mocs"])
+				else:
+					ret["mocs"][-1] = "and " + ret["mocs"][-1]
+					ret["mocs"] = ", ".join(ret["mocs"])
+					
+		# Is the user tracking the bill?
+		ret["tracked"] = request.user.userprofile.tracked_bills.filter(id=bill.id).exists()
+		
+		# For org admins, report the current endorsed state.
+		ret["matched_campaigns"] = [
+			{
+				"id": p.id,
+				"org": p.campaign.org.id,
+				"orgname": p.campaign.org.name,
+				"campaign": p.campaign.name if not p.campaign.default else "",
+				"position": p.position,
+				"comment": p.comment,
+				"visible_state": p.campaign.visible_state() }
+			for p in OrgCampaignPosition.objects.filter(bill=bill, campaign__org__admins__user=request.user).select_related("campaign__org")
+		]
+		if "popvox_lastviewedcampaign" in request.session and not OrgCampaign.objects.get(id=request.session["popvox_lastviewedcampaign"]).default:
+			ret["lastviewedcampaign"] = request.session["popvox_lastviewedcampaign"] 
+
+
+	# administrative information
 	if request.user.is_authenticated() and (request.user.is_staff or request.user.is_superuser):
 		users_tracking_this_bill = bill.trackedby.filter(allow_mass_mails=True, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().select_related("user")
 		users_commented_on_this_bill = UserProfile.objects.filter(allow_mass_mails=True, user__comments__bill=bill).distinct().select_related("user")
-	
-	return render_to_response('popvox/bill.html', {
-			'bill': bill,
-			"canvote": (request.user.is_anonymous() or (not request.user.userprofile.is_leg_staff() and not request.user.userprofile.is_org_admin())),
-			"deadbox": not bill.isAlive() and user_position == None,
-			
-			"user_org": user_org,
-			"existing_org_positions": existing_org_positions,
-			"lastviewedcampaign": request.session["popvox_lastviewedcampaign"] if "popvox_lastviewedcampaign" in request.session and not OrgCampaign.objects.get(id=request.session["popvox_lastviewedcampaign"]).default  else "",
-			
-			"user_position": user_position,
-			"mocs": mocs,
-			"nextchamber": ch,
-			
-			"orgs": orgs,
-			
-			"welcome": welcome,
-			"welcome_tabname": welcome_tabname,
-			"referral_orgposition": referral_orgposition,
-			
-			"users": { "tracking": users_tracking_this_bill, "commented": users_commented_on_this_bill },
-		}, context_instance=RequestContext(request))
+		ret["admin"] = { "tracking": [u.user.email for u in users_tracking_this_bill], "commented": [u.user.email for u in users_commented_on_this_bill] }
 
+	return ret
+bill.user_state = bill_userstate
+	
 pending_comment_session_key = "popvox.views.bills.billcomment__pendingcomment"
 
 # This is an email verification callback.
@@ -1204,6 +1170,21 @@ def billshare(request, congressnumber, billtype, billnumber, vehicleid, commenti
 			"SITE_ROOT_URL": SITE_ROOT_URL,
 			"finished_url": finished_url,
 		}, context_instance=RequestContext(request))
+
+def billshare_userstate(request, congressnumber, billtype, billnumber, vehicleid, commentid = None):
+	ret = { }
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
+	if request.user.is_authenticated() and not request.user.userprofile.is_leg_staff() and not request.user.userprofile.is_org_admin():
+		# Get the user's current position on the bill.
+		for c in request.user.comments.filter(bill=bill):
+			ret["user_position"] = {
+				"position": c.position,
+				"updated": formatDateTime(c.updated),
+				"message": truncatewords(c.message, 30) if c.message else None,
+				"url": c.url(),
+			}
+	return ret
+billshare.user_state = billshare_userstate
 
 def send_mail2(subject, message, from_email, recipient_list, fail_silently=False):
 	from django.core.mail import EmailMessage

@@ -706,6 +706,11 @@ class OrgCampaign(models.Model):
 			return self.website
 		else:
 			return self.org.website
+	def visible_state(self):
+		if not self.org.approved: return "org-needs-approval"
+		if not self.org.visible: return "org-not-published"
+		if not self.visible: return "campaign-not-published"
+		return "visible"
 
 class OrgExternalMemberCount(models.Model):
 	"""An external count of a size of an organization, e.g. as reported by the org or from Facebook or Twitter."""

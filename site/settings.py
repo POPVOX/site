@@ -167,8 +167,6 @@ MIDDLEWARE_CLASSES = (
     'popvox.middleware.AdserverTargetsMiddleware',
     'shorturl.middleware.ShorturlMiddleware',
 )
-if DEBUG:
-	MIDDLEWARE_CLASSES = [m for m in MIDDLEWARE_CLASSES if not "cache" in m]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
 	"django.contrib.auth.context_processors.auth",

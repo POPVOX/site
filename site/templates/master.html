@@ -84,6 +84,7 @@
 			data: { url: window.location.pathname },
 			dataType: "json",
 			success: function(res) {
+				csrf_token = res.csrf_token;
 				master_state_obj = res;
 				for (var i = 0; i < on_master_state_load.length; i++)
 					on_master_state_load[i](res);

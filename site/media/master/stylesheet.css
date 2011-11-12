@@ -749,8 +749,7 @@ table.form_fields td {
     border: 1px solid #D4D1CA;
     }
 
-    #bill_endorse_oppose_holder_user span {
-        margin-right: 18px;
+    #bill_endorse_oppose_holder_user span.position {
         font-size: 16px;
         color: #CC6A11;
         }

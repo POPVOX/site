@@ -1,18 +1,31 @@
 {% load popvox_utils %}
 <div id="billsearch_endorse_oppose_uservote">
-	{% if not user_position %}
+	<div class="buttons">
 		<a id="billsearch_endorse_oppose_submit_support" href="{{bill.url}}/comment/support">Support</a>
 		<a id="billsearch_endorse_oppose_submit_oppose" href="{{bill.url}}/comment/oppose">Oppose</a>
-	{% else %}
-		<p>You submitted a comment {% if user_position.position == "+" %}supporting{% else %}opposing{% endif %} this bill {{user_position.updated|date2}}. {% if user_position.message %}You wrote:{% endif %}</p>
-		{% if user_position.message %}
-		<p>&ldquo;{{user_position.message|truncatewords:30}}&rdquo;</p>
-		{% endif %}
+	</div>
+	<div class="alreadyweighedin" style="display: none">
+		<p>You submitted a comment <span class="position"> </span> this bill  <span class="updated"> </span>. <span class="youwrote"> </span></p>
+		<p class="themessage"></p>
 		
 		<p style="margin: 0">
 			<a href="{{bill.url}}/comment">edit comment</a> |
 			<a href="{{bill.url}}/comment/clear">remove comment</a> |
-			<a href="{{user_position.url}}">share comment</a>
+			<a class="purl" href="#">share comment</a>
 		</p>
-	{% endif %}
+	</div>
+	<script>master_state(function(res) {
+		if (res.page.user_position) {
+			var p = res.page.user_position;
+			$('#billsearch_endorse_oppose_uservote .buttons').hide();
+			$('#billsearch_endorse_oppose_uservote .alreadyweighedin').show();
+			$('#billsearch_endorse_oppose_uservote .alreadyweighedin .position').text(p.position == "+" ? "supporting" : "opposing");
+			$('#billsearch_endorse_oppose_uservote .alreadyweighedin .updated').text(p.updated);
+			if (p.message) {
+				$('#billsearch_endorse_oppose_uservote .alreadyweighedin .youwrote').text("You wrote:");
+				$('#billsearch_endorse_oppose_uservote .alreadyweighedin .themessage').text("“" + p.message + "”");
+			}
+			$('#billsearch_endorse_oppose_uservote .alreadyweighedin .purl').attr('href', p.url);
+		}
+	});</script>
 </div>

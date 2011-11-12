@@ -5,7 +5,7 @@
 {% block description %}Weigh in and send your message to Congress about {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock %}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block finalscript %}<script>mpmetrics.track('bill page', { 'bill': '{{bill.displaynumber|escapejs}}', 'can_comment': {% if canvote %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
+{% block finalscript %}<script>master_state(function(res) { mpmetrics.track('bill page', { 'bill': '{{bill.displaynumber|escapejs}}', 'can_comment': res.page.canvote ? 'yes' : 'no' }); });</script>{% endblock %}
 {% block head %}
 <style>
 	h1.streetname { margin-bottom: 0; }
@@ -26,9 +26,6 @@ function showtab(tab) {
 		
 	return false; // cancel click
 }
-{% if user_org %}
-{% include "popvox/org_billaction.js" %}
-{% endif %}
 function getshorturl() {
 	$('#getshorturl').html("<em>Loading...</em>");
 	ajax(
@@ -47,18 +44,8 @@ function getshorturl() {
 {% endblock %}
 {% block content %}
 <div class="content pgbill">
-	{% if welcome %}
-		<div class="col_9 col_top cookie-less">
-			<h1>Hello There!</h1>
-			<p>{{welcome}}</p>
-		</div>
-		{% with "1" as no_rule %}
-		{% include "ads/rightbar_single.html" %}
-		{% endwith %}
-		<div class="clear rule_12"> </div>
-	{% endif %}
-
-	{% if canvote and deadbox %}
+	{% if deadbox %}
+	<div id="deadbox">
 		{% if bill.died %} {% comment %}non-bill actions are never "died" {% endcomment %}
 			<div class="alert_dead" style="margin-bottom: 30px"> {% comment %} for the negative margin on the ads {% endcomment %}
 				<h2 class="shadow_up pad_top">{% if not bill.street_name %}{{bill.displaynumber_nosession}}{% else %}{{bill.street_name|capfirst}} ({{bill.displaynumber_nosession}}){% endif %} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned.</h2>
@@ -70,16 +57,16 @@ function getshorturl() {
 					<p>You can increase the chances that the {{bill.proposition_type}} is revived in the new Congress by showing support for reintroduction.</p>
 				</div>
 				<div class="col_6 col_last col_top">
-					<p>Just want to be notified when this {{bill.proposition_type}} is reintroduced?</p>
-					{% if user.is_authenticated %}
-					<div class="track_as_notify">
+					<p>Want to be notified when this {{bill.proposition_type}} is reintroduced?</p>
+					<div id="reintro_track" class="track_as_notify" style="display: none">
 						{% with "+" as tracktype %}
 						{% include "popvox/track.html" %}
 						{% endwith %}
 					</div>
-					{% else %}
+					<div id="reintro_login">
 						<p><input type="button" class="b_login btn" onclick="window.location='/accounts/login?next={{bill.url}}'" value="Join or Login"/></p>
-					{% endif %}
+					</div>
+					<script>master_state(function(res) { if (res.user) { $('#reintro_track').show(); $('#reintro_login').hide(); } });</script>
 					<div class="clear"> </div>
 
 					<ul style="margin-top: 30px">
@@ -101,7 +88,8 @@ function getshorturl() {
 				<p>You can no longer write a comment about this {{bill.proposition_type}}.</p>
 			</div>
 		{% endif %}
-
+	</div>
+	<script>master_state(function(res) { if (!res.page.canvote) $('#deadbox').hide(); });</script>
 	{% endif %}
 
 	<div class="col_9 col_top">
@@ -109,30 +97,27 @@ function getshorturl() {
 			View {{bill.shortname}} report
 		</a>
 		
-		{% if not user.userprofile.is_leg_staff %}
-			{% if not bill.street_name and bill.is_officially_numbered %}
-				<h1>What&rsquo;s your position on {{bill.displaynumber}}?</h1>
-			{% else %}
-				<h1 class="streetname">What&rsquo;s your position on</h1>
-				<h2 class="streetname">{% if bill.street_name %}{{bill.street_name|capfirst}}{% else %}{{bill.title}}{% endif %}</h2>
-			{% endif %}
+		{% if not bill.street_name and bill.is_officially_numbered %}
+			<h1>What&rsquo;s your position on {{bill.displaynumber}}?</h1>
 		{% else %}
-		<h1>Bill Status and Org Positions</h1>
+			<h1 class="streetname">What&rsquo;s your position on</h1>
+			<h2 class="streetname">{% if bill.street_name %}{{bill.street_name|capfirst}}{% else %}{{bill.title}}{% endif %}</h2>
 		{% endif %}
 
 		<div class="block bill_overview_user">
 			<div style="float: left; height: 90px;"> </div> {% comment %}just give a minimum height for the icon {% endcomment %}
-			{% if user.is_authenticated %}
-			<div style="float: left; margin-left: -34px;">
+			<div id="track_me" style="float: left; margin-left: -34px; display: none;">
 				{% with "+" as tracktype %}
 				{% include "popvox/track.html" %}
 				{% endwith %}
 			</div>
-			{% endif %}
+			<script>master_state(function(res) {
+				if (res.user) {
+					$('#track_me').show();
+					track_setstate({{bill.id}}, "+", res.page.tracked);
+				}
+			});</script>
 			
-			{% if user.userprofile.is_leg_staff and bill.street_name %}
-				<h3 class="no_rule"><em>{{ bill.street_name|capfirst }}</em></h3>
-			{% endif %}
 			{% if bill.street_name and not bill.is_officially_numbered %}
 				<h3 class="no_rule">{{ bill.title }}</h3>
 			{% endif %}
@@ -151,6 +136,17 @@ function getshorturl() {
 				{{bill.notes|safe}}
 			{% endif %}
 			
+			{% if deadbox %}
+				{% if bill.died %} {% comment %}non-bill actions are never "died" {% endcomment %}
+					<p>{% if not bill.street_name %}{{bill.displaynumber_nosession}}{% else %}{{bill.street_name|capfirst}} ({{bill.displaynumber_nosession}}){% endif %} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned. {% if not bill.reintroduced_as %}It has not yet been reintroduced.{% endif %}</p>
+						
+					{% if bill.reintroduced_as %}<p>It was reintroduced in the {{bill.reintroduced_as.congressnumber|ordinal}} Congress as <a href="{{bill.reintroduced_as.url}}">{{bill.reintroduced_as.displaynumber}}</a>.</p>{% endif %}
+				{% else %}
+					<p>This {{bill.proposition_type}} {{bill.getDeadReason}}. You can no longer write a comment about this {{bill.proposition_type}}.</p>
+				{% endif %}
+			</div>
+			{% endif %}			
+			
 			<div class="clear"> </div> {% comment %}enforce a minimum height for the icon {% endcomment %}
 		</div>
 	</div>
@@ -160,11 +156,13 @@ function getshorturl() {
 	{% endwith %}
 		
 	{% comment %} START FOR ORG STAFF {% endcomment %}
-	{% if user_org %}
-		<div class="col_6">
-			<h3 class="stroke">What is your organization&rsquo;s position?</h3>
+	<div id="org_bar" style="display: none">
+		<div class="col_9 col_top">
+			<div class="hr"> </div>
+			<h3 class="no_rule">What is your organization&rsquo;s position?</h3>
 	
 			<script>
+			var user_org;
 			var user_org_pos;
 			function endorse_oppose_1(position) {
 				user_org_pos = position;
@@ -173,7 +171,7 @@ function getshorturl() {
 					inline: true,
 					href:'#bill_endorse_oppose_colorbox',
 					opacity: .5,
-					height: "380px",
+					height: "400px",
 					width: "600px",
 					onComplete: function() {
 						if (position == "+") {
@@ -193,7 +191,7 @@ function getshorturl() {
 			function endorse_oppose_2() {
 				// $.colorbox.close(); // don't close colorbox since we are redirecting
 				ajax("/post/org_support_oppose",
-					{ "org": "{{user_org.slug|escapejs}}",
+					{ "org": user_org.slug,
 					   "cam": ( $('#bill_endorse_oppose_forcam')[0].checked ? $('#bill_endorse_oppose_cam').val() : "_default_"),
 					   "bill": "{{bill.url|escapejs}}",
 					   "position": user_org_pos,
@@ -207,7 +205,7 @@ function getshorturl() {
 							else if ($('#bill_endorse_oppose_forcam')[0].checked)
 								window.location = res.camurl;
 							else
-								window.location = "{{user_org.url|escapejs}}";
+								window.location = user_org.url;
 						},
 						failure: function() {
 							$.colorbox.close();
@@ -218,11 +216,9 @@ function getshorturl() {
 			</script>
 	
 		    <div id="bill_endorse_oppose">
-		    	{% if not existing_org_positions %}
-					<p>Does <strong>{{user_org.name}}</strong> endorse or oppose this {{bill.proposition_type}}?</p>
-				{% endif %}
+				<p>Does <strong class="orgname"></strong> endorse or oppose this {{bill.proposition_type}}?</p>
 
-				<div id="bill_endorse_oppose_options" {% if existing_org_positions %}style="display: none"{% endif %}>
+				<div id="bill_endorse_oppose_options">
 				<div id="bill_endorse_oppose_holder">
 					<input id="billsearch_endorse_oppose_submit_endorse" class="submit" type="button" value="Endorse" onclick="endorse_oppose_1('+')"/>
 					<input id="billsearch_endorse_oppose_submit_oppose" class="submit" type="button" value="Oppose" onclick="endorse_oppose_1('-')"/>
@@ -231,32 +227,25 @@ function getshorturl() {
 				<p><small>Or leave a <a href="#" onclick="return endorse_oppose_1('0')">neutral statement</a>.</small></p>
 				</div>
 	
-				{% if existing_org_positions %}
-					<div id="bill_position_org">
-						{% if existing_org_positions.0.position == "endorsed" %}<h3 id="org_position_endorsed">endorsed</h3>{% endif %}
-						{% if existing_org_positions.0.position == "opposed" %}<h3 id="org_position_opposed">opposed</h3>{% endif %}
-						{% if existing_org_positions.0.position == "listed neutral with a statement" %}<h3 id="org_position_neutral">neutral statement</h3>{% endif %}
-						<a class="b_change_position btn" href="#" onclick="$('#bill_position_org').hide(); $('#bill_endorse_oppose_options').show(); return false;">change position</a>
-					</div>
+				<div id="bill_position_org" style="display: none;">
+					<h3 id=""></h3>
+					<a class="b_change_position btn" href="#" onclick="$('#bill_position_org').hide(); $('#bill_endorse_oppose_options').show(); return false;">change position</a>
 					<div class="clear"> </div>
+					<p></p>
+				</div>
 
-					<p>It is currently {% for pp in existing_org_positions %}{% if not forloop.first %} and {% endif %}{{pp.position}}{% if not pp.campaign.default %} in <a href="{{pp.campaign.url}}">{{pp.campaign.name}}</a>{% else %} by your organization{% if existing_org_positions|length > 1 %} generally{% endif %}{% endif %}{% endfor %}.</p>
-				{% endif %}
-		
 				<div style="display: none">
 					<div id="bill_endorse_oppose_colorbox" class="colorbox" style="width: 500px">
 					<h1><span id="bill_endorse_oppose_descr2"></span> {{ bill.shortname }}?</h1>
-					<p>You are about to <span id="bill_endorse_oppose_descr"></span> {{ bill.shortname }} in {{user_org.name}}&rsquo;s legislative agenda.</p>
+					<p>You are about to <span id="bill_endorse_oppose_descr"></span> {{ bill.shortname }} in <span class="orgname"> </span>&rsquo;s legislative agenda.</p>
 					<p>Please provide a short explanation for your position in the form of a summary of what this {{bill.proposition_type}} does.</p>
-					<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%">{% for p in existing_org_positions %}{% if forloop.first %}{{p.comment}}{% endif %}{% endfor %}</textarea>
+					<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%"></textarea>
 					<div>
-						<input type="checkbox" id="bill_endorse_oppose_forcam" onclick="if ($('#bill_endorse_oppose_forcam')[0].checked) $('#bill_endorse_oppose_cam').attr('disabled', ''); else $('#bill_endorse_oppose_cam').attr('disabled', '1');" {% if lastviewedcampaign %}checked="1"{% endif %}/>
+						<input type="checkbox" id="bill_endorse_oppose_forcam" onclick="if ($('#bill_endorse_oppose_forcam')[0].checked) $('#bill_endorse_oppose_cam').attr('disabled', ''); else $('#bill_endorse_oppose_cam').attr('disabled', '1');"/>
 						<label for="bill_endorse_oppose_forcam">Add this {{bill.proposition_type}} to a campaign.</label>
 					</div>
 					<div id="bill_endorse_oppose_camdiv">
-						<select id="bill_endorse_oppose_cam" {% if not lastviewedcampaign %}disabled="1"{% endif %}>
-							{% for campaign in user_org.orgcampaign_set.all %}{% if not campaign.default %}<option value="{{campaign.slug}}" {% if campaign.id == lastviewedcampaign.id %}selected="1"{% endif %}>{{ campaign.name }}</option>{% endif %}{% endfor %}
-							<option value="_new_">&lt; Create a New Campaign... &gt;</option>
+						<select id="bill_endorse_oppose_cam" disabled="1">
 						</select>
 					</div>
 					<div style="margin-top: 1em">
@@ -268,37 +257,94 @@ function getshorturl() {
 			
 			</div> <!-- bill_endorse_oppose -->
 		
-		</div> <!-- col_6 -->
-		
-		<div class="col_3 col_last col_orange">
-			<h3>Drive Your Membership to Take Action</h3>
-			{% if not existing_org_positions %}
-				<p>POPVOX provides organizations with customized action pages to drive membership to take action. Start by endorsing or opposing this {{bill.proposition_type}}.</p>
-			{% else %}
-				{% for position in existing_org_positions %}
-					{% if forloop.first %}
-						{% include "popvox/org_billaction.html" %}
-					{% endif %}
-				{% endfor %}
-			{% endif %}
-		</div> <!-- col_3 -->
-	{% endif %}
+		</div> <!-- col_9 -->
+	</div>
+	<script>master_state(function(res) {
+		if (res.user && res.user.orgs.length > 0) {
+			$('#org_bar').show();
+			
+			// Since a user may be an admin of multiple orgs and we only support
+			// one here, pick one. If no org has a position on the bill, use the
+			// first org the user is an admin of.
+			user_org = res.user.orgs[0]; // req. fields slug, url, name, campaigns { id, name, slug, default }
+			
+			// Otherwise the first org that has a position on this bill...
+			if (res.page.matched_campaigns.length > 0) {
+				$('#bill_endorse_oppose_options').hide();
+				$('#bill_position_org').show();
+				if (res.page.matched_campaigns[0].position == "+")
+					$('#bill_position_org h3').attr('id', "org_position_endorsed").text("endorsed");
+				if (res.page.matched_campaigns[0].position == "-")
+					$('#bill_position_org h3').attr('id', "org_position_opposed").text("opposed");
+				if (res.page.matched_campaigns[0].position == "0")
+					$('#bill_position_org h3').attr('id', "org_position_neutral").text("neutral");
+				for (var i = 0; i < res.user.orgs.length; i++) {
+					if (res.page.matched_campaigns[0].org == res.user.orgs[i].id) {
+						user_org = res.user.orgs[i];
+						break;
+					}
+				}
+				
+				var st = "It is currently ";
+				for (var i = 0; i < res.page.matched_campaigns.length; i++) {
+					var p = res.page.matched_campaigns[i];
+					if (i > 0 && res.page.matched_campaigns.length > 2) st += ", ";
+					if (i == res.page.matched_campaigns.length-1 && res.page.matched_campaigns.length > 1) st += " and ";
+					st += (p.position == "+" ? "endorsed" : (p.position == "-" ? "opposed" : "listed with a neutral statement"));
+					st += " ";
+					st += (p.campaign == "" ? (res.user.orgs.length == 1 ? "by your organization" : "by " + p.orgname) : "in " + p.campaign);
+					
+					if (p.comment) $('#bill_endorse_oppose_comment').val(p.comment);
+				}
+				st += "."
+				$('#bill_position_org p').text(st);
+			}
+			
+			// Fill in the campaign list.
+			for (var i = 0; i < user_org.campaigns.length; i++) {
+				if (!user_org.campaigns[i].default) {
+					$('#bill_endorse_oppose_cam').append($('<option/>').attr('value', user_org.campaigns[i].slug).attr('selected', user_org.campaigns[i].id == res.page.lastviewedcampaign ? "1" : "").text(user_org.campaigns[i].name));
+				}
+			}
+			$('#bill_endorse_oppose_cam').append($('<option value="_new_">&lt; Create a New Campaign... &gt;</option>'));
+			if (res.page.lastviewedcampaign > 0) {
+				$('#bill_endorse_oppose_forcam').attr('checked', true);
+				$('#bill_endorse_oppose_cam').attr('disabled', false);
+			}
+			
+			$("#org_bar .orgname").text(user_org.name);
+		}
+	});</script>
 	{% comment %} END FOR ORG STAFF {% endcomment %}
 	
 	{% comment %} START OF USER VOTE {% endcomment %}
-		{% if canvote and not deadbox %}
+	<div id="user_bar" {% if deadbox %}style="display: none;"{% endif %}>
+		{% comment %}if the bill is dead, hide this box unless the user already commented{% endcomment %}
 		<div class="hr"> </div>
 	
 		<div class="col_3 col_top">
 			<h3 class="no_rule">What do you think?</h3>
-			{% include "popvox/bill_howshouldtheyvote.html" %}
+			<p>
+				{% if nextchamber == "s" %}The next vote on this bill will occur in the Senate. {% endif %}
+				{% if nextchamber == "h" %}The next vote on this bill will occur in the House of Representatives. {% endif %}
+				<span id="howshouldtheyvote">
+					{% if nextchamber == "s" %}How should your senators vote?{% endif %}
+					{% if nextchamber == "h" %}How should your representative vote?{% endif %}
+					{% if nextchamber != "s" and nextchamber != "h" %}How should your Members of Congress vote?{% endif %}
+				</span>
+			</p>
+			<script>master_state(function(res) { if (res.page.mocs) $('#howshouldtheyvote').text("How should " + res.page.mocs + " vote?"); });</script>
 			
 			<div><small id="getshorturl"><a href="#" onclick="return getshorturl()">Share this {{bill.proposition_type}}</a></small></div>
 		</div>
 		<div id="bill_endorse_oppose_holder_user">
 			{% include "popvox/bill_uservote.html" %}
 		</div>
-		{% endif %}
+	</div>
+	<script>master_state(function(res) {
+		if (res.user && (res.user.orgs.length > 0 || res.user.legstaffrole)) $('#user_bar').hide();
+		if (res.page.user_position) $('#user_bar').show();
+	});</script>
 	{% comment %} END OF USER VOTE {% endcomment %}
 
 	{% comment %} START OF PIE CHART {% endcomment %}
@@ -314,14 +360,9 @@ function getshorturl() {
 	<script>var initial_tab;</script>
 	<div class="col_3">
 		<ul class="tab_tab">
-			{% if welcome_tabname %}
-			<li id="welcome_tab" class="active"><a href="#" onclick="return showtab('welcome')">{{welcome_tabname}}</a></li>
-			<script>if (!initial_tab) initial_tab = "welcome";</script>
-			{% endif %}
-			
 			{% for position, orgset in orgs %}
 			{% if position == "support" or position == "oppose" or orgset|length > 0 %}
-			<li id="orgs{{position}}_tab" {% if not welcome_tabname and forloop.counter == 1 %}class="active"{% endif %}><a href="#" onclick="return showtab('orgs{{position}}')">{% if position == "support" %}Organizations Endorsing{% endif %}{% if position == "oppose" %}Organizations Opposing{% endif %}{% if position == "neutral" %}Other Statements{% endif %}{% if position == "administration" %}The Administration{% endif %}</a></li>
+			<li id="orgs{{position}}_tab" {% if forloop.counter == 1 %}class="active"{% endif %}><a href="#" onclick="return showtab('orgs{{position}}')">{% if position == "support" %}Organizations Endorsing{% endif %}{% if position == "oppose" %}Organizations Opposing{% endif %}{% if position == "neutral" %}Other Statements{% endif %}{% if position == "administration" %}The Administration{% endif %}</a></li>
 			<script>if (!initial_tab && {{orgset|length}}) initial_tab = "orgs{{position}}";</script>
 			{% endif %}
 			{% endfor %}
@@ -338,34 +379,11 @@ function getshorturl() {
 			<li id="widgetpane_tab"><a href="#" onclick="return showtab('widgetpane')">Add POPVOX to your site</a></li>
 			<script>if (!initial_tab) initial_tab = "widgetpane";</script>
 			
-			{% if users.tracking or users.commented %} {% comment %} for admins {% endcomment %}
-			<li id="admin_tracking_tab"><a href="#" onclick="return showtab('admin_tracking')">ADMIN &gt; Users Tracking</a></li>
-			{% endif %}
+			<li id="admin_tracking_tab" style="display: none;"><a href="#" onclick="return showtab('admin_tracking')">ADMIN &gt; Users Tracking</a></li>
 		</ul>
 	</div>
 	
 	<div class="tab_pane">
-		{% if welcome_tabname %}
-		<div id="welcome" class="tab_panel">
-			{% if referral_orgposition %}
-				<h3 class="no_rule">{{ referral_orgposition.campaign.org.name }}</h3>
-				<p>This organization {% if referral_orgposition.position == "+" %}endorses{% endif %}{% if referral_orgposition.position == "-" %}opposes{% endif %}{% if referral_orgposition.position == "0" %}posted a neutral statement about{% endif %} this {{bill.proposition_type}}. {% if referral_orgposition.comment %}They had this to say about it:{% endif %}</p>
-				
-				{{ referral_orgposition.comment|wraplines:"p" }}
-				
-				
-				<p>For more information see 
-					{% if not referral_orgposition.campaign.default %}
-					<a href="{{referral_orgposition.campaign.url}}">{{referral_orgposition.campaign.name}}</a>.
-					{% else %}
-					<a href="{{referral_orgposition.campaign.org.url}}">{{referral_orgposition.campaign.org.name}}</a>.
-					{% endif %}
-				</p>
-				
-			{% endif %}
-		</div>
-		{% endif %}
-	
 		<div id="billstatus" style="display: none" class="tab_panel">
 			<h3 class="no_rule">Bill Status</h3>
 			
@@ -377,17 +395,14 @@ function getshorturl() {
 			{% endif %}
 			<div id="status">
 				<h4>Status</h4>
-				{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-					<p>{{bill.status_advanced}} ({{bill.current_status_date|date2}})</p>
-				{% else %}
-					<p>{{bill.status}}</p>
-				{% endif %}
+				<p>{{bill.status_advanced}} ({{bill.current_status_date|date2}})</p>
+				<p>{{bill.status}}</p>
 			</div>
 			<div class="clear"> </div>
 		</div>
 	    
 		{% for position, orgset in orgs %}
-			<div id="orgs{{position}}" {% if welcome_tabname or forloop.counter >= 2 %}style="display: none"{% endif %} class="tab_panel">
+			<div id="orgs{{position}}" {% if forloop.counter >= 2 %}style="display: none"{% endif %} class="tab_panel">
 				{% if position != "administration" %}
 				<div style="float: right">
 					<small>order determined by social media popularity</small>
@@ -428,34 +443,41 @@ function getshorturl() {
 				{% endif %}
 				{% endfor %}
 				
-			    {% if existing_org_positions %}
-				    {% if user_org and not user_org.approved %}
-						<p>Your organization will appear as an endorsing or opposing group on legislation in your agenda once your organization is approved and published.</p>
-					{% else %}
-						{% if user_org and not user_org.visible %}
-						<p>Your organization will not show up as an endorsing or opposing group on legislation in your agenda until you <a href="{{user_org.url}}/_edit">publish your organization profile</a>.</p>
-						{% endif %}
-				    {% endif %}
-			    {% endif %}
+				<p class="org_position_visibility_note"></p>
 	
 			</div>
 		{% endfor %}
+		<script>master_state(function(res) {
+			if (res.page.matched_campaigns)
+			for (var i = 0; i < res.page.matched_campaigns.length; i++) {
+				var vs = res.page.matched_campaigns[i].visible_state;
+				if (vs == "org-needs-approval")
+					$(".org_position_visibility_note").text("Your organization will appear as an endorsing or opposing group on legislation in your agenda once your organization is approved and published.");
+				else if (vs == "org-not-published")
+					$(".org_position_visibility_note").text("Your organization will not show up as an endorsing or opposing group on legislation in your agenda until you publish your organization profile.");
+				else if (vs == "campaign-not-published")
+					$(".org_position_visibility_note").text("Your organization will not show up as an endorsing or opposing group on this bill until you publish your campaign.");
+			}
+		});</script>
 		
-		{% if users.tracking or users.commented %}
 		<div id="admin_tracking" style="display: none" class="tab_panel">
 			<p>This tab is displayed to admins only....</p>
 		
-			<h3>Individuals Tracking This Bill ({{users.tracking|length}}):</h3>
-			{% for userprofile in users.tracking %}
-				<div>{{userprofile.user.email}}</div>
-			{% endfor %}
+			<h3>Individuals Tracking This Bill (<span id="admin_tracking_tracking_count"> </span>):</h3>
+			<div id="admin_tracking_tracking"> </div>
 			
-			<h3>Users That Weighed In ({{users.commented|length}})</h3>
-			{% for userprofile in users.commented %}
-				<div>{{userprofile.user.email}}</div>
-			{% endfor %}
+			<h3>Users That Weighed In (<span id="admin_tracking_weighedin_count"> </span>)</h3>
+			<div id="admin_tracking_weighedin"> </div>
 		</div>
-		{% endif %}
+		<script>master_state(function(res) {
+				if (res.page.admin && (res.page.admin.tracking.length > 0 || res.page.admin.commented.length > 0)) {
+					$('#admin_tracking_tab').show();
+					$('#admin_tracking_tracking_count').text(res.page.admin.tracking.length);
+					$('#admin_tracking_weighedin_count').text(res.page.admin.commented.length);
+					$('#admin_tracking_tracking').text(res.page.admin.tracking.join(", "));
+					$('#admin_tracking_weighedin').text(res.page.admin.commented.join(", "));
+				}
+		});</script>
 
 		<div id="billtext" style="display: none" class="tab_panel">
 			<iframe width="675" height="500" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe>

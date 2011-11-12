@@ -5,7 +5,6 @@
 {%block nav_legstaff_class_bills%}active{%endblock%}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -73,32 +72,17 @@ $(function() {
 {% endblock %}
 {% block content %}
 
-{% comment %}
-{% if user.is_anonymous %}
-<div style="display: none">
-	<div id="welcome" class="colorbox" style="width: 450px">
-		<h1>Welcome to POPVOX</h1>
-		<p>Individuals take action on POPVOX by writing messages in support of or opposition to bills before Congress.</p>
-		<p style="text-align: center; font-size: 16px"><strong>Find a Bill that You Have an Opinion About</strong></p>
-		<p>Browse the “hot” legislation on this page for a bill you recognize from the news, or to search all bills in Congress using keywords. But you may need to do some research to find out what each bill is about before commenting on it.</p>
-		<p><a class="b_get_started btn_c" href="#" onclick="$.colorbox.close(); return false;">Let&rsquo;s Get Started</a></p>
-	</div>
-</div>
-{% endif %}
-{% endcomment %}
-
 <div class="content">
 	
 	<div class="col_9 col_top">
-		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}
 		<h1>What do you think about these bills?</h1>
-		{% else %}
-		<h1>Bills in Congress</h1>
-		{% endif %}
 		
-		{% if user.is_anonymous %}
-		<p style="margin-bottom: 2em">With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress.</p>
-		{% endif %}
+		<p id="anonymous" style="margin-bottom: 2em; display: none;">With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress.</p>
+		
+		<script>master_state(function(res) {
+			if (res.user && res.user.legstaffrole) $('.content h1').text("Bills in Congress");
+			if (!res.user) $('#anonymous').show();
+		});</script>
 		
 		<iframe src="/widgets/top-bills" width="700" height="150" frameborder="0" scrolling="no" style="margin-bottom: 15px"> </iframe>
 		
@@ -164,13 +148,7 @@ $(function() {
 				
 				{% comment %}
 				<p><strong>Status:</strong>
-				<em>
-				{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-					{{bill.status_advanced}}  ({{bill.current_status_date|date2}})
-				{% else %}
-					{{bill.status}}
-				{% endif %}
-				</em></p>
+				<em>{{bill.status}}</em></p>
 
 				{% if bill.description %}<p class="bill_detail">{{ bill.description|truncatewords:18 }}</p>{% endif %}
 				

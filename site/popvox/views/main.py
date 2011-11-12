@@ -2,10 +2,12 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpRespons
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist, Context, loader
 from django.views.generic.simple import direct_to_template
+from django.views.decorators.csrf import csrf_protect
 from django.core.cache import cache
 from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import resolve
 from django import forms
+from django.conf import settings
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
@@ -16,7 +18,10 @@ from datetime import datetime, timedelta
 
 from popvox.models import *
 
+@csrf_protect
 def master_state(request):
+	# Return basic user data common to all pages and used by the master page layout
+	# and other page templates.
 	data = {
 		"user": {
 			"id": request.user.id,
@@ -25,10 +30,13 @@ def master_state(request):
 			"email": request.user.email,
 			"admin": request.user.is_superuser or request.user.is_staff,
 			"orgs": [{
+					"id": orgrole.org.id,
 					"name": orgrole.org.name,
+					"slug": orgrole.org.slug,
 					"url": orgrole.org.url(),
 					"title": orgrole.title,
-				} for orgrole in request.user.orgroles.all()],
+					"campaigns": [{ "id": cam.id, "name": cam.name, "slug": cam.slug, "default": cam.default } for cam in orgrole.org.all_campaigns()],
+				} for orgrole in request.user.orgroles.all().select_related("org")],
 			"legstaffrole": {
 					"membername": request.user.legstaffrole.member.name() if request.user.legstaffrole.member else None,
 					"committeename": request.user.legstaffrole.committee.name() if request.user.legstaffrole.committee else None,
@@ -40,12 +48,29 @@ def master_state(request):
 		} if request.user.is_authenticated() else None
 	}
 	
+	# If the view function for the page indicated in the url parameter has a user_state
+	# attribute function, call that function with the same parameters as was called for
+	# the main page view function and include the output, typically a dict, in the JSON
+	# output of this request.
 	try:
 		m = resolve(request.GET["url"])
 		if hasattr(m.func, "user_state"):
 			data["page"] = m.func.user_state(request, *m.args, **m.kwargs)
 	except Exception as e:
 		data["error"] = str(e)
+		
+	# Pass back the CSRF token so that it can be included on AJAX posts from the calling page.
+	# get_token() in combination with csrf_protect on this view causes the CSRF cookie to
+	# be set on the response.
+	from django.middleware.csrf import get_token
+	data["csrf_token"] = get_token(request)
+	
+	# In debugging environment, include the SQL log.
+	if settings.DEBUG:
+		from django.db import connection
+		data["debug"] = {
+			"sql": connection.queries,
+		}
 	
 	response = HttpResponse(json.dumps(data), mimetype="text/json")
 	response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
