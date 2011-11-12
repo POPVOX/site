@@ -5,6 +5,7 @@ from django.db import IntegrityError
 import random
 from datetime import datetime, date, timedelta
 from time import time
+from collections import OrderedDict
 
 from models import *
 import cache
@@ -281,7 +282,8 @@ def show_banner(format, request, context, targets, path):
 		
 	# Prepare the list of ads we've served to this user recently. Prune the list
 	# of ads not seen in two days, which is the maximum.
-	adserver_trail = getattr(request, "adserver_trail", {})
+	adserver_trail = getattr(request, "adserver_trail", OrderedDict())
+	if type(adserver_trail) == dict: adserver_trail = OrderedDict(adserver_trail) # legacy forward conversion
 	for bannerid, last_impression_date in adserver_trail.items():
 		if now - last_impression_date > timedelta(days=2):
 			del adserver_trail[bannerid]

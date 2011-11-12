@@ -1,6 +1,5 @@
 from signedpickle import dumps, loads
 
-
 class Middleware:
 	def process_request(self, request):
 		try:
