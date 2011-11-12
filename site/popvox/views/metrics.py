@@ -229,8 +229,8 @@ def metrics_report_spreadsheet(request, sheet):
 				setattr(bill, str(i) + "_support", c_a)
 				setattr(bill, str(i) + "_oppose", c_b)
 				setattr(bill, str(i) + "_total", c_c)
-				setattr(bill, str(i) + "_sup_pct", 100 * c_a / c_c if c_c > 0 else "")
-				setattr(bill, str(i) + "_opp_pct", 100 * c_b / c_c if c_c > 0 else "")
+				setattr(bill, str(i) + "_sup_pct", round(100.0 * float(c_a) / float(c_c)) if c_c > 0 else "")
+				setattr(bill, str(i) + "_opp_pct", round(100.0 * float(c_b) / float(c_c)) if c_c > 0 else "")
 			q = bill.usercomments.filter(created__gte=datetime(2011, 10, 24))
 			c_a = q.filter(position="+").count()
 			c_b = q.filter(position="-").count()
@@ -238,8 +238,8 @@ def metrics_report_spreadsheet(request, sheet):
 			setattr(bill, "total" + "_support", c_a)
 			setattr(bill, "total" + "_oppose", c_b)
 			setattr(bill, "total" + "_total", c_c)
-			setattr(bill, "total" + "_sup_pct", 100 * c_a / c_c if c_c > 0 else "")
-			setattr(bill, "total" + "_opp_pct", 100 * c_b / c_c if c_c > 0 else "")
+			setattr(bill, "total" + "_sup_pct", round(100.0 * float(c_a) / float(c_c)) if c_c > 0 else "")
+			setattr(bill, "total" + "_opp_pct", round(100.0 * float(c_b) / float(c_c)) if c_c > 0 else "")
 			qs.append(bill)
 
 	else:
