@@ -362,6 +362,7 @@ common_fieldnames = {
 # All lowercase here.
 skippable_fields = ("prefixother", "middle", "middlename",
 "name_middle", 	"middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
+	"countdown",
 	"contact-type",
 	"dummy_zip",
 	"survey_answer_1", "survey_answer_2", "survey_answer_3", "survey", "affl_del",
@@ -782,6 +783,7 @@ def test_zipcode_rejected(webform, deliveryrec):
 		or "Access to the requested form is denied, the zip code which you entered" in webform\
 		or "The zip code (or zip+4) entered is not a valid" in webform\
 		or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform\
+		or "I'm sorry, but it appears that you live outside of Florida's 6th Congressional district" in webform\
         or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
 		deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
 		raise DistrictDisagreementException()
