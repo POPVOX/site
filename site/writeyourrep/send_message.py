@@ -948,7 +948,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# This guy has some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
-	if di.id in (13, 37, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 280, 324, 341, 386, 426, 570, 577, 585, 588, 598, 599, 600, 604, 605, 607, 608, 611, 613, 639, 641, 646, 665, 678, 693, 703, 706, 709, 710, 713, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 784, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
+	if di.id in (13, 37, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 280, 324, 341, 386, 426, 570, 577, 585, 588, 598, 599, 600, 604, 605, 607, 608, 611, 613, 639, 641, 646, 665, 678, 693, 703, 706, 709, 710, 713, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 783, 784, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats

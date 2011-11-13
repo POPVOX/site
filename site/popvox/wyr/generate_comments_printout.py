@@ -52,10 +52,10 @@ def create_tex(tex, serial):
 	outfile.write_esc = lambda x : outfile.write(escape_latex(x))
 	
 	outfile.write(r"\documentclass[twocolumn,notitlepage]{report}" + "\n")
-	outfile.write(r"\usepackage[top=1in, bottom=3.55in, left=.85in, right=.85in]{geometry}" + "\n")
+	outfile.write(r"\usepackage[top=1in, bottom=3.20in, left=.85in, right=.85in]{geometry}" + "\n")
 	outfile.write(r"\pagestyle{myheadings}" + "\n")
 	outfile.write(r"\usepackage{fontspec}" + "\n")
-	outfile.write(r"\setromanfont{Linux Libertine O}" + "\n")
+	outfile.write(r"\setromanfont[BoldFont={* Bold}]{Linux Libertine O}" + "\n")
 	outfile.write(r"\usepackage{pdfpages}")
 	
 	outfile.write(r"\usepackage{graphicx}" + "\n")
@@ -84,13 +84,14 @@ def create_tex(tex, serial):
 	targets2 = []
 	
 	for govtrack_id, batch in targets:
+		topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).values("comment__bill", "comment__position").distinct()
+		
 		if batch != None:
 			batch_no = batch
 		else:
-			# Don't create a new batch for this target if there are fewer than three messages to
-			# deliver and they were all written in the last two weeks.
-			#if UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).count() < 3 and UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=datetime.datetime.now() - datetime.timedelta(days=14)).count() == 0:
-			#	continue
+			# if there are only comments without messages, skip this office
+			if not topics_in_batch.filter(comment__message__isnull=False).exists():
+				continue
 			
 			batch_max += 1
 			batch_no = serial + ":" + str(batch_max)
@@ -113,7 +114,7 @@ def create_tex(tex, serial):
 		outfile.write_esc(header)
 		outfile.write(r"}" + "\n")
 
-		outfile.write(r"{\Large \noindent ")
+		outfile.write(r"{\Large \bf \noindent ")
 		outfile.write_esc(getMemberOfCongress(govtrack_id)["name"])
 		outfile.write(r"} \bigskip" + "\n\n" + r"\noindent ")
 
@@ -122,23 +123,30 @@ def create_tex(tex, serial):
 
 		outfile.write(r"\bigskip" + "\n\n")
 		
-		topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).values("comment__bill", "comment__position").distinct()
-		
-		use_pagebreaks = topics_in_batch.count() < 15
+		use_pagebreaks = topics_in_batch.count() < 10
 		
 		for t2 in topics_in_batch.order_by("comment__bill", "comment__position"):
 			position = t2["comment__position"]
 			bill = Bill.objects.get(id=t2["comment__bill"])
+
+			comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position).select_related("comment")
 			
-			outfile.write(r"{\large \noindent ")
+			# if there are only comments without messages, skip this group
+			if not comments_in_topic.filter(comment__message__isnull=False).exists():
+				continue
+
+			outfile.write(r"\hrule\bigskip" + "\n\n")
+			outfile.write(r"{\large \bf \noindent ")
 			if position == "+": outfile.write_esc("Support: ")
 			if position == "-": outfile.write_esc("Oppose: ")
 			outfile.write_esc(bill.title)
-			outfile.write(r"}\nopagebreak\bigskip" + "\n\n\n")
+			outfile.write(r"}")
 			
-			outfile.write("\\noindent (see http://popvox.com" + bill.url() + "/report)\n\n\n\\bigskip")
+			outfile.write(r"\\ {\small ")
+			outfile.write_esc("http://popvox.com" + bill.url() + "/report")
+			outfile.write("}\n\n\\bigskip")
 			
-			for t3 in UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__message__isnull=False):
+			for t3 in comments_in_topic:
 				# Move this into the new batch number if it's not in a numbered batch.
 				if batch == None:
 					t3.batch = batch_no
@@ -154,28 +162,33 @@ def create_tex(tex, serial):
 						fr = endpoints[0].notes
 				target_errors[fr] = True
 				
-				outfile.write(r"\hrule\bigskip" + "\n\n")
+				#outfile.write("\n\n" + r"\hspace{.75in}\rule{1.75in}{.075mm}" + "\n\n" + r"\bigskip" + "\n\n")
 				outfile.write(r"\noindent ")
 				outfile.write_esc(address.nameprefix + " " + address.firstname + " " + address.lastname + " " + address.namesuffix)
-				outfile.write(r"\hfill" + "\n")
-				outfile.write_esc(comment.updated.strftime("%x"))
+				outfile.write(r"\hfill ")
+				outfile.write_esc(comment.user.email)
 				outfile.write(r"\\\nopagebreak" + "\n")
 				outfile.write_esc(address.address1)
+				outfile.write(r"\hfill ")
+				outfile.write_esc(address.phonenumber)
 				outfile.write(r"\\\nopagebreak" + "\n")
 				if address.address2 != "":
 					outfile.write_esc(address.address2)
 					outfile.write(r"\\\nopagebreak" + "\n")
 				outfile.write_esc(address.city + ", " + address.state + " " + address.zipcode)
-				outfile.write(r"\\\nopagebreak" + "\n")
-				outfile.write_esc(address.phonenumber)
-				outfile.write(r" --- " + "\n")
-				outfile.write_esc(comment.user.email)
+				outfile.write(r"\hfill ")
+				outfile.write_esc(comment.updated.strftime("%x"))
 				#outfile.write(r"\\\nopagebreak" + "\n")
 				#outfile.write_esc(comment.updated.strftime("%x"))
-				outfile.write(r"\\\nopagebreak" + "\n\n" + r"\nopagebreak ")
+				outfile.write(r"\\\nopagebreak" + "\n\n" + r"\nopagebreak { \small ")
 			
-				outfile.write_esc(comment.message)
-				outfile.write("\n\n\\bigskip")
+				if comment.message:
+					outfile.write_esc(comment.message)
+					outfile.write("\n\n")
+				else:
+					outfile.write(r"(no comment)")
+					outfile.write("} \n\n\\bigskip")
+					continue # don't show referring org info
 				
 				for referrer in comment.referrers():
 					if isinstance(referrer, Org):
@@ -199,11 +212,13 @@ def create_tex(tex, serial):
 						outfile.write(r"}")
 						outfile.write("\n\n\\bigskip")
 				
+				outfile.write("} \n\n\\bigskip")
+				
 			# clear page after each "topic", i.e. bill and support oppose
 			if use_pagebreaks:
 				outfile.write(r"\clearpage" + "\n")
 			else:
-				outfile.write(r"\hrule\bigskip" + "\n\n")
+				outfile.write(r"\bigskip" + "\n\n")
 				
 		if not use_pagebreaks: # pagebreak before next office
 			outfile.write(r"\clearpage" + "\n")

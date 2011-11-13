@@ -65,6 +65,8 @@ if "TARGET" in os.environ:
 	if m["type"] == "rep":
 		comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
 if "LAST_ERR" in os.environ:
+	if os.environ["LAST_ERR"] == "ANY":
+		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__success=False)
 	if os.environ["LAST_ERR"] == "SR":
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE)
 	if os.environ["LAST_ERR"] == "TIMEOUT":
@@ -223,11 +225,11 @@ def process_comment(comment, thread_id):
 			success += 1
 			continue
 				
-		# Check that we have no UserCommentOfflineDeliveryRecord for, meaning it is pending
+		# Check that we have no UserCommentOfflineDeliveryRecord, meaning it is pending
 		# offline delivery.
 		try:
 			ucodr = UserCommentOfflineDeliveryRecord.objects.get(comment=comment, target=MemberOfCongress.objects.get(id=gid))
-			if ucodr.batch != None and comment.message != None:
+			if ucodr.batch != None:
 				held_for_offline += 1
 				continue
 			else:
@@ -242,7 +244,7 @@ def process_comment(comment, thread_id):
 			endpoint = endpoints[0]
 
 		def mark_for_offline(reason):
-			if comment.message == None or (endpoint != None and endpoint.no_print): return
+			if endpoint != None and endpoint.no_print: return
 			UserCommentOfflineDeliveryRecord.objects.create(
 				comment=comment,
 				target=MemberOfCongress.objects.get(id=gid),
@@ -252,7 +254,7 @@ def process_comment(comment, thread_id):
 		# take a look) then skip electronic delivery till we can resolve it.
 		if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE:
 			needs_attention += 1
-			mark_for_offline("UE")
+			mark_for_offline("UR")
 			continue
 			
 		# If the delivery resulted in a FAILURE_DISTRICT_DISAGREEMENT/ADDRESS_REJECTED then don't retry
@@ -275,15 +277,9 @@ def process_comment(comment, thread_id):
 			continue
 
 		# If we know we have no delivery method for this target, fail fast.
-		if endpoint != None and endpoint.method == Endpoint.METHOD_NONE:
+		if endpoint == None or endpoint.method == Endpoint.METHOD_NONE:
 			failure += 1
 			mark_for_offline("bad-webform")
-			continue
-				#or not Endpoint.objects.filter(govtrackid = gid).exclude(method = Endpoint.METHOD_NONE).exists() \
-
-		if endpoint == None:
-			failure += 1
-			mark_for_offline("no-endpoint")
 			continue
 				
 		# Send the comment.
@@ -300,11 +296,6 @@ def process_comment(comment, thread_id):
 			if not gid in target_counts: target_counts[gid] = 0
 			target_counts[gid] += 1
 			failure += 1
-			
-			if len(comment.address.zipcode) == 5:
-				continue
-			
-			#sys.stdin.readline()
 			continue
 		
 		# If we got this far, a delivery attempt was made although it
