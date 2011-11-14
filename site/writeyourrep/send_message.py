@@ -9,6 +9,7 @@ import xml.sax.saxutils
 from time import clock, sleep
 
 from django.core.mail import send_mail
+from django.conf import settings
 
 from writeyourrep.models import *
 from writeyourrep.district_lookup import get_zip_plus_four
@@ -414,6 +415,9 @@ custom_mapping = {
 	"728_phone1_text": "phone_areacode",
 	"728_phone2_text": "phone_prefix",
     "728_phone3_text": "phone_line",
+    "740_phone_prefix_text": "phone_areacode",
+    "740_phone_first_text": "phone_prefix",
+    "740_phone_second_text": "phone_line",
 	"757_name_text": "firstname",
 	"761_phone1_text": "phone_areacode",
     "761_phone2_text": "phone_prefix",
@@ -540,6 +544,9 @@ def find_webform(htmlstring, webformid, webformurl):
 	# change all tag names to lower case
 	htmlstring = re.sub(r"<(/?)([A-Z]+)", lambda m : "<" + (m.group(1) if m.group(1) != None else "") + m.group(2).lower(), htmlstring)
 	
+	# remove <noscript> because we DO evaluate it and html5lib's parser treats it as CDATA basically
+	htmlstring = re.sub(r"</?noscript>", "", htmlstring)
+	
 	# make sure all input tags are closed
 	#htmlstring = re.sub(r"(<input[^/]+?)(checked)?>", lambda m : m.group(1) + ("" if m.group(2) == None else "checked='1'") + "></input>", htmlstring)
 
@@ -657,7 +664,7 @@ def parse_webform(webformurl, webform, webformid, id):
 		
 	if len(fields) == 0:
 		raise WebformParseException("Form %s has no fields at %s." % (webformid, webformurl))
-
+		
 	# Map the form fields to our data structure and construct the POST data.
 
 	# Create a mapping from form field names to source attributes
@@ -744,6 +751,37 @@ def parse_webform(webformurl, webform, webformid, id):
 
 		elif ax == "zip4":
 			field_default[attr] = ""
+			continue
+			
+		elif ax == "recaptcha_challenge_field":
+			# Use DeathByCaptcha to solve it!
+			
+			# get the iframe URL which will open HTML which will have a challenge field and
+			# an image URL, and load that image.
+			m = re.search(r'<iframe src="(https?://www.google.com/recaptcha/api/noscript\?k=[\w\-]+)"', webform)
+			if not m: raise WebformParseException("Form uses reCAPTCHA but the reCAPTCHA noscript iframe wasn't found.")
+			recaptcha_iframe = m.group(1)
+			iframe_content = urllib2.urlopen(recaptcha_iframe).read()
+			m = re.search(r'<input type="hidden" name="recaptcha_challenge_field" id="recaptcha_challenge_field" value="(.*?)">', iframe_content)			
+			if not m: raise WebformParseException("Form uses reCAPTCHA but the reCAPTCHA iframe content challenge field wasn't found.")
+			recaptcha_challenge_field = m.group(1)
+			m = re.search(r'<img width="300" height="57" alt="" src="(image\?.*?)">', iframe_content)
+			if not m: raise WebformParseException("Form uses reCAPTCHA but the reCAPTCHA iframe content image wasn't found.")
+			image_content = urllib2.urlopen("http://www.google.com/recaptcha/api/" + m.group(1)).read()
+			
+			# solve the captcha
+			import deathbycaptcha, StringIO
+			dbc = deathbycaptcha.SocketClient(settings.DEATHBYCAPTCHA_USERNAME, settings.DEATHBYCAPTCHA_PASSWORD)
+			print 'Calling DeathByCaptcha, remaining balance $%s.' % (dbc.get_balance()/100.0)
+			solution = dbc.decode(StringIO.StringIO(image_content))
+			if not solution: raise WebformParseException("Form uses reCAPTCHA but DeathByCaptcha returned nothing.")
+				
+			# post solution back to reCAPTCHA to get the manual solution key
+			recaptcha_response = urllib2.urlopen(recaptcha_iframe, urllib.urlencode({ "recaptcha_challenge_field": recaptcha_challenge_field, "recaptcha_response_field": solution['text'], "submit": "I'm a human" })).read()
+			m = re.search(r'<textarea rows="5" cols="100">(.*)</textarea>', recaptcha_response)
+			if not m: raise WebformParseException("Form uses reCAPTCHA but reCAPTCHA response didnt seem to be correct: " + recaptcha_response)
+				
+			field_default[attr] = m.group(1)
 			continue
 
 		else:

@@ -134,4 +134,8 @@ Disqus
 
 	primary moderator is Annalee
 	
+DeathByCaptcha.com
+
+	login info is in the tokens.py file
+	
 
