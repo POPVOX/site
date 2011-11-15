@@ -17,9 +17,7 @@ def verify_adddress(address, validate=True):
 	from settings import CDYNE_LICENSE_KEY
 
 	if validate and "pobox" in address.address1.replace(" ", "").lower() and address.address2.strip() != "":
-		raise AddressVerificationError("A PO Box address cannot have a second address line.", mandatory=True)
-	if validate and "pobox" in address.address2.replace(" ", "").lower():
-		raise AddressVerificationError("A PO Box cannot be placed in the second address line.", mandatory=True)
+		raise AddressVerificationError("A PO Box address cannot have a second address line. If your mail requires a street address and PO Box, enter the PO Box on the second line.", mandatory=True)
 
 	if validate and len([s for s in address.phonenumber if s.isdigit()]) != 10:
 		raise AddressVerificationError("Congressional offices only accept ten digit phone numbers without extensions. Please provide a ten digit phone number.", mandatory=True)
@@ -36,7 +34,7 @@ def verify_adddress(address, validate=True):
 			"LicenseKey": CDYNE_LICENSE_KEY,
 			#"FirmOrRecipient": ,
 			"PrimaryAddressLine": address.address1,
-			"SecondaryAddressLine": address.address2,
+			"SecondaryAddressLine": address.address2 if "pobox" not in address.address2.replace(" ", "").lower() else "",
 			"CityName": address.city,
 			"State": address.state,
 			"ZipCode": address.zipcode,
