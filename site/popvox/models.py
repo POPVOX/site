@@ -1489,7 +1489,15 @@ class ServiceAccount(models.Model):
 		if self.user: return unicode(self.user)
 		if self.org: return unicode(self.org)
 		return "Anonymous ServiceAccount"
-		
+
+	@property
+	def shortname(self):
+		if self.name: return self.name
+		if self.user and self.org: return self.user.username + "/" + self.org.slug
+		if self.user: return self.user.username
+		if self.org: return self.org.slug
+		return "anonymous"
+
 	def save(self, *args, **kwargs):
 		# initialize keys
 		if not self.api_key:
