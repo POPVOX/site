@@ -209,7 +209,7 @@ def metrics_report_spreadsheet(request, sheet):
 		
 	elif sheet == "supercommittee":
 		header = ["title"]
-		nweeks = 2
+		nweeks = 3
 		for i in range(nweeks):
 			header.extend([str(i) + "_support", str(i) + "_oppose", str(i) + "_total", str(i) + "_sup_pct", str(i) + "_opp_pct"])
 		header.extend(["total" + "_support", "total" + "_oppose", "total" + "_total", "total" + "_sup_pct", "total" + "_opp_pct"])
