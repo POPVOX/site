@@ -263,26 +263,52 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
 	c.SetMatchMode(SPH_MATCH_EXTENDED)
 	c.SetFilter("congressnumber", [cn])
 	ret = c.Query(q, "bill_titles")
-	bills = []
+	bill_weights = { }
 	status = "ok"
 	error = None
 	if ret == None:
 		error = c.GetLastError()
-		search_response = []
 		status = "callfail"
 	else:
 		for b in ret["matches"]:
-			bills.append(b["id"])
-			if len(bills) == 100:
+			bill_weights[b["id"]] = (0, 0, -b["weight"]) # default sort order
+			if len(bill_weights) == 100:
 				status = "overflow"
 				break
 
-	# Pull in the bill objects for the search result matches. Order
-	# by the number of user comments in the last three weeks.
-	return (
-		Bill.objects.filter(id__in=bills) \
-			.filter(usercomments__created__gt=datetime.now()-timedelta(days=21)).annotate(Count('usercomments')).order_by('-usercomments__count'),
-		status, error)
+	# Pull in the bill objects for the search result matches.
+
+	# Update sort order for those bills with comments in the last three weeks.
+	for b in Bill.objects.filter(id__in=bill_weights.keys()).filter(usercomments__created__gt=datetime.now()-timedelta(days=21)).annotate(count=Count('usercomments')).values("id", "count") :
+ 		bill_weights[b["id"]] = (-b["count"], bill_weights[b["id"]][1], bill_weights[b["id"]][2])
+	
+	# Update sort order for those bills with comments ever.
+	for b in Bill.objects.filter(id__in=bill_weights.keys()).annotate(count=Count('usercomments')).values("id", "count") :
+ 		bill_weights[b["id"]] = (bill_weights[b["id"]][0], -b["count"], bill_weights[b["id"]][2])
+
+	# The previous query omits bills without comments, so re-pull the complete
+	# match list and assign weights.
+	bills = list(Bill.objects.filter(id__in=bill_weights.keys()))
+	for b in bills:
+		b.weight = bill_weights[b.id]
+		#b.title += repr(b.weight)
+		
+	# Combine the three sort orders, but first compute the min/max value for each.
+	weightrange = ([None, None], [None, None], [None, None])
+	for b in bills:
+		for v in xrange(len(b.weight)):
+			if weightrange[v][0] == None or b.weight[v] < weightrange[v][0]: weightrange[v][0] = b.weight[v]
+			if weightrange[v][1] == None or b.weight[v] > weightrange[v][1]: weightrange[v][1] = b.weight[v]
+	for b in bills:
+		w = 0
+		for v in xrange(len(b.weight)):
+			if weightrange[v][0] == weightrange[v][1]: continue
+			w += 1.0/(v+1) * (b.weight[v]-weightrange[v][0])/(weightrange[v][1]-weightrange[v][0])
+		b.weight = w
+		
+	bills.sort(key = lambda bill : bill.weight)
+		
+	return (bills, status, error)
 
 @csrf_protect_if_logged_in
 def billsearch(request):
@@ -850,6 +876,9 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 			}, context_instance=RequestContext(request))
 			
 	elif request.POST["submitmode"] == "Submit Comment >" or request.POST["submitmode"] == "Clear Comment >":
+		if not request.user.is_authenticated():
+			raise Http404()
+		
 		if position == "0":
 			# Clear the user's comment on this bill.
 			request.goal = { "goal": "comment-clear" }
@@ -864,8 +893,6 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 		
 		# Validation.
 		
-		if not request.user.is_authenticated():
-			raise Http404()
 		if request.user.userprofile.is_leg_staff():
 			return HttpResponse("Legislative staff cannot post comments on legislation.")
 		if request.user.userprofile.is_org_admin():
