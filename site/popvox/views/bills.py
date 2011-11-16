@@ -148,6 +148,7 @@ def bills(request):
 		'trending_bills': get_popular_bills2(),
 		}, context_instance=RequestContext(request))
 
+@strong_cache
 def bills_issues(request):
 	issues = IssueArea.objects\
 		.filter(toptermbills__congressnumber=CURRENT_CONGRESS)\
@@ -164,33 +165,45 @@ def bills_issues(request):
 	
 	for i, ix in enumerate(issues):
 		ix.primaryorder = i
+		
+	uncat_count = Bill.objects.filter(congressnumber=CURRENT_CONGRESS, topterm=None).count()
+	if uncat_count > 0:
+		issues = list(issues)
+		issues.append( { "primaryorder": len(issues), "commentcount": 0, "id": "other", "name": "Uncategorized Bills", "billcount": uncat_count } )
 	
 	return render_to_response('popvox/bill_list_issues.html', {
 		'issues': issues,
 		}, context_instance=RequestContext(request))
 
-@cache_page(60*2*2)
+@strong_cache
 def bills_issues_bills(request):
-	ix = get_object_or_404(IssueArea, id=request.GET.get('ix', 0))
-	
-	bills = Bill.objects.filter(topterm=ix, congressnumber=CURRENT_CONGRESS)
+	ix = request.GET.get('ix', "0")
+	if ix != "other":
+		ix = get_object_or_404(IssueArea, id=ix)
+		name = ix.name
+		bills = Bill.objects.filter(topterm=ix)
+	else:
+		ix = None
+		name = "Uncategorized Bills"
+		bills = Bill.objects.filter(topterm=None)
 	
 	# order by number of recent comments.... but don't exclude bills without
 	# any comments, by adding them back after by unioning with the whole set.
 	# does that really work and not create dupes?
+	bills = bills.filter(congressnumber=CURRENT_CONGRESS, migrate_to=None)
 	bills = bills.\
 		filter(usercomments__created__gt=datetime.now()-timedelta(days=21))\
 		.annotate(Count('usercomments')).order_by('-usercomments__count') \
 		| bills
 	
 	if len(bills) < 16:
-		groups = [{"name": ix.name, "bills": bills}]
+		groups = [{"id": "first", "name": name, "bills": bills}]
 	else:
 		groups = []
 		
 		# take the top out and make a category for them
 		if len(bills) > 24:
-			groups.append({"name": "Top Bills", "bills": bills[0:6]})
+			groups.append({"id": "first", "name": "Top Bills", "bills": bills[0:6]})
 			bills = bills[6:]
 		
 		# Automatically group the bills by sub-issue areas smartly.
@@ -211,6 +224,7 @@ def bills_issues_bills(request):
 		# greedily choose issue areas
 		ngroups = int(len(bills) / math.sqrt(len(bills)))
 		if ngroups > len(issue_groups): ngroups = len(issue_groups)
+		if ngroups == 0: ngroups = 1
 		bills_per_group = len(bills) / ngroups
 		
 		seen_issues = set()
@@ -232,14 +246,14 @@ def bills_issues_bills(request):
 					best_score = score
 					best_item = (issue_obj, issue_bills)
 			if best_score == None: break # no more issue areas to add in
-			groups.append({"name": best_item[0], "bills": best_item[1]})
+			groups.append({"id": len(groups), "name": best_item[0], "bills": best_item[1]})
 			seen_issues.add(best_item[0])
 			for b in best_item[1]: seen_bills.add(b)
 		
 		# put the remaining bills into an other category
 		other_bills = [b for b in bills if not b in seen_bills]
 		if len(other_bills):
-			groups.append({"name": "Other Bills" if len(groups) else ix.name, "bills": other_bills})
+			groups.append({"name": "Other Bills" if len(groups) else name, "bills": other_bills})
 	
 	return render_to_response('popvox/bill_list_issues_bills.html', {
 		'groups': groups,

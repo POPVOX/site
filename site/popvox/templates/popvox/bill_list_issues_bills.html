@@ -4,11 +4,11 @@
 {% for group in groups %}
 <tr class="heading">
 	<td colspan="4">
-		<h3 class="{% if forloop.first %}first{% endif %}">{{group.name}}</h3>
+		<h3 class="{% if forloop.first %}first{% else %}notfirst{% endif %}" group="{{group.id}}">{{group.name}}</h3>
 	</td>
 </tr>
 {% for bill in group.bills %}
-	<tr class="bill">
+	<tr class="bill" group="{{group.id}}" {% if group.id != "first" %}style="display: none"{% endif %}>
 		<td style="padding-left: 5px; padding-right: 1em">
 			<nobr><a href="{{bill.url}}{% if is_leg_staff %}/report{% endif %}">
 				{{bill.displaynumber}}
@@ -24,38 +24,37 @@
 			</div>
 		</td>
 		<td style="padding-right: 1em;">
+			{{bill.usercomments__count}}
+			{% if bill.sponsor %}
 			<div style="width: 95px; overflow: hidden;" title="{{bill.sponsor.name}}">
 				<div style="width: 1000px; height: 1.2em;">
 					{{bill.sponsor.lastname}}
 					({{bill.sponsor.party}}) 
 				</div>
 			</div>
-		</td>
-		
-		{% if is_leg_staff %}
-		<td style="padding-right: 1em">
-			{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endcomment %}
-			{% if bill.num_cosponsors %}
-			<div title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
-				{{bill.num_cosponsors}}
-			</div>
 			{% endif %}
 		</td>
-		<td style="padding-right: 1em;">
-			<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}} ({{bill.current_status_date|date2}})">
-				<div style="width: 1000px; height: 1.2em;">
-					{{bill.status_advanced_abbreviated}} ({{bill.current_status_date|date2}})
-				</div>
-			</div>
-		</td>
-		{% endif %}
+		
+		{% comment %} needs to be reimplemented in a strong cache compatible way
 		<td class="flipcolor">
 			{% with "+" as tracktype %}
 			{% include "popvox/track.html" %}
 			{% endwith %}
 		</td>
+		{% endcomment %}
 	</tr>
 {% endfor %}
 {% endfor %}
 </table>
 
+<script>
+$('#bill_list h3.notfirst').click(function() {
+	if (!$(this).hasClass("active")) {
+		$(this).addClass("active");
+		$('#bill_list tr[group=' + this.getAttribute('group') + ']').fadeIn();
+	} else {
+		$(this).removeClass("active");
+		$('#bill_list tr[group=' + this.getAttribute('group') + ']').fadeOut();
+	}
+});
+</script>

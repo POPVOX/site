@@ -4852,17 +4852,18 @@ p#issueareachooser_listnone {
 	#bill_list tr.heading {
 		}
 	
-	#bill_list tr.heading h3 {
+	#bill_list tr.heading h3.notfirst {
 		font: bold 14px helvetica;
 		text-transform: capitalize;
 		color: #75757d;
 		border: 2px solid #75757d;
 		background: #eeece7 url(issue_arrow.png) 670px center no-repeat;
 		padding: 9px;
+		cursor: pointer;
 		}
 	
 /* active */ 		
-	#bill_list tr.heading h3 {
+	#bill_list tr.heading h3.active {
 		font: bold 14px helvetica;
 		text-transform: capitalize;
 		color: #fff;
@@ -4870,6 +4871,7 @@ p#issueareachooser_listnone {
 		background: #cc6a11 url(issue_arrow_down.png) 670px center no-repeat;
 		margin-bottom: 10px;
 		padding: 9px;
+		cursor: pointer;
 		}
 		
 	#bill_list .heading h3.first {

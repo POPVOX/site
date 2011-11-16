@@ -27,7 +27,7 @@ $(function() {
 			$.ajax({ 
 				type: "GET",
 				url: "/ajax/bills/issue-area",
-				data: { ix: this.getAttribute('ix')},
+				data: { ix: this.getAttribute('ix') },
 				success:
 					function(data) {
 						$('#bill_list').html(data);
