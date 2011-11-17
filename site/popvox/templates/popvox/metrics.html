@@ -133,7 +133,7 @@
 		</tr>
 		{% for date, stats in statsbook %}
 			<tr>
-				<td>{{date|date:"Y-m"}}</td>
+				<td>{{date|date:stats.dateformat}}</td>
 				<th/>
 				<td>{{stats.new_users.count}}</td>
 				<td>{{stats.new_users.cumulative}}</td>

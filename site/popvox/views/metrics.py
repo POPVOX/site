@@ -75,7 +75,7 @@ def metrics_by_period(request):
 		return ret
 		
 	general_stats = OrderedDict()
-	for period in ("month", "week", "day"):
+	for period, dateformat in (("month", "Y-m"), ("week", "Y-m-d"), ("day", "Y-m-d")):
 		new_users = get_stats("date_joined", "count(*)", "auth_user", period=period, growth=True)
 		new_positions = get_stats("created", "count(*)", "popvox_usercomment", period=period, growth=True)
 		new_comments = get_stats("created", "count(*)", "popvox_usercomment where message is not null", period=period, growth=True)
@@ -88,6 +88,8 @@ def metrics_by_period(request):
 				"new_widget_users": new_widget_users,
 				"new_widget_positions": new_widget_positions,
 			})
+		for c in general_stats[period]:
+			c[1]["dateformat"] = dateformat
 	
 	# update user profiles to flag whether a user is a widget-only user or not
 	c = connection.cursor()
