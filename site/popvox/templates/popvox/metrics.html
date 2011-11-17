@@ -5,7 +5,7 @@
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <style>
-	th, td { padding: 4px 7px 4px 7px }
+	th, td { padding: 4px 7px 4px 7px; font-size: 12px; }
 	th { font-weight: bold; }
 	tr.multicol th[colspan] { border-bottom: 1px solid black; text-align: center; }
 </style>
@@ -35,15 +35,15 @@
 
 		<h3>By Cohort</h3>
 		
-		<p>Cohorts group users by the month they joined.</p>
-		<p>Retention is the number of days from the first position left to the most recent position left. The percents indicate the percent of the cohort with a retention of that number of days or more.</p>
+		<p>Cohorts group users who have left at least one position by the month they joined and excludes any user who left a comment only via a widget.</p>
+		<p>Retention is the number of days from the first position left to the most recent position left, excluding positions via widgets. The percents indicate the percent of the cohort with a retention of that number of days or more.</p>
 		
 		<table>
 		<tr class="multicol">
 			<th/>
 			<th/>
 			<th/>
-			<th colspan="2">Lifetime Average</th>
+			<th colspan="2">Mean Lifetime</th>
 			<th/>
 			<th colspan="4">Retention</th>
 			<th/>
@@ -53,14 +53,13 @@
 			<th>Joined</th>
 			<th>Users</th>
 			<th/>
-			<th>Positions</th>
-			<th>Comments</th>
+			<th title="Positions">Pos'ns</th>
+			<th title="Comments">Com'ts</th>
 			<th/>
-			<th>Mean</th>
-			<!--<th>Median</th>-->
-			<th>1 day</th>
-			<th>7 days</th>
-			<th>30 days</th>
+			<th title="Mean Days">Mean</th>
+			<th>1d</th>
+			<th>7d</th>
+			<th>30d</th>
 			<th/>
 			<th>Pw.</th>
 			<th>G</th>
@@ -91,7 +90,9 @@
 		{% endfor %}
 		</table>
 		
-		<h3>By Month</h3>
+		{% for period, statsbook in general_stats.items %}
+		
+		<h3>by {{period}}</h3>
 		
 		<table>
 		<tr class="multicol">
@@ -103,108 +104,62 @@
 			<th/>
 			<th colspan="3">Comments</th>
 			<th/>
-			<th colspan="3">Positions via Widget/LP</th>
+			<th colspan="3">Widget Users</th>
+			<th/>
+			<th colspan="3">Widget Positions</th>
 		</tr>
 		<tr>
 			<th>Date</th>
 			<th/>
 			<th>New</th>
 			<th>Total</th>
-			<th>Growth</th>
+			<th>%Chg</th>
 			<th/>
 			<th>New</th>
 			<th>Total</th>
-			<th>Growth</th>
+			<th>%Chg</th>
 			<th/>
 			<th>New</th>
 			<th>Total</th>
-			<th>Growth</th>
+			<th>%Chg</th>
 			<th/>
 			<th>New</th>
 			<th>Total</th>
-			<th>Growth</th>
+			<th>%Chg</th>
+			<th/>
+			<th>New</th>
+			<th>Total</th>
+			<th>%Chg</th>
 		</tr>
-		{% for date, stats in general_stats.month %}
+		{% for date, stats in statsbook %}
 			<tr>
 				<td>{{date|date:"Y-m"}}</td>
 				<th/>
 				<td>{{stats.new_users.count}}</td>
 				<td>{{stats.new_users.cumulative}}</td>
-				<td>{{stats.new_users.growth_monthly}}%</td>
+				<td>{{stats.new_users.percent_change}}%</td>
 				<th/>
 				<td>{{stats.new_positions.count}}</td>
 				<td>{{stats.new_positions.cumulative}}</td>
-				<td>{{stats.new_positions.growth_monthly}}%</td>
+				<td>{{stats.new_positions.percent_change}}%</td>
 				<th/>
 				<td>{{stats.new_comments.count}}</td>
 				<td>{{stats.new_comments.cumulative}}</td>
-				<td>{{stats.new_comments.growth_monthly}}%</td>
+				<td>{{stats.new_comments.percent_change}}%</td>
 				<th/>
-				<td>{{stats.new_positions_with_referrer.count}}</td>
-				<td>{{stats.new_positions_with_referrer.cumulative}}</td>
-				<td>{{stats.new_positions_with_referrer.growth_monthly}}%</td>
+				<td>{{stats.new_widget_users.count}}</td>
+				<td>{{stats.new_widget_users.cumulative}}</td>
+				<td>{{stats.new_widget_users.percent_change}}%</td>
+				<th/>
+				<td>{{stats.new_widget_positions.count}}</td>
+				<td>{{stats.new_widget_positions.cumulative}}</td>
+				<td>{{stats.new_widget_positions.percent_change}}%</td>
 			</tr>
 		{% endfor %}
 		</table>
+		
+		{% endfor %}
 
-		<h3>By Week</h3>
-		
-		<table>
-		<tr class="multicol">
-			<th/>
-			<th/>
-			<th colspan="3">Users</th>
-			<th/>
-			<th colspan="3">Positions</th>
-			<th/>
-			<th colspan="3">Comments</th>
-			<th/>
-			<th colspan="3">Positions via Widget/LP</th>
-		</tr>
-		<tr>
-			<th>Date</th>
-			<th/>
-			<th>New</th>
-			<th>Total</th>
-			<th>Growth</th>
-			<th/>
-			<th>New</th>
-			<th>Total</th>
-			<th>Growth</th>
-			<th/>
-			<th>New</th>
-			<th>Total</th>
-			<th>Growth</th>
-			<th/>
-			<th>New</th>
-			<th>Total</th>
-			<th>Growth</th>
-		</tr>
-		{% for date, stats in general_stats.week %}
-			<tr>
-				<td>{{date.isoformat}}</td>
-				<th/>
-				<td>{{stats.new_users.count}}</td>
-				<td>{{stats.new_users.cumulative}}</td>
-				<td>{{stats.new_users.growth_weekly}}%</td>
-				<th/>
-				<td>{{stats.new_positions.count}}</td>
-				<td>{{stats.new_positions.cumulative}}</td>
-				<td>{{stats.new_positions.growth_weekly}}%</td>
-				<th/>
-				<td>{{stats.new_comments.count}}</td>
-				<td>{{stats.new_comments.cumulative}}</td>
-				<td>{{stats.new_comments.growth_weekly}}%</td>
-				<th/>
-				<td>{{stats.new_positions_with_referrer.count}}</td>
-				<td>{{stats.new_positions_with_referrer.cumulative}}</td>
-				<td>{{stats.new_positions_with_referrer.growth_weekly}}%</td>
-			</tr>
-		{% endfor %}
-		</table>
-		
-		<h3>By Day</h3>
-		
 		<div id="by_day_chart" style="margin-bottom: 20px"> </div>
 		<script>
 			var chart;
@@ -282,61 +237,6 @@
 			   
 			});		
 		</script>
-		
-		<table>
-		<tr class="multicol">
-			<th/>
-			<th/>
-			<th colspan="3">Users</th>
-			<th/>
-			<th colspan="3">Positions</th>
-			<th/>
-			<th colspan="3">Comments</th>
-			<th/>
-			<th colspan="3">Positions via Widget/LP</th>
-		</tr>
-		<tr>
-			<th>Date</th>
-			<th/>
-			<th>New</th>
-			<th>Total</th>
-			<th>x2 Every</th>
-			<th/>
-			<th>New</th>
-			<th>Total</th>
-			<th>x2 Every</th>
-			<th/>
-			<th>New</th>
-			<th>Total</th>
-			<th>x2 Every</th>
-			<th/>
-			<th>New</th>
-			<th>Total</th>
-			<th>x2 Every</th>
-		</tr>
-		{% for date, stats in general_stats.day %}
-			<tr>
-				<td>{{date.isoformat}}</td>
-				<th/>
-				<td>{{stats.new_users.count}}</td>
-				<td>{{stats.new_users.cumulative}}</td>
-				<td>{{stats.new_users.double_life}} <!-- {{stats.new_users.growth_daily}} --></td>
-				<th/>
-				<td>{{stats.new_positions.count}}</td>
-				<td>{{stats.new_positions.cumulative}}</td>
-				<td>{{stats.new_positions.double_life}}</td>
-				<th/>
-				<td>{{stats.new_comments.count}}</td>
-				<td>{{stats.new_comments.cumulative}}</td>
-				<td>{{stats.new_comments.double_life}}</td>
-				<th/>
-				<td>{{stats.new_positions_with_referrer.count}}</td>
-				<td>{{stats.new_positions_with_referrer.cumulative}}</td>
-				<td>{{stats.new_positions_with_referrer.double_life}}</td>
-			</tr>
-		{% endfor %}
-		</table>
-
 
 	</div> <!-- col_12 -->
 </div><!-- e: content -->

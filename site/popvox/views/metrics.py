@@ -11,8 +11,10 @@ from popvox.models import UserComment, Org, OrgContact, UserLegStaffRole
 
 from math import log, exp
 from datetime import datetime, timedelta
+import calendar
 import csv
 from scipy import stats
+from collections import OrderedDict
 
 @user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
 def metrics_by_period(request):
@@ -23,17 +25,13 @@ def metrics_by_period(request):
 		if period == "day":
 			group = ("date(%s)" % (field,))
 		elif period == "week":
-			group = ("yearweek(%s)" % (field,))
-			# select the date of the sunday of the week - each day needs to map to something
-			# consistently. double escape the mysql format string first for the interpolation happening
-			# on this line, and second for the interpolation that happens in the Django db layer.
-			#
-			# this causes problems when DEBUG=True.
-			field = "STR_TO_DATE(CONCAT(YEARWEEK(%s),'0'),CONCAT('%%','X%%','V%%','w'))" % (field,) # between the Python string interpolation and the Django db layer %s parameters, percents just get confused
+			group = ("yearweek(%s)" % (field,)) # year plus sunday and zero-based week number
+			def fixdate(x): # normalize each date row to the first day of the week
+				return x - timedelta(days=(x.weekday() + 1) % 7) # weekday() returns 0 for Monday, but we actually want to subtract 1 day to get back to sunday
 		elif period == "month":
-			def fixdate(x):
-				return x.replace(day=1)
 			group = ("year(%s), month(%s)" % (field, field))
+			def fixdate(x): # normalize each date row to the first day of the month
+				return x.replace(day=1)
 		c.execute("select date(%s), %s from %s group by %s" % (field, fields, table, group))
 		
 		rows = [{"date": fixdate(r[0]), "count": r[1] } for r in c.fetchall()]
@@ -43,22 +41,9 @@ def metrics_by_period(request):
 			for i in xrange(len(rows)):
 				rows[i]["cumulative"] = rows[i]["count"] + (0 if i==0 else rows[i-1]["cumulative"])
 			
-			# compute growth rates with a backward-looking sliding window
-			window = {"day": 21, "week": 6, "month": 3 }[period]
-			for i in xrange(window, len(rows)):
-				x = [(row["date"]-rows[0]["date"]).days for row in rows[i-window+1 : i+1]]
-				y = [log(row["cumulative"]) for row in rows[i-window+1 : i+1]]
-				gradient, intercept, r_value, p_value, std_err = stats.linregress(x,y)
-				rows[i]["growth_daily"] = int(10000*(exp(gradient) - 1.0))/100.0 # percent growth by day
-				rows[i]["growth_weekly"] = int(100*(pow(exp(gradient), 7) - 1.0)) # percent growth by week
-				rows[i]["growth_monthly"] = int(100*(pow(exp(gradient), 30.5) - 1.0)) # percent growth by month
-				days_to_double = log(2.0) / gradient
-				if days_to_double < 30:
-					rows[i]["double_life"] = ("%d days" % days_to_double)
-				elif days_to_double < 30.5 * 24:
-					rows[i]["double_life"] = ("%.1f mo." % round(days_to_double/30.5, 1))
-				else:
-					rows[i]["double_life"] = ("%.1f yr." % round(days_to_double/365.25, 1))
+			# compute percent changes from row to row
+			for i in xrange(1, len(rows)):
+				rows[i]["percent_change"] = round(100.0 * rows[i]["count"] / rows[i-1]["cumulative"], 1)
 		
 		return rows
 	
@@ -89,37 +74,44 @@ def metrics_by_period(request):
 		
 		return ret
 		
-	general_stats = {}
-	for period in ("day", "week", "month"):
+	general_stats = OrderedDict()
+	for period in ("month", "week", "day"):
 		new_users = get_stats("date_joined", "count(*)", "auth_user", period=period, growth=True)
 		new_positions = get_stats("created", "count(*)", "popvox_usercomment", period=period, growth=True)
 		new_comments = get_stats("created", "count(*)", "popvox_usercomment where message is not null", period=period, growth=True)
-		new_positions_with_referrer = get_stats("created", "count(*)", "popvox_usercomment where exists(select * from popvox_usercommentreferral where popvox_usercomment.id=comment_id)", period=period, growth=True)
+		new_widget_users = get_stats("date_joined", "count(*)", "auth_user where exists(select * from popvox_usercomment where auth_user.id=user_id and method=%d) and not exists(select * from popvox_usercomment where auth_user.id=user_id and method<>%d)" % (UserComment.METHOD_WIDGET, UserComment.METHOD_WIDGET), period=period, growth=True)
+		new_widget_positions = get_stats("created", "count(*)", "popvox_usercomment where method=%d" % UserComment.METHOD_WIDGET, period=period, growth=True)
 		general_stats[period] = merge_by_day({
 				"new_users": new_users,
 				"new_positions": new_positions,
 				"new_comments": new_comments,
-				"new_positions_with_referrer": new_positions_with_referrer,
+				"new_widget_users": new_widget_users,
+				"new_widget_positions": new_widget_positions,
 			})
-		
+	
+	# update user profiles to flag whether a user is a widget-only user or not
+	c = connection.cursor()
+	c.execute("update popvox_userprofile set is_widget_user = true;")
+	c.execute("update popvox_userprofile set is_widget_user = false where exists (select * from popvox_usercomment where popvox_userprofile.user_id=popvox_usercomment.user_id and method<>%d);" % UserComment.METHOD_WIDGET)
 
-	cohort_sizes = get_stats("date_joined", "count(*)", "auth_user", period="month")
+	cohort_where = "(select is_widget_user from popvox_userprofile where auth_user.id=user_id)=0"
+
+	cohort_sizes = get_stats("date_joined", "count(*)", "auth_user WHERE " + cohort_where, period="month")
 	cohort_sizes2 = dict(((c["date"], c["count"]) for c in cohort_sizes))
 	
-	cohort_num_positions = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id", period="month")
-	for c in cohort_num_positions: c["count"] = round(float(c["count"]) / float(cohort_sizes2[c["date"]]), 1)
+	cohort_num_positions = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id WHERE " + cohort_where + " AND method<>%d" % UserComment.METHOD_WIDGET, period="month")
+	for co in cohort_num_positions: co["count"] = round(float(co["count"]) / float(cohort_sizes2[co["date"]]), 1)
 	
-	cohort_num_comments = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id where popvox_usercomment.message is not null", period="month")
-	for c in cohort_num_comments: c["count"] = round(float(c["count"]) / float(cohort_sizes2[c["date"]]), 1)
+	cohort_num_comments = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id where " + cohort_where + " AND method<>%d AND popvox_usercomment.message is not null" % UserComment.METHOD_WIDGET, period="month")
+	for co in cohort_num_comments: co["count"] = round(float(co["count"]) / float(cohort_sizes2[co["date"]]), 1)
 	
 	cohort_login_types = {}
-	c = connection.cursor()
-	c.execute("select min(date(date_joined)), provider, count(*) from auth_user left join registration_authrecord on auth_user.id=registration_authrecord.user_id group by year(date_joined), month(date_joined), provider")
+	c.execute("select min(date(date_joined)), provider, count(*) from auth_user left join registration_authrecord on auth_user.id=registration_authrecord.user_id WHERE " + cohort_where + " group by year(date_joined), month(date_joined), provider")
 	for dt, provider, count in c.fetchall():
 		dt = dt.replace(day=1)
 		if not dt in cohort_login_types: cohort_login_types[dt] = { "date": dt }
 		cohort_login_types[dt][provider] = 100*count/cohort_sizes2[dt]
-	c.execute("select min(date(date_joined)), count(*) from auth_user where not exists(select * from registration_authrecord where auth_user.id=registration_authrecord.user_id) group by year(date_joined), month(date_joined)")
+	c.execute("select min(date(date_joined)), count(*) from auth_user where " + cohort_where + " AND not exists(select * from registration_authrecord where auth_user.id=registration_authrecord.user_id) group by year(date_joined), month(date_joined)")
 	for dt, count in c.fetchall():
 		dt = dt.replace(day=1)
 		if not dt in cohort_login_types: cohort_login_types[dt] = { "date": dt }
@@ -150,7 +142,7 @@ def metrics_by_period(request):
 	cohort_retention = []
 	c = connection.cursor()
 	for cohort in cohort_sizes2.keys():
-		c.execute("select min(created), max(created) from popvox_usercomment left join auth_user on popvox_usercomment.user_id=auth_user.id where year(auth_user.date_joined)=%d and month(auth_user.date_joined) = %d group by auth_user.id" % (cohort.year, cohort.month))
+		c.execute(("select min(created), max(created) from popvox_usercomment left join auth_user on popvox_usercomment.user_id=auth_user.id where year(auth_user.date_joined)=%d and month(auth_user.date_joined)=%d AND " + cohort_where + " group by auth_user.id") % (cohort.year, cohort.month))
 		retention = [(row[1] - row[0]).days for row in c.fetchall()]
 		cohort_retention.append({ "date": cohort, "median": median(retention), "mean": mean(retention), "pctile_1day": pctile(retention, 1), "pctile_7days": pctile(retention, 7), "pctile_30days": pctile(retention, 30) })
 	
