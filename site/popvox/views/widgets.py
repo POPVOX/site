@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.views.decorators.cache import cache_page
 from django.db.models import Count
+from django.contrib.auth.models import AnonymousUser
 
 from popvox.models import *
 from popvox.views.main import strong_cache
@@ -37,7 +38,6 @@ def bill_js(request):
 	}, context_instance=RequestContext(request),
 	mimetype="text/javascript")
 
-@strong_cache
 @do_not_track_compliance
 def commentmapus(request):
 	count = { }
@@ -48,15 +48,20 @@ def commentmapus(request):
 	comments = None
 
 	import widgets_usmap
-
+	
 	if "bill" in request.GET:
 		bill = get_object_or_404(Bill, id=request.GET["bill"])
 		
 		# TODO: put this in the database
 		comments = bill_comments(bill).only("state", "congressionaldistrict", "position")
-	
+
+		# strongly cache the page, but only for bill maps because sac maps
+		# require authentication.
+		request.strong_cache = True
+		request.session = None
+		request.user = AnonymousUser()
+
 	elif "sac" in request.GET and request.user.is_authenticated():
-		
 		if not request.user.has_perm("popvox.can_snoop_service_analytics"):
 			# validate the service account campaign is in one of the accounts accessible
 			# by the logged in user.
@@ -66,8 +71,8 @@ def commentmapus(request):
 			sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"])
 		
 		bill = sac.bill
-		comments = UserComment.objects.filter(actionrecord__campaign=sac)
-
+		comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
+		
 	elif "file" in request.GET:
 		
 		if request.GET["file"] == "cd_clusters":
