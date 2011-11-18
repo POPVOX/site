@@ -13,6 +13,7 @@
 		</script>
 
 		<script src="/media/js/jquery-1.6.2.min.js"></script>
+		<script src="/media/js/ajaxforms.js"></script>
 		<script type="text/javascript" src="/media/js/highcharts.js"></script>
 		<script type="text/javascript" src="/media/js/charts.js"></script>
 		
@@ -280,6 +281,13 @@
 			return false;
 		}
 		
+		function show_moc_photo(id, event) {
+			$('#moc_photo').center();
+			$('#moc_photo img').attr('src', "/static/member_photos/" + id + "-200px.jpeg");
+			$('#moc_photo').show();
+			event.stopPropagation();
+		}
+		
 		$(function() {
 			// can't do overflow: auto because it requires double-touch
 			//$('.wrapper').height($(window).height() - $('#select_district_box').height() - 60);
@@ -293,6 +301,10 @@
 		</script>
 	</head>
 	<body id="ipad">
+	
+	<div id="moc_photo" style="display: none; width: 210px; height: 246px; text-align: center; z-index: 200;" onclick="$('#moc_photo').hide()">
+		<img style="border: 1px solid black"/>
+	</div>
 	
 	{% if request.GET.tab == "comments" %}
 	<div id="select_district_box">
@@ -337,9 +349,11 @@
 	{% if request.GET.tab == "report" %}
 		<div class="columns report-data" id="container">
 			<div class="left-column">
-				<p>
+				{% if bill.sponsor %}
+				<p onclick="show_moc_photo({{bill.sponsor.id}}, event)">
 					<span>Sponsor:</span>&#160; {{bill.sponsor.name}}
 				</p>
+				{% endif %}
 				{% if bill.is_bill %}
 				<p>
 					<span>Introduced:</span>&#160; {{bill.introduced_date|date:"DATE_FORMAT"}}
@@ -370,7 +384,7 @@
 						<div class="col_l {% if forloop.first %}first{% endif %}">
 							<ul class="co-{{k|lower}}">
 								{% for c in v %}
-									<li>{{c.name}}</li>
+									<li onclick="show_moc_photo({{c.id}}, event)">{{c.name}}</li>
 								{% endfor %}
 							</ul>
 						</div><!-- col_l -->
@@ -465,7 +479,7 @@
 		<div class="columns">
 			<div class="left-column2" id="stats_nation">
 				<h3 class="popvox">
-					POPVOX Nation
+					POPVOX Users Weighing In On This Bill
 				</h3><!-- popvox -->
 				{% comment %}
 				This was the U.S. map-styled bar chart.

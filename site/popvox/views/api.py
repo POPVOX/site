@@ -230,7 +230,7 @@ class bill_suggestions(BillHandler):
 		
 		ret = [
 			OrderedDict([
-				("name", "Trending Bills"),
+				("name", "Trending Bills on POPVOX"),
 				("type", "trending"),
 				("bills", pop_bills),
 			]),
@@ -249,6 +249,8 @@ class bill_suggestions(BillHandler):
 					("bills", bills),
 				]))
 				
+			list_order = ("sponsor", "local", "trending")
+			ret.sort(key = lambda x : list_order.index(x["type"]) if x["type"] in list_order else len(list_order))
 		
 		return ret
 

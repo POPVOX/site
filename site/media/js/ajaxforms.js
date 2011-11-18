@@ -1,3 +1,10 @@
+// http://stackoverflow.com/questions/210717/using-jquery-to-center-a-div-on-the-screen
+jQuery.fn.center = function () {
+	this.css("position","absolute");
+	this.css("top", (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop() + "px");
+	this.css("left", (($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft() + "px");
+	return this;
+}
 // Auto-size textareas as the user enters input.
 jQuery.fn.input_autosize = function() {
   var resizer = function(elem, c) {
