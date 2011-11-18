@@ -281,9 +281,10 @@
 			return false;
 		}
 		
-		function show_moc_photo(id, event) {
+		function show_moc_photo(id, name, event) {
 			$('#moc_photo').center();
 			$('#moc_photo img').attr('src', "/static/member_photos/" + id + "-200px.jpeg");
+			$('#moc_photo div').text(name);
 			$('#moc_photo').show();
 			event.stopPropagation();
 		}
@@ -302,8 +303,8 @@
 	</head>
 	<body id="ipad">
 	
-	<div id="moc_photo" style="display: none; width: 210px; height: 246px; text-align: center; z-index: 200;" onclick="$('#moc_photo').hide()">
-		<img style="border: 1px solid black"/>
+	<div id="moc_photo" style="display: none; background-color: black; width: 202px; height: 266px; text-align: center; z-index: 200;" onclick="$('#moc_photo').hide()">
+		<img style="border: 1px solid black"/><div style="background-color: black; color: white; height: 20px;"> </div>
 	</div>
 	
 	{% if request.GET.tab == "comments" %}
@@ -350,7 +351,7 @@
 		<div class="columns report-data" id="container">
 			<div class="left-column">
 				{% if bill.sponsor %}
-				<p onclick="show_moc_photo({{bill.sponsor.id}}, event)">
+				<p onclick="show_moc_photo({{bill.sponsor.id}}, '{{bill.sponsor.name|escapejs}}', event)">
 					<span>Sponsor:</span>&#160; {{bill.sponsor.name}}
 				</p>
 				{% endif %}
@@ -384,7 +385,7 @@
 						<div class="col_l {% if forloop.first %}first{% endif %}">
 							<ul class="co-{{k|lower}}">
 								{% for c in v %}
-									<li onclick="show_moc_photo({{c.id}}, event)">{{c.name}}</li>
+									<li onclick="show_moc_photo({{c.id}}, '{{c.name|escapejs}}', event)">{{c.name}}</li>
 								{% endfor %}
 							</ul>
 						</div><!-- col_l -->
