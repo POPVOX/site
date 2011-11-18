@@ -4426,6 +4426,13 @@ ul.org_all {
                 }
 
     ul.org_all .notcreatedbyus { font-weight: bold  }
+    
+    h4#orglist_title {
+		margin-top: 0px;
+		padding: 5px 10px;
+	    background: #d4d1ca;
+		}
+    
 
 /* ---- org custom landing page ---- */
 
@@ -4860,6 +4867,7 @@ p#issueareachooser_listnone {
 		background: #eeece7 url(issue_arrow.png) 670px center no-repeat;
 		padding: 9px;
 		cursor: pointer;
+		margin-top: 5px;
 		}
 	
 /* active */ 		
@@ -4883,12 +4891,16 @@ p#issueareachooser_listnone {
 		}
 	
 	#bill_list tr.bill td {
-	    background: url(bg_hr2.png) left bottom repeat-x;
+	    background: url(bg_hr2.png) left 20px repeat-x;
 	    padding: 1px 0 7px;
 		}
 		
 		#bill_list tr.bill td.flipcolor .billtrack {
 			margin: 4px 0 -4px 0;
+			}
+		
+		.bill_list_issues #bill_list tr.bill {
+			line-height: 16px;
 			}
 		
 		#bill_list tr.bill:hover {
@@ -4930,24 +4942,34 @@ p#issueareachooser_listnone {
 	
 #issue_list .issue {
 	padding: 5px 10px;
-	cursor: pointer;
 	}
+	
+ul.issue_list li a.active{
+	padding: 5px;
+	margin: 0;
+	background: url(bg_arrow.png) right center no-repeat;
+	color: #fff;
+	width: 225px;
+	display: block;
+	}
+	
+	ul.issue_list li a:hover {
+		border: none;
+		}
 
-	#issue_list .issue:hover {
-		background-color: #EFE;
+	#issue_list .issue:hover,
+	#issue_list .issue.active {
+		background: url(bg_arrow.png) right center no-repeat;
+		cursor: pointer;
 		}
 		
-	#issue_list .issue.active {
-		background: url(bg_arrow.png) right top no-repeat;
-		}
-		#issue_list .issue.active span.name {
+		#issue_list .issue.active span.name,
+		#issue_list .issue:hover span.name,
+		#issue_list .issue.active span.count,
+		#issue_list .issue:hover span.count {
 			color: #fff;
 			}
-	
-	#issue_list .issue.active .count {
-		color: white;
-		}
-		
+			
 #issue_list .issue .name {
 	font-weight: bold;
 	font-size: 13px;
