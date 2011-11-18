@@ -52,13 +52,15 @@ for fn in ('/home/www/logs/access.log.1', '/home/www/logs/access.log'):
 			else:
 				# turn a session into a user here because users may have multiple
 				# session ids, so we want to collapse before keying them the same.
-				user = "<unknown>"
 				try:
 					s = Session.objects.get(pk=session).get_decoded()
 					user = User.objects.get(pk=s["_auth_user_id"]).username
-				except Session.DoesNotExist: pass
-				except User.DoesNotExist: pass
-				except KeyError: pass
+				except Session.DoesNotExist:
+					user = "<expired-session>"
+				except User.DoesNotExist:
+					user = "<invalid-user>"
+				except KeyError:
+					user = "<not-logged-in>"
 				last_session = (session, user)
 			
 			if not user in h["users"]:
