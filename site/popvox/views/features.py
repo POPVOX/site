@@ -293,6 +293,16 @@ supercommittee_bill_list = [
 		"source": "Congressional Progressive Caucus",
 		"source_url": "http://cpc.grijalva.house.gov/index.cfm?sectionid=79&sectiontree=5,79",
 	},
+
+	{
+		"bill": Bill.objects.get(id=19935), # The Wall Street Trading and Speculators Tax Act  S. 1787 / H.R. 3313
+		"title": "Impose a Tax on Certain Trading Transactions",
+		"savings": 353,
+		"category_name": "Tax",
+		"category_icon": "i_tax",
+		"source": "Joint Committee on Taxation",
+		"source_url": "http://www.defazio.house.gov/index.php?option=com_content&view=article&id=736:memo-joint-tax-committee-finds-harkin-defazio-wall-street-trading-and-speculators-tax-generates-more-than-350-billion&catid=63:2011-news",
+	},
 ]
 for bill in supercommittee_bill_list:
 	if not "title" in bill:
