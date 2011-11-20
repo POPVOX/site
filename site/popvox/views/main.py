@@ -35,7 +35,7 @@ def master_state(request):
 					"slug": orgrole.org.slug,
 					"url": orgrole.org.url(),
 					"title": orgrole.title,
-					"campaigns": [{ "id": cam.id, "name": cam.name, "slug": cam.slug, "default": cam.default } for cam in orgrole.org.all_campaigns()],
+					"campaigns": [{ "id": cam.id, "name": cam.name, "slug": cam.slug, "isdefault": cam.default } for cam in orgrole.org.all_campaigns()],
 				} for orgrole in request.user.orgroles.all().select_related("org")],
 			"legstaffrole": {
 					"membername": request.user.legstaffrole.member.name() if request.user.legstaffrole.member else None,

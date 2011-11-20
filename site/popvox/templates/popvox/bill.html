@@ -266,7 +266,7 @@ function getshorturl() {
 			// Since a user may be an admin of multiple orgs and we only support
 			// one here, pick one. If no org has a position on the bill, use the
 			// first org the user is an admin of.
-			user_org = res.user.orgs[0]; // req. fields slug, url, name, campaigns { id, name, slug, default }
+			user_org = res.user.orgs[0]; // req. fields slug, url, name, campaigns { id, name, slug, isdefault }
 			
 			// Otherwise the first org that has a position on this bill...
 			if (res.page.matched_campaigns.length > 0) {
@@ -302,7 +302,7 @@ function getshorturl() {
 			
 			// Fill in the campaign list.
 			for (var i = 0; i < user_org.campaigns.length; i++) {
-				if (!user_org.campaigns[i].default) {
+				if (!user_org.campaigns[i].isdefault) {
 					$('#bill_endorse_oppose_cam').append($('<option/>').attr('value', user_org.campaigns[i].slug).attr('selected', user_org.campaigns[i].id == res.page.lastviewedcampaign ? "1" : "").text(user_org.campaigns[i].name));
 				}
 			}
