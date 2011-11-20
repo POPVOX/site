@@ -4,7 +4,6 @@
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block finalscript %}<script>mpmetrics.track('comment preview', { 'bill': '{{bill.displaynumber|escapejs}}', 'personalized': {% if message %}'yes'{% else %}'no'{% endif %}, 'had_error': {% if newaccount_error %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
 {% block head %}
-<script src="/media/js/jquery.tools.min.js"></script>
 <style>
 #needsauth { margin-top: 35px   }
 
@@ -37,10 +36,9 @@
     .form.signinup small {
         margin-bottom: 10px;
         margin-top: -6px;
+        margin-left: 101px;
         }
         
-        .alert small { width: 250px; margin-left: 0px; }
-
 	.form.signinup .note {
 		font-family:  Helvetica;
 		background: #414046;
@@ -70,7 +68,6 @@ function startlogin() {
 			$('#createacct_username').focus();
 		},
 		success: function(res) {
-			$('#login_email').data("tooltip").hide();
 			$('html,body').animate({scrollTop: $('#needsauth').offset().top});
 			if (res.result == "not-recognized") {
 				$('#login_password_container, #login_sso_container, #login_sso_container .btn, login_get_password').hide();
@@ -187,8 +184,7 @@ function trylogin() {
 	<div id="needsauth">
 		<div class="form signinup">
 			<label for="login_email">email</label>
-			<input class="c2" type="text" id="login_email" name="createacct_email" value="{{email}}" title=" "/><br />
-			<script>$('#login_email').tooltip({position: "center right", layout: "<div><span class='tip_point'/>Enter your email address.{% if not newaccount_error %}<br/><br/> A POPVOX account is free and your public comments will be anonymous.{% endif %}</div>", offset: [0, 5], effect: "fade"}).data("tooltip").show();</script>
+			<input class="c2" type="text" id="login_email" name="createacct_email" value="{{email}}"/><br />
 			<div id="login_errorlabel_email" class="error"> </div>
 			<div id="createacct_errorlabel_email" class="error" style="display: block">{{newaccount_error.email}}</div>
 			<script>$(function() { $('#login_email').keyup_delayed(startlogin); });</script>
@@ -234,16 +230,16 @@ function trylogin() {
 
 				<div class="form signinup pad_btm">
 					<label for="createacct_username">screen name</label>
-					<input id="createacct_username" class="c2" type="text" name="createacct_username" value="{{username}}" title="Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces."/>
+					<input id="createacct_username" class="c2" type="text" name="createacct_username" value="{{username}}"/>
+					<small>Your screen name will be displayed next to your comment. It must be at least five characters and cannot contain spaces.</small>
 					<div id="createacct_errorlabel_username" class="error" style="display: block">{{newaccount_error.username}}</div>
 
 					<label for="createacct_password">password</label>
-					<input id="createacct_password" class="c2" type="password" name="createacct_password" value="{{password}}" title="Passwords must be at least 5 characters and cannot contain spaces."/>
+					<input id="createacct_password" class="c2" type="password" name="createacct_password" value="{{password}}"/>
+					<small>Passwords must be at least 5 characters and cannot contain spaces.</small>
 					<div id="createacct_errorlabel_password" class="error" style="display: block">{{newaccount_error.password}}</div>
 		
 					<div class="error" id="createacct_errorlabel"></div>
-
-					<script>$('#createacct_username,#createacct_password').tooltip({position: "center right", layout: "<div><span class='tip_point'></span></div>", offset: [0, 5], effect: "fade"});</script>
 				</div>
 				<div class="b_create_accnt btn" type="button" value="Create Account >" onclick="submitform('Create Account >')"> </div>
 			</div>
@@ -258,7 +254,7 @@ function trylogin() {
 		{% endif %}
 		
 	</div>
-	
+
 	{% else %}
 		
 		<p class="mar_top pad_btm">
@@ -284,9 +280,11 @@ function trylogin() {
 	<div>
 		<h3>Why do we ask you to register?</h3>
 		
-		<p>Letters to Congress are most effective when they are from verified constituents. By registering with POPVOX you are telling your representatives that you have gone the extra step to be verified. Plus we do all the hard work.</p>
+		<p>Letters to Congress are most effective when they are from verified constituents. By registering with POPVOX you are telling your representatives that you have gone the extra step to be verified.</p>
 		
+		{% if message %}
 		<p>You will receive confirmation each time your messages are delivered to your Members of Congress.</p>
+		{% endif %}
 		
 		<p>We have a strict privacy policy that you <a href="/legal" target="_blank">can read here</a>. We do not share your contact information with anyone besides your Members of Congress.</p>
 		
