@@ -776,7 +776,7 @@ class OrgCampaignPosition(models.Model):
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 
 class PositionDocument(models.Model):
-	DOCTYPES = [(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text')]
+	DOCTYPES = [(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text'), (101, 'Bill Text Comparison')]
 	bill = models.ForeignKey(Bill, related_name="documents", db_index=True, on_delete=models.PROTECT)
 	doctype = models.IntegerField(choices=DOCTYPES)
 	title = models.CharField(max_length=128)
