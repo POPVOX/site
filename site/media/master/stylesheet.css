@@ -1,3 +1,5 @@
+/* @override https://william.popvox.com/media/master/stylesheet.css */
+
 /*
 
 
@@ -984,6 +986,23 @@ ul.tabs {
 
 /* ---bill--- */
 
+.pgbill h2 {
+    margin: 15px 0 22px;
+    font: normal 40px/40px 'BebasNeueRegular', helvetica, arial, sans-serif;
+    letter-spacing: .02em;
+    }
+    
+.pgbill h2 span.streetname.billname {
+    font: normal 40px/41px 'BebasNeueRegular', helvetica, arial, sans-serif;
+    padding-top: 5px;
+    width: 500px;
+    display: block;
+	}
+	
+.pgbill h1 {
+	font: normal 18px/30px helvetica,arial,sans-serif;
+	}
+	
 .bill_overview {
     background: url(bg_bills.png) -13px -1px no-repeat;
     padding: 17px 0 10px 75px;
@@ -991,7 +1010,9 @@ ul.tabs {
 
     .bill_overview h2 { font: bold 20px/30px helvetica,arial,sans-serif  }
 
-.bill_overview_user h3 { font: normal 14px/18px helvetica,arial,sans-serif   }
+.bill_overview_user h3 { 
+	font: normal 14px/18px helvetica,arial,sans-serif
+	}
 
 .bill_overview_user {
     background: url(bg_bill_orange.png) left 15px no-repeat;
@@ -1271,7 +1292,7 @@ a.b_more_comments:hover {
     	}
     	
     	.content.pgbill .users_say {
-    		margin-top: 30px;
+    		margin-top: 0px;
     		}
 
 .content .col_orange h3 {
@@ -1645,10 +1666,11 @@ div.neutral {
 	}
 
     .tab_pane h3 {
-        font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
-        letter-spacing: .055em;
+        font: normal 24px/26px 'BebasNeueRegular', helvetica, arial, sans-serif;
+        letter-spacing: 1px;
         color: #606065;
         background-image: none;
+        padding-top: 0;
         }
 
     .tab_pane h5 {
@@ -1869,6 +1891,12 @@ ul.ul_tags {
     color: #404045;
     background: url(bg_h4_panel.gif) left bottom no-repeat;
     }
+    
+    .content.pgbill .tab_panel h4 {
+		background: none;
+		padding: 0 0 2px;
+		margin-bottom: 10px;
+		}
 
 .content .tab_panel .col_4_5 h4 {
     background: none;
@@ -1913,6 +1941,10 @@ ul.ul_tags {
     color: #CC6A11;
     text-decoration: none;
     }
+    
+   .pgbill div#orgssupport.tab_panel p {
+		padding-left: 20px;
+		}
 
 a.a_bold_cap {
     font-weight: bold;
@@ -2464,7 +2496,7 @@ p.view_report {
     margin-top: 10px;
     margin-bottom: 0;
     padding-top: 0;
-    padding-left: 20px;
+    padding-left: 0px;
     }
 
     p.view_report span {

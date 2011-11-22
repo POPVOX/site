@@ -98,10 +98,10 @@ function getshorturl() {
 		</a>
 		
 		{% if not bill.street_name and bill.is_officially_numbered %}
-			<h1>What&rsquo;s your position on {{bill.displaynumber}}?</h1>
+			<h2 class="billname">What&rsquo;s your position on {{bill.displaynumber}}?</h2>
 		{% else %}
-			<h1 class="streetname">What&rsquo;s your position on</h1>
-			<h2 class="streetname">{% if bill.street_name %}{{bill.street_name|capfirst}}{% else %}{{bill.title}}{% endif %}</h2>
+			<h2 class="streetname billname">What&rsquo;s your position on<br />
+			<span class="streetname billname">{% if bill.street_name %}{{bill.street_name|capfirst}}{% else %}{{bill.title}}{% endif %}</h2>
 		{% endif %}
 
 		<div class="block bill_overview_user">
@@ -119,10 +119,10 @@ function getshorturl() {
 			});</script>
 			
 			{% if bill.street_name and not bill.is_officially_numbered %}
-				<h3 class="no_rule">{{ bill.title }}</h3>
+				<h1 class="billname no_rule">{{ bill.title }}</h1>
 			{% endif %}
 			{% if bill.is_officially_numbered %}
-				<h3 class="no_rule">{{ bill.title }}</h3>
+				<h1 class="billname no_rule">{{ bill.title }}</h1>
 			{% endif %}
 			{% if bill.description and not bill.notes %}
 			<p><strong>Summary: </strong>{{ bill.description }} {% if bill.is_bill %}(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>){% endif %}</p>

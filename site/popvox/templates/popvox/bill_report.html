@@ -356,7 +356,7 @@ h2 span {
 				Back to {{bill.shortname}}
 			</a>
 		
-			<h1>Bill Report</h1>
+			<h2 class="billname">Bill Report</h2>
 
 			<div class="block">
 				{% if user.is_authenticated %}
@@ -367,7 +367,7 @@ h2 span {
 				</div>
 				{% endif %}
 				{% if not bill.street_name %}
-					<h2>{{ bill.title|truncatewords:30 }}</h2> 
+					<h2 class="billname">{{ bill.title|truncatewords:30 }}</h2> 
 				{% else %}
 					<h2>
 						{{bill.street_name|capfirst}} {% if bill.is_officially_numbered %}({{bill.displaynumber}}){% endif %}
