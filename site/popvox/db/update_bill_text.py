@@ -1,7 +1,7 @@
 #!runscript
 
-# Fetches new bill text documents from GPO and pre-generates page
-# images for our iPad app.
+# Fetches bill text documents from GPO's Fdsys and prepares them
+# for display in various environments.
 
 import os, sys, base64, re, urllib, urllib2, json, math, glob
 from lxml import etree
@@ -13,7 +13,62 @@ from settings import DATADIR
 from popvox.govtrack import CURRENT_CONGRESS
 
 from popvox.models import Bill, PositionDocument, DocumentPage
-	
+
+bill_status_names = {
+"as": "Senate Amendment Ordered to be Printed",
+"ash": "House Sponsors or Cosponsors Added or Withdrawn",
+"ath": "Agreed to by House",
+"ats": "Agreed to by Senate",
+"cdh": "House Committee Discharged from Further Consideration",
+"cds": "Senate Committee Discharged from Further Consideration",
+"cph": "Considered and Passed House",
+"cps": "Considered and Passed by Senate",
+"eah": "Engrossed by House (Amendment)",
+"eas": "Engrossed by Senate (Amendment)",
+"eh": "Engrossed by House",
+"eph": "Engrossed and Deemed Passed by House",
+"enr": "Enrolled Bill (Passed Both House & Senate)",
+"es": "Engrossed by Senate",
+"fah": "Failed Amendment House",
+"fph": "Failed Passage in House",
+"fps": "Failed Passage in Senate",
+"hdh": "Ordered Held at House Desk",
+"hds": "Ordered Held at Senate Desk",
+"ih": "Introduced in House",
+"iph": "Indefinitely Postponed in House",
+"ips": "Indefinitely Postponed in Senate",
+"is": "Introduced in Senate",
+"lth": "Laid on Table in House",
+"lts": "Laid on Table in Senate",
+"oph": "Ordered to be Printed by House",
+"ops": "Ordered to be Printed by Senate",
+"pav": "Previous Action Vitiated",
+"pch": "Placed on Calendar by House",
+"pcs": "Placed on Calendar by Senate",
+"pp": "Public Print",
+"pap": "Printed as Passed",
+"pwah": "Ordered to be Printed with House Amendment",
+"rah": "Referred with Amendments in House",
+"ras": "Referred with Amendments in Senate",
+"rch": "Referred to Different or Additional House Committee",
+"rcs": "Referred to Different or Additional Senate Committee",
+"rdh": "Received in House from Senate",
+"rds": "Received in Senate from House",
+"reah": "Re-engrossed Amendment in House",
+"res": "Re-engrossed Amendment in Senate",
+"renr": "Re-enrolled Bill",
+"rfh": "Received from Senate-Referred to House Committee",
+"rfs": "Received from House-Referred to Senate Committee",
+"rh": "Reported by House Committee",
+"rih": "Referred to House Committee with Instructions",
+"ris": "Referred to Senate Committee with Instructions",
+"rs": "Reported by Senate Committee",
+"rth": "Referred to House Committee",
+"rts": "Referred to Senate Committee",
+"sas": "Senate Sponsors or Cosponsors Added or Withdrawn",
+"sc": "Sponsor Change",
+}
+
 def fetch_page(url, args=None, method="GET", decode=False):
 	if method == "GET" and args != None:
 		url += "?" + urllib.urlencode(args).encode("utf8")
@@ -82,12 +137,12 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 		return
 		
 	# check if we have this document already and have pages loaded
-	if DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, document__txt__isnull=False, document__pdf_url__isnull=False, document__pages__png__isnull=False).exists():
+	if PositionDocument.objects.filter(bill=bill, doctype=100, key=billstatus, txt__isnull=False, pdf_url__isnull=False, updated__gt="2011-11-23 13:30").exists() and DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, document__pages__png__isnull=False).exists():
 		return
 		
 	existing_records = list(PositionDocument.objects.filter(bill = bill, doctype = 100, key = billstatus))
-	while len(existing_records) > 1:
-		existing_records[0].delete()
+	for er in existing_records[1:]:
+		er.delete()
 	
 	if len(existing_records) == 0:
 		d = PositionDocument(
@@ -105,26 +160,39 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 	
 	d.pdf_url = pdf_url
 	
-	if isnew or not d.title:
+	if isnew or True:
 		mods = fetch_page(re.sub("/pdf.*", "/mods.xml", d.pdf_url))
 		mods = etree.fromstring(mods)
 		
 		ns = { "m": "http://www.loc.gov/mods/v3" }
 		
-		title = mods.xpath('string(m:titleInfo[@type="alternative"]/m:title)', namespaces=ns)
-		if not title:
-			title = mods.xpath('string(m:extension/m:searchTitle)', namespaces=ns)
-		if not title:
+		#title = mods.xpath('string(m:titleInfo[@type="alternative"]/m:title)', namespaces=ns)
+		#if not title: title = mods.xpath('string(m:extension/m:searchTitle)', namespaces=ns)
+		#if not title:
+		#	printthread()
+		#	print "bill title not found in MODS", m
+		#	return
+		#title = unicode(title) # force lxml object to unicode, otherwise it isn't handled right in Django db layer
+		
+		# The bill title supplied by GPO is inconsistent.
+		
+		# Set the title of the document to the status name.
+		bill_status_code = ""
+		bill_status_sequence = ""
+		for s in billstatus:
+			if not s.isdigit(): bill_status_code += s
+			if s.isdigit(): bill_status_sequence += s
+		if bill_status_code not in bill_status_names:
 			printthread()
-			print "bill title not found in MODS", m
+			print "status code not recognized", billstatus
 			return
-		title = unicode(title) # force lxml object to unicode, otherwise it isn't handled right in Django db layer
+		title = bill_status_names[bill_status_code]
+		if bill_status_sequence != "": title += " (" + bill_status_sequence + ")"
 		
 		date = mods.xpath('string(m:originInfo/m:dateIssued)', namespaces=ns)
 
 		d.title = title
 		d.created = date # set if isnew
-		d.updated = date # set if isnew
 		
 		what_did_we_fetch.append("mods")
 	
@@ -162,6 +230,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 	if len(what_did_we_fetch) == 0 and "THREADS" in os.environ:
 		printstatus()
 
+	return
 	break_pages(d, thread_index=thread_index)
 		
 def break_pages(document, thread_index=None, force=None):
@@ -418,12 +487,12 @@ def compare_documents(d1, d2):
 	doc, isnew = PositionDocument.objects.get_or_create(
 		bill = d1.bill,
 		doctype = 101,
-		key = "cmp:" + d1.key + "," + d2.key)
+		key = "cmp:" + d1.key + "," + d2.key,
+		defaults = { "created": d1.created})
 	doc.title = "Comparison: " + d1.title + " and " + d2.title
 	doc.save()
 	doc.pages.all().delete()
 	print doc.id, doc.key, d1.id, d2.id
-	print d1.created, d2.created
 	
 	# extract the text layer of the PDF in -bbox mode which yields
 	# a list of words in the PDF in document order and for each the
@@ -699,7 +768,7 @@ def compare_documents(d1, d2):
 		pg = 0
 		for op, oplen in diff_match_patch.diff(textcontent[dd], doclayout[dd][2]):
 			for i in xrange(oplen):
-				if output_pagination[pg][dd] == pos[1]:
+				if pg < len(output_pagination) and output_pagination[pg][dd] == pos[1]:
 					textcontentpaged[dd].append("")
 					pg += 1
 				if op in ("-", "="):
@@ -726,7 +795,6 @@ def compare_documents(d1, d2):
 				i += width
 		return ret 
 	for pg in xrange(len(output_pagination)-1): # array always has one extra
-		print pg
 		text = ""
 		lefttext = textcontentpaged[0][pg] if pg < len(textcontentpaged[0]) else ""
 		righttext = textcontentpaged[1][pg] if pg < len(textcontentpaged[1]) else ""
@@ -773,7 +841,7 @@ if __name__ == "__main__":
 
 	elif sys.argv[1] == "compare":
 		prev_p = None
-		for p in PositionDocument.objects.filter(bill=sys.argv[2]).order_by('created'):
+		for p in PositionDocument.objects.filter(bill=sys.argv[2], doctype=100).order_by('created'):
 			if prev_p:
 				compare_documents(prev_p, p)
 			prev_p = p

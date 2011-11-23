@@ -1909,7 +1909,8 @@ def uploaddoc2(request):
 	if request.POST["validate"] != "validate":
 		doc, is_new = docs.get_or_create(
 			bill = bill,
-			doctype = doctype)
+			doctype = doctype,
+			defaults = { "created": datetime.now() })
 		doc.title = title
 		doc.text = text
 		doc.link = link
