@@ -3,7 +3,7 @@
 # Fetches new bill text documents from GPO and pre-generates page
 # images for our iPad app.
 
-import os, sys, base64, re, urllib, urllib2, json, math
+import os, sys, base64, re, urllib, urllib2, json, math, glob
 from lxml import etree
 from StringIO import StringIO
 from django.template.defaultfilters import truncatewords
@@ -409,43 +409,91 @@ def break_pages(document, thread_index=None, force=None):
 		shutil.rmtree(path)
 
 def compare_documents(d1, d2):
-	# Creates a comparison of two documents, from d1's perspective
-	# where it matters (including filing it under d1's bill).
+	# Creates a comparison of two bill versions of the same bill by
+	# aligning the text content of the two PDFs and creating a visual
+	# output that aligns the PDFs side by side and marks changes with
+	# underlines.
 	
+	# set up the new document
 	doc, isnew = PositionDocument.objects.get_or_create(
 		bill = d1.bill,
 		doctype = 101,
 		key = "cmp:" + d1.key + "," + d2.key)
-	
 	doc.title = "Comparison: " + d1.title + " and " + d2.title
 	doc.save()
-	
-	print doc.id, doc.key, d1.id, d2.id
-	
 	doc.pages.all().delete()
+	print doc.id, doc.key, d1.id, d2.id
+	print d1.created, d2.created
 	
-	# compare the texts of the two documents
-	
-	# serialize the text content, keeping track of page numbers
-	def serialize_pages(d):
-		pages = []
-		text = ""
-		for p in d.pages.order_by('page'):
-			if not p.text: raise ValueError("Text is not available for document " + unicode(d) + ".")
-			pages.append(len(text))
-			text += p.text.encode("utf8")
-		return text, pages
-	d1text, d1pages = serialize_pages(d1)
-	d2text, d2pages = serialize_pages(d2)
-	
-	# split the output so that the pages have approximately
-	# the same number of characters per page as the input
-	chars_per_page = (len(d1text) + len(d2text)) / (len(d1pages) + len(d2pages))
+	# extract the text layer of the PDF in -bbox mode which yields
+	# a list of words in the PDF in document order and for each the
+	# page number and bounding box of each word.
+	import base64, tempfile, subprocess, shutil
+	path = tempfile.mkdtemp()
+	doclayout = [None, None] # [(startchar, wordcoord, text), (startchar, wordcoord, text)]
+	try:
+		# for each of the two documents....
+		for d, dd in ((d1, 0), (d2, 1)):
+			
+			# use pdftotext to get the coordinates of bounding boxes
+			# around each word in the document.
+			
+			# save PDF to disk
+			pdf = open(path + ("/document%d.pdf" % dd), "w")
+			pdf.write(base64.decodestring(d.pdf))
+			pdf.close()
+			
+			# execute pdftotext and read back the XHTML file
+			subprocess.call(["pdftotext", "-bbox", "-enc", "UTF-8", path + ("/document%d.pdf" % dd)], cwd=path) # poppler-utils package
+			f = open(path + ("/document%d.html" % dd))
+			xhtml = f.read() # utf-8, binary string
+			f.close()
+			
+			# read in the coordinates and serialize the information so that
+			# we can compare the text of the two documents, but remember
+			# the starting byte position of each word in the concatenated text
+			# string, and the bounding box for each word.
+			startchar = []
+			text = ""
+			wordcoord = []
+			tree = etree.parse(StringIO(xhtml)).getroot()
+			ns = { "xhtml": "http://www.w3.org/1999/xhtml" }
+			pagenum = 1
+			for node in tree.xpath("xhtml:body/xhtml:doc/xhtml:page", namespaces=ns):
+				page_width, page_height = node.attrib["width"], node.attrib["height"]
+				
+				page_width = float(page_width)
+				page_height = float(page_height)
+				
+				for node2 in node.xpath("xhtml:word", namespaces=ns):
+					# for each word, note its starting byte position in the text,
+					# its page number, and its bounding box in normalized
+					# coordinates relative to the page dimensions, and then
+					# append the text content into the text variable.
+					
+					# remove hyphens because it causes a change at any word that
+					# changes in line wrapping
+					t = node2.text
+					if t.endswith("-"):
+						t = t[0:-1]
+					else:
+						t += " "
+						
+					startchar.append(len(text))
+					wordcoord.append( (pagenum,
+						(float(node2.attrib["xMin"])/page_width, float(node2.attrib["yMin"])/page_height), (float(node2.attrib["xMax"])/page_width, float(node2.attrib["yMax"])/page_height)) )
+					text += t.encode("utf8")
+				pagenum += 1
+			doclayout[dd] = (startchar, wordcoord, text)
+	finally:
+		shutil.rmtree(path)
 
-	# do the comparison
+	# Align the serialized text of the text layers of the two PDFs, and
+	# then simplify the diff to minimize reported changes so it is
+	# more readable.
 	import diff_match_patch
-	diff = diff_match_patch.diff(d1text, d2text)
-
+	diff = diff_match_patch.diff(doclayout[0][2], doclayout[1][2])
+	
 	def simplify_diff(diff):
 		# re-flow the comparison so that insertions followed by deletions
 		# or vice versa are collapsed together
@@ -493,139 +541,57 @@ def compare_documents(d1, d2):
 				j += 2
 		
 		return opseq
-		
+	
 	opseq = simplify_diff(diff)
 	
-	def fixed_width(txt, width):
-		ret = []
-		i = 0
-		while i < len(txt):
-			lf = txt.find("\n", i)
-			lf2 = txt.find("\r", i)
-			if lf2 >=0 and lf2 < lf: lf = lf2
-			if lf >= 0 and lf-i <= width:
-				ret.append(txt[i:lf].ljust(width))
-				i = lf + 1
-			else:
-				ret.append(txt[i:i+width].ljust(width))
-				i += width
-		return ret
-	
-	# Generate text output.
-	leftloc = 0
-	rightloc = 0
-	for op, leftlen, rightlen in opseq:
-		if op == None: continue # range was absorbed into a previous op
-		width = 35
-		leftlines = fixed_width(d1text[leftloc:leftloc+leftlen], width)
-		rightlines = fixed_width(d2text[rightloc:rightloc+rightlen], width)
-		for i in xrange(max(len(leftlines), len(rightlines))):
-			#print \
-			#	(leftlines[i] if i < len(leftlines) else " "*width), \
-			#	op, \
-			#	(rightlines[i] if i < len(rightlines) else " "*width)
-			pass
-		leftloc += leftlen
-		rightloc += rightlen
-
-	# Generate image output. (With a PDF modifying tool, this could
-	# be adapted to generate PDF output.)
-	
-	# Serialize the documents layout information.
-	import base64, tempfile, subprocess, shutil
-	path = tempfile.mkdtemp()
-	doclayout = [None, None]
-	try:
-		for d, dd in ((d1, 0), (d2, 1)):
-			# use pdftotext to get the coordinates of bounding boxes
-			# around each word in the document.
-			
-			pdf = open(path + ("/document%d.pdf" % dd), "w")
-			pdf.write(base64.decodestring(d.pdf))
-			pdf.close()
-			
-			subprocess.call(["pdftotext", "-bbox", "-enc", "UTF-8", path + ("/document%d.pdf" % dd)], cwd=path) # poppler-utils package
-			f = open(path + ("/document%d.html" % dd))
-			xhtml = f.read() # utf-8, binary string
-			f.close()
-			
-			# read in the coordinates and serialize the information
-			startchar = []
-			text = ""
-			wordcoord = []
-			tree = etree.parse(StringIO(xhtml)).getroot()
-			ns = { "xhtml": "http://www.w3.org/1999/xhtml" }
-			pagenum = 1
-			for node in tree.xpath("xhtml:body/xhtml:doc/xhtml:page", namespaces=ns):
-				page_width, page_height = node.attrib["width"], node.attrib["height"]
-				
-				page_width = float(page_width)
-				page_height = float(page_height)
-				
-				for node2 in node.xpath("xhtml:word", namespaces=ns):
-					startchar.append(len(text))
-					wordcoord.append( (pagenum, (float(node2.attrib["xMin"])/page_width, float(node2.attrib["yMin"])/page_height), (float(node2.attrib["xMax"])/page_width, float(node2.attrib["yMax"])/page_height)) )
-						# remove hyphens because it causes a change
-						# at any word that changes in line wrapping
-					t = node2.text
-					if t.endswith("-"):
-						t = t[0:-1]
-					else:
-						t += " "
-					text += t.encode("utf8")
-				pagenum += 1
-			doclayout[dd] = (startchar, wordcoord, text)
-	finally:
-		shutil.rmtree(path)
-
-	# align the two text outputs
-	diff = diff_match_patch.diff(doclayout[0][2], doclayout[1][2])
-	opseq = simplify_diff(diff)
-	
-	# construct output
+	# Construct the output that visually aligns the two documents side
+	# by side and highlights the changes with underlining.
 	output_width = 512
 	output_height = int(output_width * 11/8.5)
 	path = tempfile.mkdtemp()
 	pgfn = {}
 	try:
+		# extract images from each source PDF with pdftoppm and
+		# make a dict of the filenames.
 		for d, dd in ((d1, 0), (d2, 1)):
-			# extract images from each source PDF
 			pdf = open(path + ("/document%d.pdf" % dd), "w")
 			pdf.write(base64.decodestring(d.pdf))
 			pdf.close()
 			subprocess.call(["pdftoppm", "-scale-to-x", str(output_width), "-scale-to-y", str(int(output_width*11/8.5)), "-png", path + ("/document%d.pdf" % dd), path + ("/page-%d" % dd)], cwd=path) # poppler-utils package
-
-			# map page numbers to file names
-			import glob
 			for fn in glob.glob(path + ("/page-%d-*.png" % dd)):
 				pagenum = int(fn[len(path)+8:-4])
 				pgfn[str(dd) + ":" + str(pagenum)] = fn
-			
-		# construct a new image that shows the documents side by
-		# side with their alignment.
 		
+		# the alignment isn't going to fit into the same pagination
+		# of the original documents because they are probably
+		# paginated differently, so we have to re-flow the comparison
+		# into a new set of pages.
+			
+		# initialize the first output page image.
 		from PIL import Image, ImageDraw
 		imcombined = Image.new("RGB", (output_width*2, output_height))
 		imcombined_draw = ImageDraw.Draw(imcombined)
 		imcombined_draw.rectangle( (0,0)+imcombined.size, fill=(255,255,255) )
 		
-		ylast = [0, 0]
-		ylast2 = [0, 0]
-		yoffset = [0, 0]
-		char_index = [0, 0]
-		word_index = [0, 0]
-		chars_since_break = 0
-		im = [None, None]
-		im_page = [None, None]
-		lines = []
-		output_page = 1
+		# keep track of state for the left and right documents....
+		ylast = [0, 0] # last y-coordinate of output
+		ylast2 = [0, 0] # last y-coordinate of output at the last point of alignment
+		yoffset = [0, 0] # current offset to apply to output blocks
+		char_index = [0, 0] # current position in the text layer serialization
+		word_index = [0, 0] # current word in the text layer serialization
+		chars_since_break = 0 # number of characters since the last point of alignment
+		im = [None, None] # source images of current page in each document
+		im_page = [None, None] # page numbers of the source images currently loaded
+		output_page = 1 # current page number of output
+		output_pagination = [(0,0)] # char offset in the text layout serialization at the start of each output page
+		
 		def save_page():
 			dp, isnew = DocumentPage.objects.get_or_create(document=doc, page=output_page)
 			buf = StringIO()
 			imcombined.save(buf, "png")
 			dp.png = base64.encodestring(buf.getvalue())
 			dp.save()
-			print doc.id, output_page
+			output_pagination.append( tuple(char_index) ) # clone the variable
 
 		for op, leftlen, rightlen in opseq:
 			if op == None: continue
@@ -651,9 +617,7 @@ def compare_documents(d1, d2):
 					if op == "#" and doclayout[dd][0][word_index[dd]] >= char_index[dd] + oplen[dd]: break
 						
 					pagenum, bbox_min, bbox_max = doclayout[dd][1][word_index[dd]]
-					
-					if pagenum > 2: break
-					
+										
 					# open the page image containing the word
 					if im_page[dd] != pagenum:
 						im[dd] = Image.open(pgfn[str(dd) + ":" + str(pagenum)])
@@ -715,7 +679,74 @@ def compare_documents(d1, d2):
 	finally:
 		shutil.rmtree(path)
 	
+	# In order to create a plain-text version of the document, we have
+	# to go back to the separate plain-text document content which
+	# comes from a different upstream source. The text layer of the
+	# PDF produces content that is pretty unreadable because of
+	# line numbering in the document.
+	
+	# load in the plain text
+	textcontent = [None, None]
+	for d, dd in ((d1, 0), (d2, 1)):
+		textcontent[dd] = d.txt.encode("utf8")
+		
+	# since the page numbering changed, align the plain text with the
+	# PDF text layer's text in order to break up the plain text into the
+	# same pagination.
+	textcontentpaged = [[], []]
+	for dd in (0, 1):
+		pos = [0, 0]
+		pg = 0
+		for op, oplen in diff_match_patch.diff(textcontent[dd], doclayout[dd][2]):
+			for i in xrange(oplen):
+				if output_pagination[pg][dd] == pos[1]:
+					textcontentpaged[dd].append("")
+					pg += 1
+				if op in ("-", "="):
+					textcontentpaged[dd][-1] += textcontent[dd][pos[0]]
+					pos[0] += 1
+				if op in ("+", "="):
+					pos[1] += 1
 
+	# now with the plain text of the two documents broken up into the same
+	# pagination, compare the plain text of each page separately and created
+	# an independent side-by-side representation.
+	def fixed_width(txt, width):
+		ret = []
+		i = 0
+		while i < len(txt):
+			lf = txt.find("\n", i)
+			lf2 = txt.find("\r", i)
+			if lf2 >=0 and lf2 < lf: lf = lf2
+			if lf >= 0 and lf-i <= width:
+				ret.append(txt[i:lf].ljust(width))
+				i = lf + 1
+			else:
+				ret.append(txt[i:i+width].ljust(width))
+				i += width
+		return ret 
+	for pg in xrange(len(output_pagination)-1): # array always has one extra
+		print pg
+		text = ""
+		lefttext = textcontentpaged[0][pg] if pg < len(textcontentpaged[0]) else ""
+		righttext = textcontentpaged[1][pg] if pg < len(textcontentpaged[1]) else ""
+		opseq = diff_match_patch.diff(lefttext, righttext)
+		leftloc = 0
+		rightloc = 0
+		for op, leftlen, rightlen in simplify_diff(opseq):
+			if op == None: continue # range was absorbed into a previous op
+			text_cols = 45
+			leftlines = fixed_width(lefttext[leftloc:leftloc+leftlen], text_cols)
+			rightlines = fixed_width(righttext[rightloc:rightloc+rightlen], text_cols)
+			for i in xrange(max(len(leftlines), len(rightlines))):
+				text += \
+					(leftlines[i] if i < len(leftlines) else " "*text_cols) \
+					+ (" %s " % ("|" if op == "=" else "~")) + \
+					(rightlines[i] if i < len(rightlines) else " "*text_cols) \
+					+ "\n"
+			leftloc += leftlen
+			rightloc += rightlen
+		doc.pages.filter(page=pg+1).update(text=text)
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1: # no args
@@ -745,7 +776,6 @@ if __name__ == "__main__":
 		for p in PositionDocument.objects.filter(bill=sys.argv[2]).order_by('created'):
 			if prev_p:
 				compare_documents(prev_p, p)
-				break
 			prev_p = p
 				
 	elif len(sys.argv) == 2:
