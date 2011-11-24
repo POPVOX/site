@@ -15,11 +15,16 @@
 	<style>
 	.meta_view { display: none; }
 	#center, #page_paper { overflow: auto; }
-	#table_of_contents { padding: 15px; }
-	#table_of_contents h2 { font-family: Verdana, Tahoma, Arial; font-size: 14px; text-transform: uppercase; text-decoration: none; font-weight: bold; margin-bottom: 6px; }
+	#table_of_contents, #version_select { padding: 15px; }
+	#table_of_contents h2, #version_select h2 { font-family: Verdana, Tahoma, Arial; font-size: 14px; text-transform: uppercase; text-decoration: none; font-weight: bold; margin-bottom: 6px; }
 	#table_of_contents .entry { clear: both; font-family: Tahoma, Arial; font-size: 12px; text-decoration: none; margin-bottom: 4px; }
 	#table_of_contents .entry .number { float: right; }
 	#table_of_contents a { cursor: pointer; }
+	 { padding: 15px; }
+	#version_select h3 { font-family: Verdana, Tahoma, Arial; font-size: 12px; text-transform: uppercase; text-decoration: none; font-weight: bold; margin-top: 18px; margin-bottom: 6px; }
+	#version_select .entry { font-family: Tahoma, Arial; font-size: 12px; text-decoration: none; margin-bottom: 4px; }
+	#version_select .entry span { display: block; margin-left: 25px; color: #666; }
+	#version_select a { cursor: pointer; }
 	.search_nav { display: none; }
 	.search_match {
 		background-color: white;
@@ -30,6 +35,7 @@
 	#page_paper .container { padding: 15px; cursor: move; }
 	#page_paper img { display: block; } /* prevent side by side alignment for the scrolling */
 	#page_text { padding: 15px; }
+	#page_text pre { font-family: mono; }
 	.loading { position: absolute; background-color: white; padding: 1em; font-size: 14px; font-weight: bold; font-family: Verdana, Tahoma, Arial, sans-serif; } 
 	
 	body {
@@ -44,7 +50,7 @@
 	#header, #footer { height: 30px; background: #e2d8d0; overflow: hidden; }
 	
 	#header li.title { margin: 0 0 0 10px; }
-	#header li.title a { font: bold 14px/28px Verdana, Arial, sans-serif; color: black; }
+	#header li.title, #header li.title a { font: bold 14px/28px Verdana, Arial, sans-serif; color: black; }
 	
 	/**styling the UL list for the icons**/
 	ul.barNav { list-style-type: none; }
@@ -92,7 +98,7 @@
 	ul.barNavFooter a { display: block; font-family: Tahoma, Arial; font-size: 11px; text-transform: uppercase; text-decoration: none; font-weight: bold; color: #6a6767; margin-top: 8px; }
 	ul.barNav a:visited { color: #6a6767; }
 	ul.barNav a:hover { color: #514f4f; }
-	ul.barNav li.toc, ul.barNav li.pagemode, ul.barNav li.zoom { padding: 0 10px 0 10px; }
+	ul.barNav li.toc, ul.barNav li.pagemode, ul.barNav li.zoom, ul.barNav li.versions { padding: 0 10px 0 10px; }
 	ul.barNav li.pagemode a { width: 30px; text-align: center; }
 	ul.barNav li.search_nav { padding: 0 10px 0 10px; }
 	ul.barNav li.logo a { display: block; background: url(/media/billtext/logo.png); width: 29px; height: 24px;  text-indent: -999em; margin: 0; }
@@ -120,7 +126,84 @@ var _pagetextcontent = { };
 
 if (_startformat != "paper" && _startformat != "text") _startformat = "paper";
 
+function load_bill(billid) {
+	// Load all bill text versions for this bill and display the most recent.
+	$.ajax({
+	type:"GET",
+	url: "/api/v1/bill/" + billid + "/documents",
+	data: {
+		type: 100,
+		api_key: "DQZUTLYRW4K1FK1O" // popvox public api key
+	},
+	dataType: "json",
+	success: function(data, status) {
+		var has_document = false;
+		for (var i = 0; i < data.length; i++) {
+			// load up the first bill text document that appears
+			if (!has_document) load_document(data[i].id);
+			has_document = true;
+			
+			var entry = $('<div class="entry"/>');
+			$('#version_select').append(entry);
+			entry.append($('<a/>').text(data[i].title).attr('onclick', 'load_document(' + data[i].id + '); return false;'));
+			var d = new Date(data[i].created);
+			entry.append($('<span/>').text("published on " + (d.getMonth()+1) + "/" + d.getDate() + "/" + d.getFullYear()));
+			
+			if (i > 0) $('#footer .versions').show();
+		}
+		
+		if (!has_document) {
+			// No text is available. In order to display why, we have to load
+			// bill metadata.
+			$.ajax({
+			type:"GET",
+			url: "/api/v1/bill/" + billid,
+			data: {
+				api_key: "DQZUTLYRW4K1FK1O" // popvox public api key
+			},
+			dataType: "json",
+			success: function(bill_data, status) {
+				$('li.title').text(bill_data.title);
+				if (bill_data.congressnumber < 112) {
+					$('#center').html("<div style='margin: 20px'>The text of this bill is not available. Archival bill text is not available.</div>");
+				} else {
+					$('#center').html("<div style='margin: 20px'>The text of this bill is not available. It may not yet have been printed by the Government Printing Office.</div>");
+				}
+				$('#downloadPDF').hide();
+			}
+			});
+		}
+	
+		// Load all bill text comparison versions.
+		$.ajax({
+		type:"GET",
+		url: "/api/v1/bill/" + billid + "/documents",
+		data: {
+			type: 101,
+			api_key: "DQZUTLYRW4K1FK1O" // popvox public api key
+		},
+		dataType: "json",
+		success: function(data, status) {
+			if (data.length > 0) {
+				$('#version_select').append($('<h3>Compare Two Versions</h3>'));
+			}
+			for (var i = 0; i < data.length; i++) {
+				var entry = $('<div class="entry"/>');
+				$('#version_select').append(entry);
+				entry.append($('<a/>').text(data[i].title).attr('onclick', 'load_document(' + data[i].id + '); return false;'));
+			}
+		}
+		});
+	}
+	});
+}
+
 function load_document(docid) {
+	// reset state
+	clear_search();
+	_pagetextcontent = { };
+
+	// begin document load
 	_docid = docid;
 
 	$.ajax({
@@ -152,8 +235,11 @@ function load_document(docid) {
 		// State.
 		_pagecount = data.pages;
 		_formats = data.formats;
+		_curpage = null;
 		
 		// Display.
+		$('#footer .pagemode').show();
+		$('#footer .zoom').show();
 		if (!_formats.png) {
 			_startformat = "text";
 			$('#footer .pagemode').hide();
@@ -176,6 +262,7 @@ function show_meta(view) {
 	$('.meta_view, .page_view').hide()
 	if (view == 'toc') $('#table_of_contents').show();
 	if (view == 'search') $('#search').show();
+	if (view == 'versions') $('#version_select').show();
 	_curview = 'meta';
 	$('.barNav .pagemode a').text(_lastview == "paper" ? "paper" : "text");
 	return false;
@@ -313,14 +400,13 @@ function page_go_to(pagenum) {
 	return false;
 }
 
+function clear_search() {
+	$('.barNav .search_nav').hide();
+	_searchterms = null;
+	_searchresultpages = null;
+	_searchnavindex = null;
+}
 function search() {
-	function clear_search() {
-		$('.barNav .search_nav').hide();
-		_searchterms = null;
-		_searchresultpages = null;
-		_searchnavindex = null;
-	}
-	
 	var q = $('#searchBill input').val();
 	if (!q) {
 		// similar code bellow
@@ -365,7 +451,7 @@ function search_advance(direction) {
 
 function update_embed_links() {
 	$('#embed_link').val("{{request.GET.baseurl|escapejs}}#page=" + _curpage + (_zoomed ? ",zoomed=1" : "") + (_curview != "paper" ? ",format=text" : ""));
-	$('#embed_widget').val("<script src=\"https://{{request.get_host|escapejs}}/widgets/bill-text.js?docid={{request.GET.docid|escapejs}}" + (_curpage > 1 ? "&page=" + _curpage : "") + (_zoomed ? "&zoomed=1" : "") + (_curview != "paper" ? "&format=text" : "") + "&account=anonymous\"> <" + "/script>");
+	$('#embed_widget').val("<script src=\"https://{{request.get_host|escapejs}}/widgets/bill-text.js?docid=" + _docid + (_curpage > 1 ? "&page=" + _curpage : "") + (_zoomed ? "&zoomed=1" : "") + (_curview != "paper" ? "&format=text" : "") + "&account=anonymous\"> <" + "/script>");
 }
 
 function update_embed_links_2() {
@@ -408,13 +494,19 @@ $(function() {
 	});
 	$(window).resize();
 	
-	load_document(parseInt("{{request.GET.docid|escapejs}}"));
-	
 	$('#searchBill input').keydown_enter(search);
 	
 	$("#page_paper").scrollview({});
 	
-	//$('#center').click(function() { $('#embed_info').hide(); });
+	// load a document
+	{% if request.GET.docid %}
+	load_document(parseInt("{{request.GET.docid|escapejs}}"));
+	{% endif %}
+	
+	{% if request.GET.billid %}
+	load_bill(parseInt("{{request.GET.billid|escapejs}}"));
+	{% endif %}
+	
 });
 	</script>
 	</head>
@@ -427,6 +519,9 @@ $(function() {
 		</div>
 		
 		<div id="center">
+			<div id="version_select" class="meta_view">
+				<h2>Show Different Version</h2>
+			</div>
 		
 			<div id="table_of_contents" class="meta_view">
 				<h2>Table of Contents</h2>
@@ -465,6 +560,8 @@ $(function() {
 				
 				<li class="embed"><a id="embedPage" href="#" onclick="update_embed_links_2(); $.colorbox({transition: 'none', inline: true, href:'#embed_info', opacity: .5}); return false;" title="Embed"></a></li>
 				<li class="download"><a id="downloadPDF" href="#" target="_blank" title="Download PDF"></a></li>
+				
+				<li class="versions" style="display: none"><a href="#" onclick="return _curview != 'meta' ? show_meta('versions') : show_page(_lastview);">Versions</a></li>
 				
 				<li class="logo">
 					<a href="http://www.popvox.com" title="Embeddable bill text powered by POPVOX: Click here to weigh in." target="_top">
