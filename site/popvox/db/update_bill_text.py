@@ -534,6 +534,24 @@ def compare_documents(d1, d2):
 				page_width = float(page_width)
 				page_height = float(page_height)
 				
+				# look for line numbers as digits that appear at the same xMax
+				# and no non-digits appear at that xMax.
+				possible_left_margin = { }
+				for node2 in node.xpath("xhtml:word", namespaces=ns):
+					rm = int(float(node2.attrib["xMax"]))
+					if not (100 < rm < 200): continue # I see line numbers at 140 in one example
+					if node2.text.isdigit():
+						if not rm in possible_left_margin: possible_left_margin[rm] = 0
+						if possible_left_margin[rm] == -1: continue
+						possible_left_margin[rm] += 1 # count up detected line numbers
+					else:
+						possible_left_margin[rm] = -1
+				possible_left_margin = possible_left_margin.items()
+				possible_left_margin.sort(key = lambda kv : -kv[1])
+				left_margin = None
+				if len(possible_left_margin) > 0 and possible_left_margin[0][1] > 5:
+					left_margin = possible_left_margin[0][0]
+
 				for node2 in node.xpath("xhtml:word", namespaces=ns):
 					# for each word, note its starting byte position in the text,
 					# its page number, and its bounding box in normalized
@@ -548,6 +566,13 @@ def compare_documents(d1, d2):
 					else:
 						t += " "
 						
+					if int(float(node2.attrib["xMax"])) == left_margin:
+						# This is most likely a line number. We must include
+						# it in the doclayout array so that we actually copy
+						# this into the output document, but clear out the
+						# text so it does not affect the comparison.
+						t = ""
+						
 					startchar.append(len(text))
 					wordcoord.append( (pagenum,
 						(float(node2.attrib["xMin"])/page_width, float(node2.attrib["yMin"])/page_height), (float(node2.attrib["xMax"])/page_width, float(node2.attrib["yMax"])/page_height)) )
@@ -557,10 +582,58 @@ def compare_documents(d1, d2):
 	finally:
 		shutil.rmtree(path)
 
+	import diff_match_patch
+
+	# Amendments in the nature of a substitute are commonly
+	# printed with the original text struck out. In the text layer
+	# stream, it just appears as plain text, followed by the new
+	# text, and that messes up the alignment since the original
+	# document only has the bill once. Remove the struck-out
+	# text by aligning the text with the GPO plain text document
+	# which indicates struck-out text as <DELETED>...</DELETED>
+	# and then replacing the characters in the text layer stream
+	# with spaces so it doesn't mess up indices but won't line
+	# up with the other document.
+	for d, dd in ((d1, 0), (d2, 1)):
+		if "<DELETED>" in d.txt:
+			alg = diff_match_patch.diff(d.txt.lower().encode("utf8"), doclayout[dd][2].lower())
+			dtext = list(doclayout[dd][2])
+			pos_left = 0
+			pos_right = 0
+			idx = 0
+			for m in re.finditer("<DELETED>(.*?)</DELETED>", d.txt, re.DOTALL):
+				# advance so that idx points to the last op that
+				# starts at or before this deleted region.
+				while (pos_left + alg[idx][1] <= m.start()) or (pos_left < m.start() and alg[idx][0] == "+"):
+					if alg[idx][0] != "+": pos_left += alg[idx][1]
+					if alg[idx][0] != "-": pos_right += alg[idx][1]
+					idx += 1
+				# clear out ops from there until the last op that starts
+				# within this region. don't update idx for the next iteration
+				# because the last op might overlap with the next <DELETED>
+				# group.
+				midx = idx
+				mpos_left = pos_left
+				mpos_right = pos_right
+				while mpos_left < m.end():
+					# if this op is an equal or insertion, clear out the
+					# corresponding characters on the right side.
+					# if the op is an = op, then we can be more careful
+					# because the op probably doesn't line up exactly
+					# with the <DELETED>...</DELETED> match.
+					if alg[midx][0] != "-":
+						for i in xrange(alg[midx][1]):
+							if alg[midx][0] != "=" or (m.start() <= (mpos_left + i) < m.end()):
+								dtext[mpos_right+i] = " "
+					
+					if alg[midx][0] != "+": mpos_left += alg[midx][1]
+					if alg[midx][0] != "-": mpos_right += alg[midx][1]
+					midx += 1
+			doclayout[dd] = (doclayout[dd][0], doclayout[dd][1], "".join(dtext))
+
 	# Align the serialized text of the text layers of the two PDFs, and
 	# then simplify the diff to minimize reported changes so it is
 	# more readable.
-	import diff_match_patch
 	diff = diff_match_patch.diff(doclayout[0][2], doclayout[1][2])
 	
 	def simplify_diff(diff):
@@ -637,7 +710,7 @@ def compare_documents(d1, d2):
 		# into a new set of pages.
 			
 		# initialize the first output page image.
-		from PIL import Image, ImageDraw
+		from PIL import Image, ImageDraw, ImageChops
 		imcombined = Image.new("RGB", (output_width*2, output_height))
 		imcombined_draw = ImageDraw.Draw(imcombined)
 		imcombined_draw.rectangle( (0,0)+imcombined.size, fill=(255,255,255) )
@@ -686,6 +759,18 @@ def compare_documents(d1, d2):
 					if op == "#" and doclayout[dd][0][word_index[dd]] >= char_index[dd] + oplen[dd]: break
 						
 					pagenum, bbox_min, bbox_max = doclayout[dd][1][word_index[dd]]
+					
+					# because we delete text enclosed by <DELETED>, we should
+					# remove it from the output entirely!
+					word_start = doclayout[dd][0][word_index[dd]]
+					if word_index[dd] < len(doclayout[dd][0])-1:
+						word_end = doclayout[dd][0][word_index[dd]+1]
+					else:
+						word_end = len(doclayout[dd][2])
+					word_text = doclayout[dd][2][word_start:word_end]
+					if word_text.strip() == "":
+						word_index[dd] += 1
+						continue
 										
 					# open the page image containing the word
 					if im_page[dd] != pagenum:
@@ -699,6 +784,12 @@ def compare_documents(d1, d2):
 					# get an image instance cropped to that word
 					bbox = [int(bbox_min[0]*im[dd].size[0]), int(bbox_min[1]*im[dd].size[1]), int(bbox_max[0]*im[dd].size[0]), int(bbox_max[1]*im[dd].size[1])]
 					im_word = im[dd].crop(bbox)
+					
+					# don't bother pasting, underlining, or adjusting the ylast
+					# values for hidden text
+					if ImageChops.invert(im_word).getbbox() == None:
+						word_index[dd] += 1
+						continue
 					
 					# determine the output location
 					if dd == 1:
@@ -757,7 +848,9 @@ def compare_documents(d1, d2):
 	# load in the plain text
 	textcontent = [None, None]
 	for d, dd in ((d1, 0), (d2, 1)):
-		textcontent[dd] = d.txt.encode("utf8")
+		textcontent[dd] = d.txt
+		textcontent[dd] = re.sub("<DELETED>(.*?)</DELETED>", "", textcontent[dd], re.DOTALL)
+		textcontent[dd] = textcontent[dd].lower().encode("utf8")
 		
 	# since the page numbering changed, align the plain text with the
 	# PDF text layer's text in order to break up the plain text into the
@@ -766,7 +859,7 @@ def compare_documents(d1, d2):
 	for dd in (0, 1):
 		pos = [0, 0]
 		pg = 0
-		for op, oplen in diff_match_patch.diff(textcontent[dd], doclayout[dd][2]):
+		for op, oplen in diff_match_patch.diff(textcontent[dd], doclayout[dd][2].lower()):
 			for i in xrange(oplen):
 				if pg < len(output_pagination) and output_pagination[pg][dd] == pos[1]:
 					textcontentpaged[dd].append("")
