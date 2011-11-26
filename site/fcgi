@@ -1,51 +1,102 @@
+
 #!/bin/bash
 
-# Start, restart, or stop the FastCGI Python instance.
-
-PIDFILE=/tmp/django-fcgi-$USER.pid
-
-if [ -f $PIDFILE ]; then
-    echo "Stopping...";
-    kill `cat -- $PIDFILE`;
-    rm -f -- $PIDFILE;
-fi
+# Start, graceful switch, or stop the FastCGI Python instance.
+# Run with the argument 'stop' to stop all executing instances.
+# Otherwise, a new instance is started on a fresh port and once
+# it is started the old instances are killed for a graceful
+# restart.
+#
+# There is no way to flag a running FastCGI instance
+# as no longer taking requests while it still processes requests,
+# so killing the running instance will still probably give people
+# Django error pages, but at least they should not see a Bad Gateway
+# error from Nginx, since it should fail over to the other instance.
 
 HOSTNAME=`hostname -I | tr -d ' '` # assumes only one interface
-PORT=`echo 1000+$UID|bc`
 
+# Remove any running instance from the server farm table to inform the
+# master that this server is no longer accepting connections.
+if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
+    ./mysql_shell.sh -e "DELETE FROM farm WHERE hostport LIKE \"$HOSTNAME:%\";"
+fi
+
+# Get the CURPID, CURPIDFILE, and CURPORT of the running instance.
+for CURPIDFILE in `ls /tmp | egrep "django-fcgi-$USER(-.*)?.pid"`
+do
+    CURPID=`cat -- /tmp/$CURPIDFILE`;
+    CURPORT=`echo $CURPIDFILE | sed "s/django-fcgi-$USER-\([0-9]*\).pid/\1/"`;
+
+    # Stop: Kill the running instance and exit.
+    if [ "$1" = "stop" ]; then
+        echo "Stopping $CURPORT (pid=$CURPID)...";
+        kill $CURPID;
+        rm -f -- /tmp/$CURPIDFILE;
+    fi
+done
+
+# Stop: Kill the running instance and exit.
+if [ "$1" = "stop" ]; then
+    exit;
+fi
+
+# Select a port for the new instance.
+PORT=`echo 1000+$UID*2|bc`
+
+# If it is the same as the running instance's port, add 1.
+if [ "$PORT" = "$CURPORT" ]; then
+    PORT=`echo $PORT+1|bc`
+fi
+
+# Start the new instance...
+
+# Wait for the port to clear.
 CTR=0
 while [ "`netstat -tln |grep $PORT`" != "" ]; do
 	if [ $CTR -gt 1 ]; then
-		echo "Port still bound...";
+		echo "Port $PORT already bound...";
 		netstat -tln |grep $PORT;
 	fi
 	CTR=`echo $CTR+1|bc`
 	sleep 1;
 done
 
-if [ "$1" = "stop" ]; then
-    if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
-        # Inform the master that we are no longer accepting connections.
-        ./mysql_shell.sh -e "DELETE FROM farm WHERE hostport=\"$HOSTNAME:$PORT\";"
-    fi
+echo "Starting $HOSTNAME:$PORT...";
 
-    echo "Stopped.";
+# select a PIDFILE
+PIDFILE=/tmp/django-fcgi-$USER-$PORT.pid
 
-else
+ME=`readlink -m $0`
+MYDIR=`dirname $ME`
+cd $MYDIR
 
-    echo "Starting $HOSTNAME:$PORT...";
+./manage runfcgi host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
+                 workdir=$MYDIR umask=0002 debug=1 \
+                 maxchildren=8 \
+                 outlog=~/logs/output_log errlog=~/logs/error_log ;
 
-    ME=`readlink -m $0`
-    MYDIR=`dirname $ME`
-    cd $MYDIR
+if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
+    # Inform the master that we are accepting connections.
+    ./mysql_shell.sh -e "INSERT IGNORE INTO farm SET hostport=\"$HOSTNAME:$PORT\";"
+fi
 
-    ./manage runfcgi host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
-                     workdir=$MYDIR umask=0002 debug=1 \
-                     maxchildren=8 \
-                     outlog=~/logs/output_log errlog=~/logs/error_log ;
+# Kill the previously running instance.
+if [ "$CURPIDFILE" != "" ]; then
+    sleep 2; # give the new instance a chance to start up and
+             # the old instance a chance to complete requests
 
-    if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
-        # Inform the master that we are accepting connections.
-        ./mysql_shell.sh -e "INSERT IGNORE INTO farm SET hostport=\"$HOSTNAME:$PORT\";"
-    fi
+    echo "Stopping $CURPORT (pid=$CURPID)...";
+    kill $CURPID;
+    rm -f -- /tmp/$CURPIDFILE;
+
+    # wait for the port to clear
+    CTR=0
+    while [ "`netstat -tln |grep $CURPORT`" != "" ]; do
+	if [ $CTR -gt 1 ]; then
+		echo "Waiting for port $CURPORT to be freed...";
+		netstat -tln |grep $PORT;
+	fi
+	CTR=`echo $CTR+1|bc`
+	sleep 1;
+    done
 fi

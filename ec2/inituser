@@ -15,7 +15,8 @@ cd sources
 # if the hostname changes, nginx will connect to some random dude
 cat conf/nginx_deployment_template.conf \
 	|sed "s/__USER__/$USER/g"\
-	|sed "s/__PORT__/`echo 1000+$UID | bc`/"\
+	|sed "s/__PORT1__/`echo 1000+$UID*2 | bc`/"\
+	|sed "s/__PORT2__/`echo 1001+$UID*2 | bc`/"\
 	|sed "s/__HOST__/`hostname -I | tr -d ' '`/" \
 	|sed "s/<user==$USER> *//" \
 	|sed "s/<user\!=$USER>.*//" \
