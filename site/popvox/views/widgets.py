@@ -229,6 +229,6 @@ for (var pv_fargs_i = 0; pv_fargs_i < pv_fargs.length; pv_fargs_i++) {
 }
 var pv_qs_loc = document.location.href;
 if (pv_qs_loc.indexOf("#") >= 0) pv_qs_loc = pv_qs_loc.substring(0, pv_qs_loc.indexOf("#"));
-document.write("<iframe src='https://%s/widgets/bill-text?%s&baseurl=" + escape(pv_qs_loc) + pv_qsargs + "' width='%d' height='%d' border='0' marginheight='0' marginwidth='0' frameborder='0'></iframe>");
+document.write("<iframe id='popvox_billtext_widget' src='https://%s/widgets/bill-text?%s&baseurl=" + escape(pv_qs_loc) + pv_qsargs + "' width='%d' height='%d' border='0' marginheight='0' marginwidth='0' frameborder='0'></iframe>");
 """ % (request.get_host(), urllib.urlencode(request.GET), width, height)
 	, mimetype="text/javascript")
