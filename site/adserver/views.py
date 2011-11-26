@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from django.template.defaultfilters import escapejs
 
-import re
+import re, random
 
 from models import *
 from adselection import show_banner
@@ -17,6 +17,43 @@ def banner(request, formatid, outputformat):
 	if request.GET.get("DNT", "1") == "1" and \
 		request.META.get("DNT", "0") == "1":
 		delattr(request, "session")
+		
+	# Ad requests on a single page must be made synchronously so that
+	# the ad trail cookie can be updated by one request before the next
+	# ad request is made so that two banners don't show on the same page,
+	# but browsers will execute script requests asynchronously (even if the
+	# scripts are executed synchronously).
+	#
+	# Execute the ad in two stages to force synchronicity. In the first stage,
+	# just write a new script tag that re-calls this view with an extra parameter
+	# to skip this part in this second stage. Because browsers execute scripts
+	# in page order, this guarantees synchronicity. It also slows down page
+	# load time significantly because the requests will block later scripts on
+	# the page --- unless we can get around that.
+	#
+	# If the ADSERVER_USE_JQUERY setting is True, then we can avoid
+	# synchronous requests that block scripts by leaving a <div/> at the
+	# point where the script executes and then asynchronously beginning
+	# the second request --- but with the async option set to false so that
+	# it is executed synchronously with respect to other jQuery ajax calls.
+	# In the second stage, we pass the id of the div and fill it in with the
+	# banner using jQuery.
+	if outputformat == "js" and request.GET.get("ss", "") != "2":
+		url = request.build_absolute_uri()
+		if not "?" in url:
+			url += "?"
+		else:
+			url += "&"
+		url += "ss=2"
+		if request.GET.get("jquery", "") != "1":
+			js = "document.write(\"<script src='" + escapejs(url) + "'> </script>\");"
+		else:
+			divid = "adserver_placement_" + str(random.randint(0, 10000))
+			url += "&div_id=" + divid
+			js = "document.write(\"<div id='" + escapejs(divid) + "'> </div>\");" \
+				+  "$.ajax({async:false,crossDomain:true,dataType:'script',url: '" + escapejs(url) + "' } );"
+		response = HttpResponse(js, mimetype="text/javascript")
+		return response
 		
 	format = get_object_or_404(Format, id=formatid)
 	
@@ -34,7 +71,10 @@ def banner(request, formatid, outputformat):
 	if outputformat == "html":
 		response = HttpResponse(html, mimetype="text/html")
 	elif outputformat == "js":
-		js = "document.write(\"" + escapejs(html) + "\");"
+		if request.GET.get("jquery", "") != "1":
+			js = "document.write(\"" + escapejs(html) + "\");"
+		else:
+			js = "$('#" + escapejs(request.GET.get("div_id", "")) + "').html('" + escapejs(html) + "\');"
 		response = HttpResponse(js, mimetype="text/javascript")
 	else:
 		raise Http404()

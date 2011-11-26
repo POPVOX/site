@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils import simplejson
 from django.template import Variable
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 import cgi
 
@@ -52,10 +53,11 @@ def show_ad(parser, token):
 			targets = [make_target(f) for f in self.fields[1:]]
 			
 			if False:
-				# Requires RequestContext...
+				# Requires RequestContext, and will result in the particular
+				# ad getting cached with the response if the response is cached...
 				return show_banner(format, context["request"], context, targets, context["request"].path)
 			else:
-				return mark_safe("<script src=\"") + reverse("adserver.views.banner", args=[str(format.id), 'js']) + "?targets=" + ",".join([t.key for t in targets]) + "&DNT=0" + mark_safe("\"> </script>")
+				return mark_safe("<script src=\"") + reverse("adserver.views.banner", args=[str(format.id), 'js']) + "?targets=" + ",".join([t.key for t in targets]) + "&DNT=0" + ("&jquery=1" if getattr(settings, "ADSERVER_USE_JQUERY", False) else "") + mark_safe("\"> </script>")
 
 	fields = token.split_contents()[1:]
 	

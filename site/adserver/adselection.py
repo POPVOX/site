@@ -281,13 +281,15 @@ def show_banner(format, request, context, targets, path):
 		return Template(format.fallbackhtml).render(context)
 		
 	# Prepare the list of ads we've served to this user recently. Prune the list
-	# of ads not seen in two days, which is the maximum.
+	# of ads not seen in two days, which is the maximum. And use an OrderedDict
+	# to prevent spurrious changes that would result in unnecessarily setting a
+	# cookie.
 	adserver_trail = getattr(request, "adserver_trail", OrderedDict())
 	if type(adserver_trail) == dict: adserver_trail = OrderedDict(adserver_trail) # legacy forward conversion
 	for bannerid, last_impression_date in adserver_trail.items():
 		if now - last_impression_date > timedelta(days=2):
 			del adserver_trail[bannerid]
-	request.adserver_trail = adserver_trail
+	request.adserver_trail = adserver_trail # make sure instance goes back to request
 	
 	# Besides the targets specified in the template tag, additionally apply
 	# templates stored in the request object and context variable as
@@ -360,7 +362,7 @@ def show_banner(format, request, context, targets, path):
 	
 	# Record that this ad was shown.
 	if b.order.period == None or b.order.period != 0:
-		adserver_trail[b.id] = now
+		adserver_trail[b.id] = now # instance is tied to request object
 	
 	# Parse the template. If the banner has HTML override code, use that instead.
 	if b.html != None and b.html.strip() != "":

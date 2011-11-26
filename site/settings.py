@@ -227,6 +227,7 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 FEEDBACK_BLOCKED_IPS = ["91.212.226.143"]
+ADSERVER_USE_JQUERY = True
 
 # registration app
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
