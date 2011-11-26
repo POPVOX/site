@@ -40,7 +40,7 @@ else
     cd $MYDIR
 
     ./manage runfcgi host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
-                     workdir=$MYDIR umask=0002 \
+                     workdir=$MYDIR umask=0002 debug=1 \
                      maxchildren=8 \
                      outlog=~/logs/output_log errlog=~/logs/error_log ;
 
