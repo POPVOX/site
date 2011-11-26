@@ -21,8 +21,62 @@ $(function() {
 		}
 	});
 });
+
+$(function() {
+		$('#issue_list .controller div').click(function() {
+			$('#issue_list .controller div').removeClass('active');
+			$(this).addClass('active');
+			
+			var compare_attr = this.id;
+			$('#issue_list .issues.issue-list .issue').sortElements(function(a,b) { return parseInt($(a).attr(compare_attr)) > parseInt($(b).attr(compare_attr)) ? 1 : -1 });
+		});
+		
+		$('#issue_list .issue').click(function() {
+			$('#issue_list .issue').removeClass("active");
+			$(this).addClass("active");
+			$('#highlights, #activitycontainer, #trending_bills').hide();
+
+			// remove ads, make room for content
+			$('.content > div.main').removeClass("col_9").addClass("col_12");
+			$('.content > div.col_ad').hide();
+
+			if (this.hasAttribute("tab")) {
+				// make room for ads
+				if (this.getAttribute("tab") == "highlights") {
+					$('.content > div.main').removeClass("col_12").addClass("col_9");
+					$('.content > div.col_ad').show();
+				}
+					
+				$('#bill_list_byissue').hide();
+				$('#' + this.getAttribute("tab")).show();
+				return;
+			}
+
+			$('#bill_list_byissue').show();
+			$('#bill_list_byissue').html("<p>Loading...</p>");
+			
+			$.ajax({ 
+				type: "GET",
+				url: "/ajax/bills/issue-area",
+				data: { ix: this.getAttribute('ix') },
+				success:
+					function(data) {
+						$('#bill_list_byissue').html(data);
+					},
+				error:
+					function(data) {
+						$('#bill_list_byissue').html("<p>There was an error loading the page. Please try again.</p>");
+					}
+			});
+		});
+});
 </script>
 <style>
+.col_3 h3 {
+	font-size: 20px;
+	line-height: 22px;
+}
+
 .category_icon_container {
     background: url("/media/master/bg_rule.gif") repeat-x left top;
 	padding: 20px 0 0 80px;
@@ -71,10 +125,9 @@ $(function() {
 </style>
 {% endblock %}
 {% block content %}
-
 <div class="content">
 	
-	<div class="col_9 col_top">
+	<div class="col_9 col_top col_last main">
 		<h1>What do you think about these bills?</h1>
 		
 		<p id="anonymous" style="margin-bottom: 2em; display: none;">With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress.</p>
@@ -84,101 +137,136 @@ $(function() {
 			if (!res.user) $('#anonymous').show();
 		});</script>
 		
-		<iframe src="/widgets/top-bills" width="700" height="150" frameborder="0" scrolling="no" style="margin-bottom: 15px"> </iframe>
+		<div id="issue_list" class="col_3">
+			<h3 class="no_rule">POPVOX Picks</h3>
 		
-	</div>
-
-	{% include "ads/rightbar.html" %}
-
-	<div class="col_7" id="activity_container">
-		<div style="padding-right: 20px">
-			<div id="highlights">
-				<h3 class="no_rule">Highlights</h3>
-				<div class="userrichtextcontent">
-					{% rawtext "bills_left" %}
+			<div class="issues">
+				<div class="issue active" tab="highlights">
+					<span class="name">Highlights</span>
 				</div>
+				<div class="issue" tab="activitycontainer">
+					<span class="name">Recent Activity</span>
+				</div>
+				<div class="issue" tab="trending_bills">
+					<span class="name">Top/Trending Bills</span>
+				</div>
+			</div>
+			
+			<h3 class="no_rule" style="margin-top: 15px;">By Issue Area</h3>
+		
+			<div class="controller">
+				<div id="sort_alph" class="active">alphabetical</div>
+				<div id="sort_pop">most popular</div>
+			</div>
+			<div class="clear"> </div>
+			<div class="issues issue-list">
+			{% for ix in issues %}
+				<div class="issue" sort_alph="{{ix.primaryorder}}" sort_pop="-{{ix.commentcount}}" ix="{{ix.id}}">
+					<span class="name">{{ix.name}}</span>
+					<span class="count">({{ix.billcount}})</span>
+				</div>
+			{% endfor %}
+			</div>
+		</div>
+	
+		<div id="highlights" class="col_6 col_last" style="padding-top: 0;">
+			<div class="col_6 col_top">
+			<h3 class="no_rule">Highlights</h3>
+			<div class="userrichtextcontent">
+				{% rawtext "bills_left" %}
+			</div>
+			
+			<div class="clear block bill_search search_orange" style="margin-top: 30px; float: right">
+				<div class="search_box">
+					<p style="float: none"><strong>Bill Search</strong> {% comment %} <span>search by bill number or keyword</span>{% endcomment %}</p> 
+					{% include "popvox/billsearch_form.html" %}
+					{% comment %}<p class="help">Don&rsquo;t know what to search for? Use the <a href="/orgs">Organization Directory</a> to find legislation tracked by organizations you support.</p>{% endcomment %}
+				</div>
+			</div>
+			</div>
+			
+		</div>
+
+		<div id="activitycontainer" class="col_9 col_last" style="display: none; padding-top: 0;">
+			<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px; margin-bottom: 25px;">Recent Activity</h3>
+			
+			<div id="activity"> </div>
+
+			<div style="text-align: center">
+				(<a href="/activity">more</a>)
+			</div>
+		</div>
+
+		<div id="trending_bills" class="col_9 col_last bills" style="display: none; padding-top: 0;">
+			<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px;">Top Bills</h3>
+			
+			<iframe src="/widgets/top-bills?width=700&height=150" width="700" height="150" frameborder="0" scrolling="no" style="margin: 15px 0 15px 0"> </iframe>
+		
+			<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px;">Trending Bills</h3>
+			
+			{% for billrec in trending_bills %}
 				
-				<div class="clear block bill_search search_orange" style="margin-top: 30px; float: right">
-					<div class="search_box">
-						<p style="float: none"><strong>Bill Search</strong> {% comment %} <span>search by bill number or keyword</span>{% endcomment %}</p> 
-						{% include "popvox/billsearch_form.html" %}
-						{% comment %}<p class="help">Don&rsquo;t know what to search for? Use the <a href="/orgs">Organization Directory</a> to find legislation tracked by organizations you support.</p>{% endcomment %}
+				<div class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}" {% if forloop.first %}style="background: url(/media/master/bg_bills.png) no-repeat scroll left -1px transparent;"{% endif %}>
+					{% comment %}{% ifchanged %}<p style="margin-top: -40px; text-align: right"><em>in the last {{billrec.bill.trending_time_period}}</em></p>{% endifchanged %}{% endcomment %}
+					
+					{% with billrec.bill as bill %}
+					
+					{% if billrec.pos == "" %}
+					<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
+					{% endif %}
+					
+					<h5 {% if not bill.sponsor %}style="margin-bottom: 25px"{% endif %}><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
+					{% if bill.sponsor %}
+					<p style="margin-top: 4px; font-size: 11px">Sponsored by {{ bill.sponsor.name }}.</p>
+					{% endif %}
+					
+					
+					<div class="bill_detail">
+					
+					{% if billrec.bill.new_positions < 50 %}
+						<p style="margin-top: -10px;"><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
+					{% else %}
+						<p style="margin-top: -10px;"><strong>{{billrec.bill.new_positions}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
+					{% endif %}
+					
+					{% comment %}
+					<p><strong>Status:</strong>
+					<em>{{bill.status}}</em></p>
+	
+					{% if bill.description %}<p class="bill_detail">{{ bill.description|truncatewords:18 }}</p>{% endif %}
+					
+					{% for org in billrec.orgs %}
+					<div class="bill_endorseoppose">
+						<p>
+							{% if org.position == "+" %}Endorsed{% endif %}
+							{% if org.position == "-" %}Opposed{% endif %}
+							by
+							<a href="{{org.url}}">{{org.name}}</a>
+						</p>
+						{% for cam in org.campaigns %}
+							<p style="margin-left: 1.5em"><a href="{{cam.url}}">{{cam.name}}</a>{% if cam.description %}: {{ cam.description|truncatewords:50 }}{% endif %}</p>
+						{% endfor %}
+					</div>
+					{% endfor %}
+					{% endcomment %}
+					
 					</div>
 				</div>
 				
-				<h3 class="no_rule clear">Recent Activity</h3>
-				<div class="hr"> </div>
+				{% endwith %}
 				
-				<div id="activity"> </div>
-
-				<div style="text-align: center">
-					(<a href="/activity">more</a>)
-				</div>
+			{% empty %}
+			
+				<p>We will list trending bills as our users begin weighing in on the new bills introduced by the new Congress.</p> 
 				
-			</div>
+			{% endfor %}
+		</div>
+		
+		<div id="bill_list_byissue" class="col_9 col_last" style="display: none; padding-top: 0;">
 		</div>
 	</div>
 		
-	<div id="trending_bills" class="col_5 col_last bills">
-		<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px;">Trending Bills</h3>
-		{% for billrec in trending_bills %}
-			
-			<div class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}" {% if forloop.first %}style="background: url(/media/master/bg_bills.png) no-repeat scroll left -1px transparent;"{% endif %}>
-				{% comment %}{% ifchanged %}<p style="margin-top: -40px; text-align: right"><em>in the last {{billrec.bill.trending_time_period}}</em></p>{% endifchanged %}{% endcomment %}
-				
-				{% with billrec.bill as bill %}
-				
-				{% if billrec.pos == "" %}
-				<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
-				{% endif %}
-				
-				<h5 {% if not bill.sponsor %}style="margin-bottom: 25px"{% endif %}><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
-				{% if bill.sponsor %}
-				<p style="margin-top: 4px; font-size: 11px">Sponsored by {{ bill.sponsor.name }}.</p>
-				{% endif %}
-				
-				
-				<div class="bill_detail">
-				
-				{% if billrec.bill.new_positions < 50 %}
-					<p style="margin-top: -10px;"><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
-				{% else %}
-					<p style="margin-top: -10px;"><strong>{{billrec.bill.new_positions}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
-				{% endif %}
-				
-				{% comment %}
-				<p><strong>Status:</strong>
-				<em>{{bill.status}}</em></p>
-
-				{% if bill.description %}<p class="bill_detail">{{ bill.description|truncatewords:18 }}</p>{% endif %}
-				
-				{% for org in billrec.orgs %}
-				<div class="bill_endorseoppose">
-					<p>
-						{% if org.position == "+" %}Endorsed{% endif %}
-						{% if org.position == "-" %}Opposed{% endif %}
-						by
-						<a href="{{org.url}}">{{org.name}}</a>
-					</p>
-					{% for cam in org.campaigns %}
-						<p style="margin-left: 1.5em"><a href="{{cam.url}}">{{cam.name}}</a>{% if cam.description %}: {{ cam.description|truncatewords:50 }}{% endif %}</p>
-					{% endfor %}
-				</div>
-				{% endfor %}
-				{% endcomment %}
-				
-				</div>
-			</div>
-			
-			{% endwith %}
-			
-		{% empty %}
-		
-			<p>We will list trending bills as our users begin weighing in on the new bills introduced by the new Congress.</p> 
-			
-		{% endfor %}
-	</div>
-		
+	{% include "ads/rightbar.html" %}
 </div>
 		    
 {% endblock %}

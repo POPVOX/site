@@ -4886,10 +4886,10 @@ p#issueareachooser_listnone {
 		background: url(bg_v_line.png) 168px top repeat-y;
 		}	
 		
-	#bill_list tr.heading {
+	#bill_list_byissue tr.heading {
 		}
 	
-	#bill_list tr.heading h3.notfirst {
+	#bill_list_byissue tr.heading h3.notfirst {
 		font: bold 14px helvetica;
 		text-transform: capitalize;
 		color: #75757d;
@@ -4901,7 +4901,7 @@ p#issueareachooser_listnone {
 		}
 	
 /* active */ 		
-	#bill_list tr.heading h3.active {
+	#bill_list_byissue tr.heading h3.active {
 		font: bold 14px helvetica;
 		text-transform: capitalize;
 		color: #fff;
@@ -4912,7 +4912,7 @@ p#issueareachooser_listnone {
 		cursor: pointer;
 		}
 		
-	#bill_list .heading h3.first {
+	#bill_list_byissue .heading h3.first {
 		background: none;
 		padding-top: 0;
 		margin-top: 0;
@@ -4920,20 +4920,20 @@ p#issueareachooser_listnone {
 	    color: #404045;
 		}
 	
-	#bill_list tr.bill td {
+	#bill_list_byissue tr.bill td {
 	    background: url(bg_hr2.png) left 20px repeat-x;
 	    padding: 1px 0 7px;
 		}
 		
-		#bill_list tr.bill td.flipcolor .billtrack {
+		#bill_list_byissue tr.bill td.flipcolor .billtrack {
 			margin: 4px 0 -4px 0;
 			}
 		
-		.bill_list_issues #bill_list tr.bill {
+		.bill_list_issues #bill_list_byissue tr.bill {
 			line-height: 16px;
 			}
 		
-		#bill_list tr.bill:hover {
+		#bill_list_byissue tr.bill:hover {
 			background: #eeece7;
 			}
 	
@@ -5011,25 +5011,4 @@ ul.issue_list li a.active{
 	color: #888;
 	}
 
-#bill_list.col_9 {
-	padding-top: 0;
-	background: none;
-	}
-	
-	
 
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	

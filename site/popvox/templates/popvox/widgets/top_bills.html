@@ -31,11 +31,14 @@ $(document).ready(function() {
          renderTo: 'container',
          defaultSeriesType: 'column',
          backgroundColor: "#E8E5DF",
-         height: $(window).height()
+         width: $(window).width() == 0 ? {{request.GET.width|escapejs}} : $(window).width(),
+         height: $(window).height() == 0 ? {{request.GET.height|escapejs}} : $(window).height(),
+         margin: [30,0,null,null]
       },
       title: {
-         text: 'Top Bills',
-         style: { color: "black", font: "normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif" }
+         /*text: 'Top Bills',
+         style: { color: "black", font: "normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif" }*/
+         text: ""
       },
 	  credits: { enabled: false },
 	  legend: {
@@ -48,9 +51,7 @@ $(document).ready(function() {
          text: '...'
       },*/
       xAxis: [{
-         categories: categories,
-         opposite: true
-         //reversed: false
+         categories: categories
       }/*, { // mirror axis on right side
          opposite: true,
          reversed: false,
@@ -68,7 +69,6 @@ $(document).ready(function() {
          },
          min: 0,
          max: {{max}},
-         reversed: true,
          gridLineWidth: 0
       },
       
@@ -113,14 +113,12 @@ $(document).ready(function() {
       
       colors: ["#CC6A11", "#FFCC33"]
    });
-   
-   
 });
 
 		</script>
 	</head>
 	<body>
-		<div id="container" style="height: 100%"> </div>
+		<div id="container" style="height: 100%;"> </div>
 	</body>
 </html>
 

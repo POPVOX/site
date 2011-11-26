@@ -45,7 +45,6 @@ urlpatterns = patterns('',
 	(r'^calendar$', 'popvox.views.home.calendar'),
 	
 	(r'^bills$', "popvox.views.bills.bills"),
-	(r'^bills/issue-areas$', "popvox.views.bills.bills_issues"),
 	(r'^ajax/bills/issue-area$', "popvox.views.bills.bills_issues_bills"),	
 	(r'^orgs$', 'popvox.views.org.orgs'),
 	

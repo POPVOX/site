@@ -146,10 +146,10 @@ def get_popular_bills2():
 def bills(request):
 	return render_to_response('popvox/bill_list.html', {
 		'trending_bills': get_popular_bills2(),
+		"issues": bills_issue_areas(),
 		}, context_instance=RequestContext(request))
 
-@strong_cache
-def bills_issues(request):
+def bills_issue_areas():
 	issues = IssueArea.objects\
 		.filter(toptermbills__congressnumber=CURRENT_CONGRESS)\
 		.annotate(billcount=Count("toptermbills"))
@@ -170,10 +170,8 @@ def bills_issues(request):
 	if uncat_count > 0:
 		issues = list(issues)
 		issues.append( { "primaryorder": len(issues), "commentcount": 0, "id": "other", "name": "Uncategorized Bills", "billcount": uncat_count } )
-	
-	return render_to_response('popvox/bill_list_issues.html', {
-		'issues': issues,
-		}, context_instance=RequestContext(request))
+		
+	return issues
 
 @strong_cache
 def bills_issues_bills(request):

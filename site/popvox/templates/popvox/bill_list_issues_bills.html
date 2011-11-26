@@ -47,13 +47,13 @@
 </table>
 
 <script>
-$('#bill_list h3.notfirst').click(function() {
+$('#bill_list_byissue h3.notfirst').click(function() {
 	if (!$(this).hasClass("active")) {
 		$(this).addClass("active");
-		$('#bill_list tr[group=' + this.getAttribute('group') + ']').fadeIn();
+		$('#bill_list_byissue tr[group=' + this.getAttribute('group') + ']').fadeIn();
 	} else {
 		$(this).removeClass("active");
-		$('#bill_list tr[group=' + this.getAttribute('group') + ']').fadeOut();
+		$('#bill_list_byissue tr[group=' + this.getAttribute('group') + ']').fadeOut();
 	}
 });
 </script>
