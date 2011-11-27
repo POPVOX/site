@@ -608,8 +608,8 @@ def bill_userstate(request, congressnumber, billtype, billnumber, vehicleid):
 
 	# administrative information
 	if request.user.is_authenticated() and (request.user.is_staff or request.user.is_superuser):
-		users_tracking_this_bill = bill.trackedby.filter(allow_mass_mails=True, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().select_related("user")
-		users_commented_on_this_bill = UserProfile.objects.filter(allow_mass_mails=True, user__comments__bill=bill).distinct().select_related("user")
+		users_tracking_this_bill = bill.trackedby.filter(allow_mass_mails=True, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().order_by("user__date_joined").select_related("user")
+		users_commented_on_this_bill = UserProfile.objects.filter(allow_mass_mails=True, user__comments__bill=bill).distinct().order_by("user__comments__created").select_related("user")
 		ret["admin"] = { "tracking": [u.user.email for u in users_tracking_this_bill], "commented": [u.user.email for u in users_commented_on_this_bill] }
 
 	return ret

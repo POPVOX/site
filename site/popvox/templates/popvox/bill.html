@@ -464,9 +464,11 @@ function getshorturl() {
 			<p>This tab is displayed to admins only....</p>
 		
 			<h3>Individuals Tracking This Bill (<span id="admin_tracking_tracking_count"> </span>):</h3>
+			<p>Sorted by date the user joined POPVOX.</p>
 			<div id="admin_tracking_tracking"> </div>
 			
 			<h3>Users That Weighed In (<span id="admin_tracking_weighedin_count"> </span>)</h3>
+			<p>Sorted by the date of the user weighing in.</p>
 			<div id="admin_tracking_weighedin"> </div>
 		</div>
 		<script>master_state(function(res) {
@@ -474,8 +476,10 @@ function getshorturl() {
 					$('#admin_tracking_tab').show();
 					$('#admin_tracking_tracking_count').text(res.page.admin.tracking.length);
 					$('#admin_tracking_weighedin_count').text(res.page.admin.commented.length);
-					$('#admin_tracking_tracking').text(res.page.admin.tracking.join(", "));
-					$('#admin_tracking_weighedin').text(res.page.admin.commented.join(", "));
+					for (var i = 0; i < res.page.admin.tracking.length; i++)
+						$('#admin_tracking_tracking').append($("<div/>").text(res.page.admin.tracking[i]));
+					for (var i = 0; i < res.page.admin.commented.length; i++)
+						$('#admin_tracking_weighedin').append($("<div/>").text(res.page.admin.commented[i]));
 				}
 		});</script>
 
