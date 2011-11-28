@@ -72,6 +72,7 @@ bill_status_names = {
 def fetch_page(url, args=None, method="GET", decode=False):
 	if method == "GET" and args != None:
 		url += "?" + urllib.urlencode(args).encode("utf8")
+	print url, "..."
 	req = urllib2.Request(url)
 	resp = urllib2.urlopen(req)
 	if resp.getcode() != 200:
@@ -137,7 +138,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 		return
 		
 	# check if we have this document already and have pages loaded
-	if PositionDocument.objects.filter(bill=bill, doctype=100, key=billstatus, txt__isnull=False, pdf_url__isnull=False, updated__gt="2011-11-23 13:30").exists() and DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, document__pages__png__isnull=False).exists():
+	if PositionDocument.objects.filter(bill=bill, doctype=100, key=billstatus, txt__isnull=False, pdf_url__isnull=False, updated__gt="2011-11-23 13:30").exists() and DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, png__isnull=False, text__isnull=False).exists():
 		return
 		
 	existing_records = list(PositionDocument.objects.filter(bill = bill, doctype = 100, key = billstatus))
@@ -160,7 +161,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 	
 	d.pdf_url = pdf_url
 	
-	if isnew or True:
+	if isnew:
 		mods = fetch_page(re.sub("/pdf.*", "/mods.xml", d.pdf_url))
 		mods = etree.fromstring(mods)
 		
@@ -230,7 +231,6 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 	if len(what_did_we_fetch) == 0 and "THREADS" in os.environ:
 		printstatus()
 
-	return
 	break_pages(d, thread_index=thread_index)
 		
 def break_pages(document, thread_index=None, force=None):
@@ -940,5 +940,5 @@ if __name__ == "__main__":
 			prev_p = p
 				
 	elif len(sys.argv) == 2:
-		break_pages(PositionDocument.objects.get(id=sys.argv[-1]), force="png")
+		break_pages(PositionDocument.objects.get(id=sys.argv[-1]))
 	
