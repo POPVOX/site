@@ -5,13 +5,7 @@
 # Run with the argument 'stop' to stop all executing instances.
 # Otherwise, a new instance is started on a fresh port and once
 # it is started the old instances are killed for a graceful
-# restart.
-#
-# There is no way to flag a running FastCGI instance
-# as no longer taking requests while it still processes requests,
-# so killing the running instance will still probably give people
-# Django error pages, but at least they should not see a Bad Gateway
-# error from Nginx, since it should fail over to the other instance.
+# restart, using SIGHUP to gracefully end FastCGI.
 
 HOSTNAME=`hostname -I | tr -d ' '` # assumes only one interface
 
@@ -30,7 +24,7 @@ do
     # Stop: Kill the running instance and exit.
     if [ "$1" = "stop" ]; then
         echo "Stopping $CURPORT (pid=$CURPID)...";
-        kill $CURPID;
+        kill -HUP $CURPID;
         rm -f -- /tmp/$CURPIDFILE;
     fi
 done
@@ -86,7 +80,7 @@ if [ "$CURPIDFILE" != "" ]; then
              # the old instance a chance to complete requests
 
     echo "Stopping $CURPORT (pid=$CURPID)...";
-    kill $CURPID;
+    kill -HUP $CURPID;
     rm -f -- /tmp/$CURPIDFILE;
 
     # wait for the port to clear
