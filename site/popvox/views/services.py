@@ -15,6 +15,7 @@ from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS, getMemberOf
 from widgets import do_not_track_compliance
 from bills import save_user_comment
 from utils import require_lock, csrf_protect_if_logged_in, cache_page_postkeyed
+from main import strong_cache
 
 from registration.helpers import validate_email, validate_password
 from emailverification.utils import send_email_verification
@@ -117,7 +118,9 @@ def validate_widget_request(request, api_key):
 	return "This widget has been placed on a website (%s) that is not authorized." % host
 
 def widget_render(request, widgettype, api_key=None):
+	# requires HTTP_REFERER field.
 	account_permissions = validate_widget_request(request, api_key)
+
 	if type(account_permissions) == str:
 		return HttpResponseForbidden(account_permissions)
 	account, permissions = account_permissions
@@ -130,6 +133,7 @@ def widget_render(request, widgettype, api_key=None):
 
 	raise Http404()
 
+@strong_cache
 @do_not_track_compliance
 def widget_render_commentstream(request, account, permissions):
 	comments = UserComment.objects.filter(message__isnull=False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED)).order_by("-created")
