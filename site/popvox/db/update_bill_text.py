@@ -232,7 +232,207 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 		printstatus()
 
 	break_pages(d, thread_index=thread_index)
+
+def compare_lists(d1, d2, allow_squiggle_op=False, allow_recursive_compare=True):
+	# Compares two lists of an arbitrary type of elements, except those
+	# elements must be hashable and comparable.
+	#
+	# Reduces the elements each to a single byte, since diff_match_patch
+	# can only compare byte strings. If there are more than 255 distinct
+	# elements in the two lists (combined), multiple elements may map
+	# to the same byte. That means that what diff_match_patch internally
+	# thinks are parallel regions of the same items may actually be different.
+	# We check for that. If the regions are different and if allow_squiggle_op
+	# is False (the default), then those regions are returned as a sequence
+	# of a - and a + op, as changes are treated by diff_match_patch normally.
+	# If allow_squiggle_op is true, those regions are returned with a special
+	# "~" op indicating parallel regions of an identical count of items but
+	# the items are not pairwise equal.
+
+	def build_encoding(seq):
+		# Prepare to map each item of the sequence to a single byte. Since
+		# there are probably more than 255 (can't have null) distinct items
+		# in the document sequences, we have to strategize about how to map
+		# items to bytes. Also note that the same encoding must be used for
+		# both documents.
+		#
+		# I conjecture that the most frequently occurring items should
+		# tend to be mapped to distinct bytes, while the least frequently
+		# ocurring items should map to bytes mapped to more than one item.
 		
+		seq = list(seq) # if it is an iterable, make sure we get access
+						# multiple times
+		
+		# Compute item frequencies.
+		freqs = { }
+		for item in seq:
+			if item not in freqs:
+				freqs[item] = 1
+			else:
+				freqs[item] += 1
+		
+		encoding = { }
+		if len(freqs) <= 255:
+			# If there are no more than 255 distinct items, map them
+			# uniquely to bytes.
+			for item in seq:
+				if item not in encoding:
+					encoding[item] = len(encoding) + 1 # start at 1 to avoid NULL byte
+		
+		else:
+			# There are 256 or more unique items, so smartly map
+			# the items to bytes from 1-255. Dole out the values
+			# in order of frequency but on a punched curve.
+			
+			sorted_items = freqs.items()
+			sorted_items.sort(key = lambda x : x[1], reverse=True)
+			itemcount = len(sorted_items)
+			for i, (item, freq) in enumerate(sorted_items):
+				r = float(i)/float(itemcount) # range is [0, 1)
+				r = pow(r, .5) # punch the curve
+				r = int(255*r) # scale to [0, 254]
+				encoding[item] = 1 + r
+
+		return encoding
+		
+	import itertools
+	enc = build_encoding(itertools.chain(d1, d2))
+
+	def encode(seq, encoding):
+		ret = ""
+		for item in seq:
+			ret += chr(encoding[item])
+		return ret
+	
+	d1e = encode(d1, enc)
+	d2e = encode(d2, enc)
+	
+	import diff_match_patch
+	
+	d1pos = 0
+	d2pos = 0
+	mindoclen = min(len(d1), len(d2))
+	for op, oplen in diff_match_patch.diff(d1e, d2e):
+		if op == "=":
+			for i in xrange(oplen):
+				if d1[d1pos+i] != d2[d2pos+i]:
+					op = "~"
+					break
+					
+			if op == "~" and allow_recursive_compare and oplen < mindoclen/10 and oplen > 1:
+				# If there is actually a difference in a relatively small region
+				# of the document, and allow_recursive_compare is true, then
+				# compare the two sub-lists recursively, in the hopes that
+				# there will be fewer unique items in the sublists so that items
+				# are less clobbered into 255 bytes, and in turn the comparison
+				# will be more likely to be correct and precise, rather than
+				# having to issue a ~ or -/+ sequence for the whole of oplen.
+				for op2, oplen2 in compare_lists(d1[d1pos:d1pos+oplen], d2[d2pos:d2pos+oplen], allow_squiggle_op=allow_squiggle_op, allow_recursive_compare=True):
+					yield (op2, oplen2)
+				
+			elif op == "=" or allow_squiggle_op:
+				# Pass on "="'s back to the caller, or if this is a sequence that has
+				# a difference and the caller supports that, pass on the "~".
+				yield (op, oplen)
+				
+			else:
+				# The regions actually do not match, and caller doesn't support
+				# "~"-ops, so yield a delete followed by an insert.
+				yield ("-", oplen)
+				yield ("+", oplen)
+				
+			d1pos += oplen
+			d2pos += oplen
+			
+		elif op == "-":
+			d1pos += oplen
+			yield (op, oplen)
+			
+		elif op == "+":
+			d2pos += oplen
+			yield (op, oplen)
+	
+def diff_by_word(d1, d2):
+	# Compares the text of d1 and d2 but does it by splitting the documents
+	# into words and reducing each word to a byte, therefore hopefully making
+	# the comparison much faster.
+	
+	import diff_match_patch
+	
+	def tokenize(d):
+		# this has to be compatible with the way the text is put back together below.
+		import re
+		ret = []
+		s = 0
+		for m in re.findall(r"\S+\s?|\s\s+|.", d, re.DOTALL):
+			ret.append(m)
+			s += len(m)
+		assert len(d) == s # did we capture all characters?
+		return ret
+		
+	d1w = tokenize(d1)
+	d2w = tokenize(d2)
+	
+	# Compute the difference on the lists.
+	d1pos = 0
+	d2pos = 0
+	for op, oplen in compare_lists(d1w, d2w, allow_squiggle_op=True):
+		# Map the oplen from 'words' back to characters in the original documents.
+		
+		d1pos_ = d1pos
+		d2pos_ = d2pos
+		
+		oplen1 = 0
+		oplen2 = 0
+		
+		for i in xrange(oplen):
+			if op in ('-', '=', '~'):
+				oplen1 += len(d1w[d1pos])
+				d1pos += 1
+			if op in ('+', '=', '~'):
+				oplen2 += len(d2w[d2pos])
+				d2pos += 1
+
+		# check for mapping to no bytes, which shouldn't be possible
+		if oplen1 == 0 and oplen2 == 0:
+			continue
+		
+		# check for easy conditions of insertions and deletions
+		if oplen1 == 0:
+			assert op == "+"
+			yield ('+', oplen2)
+			continue
+		if oplen2 == 0:
+			assert op == "-"
+			yield ('-', oplen1)
+			continue
+		
+		# compare_lists has already checked that the words definitely
+		# matched up, so they must have the same length.
+		if op == "=":
+			assert oplen1 == oplen2
+			assert ''.join(d1w[d1pos_:d1pos]) == ''.join(d2w[d2pos_:d2pos])
+			yield ("=", oplen1)
+			continue
+			
+		# the only remaining case is two parallel regions that are reported
+		# to us to have unequal content.
+		assert op == "~"
+
+		# turn this into +/-/= ops for the caller, by comparing the document
+		# byte content.
+		
+		# get the text content
+		opwords1 = ''.join(d1w[d1pos_:d1pos])
+		opwords2 = ''.join(d2w[d2pos_:d2pos])
+		
+		# use diff_match_patch to compare the bytes, which are hopefully
+		# mostly the same and hopefully the comparison will go fast...
+		for dmp in diff_match_patch.diff(opwords1, opwords2):
+			# yield exactly this back to the caller because it reports
+			# lengths by character, which is exactly what the caller wants.
+			yield dmp
+
 def break_pages(document, thread_index=None, force=None):
 	# Generate PNG and text representations of the pages.
 	if document.pdf == None: raise ValueError("I don't have PDF data.")
@@ -343,16 +543,20 @@ def break_pages(document, thread_index=None, force=None):
 			
 			dtext = document.txt.encode("utf8").replace("\x00", "") # we're getting some null bytes somewhere
 			
-			diff = diff_match_patch.diff(dtext, text)
+			# move to lowercase to make documents more similar, and since it does not
+			# change document length we can do it here.
+			diff = diff_by_word(dtext.lower(), text.lower())
 			
 			pages = [""]
 			lctr = 0
 			rctr = 0
 			for (op, length) in diff:
 				if op in ("-", "="):
+					#print op, dtext[lctr:lctr+length]
 					pages[-1] += dtext[lctr:lctr+length]
 					lctr+=length
-				if op in ("+","="):
+				if op in ("+", "="):
+					#print op, text[rctr:rctr+length]
 					for i in xrange(text.count("\x0C", rctr, rctr+length)):
 						pages.append("")
 					rctr+=length
@@ -374,7 +578,7 @@ def break_pages(document, thread_index=None, force=None):
 			
 			subprocess.call(["pdftotext", "-layout", "-enc", "UTF-8", path + "/document.pdf"], cwd=path) # poppler-utils package
 			f = open(path + "/document.txt")
-			text = f.read() # utf-8, binary string
+			text = f.read().lower() # utf-8, binary string
 			f.close()
 			
 			xml = base64.decodestring(document.xml)
@@ -416,14 +620,14 @@ def break_pages(document, thread_index=None, force=None):
 					if label != "":
 						info["section_headings"].append( (len(info["tree_serialized"]), level, label) )
 				if node.text:
-					info["tree_serialized"] += node.text.encode("utf8") + " "
+					info["tree_serialized"] += node.text.lower().encode("utf8") + " "
 				for child in node:
 					serialize_node(child, level+(1 if label else 0), info)
 				
 			info = { "section_headings": [], "tree_serialized": "" }
 			serialize_node(tree, 0, info)
 			
-			diff = diff_match_patch.diff(info["tree_serialized"], text)
+			diff = diff_by_word(info["tree_serialized"], text)
 			pagenum = 1
 			sections = []
 			next_section = 0
@@ -940,5 +1144,5 @@ if __name__ == "__main__":
 			prev_p = p
 				
 	elif len(sys.argv) == 2:
-		break_pages(PositionDocument.objects.get(id=sys.argv[-1]))
+		break_pages(PositionDocument.objects.get(id=sys.argv[-1]), force="txt")
 	
