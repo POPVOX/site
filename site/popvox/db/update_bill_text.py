@@ -139,7 +139,8 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 		
 	# check if we have this document already and have pages loaded
 	if PositionDocument.objects.filter(bill=bill, doctype=100, key=billstatus, txt__isnull=False, pdf_url__isnull=False, updated__gt="2011-11-23 13:30").exists() and DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, png__isnull=False, text__isnull=False).exists():
-		return
+		if not "ALL" in os.environ:
+			return
 		
 	existing_records = list(PositionDocument.objects.filter(bill = bill, doctype = 100, key = billstatus))
 	for er in existing_records[1:]:
@@ -218,20 +219,34 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 		
 	d.save()
 	
+	# print status
+	
 	def printstatus():
 		printthread()
 		print "fetched", m, " ".join(what_did_we_fetch), "document_id="+str(d.id), "bill_id="+str(bill.id)
 
 	if len(what_did_we_fetch) > 0 or "THREADS" not in os.environ:
 		printstatus()
+		
+	# generate page-by-page content
 
-	if d.toc != None and DocumentPage.objects.filter(document=d, png__isnull=False, pdf__isnull=False, text__isnull=False).exists():
+	if d.toc != None and DocumentPage.objects.filter(document=d, png__isnull=False, pdf__isnull=False, text__isnull=False).exists() and "ALL" not in os.environ:
 		return
 
 	if len(what_did_we_fetch) == 0 and "THREADS" in os.environ:
 		printstatus()
 
 	break_pages(d, thread_index=thread_index)
+	
+	# generate version comparisons --- check for any new
+	# comparisons that can be generated for this bill.
+	
+	prev_p = None
+	for p in PositionDocument.objects.filter(bill=bill, doctype=100).order_by('created'):
+		if prev_p:
+			compare_documents(prev_p, p)
+		prev_p = p
+
 
 def compare_lists(d1, d2, allow_squiggle_op=False, allow_recursive_compare=True):
 	# Compares two lists of an arbitrary type of elements, except those
@@ -696,7 +711,7 @@ def compare_documents(d1, d2):
 	doc.title = "Comparison: " + d1.title + " and " + d2.title
 	doc.save()
 	doc.pages.all().delete()
-	print doc.id, doc.key, d1.id, d2.id
+	print d1.bill.id, d1.bill, ":", d1.id, d1.key, "vs", d2.id, d2.key, "=>", doc.id, doc.key
 	
 	# extract the text layer of the PDF in -bbox mode which yields
 	# a list of words in the PDF in document order and for each the
@@ -786,8 +801,6 @@ def compare_documents(d1, d2):
 	finally:
 		shutil.rmtree(path)
 
-	import diff_match_patch
-
 	# Amendments in the nature of a substitute are commonly
 	# printed with the original text struck out. In the text layer
 	# stream, it just appears as plain text, followed by the new
@@ -800,7 +813,7 @@ def compare_documents(d1, d2):
 	# up with the other document.
 	for d, dd in ((d1, 0), (d2, 1)):
 		if "<DELETED>" in d.txt:
-			alg = diff_match_patch.diff(d.txt.lower().encode("utf8"), doclayout[dd][2].lower())
+			alg = diff_by_word(d.txt.lower().encode("utf8"), doclayout[dd][2].lower())
 			dtext = list(doclayout[dd][2])
 			pos_left = 0
 			pos_right = 0
@@ -838,7 +851,7 @@ def compare_documents(d1, d2):
 	# Align the serialized text of the text layers of the two PDFs, and
 	# then simplify the diff to minimize reported changes so it is
 	# more readable.
-	diff = diff_match_patch.diff(doclayout[0][2], doclayout[1][2])
+	diff = diff_by_word(doclayout[0][2], doclayout[1][2])
 	
 	def simplify_diff(diff):
 		# re-flow the comparison so that insertions followed by deletions
@@ -981,8 +994,7 @@ def compare_documents(d1, d2):
 						im[dd] = Image.open(pgfn[str(dd) + ":" + str(pagenum)])
 						im_page[dd] = pagenum
 						
-						# force a re-alignment
-						ylast2 = list(ylast) # clone
+						ylast2[dd] = ylast[dd] # make sure not to go backwards
 						yoffset[dd] += 20 # space out
 					
 					# get an image instance cropped to that word
@@ -1004,7 +1016,7 @@ def compare_documents(d1, d2):
 					# words from a previous same hunk.
 					if bbox[1] + yoffset[dd] < max(ylast2):
 						yoffset[dd] += max(ylast2) - (bbox[1] + yoffset[dd])
-						
+
 					bbox[1] += yoffset[dd]
 					bbox[3] += yoffset[dd]
 					
@@ -1063,7 +1075,7 @@ def compare_documents(d1, d2):
 	for dd in (0, 1):
 		pos = [0, 0]
 		pg = 0
-		for op, oplen in diff_match_patch.diff(textcontent[dd], doclayout[dd][2].lower()):
+		for op, oplen in diff_by_word(textcontent[dd], doclayout[dd][2].lower()):
 			for i in xrange(oplen):
 				if pg < len(output_pagination) and output_pagination[pg][dd] == pos[1]:
 					textcontentpaged[dd].append("")
@@ -1095,7 +1107,7 @@ def compare_documents(d1, d2):
 		text = ""
 		lefttext = textcontentpaged[0][pg] if pg < len(textcontentpaged[0]) else ""
 		righttext = textcontentpaged[1][pg] if pg < len(textcontentpaged[1]) else ""
-		opseq = diff_match_patch.diff(lefttext, righttext)
+		opseq = diff_by_word(lefttext, righttext)
 		leftloc = 0
 		rightloc = 0
 		for op, leftlen, rightlen in simplify_diff(opseq):

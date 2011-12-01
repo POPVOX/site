@@ -14,6 +14,7 @@
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script>
+var loaded_bill_text = false;
 function showtab(tab) {
 	$('.tab_tab li').removeClass('active');
 	$('.tab_pane .tab_panel').hide();
@@ -21,8 +22,10 @@ function showtab(tab) {
 	$('#' + tab).fadeIn();
 	
 	// lazy load the bill text iframe until the tab is clicked
-	if (tab == "billtext")
-		$("#billtext iframe").attr("src", "/widgets/bill-text?width=675&docid={{bill.current_text.id}}&height=500&baseurl=http://www.popvox.com{{bill.url|urlencode}}");
+	if (tab == "billtext" && !loaded_bill_text) {
+		$("#billtext iframe").attr("src", "/widgets/bill-text?width=675&billid={{bill.id}}&height=500&baseurl=http://www.popvox.com{{bill.url|urlencode}}");
+		loaded_bill_text = true;
+	}
 		
 	return false; // cancel click
 }

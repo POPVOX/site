@@ -66,7 +66,7 @@
 	/**The page number input**/
 	#footer li#pageN { border: none; }
 	li#pageN input { width: 35px; background: #d5cbc3; border: 1px solid #aea298; padding: 0 2px 0 2px; vertical-align: top; text-align: center }
-	li#pageN { height: 24px; width: 100px; padding-top: 4px; text-align: center; border-right: none; }
+	li#pageN { height: 24px; padding: 4px 5px 0px 20px; text-align: center; border-right: none; }
 	li#pageN span { display: inline-block; padding-top: 2px; }
 	
 	/**The Search input**/
@@ -99,6 +99,7 @@
 	ul.barNav a:visited { color: #6a6767; }
 	ul.barNav a:hover { color: #514f4f; }
 	ul.barNav li.toc, ul.barNav li.pagemode, ul.barNav li.zoom, ul.barNav li.versions { padding: 0 10px 0 10px; }
+	ul.barNav li.toc { border: none; }
 	ul.barNav li.pagemode a { width: 30px; text-align: center; }
 	ul.barNav li.search_nav { padding: 0 10px 0 10px; }
 	ul.barNav li.logo a { display: block; background: url(/media/billtext/logo.png); width: 29px; height: 24px;  text-indent: -999em; margin: 0; }
@@ -545,6 +546,7 @@ $(function() {
 				<li class="first"><a href="#" id="arrowUp" onclick="return page_advance(-1)"></a></li>
 				<li><a href="#" id="arrowDown" onclick="return page_advance(1)"></a></li>
 				<li id="pageN"><input value="__" onchange="return page_go_to(this.value);"></input> <span>__</span></li>
+				<li class="toc"><a href="#" onclick="return _curview != 'meta' ? show_meta('toc') : show_page(_lastview);">TOC</a></li>
 				
 				<li id="searchBill"><input placeholder="Search Text"></input></li>
 				<li class="search_nav search_prev"><a href="#" onclick="return search_advance(-1)">&lt; Prev</a></li>
@@ -554,14 +556,13 @@ $(function() {
 				<!--<li class="full"><a id="fullScreen" href="#"></a></li>-->
 				<li class="pagemode"><a href="#" onclick="_curview != 'meta' ? show_page(_lastview == 'paper' ? 'text' : 'paper') : show_page(_lastview); update_embed_links(); return false;">Text</a></li>
 				<!--<li class="help"><a id="helpNotify" href="#"></a></li>-->
-				<li class="toc"><a href="#" onclick="return _curview != 'meta' ? show_meta('toc') : show_page(_lastview);">Sections</a></li>
 				
 				<li class="zoom"><a href="#" onclick="_zoomed = !_zoomed; $(window).resize(); update_embed_links(); return false;">Zoom</a></li>
 				
 				<li class="embed"><a id="embedPage" href="#" onclick="update_embed_links_2(); $.colorbox({transition: 'none', inline: true, href:'#embed_info', opacity: .5}); return false;" title="Embed"></a></li>
 				<li class="download"><a id="downloadPDF" href="#" target="_blank" title="Download PDF"></a></li>
 				
-				<li class="versions" style="display: none"><a href="#" onclick="return _curview != 'meta' ? show_meta('versions') : show_page(_lastview);">Versions</a></li>
+				<li class="versions" style="display: none"><a href="#" onclick="return _curview != 'meta' ? show_meta('versions') : show_page(_lastview);">Changes</a></li>
 				
 				<li class="logo">
 					<a href="http://www.popvox.com" title="Embeddable bill text powered by POPVOX: Click here to weigh in." target="_top">
