@@ -17,7 +17,7 @@ $(function() {
 			count: 5
 		},
 		complete: function(res, status) {
-			$('#activity').html(res.responseText);
+			$('#activity_div').html(res.responseText);
 		}
 	});
 });
@@ -34,7 +34,7 @@ $(function() {
 		$('#issue_list .issue').click(function() {
 			$('#issue_list .issue').removeClass("active");
 			$(this).addClass("active");
-			$('#highlights, #activitycontainer, #trending_bills').hide();
+			$('#highlights, #activity, #trending').hide();
 
 			// remove ads, make room for content
 			$('.content > div.main').removeClass("col_9").addClass("col_12");
@@ -49,11 +49,16 @@ $(function() {
 					
 				$('#bill_list_byissue').hide();
 				$('#' + this.getAttribute("tab")).show();
+				
+				window.location = "#tab=" + this.getAttribute("tab");
+				
 				return;
 			}
 
 			$('#bill_list_byissue').show();
 			$('#bill_list_byissue').html("<p>Loading...</p>");
+			
+			window.location = "#issue=" + this.getAttribute("ix");
 			
 			$.ajax({ 
 				type: "GET",
@@ -69,6 +74,15 @@ $(function() {
 					}
 			});
 		});
+		
+	if (window.location.hash && window.location.hash.substr(0, 5) == "#tab=") {
+		var tab = window.location.hash.substr(5);
+		$('#issue_list .issue[tab=' + tab + ']').click();
+	}
+	if (window.location.hash && window.location.hash.substr(0, 7) == "#issue=") {
+		var ix = window.location.hash.substr(7);
+		$('#issue_list .issue[ix=' + ix + ']').click();
+	}
 });
 </script>
 <style>
@@ -144,10 +158,10 @@ $(function() {
 				<div class="issue active" tab="highlights">
 					<span class="name">Highlights</span>
 				</div>
-				<div class="issue" tab="activitycontainer">
+				<div class="issue" tab="activity">
 					<span class="name">Recent Activity</span>
 				</div>
-				<div class="issue" tab="trending_bills">
+				<div class="issue" tab="trending">
 					<span class="name">Top/Trending Bills</span>
 				</div>
 			</div>
@@ -187,17 +201,17 @@ $(function() {
 			
 		</div>
 
-		<div id="activitycontainer" class="col_9 col_last" style="display: none; padding-top: 0;">
+		<div id="activity" class="col_9 col_last" style="display: none; padding-top: 0;">
 			<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px; margin-bottom: 25px;">Recent Activity</h3>
 			
-			<div id="activity"> </div>
+			<div id="activity_div"> </div>
 
 			<div style="text-align: center">
 				(<a href="/activity">more</a>)
 			</div>
 		</div>
 
-		<div id="trending_bills" class="col_9 col_last bills" style="display: none; padding-top: 0;">
+		<div id="trending" class="col_9 col_last bills" style="display: none; padding-top: 0;">
 			<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px;">Top Bills</h3>
 			
 			<iframe src="/widgets/top-bills?width=700&height=150" width="700" height="150" frameborder="0" scrolling="no" style="margin: 15px 0 15px 0"> </iframe>
