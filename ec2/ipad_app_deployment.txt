@@ -1,0 +1,12 @@
+We have a development and distribution certificate. Generate a CSR, have Provisioning Portal generate a cert, and then download the two certs to the keychain. Get the "POPVOX Inc" developer profile from whatever last computer has it because it is needed for the provisioning profile and we cna't figure out why the new certs are not good for it.
+
+Target -> Info -. Bundle version string, Bundle Version.
+
+Set target to my ipad device. Clean. Archive (not build for archive).
+
+iTunsConnect. New Version. .... Waiting for Upload.
+
+Share. iOS App Store PAckage. iPhone Distribiution identity.
+use spotlight to find Application Loader. Deliver App.
+Upload Received.
+

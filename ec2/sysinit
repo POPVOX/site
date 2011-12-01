@@ -33,7 +33,7 @@ MYSQL_PASSWORD="qsg;5TtC"
 NFS_GRANT="10.0.0.0/0.0.0.0"
 
 # Packages
-add-apt-repository ppa:nginx/stable
+add-apt-repository -y ppa:nginx/stable
 apt-get update
 apt-get upgrade -y
 
