@@ -821,8 +821,12 @@ def test_zipcode_rejected(webform, deliveryrec):
 		or "Access to the requested form is denied, the zip code which you entered" in webform\
 		or "The zip code (or zip+4) entered is not a valid" in webform\
 		or "I'm sorry, but Congressional courtesy dictates that I only reply to residents of" in webform\
+		or "is not in Trent Frank's district" in webform\
+		or "Postal code is not in Dan Burton's district" in webform\
+		or "In order to confirm your address, please enter your full/correct ZIP+4 code on the previous page" in webform\
 		or "I'm sorry, but it appears that you live outside of Florida's 6th Congressional district" in webform\
-        or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
+		or "is not in Bob Goodlatte's district" in webform\
+		or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
 		deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
 		raise DistrictDisagreementException()
 	

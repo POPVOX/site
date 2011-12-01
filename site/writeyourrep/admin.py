@@ -5,8 +5,8 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpRespons
 
 class EndpointAdmin(admin.ModelAdmin):
 	list_display = ("govtrackid", "method", "office", "mocname", "notes")
-	list_filter = ("method", "tested")
-	search_fields = ["govtrackid"]
+	list_filter = ("method",)
+	search_fields = ["govtrackid", "notes"]
 	readonly_fields = ("govtrackid", "office")
 
 class DeliveryRecordAdmin(admin.ModelAdmin):

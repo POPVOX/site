@@ -38,7 +38,7 @@ apt-get update
 apt-get upgrade -y
 
 apt-get install -y \
- unzip elinks mutt \
+ update-notifier-common unzip elinks mutt \
  nfs-common nfs-kernel-server \
  postfix rdiff-backup \
  git-core subversion mercurial \
