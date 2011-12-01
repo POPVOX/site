@@ -5,8 +5,6 @@ from popvox.govtrack import CURRENT_CONGRESS
 from popvox.models import *
 import re
 import subprocess
-from UpdateManager.Core.MyCache import MyCache
-from UpdateManager.Core.UpdateList import UpdateList
 import urllib
 
 urgent = []
@@ -15,7 +13,7 @@ other = []
 #status of printed messages:
 printed = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull=False).count()
 
-printmessage = "There are "+str(printed)+" printed messages awaiting delivery."
+printmessage = "Printed Messages: " + str(printed)
 if printed > 0:
   urgent.append(printmessage)
 else:
@@ -25,7 +23,7 @@ else:
 #current pending messages:
 pending = len([c for c in UserComment.objects.filter(bill__congressnumber=CURRENT_CONGRESS, message__isnull=False).exclude(delivery_attempts__id__isnull=False).exclude(usercommentofflinedeliveryrecord__batch__isnull=False) if type(c.get_recipients()) == list])
 
-pendmessage = "There are "+str(pending)+" digital messages awaiting delivery."
+pendmessage = "Undelivered Comments: " + str(pending)
 if pending > 500:
   urgent.append(pendmessage)
 else:
@@ -58,12 +56,12 @@ def scrapercheck():
   bpcode = billpage.getcode()
 
   if bpcode == 200:
-    scrapercheck = "The Thomas Bill Scraper appears to be working. "+lastlink+" lists "+latestbill+" as the latest bill, which is "+billurl+" on POPVOX."
+    scrapercheck = "OK [" + latestbill + " => " + billurl + "]"
     broken = False
   else:
-    scrapercheck = "There may be something wrong with the Thomas Bill Scraper. "+lastlink+" lists "+latestbill+" as the latest bill, but "+billurl+" doesn't exist."
+    scrapercheck = "Problem? " + lastlink + " lists " + latestbill + " as the latest bill, but " + billurl + " doesn't exist."
     broken = True
-  return [scrapercheck, broken]
+  return ["THOMAS Scraper: " + scrapercheck, broken]
 
 scraperchecked = scrapercheck()
 scraper = scraperchecked[0]
@@ -76,28 +74,29 @@ else:
 
 #How many updates are available for Ubuntu?
 ubuntupdates = subprocess.check_output(['/usr/lib/update-notifier/apt-check', '--human-readable'])
-
-secpattern = re.compile(r'\d+(?= updates)')
-security = re.search(secpattern, ubuntupdates)
-
-if security:
-  security = security.group()
-  secmessage = "There are "+str(security)+" security updates for ubuntu."
-  if int(security) > 0:
-    urgent.append(secmessage)
+security = re.search(r'\d+(?= updates)', ubuntupdates)
+packages = re.search(r'\d+(?= packages)', ubuntupdates)
+if security and packages:
+  ubuntupdates = ("%s packages, %s are security" % (security.group(), packages.group()))
+  if int(security.group()) > 0:
+    urgent.append("Software Packages: " + security.group() + " security updates.")
 else:
-  urgent.append("something's wrong with the ubuntu update checker.")
+  urgent.append("Software Packages: Something's wrong with the checker.")
 
-print "Good Morning, Josh."
 if urgent == []:
+  print "Good Morning, Josh."
+  print
   print "There are no urgent updates at this time."
 else:
-  print "The following updates are urgent:"
+  print "Rainy morning, Josh." # when Thunderbird alerts new mail I see the first few words so having the first few words indiate the presence of an urgent notice is helpful
+  print
+  print "URGENT"
+  print
   for x in urgent:
     print x
-
-print "The following updates are not urgent:"
+print
+print "STATUS"
+print
 for x in other:
   print x
-print "Ubuntu updates:"
-print ubuntupdates
+print "Software Packages: " + ubuntupdates

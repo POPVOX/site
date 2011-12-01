@@ -11,6 +11,7 @@ python popvox/db/update_fans.py
 python popvox/db/update_bill_metadata.py
 python popvox/db/compute_prompts.py
 python popvox/db/update_bill_text.py
+python annalee/morningtea.py
 ./manage cleanup
 ./manage clear_expired_email_verifications
 
