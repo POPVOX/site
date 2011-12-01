@@ -41,6 +41,7 @@ def bill_js(request):
 @do_not_track_compliance
 def commentmapus(request):
 	count = { }
+	totals = None
 	max_count = 0
 	bill = None
 	width = int(request.GET.get("width", "720"))
@@ -88,7 +89,24 @@ def commentmapus(request):
 				count[k] = { }
 				count[k]["class"] = "dot_clr_1 dot_sz_1"
 		elif request.GET["point"] == "allcount":
-			comments = UserComment.objects.all()
+			comments = UserComment.objects.all().only("state", "congressionaldistrict", "position", "bill")
+			bill_party = { }
+			def getpartyscore(comment):
+				# return + for comments that support D-sponsored bills or oppose R-sponsored
+				# bills and - for comments that oppose D-sponsored bills or support R-sponsored
+				# bills.
+				if comment.bill_id in bill_party:
+					p = bill_party[comment.bill_id]
+				else:
+					sp = comment.bill.sponsor
+					if sp == None:
+						p = "0"
+					else:
+						p = comment.bill.sponsor.party()
+					bill_party[comment.bill_id] = p
+				if not p in ("D", "R"): return "0"
+				if p == "D": return comment.position
+				if p == "R": return "+" if comment.position == "-" else "-"
 		else:
 			k = request.GET["point"]
 			count[k] = { }
@@ -101,12 +119,18 @@ def commentmapus(request):
 			comment_earliest = comments.order_by('created')[0].created
 			comment_latest = comments.order_by('-created')[0].created
 			comment_duration = (comment_latest-comment_earliest).total_seconds()
+			
+		totals = { "+": 0, "-": 0, "0": 0 } # 0 is only used in special cases
 		
 		for comment in comments:
 			district = comment.state + str(comment.congressionaldistrict)
 			if not district in count:
-				count[district] = { "+": 0, "-": 0, "mean_date": 0 } 
-			count[district][comment.position] += 1
+				count[district] = { "+": 0, "-": 0, "mean_date": 0, "0": 0} # 0 is used only in special cases
+			p = comment.position
+			if request.GET.get("point", "") == "allcount":
+				p = getpartyscore(comment)
+			count[district][p] += 1
+			totals[p] += 1
 			
 			if by_date:
 				count[district]["mean_date"] += (comment.created - comment_earliest).total_seconds()
@@ -126,7 +150,7 @@ def commentmapus(request):
 				def chartcolor(district):
 					import math
 					return "dot_clr_%d dot_sz_%d" % (
-						2,
+						int(district["sentiment"]*4.9999) + 1,
 						int(math.sqrt(float(district["count"]) / float(max_count)) * 4.9999) + 1
 						)
 	
@@ -169,6 +193,7 @@ def commentmapus(request):
 		"min_sz_num": int(float(max_count)/5.0) if max_count > 5 else 1,
 		"max_sz_num": max_count,
 		"width": width,
+		"totals": totals,
 	}, context_instance=RequestContext(request))
 
 @strong_cache
