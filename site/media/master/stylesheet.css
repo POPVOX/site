@@ -1017,10 +1017,11 @@ ul.tabs {
     padding: 10px 0 10px 100px;
     }
 
-.category_icon_container. {
-	background-color: #CC6A11;
+.category_icon_container {
+	width: 360px;
+	/*background-color: #CC6A11;
 	color: #fff;
-	height: 200px;
+	height: 200px;*/
 	}
 
 /* ----second bills list page iteration---- 
