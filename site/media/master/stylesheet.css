@@ -2013,6 +2013,11 @@ tr.bill td a:hover {
     margin: 2px 4px 0 0;
     text-indent: -9999em;
     }
+    
+    .legreport .billtrack {
+	    height: 22px;
+	    margin-top: -2px;
+		}
 
 .billtrack.active { background: url("b_check.png") no-repeat scroll left bottom transparent     }
 
