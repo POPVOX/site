@@ -9,7 +9,7 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.template.defaultfilters import truncatewords
 
 import sys
-import os
+import os, os.path
 from datetime import datetime, timedelta
 from urllib import urlopen
 from xml.dom import minidom
@@ -1663,7 +1663,7 @@ def sacar_saved_callback(sender, instance, created, **kwargs):
 		pass
 django.db.models.signals.post_save.connect(sacar_saved_callback, sender=ServiceAccountCampaignActionRecord)
 
-if not "LOADING_DUMP_DATA" in os.environ:
+if not "LOADING_DUMP_DATA" in os.environ and not os.path.exists("/home/www/slave"):
 	# Make sure that we have MoC and CC records for all people
 	# and committees that exist in Congress. Accessing these
 	# models now prevents any further ManyToMany relationships
