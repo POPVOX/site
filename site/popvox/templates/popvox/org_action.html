@@ -35,7 +35,7 @@ function update_body() {
 }
 {% endif %}
 function validate(form) {
-	if ($('#share_with_org').attr('checked')) {
+	if ($('#share_with_org').prop('checked')) {
 		if ($('#name_first').hasClass('default') || $('#name_last').hasClass('default') || $('#email').hasClass('default') || $('#zip').hasClass('default')) {
 			alert("All fields are required.");
 			return false;

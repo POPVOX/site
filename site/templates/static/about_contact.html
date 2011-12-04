@@ -8,12 +8,12 @@
 	$(function() {
 	   $('#contactformfeedback').ajaxForm({
 		   'beforeSubmit':function(){
-			  $('#contactformfeedback').find('button').attr('disabled', '1');
+			  $('#contactformfeedback').find('button').prop('disabled', true);
 			  return true;
 		   },
 		   'success':function(data) {
 			   $('#contactformfeedback').find('.error').text("");
-			   $('#contactformfeedback').find('button').attr('disabled', '');
+			   $('#contactformfeedback').find('button').prop('disabled', false);
 			   data = eval('(' + data + ')');
 			   if (data.error) {
 					$('#contactformfeedback').find('.formerror.error').text(data.error).show();

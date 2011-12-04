@@ -56,8 +56,8 @@
 					success: function(res) {
 						if (!validate) {
 							if (res.newslug) {
-								$('#slugsubmitbutton').attr('disabled', '1');
-								$('#submitbutton').attr('disabled', '1');
+								$('#slugsubmitbutton').prop('disabled', true);
+								$('#submitbutton').prop('disabled', true);
 								$('#slugerrorlabel').text("Please wait until the page is reloaded...");
 								$('#slugerrorlabel').show();
 								document.location = "/orgs/" + res.newslug + "/_edit#editurl";
@@ -88,7 +88,7 @@
 					savebutton: "submitbutton",
 					statussuccess: (validate ? null : "Saved."),
 					success: function() {
-						if (!validate) $('#submitbutton').attr("disabled", '1');
+						if (!validate) $('#submitbutton').prop("disabled", true);
 					}
 				}
 				);
@@ -209,8 +209,8 @@
 			<input type="button" class="submit" id="submitbutton" value="Save Your Changes" onclick="updateprofile(false)" disabled="1"/>
 			<p id="errorlabel" class="error"/>
 			<script>
-			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername,').textchange(function() { $('#submitbutton').attr("disabled", ''); });
-			$('#homestate').change(function() { $('#submitbutton').attr("disabled", ''); });
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername,').textchange(function() { $('#submitbutton').prop("disabled", false); });
+			$('#homestate').change(function() { $('#submitbutton').prop("disabled", false); });
 			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').keyup_delayed(function() { updateprofile(true) });
 			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').input_default();
 			</script>

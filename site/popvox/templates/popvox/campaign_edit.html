@@ -20,8 +20,8 @@
 					savebutton: "slugsubmitbutton",
 					success: function(res) {
 						if (!validate) {
-							$('#slugsubmitbutton').attr('disabled', '1');
-							$('#submitbutton').attr('disabled', '1');
+							$('#slugsubmitbutton').prop('disabled', true);
+							$('#submitbutton').prop('disabled', true);
 							$('#slugerrorlabel').text("Please wait until the page is reloaded...");
 							$('#slugerrorlabel').show();
 							document.location = "/orgs/{{cam.org.slug|escapejs}}/" + res.newslug + "/_edit#editurl";

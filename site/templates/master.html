@@ -34,7 +34,7 @@
 	<link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
 	<link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> 
 	
-	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
+	<script type="text/javascript" src="/media/js/jquery.js"></script>
 	<script>
 		var csrf_token = "{{csrf_token}}";
 		$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", csrf_token); });

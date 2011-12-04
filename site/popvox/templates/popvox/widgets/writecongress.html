@@ -14,7 +14,7 @@
 	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="/media/widget/widget_writecongress.css" type="text/css" media="screen" />
 
-	<script type="text/javascript" src="/media/js/jquery-1.4.3.min.js"></script>
+	<script type="text/javascript" src="/media/js/jquery.js"></script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
 	
 	<script type="text/javascript" src="/media/js/highcharts.js"></script>
@@ -139,7 +139,7 @@
 		var email_status = null;
 		
 		function check_email() {
-			if (working || $('#email').attr('disabled') == '1') return;
+			if (working || $('#email').prop('disabled')) return;
 			
 			$("#panel_login .error").text("");
 			
@@ -165,7 +165,7 @@
 						
 						email_status = data.status;
 
-						$('#unregistered input, #registered_password input').attr("disabled", "1");
+						$('#unregistered input, #registered_password input').prop("disabled", true);
 						//$('#panel_login .check').hide();
 						$('#panel_login .next').addClass("disabled");
 						
@@ -177,7 +177,7 @@
 							$("#panel_login .error").text("You've already left a comment on this bill. Thanks!");
 						} else {
 							//$('#panel_login .check').show();
-							$('#unregistered input, #registered_password input').attr("disabled", "");
+							$('#unregistered input, #registered_password input').prop("disabled", false);
 							$('#panel_login .next').removeClass("disabled");
 							if (data.status == "not-registered") {
 								$('#unregistered').show();
@@ -215,7 +215,7 @@
 			// his email at the end like normal
 			if (working) return;
 			email_status = "not-registered";
-			$('#email').attr('disabled', '1');
+			$('#email').prop('disabled', true);
 			$('#unregistered').show();
 			$('#registered_password, #registered_sso').hide();
 			$('#panel_login .next').show();
@@ -669,7 +669,7 @@
 							$('#firstname').input_default("first name");
 							$('#lastname').input_default("last name");
 							$('#zipcode').input_default("zip code");
-							$('#firstname, #lastname, #zipcode').attr("disabled", "1");
+							$('#firstname, #lastname, #zipcode').prop("disabled", true);
 							$("#email").keyup_delayed(check_email);
 						</script>
 						

@@ -251,7 +251,7 @@ function enableWhenFormHasData(submitid, fields) {
 		for (f in fields)
 			if (!$(f).hasClass('default'))
 				hasdata = true;
-		$(submitid).attr('disabled', hasdata ? '' : '1');
+		$(submitid).prop('disabled', !hasdata);
 	}
 	for (f in fields)
 		$(f).keyup(updater);
@@ -302,8 +302,8 @@ function ajax(url, postdata, actions) {
 	
 	// Disable the button while we're processing.
 	if (actions.savebutton) {
-		if ($('#' + actions.savebutton).attr('disabled')) return;
-		$('#' + actions.savebutton).attr('disabled', '1');
+		if ($('#' + actions.savebutton).prop('disabled')) return;
+		$('#' + actions.savebutton).prop('disabled', true);
 	}
 	
 	// Let the user know we're starting in #statusfield with #statusstart if provided.
@@ -330,7 +330,7 @@ function ajax(url, postdata, actions) {
 				// Reset the button so user can try again. Do this before any callbacks
 				// in case the callback changes the state.
 				if (actions.savebutton)
-					$('#' + actions.savebutton).attr('disabled', '');
+					$('#' + actions.savebutton).prop('disabled', false);
 				if (status != "success" || res.responseText == "")
 					res = { status: "generic-failure" };
 				else

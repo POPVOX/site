@@ -65,9 +65,9 @@ function billsearch_endorse_oppose(pos) {
 		return false;
 	}
 
-	$('#billsearch_endorse_oppose_submit_endorse').attr('disabled', '1');
-	$('#billsearch_endorse_oppose_submit_oppose').attr('disabled', '1');
-	$('#billsearch_endorse_oppose_submit_cancel').attr('disabled', '1');
+	$('#billsearch_endorse_oppose_submit_endorse').prop('disabled', true);
+	$('#billsearch_endorse_oppose_submit_oppose').prop('disabled', true);
+	$('#billsearch_endorse_oppose_submit_cancel').prop('disabled', true);
 	
 	ajax("/post/org_support_oppose",
 		{ "org": "{{org.slug}}",
@@ -86,9 +86,9 @@ function billsearch_endorse_oppose(pos) {
 					window.location = "{{org.url|escapejs}}";
 			},
 			failure: function() {
-				$('#billsearch_endorse_oppose_submit_endorse').attr('disabled', '');
-				$('#billsearch_endorse_oppose_submit_oppose').attr('disabled', '');
-				$('#billsearch_endorse_oppose_submit_cancel').attr('disabled', '');
+				$('#billsearch_endorse_oppose_submit_endorse').prop('disabled', false);
+				$('#billsearch_endorse_oppose_submit_oppose').prop('disabled', false);
+				$('#billsearch_endorse_oppose_submit_cancel').prop('disabled', false);
 			}
 		}
 		);

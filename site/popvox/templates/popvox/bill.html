@@ -244,7 +244,7 @@ function getshorturl() {
 					<p>Please provide a short explanation for your position in the form of a summary of what this {{bill.proposition_type}} does.</p>
 					<textarea id="bill_endorse_oppose_comment" style="height: 80px; width: 100%"></textarea>
 					<div>
-						<input type="checkbox" id="bill_endorse_oppose_forcam" onclick="if ($('#bill_endorse_oppose_forcam')[0].checked) $('#bill_endorse_oppose_cam').attr('disabled', ''); else $('#bill_endorse_oppose_cam').attr('disabled', '1');"/>
+						<input type="checkbox" id="bill_endorse_oppose_forcam" onclick="if ($('#bill_endorse_oppose_forcam')[0].checked) $('#bill_endorse_oppose_cam').prop('disabled', false); else $('#bill_endorse_oppose_cam').prop('disabled', true);"/>
 						<label for="bill_endorse_oppose_forcam">Add this {{bill.proposition_type}} to a campaign.</label>
 					</div>
 					<div id="bill_endorse_oppose_camdiv">
@@ -311,8 +311,8 @@ function getshorturl() {
 			}
 			$('#bill_endorse_oppose_cam').append($('<option value="_new_">&lt; Create a New Campaign... &gt;</option>'));
 			if (res.page.lastviewedcampaign > 0) {
-				$('#bill_endorse_oppose_forcam').attr('checked', true);
-				$('#bill_endorse_oppose_cam').attr('disabled', false);
+				$('#bill_endorse_oppose_forcam').prop('checked', true);
+				$('#bill_endorse_oppose_cam').prop('disabled', false);
 			}
 			
 			$("#org_bar .orgname").text(user_org.name);

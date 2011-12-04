@@ -91,7 +91,7 @@ h2 span {
 	function showdata(is_first_load, is_more) {
 		$('#options_state').val(report_state);
 		$('#options_district').val(report_district);
-		$('#options_state, #options_district').attr('disabled', '1');
+		$('#options_state, #options_district').prop('disabled', true);
 		$('#options_jump_nation, #options_jump_local').hide();
 		
 		update(true);

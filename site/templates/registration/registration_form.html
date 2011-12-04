@@ -45,7 +45,7 @@ function submit_registration() {
 			statusfield: "errorlabel",
 			savebutton: "submitbutton",
 			success: function(res) {
-				$('#submitbutton').attr('disabled', '1');
+				$('#submitbutton').prop('disabled', true);
 				if (!res.redirect) 
 					document.location = "/accounts/register/check_inbox?email=" + escape($("#email").val());
 				else

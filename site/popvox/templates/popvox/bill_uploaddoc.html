@@ -16,7 +16,7 @@
 		
 		tinyMCE.execCommand("mceRemoveControl", false, "doctext");
 		$('#doctitle, #doctext, #doclink').val('');
-		$('#doctitle, #doctext, #doclink, #submitbutton').attr('disabled', 1);
+		$('#doctitle, #doctext, #doclink, #submitbutton').prop('disabled', true);
 		
 		$.ajax({
 			type:"POST",
@@ -28,7 +28,7 @@
 			complete: function(res, status) {
 				curtab = tab;
 				
-				$('#doctitle, #doctext, #doclink, #submitbutton').attr('disabled', '');
+				$('#doctitle, #doctext, #doclink, #submitbutton').prop('disabled', false);
 				tinyMCE.execCommand("mceAddControl", false, "doctext");
 				
 				res = eval("[" + res.responseText + "]")[0];

@@ -541,10 +541,11 @@ class document_search(BaseHandler):
 		c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
 		c.SetMatchMode(SPH_MATCH_EXTENDED)
 		c.SetFilter("document_id", [int(docid)])
-		if q == "":
-			ret = { "matches": [] }
-		else:
+		ret = None
+		if q != "":
 			ret = c.Query(q, "doc_text")
+		if ret == None:
+			ret = { "matches": [] }
 			
 		pages = []
 		
