@@ -1,0 +1,77 @@
+{% extends "master.html" %}
+
+{% block title %}Open Data Day DC Hackathon, Dec 3. 2011{% endblock %}
+
+{% block head %}
+{% comment %}
+<script src="/media/js/tagfriends.js"> </script>
+<link rel="stylesheet" href="/media/css/tagfriends.css" type="text/css"/>
+<script>
+tagfriends_ajaxurl = "{% url tagfriends.views.ajaxreq %}";
+$(function(){
+	$('img').tagfriends();
+});
+</script>
+{% endcomment %}
+<style>
+	img { display: block; border: 1px solid black; margin-top: 10px; }
+</style>
+{% endblock %}
+
+{% block body %}
+	<div class="col_6">
+		<h1>Open Data Hackathon</h1>
+		<p>December 3, 2011 in Washington, DC.</p>
+		<p>As part of <a href="http://www.opendataday.org/wiki/Main_Page">International Open Data Day &mdash; December 3</a>, POPVOX and <a href="http://wikimediadc.org/">Wikimedia DC</a> sponsored an all-day &ldquo;hackathon&rdquo; for data enthusiasts in the DC area. POPVOX CTO Joshua Tauberer and Wikimedia DC&rsquo;s Katie Filbert organized the event held in the Library Lab space at the Martin Luther King Jr. Memorial Library.</p>
+	
+		<p>A hackathon is typically an event where programmers meet to collaborate on technology projects. The theme of our hackathon was open government data, and participants worked on improving access to U.S. law, scanning federal spending for anomalies following <a href="http://en.wikipedia.org/wiki/Benford's_law">Benford&rsquo;s Law</a>, understanding farm subsidy grants, building local transit apps, and keeping Congress accountable. Participants came from the greater DC area. Only about half of the participants were programmers, but everyone found a way to be involved.</p>
+		
+		<p>We worked on these projects...</p>
+	
+		<h3>Federal Law Crosswalk</h3>
+		
+		<p>Connecting federal regulations with the statutes that authorize them.</p>
+		
+		<p>Participants: Eric Mill (@klondike), Andrew Pendleton (@andrewindc), Carrie Golden (@Carrie_Golden).</p>
+		
+		<p>Work done so far: <a href="http://laws.sunlightlabs.com">laws.sunlightlabs.com</a>, <a href="https://github.com/sunlightlabs/crosslaws">github.com/sunlightlabs/crosslaws</a>.</p>
+	
+		<h3>Benford&rsquo;s Law</h3>
+		<p>Detecting anomalies in federal spending using <a href="http://en.wikipedia.org/wiki/Benford's_law">Benford&rsquo;s Law</a>, which says that digits, such as in dollar amounts, should appear with a certain distribution.</p>
+		<p>Participants: Drew Vogel, Michelle Koeth (@michellekoeth), Dan Cloud, Jason Wieringa (@jwieringa), Andrew, Chris Gotcu.</p>
+		<p>Results: USDA&rsquo;s data looks anomalous, but it is probably because of unusual spending or the reporting of estimates as spending and not fraud.</p>
+		
+		<h3>Farm Bill/Farm Policy</h3>
+		<p>Participants: Reid Workman, Harlan Harris, John Blatz.</p>
+		<p>Code: <a href="https://github.com/workman/ODHD-MoneyForYoungFarmers">github.com/workman/ODHD-MoneyForYoungFarmers</a></p>
+	
+		<h3>Local Transit</h3>
+		<p>Collecting personal trip logs from Capitol Bike Share and WMATA Smartrip in order to visualize the trips, visualize the cost, see daily commutes, and potentially a sensitivity analysis such as if you leave ten minutes later what does it do to your cost of commute?
+		<p>Participants: Justin Grimes (@justgrimes), Harlan Yu, Chris Musialek (@cmoose), Liz Steininger (@liz315), Piotr (@polishprince).</p>
+
+		
+		<h3>Do My Reps Agree With Me?</h3>
+		<p>Using POPVOX and GovTrack data to let people grade their Members of Congress based on if their Members of Congress voted on bills in the way they would have them vote on bills.</p>
+		<p>Participants: Mackenzie Morgan, Annalee Flower Horne.</p>
+		
+		<h3>WikiProject Public Art &amp Wikipedia Hacking</h3>
+		<p>Participants: Katie Filbert, Peter, Fran McCrory, James, Jim, Luke</p>
+		
+		<h3>Senate Disbursements</h3>
+		<p>Parsing the 2,500 page PDF of <a href="http://www.gpo.gov/fdsys/pkg/GPO-CDOC-112sdoc4/pdf/GPO-CDOC-112sdoc4.pdf">Senate office disbursements</a>, the official report of the the Senate&rsquo;s spending.</p>
+		<p>Participants: Luke Rosiak.</p>
+		<p>Code: <a href="http://github.com/lukerosiak">github.com/lukerosiak</a>. Look for results to be published at <a href="lukerosiak.info">lukerosiak.info</a>.</p>
+
+	</div>
+	
+	<div class="col_6 col_last">
+		<iframe width="452" height="260" src="https://www.youtube-nocookie.com/embed/xoiQptGziKM?rel=0&amp;hd=1" frameborder="0" allowfullscreen></iframe>
+	
+		<img src="/files/opendataday2011/IMG_0818.JPG" tagfriends="1"/>
+		<img src="/files/opendataday2011/IMG_0815.JPG" tagfriends="2"/>
+		<img src="/files/opendataday2011/IMG_0819.JPG" tagfriends="3"/>
+		<img src="/files/opendataday2011/IMG_0811.JPG" tagfriends="4"/>
+		<img src="/files/opendataday2011/IMG_0816.JPG" tagfriends="5"/>
+	</div>
+
+{% endblock %}
