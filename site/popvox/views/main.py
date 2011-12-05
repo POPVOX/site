@@ -82,9 +82,10 @@ def strong_cache(f):
 	# A strongly cached view has no access to Django session
 	# state and is marked for upstream caching.
 	def g(request, *args, **kwargs):
-		request.strong_cache = True
-		request.session = None
-		request.user = AnonymousUser()
+		if "nocache" not in request.GET:
+			request.strong_cache = True
+			request.session = None
+			request.user = AnonymousUser()
 		return f(request, *args, **kwargs)
 	if hasattr(f, "user_state"):
 		g.user_state = f.user_state
