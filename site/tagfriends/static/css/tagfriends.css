@@ -1,0 +1,35 @@
+.tagfriends_callout {
+	cursor: default;
+}
+
+.tagfriends_friendselector {
+	width: 240px;
+	padding: 15px;
+	background-color: white;
+	color: black;
+}
+
+.tagfriends_friendlist {
+	margin-top: 10px;
+	height: 10em;
+	overflow: auto;
+}
+.tagfriends_friendlist div {
+	color: blue;
+	cursor: pointer;
+	margin-bottom: 3px;
+	font-size: 90%;
+}
+.tagfriends_friendlist div:hover {
+	text-decoration: underline;
+}
+
+.tagfriends_tag {
+	background-color: white;
+	color: black;
+	padding: 4px;
+	cursor: default;
+}
+.tagfriends_tag.tagfriends_mine {
+	background-color: #FFFFDD;
+}
