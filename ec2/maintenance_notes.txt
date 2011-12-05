@@ -1,0 +1,44 @@
+Rebooting a Master Server
+	make a snapshot of the pd volume
+
+	start up a new slave:
+	update master server IP address
+		sudo nano /etc/fstab 
+		sudo mount -a
+		sudo nano ~www/slave
+		regenerate www's nginx.conf
+		sudo service nginx restart
+	update sources
+		git pull --rebase
+		cd libs; sh checkouts
+	update site-down
+		disable popvox.middleware.AdserverTargetsMiddleware because it checks db
+		edit urls.py to turn on site-down page
+		edit templates/static/site_down.html to update maintenance notice
+	./fcgi
+	
+	on the master:
+	./fcgi stop
+	
+	requests should kick over to the slave automatically
+	
+	re-associate the elastic IP with the slave
+	
+	wait for snapshot to complete
+	
+	once MySQL on the master goes down, the slave can't be restarted because
+	Django will do model validation on startup which accesses MySQL
+	
+	sudo apt-get update && apt-get dist-upgrade
+	
+	reboot the master instance
+	
+	restart services:
+	git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/
+	sudo searchd
+	./fcgi for each user
+	
+	move the elastic IP back
+	
+	shut down the slave
+	
