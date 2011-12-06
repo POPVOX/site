@@ -175,9 +175,15 @@ def process_comment(comment, thread_id):
 		msg.org_description = comment.referrer.description
 		msg.org_contact = "(unknown)"
 	elif comment.referrer != None and isinstance(comment.referrer, OrgCampaign):
-		msg.campaign_id = "http://popvox.com" + comment.referrer.url()
-		msg.campaign_info = comment.referrer.name
-		msg.form_url = "http://www.popvox.com" + comment.referrer.url()
+		if comment.referrer.default:
+			# for the default campaign of an org, use org info
+			msg.campaign_id = "http://popvox.com" + comment.referrer.org.url()
+			msg.campaign_info = comment.referrer.org.name
+			msg.form_url = "http://www.popvox.com" + comment.referrer.org.url()
+		else:
+			msg.campaign_id = "http://popvox.com" + comment.referrer.url()
+			msg.campaign_info = comment.referrer.name
+			msg.form_url = "http://www.popvox.com" + comment.referrer.url()
 		if comment.referrer.website_or_orgsite() == None:
 			msg.org_url = "popvox.com" + comment.referrer.url() # harkin: no leading http://www.
 		else:

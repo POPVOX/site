@@ -935,6 +935,9 @@ def send_message_webform(di, msg, deliveryrec):
 		# Make sure that if there were options given for a suffix that we accept a blank suffix.
 		if v == "suffix" and field_options[k] != None: field_options[k][""] = ""
 		
+		def normalize_synreq_term2(opt):
+			return re.sub(r"\s+", " ", opt)
+		
 		if field_options[k] == None:
 			if type(postdata[k]) == tuple or type(postdata[k]) == list:
 				# take first preferred value
@@ -956,18 +959,24 @@ def send_message_webform(di, msg, deliveryrec):
 						for rec2 in Synonym.objects.filter(term1 = rec.term2):
 							alts.append((rec2.term2, 0 if not rec.last_resort else 1))
 			alts.sort(key = lambda x : x[1]) # put last_resort at the end
+			
+			# normalize
+			for kk, vv in field_options[k].items():
+				field_options[k][normalize_synreq_term2(kk)] = vv
+			field_options_values = dict( (normalize_synreq_term2(v), v) for v in field_options[k].values() )
+			
 			for q, l_r in alts:
 				if q.lower() in field_options[k]:
 					postdata[k] = field_options[k][q.lower()]
 					break
-				if q in field_options[k].values():
-					postdata[k] = q
+				if q in field_options_values:
+					postdata[k] = field_options_values[q]
 					break
 			else:
 				# There were no mappings from the keyword we have in the message to
 				# one of the options on the form. Construct a list of the options so we can
 				# store it in a SynonymRequired to be dealt with later.
-				select_opts = list(field_options[k].keys())
+				select_opts = [normalize_synreq_term2(kk) for kk in field_options[k].keys()]
 				
 				# Because of the one transitive step, we can expand the options to one
 				# transitive step backwards from what's on the form. But only do this for
@@ -976,7 +985,7 @@ def send_message_webform(di, msg, deliveryrec):
 				if postdata[k][0].startswith("#"):
 					for syn in Synonym.objects.filter(term2__in=select_opts).exclude(term1__startswith="#").values("term1").distinct():
 						if syn["term1"] not in select_opts:
-							select_opts.append(syn["term1"])
+							select_opts.append(normalize_synreq_term2(syn["term1"]))
 				
 				# Issue a delivery error that will also trigger an INSERT into the synonym required
 				# table with term1set set to the keyword alternatives in the message postdata[k]
@@ -988,8 +997,8 @@ def send_message_webform(di, msg, deliveryrec):
 	for k, v in field_default.items():
 		postdata[k] = v.encode("utf8")
 		
-	# This guy has some weird restrictions on the text input to prevent the user from submitting
-	# SQL... rather than just escaping the input. 412305 Peters, Gary C. (House)
+	# Thess guys have some weird restrictions on the text input to prevent the user from submitting
+	# SQL... rather than just escaping the input.
 	if di.id in (13, 37, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 280, 324, 341, 386, 426, 570, 577, 585, 588, 598, 599, 600, 604, 605, 607, 608, 611, 613, 639, 641, 646, 665, 678, 693, 703, 706, 709, 710, 713, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 783, 784, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
@@ -1266,6 +1275,10 @@ def send_message(msg, moc, previous_attempt, loginfo):
 			# can't deliver without those fields
 			print msg.address1
 			return None
+	if govtrackrecipientid == 400062:
+		# Lois Capps accepts a space if a response is required
+		if "yes" in msg.response_requested:
+			msg.response_requested = list(msg.response_requested) + [" "]
 
 	# Begin the delivery attempt.
 	try:
@@ -1281,7 +1294,7 @@ def send_message(msg, moc, previous_attempt, loginfo):
 				
 				sr = SynonymRequired()
 				sr.term1set = "\n".join(e.values)
-				sr.term2set = "\n".join(sorted([re.sub(r"\s+", " ", opt) for opt in e.options]))
+				sr.term2set = "\n".join(sorted(e.options))
 				if not SynonymRequired.objects.filter(term1set=sr.term1set, term2set=sr.term2set).exists():
 					sr.save()
 				
