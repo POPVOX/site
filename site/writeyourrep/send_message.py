@@ -397,7 +397,8 @@ radio_choices = {
 }
 
 custom_mapping = {
-    "23_field_db3de26e-1334-48c8-ac2a-d173968c6236_radio": "response_requested",
+	"2_field_420f4180-d327-4c63-aac5-efd047b1b463_text": "zip5", #I laugh at their faulty regex
+	"23_field_db3de26e-1334-48c8-ac2a-d173968c6236_radio": "response_requested",
 	"24_i02": "message",
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
 	"37_affl3": "enews_subscribe",
@@ -414,14 +415,14 @@ custom_mapping = {
 	"666_daytime-phone_text": "phone",
 	"728_phone1_text": "phone_areacode",
 	"728_phone2_text": "phone_prefix",
-    "728_phone3_text": "phone_line",
-    "740_phone_prefix_text": "phone_areacode",
-    "740_phone_first_text": "phone_prefix",
-    "740_phone_second_text": "phone_line",
+	"728_phone3_text": "phone_line",
+	"740_phone_prefix_text": "phone_areacode",
+	"740_phone_first_text": "phone_prefix",
+	"740_phone_second_text": "phone_line",
 	"757_name_text": "firstname",
 	"761_phone1_text": "phone_areacode",
-    "761_phone2_text": "phone_prefix",
-    "761_phone3_text": "phone_line",
+	"761_phone2_text": "phone_prefix",
+	"761_phone3_text": "phone_line",
 	"789_phone8_text": "phone",
 	"817_areacode_text" : "phone_areacode",
 	"817_phone3_text" : "phone_prefix",
