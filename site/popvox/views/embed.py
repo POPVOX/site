@@ -170,6 +170,10 @@ def facebook_page(request, fbargs):
 </body>
 </html>
 """ % (unicode(acct), ), mimetype="text/html")
+
+	# Enforce a width on the iframe tag to match the width that Facebook
+	# gives to the canvas.
+	resp = re.sub(r'width="(\d+)"', 'width="504"', resp)
 	
 	# If the iframe code has a numeric height attribute, use it (with some padding)
 	# to adjust the height of the canvas.
