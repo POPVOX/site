@@ -1,8 +1,9 @@
 #!runscript
 import urllib
 import re
+from popvox.govtrack import CURRENT_CONGRESS
 
-congress = '112'
+congress = CURRENT_CONGRESS
 index = urllib.urlopen('http://thomas.loc.gov/home/Browse.php?n=bills&c='+congress)
 index = index.read()
 linkre = r'/cgi-bin/query/L\?c'+congress+':./list/c'+congress+'[hs].lst:\d+'
