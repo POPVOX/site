@@ -675,8 +675,13 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 	
 	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 	
-	address_record = None
-	address_record_fixed = None
+	# Get an existing comment the user has on this bill.
+	existing_comment = None
+	if request.user.is_authenticated():
+		try:
+			existing_comment = request.user.comments.get(bill = bill)
+		except UserComment.DoesNotExist:
+			pass
 	
 	# Clear out the session state for a pending comment (set e.g. if
 	# user has to go away to do oauth login) if the pending comment
@@ -694,39 +699,49 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 	elif position == "/oppose":
 		position = "-"
 	elif position == "/finish":
-			# Get position from saved session, if any.
-			if pending_comment_session_key in request.session:
-				position = request.session[pending_comment_session_key]["position"]
-			else:
-				# Ruh-row.
-				return HttpResponseRedirect(bill.url())
+		# Get position from saved session, if any.
+		if pending_comment_session_key in request.session:
+			position = request.session[pending_comment_session_key]["position"]
+		else:
+			# Ruh-row.
+			return HttpResponseRedirect(bill.url())
 	elif position == None:
-		if request.user.is_authenticated():
-			# Get position from user's existing comment, if any.
-			comments = request.user.comments.filter(bill = bill)
-			if len(comments) == 0:
-				return HttpResponseRedirect(bill.url())
-			else:
-				position = comments[0].position
-				address_record = comments[0].address
-				if (address_record.phonenumber != None and address_record.phonenumber != ""):
-					address_record_fixed = "(You cannot change the address on a comment you have already submitted.)"
+		if existing_comment:
+			position = existing_comment.position
 		else:
 			return HttpResponseRedirect(bill.url())
 	else:
 		raise Http404()
 		
-	if address_record == None and request.user.is_authenticated():
-		# Get the most recent address record created by the user.
-		addresses = request.user.postaladdress_set.order_by("-created")
-		if len(addresses) > 0:
-			address_record = addresses[0]
-			if address_record.created and (datetime.now() - address_record.created).days < 60:
-				address_record_fixed = "You cannot change your address for two months after entering your address."
+	# Does the user have existing address information?
+	address_record = None
+	if existing_comment:
+		# If we're editing an existing comment, then start with the address
+		# tied to that comment.
+		address_record = existing_comment.address
+	elif request.user.is_authenticated():
+		# If the user is logged in, take their most recent address as a
+		# starting point.
+		try:
+			address_record = request.user.postaladdress_set.order_by("-created")[0]
+		except IndexError:
+			pass
+	
+	# Can the user revise the address record in-place, can he create a new address record,
+	# or is his address fixed to prevent fraud?
+	address_record_allow_save = False
+	address_record_fixed = None
+	if address_record:
+		may_change = user_may_change_address(existing_comment, address_record, request.user)
+		if may_change == "in-place":
+			address_record_allow_save = True
+		elif may_change == "new-record":
+			address_record_allow_save = False
+		else:
+			address_record_fixed = may_change
 				
 	# Allow (actually require) the user to revise an address that does not have a prefix or phone number.
-	if address_record != None and address_record_fixed != None and (
-		address_record.nameprefix == "" or address_record.phonenumber == "" or request.user.username == "POPVOXTweets"):
+	if address_record != None and address_record_fixed != None and (address_record.nameprefix == "" or address_record.phonenumber == ""):
 		address_record_fixed = None
 	
 	# We will require a captcha for this comment if the user is creating many comments
@@ -915,8 +930,15 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 		try:
 			# If we didn't lock the address, load it and validate it from the form.
 			if address_record_fixed == None:
-				address_record = PostalAddress()
-				address_record.user = request.user
+				# If we allow overwriting the existing address record, use it
+				# and mark that we can save it if it's changed.
+				if address_record and address_record_allow_save:
+					setattr(address_record, "pv_allow_save", True)
+				# Otherwise initialize a new address object.
+				else:
+					address_record = PostalAddress()
+					address_record.user = request.user
+					
 				address_record.load_from_form(request.POST) # throws ValueError, KeyError
 				
 			# We don't display a captcha when we are editing an existing comment
@@ -952,6 +974,12 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 						break
 				else:
 					verify_adddress(address_record)
+					
+			# Save the address if it's been modified and the modifications passed validation.
+			# If it wasn't modified, or it matched a previous address record, then we changed
+			# the address_record variable above and it will no longer have the save flag.
+			if hasattr(address_record, "pv_allow_save"):
+				address_record.save()
 		
 		except Exception, e:
 			import sys
@@ -1063,6 +1091,65 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 	
 	else:
 		raise Http404()
+
+def user_may_change_address(existing_comment, address_record, user):
+	# Returns "in-place" if the user may revise address_record in place, "new-record" if
+	# the user may create a new address record, or otherwise a string message telling
+	# the user when he may next update his address.
+	
+	now = datetime.now()
+
+	# Logical consistency?
+	if existing_comment and existing_comment.delivery_attempts.filter(success=True).exists():
+		# If the user's comment has already been delivered, then the address cannot be changed.
+		return "You cannot change the address on a comment that has already been delivered to your Members of Congress."
+	elif existing_comment and existing_comment.delivery_attempts.exists():
+		# If the user's comment has already been attempted to be delivered, then also do not
+		# allow change in address, since there might have been a successful delivery that
+		# is currently marked failure.
+		return "You cannot change the address on a comment once it is marked for delivery to your Members of Congress."
+	
+	# Revising freshly entered data?
+	elif (now - address_record.created).days < 21 and not address_record.usercomments.filter(delivery_attempts__id__gt=0).exists():
+		# If this recent address is not tied to a message whose delivery has been attempted,
+		# then the address record can be modified in place to affect all pending comments
+		# tied to this address.
+		return "in-place"
+		
+	# At this point, user is creating a new comment and the user's most recent address
+	# has already been used in a delivery, or the most recent address is pretty old.
+	# We be a little creative to prevent the sort of fraud of a user being in a different
+	# district for each comment.
+	else:
+		# How long should we lock the user for?
+		lock_until = now
+		
+		for i, addr in enumerate(user.postaladdress_set.order_by("-created")[0:4]):
+			# Each time the user makes an address change it should be more difficult
+			# to change the address again, up to a certain limit.
+			#
+			# i is the number of address changes made after addr was created. Enforce
+			# a delay of 6^i-1 days after addr was created (up to a limit).
+			#   215 days since the 4th address ago  (i=3 --- lock limit)
+			#    35 days since the 3rd address ago  (i=2)
+			#     5 days since the 2nd address ago  (i=1)
+			#     0 days since the previous address (i=0 --- a freebie)
+			#
+			# In the long run, the user will have many (>4) addresses, and this prevents
+			# more than 4 addresses in 216 days (about one address every two months).
+			d = addr.created + timedelta(days=6**i - 1)
+			lock_until = max(lock_until, d)
+
+		if lock_until > now:
+			d = (lock_until - now).total_seconds()
+			if d > 60*60*24: # one day
+				return ("Since you have changed your address frequently recently, you will not be able to update your address for %d more days." % round(d/(60.0*60.0*24.0)))
+			elif d.seconds > 60*60: # an hour
+				return ("Since you have changed your address frequently recently, you will not be able to update your address for %d more hours." % round(d/(60.0*60.0)))
+			else:
+				return ("Since you have changed your address frequently recently, you will not be able to update your address for %d more minutes." % round(d/60.0))
+
+	return "new-record"
 
 def save_user_comment(user, bill, position, referrer, message, address_record, campaign, method):
 	# If a comment exists, update that record.
