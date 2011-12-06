@@ -33,7 +33,7 @@
 				$('#issues_no_bills').show();
 		}
 		
-		if ($('#' + tab + "_panel").text() == "" && tab != "issues")
+		if ($('#' + tab + "_panel").attr('loaded') == "false" && tab != "issues")
 			refresh_tab(tab);
 		
 		return false; // cancel click
@@ -172,6 +172,7 @@
 	}
 	
 	function refresh_tab(curtab) {
+		$('#' + curtab + '_panel').html("Loading...");
 		$.ajax({
 			type:"POST",
 			url: "ajax/docket/bill_category_panel",
@@ -179,7 +180,7 @@
 				id: curtab
 			},
 			complete: function(res, status) {
-				$('#' + curtab + '_panel').html(res.responseText);
+				$('#' + curtab + '_panel').html(res.responseText).attr("loaded", "true");
 				refresh_tooltips();
 			}
 		});
@@ -205,6 +206,9 @@
 			showtab(window.location.hash.substring(1));
 	});
 </script>
+<style>
+.content .tab_panel h4 { margin-top: 15px; }
+</style>
 {% endblock %}
 {% block content %}
 <div class="content leg_staff">
@@ -216,7 +220,7 @@
 			<div id="suggestions_main">
 				{% for group in suggestions %}
 					{% if group.type != 'issue' %}
-						<li id="{{group.id}}_tab" class="suggestiontab {% if forloop.first %}active{% endif %}"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
+						<li id="{{group.id}}_tab" class="suggestiontab"><a href="#" onclick="return showtab('{{group.id}}')">{{group.shortname}} ({{group.count}})</a></li>
 					{% endif %}
 				{% endfor %}
 			</div>
@@ -272,8 +276,7 @@
 		
 		<div id="panels">
 		{% for group in suggestions %}
-			<div id="{{group.id}}_panel" type="{{group.type}}" class="tab_panel" {% if not forloop.first %}style="display: none"{% endif %} {% if group.count > 0 %} panelid="{{group.id}}"{% endif %}>
-				{% include "popvox/home_legstaff_panel.html" %}
+			<div id="{{group.id}}_panel" type="{{group.type}}" class="tab_panel" {% if group.count > 0 %} panelid="{{group.id}}"{% endif %} loaded="false">
 			</div>
 		{% endfor %}
 		</div>

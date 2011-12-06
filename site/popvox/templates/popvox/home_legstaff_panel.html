@@ -27,43 +27,47 @@
 	</tr>
 	{% for bill in subgroup.bills %}
 		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row1" class="bill" billid="{{bill.id}}" valign="top">
-			<td style="padding-left: 5px; padding-right: .5em" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-left: 5px; padding-right: .5em" class="expando">
+				<a href="{{bill.url}}/report">
 				<nobr>
 					{{bill.displaynumber}}
 				</nobr>
+				</a>
 			</td>
-			<td style="padding-right: 1em"; class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: 1em"; class="expando">
 				<div style="width: 190px; overflow: hidden; " title="{{bill.title}}">
 					<div style="width: 1000px; height: 1.2em;">
+						<a href="{{bill.url}}/report">
 						{{bill.title_no_number}}
+						</a>
 					</div>
 				</div>
 			</td>
-			<td style="padding-right: .25em;" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: .25em;" class="expando">
 				<div style="width: 65px; overflow: hidden;" title="{{bill.sponsor.name}}">
 					<div style="width: 1000px; height: 1.2em;">
 						{{bill.sponsor.lastname}}
 					</div>
 				</div>
 			</td>
-			<td style="padding-right: 1em;" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: 1em;" class="expando">
 				({{bill.sponsor.party}})
 			</td>
-			<td style="padding-right: 1em" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
-				{% comment %}when the metadata isn't loaded, this comes out as None; unfortunately this also hides zero cosponsors, but actually I kinda like that{% endcomment %}
+			<td style="padding-right: 1em" class="expando">
 				{% if bill.num_cosponsors %}
 				<div title="{{bill.num_cosponsors}} cosponsor{{bill.num_cosponsors|pluralize}}">
 					{{bill.num_cosponsors}}
 				</div>
 				{% endif %}
 			</td>
-			<td style="padding-right: 1em;" class="expando" onclick="return expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')">
+			<td style="padding-right: 1em;" class="expando">
 				<div style="width: 140px; overflow: hidden;" title="{{bill.status_advanced}} ({{bill.current_status_date|date2}})">
 					<div style="width: 1000px; height: 1.2em;">
 						{{bill.status_advanced_abbreviated}} ({{bill.current_status_date|date2}})
 					</div>
 				</div>
 			</td>
+			{% comment %}
 			<td class="flipcolor" width="150">
 				{% with "+" as tracktype %}
 				{% include "popvox/track.html" %}
@@ -77,7 +81,9 @@
 				
 				<div id="bill_{{subgroup.id}}_{{bill.id}}_expando" class="expand" onclick="expandbill({{bill.id}}, '{{subgroup.id}}_{{bill.id}}')" title="More Info">Expand/Collapse</div>
 			</td>
+			{% endcomment %}
 		</tr>
+		{% comment %}
 		<tr id="bill_{{subgroup.id}}_{{bill.id}}_row2" class="billdetails">
 			<td id="bill_{{subgroup.id}}_{{bill.id}}_details" colspan="7" style="display: none">
 				<div class="col_4_5">
@@ -104,6 +110,7 @@
 				
 			</td>
 		</tr>
+		{% endcomment %}
 	{% endfor %}
 {% endfor %}
 </table>

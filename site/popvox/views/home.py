@@ -424,7 +424,7 @@ def docket(request):
 					"" if member == None or not member["current"] else (
 						"State" if member["type"] == "sen" else "District"
 						),
-			"suggestions": get_legstaff_suggested_bills(request.user),
+			"suggestions": get_legstaff_suggested_bills(request.user, counts_only=True),
 			"filternextvotechamber": prof.getopt("home_legstaff_filter_nextvote", ""),
 			"adserver_targets": ["leg_staff_home"],
 		},
