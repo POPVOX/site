@@ -54,12 +54,12 @@ function getshorturl() {
 				<h2 class="shadow_up pad_top">{% if not bill.street_name %}{{bill.displaynumber_nosession}}{% else %}{{bill.street_name|capfirst}} ({{bill.displaynumber_nosession}}){% endif %} was introduced in the {{bill.congressnumber|ordinal}} Congress, which has adjourned.</h2>
 				
 				{% if not bill.reintroduced_as %}
-				<h2 class="shadow_up">It has not yet been reintroduced.</h2>
+				<h3 class="shadow_up">It has not yet been reintroduced.</h3>
 				<div class="col_6 col_top">
-					<input id="b_reintroduce" class="btn submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'" style="margin: 15px 0 15px 100px"/>
+					<input id="b_reintroduce" class="btn submit" type="button" value="Support" onclick="window.location = '{{bill.url|escapejs}}/comment/support'" style="margin: 15px 0 15px 0px"/>
 					<p>You can increase the chances that the {{bill.proposition_type}} is revived in the new Congress by showing support for reintroduction.</p>
 				</div>
-				<div class="col_6 col_last col_top">
+				<div class="col_6 col_last">
 					<p>Want to be notified when this {{bill.proposition_type}} is reintroduced?</p>
 					<div id="reintro_track" class="track_as_notify" style="display: none">
 						{% with "+" as tracktype %}

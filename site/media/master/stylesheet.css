@@ -784,7 +784,7 @@ table.form_fields td {
         }
 
     .alert_dead p {
-        font: italic normal 14px/18px georgia;
+        font: italic normal 16px/18px georgia;
         margin-bottom: 20px;
         }
 
@@ -1001,6 +1001,19 @@ ul.tabs {
 	font: normal 18px/30px helvetica,arial,sans-serif;
 	}
 	
+	.pgbill .alert_dead h2 {
+		font: normal 24px/18px helvetica,arial,sans-serif;
+		letter-spacing: inherit;
+		margin: 0;
+		}
+		
+		.pgbill .alert_dead h3 {
+			font: normal 20px/20px helvetica,arial,sans-serif;
+			letter-spacing: inherit;
+			margin: 0;
+			background: none;
+			}
+	
 .bill_overview {
     background: url(bg_bills.png) -13px -1px no-repeat;
     padding: 17px 0 10px 75px;
@@ -1121,6 +1134,7 @@ h3#reportsubtitle {
     height: 105px;
     margin-bottom: 15px;
     }
+    
 
 .chart_notlast { background: url(bg_hr.png) left bottom repeat-x    }
 
