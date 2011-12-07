@@ -11,9 +11,12 @@ SESSION_COOKIE_NAME = "tr_sid"
 
 class TrafficAnalysisMiddleware:
 	def process_request(self, request):
+		request.ta_time_start = time.time()
+		
 		if request.META.get("HTTP_USER_AGENT", "").strip() != "":
 			request.ua = uas_parser.parse(request.META["HTTP_USER_AGENT"])
-		return None
+			
+		return None # continue standard Django pipeline
 	
 	def process_view(self, request, view_func, view_args, view_kwargs):
 		request.trafficanalysis_view_info = ("%s.%s" % (view_func.__module__, view_func.__name__), view_args, view_kwargs)
@@ -93,6 +96,7 @@ class TrafficAnalysisMiddleware:
 			rec.referrer = None
 		rec.ipaddr = request.META.get("REMOTE_ADDR", "").strip()[0:15]
 		rec.response_code = response.status_code
+		rec.duration = time.time() - request.ta_time_start
 		
 		properties = collections.OrderedDict() # so that user-specified data is first so it truncates last
 		for rr in (request, response):

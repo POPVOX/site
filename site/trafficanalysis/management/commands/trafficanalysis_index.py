@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.db import connection, transaction
 from optparse import make_option
 
 from trafficanalysis.models import LiveRecord, Hit
@@ -8,16 +9,13 @@ class Command(BaseCommand):
 	help = 'Indexes recent hits.'
 	
 	def handle(self, *args, **options):
-		# Mark a set of hits as in-progress.
+		# Mark a set of LiveRecord hits as in-progress.
 		LiveRecord.objects.update(batch=1)
-		
-		# Convert to Hit objects. Preserve monotonic order of id.
-		for r in LiveRecord.objects.filter(batch=1).order_by('id'):
-			hit = Hit()
-			for field in ('time', 'session_key', 'user', 'path', 'view', 'goal', 'referrer', 'ipaddr', 'response_code', 'properties'):
-				setattr(hit, field, getattr(r, field))
-			hit.save()
 
-		# Clear out processed records.
+		# Copy the LiveRecord hits into the Hit table, where they will get indexed.
+		c = connection.cursor()
+		c.execute("INSERT INTO trafficanalysis_hit SELECT * FROM trafficanalysis_liverecord WHERE batch = 1")
+		
+		# Clear out processed LiveRecord rows.
 		LiveRecord.objects.filter(batch=1).delete()
-	
+

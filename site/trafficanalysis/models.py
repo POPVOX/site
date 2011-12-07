@@ -29,12 +29,13 @@ class LiveRecord(models.Model):
 	referrer = models.CharField(max_length=64, blank=True, null=True)
 	ipaddr = models.CharField(max_length=15)
 	response_code = models.IntegerField()
+	duration = models.FloatField() # duration of request processing in seconds
 	properties = models.CharField(max_length=128) # urlencoded
 
 	batch = models.IntegerField(blank=True, null=True) # helps to move this to an indexed table
 
 class Hit(models.Model):
-	"""The Hit table is just an indexed version of the LiveRecord populated by the trafficanalysis_index management command."""
+	"""The Hit table is just an indexed version of the LiveRecord populated by the trafficanalysis_index management command. The record layout must match LiveRecord exactly, except indexes."""
 	
 	time = models.DateTimeField(db_index=True)
 
@@ -44,8 +45,12 @@ class Hit(models.Model):
 	path = models.CharField(max_length=64, db_index=True) # request path
 	view = models.CharField(max_length=64, db_index=True) # the name of the view class handling the request
 	goal = models.CharField(max_length=64, db_index=True) # custom event name
+	ua = models.CharField(max_length=64)
 	referrer = models.CharField(max_length=64, blank=True, null=True, db_index=True)
 	ipaddr = models.CharField(max_length=15)
 	response_code = models.IntegerField()
+	duration = models.FloatField() # duration of request processing in seconds
 	properties = models.CharField(max_length=128) # urlencoded
+
+	batch = models.IntegerField(blank=True, null=True) # helps to move this to an indexed table
 
