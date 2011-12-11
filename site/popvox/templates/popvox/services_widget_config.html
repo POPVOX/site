@@ -362,13 +362,12 @@ function change_widget(tabname, is_initial) {
 		$('.config_pane').css({width: '640px'});
 	}
 
-	//update_preview();
-	window.setTimeout("update_preview()", 600);
+	window.setTimeout("update_preview(" + (is_initial ? 'true' : 'false') + ")", 600);
 	
 	return false;
 }
 
-function account_changed() {
+function account_changed(is_initial) {
 	$('.secret_key').text("<not available>");
 	
 	current_account = null;
@@ -429,14 +428,14 @@ function account_changed() {
 	}
 	{% endif %}
 	
-	update_preview();
+	update_preview(is_initial);
 }
 
 var last_preview_html = "";
 var fb_code = "";
 var hold_update = false;
 
-function update_preview() {
+function update_preview(is_initial) {
 	if (hold_update) return;
 	
 	update_analytics();
@@ -551,6 +550,8 @@ function update_preview() {
 
 	$('#fb_page a').show();
 	$('#fb_page span').hide();
+	
+	if (!is_initial) $('.preview_pane h3').text("Preview");
 }
 
 function set_fb_page_code() {
@@ -611,7 +612,7 @@ $(function() {
 	$('.form input[type=radio]').click(update_preview);
 	
 	splash_tab($('#wSelect li a')[0]);
-	account_changed();
+	account_changed(true);
 
 	$('#features_write_congress li').hover(function(event) {
 		$(this).animate({"background-position-y": (event.type == "mouseenter" ? -3 : 0)}, 80, "linear");
@@ -778,13 +779,13 @@ var minicolors_opts = {
 			
 			<div class="block2 widget_opts writecongress_opts">
 				<div class="vert" id="writecongress_bill_1">
-					<label>Letters are about this bill</label>
+					<label>Choose your position and bill</label>
 					<select id="writecongress_bill_position" size="1" style="width: 400px"></select>
 					<small>You may choose from the bills endorsed or opposed in your legislative agenda which are pending Congressional action<!-- or await reintroduction-->.</small>
 				</div>
 				
 				<div class="vert" id="writecongress_bill_2">
-					<label for="writecongress_bill">Letters are about this bill</label>
+					<label for="writecongress_bill">Choose your position and bill</label>
 					<select id="writecongress_position" size="1" style="width: 10em"><option value="support">supporting</option> <option value="oppose">opposing</option> <option value="neutral">support/oppose</option></select>
 					<input id="writecongress_bill" type="text" value="S. 724" style="width: 8em"/>
 				</div>
@@ -973,7 +974,7 @@ var minicolors_opts = {
 	
 	<div class="preview_pane">
 		<!--<a class="b_copy_code btn" href="#">Copy Code</a>-->
-		<h3 class="no_rule">Preview</h3>
+		<h3 class="no_rule">Sample</h3>
 
 		{% if accounts|length > 0 %}
 		<div>
