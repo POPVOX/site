@@ -18,6 +18,10 @@ function bill_chart(container, pro_pct, con_pct, opts) {
 				animation: false,
 				//enableMouseTracking: false,
 				stickyTracking: false,
+				shadow: false,
+				//borderColor: "#8BB6D9",
+				borderWidth: 0,
+				innerSize: "40%",
 				dataLabels: {
 					enabled: (opts && opts.labels ? true : false),
 					distance: -30,
@@ -31,7 +35,7 @@ function bill_chart(container, pro_pct, con_pct, opts) {
 				}
 			}
 		},
-		colors: ["#FF9900", "#FFCC33"],
+		colors: ["#71b32b", "#ed5a24"],
 		title: { text: null },
 		legend: { enabled: false },
 		series: [{
@@ -73,7 +77,7 @@ function bill_timeseries(container, data, opts) {
 			  }
 		    }
 	    },
-      colors: ["#FF9900", "#FFCC33"],
+		colors: ["#71b32b", "#ed5a24"],
       title: { text: null },
       legend: { enabled: false },
       series: [
