@@ -6,7 +6,7 @@ from glob import glob
 from datetime import datetime, timedelta
 from xml.dom import minidom
 import re
-import os, os.path, hashlib
+import os, os.path, hashlib, sys
 
 from popvox.models import MemberOfCongress, CongressionalCommittee, Bill, IssueArea
 from popvox.govtrack import CURRENT_CONGRESS, getBillTitle, parse_govtrack_date, getMemberOfCongress
@@ -138,5 +138,5 @@ for fn in glob(DATADIR + "govtrack/us/" + str(cn) + "/bills/*.xml"):
 
 os.utime(stampfile, None)
 
-if counter > 0:
+if counter > 0 and sys.stdout.isatty():
 	print "updated", counter, "bills"
