@@ -18,6 +18,16 @@
 #
 # Warning: This of course runs as root.
 
-su www -c "cd; cd sources/site; git pull --rebase; ./fcgi"
+echo "restarting git..."
+su ubuntu -c "git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/";
+
+for user in `ls /home`; do
+	echo "restarting FCGI for $user...";
+	su $user -c "cd /home/$user/sources/site; git pull --rebase;"
+	su $user -c "/home/$user/sources/site/fcgi";
+done
+
+echo "restarting searchd..."
+searchd
 
 exit 0

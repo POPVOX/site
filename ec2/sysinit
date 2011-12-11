@@ -81,9 +81,8 @@ else
 	mount -a;
 fi
 
-# Start the git daemon when this machine is hosting the source code.
-# Copy into /etc/rc.local. (Because rc.local has an exit at the end, we can't simply append
-# to the file. Solution?). Run git as the ubuntu user which matches permissions of /mnt/persistent.
+# Start the git daemon when this machine is hosting the source code. This is a part of
+# rc.local but needs to ocur here so that the user code bases can be set up.
 if [[ "$CODE" == "localhost" ]]; then
 	su ubuntu -c "git daemon --base-path=/mnt/persistent/ --export-all --detach --enable=receive-pack /mnt/persistent/";
 fi
