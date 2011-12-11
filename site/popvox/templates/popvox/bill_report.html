@@ -27,15 +27,15 @@ h2 span {
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
 <script>
-{% if user.is_authenticated %}
 {% include "popvox/track.js" %}
-{% endif %}
 </script>
 {% endblock %}
 {% block content %}
 	<script>
-	var report_state = "{{default_state}}";
-	var report_district = "{{default_district}}";
+	var default_state;
+	var default_district;
+	var report_state = "";
+	var report_district = "";
 	var start = 0;
 	var count = 50;
 	var isloading = false;
@@ -130,7 +130,7 @@ h2 span {
 					return;
 				}
 				
-				if (report_state == "{{default_state}}" && report_district == "{{default_district}}") {
+				if (report_state == default_state && report_district == default_district) {
 					$('#options_jump_nation').show();
 				} else {
 					$('#options_jump_local').show();
@@ -333,17 +333,32 @@ h2 span {
 			update(false);
 			showdata();
 		});
-
-		if (window.location.hash == "#nation") {
-			report_state = "";
-			report_district = "";
-		} else {
-			var hashargs = $.deparam.fragment();
-			if (hashargs.state) report_state = hashargs.state;
-			if (hashargs.district) report_district = hashargs.district;
-		}
-		update();
-		showdata(true);
+	
+		master_state(function(res) {
+			// get default context from logged in state
+			default_state = res.page.default_state;
+			default_district = res.page.default_district
+			if (default_state) {
+				report_state = default_state;
+				if (default_district) report_district = default_district;
+				$('#jump_to_default').show();
+				$('#options_jump_local').text("Show " + default_state + (default_district ? ("-" + default_district) : ""));
+			}
+	
+			// override default context with fragment args
+			if (window.location.hash == "#nation") {
+				report_state = "";
+				report_district = "";
+			} else {
+				var hashargs = $.deparam.fragment();
+				if (hashargs.state) report_state = hashargs.state;
+				if (hashargs.district) report_district = hashargs.district;
+			}
+			
+			// pull data: must be in the ready state function
+			update();
+			showdata(true);
+		});
 	});
 
 	</script>
@@ -359,13 +374,17 @@ h2 span {
 			<h2 class="billname">Bill Report</h2>
 
 			<div class="block">
-				{% if user.is_authenticated %}
-				<div style="float: left; margin-left: -29px; margin-top: -7px">
+				<div id="bookmarkbutton" style="float: left; margin-left: -29px; margin-top: -7px; display: none;">
 					{% with "+" as tracktype %}
 					{% include "popvox/track.html" %}
 					{% endwith %}
 				</div>
-				{% endif %}
+				<script>master_state(function(res) {
+					if (res.user) {
+						$('#bookmarkbutton').show();
+						track_setstate({{bill.id}}, "+", res.page.tracked);
+					}
+				});</script>
 				{% if not bill.street_name %}
 					<h2 class="billname">{{ bill.title|truncatewords:30 }}</h2> 
 				{% else %}
@@ -384,11 +403,7 @@ h2 span {
 				<div id="status">
 					<h4>Status:</h4>
 					<p>
-					{% if user.userprofile.is_org_admin or user.userprofile.is_leg_staff %}
-						{{bill.status_advanced}} {{bill.current_status_date|date2}}
-					{% else %}
-						{{bill.status}}
-					{% endif %}
+					{{bill.status_advanced}} {{bill.current_status_date|date2}}
 					{% if bill.is_bill %}
 					(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>)
 					{% endif %}
@@ -412,10 +427,10 @@ h2 span {
 					</select>
 					<select id="options_district" size="1" onchange="report_district = this.value; update()">
 					</select>
-					{% if default_state %}
+					<span id="jump_to_default" style="display: none">
 						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
-						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = '{{default_state}}'; update(false); report_district = '{{default_district}}'; showdata(); return false;">Show My {% if default_district %}District{% else %}State{% endif %}</a>
-					{% endif %}
+						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = default_state; update(false); report_district = default_district; showdata(); return false;">Show XXX</a>
+					</span>
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
 			</div>
@@ -504,9 +519,8 @@ h2 span {
 			</div>
 		</div>
 
-	{% if user.userprofile.is_leg_staff or user.userprofile.is_org_admin %}
 	{% if bill.is_bill or bill.cosponsors.all|length > 0 %}
-	<div class="col_6 rule btm_10"> 
+	<div class="col_6 rule btm_10 col_last"> 
 		<div class="cosponsor"> 
 			<h3 class="no_rule">Co-Sponsors</h3> 
 			{% if bill.cosponsors.all|length == 0 %}
@@ -518,7 +532,7 @@ h2 span {
 				{% with forloop.counter0 as coli %}
 				<div class="col_3 {% if forloop.last %}col_last{% endif %}">
 				<ul class="smalllist">
-				{% for grp in col|split_at:5 %}
+				{% for grp in col|split_at:3 %}
 					{% if coli == 1 and forloop.counter0 == 1 %}
 						<p id="cosponsors_more"><a href="#" onclick="$('#cosponsors01, #cosponsors11').fadeIn(); $('#cosponsors_more').hide(); $('#cosponsors_less').show(); return false;">show {{bill.cosponsors.all|length|add:-10}} more</a></p>
 					{% endif %}
@@ -537,7 +551,6 @@ h2 span {
 			{% endfor %}
 		</div>
 	</div>
-	{% endif %}
 	{% endif %}
 
 			{% if orgs_neutral %}

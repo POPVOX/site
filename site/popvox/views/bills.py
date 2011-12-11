@@ -1590,19 +1590,13 @@ def get_default_statistics_context(user, individuals=True):
 				default_district = addresses[0].congressionaldistrict
 	return default_state, default_district
 
-@csrf_protect_if_logged_in
+@strong_cache
 def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
 
 	if bill.migrate_to:
 		return HttpResponseRedirect(bill.migrate_to.url() + "/report")
 
-	if not request.user.is_anonymous():
-		import home
-		home.annotate_track_status(request.user.userprofile, [bill])
-
-	default_state, default_district = get_default_statistics_context(request.user, individuals=False)
-					
 	orgs_support = { }
 	orgs_oppose = { }
 	orgs_neutral = { }
@@ -1628,7 +1622,7 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 		lst.sort(key = lambda x : x[0].name.replace("The ", ""))
 
 	bot_comments = []
-	if hasattr(request, "ua") and (request.ua["typ"] in ("Robot",) or request.ua["ua_family"] in ("cURL",)):
+	if "static" in request.GET:
 		limit = 50
 		pro_comments = bill_comments(bill, position="+").filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
 		con_comments = bill_comments(bill, position="-").filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
@@ -1654,8 +1648,6 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 			"orgs_opposing": orgs_oppose,
 			"orgs_neutral": orgs_neutral,
 			"orgs_other": orgs_other,
-			"default_state": default_state if default_state != None else "",
-			"default_district": default_district if default_district != None else "",
 			"stateabbrs": 
 				[ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
 			"statereps": getStateReps(),
@@ -1663,6 +1655,20 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 			"tag_cloud_support": tag_cloud_support,
 			"tag_cloud_oppose": tag_cloud_oppose,
 		}, context_instance=RequestContext(request))
+def billreport_userstate(request, congressnumber, billtype, billnumber, vehicleid):
+	ret = { }
+	bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
+	if request.user.is_authenticated():
+		# Is the user tracking the bill?
+		ret["tracked"] = request.user.userprofile.tracked_bills.filter(id=bill.id).exists()
+
+		# Default statistics context.
+		default_state, default_district = get_default_statistics_context(request.user, individuals=False)
+		ret["default_state"] = default_state
+		ret["default_district"] = default_district
+		
+	return ret
+billreport.user_state = billreport_userstate
 
 def can_appreciate(request, bill):
 	# Can I appreciate comments? Only if I've weighed in on this bill and
