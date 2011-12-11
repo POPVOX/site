@@ -22,6 +22,26 @@ h2 span {
 .tag_cloud .line {
 	padding-bottom: 3px;
 	}
+#by_town {
+	padding-top: 10px;
+	background: url(/media/master/bg_hr.png) left top repeat-x;
+	}
+	#by_town h4 {
+		font-weight: bold;
+		font-size: 13px;
+		}
+	#by_town h4 small {
+		font-weight: normal;
+		font-size: 11px;
+		}
+	#by_town table th, #by_town table td {
+		font-size: 12px;
+		padding-right: 1em;
+		}
+	#by_town .container {
+		height: 8em;
+		overflow: auto;
+		}
 </style>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -267,7 +287,7 @@ h2 span {
 					buildchart(res.stats.overall, 2, true);
 				} else if (res.stats.state) {
 					if (report_district != "" && report_district != "0")
-						$('#stats_overall_info').text("Not enough individuals from the Congressional district have commented on {{bill.proposition_type}} bill to display a chart for district." + (res.stats.state.total > 0 ? " Charts for the state and nation are displayed instead." : ""));
+						$('#stats_overall_info').text("Not enough individuals from the Congressional district have commented on {{bill.proposition_type}} bill to display a chart for the district." + (res.stats.state.total > 0 ? " Charts for the state and nation are displayed instead." : ""));
 					buildchart(res.stats.state, 0);
 					buildchart(res.stats.overall, 1, true);
 					$('#chart2').hide();
@@ -291,6 +311,20 @@ h2 span {
 					if (res.stats.overall) $('#showmap').show();
 				}
 
+				if (!res.stats.by_town || !res.stats.by_town.length) {
+					$('#by_town').hide();
+				} else {
+					$('#by_town').show();
+					var tbody = $('#by_town').find("tbody");
+					tbody.text("");
+					for (var i = 0; i < res.stats.by_town.length; i++) {
+						var row = $("<tr/>");
+							row.append($("<td/>").text(res.stats.by_town[i].name))
+							row.append($("<td style='text-align: right'/>").text(res.stats.by_town[i]["+"]))
+							row.append($("<td style='text-align: right'/>").text(res.stats.by_town[i]["-"]))
+						tbody.append(row);
+					}
+				}
 			}
 		});
 
@@ -471,7 +505,7 @@ h2 span {
 				<h3 class="no_rule">Constituents Say</h3>
 				<div id="stats_overall_info" class="pad_btm" style="font-size: 12px"></div>
 				{% for index in "3"|range %}
-				<div id="chart{{index}}" class="clear" style="display: none; padding-bottom: 1em">
+				<div id="chart{{index}}" class="clear" style="display: none;">
 					<div class="col_1 past_stats">
 						<div id="chart_pie_{{index}}" style="height: 75px"></div>
 					</div>
@@ -491,6 +525,20 @@ h2 span {
 					</p>
 				</div>
 				{% endfor %}
+					
+				<div id="by_town" style="display: none">
+					<h4>By Address <small>(shown to legislative staff only in your state/district)</small></h4>
+					<div class="container">
+					<table>
+						<thead>
+							<tr><th></th> <th>Supporting</th> <th>Opposing</th></tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+					</div>
+				</div>
+				
 				<a href="#" onclick="$('#map').show(); $('#showmap').hide(); return false;">
 					<div id="showmap" style="text-align: center; margin: .5em; display: none">Show National Map</div>
 				</a>

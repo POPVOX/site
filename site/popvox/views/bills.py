@@ -1664,8 +1664,8 @@ def billreport_userstate(request, congressnumber, billtype, billnumber, vehiclei
 
 		# Default statistics context.
 		default_state, default_district = get_default_statistics_context(request.user, individuals=False)
-		ret["default_state"] = default_state
-		ret["default_district"] = default_district
+		ret["default_state"] = default_state if default_state else ""
+		ret["default_district"] = default_district if default_district else ""
 		
 	return ret
 billreport.user_state = billreport_userstate
@@ -1808,6 +1808,21 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 	if state != None and request.user.is_authenticated() and request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member:
 		moc = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
 		show_private_info = moc["current"] and moc["state"] == state and (moc["type"] == "sen" or moc["district"] == district)
+		
+	# For legislative staff, show a town-by-town breakdown?
+	by_town = None
+	if show_private_info:
+		# Gather aggregate stats by the user's address's city.
+		by_town = { }
+		for rec in bill_comments(bill, state=state, congressionaldistrict=district)\
+			.values("position", "address__city")\
+			.annotate(count=Count('address__city'))\
+			.order_by():
+			if not rec["address__city"] in by_town:
+				by_town[rec["address__city"]] = { "name": rec["address__city"], "+": 0, "-": 0 }
+			by_town[rec["address__city"]][rec["position"]] = rec["count"]
+		# Sort.
+		by_town = sorted(by_town.values(), key=lambda x : x["name"].lower())
 			
 	# Return.
 	
@@ -1859,7 +1874,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 				want_timeseries=True,
 				state=state,
 				congressionaldistrict=district)
-					if state != None and district not in (None, 0) else None
+					if state != None and district not in (None, 0) else None,
+			"by_town": by_town,
 		}
 	}
 
