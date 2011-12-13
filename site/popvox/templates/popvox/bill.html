@@ -73,7 +73,7 @@ function getshorturl() {
 					<div class="clear"> </div>
 
 					<ul style="margin-top: 30px">
-						<li><a href="{{bill.url}}/report">View Archived Commments</a></li>
+						<li><a href="{{bill.url}}/report">View Archived Comments</a></li>
 						{% comment %}
 						<li><a href="#">Comments in Support of Reintroduction</a></li>
 						{% endcomment %}
@@ -82,7 +82,7 @@ function getshorturl() {
 				{% else %}
 					<h2 class="shadow_up">It was reintroduced in the {{bill.reintroduced_as.congressnumber|ordinal}} Congress as {{bill.reintroduced_as.displaynumber}}.</h2>
 					<p class="pad_top">If you weighed in on this bill, you can still <a href="{{bill.reintroduced_as.url}}">voice your opinion on {{bill.reintroduced_as.displaynumber}} &mdash; {{bill.reintroduced_as.congressnumber|ordinal}} Congress</a>.</p>
-					<p><a href="{{bill.url}}/report">View Archived Commments on {{bill.displaynumber}} &mdash; {{bill.congressnumber|ordinal}}</a></p>
+					<p><a href="{{bill.url}}/report">View Archived Comments on {{bill.displaynumber}} &mdash; {{bill.congressnumber|ordinal}}</a></p>
 				{% endif %}
 			</div><!-- e: alert_dead -->
 		{% else %}
