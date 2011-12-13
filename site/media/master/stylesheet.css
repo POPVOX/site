@@ -763,7 +763,7 @@ table.form_fields td {
 .alert_dead {
     background: url(bg_dead.gif) left top no-repeat;
     width: 940px;
-    height: 241px;
+    height: 260px;
     margin-bottom: 10px;
     padding: 5px 20px;
     color: #fff;
@@ -1002,9 +1002,10 @@ ul.tabs {
 	}
 	
 	.pgbill .alert_dead h2 {
-		font: normal 24px/18px helvetica,arial,sans-serif;
+		font: normal 24px/26px helvetica,arial,sans-serif;
 		letter-spacing: inherit;
-		margin: 0;
+		margin: 20px 0;
+		width: 900px;
 		}
 		
 		.pgbill .alert_dead h3 {
@@ -2021,7 +2022,7 @@ tr.bill td a:hover {
 
 .billtrack {
     float: left;
-    background: url("b_bookmark.png") no-repeat scroll left 5px transparent;
+    background: url("b_bookmark.png") no-repeat scroll left top transparent;
     display: block;
     width: 16px;
     height: 16px;
