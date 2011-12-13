@@ -21,6 +21,9 @@ import popvox.govtrack
 
 from settings import MIXPANEL_API_KEY
 
+import urllib
+from xml.dom.minidom import parse, parseString
+
 def annotate_track_status(profile, bills):
 	tracked_bills = profile.tracked_bills.all()
 	antitracked_bills = profile.antitracked_bills.all()
@@ -908,8 +911,179 @@ UA: %s
 		}, context_instance=RequestContext(request))
 
 @login_required
-def delete_account(request):
+def who_members(request): #this page doesn't exist, but we could do some cool stuff with it.
     user = request.user
+    prof = user.get_profile()
+        
+    if prof.is_leg_staff():
+        raise Http404()
+        
+    elif prof.is_org_admin():
+        raise Http404()
+    
+    else:
+      address = PostalAddress.objects.get(user=request.user.id)
+      userstate = address.state
+      userdist  = address.congressionaldistrict
+      usersd    = userstate+str(userdist)
+
+      #find the govtrack ids corresponding to the user's members (note: can't assume number of reps):
+      members = popvox.govtrack.getMembersOfCongressForDistrict(usersd)
+      membernames = []
+
+      for member in members:
+        membernames.append(member['name'])
+      return render_to_response('popvox/who_members.html', {'membernames': membernames},
+        
+    context_instance=RequestContext(request))
+
+def delete_account(request):
+  
+    def getmemberids(userid):
+      #select the user's state and district:
+      address = PostalAddress.objects.get(user=userid)
+      userstate = address.state
+      userdist  = address.congressionaldistrict
+      usersd    = userstate+str(userdist)
+
+      #find the govtrack ids corresponding to the user's members (note: can't assume number of reps):
+      members = popvox.govtrack.getMembersOfCongressForDistrict(usersd)
+      memberids = []
+
+      for member in members:
+        memberids.append(member['id'])
+      return memberids
+      
+    def getscore(billvotes, member):
+      agree         = 0
+      disagree      = 0
+      abstain       = 0
+      absent        = 0
+      total_votes   = 0
+
+      for bill in billvotes:
+        vote = votecheck(billvotes[bill], member)
+        if vote:
+          total_votes += 1
+          if vote == 'agree':
+            agree += 1
+          if vote == 'disagree':
+            disagree += 1
+          if vote == 'abstain':
+            abstain +=1
+          if vote == 'absent':
+            absent += 1      
+      
+      #checking to make sure there are votes to check agreement against:
+      if total_votes == 0:
+          pie = False
+      #calculating percentages:
+      else:
+          percent_agree = 100.00*agree/total_votes
+          percent_disagree = 100.00*disagree/total_votes
+          percent_abstain = 100.00*abstain/total_votes
+          percent_absent = 100.00*absent/total_votes
+          pie = True
+      if pie:
+        return [percent_agree, percent_disagree, percent_abstain, percent_absent]
+      else:
+        return False
+    
+    def votecheck(bill, member):
+      #running comparison:
+      billstr = bill[0]
+      voters  = bill[1]
+      direction = "pie"
+      for voter in voters:
+          voterid = voter.getAttribute("id")
+          if (int(voterid) == member):
+              direction = voter.getAttribute("vote")
+              break
+      if direction != "pie":
+        if comment.position == direction:
+            return 'agree'
+        elif direction == "P":
+            return 'abstain'
+        elif direction == "0":
+            return 'absent'
+        else:
+            return 'disagree'
+      else:
+        return False
+        
+    user = request.user
+    userid = user.id
+    prof = user.get_profile()
+
+        
+    if prof.is_leg_staff():
+        raise Http404()
+        
+    elif prof.is_org_admin():
+        raise Http404()
+    
+    else:
+      congress = popvox.govtrack.CURRENT_CONGRESS
+      memberids = getmemberids(userid)
+      billvotes = {}
+      
+      #grab the user's bills and positions:
+      usercomments = UserComment.objects.filter(user=userid)
+      
+      for comment in usercomments:
+        #turning bill ids into bill numbers:
+        bill = comment.bill
+        bill_type = bill.billtype
+        bill_num  = str(bill.billnumber)
+        if bill_type =='x':
+          continue
+        billstr = bill_type+bill_num
+        
+        #grabbing bill info
+        billinfo = urllib.urlopen('/mnt/persistent/data/govtrack/us/'+str(congress)+'/bills/'+billstr+'.xml')
+        billinfo = billinfo.read()
+        
+        #checking to see if there's been a roll call vote on the bill:
+        dom1 = parseString(billinfo)
+        vote = dom1.getElementsByTagName("vote")
+        if vote.length == 0:
+            continue
+        how = vote[0].getAttribute("how")
+        if how != "roll":
+            continue
+          
+        #pulling the roll:
+        roll = vote[0].getAttribute("roll")
+        where = vote[0].getAttribute("where")
+        date =  vote[0].getAttribute("datetime")
+        yearre = re.compile(r'\d{4}')
+        year = re.match(yearre, date).group(0)
+        votexml = "http://www.govtrack.us/data/us/112/rolls/"+where+year+"-"+roll+".xml"
+        
+        #parsing the voters for that roll"
+        voteinfo = urllib.urlopen(votexml)
+        voteinfo = voteinfo.read()
+        dom2 = parseString(voteinfo)
+        voters = dom2.getElementsByTagName("voter")
+        
+        #adding the votes to a dict:
+        billvotes[bill] = [billstr, voters]
+      
+      votes = {}
+      for member in memberids:
+        scores = getscore(billvotes, member)
+        if scores:
+          membername = popvox.govtrack.getMemberOfCongress(member)['name']
+          percentages = {'agree': scores[0], 'disagree': scores[1], 'abstain': scores[2], 'absent': scores[3]}
+          votes[membername] = percentages
+        else:
+          membername = popvox.govtrack.getMemberOfCongress(member)['name']
+          votes[membername] = {'agree': 0, 'disagree': 0, 'abstain': 0, 'absent': 0}
+      
+      return render_to_response('popvox/delete_account.html', {'memberids': memberids, 'billvotes': billvotes, 'votes' : votes},
+        
+    context_instance=RequestContext(request))
+    '''user = request.user
     prof = user.get_profile()
         
     if prof.is_leg_staff():
@@ -921,7 +1095,7 @@ def delete_account(request):
     else:
         return render_to_response('popvox/delete_account.html', {},
         
-    context_instance=RequestContext(request))
+    context_instance=RequestContext(request))'''
     
 def delete_account_confirmed(request):
     user = request.user
