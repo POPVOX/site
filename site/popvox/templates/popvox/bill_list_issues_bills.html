@@ -7,7 +7,7 @@
 		<h3 class="{% if forloop.first %}first{% else %}notfirst{% endif %}" group="{{group.id}}">{{group.name}}</h3>
 	</td>
 </tr>
-{% for bill in group.bills %}
+{% for bill in group.objlist %}
 	<tr class="bill" group="{{group.id}}" {% if group.id != "first" %}style="display: none"{% endif %}>
 		<td style="padding-left: 5px; padding-right: 1em">
 			<nobr><a href="{{bill.url}}{% if is_leg_staff %}/report{% endif %}">

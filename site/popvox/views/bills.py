@@ -194,64 +194,10 @@ def bills_issues_bills(request):
 		.annotate(Count('usercomments')).order_by('-usercomments__count') \
 		| bills
 	
-	if len(bills) < 16:
-		groups = [{"id": "first", "name": name, "bills": bills}]
-	else:
-		groups = []
-		
-		# take the top out and make a category for them
-		if len(bills) > 24:
-			groups.append({"id": "first", "name": "Top Bills", "bills": bills[0:6]})
-			bills = bills[6:]
-		
-		# Automatically group the bills by sub-issue areas smartly.
-		# A smart grouping is one that divides the bills into N evenly sized groups
-		# of sqrt(N) bills with minimal overlap between groups.
-		
-		# create possibly-overlapping groups for each sub-issue area
-		# use an OrderedDict so that the issues for the top bills go first,
-		# which is preserved in the greedy function below
-		import collections
-		issue_groups = collections.OrderedDict()
-		for bill in bills:
-			for issue in bill.issues.all():
-				if issue == ix: continue # exclude top term from reappearing
-				if not issue in issue_groups: issue_groups[issue] = []
-				issue_groups[issue].append(bill)
-		
-		# greedily choose issue areas
-		ngroups = int(len(bills) / math.sqrt(len(bills)))
-		if ngroups > len(issue_groups): ngroups = len(issue_groups)
-		if ngroups == 0: ngroups = 1
-		bills_per_group = len(bills) / ngroups
-		
-		seen_issues = set()
-		seen_bills = set()
-		for i in xrange(ngroups):
-			# choose the next issue area with a count of unseen
-			# bills closest to bills_per_group.
-			best_item = None
-			best_score = None
-			for issue_obj, issue_bills in issue_groups.items():
-				if issue_obj in seen_issues: continue
-				unique_bills = [bill for bill in issue_bills if not bill in seen_bills]
-				if len(unique_bills) == 0: continue
-				score = int(math.sqrt(abs(len(unique_bills) - bills_per_group)))
-					# the score doesn't need int(sqrt(...)) but this lets us priorities
-					# issues that came first (i.e. top bills) when the scores are similar; useful??
-				if score > bills_per_group: issue_bills = unique_bills # show only uniques when sub-issue is really wide
-				if best_score == None or score < best_score:
-					best_score = score
-					best_item = (issue_obj, issue_bills)
-			if best_score == None: break # no more issue areas to add in
-			groups.append({"id": len(groups), "name": best_item[0], "bills": best_item[1]})
-			seen_issues.add(best_item[0])
-			for b in best_item[1]: seen_bills.add(b)
-		
-		# put the remaining bills into an other category
-		other_bills = [b for b in bills if not b in seen_bills]
-		if len(other_bills):
-			groups.append({"name": "Other Bills" if len(groups) else name, "bills": other_bills})
+	from utils import group_by_issue
+	groups = group_by_issue(bills, top_title="Top Bills", exclude_issues=[ix], other_title="Other Bills")
+	if len(groups) == 1:
+		groups[0]["name"] = name
 	
 	return render_to_response('popvox/bill_list_issues_bills.html', {
 		'groups': groups,

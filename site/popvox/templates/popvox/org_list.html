@@ -7,17 +7,14 @@
 {% block head %}
 <script>
 var current_cat = "issue";
-var last_issue_elem = null;
 function showlist(elem, issueslug) {
 	$('#activity').hide();
-	$('#orglist_title').text($(elem).text() + " organizations:");
+	$('#orglist_title').text($(elem).text() + " organizations");
 	$('#orglist_list').text('');
-	if (last_issue_elem) $(last_issue_elem).removeClass('active');
-	$(elem).addClass('active');
-	last_issue_elem = elem;
 	$('#orglist_status').text("Loading...");
 	var data = { "format": "json" };
 	data[current_cat] = issueslug;
+	data["group"] = "1";
 	ajax(
 		'ajax/orgs/search',
 		data,
@@ -29,55 +26,23 @@ function showlist(elem, issueslug) {
 				var lst = $('#orglist_list');
 				lst.text('');
 				
-				var last_homestate = "??";
-				var distinct_state_count = 0;
-				var states_list = $("<p style='margin-top: 1em'>Jump to: </p>");
-				var states_list_count = 0;
-				for (orgx in ret.orgs) {
-					var org = ret.orgs[orgx];
-					if (org.homestate != last_homestate) {
-						if (org.homestate != null) {
-							if (states_list_count > 0)
-								states_list.append($('<span style="padding: 0 .5em">|</span>'));
-							states_list_count++;
-							
-							var a = $("<a style=\"text-decoration: underline\">" + org.homestate + "</a> ");
-							a.attr('href', '#' + org.homestate);
-							states_list.append(a);
-						}
-						distinct_state_count++;
-						last_homestate = org.homestate;
-					}
-				}
-				if (distinct_state_count > 1)
-					lst.append(states_list);
-				
-				last_homestate = "??";;
-				for (orgx in ret.orgs) {
-					var org = ret.orgs[orgx];
+				for (groupx in ret.orgs) {
+					if (ret.orgs.length > 1)
+						lst.append($("<h4 class='mar_top rule' style='font-weight: bold; margin-bottom: 10px'/>").text(ret.orgs[groupx].name));
 					
-					if (org.homestate != last_homestate && distinct_state_count > 1) {
-						var homestate = org.homestate;
-						if (!homestate) {
-							homestate = "National Organizations";
-						} else {
-							var a = $("<a></a> ");
-							a.attr('name', org.homestate);
-							lst.append(a);
-						}
-						lst.append($("<p style=\"margin-top: 1.5em;\"><em>" + homestate + "</em></p>"));
-						last_homestate = org.homestate;
+					for (orgx in ret.orgs[groupx].objlist) {
+						var org = ret.orgs[groupx].objlist[orgx];
+						
+						var tn = document.createTextNode(org.label);
+						var an = document.createElement("a");
+						an.setAttribute("href", org.url);
+						an.appendChild(tn);
+						var ln = document.createElement("li");
+						ln.appendChild(an);
+						lst.append(ln);
+						if (!org.createdbyus)
+							an.setAttribute("class", "notcreatedbyus");
 					}
-					
-					var tn = document.createTextNode(org.label);
-					var an = document.createElement("a");
-					an.setAttribute("href", org.url);
-					an.appendChild(tn);
-					var ln = document.createElement("li");
-					ln.appendChild(an);
-					lst.append(ln);
-					if (!org.createdbyus)
-						an.setAttribute("class", "notcreatedbyus");
 				}
 				
 				max_scroll = $('#orglist_title').offset().top - 30;
@@ -101,21 +66,23 @@ $(function() {
 			$('#activity').html(res.responseText);
 		}
 	});
+	
+	$('#issue_list .issue').click(function() {
+		$('#issue_list .issue').removeClass("active");
+		$(this).addClass("active");
+		showlist(this, $(this).attr('slug'));
+	});
 });
 
 function toggle_categories() {
 	if (current_cat == "issue") {
 		current_cat = "state";
-		$('.orgs h2 span').text("Browse by State");
-		$('.orgs h2 a').text("browse by issue area");
-		$('#issue_list').hide();
-		$('#state_list').show();
+		$('#by_issue').hide();
+		$('#by_state').show();
 	} else {
 		current_cat = "issue";
-		$('.orgs h2 span').text("Browse by Issue Area");
-		$('.orgs h2 a').text("browse by state");
-		$('#issue_list').show();
-		$('#state_list').hide();
+		$('#by_state').hide();
+		$('#by_issue').show();
 	}
 	return false;
 }
@@ -142,58 +109,53 @@ function toggle_categories() {
 						  });
 				    });
 				    </script>
-				</div>
-			</div>
-			
-			<div class="block orgs rule">
-				<h2>
-					<span>Browse by Issue Area</span>
-					<small>or <a href="#" onclick="return toggle_categories()">browse by state</a></small>
-				</h2>
-			
-				<div class="col_50">
-					
-					<div id="issue_list">
-					<ul class="issue_list">
-					   {% for issue in issueareas %}
-						  <li>
-							<a href="#" onclick="return showlist(this, '{{issue.slug|escapejs}}')">{{ issue.name }}</a>
-						</li>
-					   {% endfor %}
-					 </ul>
-					 </div>
-
-					<div id="state_list" style="display: none;">
-					<ul class="issue_list">
-					   {% for abbr, name in states %}
-						  <li>
-							<a href="#" onclick="return showlist(this, '{{abbr|escapejs}}')">{{ name }}</a>
-						</li>
-					   {% endfor %}
-					 </ul>
-					 </div>
-			    </div>
-				
-				<div class="col_50 col_last">
-					<h4 id="orglist_title" style="margin-bottom: 1em">Recently updated organizations:</h4>
-					<div id="orglist_status"></div>
-					<ul id="orglist_list" class="org_all">
-					</ul>
-					<p id="orgnote" class="pad_top" style="display: none"><small>(Entries in bold indicate information reported by the organization itself.)</small></p>
-					<div id="activity" style="margin-top: 1.5em"></div>
+				    
+					<p><small>Don&rsquo;t see your organization on POPVOX? Any U.S. advocacy organization can <a href="/accounts/register/orgstaff">get listed</a>.</small></p>
 				</div>
 			</div>
 		</div>
+			
+		{% with 1 as no_rule %}
+		{% include "ads/rightbar_single.html" %}
+		{% endwith %}
+		
+		<div id="issue_list" class="col_3 rule">
+			<div id="by_issue">
+			<h3 class="no_rule">Issue Areas
+				<small>or <a href="#" onclick="return toggle_categories()">browse by state</a></small>
+			</h3>
+			<div class="issues">
+			   {% for issue in issueareas %}
+				  <div class="issue" slug="{{issue.slug}}">
+					<span class="name">{{ issue.name }}</span>
+				</div>
+			   {% endfor %}
+			 </div>
+			 </div>
 
-		{% include "ads/rightbar.html" %}
-
-		<div class="col_3 col_last">
-			{% if user.is_anonymous %}
-			<div class="hr2"> </div>
-			<p><small>Don&rsquo;t see your organization on POPVOX? Any U.S. advocacy organization can <a href="/accounts/register/orgstaff">get listed</a>.</small></p>
-			{% endif %}
+			<div id="by_state" style="display: none;">
+			<h3 class="no_rule">States
+				<small>or <a href="#" onclick="return toggle_categories()">browse by issue</a></small>
+			</h3>
+			<div class="issues">
+			   {% for abbr, name in states %}
+				  <div class="issue" slug="{{abbr}}">
+					<span class="name">{{ name }}</span>
+				  </div>
+			   {% endfor %}
+			 </div>
+			 </div>
 		</div>
+			
+		<div class="col_9 col_last">
+			<h3 id="orglist_title" class="no_rule" style="padding-top: 0">Recently updated organizations</h3>
+			<div id="orglist_status"></div>
+			<ul id="orglist_list" class="org_all">
+			</ul>
+			<p id="orgnote" class="pad_top" style="display: none"><small>(Entries in bold indicate information reported by the organization itself.)</small></p>
+			<div id="activity" style="margin-top: 1.5em"></div>
+		</div>
+	</div>
 
-    </div>
 {% endblock %}
 

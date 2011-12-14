@@ -20,6 +20,7 @@ from datetime import datetime
 
 from popvox.models import *
 from popvox.views.bills import getissueareas
+from popvox.views.main import strong_cache
 from popvox import govtrack
 from utils import csrf_protect_if_logged_in
 
@@ -27,6 +28,7 @@ from emailverification.utils import send_email_verification
 
 from settings import SITE_ROOT_URL, EMAILVERIFICATION_FROMADDR
 
+@strong_cache
 def orgs(request):
 	return render_to_response('popvox/org_list.html', {
 		'issueareas': IssueArea.objects.filter(parent=None).order_by('name'),
@@ -82,6 +84,7 @@ def org_edit(request, orgslug):
 @json_response
 def org_search(request):
 	ret = ""
+	ix = None
 	if "term" in request.REQUEST:
 		limit = 15 # int(request.REQUEST["limit"])
 		q = Org.objects.filter(visible = True, name__icontains=request.REQUEST["term"])[0:limit]
@@ -92,11 +95,25 @@ def org_search(request):
 		q = Org.objects.filter(visible=True, homestate=request.REQUEST["state"])
 	else:
 		return ret # googlebot
-	
-	ret = [ { "label": org.name, "slug": org.slug, "url": org.url(), "createdbyus": org.createdbyus,
-		"homestate": govtrack.statenames[org.homestate] if org.homestate != None else None} for org in q ]
-	
-	ret.sort(key = lambda x : (x["homestate"], x["label"].replace("The ", "")))
+
+	def out_org(org):
+		return { "label": org.name, "slug": org.slug, "url": org.url(), "createdbyus": org.createdbyus,
+		"homestate": govtrack.statenames[org.homestate] if org.homestate != None else None,
+		"fan_sort_order": org.fan_count_sort_order
+		}
+	def out_orgs(orglist):
+		ret = [out_org(org) for org in orglist]
+		ret.sort(key = lambda x : x["label"].replace("The ", ""))
+		return ret
+		
+	if request.REQUEST.get("group", "") == "":
+		ret = out_orgs(q)
+	else:
+		from utils import group_by_issue
+		ret = group_by_issue(q, exclude_issues=[ix], other_title="Other Organizations")
+		for group in ret:
+			if isinstance(group["name"], IssueArea): group["name"] = group["name"].name
+			group["objlist"] = out_orgs(group["objlist"])
 	
 	if "format" in request.REQUEST:
 		ret = { "status": "success", "orgs":  ret }

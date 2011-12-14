@@ -4440,46 +4440,21 @@ small {
 
 /* ----orgs---- */
 
-.content .orgs h2 {
-    font: normal 30px/35px 'BebasNeueRegular', helvetica, arial, sans-serif;
-    letter-spacing: .02em;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #c2bfb8;
-    }
-
-ul.issue_list,
 ul.org_all {
     font-size: 14px;
     line-height: 18px;
     }
 
-    ul.issue_list li,
     ul.org_all li { margin-bottom: 5px  }
 
-        ul.issue_list li span {
-            font-weight: normal;
-            font-style: italic;
-            margin-left: 5px;
-            }
-
-        ul.issue_list li a,
         ul.org_all li a { color: #757575    }
 
-        ul.issue_list li a:hover,
         ul.org_all li a:hover { color: #CC6A11  }
 
-        ul.issue_list li a.active,
         ul.org_all li a.active {
             font-weight: bold;
             color: #CC6A11;
             }
-
-        ul.issue_list li ul { margin-left: 20px     }
-
-            ul.issue_list li ul li {
-                font-weight: normal;
-                margin-bottom: 0;
-                }
 
     ul.org_all .notcreatedbyus { font-weight: bold  }
     
