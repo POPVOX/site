@@ -1769,6 +1769,29 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 			by_town[rec["address__city"]][rec["position"]] = rec["count"]
 		# Sort.
 		by_town = sorted(by_town.values(), key=lambda x : x["name"].lower())
+		
+	# For admins, show a breakdown by source.
+	by_source = None
+	if request.user.is_superuser or request.user.is_staff:
+		by_source = { }
+		for rec in bill_comments(bill, state=state, congressionaldistrict=district)\
+			.values("method", "referrers__referrer_content_type", "referrers__referrer_object_id")\
+			.annotate(count=Count('id'))\
+			.order_by():
+				
+			# convert dict of content type and obj id into object
+			method_name = UserComment.METHOD_NAMES[rec["method"]]
+			if rec["referrers__referrer_content_type"] == None:
+				referrer = method_name
+			else:
+				from django.contrib.contenttypes.models import ContentType
+				referrer = ContentType.objects.get(id=rec["referrers__referrer_content_type"]).get_object_for_this_type(id=rec["referrers__referrer_object_id"])
+				referrer = unicode(referrer)
+				referrer += " (" + method_name + ")"
+			
+			by_source[referrer] = rec["count"]
+		by_source = sorted(by_source.items(), key=lambda x : -x[1]) # Sort
+		
 			
 	# Return.
 	
@@ -1822,6 +1845,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 				congressionaldistrict=district)
 					if state != None and district not in (None, 0) else None,
 			"by_town": by_town,
+			"by_source": by_source,
 		}
 	}
 

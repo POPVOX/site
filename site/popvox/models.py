@@ -1148,6 +1148,7 @@ class UserComment(models.Model):
 	METHOD_SITE = 0
 	METHOD_CUSTOMIZED_PAGE = 1
 	METHOD_WIDGET = 2
+	METHOD_NAMES = { METHOD_SITE: "POPVOX.com", METHOD_CUSTOMIZED_PAGE: "PV.com Customized Landing Page", METHOD_WIDGET: "Write Congress Widget" }
 
 	user = models.ForeignKey(User, related_name="comments", db_index=True, on_delete=models.CASCADE) # user authoring the comment
 	bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True, on_delete=models.PROTECT)
@@ -1380,7 +1381,7 @@ class UserComment(models.Model):
 class UserCommentReferral(models.Model):
 	# This class is used to avoid cascaded deletes on UserComment objects
 	# if a referring object is deleted.
-	comment = models.ForeignKey(UserComment, on_delete=models.CASCADE) # implicitly indexed by the unique_together
+	comment = models.ForeignKey(UserComment, related_name="referrers",  on_delete=models.CASCADE) # implicitly indexed by the unique_together
 	referrer_content_type = models.ForeignKey(ContentType, db_index=True, on_delete=models.CASCADE)
 	referrer_object_id = models.PositiveIntegerField(db_index=True)
 	referrer = generic.GenericForeignKey('referrer_content_type', 'referrer_object_id')

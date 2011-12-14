@@ -22,23 +22,23 @@ h2 span {
 .tag_cloud .line {
 	padding-bottom: 3px;
 	}
-#by_town {
+.tabular_stats {
 	padding-top: 10px;
 	background: url(/media/master/bg_hr.png) left top repeat-x;
 	}
-	#by_town h4 {
+	.tabular_stats h4 {
 		font-weight: bold;
 		font-size: 13px;
 		}
-	#by_town h4 small {
+	.tabular_stats h4 small {
 		font-weight: normal;
 		font-size: 11px;
 		}
-	#by_town table th, #by_town table td {
+	.tabular_stats table th, .tabular_stats table td {
 		font-size: 12px;
 		padding-right: 1em;
 		}
-	#by_town .container {
+	.tabular_stats .container {
 		height: 8em;
 		overflow: auto;
 		}
@@ -310,21 +310,28 @@ h2 span {
 					$('#map').hide();
 					if (res.stats.overall) $('#showmap').show();
 				}
-
-				if (!res.stats.by_town || !res.stats.by_town.length) {
-					$('#by_town').hide();
-				} else {
-					$('#by_town').show();
-					var tbody = $('#by_town').find("tbody");
-					tbody.text("");
-					for (var i = 0; i < res.stats.by_town.length; i++) {
-						var row = $("<tr/>");
-							row.append($("<td/>").text(res.stats.by_town[i].name))
-							row.append($("<td style='text-align: right'/>").text(res.stats.by_town[i]["+"]))
-							row.append($("<td style='text-align: right'/>").text(res.stats.by_town[i]["-"]))
-						tbody.append(row);
+				
+				function fill_table(elemid, dataarray, colnames) {
+					if (!dataarray || !dataarray.length) {
+						$(elemid).hide();
+					} else {
+						$(elemid).show();
+						var tbody = $(elemid).find("tbody");
+						tbody.text("");
+						for (var i = 0; i < dataarray.length; i++) {
+							var row = $("<tr/>");
+							for (var j = 0; j < colnames.length; j++) {
+								var cell = $("<td/>").text(dataarray[i][colnames[j]]);
+								if (j > 0) cell.attr("style", "text-align: right");
+								row.append(cell);
+							}
+							tbody.append(row);
+						}
 					}
 				}
+
+				fill_table("#by_town", res.stats.by_town, ["name", "+", "-"])
+				fill_table("#by_source", res.stats.by_source, [0, 1])
 			}
 		});
 
@@ -526,7 +533,7 @@ h2 span {
 				</div>
 				{% endfor %}
 					
-				<div id="by_town" style="display: none">
+				<div id="by_town" style="display: none" class="tabular_stats">
 					<h4>By Address <small>(shown to legislative staff only in your state/district)</small></h4>
 					<div class="container">
 					<table>
@@ -539,6 +546,19 @@ h2 span {
 					</div>
 				</div>
 				
+				<div id="by_source" style="display: none" class="tabular_stats">
+					<h4>By Source <small>(shown to POPVOX admins only)</small></h4>
+					<div class="container">
+					<table>
+						<thead>
+							<tr><th>Source / Widget Owner</th> <th>Count (Positions)</th></tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+					</div>
+				</div>
+
 				<a href="#" onclick="$('#map').show(); $('#showmap').hide(); return false;">
 					<div id="showmap" style="text-align: center; margin: .5em; display: none">Show National Map</div>
 				</a>
