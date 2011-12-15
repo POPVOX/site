@@ -395,7 +395,7 @@ function draw_timeseries(container, data, small) {
     yAxis: { min: 0, title: { text: "Uniques", style: { fontSize: "10px", fontWeight: "normal" } } },
     colors: ["#4a9410", "#ed5923", "#414046", "#f8ac3c", "#999999", "#c66725"],
     title: { text: null },
-    //legend: { enabled: false },
+    legend: { enabled: !small },
     series: series
      });
 
