@@ -1566,20 +1566,38 @@ class ServiceAccountCampaign(models.Model):
 		return "sac_" + str(self.id)
 	def mixpanel_bucket_secret(self):
 		return hashlib.md5(settings.MIXPANEL_API_SECRET + self.mixpanel_bucket()).hexdigest()
-	def mixpanel_totals(self):
+	def mixpanel_stats(self):
 		from mixpanel import Mixpanel
+		import json
 		api = Mixpanel(api_key=settings.MIXPANEL_API_KEY, api_secret=settings.MIXPANEL_API_SECRET)
 		try:
 			events = api.request(['events'], {
-				'event' : ['widget_writecongress_hit', 'widget_writecongress_share'],
-				'unit' : 'month',
-				'interval' : 24, # what happens 24 months from now? the mix of mixpanel and our own counts will go out of sync
+				'event' : ['widget_writecongress_hit', 'widget_writecongress_start', 'widget_writecongress_send', 'widget_writecongress_share'],
+				'unit' : 'day',   # month+24 is useful just for getting totals
+				'interval' : 365, # but when returning details need daily stats
 				'type': 'unique',
 				'bucket': self.mixpanel_bucket()
 				})
 		except:
-			return { "ERROR": 1, "hit": 0, "share": 0 }
-			
+			return { "ERROR": 1, "hit": 0, "share": 0, "events": [] }
+
+		# trim the stats so they start on the first day of activity and end on last
+		# day of activity.
+		def trim_date(edge):
+			if len(events["data"]["series"]) == 0: return False # no more to trim
+			d = events["data"]["series"][edge]
+			# check if any series has positive data for this date
+			for v in events["data"]["values"].values():
+				if v[d] > 0:
+					return False # i.e. cannot trim
+			# no series has positive data for this day, so remove the day and continue
+			events["data"]["series"].pop(edge)
+			for v in events["data"]["values"].values():
+				del v[d]
+			return True
+		while trim_date(0): pass # trim from start
+		while trim_date(-1): pass # trim from end
+
 		try:
 			hits = 0
 			hits = sum(events["data"]["values"]["widget_writecongress_hit"].values())
@@ -1590,7 +1608,12 @@ class ServiceAccountCampaign(models.Model):
 			shares = sum(events["data"]["values"]["widget_writecongress_share"].values())
 		except:
 			pass
-		return { "hit": hits, "share": shares }
+
+		# replace series names
+		series_names = { 'widget_writecongress_hit': 'Hits', 'widget_writecongress_start': 'Gave Name/Email', 'widget_writecongress_send': 'Finished Letter', 'widget_writecongress_share': 'Shared Link'}
+		events["data"]["values"] = dict( (series_names.get(k,k),v) for k,v in events["data"]["values"].items() )
+
+		return { "hit": hits, "share": shares, "events": json.dumps(events["data"]) }
 	def first_action_date(self):
 		try:
 			return self.actionrecords.order_by('created')[0].created

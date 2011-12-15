@@ -9,11 +9,6 @@
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 
-<script type="text/javascript">
-var protocol = document.location.protocol == 'https:' ? 'https:' : 'http:';
-document.write(unescape('%3Cscript src="' + protocol + '//mixpanel.com/site_media/api/platform/platform.1.min.js" type="text/javascript"%3E%3C/script%3E'));
-</script>
-
 <style>
 h2 { font: normal 26px/36px 'BebasNeueRegular', helvetica, arial, sans-serif  }
 h4 { font: bold 14px/16px helvetica,arial,sans-serif; margin-bottom: 15px;  }
@@ -370,85 +365,41 @@ border:none;
 
 </style>
 <script>
-// override the Mixpanel chart creation function, based on platform.1.js 2011-07-21
-Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, options) {
-    var legend = null;
-    if (options.drilldown) {
-        if (typeof(container) == 'string') {
-            container = $('#' + container);
-        } else {
-            container = $(container);
-        }
-        container.html(
-            '<div class="mp-chart"></div>' +
-            '<div class="mp-legend-container">' +
-                '<div class="mp-legend"></div>' +
-            '</div>'
-        );
-        container.children('.mp-legend-container')
-            .css({
-                'margin': '0 50px',
-                'text-align': 'center'
-            });
-        legend = container.find('.mp-legend')
-            .css({
-                'color': '#A7A7A7',
-                'display': 'inline-block',
-                'font': '12px Arial, sans-serif',
-                'text-align': 'left'
-            });
-        container = container.children('.mp-chart').get(0);
-        options.legend = false;
-    }
-    var chart = new Mixpanel.LineChart(container, options);
-    
-    // OUR CHANGES
-    chart.highcharts_options.chart.backgroundColor = "#E8E5DF";
-    chart.highcharts_options.colors = ["#4a9410", "#ed5923", "#414046", "#f8ac3c", "#999999", "#c66725"];
-    chart.highcharts_options.chart.margin = [15, 0, (options.legend || options.legend == undefined) ? 70 : 20, 50];
-    chart.highcharts_options.credits = { enabled: false };
-    // END OF OUR CHANGES
-    
-    data = data.data;
-    chart.series = [];
-    if (!values) {
-        values = [];
-        for (var e in data.values) {
-            if (data.values.hasOwnProperty(e)) {
-                values.push(e);
-            }
-        }
-    }
-    for (var i = 0; i < values.length; i++) {
-        var value = values[i];
-        if (value in data.values) {
-            var points = [];
-            var total = 0;
-            for (var j = 0; j < data.series.length; j++) {
-                var d = data.series[j];
-                var v = 0;
-                if (d in data.values[value]) {
-                    v = data.values[value][d];
-                }
-                if (options.scaling_factor) {
-                    v *= options.scaling_factor;
-                }
-                if (options.cumulative) {
-                    total += v;
-                    points.push([Mixpanel.get_unix_time(d), total]);
-                } else {
-                    points.push([Mixpanel.get_unix_time(d), v]);
-                }
-            }
-            chart.series.push(value);
-            chart.highcharts_options.series.push({name: chart.get_display_name(value), data: points});
-        }
-    }
-    chart.show();
-    if (legend !== null) {
-        this.create_legend(legend, chart);
-    }
-};
+function draw_timeseries(container, data, small) {
+  var series = [];
+  for (var sname in data.values) {
+   var values = [];
+   for (var d in data.series) values.push(data.values[sname][data.series[d]]);
+   var s = { name: sname, data: values };
+   series.push(s);
+  }
+
+  var ti = 1;
+  if (data.series.length > 30) ti = 7;
+  if (data.series.length > 100) ti = 14;
+
+  new Highcharts.Chart({
+     chart: {
+            backgroundColor: "#e8e5df",
+	    renderTo: container,
+	    defaultSeriesType: 'line',
+            margin: [15, 0, !small ? 70 : 20, 50]
+	 },
+    tooltip: {
+	    formatter: function() {
+		    return this.x + ": " + this.y + " " + this.series.name
+		}
+    },
+    credits: { enabled: false },
+    xAxis: { labels: { enabled: !small }, categories: data.series, tickInterval: ti },
+    yAxis: { min: 0, title: { text: "Uniques", style: { fontSize: "10px", fontWeight: "normal" } } },
+    colors: ["#4a9410", "#ed5923", "#414046", "#f8ac3c", "#999999", "#c66725"],
+    title: { text: null },
+    //legend: { enabled: false },
+    series: series
+     });
+
+}
 </script>
 {% endblock %}
 {% block content %}
@@ -501,14 +452,6 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 				<div class="col_50">
 					{% if count %}
 						<div id="analytics_{{cam.id}}" style="width: 320px; height: 120px;"> </div>
-						<script>
-						var platform = new Mixpanel.Platform(
-							'{{MIXPANEL_API_KEY}}',
-							"{{cam.mixpanel_bucket_secret|escapejs}}",
-							"{{cam.mixpanel_bucket|escapejs}}"
-						);
-						platform.create_line_chart('analytics_{{cam.id}}', ['widget_writecongress_start'], { legend: false, mapping: {  "widget_writecongress_start": "Gave Name/Email" }} );
-						</script>
 					{% else %}
 						{% with cam.bill as bill %}
 						{% with cam.id as chart_id %}
@@ -616,6 +559,7 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 					<li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
 					<script>
 					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
+					{% with cam.mixpanel_stats as mpstats %}
 					campaigns_info["{{cam.id}}"] = {
 						account_name: "{{acct|escapejs}}",
 						billnumber: "{{cam.bill.shortname|escapejs}}",
@@ -624,10 +568,9 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 						position: "{{cam.position|escapejs}}",
 						date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
 						date_end: "{{cam.last_action_date|date:'n-j-y'|escapejs}}",
-						mixpanel_bucket: "{{cam.mixpanel_bucket|escapejs}}",
-						mixpanel_bucket_secret: "{{cam.mixpanel_bucket_secret|escapejs}}",
 						download_url: "/services/api/campaign/{{cam.id}}/supporters/",
-						counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": {{stage.list|length}}, {% endfor %} total: {{cam.total_widget_records}}, hits: {{cam.mixpanel_totals.hit}}},
+						counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": {{stage.list|length}}, {% endfor %} total: {{cam.total_widget_records}}, hits: {{mpstats.hit}}},
+						mpstats: {{mpstats.events|safe}},
 						mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
 						latest_data: [{% for item in cam.recent_comments %}{
 							link: "{{item.completed_comment.url|escapejs}}",
@@ -640,6 +583,8 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 							position: "{{item.completed_comment.verb_imp|escapejs}}"
 						}{% if not forloop.last %},{% endif %}{% endfor %}]
 					};
+					draw_timeseries('analytics_{{cam.id}}', {{mpstats.events|safe}}, true);
+					{% endwith %}
 					</script>
 			{% endfor %}
 		{% endfor %}
@@ -751,7 +696,7 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 		<div class="clear"> </div>
 	</div>
 	
-	<h3>The Last 30 Days</h3>
+	<h3>Widget Activity</h3>
 	<p id="analytics_alt">There are no analytics to display for this campaign.</p>
 	<div id="analytics_frame" style="width: 680px; margin-bottom: 15px;">
 		<div style="float: left;">
@@ -847,26 +792,8 @@ Mixpanel.Platform.prototype.fill_line_chart = function(container, data, values, 
 			}
 		}
 		
-		var platform = new Mixpanel.Platform(
-			'{{MIXPANEL_API_KEY}}',
-			campaign_info.mixpanel_bucket_secret,
-			campaign_info.mixpanel_bucket
-		);
-		/*platform.create_bar_chart('analytics_totals',
-				["widget_writecongress_hit", "widget_writecongress_start", "widget_writecongress_send", "widget_writecongress_share"], {
-				mapping: { "widget_writecongress_hit": "Hit Page", "widget_writecongress_send": "Wrote Letter", "widget_writecongress_share": "Shared", "widget_writecongress_start": "Gave Name/Email" },
-				interval: 365*10,
-				type: "unique"
-		})*/;
-		platform.create_line_chart('analytics_activity',
-				["widget_writecongress_hit", "widget_writecongress_start", "widget_writecongress_send", "widget_writecongress_share"], {
-				mapping: { "widget_writecongress_hit": "Hit Page", "widget_writecongress_send": "Wrote Letter", "widget_writecongress_share": "Shared", "widget_writecongress_start": "Gave Name/Email" },
-				//drilldown: [ "personalized", "share_method" ],
-				type: "unique"
-		});
-		/*platform.create_property_pie_chart('analytics_personalized', 'widget_writecongress_write', 'personalized', null,
-			{ legend: false, mapping: { "False": "No", "True": "Yes" }, type: "unique" });*/
-		
+		draw_timeseries('analytics_activity', campaign_info.mpstats);
+
 		$('#supporters_grid').dataTable( {
 			"bProcessing": true,
 			"bServerSide": true,
