@@ -50,7 +50,7 @@ def commentmapus(request):
 
 	import widgets_usmap
 	
-	if "bill" in request.GET:
+	if "bill" in request.GET and request.GET["bill"].isdigit():
 		bill = get_object_or_404(Bill, id=request.GET["bill"])
 		
 		# TODO: put this in the database
