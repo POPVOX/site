@@ -78,7 +78,19 @@
 		else
 			on_master_state_load.push(func);
 	}
-	if (window.location.protocol == "https:" && document.cookie != "") {
+	if (document.cookie != "" || window.location.protocol == "http:") {
+		// Normally, it is unnecessary to call the master-state view if there
+		// are no cookies because the view will return nothing useful.
+		// (TODO: Detect for only cookies that influence the response, like
+		// sessionid and csrftoken? If the user is not logged in but has
+		// a tracking cookie then there's no need to call this. Although it
+		// might be useful for server-side session tracking.)
+		//
+		// On http:, where we run the blog, there will be no cookies set
+		// since our cookies are secure-only, but we can still fetch the
+		// master state since this request will get redirected to https:.
+		// In our dev setup, that request will error out because of the
+		// invalid SSL cert, but in the production environment it might work.
 		$.ajax({
 			url: "/ajax/master-state",
 			data: { url: window.location.pathname },
@@ -89,7 +101,15 @@
 				for (var i = 0; i < on_master_state_load.length; i++)
 					on_master_state_load[i](res);
 			},
-			error: function() { alert("There was an error loading the page. Please try again."); }
+			error: function() {
+				// If the user navigates to another page before this request completes,
+				// which is fairly common, then this error handler will execute. Unfortunately,
+				// I can't seem to get it to detect when the page is unloading, so an
+				// alert here would show up at a bad time. The best thing is to not do
+				// anything (or perhaps show something on the page in a non-blocking
+				// way).
+				// alert("There was an error loading the page. Please try again.");
+			}
 		});
 	}	
 	
