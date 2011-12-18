@@ -22,7 +22,7 @@ from emailverification.utils import send_email_verification
 
 from jquery.ajax import json_response, validation_error_message, ajax_fieldupdate_request
 
-from settings import DEBUG, SITE_ROOT_URL, MIXPANEL_TOKEN, MIXPANEL_API_KEY
+from settings import DEBUG, SITE_ROOT_URL, MIXPANEL_TOKEN, MIXPANEL_API_KEY, SECRET_KEY
 
 import urlparse
 import json
@@ -30,6 +30,7 @@ import re
 import random, math
 from itertools import chain
 from base64 import urlsafe_b64decode
+import hashlib
 
 @csrf_protect_if_logged_in
 def widget_config(request):
@@ -126,12 +127,24 @@ def widget_render(request, widgettype, api_key=None):
 	account, permissions = account_permissions
 	
 	if widgettype == "commentstream":
-		return widget_render_commentstream(request, account, permissions)
-	if widgettype == "writecongress":
+		response = widget_render_commentstream(request, account, permissions)
+	elif widgettype == "writecongress":
 		# remember: needs session state
-		return widget_render_writecongress(request, account, permissions)
+		response = widget_render_writecongress(request, account, permissions)
+	else:
+		raise Http404()
 
-	raise Http404()
+	# add a P3P compact policy so that IE will accept third-party cookies.
+	# apparently the actual policy doesn't matter as long as one is sent,
+	# but we're setting the following policy;
+	#  access: ident-contact
+	#  purpose: current, admin, develop, tailoring, individual-analysis, individual-decision, contact
+	#  recipient: ours, same (i.e. Congress), public
+	#  retention: business-practices
+	#  data: (none)
+	response["P3P"] = 'CP="IDC CUR ADM DEV TAI IVA IVD CON OUR SAM PUB BUS"'
+
+	return response
 
 @strong_cache
 @do_not_track_compliance
@@ -205,9 +218,14 @@ def widget_render_commentstream(request, account, permissions):
 		}, context_instance=RequestContext(request))
 
 
-@csrf_protect_if_logged_in
 def widget_render_writecongress(request, account, permissions):
 	if request.META["REQUEST_METHOD"] == "GET":
+		return widget_render_writecongress_page(request, account, permissions)
+	else:
+		return widget_render_writecongress_action(request, account, permissions)
+
+@strong_cache
+def widget_render_writecongress_page(request, account, permissions):
 		# Get bill, position, org, orgcampaignposition, and reason.
 		campaign = None # indicates where to save user response data for the org to get
 		org = None
@@ -254,32 +272,12 @@ def widget_render_writecongress(request, account, permissions):
 		if not bill.isAlive():
 			return HttpResponseBadRequest("This letter-writing widget has been turned off because the bill is no longer open for comments.")
 			
-		# Get the user, but null out of the user is not allowed to comment so he can log in
-		# as someone else.
-		u = request.user
-		if not request.user.is_authenticated():
-			u = None
-			
-		# these checks are repeated below when checking emails
-		elif u.userprofile.is_org_admin() or u.userprofile.is_leg_staff():
-			u = None
-		elif not u.postaladdress_set.all().exists():
-			u = None
-		elif u.comments.filter(bill=bill).exists():
-			u = None
-		
-		displayname = None
-		if u != None:
-			displayname = u.username
-			try:
-				pa = u.postaladdress_set.all().order_by("-created")[0]
-				displayname = pa.firstname + " " + pa.lastname #+ " (" + u.username + ")"
-			except:
-				pass
-		
 		# get the target URL for the share function, which can be overridden
 		# in the url GET parameter, or it comes from the HTTP referrer, or
 		# else it falls back to a long form URL for the bill.
+		#
+		# NOTE: This is safe here because widget URLs are cached with the
+		# HTTP_REFERER in the cache key.
 		url = request.GET.get("url",
 			request.META.get("HTTP_REFERER",
 				SITE_ROOT_URL + bill.url()))
@@ -304,16 +302,9 @@ def widget_render_writecongress(request, account, permissions):
 			if len(suggestions["+"][2]) + len(suggestions["-"][2]) >= 2:
 				suggestions["0"] = []
 		
-		# user_info encoded json object passed from Facebook integration.
-		user_info = {}
-		if request.GET.get("user_info", "").strip() != "":
-			user_info = json.loads(urlsafe_b64decode(request.GET["user_info"].encode("ascii").replace(".", "=")))
-		
 		# Render.
 		response = render_to_response('popvox/widgets/writecongress.html', {
 			"permissions": permissions,
-			"displayname": displayname,
-			"identity": None if u == None else json.dumps(widget_render_writecongress_get_identity(request.user)),
 			
 			"campaign": campaign,
 			"reason": reason,
@@ -323,27 +314,13 @@ def widget_render_writecongress(request, account, permissions):
 			
 			"suggestions": suggestions.values(),
 			
-			"user_info": user_info, 
-			
 			"useraddress_prefixes": PostalAddress.PREFIXES,
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
 			
 			"MIXPANEL_TOKEN": MIXPANEL_TOKEN,
 			}, context_instance=RequestContext(request))
-	else:
-		response = widget_render_writecongress_action(request, account, permissions)
 
-	# add a P3P compact policy so that IE will accept third-party cookies.
-	# apparently the actual policy doesn't matter as long as one is sent,
-	# but we're setting the following policy;
-	#  access: ident-contact
-	#  purpose: current, admin, develop, tailoring, individual-analysis, individual-decision, contact
-	#  recipient: ours, same (i.e. Congress), public
-	#  retention: business-practices
-	#  data: (none)
-	response["P3P"] = 'CP="IDC CUR ADM DEV TAI IVA IVD CON OUR SAM PUB BUS"'
-
-	return response
+		return response
 
 
 @json_response
@@ -355,27 +332,46 @@ def widget_render_writecongress_action(request, account, permissions):
 		for k in ('HTTP_REFERER', 'HTTP_HOST', 'PATH_INFO', 'HTTP_ORIGIN', 'HTTP_USER_AGENT', 'HTTP_COOKIE', 'REMOTE_ADDR'):
 			ret[k] = meta.get(k, None)
 		return repr(ret)
-			
+
+	def compute_csrf_token(request):
+		sha1 = hashlib.sha1()
+		sha1.update(SECRET_KEY + "|" + request.POST["email"])
+		return sha1.hexdigest()
+	
+	########################################
+	if request.POST["action"] == "get-user-info":
+		# If the user is logged in, return the user's info to pre-fill form fields.
+		if request.user.is_authenticated():
+			return { "identity": widget_render_writecongress_get_identity(request.user) }
+		else:
+			return { }
 	
 	########################################
 	if request.POST["action"] == "check-email":
+		# Every widget user must hit this path in order to get the CSRF
+		# token that is a guard for the last step that sends an email
+		# or saves the comment.
+		
 		try:
 			email = validate_email(request.POST["email"], for_login=True)
 		except ValidationError:
 			return { "status": "invalid-email" }
 		
+		csrf_token = compute_csrf_token(request)
+		
 		try:
 			u = User.objects.get(email = email)
 		except User.DoesNotExist:
-			return { "status": "not-registered" }
+			return { "status": "not-registered", "csrf_token": csrf_token }
 			
-		# these checks are repeated above when checking the logged in user
 		if u.userprofile.is_org_admin() or u.userprofile.is_leg_staff():
 			return { "status": "staff-cant-do-this" }
-		if not u.postaladdress_set.all().exists():
-			return { "status": "not-registered" } # if the user is registered but has no address info, pretend they are not registered
+
 		if u.comments.filter(bill=request.POST["bill"]).exists():
 			return { "status": "already-commented" } # TODO: Privacy??
+
+		if not u.postaladdress_set.all().exists():
+			return { "status": "not-registered", "csrf_token": csrf_token } # if the user is registered but has no address info, pretend they are not registered
 
 		# In order to do single-sign-on login, we have to redirect away from the widget
 		# and then come back. This messes up the referer header in Chrome, making
@@ -394,12 +390,13 @@ def widget_render_writecongress_action(request, account, permissions):
 
 		if not u.has_usable_password(): # and sso.count() == 0:
 			# no way to log in!
-			return { "status": "not-registered" }
+			return { "status": "not-registered", "csrf_token": csrf_token }
 
 		return {
 			"status": "registered",
 			"has_password": u.has_usable_password(),
 			"sso_methods": [], #[s.provider for s in sso],
+			"csrf_token": csrf_token
 			}
 			
 	########################################
@@ -512,7 +509,6 @@ def widget_render_writecongress_action(request, account, permissions):
 				request_dump = meta_log(request.META) )
 
 		user = User()
-		user.id = request.POST.get("userid", None)
 		user.email = request.POST["email"]
 		
 		return {
@@ -524,6 +520,15 @@ def widget_render_writecongress_action(request, account, permissions):
 
 	########################################
 	if request.POST["action"] == "submit":
+		# We don't use DJango's CSRF protection here because it is too fragile.
+		# The CSRF token is hard to deal with if the page is cached, and if the
+		# user gets a new CSRF token after loading the page, the local cache
+		# may get highly confused. We do our own CSRF check.
+		if "csrf_token" not in request.POST or "email" not in request.POST:
+			return { "status": "fail", "msg": "CSRF check failed: Missing field." }
+		if request.POST["csrf_token"] != compute_csrf_token(request):
+			return { "status": "fail", "msg": "CSRF check failed: Incorrect value." }
+		
 		cdyne_response = json.loads(request.POST["cdyne_response"])
 		
 		# Validate address fields.
@@ -547,9 +552,9 @@ def widget_render_writecongress_action(request, account, permissions):
 	
 		# if the user is logged in and the address's congressional district
 		# was determined, then we can save the comment immediately.
-		if request.user.is_authenticated() and str(request.user.id) == request.POST.get("userid", None):
+		if request.user.is_authenticated() and request.user.email == request.POST["email"]:
 			user = request.user
-		elif request.POST.get("userid", None) != None and "email" in request.POST and "password" in request.POST:
+		elif "email" in request.POST and "password" in request.POST:
 			user = authenticate(email=validate_email(request.POST["email"], for_login=True), password=validate_password(request.POST["password"])) # may return none on fail
 			if user != None:
 				# log the user in case he returns to another widget later, but this will spoil any
@@ -630,7 +635,6 @@ def widget_render_writecongress_get_identity(user, address=None):
 		pa = address
 	
 	return {
-		"id": getattr(user, "id", ""),
 		"email": getattr(user, "email", ""),
 		"nameprefix": getattr(pa, "nameprefix", ""),
 		"firstname": getattr(pa, "firstname", ""),
@@ -849,8 +853,7 @@ your comment and check on its status.
 					"mode": "widget_writecongress",
 					}, context_instance=RequestContext(request))
 
-#@cache_page_postkeyed(60*60*12) # twelve hours
-@cache_control(public=True, max_age=60*60*12)
+@strong_cache
 def image(request, fn):
 	if not re.match(r"^writecongress/(1|2|3|4|check|expand|next|preview|send|send-without|widget_writerep_progress|support-btn|oppose-btn)$", fn):
 		raise Http404()
