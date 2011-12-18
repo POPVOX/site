@@ -220,6 +220,7 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
 	c.SetServer("localhost" if not "REMOTEDB" in os.environ else os.environ["REMOTEDB"], 3312)
 	c.SetMatchMode(SPH_MATCH_EXTENDED)
 	c.SetFilter("congressnumber", [cn])
+	c.SetLimits(0, 1000)
 	ret = c.Query(q, "bill_titles")
 	bill_weights = { }
 	status = "ok"
