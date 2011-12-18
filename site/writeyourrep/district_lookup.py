@@ -1,3 +1,4 @@
+#!runscript
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.core.cache import cache
 from django.db import connection
@@ -208,3 +209,6 @@ def get_zip_plus_four(zip5, state, district):
 	zip9 = rows[0][0]
 	return zip9[0:5] + "-" + zip9[5:9]
 
+if __name__ == "__main__":
+	import sys
+	print district_lookup_coordinate(*sys.argv[1:])
