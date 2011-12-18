@@ -1056,7 +1056,7 @@ def user_may_change_address(existing_comment, address_record, user):
 		return "You cannot change the address on a comment once it is marked for delivery to your Members of Congress."
 	
 	# Revising freshly entered data?
-	elif (now - address_record.created).days < 21 and not address_record.usercomments.filter(delivery_attempts__id__gt=0).exists():
+	elif address_record and (now - address_record.created).days < 21 and not address_record.usercomments.filter(delivery_attempts__id__gt=0).exists():
 		# If this recent address is not tied to a message whose delivery has been attempted,
 		# then the address record can be modified in place to affect all pending comments
 		# tied to this address.
