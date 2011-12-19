@@ -7,6 +7,11 @@
 # it is started the old instances are killed for a graceful
 # restart, using SIGHUP to gracefully end FastCGI.
 
+# change to the site directory, where this script is located
+ME=`readlink -m $0`
+MYDIR=`dirname $ME`
+cd $MYDIR
+
 HOSTNAME=`hostname -I | tr -d ' '` # assumes only one interface
 
 # Remove any running instance from the server farm table to inform the
@@ -59,10 +64,6 @@ echo "Starting $HOSTNAME:$PORT...";
 
 # select a PIDFILE
 PIDFILE=/tmp/django-fcgi-$USER-$PORT.pid
-
-ME=`readlink -m $0`
-MYDIR=`dirname $ME`
-cd $MYDIR
 
 ./manage runfcgi host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
                  workdir=$MYDIR umask=0002 debug=1 \
