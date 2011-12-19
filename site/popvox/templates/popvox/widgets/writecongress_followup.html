@@ -1,11 +1,15 @@
 {% comment %} This is the lightbox that appears on the comment share page when we need to ask the user to set a screen name and password.{% endcomment %}
 <div style="display: none">
 	<div id="writecongress_followup" class="colorbox" style="width: 500px">
-		<h1>Set Up Your POPVOX Account</h1>
+		<h1>Set Up A POPVOX Account</h1>
 
-		<h2>Thank you for using POPVOX&rsquo;s Write Congress tool to voice your comment.</h2>
+		{% if comment.referrers.all|length == 0 %}
+			<h2>Thank you for using POPVOX&rsquo;s Write Congress tool to voice your comment.</h2>
+		{% else %}
+			<h2>{{comment.referrers.all.0.referrer}} is using POPVOX to help get your letter to Congress.</h2>
+		{% endif %}
 		
-		<p>Setting up a POPVOX account let&rsquo;s you add to your comment, track the status of a bill and see what the rest of the nation thinks.</p>
+		<p>Setting up a POPVOX account lets you see when your comment is delivered, track the status of the bill and see what the rest of the nation thinks.</p>
 		
 		<form class="form" onsubmit="return do_submit_screename_password(false);">
 			{% csrf_token %}
