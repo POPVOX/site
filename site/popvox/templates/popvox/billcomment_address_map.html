@@ -104,6 +104,9 @@
 	<h1>Find Your Congressional District</h1>
 	{% else %}
 	<h1>Finish Your Letter to Congress</h1>
+	{% if referrer %}
+		<p>{{referrer}} is using POPVOX to help you get your message to Congress.</p>
+	{% endif %}
 	{% endif %}
 	
 		<div class="col_3" style="padding-top: 0">

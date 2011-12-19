@@ -555,12 +555,16 @@ def widget_render_writecongress_action(request, account, permissions):
 		if request.user.is_authenticated() and request.user.email == request.POST["email"]:
 			user = request.user
 		elif "email" in request.POST and "password" in request.POST:
-			user = authenticate(email=validate_email(request.POST["email"], for_login=True), password=validate_password(request.POST["password"])) # may return none on fail
-			if user != None:
-				# log the user in case he returns to another widget later, but this will spoil any
-				# future requests back to this view because it will now require a CSRF token
-				# which was not set when the page was loaded.
-				login(request, user)
+			try:
+				user = authenticate(email=validate_email(request.POST["email"], for_login=True), password=validate_password(request.POST["password"])) # may return none on fail
+				if user != None:
+					# log the user in case he returns to another widget later
+					login(request, user)
+			except:
+				# in IE8, we get empty password rather than not seeing the
+				# parameter at all. if login fails, we'll just send an
+				# email to the user to verify who they are.
+				user = None
 		else:
 			user = None
 			
@@ -851,6 +855,7 @@ your comment and check on its status.
 					"useraddress_states": statelist,
 					"bounds": bounds,
 					"mode": "widget_writecongress",
+					"referrer": referrer,
 					}, context_instance=RequestContext(request))
 
 @strong_cache
