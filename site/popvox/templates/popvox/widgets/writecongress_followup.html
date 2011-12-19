@@ -3,10 +3,10 @@
 	<div id="writecongress_followup" class="colorbox" style="width: 500px">
 		<h1>Set Up A POPVOX Account</h1>
 
-		{% if comment.referrers.all|length == 0 %}
+		{% if comment.usercommentreferral_set.all|length == 0 %}
 			<h2>Thank you for using POPVOX&rsquo;s Write Congress tool to voice your comment.</h2>
 		{% else %}
-			<h2>{{comment.referrers.all.0.referrer}} is using POPVOX to help get your letter to Congress.</h2>
+			<h2>{{comment.usercommentreferral_set.all.0.referrer}} is using POPVOX to help get your letter to Congress.</h2>
 		{% endif %}
 		
 		<p>Setting up a POPVOX account lets you see when your comment is delivered, track the status of the bill and see what the rest of the nation thinks.</p>

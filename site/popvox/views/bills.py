@@ -1776,17 +1776,17 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 	if request.user.is_superuser or request.user.is_staff:
 		by_source = { }
 		for rec in bill_comments(bill, state=state, congressionaldistrict=district)\
-			.values("method", "referrers__referrer_content_type", "referrers__referrer_object_id")\
+			.values("method", "usercommentreferral__referrer_content_type", "usercommentreferral__referrer_object_id")\
 			.annotate(count=Count('id'))\
 			.order_by():
 				
 			# convert dict of content type and obj id into object
 			method_name = UserComment.METHOD_NAMES[rec["method"]]
-			if rec["referrers__referrer_content_type"] == None:
+			if rec["usercommentreferral__referrer_content_type"] == None:
 				referrer = method_name
 			else:
 				from django.contrib.contenttypes.models import ContentType
-				referrer = ContentType.objects.get(id=rec["referrers__referrer_content_type"]).get_object_for_this_type(id=rec["referrers__referrer_object_id"])
+				referrer = ContentType.objects.get(id=rec["usercommentreferral__referrer_content_type"]).get_object_for_this_type(id=rec["usercommentreferral__referrer_object_id"])
 				referrer = unicode(referrer)
 				referrer += " (" + method_name + ")"
 			
