@@ -16,6 +16,7 @@
 
 	<script type="text/javascript" src="/media/js/jquery.js"></script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
+	<script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
 	
 	<script type="text/javascript" src="/media/js/highcharts.js"></script>
 	<script type="text/javascript" src="/media/js/charts.js"></script>
@@ -138,9 +139,18 @@
 		var csrf_token = null;
 		var identity = null;
 		
-		// If the user appears to be logged in, then pre-fill the form fields
-		// with the user's information once the page has loaded.
-		if (document.cookie.indexOf("sessionid") >= 0) {
+		var hash_args = $.deparam.fragment();
+		if (hash_args.user_info) {
+			var user_info = $.deparam(decodeURI(hash_args.user_info));
+			$(function() {
+				if (user_info.email) $('#email').set_text(user_info.email);
+				if (user_info.first_name) $('#firstname').set_text(user_info.first_name);
+				if (user_info.last_name) $('#lastname').set_text(user_info.last_name);
+			});
+		
+		} else if (document.cookie.indexOf("sessionid") >= 0) {
+			// If the user appears to be logged in, then pre-fill the form fields
+			// with the user's information once the page has loaded.
 			$(function() {
 				$.ajax({
 						url: window.location.pathname,

@@ -535,7 +535,7 @@ function update_preview(is_initial) {
 	{% endif %}
 		
 	function make_code(host, width, height, demo) {
-		return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + "&user_info=" + (demo ? "&demo=1{% if user.is_staff or user.username == "demo_org_staffer"%}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+		return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + (demo ? "&demo=1{% if user.is_staff or user.username == "demo_org_staffer"%}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
 	}
 
 	var prv = make_code("", default_width, default_height, true);
@@ -999,8 +999,7 @@ var minicolors_opts = {
 			{% if accounts|length == 0 %}
 			<li>You must first <a href="/accounts/login?next=/services/widgets" onclick="window.location='/accounts/login?next=/services/widgets' + escape(window.location.hash); return false;">log in or create an account</a> to set up a free widget.</li>
 			{% endif %}
-			<li>Visit the <a href="http://www.facebook.com/apps/application.php?id=150910028257528" target="_blank">POPVOX Facebook App</a> page. The link will open in a new tab so you can switch back to these instructions after.</li>
-			<li>Click <em>Add to My Page</em> in the lower left list of links.</li>
+			<li>Click <a href="http://www.facebook.com/dialog/pagetab?app_id=150910028257528&next=http://www.popvox.com/services/widgets#integration">this link</a> to add the POPVOX tab to your page. (Alternatively, Visit the <a href="http://www.facebook.com/apps/application.php?id=150910028257528" target="_blank">POPVOX Facebook App</a> wall. The link will open in a new tab so you can switch back to these instructions after. Then click <em>Add to My Page</em> in the lower left list of links.)</li>
 			<li>Visit your page and click on the new POPVOX tab on the left. That is where your widget will be.</li>
 			<li>You&rsquo;ll be asked to set up POPVOX-Facebook integration first. Copy your service account secret password <b class="secret_key">xxxx</b> to the clipboard and paste it back in Facebook where you are asked for it. Do not share this password.</li>
 			<li>Come back to this page to publish a widget to your Facebook page. Choose a widget from the tabs above, configure its settings, and then click Publish to Facebook.</li>

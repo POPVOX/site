@@ -4,7 +4,7 @@ from django.template import RequestContext, TemplateDoesNotExist
 
 from popvox.models import *
 
-from settings import FACEBOOK_APP_SECRET
+from settings import FACEBOOK_APP_SECRET, FACEBOOK_TESTING_APP_SECRET
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 import hmac, hashlib
@@ -104,8 +104,10 @@ def facebook_verify_signed_request(f):
 		if fbargs["algorithm"].upper() != 'HMAC-SHA256':
 			return HttpResponseForbidden("signed_request algorithm was invalid")
 
-		expected_sig = hmac.new(FACEBOOK_APP_SECRET, fields[1], hashlib.sha256).digest()
-		if sig != expected_sig:
+		for secret in (FACEBOOK_APP_SECRET, FACEBOOK_TESTING_APP_SECRET):
+			expected_sig = hmac.new(secret, fields[1], hashlib.sha256).digest()
+			if sig == expected_sig: break
+		else: # neither passed
 			return HttpResponseForbidden("signed_request has an invalid signature")
 		
 		return f(request, fbargs, *args, **kwargs)
@@ -114,6 +116,8 @@ def facebook_verify_signed_request(f):
 		
 @facebook_verify_signed_request
 def facebook_page(request, fbargs):
+	# for testing, add the testing app via http://www.facebook.com/dialog/pagetab?app_id=247867291947651&next=http://popvox.com
+	
 	# Let the Page admin set the fb_page_id on his service account by passing
 	# the service account secret key.
 	error_str = ""
@@ -191,19 +195,20 @@ window.fbAsyncInit = function() {
 """ % (int(htm.group(1))+100,)) + resp
 
 	# If the user has already authorized this app, then we get a user_id and oauth_token.
-	# The only folks who would have authorized the app are those that logged in via Facebook
-	# to the main site. But still.
+	# The only folks who would have authorized the app are those that logged in via Facebook 
+	# to the main site. But still. Convert this to a format to be passed in the URL fragment.
 	if "user_id" in fbargs:
-		user_info = http_rest_json("https://graph.facebook.com/" + fbargs["user_id"],
+		fb_user_info = http_rest_json("https://graph.facebook.com/" + fbargs["user_id"],
 			{ "oauth_token": fbargs["oauth_token"] })
-		# re-write for what a widget can expect
-		if "first_name" in user_info and "last_name" in user_info and "email" in user_info:
-			user_info = urlsafe_b64encode(json.dumps({
-				"first_name": user_info["first_name"],
-				"last_name": user_info["last_name"],
-				"email": user_info["email"],
-				}).encode("ascii")).replace("=", ".")
-			resp = resp.replace("&user_info=", "&user_info=" + user_info)
+		user_info = { }
+		user_info["first_name"] = fb_user_info.get("first_name", "")
+		user_info["last_name"] = fb_user_info.get("last_name", "")
+		user_info["email"] = fb_user_info.get("email", "")
+		#user_info["fb_data"] = repr(fb_user_info)
+		for k in user_info:
+			user_info[k] = user_info[k].encode("utf8") if user_info[k] else ""
+		user_info = urllib.quote_plus(urllib.urlencode(user_info))
+		resp = re.sub(r"(src=['\"].*?)(['\"])", lambda m : m.group(1) + ("#" if "#" not in m.group(1) else "&") + "user_info=" + user_info + m.group(2), resp)
 
 	# Prepend some instructions for page admins.
 	if fbargs["page"]["admin"]:
