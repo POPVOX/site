@@ -784,6 +784,24 @@ def parse_webform(webformurl, webform, webformid, id):
 				
 			field_default[attr] = m.group(1)
 			continue
+			
+		elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
+			m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
+			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
+			try:
+				image_content = urllib2.urlopen(urlparse.urljoin(webformurl, m.group(1))).read()
+			except:
+				raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img did not load.")
+			
+			# solve the captcha
+			import deathbycaptcha, StringIO
+			dbc = deathbycaptcha.SocketClient(settings.DEATHBYCAPTCHA_USERNAME, settings.DEATHBYCAPTCHA_PASSWORD)
+			print 'Calling DeathByCaptcha, remaining balance $%s.' % (dbc.get_balance()/100.0)
+			solution = dbc.decode(StringIO.StringIO(image_content))
+			if not solution: raise WebformParseException("Form uses a CAPTCHA but DeathByCaptcha returned nothing.")
+				
+			field_default[attr] = solution['text']
+			continue
 
 		else:
 			raise WebformParseException("Unhandled field: " + repr((fieldtype, ax, fieldlabels[attrid] if attrid in fieldlabels else attrid, options)))
@@ -906,8 +924,10 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# Make sure that we've found the equivalent of all of the fields
 	# that the form should be accepting.
-	for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined", "address_split_street"), ("address2", "address_combined", "address_split_street"), ("city", "address_split_quadrant"), ("zipcode", "zip5"), "message"):
+	for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined", "address_split_street"), ("address2", "address_combined", "address_split_street"), ("zipcode", "zip5"), "message"):
 		if field == "email" and di.id == 839: #form doesn't actually collect email address
+			continue
+		if field == "city" and di.id == 554: # no need to collect city since there is only one city in DC
 			continue
 		if type(field) == str:
 			field = [field]
@@ -1090,10 +1110,13 @@ def send_message_webform(di, msg, deliveryrec):
 	if m:
 		raise WebformParseException("Form-reported " + m.group(1))
 	
+	if "Invalid CAPTCHA value" in ret:
+		raise WebformParseException("Response says 'Invalid CAPTCHA value'")
+
 	if di.webformresponse == None or di.webformresponse.strip() == "":
 		deliveryrec.trace += u"\n" + ret + u"\n\n"
 		raise SubmissionSuccessUnknownException("Webform's webformresponse text is not set.")
-
+		
 	if di.webformresponse in ret:
 		return
 		
@@ -1264,18 +1287,18 @@ def send_message(msg, moc, previous_attempt, loginfo):
 			msg.phone = ("%s-%s-%s" % (msg.phone[0:3], msg.phone[3:6], msg.phone[6:10]))
 		if govtrackrecipientid == 412469 and msg.phone != "":
 			msg.phone = ("(%s)%s-%s" % (msg.phone[0:3], msg.phone[3:6], msg.phone[6:10]))
-	if govtrackrecipientid == 400295:
-		# for Rep. Norton, the street address is split
-		m = re.match(r"(\d+[a-zA-Z]?)\s+(.+?)\s+(N\.?E\.?|N\.?W\.?|S\.?E\.?|S\.?W\.?)\s*(.*)", msg.address1, re.I)
-		if m:
-			msg.address_split_number = m.group(1)
-			msg.address_split_street = m.group(2)
-			msg.address_split_quadrant = m.group(3).replace(".", "")
-			msg.address_split_suite = m.group(4)
-		else:
-			# can't deliver without those fields
-			print msg.address1
-			return None
+	#if govtrackrecipientid == 400295:
+	#	# for Rep. Norton, the street address is split
+	#	m = re.match(r"(\d+[a-zA-Z]?)\s+(.+?)\s+(N\.?E\.?|N\.?W\.?|S\.?E\.?|S\.?W\.?)\s*(.*)", msg.address1, re.I)
+	#	if m:
+	#		msg.address_split_number = m.group(1)
+	#		msg.address_split_street = m.group(2)
+	#		msg.address_split_quadrant = m.group(3).replace(".", "")
+	#		msg.address_split_suite = m.group(4)
+	#	else:
+	#		# can't deliver without those fields
+	#		print msg.address1
+	#		return None
 	if govtrackrecipientid == 400062:
 		# Lois Capps accepts a space if a response is required
 		if "yes" in msg.response_requested:
