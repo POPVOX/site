@@ -23,6 +23,7 @@ urlpatterns = patterns('',
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	
 	(r'^delete_account.html$', 'popvox.views.home.delete_account'),
+	(r'^your_hill.html$', 'popvox.views.home.your_hill'),
 	
 	(r'^delete_account_confirmed.html$', 'popvox.views.home.delete_account_confirmed'),
 	

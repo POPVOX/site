@@ -1,27 +1,31 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Grade Your Rep{% endblock %}
+{% block title %}POPVOX - Delete Account{% endblock %}
 {% block title2 %}{% endblock %}
-{% block description %}See How Your Representative Has Voted On Bills You've Weighed In On{% endblock %}
+{% block description %}Permanently delete a POPVOX user account.{% endblock %}
 {% block content %}
 
 <div class="content">
 
 	<div class="col_9 col_top col_last">
-	<p>Your Members of Congress are:</p>
-        {% for mem in votes %}
-          <p>{{mem}}</p>
-        {% endfor %}
-        <p>Here are the bills they've voted on:</p>
-        {% for bill in billvotes %}
-          <p>{{bill}}</p>
-        {% endfor %}
-        <p>Here are their scores:</p>
-        {% for member, percentages in votes.items %}
-          <p>{{member}}:</p>
-          {% for vote, percent in percentages.items %}
-            <p>{{vote}}: {{percent}}</p>
-          {% endfor %}
-        {% endfor %}
+		<h1>Delete Your Account</h1>
+		
+		<p>If you choose to delete your account, all of your activity on POPVOX will be permanently removed:</p>
+
+        <ul>
+            <li>your positions on bills will be deleted. Your support or opposition will no longer be reflected in our maps and pie charts.</li>
+            <li>your personal comments will be deleted. Messages you've sent to congress will no longer appear on the site.</li>
+            <li>any appreciation you've registered for other people's comments will be deleted.</li>
+        </ul>
+
+        <p><b>There is no 'undo.'</b> Once your account is deleted, your account information is gone, and cannot be retrieved.</p>
+
+        <p>We need to keep some records for a period of time for everyone’s protection. If you wrote your Member of Congress, we keep records of what we’ve sent on your behalf so no one can claim otherwise. Please <a href="/about/contact">contact us</a> if you have any questions or concerns.</p>
+		
+		<p>If you wish to delete your account, click the button below. You will be sent a confirmation email with a link you can click to complete the deletion process.</p>
+
+        <form>
+            <input type="submit" value="Send me a delete account confirmation email" />
+        </form> 
 	</div>
 	
 </div>

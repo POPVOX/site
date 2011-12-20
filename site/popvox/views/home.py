@@ -937,7 +937,8 @@ def who_members(request): #this page doesn't exist, but we could do some cool st
         
     context_instance=RequestContext(request))
 
-def delete_account(request):
+@login_required
+def your_hill(request):
   
     def getmemberids(userid):
       #select the user's state and district:
@@ -960,54 +961,44 @@ def delete_account(request):
       abstain       = 0
       absent        = 0
       total_votes   = 0
+      record        = {}
 
       for bill in billvotes:
-        vote = votecheck(billvotes[bill], member)
-        if vote:
+        direction = votecheck(billvotes[bill], member)
+        if direction:
+          record[bill] = direction
           total_votes += 1
-          if vote == 'agree':
+          if direction == comment.position:
             agree += 1
-          if vote == 'disagree':
-            disagree += 1
-          if vote == 'abstain':
+          elif direction == "P":
             abstain +=1
-          if vote == 'absent':
-            absent += 1      
+          elif direction == "0":
+            absent += 1
+          else:
+            disagree += 1
       
       #checking to make sure there are votes to check agreement against:
       if total_votes == 0:
-          pie = False
+          return False
       #calculating percentages:
       else:
           percent_agree = 100.00*agree/total_votes
           percent_disagree = 100.00*disagree/total_votes
           percent_abstain = 100.00*abstain/total_votes
           percent_absent = 100.00*absent/total_votes
-          pie = True
-      if pie:
-        return [percent_agree, percent_disagree, percent_abstain, percent_absent]
-      else:
-        return False
+          return [percent_agree, percent_disagree, percent_abstain, percent_absent, record]
     
     def votecheck(bill, member):
       #running comparison:
-      billstr = bill[0]
-      voters  = bill[1]
-      direction = "pie"
+      voters  = bill
+      direction = None
       for voter in voters:
           voterid = voter.getAttribute("id")
           if (int(voterid) == member):
               direction = voter.getAttribute("vote")
               break
-      if direction != "pie":
-        if comment.position == direction:
-            return 'agree'
-        elif direction == "P":
-            return 'abstain'
-        elif direction == "0":
-            return 'absent'
-        else:
-            return 'disagree'
+      if direction != None:
+        return direction
       else:
         return False
         
@@ -1026,6 +1017,7 @@ def delete_account(request):
       congress = popvox.govtrack.CURRENT_CONGRESS
       memberids = getmemberids(userid)
       billvotes = {}
+      billcomments = {}
       
       #grab the user's bills and positions:
       usercomments = UserComment.objects.filter(user=userid)
@@ -1058,7 +1050,7 @@ def delete_account(request):
         date =  vote[0].getAttribute("datetime")
         yearre = re.compile(r'\d{4}')
         year = re.match(yearre, date).group(0)
-        votexml = "http://www.govtrack.us/data/us/112/rolls/"+where+year+"-"+roll+".xml"
+        votexml = "/mnt/persistent/data/govtrack/us/112/rolls/"+where+year+"-"+roll+".xml" #"http://www.govtrack.us/data/us/112/rolls/"+where+year+"-"+roll+".xml"
         
         #parsing the voters for that roll"
         voteinfo = urllib.urlopen(votexml)
@@ -1067,23 +1059,32 @@ def delete_account(request):
         voters = dom2.getElementsByTagName("voter")
         
         #adding the votes to a dict:
-        billvotes[bill] = [billstr, voters]
+        billvotes[bill] = voters
+        billcomments[bill] = comment
       
       votes = {}
+      voterecord = {}
+      billinfo = {}
       for member in memberids:
         scores = getscore(billvotes, member)
+        membername = popvox.govtrack.getMemberOfCongress(member)['name']
         if scores:
-          membername = popvox.govtrack.getMemberOfCongress(member)['name']
-          percentages = {'agree': scores[0], 'disagree': scores[1], 'abstain': scores[2], 'absent': scores[3]}
+          percentages = {'agree': scores[0], 'disagree': scores[1], 'abstain': scores[2], 'absent': scores[3], 'attendance': '[percentage]'}
           votes[membername] = percentages
+          voterecord[membername] = scores[4]
+          billinfo[membername] = {}
+          for bill, vote in voterecord[membername].iteritems():
+            billinfo[membername][bill] = [billcomments[bill], vote]
         else:
-          membername = popvox.govtrack.getMemberOfCongress(member)['name']
-          votes[membername] = {'agree': 0, 'disagree': 0, 'abstain': 0, 'absent': 0}
+          votes[membername] = {'agree': 0, 'disagree': 0, 'abstain': 0, 'absent': 0, 'attendance': 0}
       
-      return render_to_response('popvox/delete_account.html', {'memberids': memberids, 'billvotes': billvotes, 'votes' : votes},
+      return render_to_response('popvox/your_hill.html', {'billinfo': billinfo, 'billvotes': billvotes, 'memberids': memberids, 'voterecord': voterecord, 'votes' : votes},
         
     context_instance=RequestContext(request))
-    '''user = request.user
+
+@login_required
+def delete_account(request):
+    user = request.user
     prof = user.get_profile()
         
     if prof.is_leg_staff():
@@ -1095,8 +1096,9 @@ def delete_account(request):
     else:
         return render_to_response('popvox/delete_account.html', {},
         
-    context_instance=RequestContext(request))'''
+    context_instance=RequestContext(request))
     
+@login_required
 def delete_account_confirmed(request):
     user = request.user
     prof = user.get_profile()
