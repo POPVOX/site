@@ -400,7 +400,7 @@ def widget_render_writecongress_action(request, account, permissions):
 			}
 			
 	########################################
-	if request.POST["action"] == "newuser":
+	if request.POST["action"] in ("newuser", "logged-in"):
 		try:
 			# although this should be for new users only (and then we would take out for_login=True),
 			# we also force any registered user who doesn't have an address record to go this route
@@ -422,7 +422,7 @@ def widget_render_writecongress_action(request, account, permissions):
 		if identity["state"] == None: return { "status": "fail", "msg": "That's not a ZIP code within a U.S. congressional district. Please enter the ZIP code where you vote." } 
 		
 		# if user is logged in, log him out; but not in demo mode to not destroy people's logins
-		if "demo" not in request.POST:
+		if request.POST["action"] == "newuser" and "demo" not in request.POST:
 			logout(request)
 		
 		# Record the information for the org. This also occurs at the point of returning user login, checking address, and submit.

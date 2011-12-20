@@ -217,12 +217,9 @@
 							$('#unregistered input, #registered_password input').prop("disabled", false);
 							$('#panel_login .next').removeClass("disabled");
 							
-							// if the user is logged in already, pretend the email status
-							// is not registered since we will pre-fill their address to they
-							// can confirm it.
-							if (identity) email_status = "not-registered";
-							
-							if (email_status == "not-registered") {
+							if (identity && identity.email == email) {
+								email_status = "logged-in";
+							} else if (email_status == "not-registered") {
 								$('#unregistered').show();
 								$('#registered_password, #registered_sso').hide();
 								$('#panel_login .next').show();
@@ -286,7 +283,7 @@
 		function do_login(chosen_position) {
 			if (working) return false;
 			
-			if (email_status != "not-registered" && email_status != "registered") {
+			if (email_status != "not-registered" && email_status != "registered" && email_status != "logged-in") {
 				alert($("#panel_login .error").text());
 				return false;
 			}
@@ -300,8 +297,6 @@
 			$('.position_verb').text(position == "+" ? "support" : "oppose");
 			$('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
 			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
-			
-			if (identity) return show_address();
 			
 			if ($("#panel_login .next").hasClass("disabled")) return false;
 			
@@ -318,7 +313,7 @@
 				data = {
 					{% if request.GET.demo %}demo: true,{% endif %}
 					{% if campaign %}campaign: {{campaign.id}},{% endif %}
-					action: "newuser",
+					action: email_status == "registered" ? "newuser" : "logged-in",
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
 					lastname: $("#lastname").val(),
@@ -357,7 +352,7 @@
 					}
 				});
 			
-				return false;
+			return false;
 		}
 		
 		function logout() {
@@ -637,6 +632,7 @@
 							<div id="login">
 								<input id="email" name="email" value="" size="25" maxlength="40" type="text"><span class="check" style="display: none">check</span><br />
 	
+								{% comment %} -- this is not used currently, and commenting it out saves us loading some image resources --
 								<div id="registered_sso" style="display: none" class="clear">
 									<p>You&rsquo;ve created a POPVOX account already. We&rsquo;ll need you to log in.</p>
 									{% with request.get_full_path as singlesignon_next %}
@@ -647,6 +643,7 @@
 									{% endwith %}
 									{% endwith %}
 								</div>
+								{% endcomment %}
 								<div id="registered_password" style="display: none" class="clear">
 									<p>Enter your POPVOX.com password:</p>
 									<input id="password" value="" size="25" maxlength="40" type="password"><br />
