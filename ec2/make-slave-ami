@@ -6,13 +6,19 @@ apt-add-repository -y 'deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ natty
 apt-get update
 apt-get install -y ec2-api-tools ec2-ami-tools
 
-ec2-bundle-vol -r x86_64 -s 10240 -c /mnt/persistent/config/aws/cert.pem -k /mnt/persistent/config/aws/pk.pem -u `cat /mnt/persistent/config/aws/account_id.txt`
+mkdir -p /tmp/ami
+ec2-bundle-vol -r x86_64 -s 10240 \
+	-d /tmp/ami \
+	-e /tmp/ami \
+	-c /mnt/persistent/config/aws/cert.pem -k /mnt/persistent/config/aws/pk.pem -u `cat /mnt/persistent/config/aws/account_id.txt`
 
 source /mnt/persistent/config/aws/access_key
 
 AMI_NAME=web_slave_`date +%Y-%m-%dT%H%M`
 AMI_S3_FILE=ami-images.popvox.com/$AMI_NAME
-ec2-upload-bundle -b "$AMI_S3_FILE" -m /tmp/image.manifest.xml -a "$aws_access_key_id" -s "$aws_secret_access_key"
+ec2-upload-bundle -b "$AMI_S3_FILE" -m /tmp/ami/image.manifest.xml -a "$aws_access_key_id" -s "$aws_secret_access_key"
 
-ec2-register "$AMI_S3_FILE"/image.manifest.xml -n "$AMI_NAME" -K /mnt/persistent/config/aws/pk.pem  -C /mnt/persistent/config/aws/cert.pem 
+ec2-register "$AMI_S3_FILE"/image.manifest.xml -n "$AMI_NAME" \
+	-a x86_64  --kernel aki-825ea7eb \
+	-K /mnt/persistent/config/aws/pk.pem  -C /mnt/persistent/config/aws/cert.pem 
 
