@@ -140,12 +140,14 @@
 		var identity = null;
 		
 		var hash_args = $.deparam.fragment();
+		var hash_user_info = null;
 		if (hash_args.user_info) {
-			var user_info = $.deparam(decodeURI(hash_args.user_info));
+			hash_user_info = $.deparam(decodeURI(hash_args.user_info));
 			$(function() {
-				if (user_info.email) $('#email').set_text(user_info.email);
-				if (user_info.first_name) $('#firstname').set_text(user_info.first_name);
-				if (user_info.last_name) $('#lastname').set_text(user_info.last_name);
+				if (hash_user_info.email) $('#email').set_text(hash_user_info.email);
+				if (hash_user_info.first_name) $('#firstname').set_text(hash_user_info.first_name);
+				if (hash_user_info.last_name) $('#lastname').set_text(hash_user_info.last_name);
+				if (hash_user_info.zipcode) $('#zipcode').set_text(hash_user_info.zipcode);
 			});
 		
 		} else if (document.cookie.indexOf("sessionid") >= 0) {
@@ -383,6 +385,22 @@
 			$('#useraddress_address2').val(identity.address2);
 			$('#useraddress_city').val(identity.city);
 			$('#useraddress_phonenumber').val(identity.phonenumber);
+			
+			if (hash_user_info) {
+				function normalize_if_valid(value, values) {
+					for (var i = 0; i < values.length; i++)
+						if (value.toLowerCase() == values[i].toLowerCase())
+							return values[i];
+					return "";
+				}
+				
+				if (hash_user_info.prefix) $('#useraddress_prefix').val(normalize_if_valid(hash_user_info.prefix, {{useraddress_prefixes|json}}));
+				if (hash_user_info.suffix) $('#useraddress_suffix').val(normalize_if_valid(hash_user_info.suffix, {{useraddress_suffixes|json}}));
+				if (hash_user_info.address1) $('#useraddress_address1').val(hash_user_info.address1);
+				if (hash_user_info.address2) $('#useraddress_address2').val(hash_user_info.address2);
+				if (hash_user_info.city) $('#useraddress_city').val(hash_user_info.city);
+				if (hash_user_info.phonenumber) $('#useraddress_phonenumber').val(hash_user_info.phonenumber);
+			}
 			
 			{% if request.GET.debug %}
 			if (!identity.nameprefix) {
