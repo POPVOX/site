@@ -2,6 +2,7 @@
 
 # Start a new machine instance...
 # last tested AMI: ubuntu-images-us/ubuntu-oneiric-11.10-amd64-server-20111011 (ami-21f53948)
+#      ami-bf62a9d6 is the EBS equivalent, good for making AMIs for slaves
 #      ami-1aad5273 also works on a micro instance
 # if disk is local: us-east-1a / attach EBS volume on /dev/sdf (which to Ubuntu is /dev/xvdf)
 # assign the elastic IP?
