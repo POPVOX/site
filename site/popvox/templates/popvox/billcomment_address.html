@@ -23,7 +23,7 @@
 		{% else %}
 			<h1>Check Your Return Address</h1>
 		
-			<div id="savedaddress">
+			<div id="savedaddress" {% if error %}style="display: none"{% endif %}>
 				<div style="height: 8em;">
 				<div>{{useraddress.prefix}} {{useraddress.firstname}} {{useraddress.lastname}} {% if useraddress.suffix %}, {{useraddress.suffix}}{% endif %}</div>
 				<div>{{useraddress.address1}}</div>
@@ -48,7 +48,7 @@
 			{% if useraddress_fixed %}<p style="font: italic normal 13px/18px georgia, serif; color: #606065;">{{ useraddress_fixed }}</p>{% endif %}
 		{% endif %}
 		
-		<div id="editdaddress" class="form" {% if useraddress.id %}style="display: none"{% endif %}>
+		<div id="editdaddress" class="form" {% if useraddress.id and not error %}style="display: none"{% endif %}>
 			<p style="width: 500px; margin-bottom: 30px;">Your Members of Congress want to know you are their constituent and may send you a reply. Tell them how to reach you.</p>
 			
 			<p class="error" style="margin: -10px 0 30px 0; width: 583px; display: block;">{{ error }}</p>
