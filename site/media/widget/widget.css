@@ -224,11 +224,13 @@
 		}
 		
 	.form .radio label {
+		clear: none;
 		float: left;
 		display: block;
-		margin: 0;
+		margin: 2px 0 0 0;
 		padding: 0;
 		text-align: left;
+		width: auto;
 		}
 
 
@@ -275,5 +277,6 @@
 		}
 		
 		
-		
-		
+.allow_optin_option {
+	margin-bottom: 15px;
+	}

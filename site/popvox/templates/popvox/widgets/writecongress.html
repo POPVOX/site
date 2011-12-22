@@ -388,9 +388,12 @@
 			
 			if (hash_user_info) {
 				function normalize_if_valid(value, values) {
-					for (var i = 0; i < values.length; i++)
-						if (value.toLowerCase() == values[i].toLowerCase())
+					for (var i = 0; i < values.length; i++) {
+						if (value.toLowerCase().replace(".", "") == values[i].toLowerCase().replace(".", ""))
 							return values[i];
+						if (value.toLowerCase().replace(".", "") == "rev" && values[i] == "Reverend")
+							return values[i];
+					}
 					return "";
 				}
 				
@@ -514,6 +517,9 @@
 						csrf_token: csrf_token,
 						email: identity.email,
 						password: $("#password").val(), // resend
+						{% if "widget_optin" in permissions and request.GET.optin == "1" %}
+						optin: $('#optin').prop('checked') ? "1" : "0",
+						{% endif %}
 						useraddress_prefix: $("#useraddress_prefix").val(),
 						useraddress_firstname: identity.firstname,
 						useraddress_lastname: identity.lastname,
@@ -768,7 +774,7 @@
 						
 						<input value="next" class="btn next" onclick="return do_address();" type="button">
 						
-						<p class="clear optional">All fields are required except where noted. We ask for only as much information as Congressional offices have told us they require.</p>
+						<p class="clear optional">We ask for only as much information as Congressional offices have told us they require.</p>
 					</div>
 							
 					<div id="panel_write" class="widget_panel" style="display: none">
@@ -845,9 +851,12 @@
 						
 						<p id="b_send_to_congress"><a class="btn" href="#" onclick="return do_send();">Send your message to Congress</a></p>
 						
-						<div class="address">
-							
+						{% if "widget_optin" in permissions and request.GET.optin == "1" %}
+						<div class="optin">
+							<input id="optin" type="checkbox"/>
+							<label for="optin">Send me updates about this bill and related issues from <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</label>
 						</div>
+						{% endif %}
 						
 						<p class="clear error"> </p>
 					</div><!-- e: panel_preview -->

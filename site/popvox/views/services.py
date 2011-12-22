@@ -539,7 +539,9 @@ def widget_render_writecongress_action(request, account, permissions):
 			return { "status": "fail", "msg": "Address error: " + validation_error_message(e) }
 
 		bill = Bill.objects.get(id=request.POST["bill"])
-		referrer, campaign, message = widget_render_writecongress_getsubmitparams(request.POST, account)
+		referrer, campaign, message, optin = widget_render_writecongress_getsubmitparams(request.POST, account)
+			# note that optin is ignored if the user is already registered, so it
+			# is ignored in this function
 
 		# At this point we increment the service account beancounter for submitted comments for
 		# the purpose of billing the account later. How do we know if we are supposed to charge
@@ -666,11 +668,14 @@ def widget_render_writecongress_getsubmitparams(post, account):
 				referrer = campaign.account.org
 		except:
 			pass
+		
 	message = post["message"]
-	if len(message.strip()) < 8:
-		message = None
-
-	return referrer, campaign, message
+	if len(message.strip()) < 8: message = None
+	
+	optin = None
+	if "optin" in post: optin = post.get("optin", "0") == "1"
+	
+	return referrer, campaign, message, optin
 
 class WriteCongressEmailVerificationCallback:
 	post = None
@@ -678,7 +683,7 @@ class WriteCongressEmailVerificationCallback:
 	account = None
 	
 	def email_subject(self):
-		referrer, campaign, message = widget_render_writecongress_getsubmitparams(self.post, self.account)
+		referrer, campaign, message, optin = widget_render_writecongress_getsubmitparams(self.post, self.account)
 		if campaign:
 			org = campaign.account.org
 		else:
@@ -737,7 +742,7 @@ your comment and check on its status.
 	#@require_lock("auth_user", "popvox_userprofile") # prevent race conditions
 	# The lock is too expensive. Making the requests operate in serial is an
 	# enormous hit to the site's overall throughput. We'll take our chances.
-	def create_user(self):
+	def create_user(self, optin):
 		# Get or create the User object.
 		user_is_new = False
 		try:
@@ -767,6 +772,8 @@ your comment and check on its status.
 			prof = user.userprofile
 			prof.registration_welcome_sent = True
 			prof.registration_followup_sent = True
+			if optin != None:
+				prof.allow_mass_mails = optin
 			prof.save()
 			
 			user_is_new = True
@@ -786,7 +793,12 @@ your comment and check on its status.
 	
 	@csrf_protect_me # because writecongress_followup calls back to set username/password
 	def get_response(self, request, vrec):
-		user, user_is_new = self.create_user()
+		# Get the comment details.
+		referrer, campaign, message, optin = widget_render_writecongress_getsubmitparams(self.post, self.account)
+
+		# Create user record if this is a new user and it is the first time they 
+		# hit the verification link.
+		user, user_is_new = self.create_user(optin)
 		
 		# Log the user in.
 		user = authenticate(user_object = user)
@@ -812,9 +824,6 @@ your comment and check on its status.
 			if cdyne_response != None:
 				from writeyourrep.addressnorm import verify_adddress_cached
 				verify_adddress_cached(p, cdyne_response, validate=False)
-
-			# Get the comment details.
-			referrer, campaign, message = widget_render_writecongress_getsubmitparams(self.post, self.account)
 
 			# If the address was OK, save the comment now.
 			if getattr(p, "congressionaldistrict", None) != None:

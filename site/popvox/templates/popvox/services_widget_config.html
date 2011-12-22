@@ -386,7 +386,7 @@ function account_changed(is_initial) {
 	$('.plus').toggle(plus_enabled);
 	$('.plus_teaser').toggle(!plus_enabled);
 	
-	$('.plus input').attr("disabled", plus_enabled ? '' : '1')
+	$('.plus input').prop("disabled", !plus_enabled)
 	$(".miniColors").miniColors('disabled', !plus_enabled);
 	
 	$('#writecongress_bill_1').hide();
@@ -426,6 +426,9 @@ function account_changed(is_initial) {
 		$('#talkingpoints').text("With a Pro account, you could add talking points to your widget.");
 		$('#supporters').text("With a Pro account you could get access to the information supporters enter into widgets you place on your website.");
 	}
+	
+	$('.allow_optin_option').toggle(current_account.permissions.widget_optin);
+	
 	{% endif %}
 	
 	update_preview(is_initial);
@@ -513,6 +516,12 @@ function update_preview(is_initial) {
 		default_width = 460;
 		default_height = 700;
 		can_change_height = false;
+		
+		{% if accounts|length > 0 %}
+		if (current_account.permissions["widget_optin"] && $('#optin_option').prop('checked')) {
+			opts += "&optin=1";
+		}
+		{% endif %}
 	}
 	
 	if (widgettype == "integration" || widgettype == "splash") {
@@ -610,6 +619,7 @@ $(function() {
 	$('.form input[type=text]').keyup_delayed(update_preview);
 	$('.form select').change(update_preview);
 	$('.form input[type=radio]').click(update_preview);
+	$('.form input[type=checkbox]').click(update_preview);
 	
 	splash_tab($('#wSelect li a')[0]);
 	account_changed(true);
@@ -931,6 +941,14 @@ var minicolors_opts = {
 					
 					<h5>Your Supporters</h5>
 					<p id="supporters"></p>
+					
+					<div class="allow_optin_option">
+						<div class="radio" style="width: auto">
+							<input id="optin_option" type="checkbox"/>
+							<label for="optin_option">Users must opt-in to receiving POPVOX updates</label>
+						</div>
+						<div class="clear"> </div>
+					</div>
 
 					<h5>Analytics</h5>
 					<div id="analytics_frame"> </div>

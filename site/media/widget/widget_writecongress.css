@@ -566,7 +566,7 @@ a {
 			height: 76px;
 			display: block;
 			text-indent: -9999em;
-			margin: 0 10px 0 0;
+			margin: 0 10px 0 10px;
 			border: none;
 			float: right;
 			}	
@@ -761,6 +761,11 @@ a {
 			display: none;
 			}
 		
-		
-		
-		
+.optin {
+	margin-left: 10px;
+	font-size: 12px;
+		}
+	.optin input {
+		float: left;
+		margin: 0 5px 20px 0;
+		}
