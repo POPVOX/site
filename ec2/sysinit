@@ -56,7 +56,10 @@ apt-get install -y \
 #dpkg -i $DJANGO
 #rm $DJANGO
 apt-get install python-django
-   # in /usr/share/pyshared/django/middleware/csrf.py I've manually disabled strict referrer checking
+
+# in /usr/share/pyshared/django/middleware/csrf.py, disabled strict referrer checking
+# because too many people suppress referer header.
+sed -i "s/if request.is_secure():/if request.is_secure() and False:/" /usr/share/pyshared/django/middleware/csrf.py
 
 # Persistent storage area.
 mkdir -p /mnt/persistent
