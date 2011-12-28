@@ -1785,9 +1785,12 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 			if rec["usercommentreferral__referrer_content_type"] == None:
 				referrer = method_name
 			else:
-				from django.contrib.contenttypes.models import ContentType
-				referrer = ContentType.objects.get(id=rec["usercommentreferral__referrer_content_type"]).get_object_for_this_type(id=rec["usercommentreferral__referrer_object_id"])
-				referrer = unicode(referrer)
+				try:
+					from django.contrib.contenttypes.models import ContentType
+					referrer = ContentType.objects.get(id=rec["usercommentreferral__referrer_content_type"]).get_object_for_this_type(id=rec["usercommentreferral__referrer_object_id"])
+					referrer = unicode(referrer)
+				except OrgCampaign.DoesNotExist:
+					referrer = "[Campaign Deleted]"
 				referrer += " (" + method_name + ")"
 			
 			by_source[referrer] = rec["count"]
