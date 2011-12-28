@@ -41,4 +41,11 @@ Rebooting a Master Server
 	move the elastic IP back
 	
 	shut down the slave
-	
+
+Building a new Master Server
+
+	the mysql anacron will break if the debian-sys-maint mysql user's password doesn't match
+	the password listed in /etc/mysql/debian.cnf. to fix, grab that password and run:
+	GRANT RELOAD, SHUTDOWN, PROCESS, SHOW DATABASES, SUPER, LOCK TABLES ON *.* TO 'debian-sys-maint'@'localhost' IDENTIFIED BY PASSWORD 'xxxxxxxxxxxxxxxx'
+	(ref: http://www.lornajane.net/posts/2008/Logrotate-Error-on-Ubuntu)
+
