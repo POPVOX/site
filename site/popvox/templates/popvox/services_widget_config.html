@@ -327,7 +327,7 @@ var writecongress_by_ocp;
 function change_widget(tabname, is_initial) {
 	widgettype = tabname;
 	
-	if (widgettype == "splash") {
+	if (widgettype == "splash" || widgettype == "integration") {
 		$('.config_pane, .preview_pane').hide();
 		$('#splash').show();
 		return;
@@ -356,10 +356,18 @@ function change_widget(tabname, is_initial) {
 		$('.preview_pane').css({width: '460px'});
 	}
 	
-	if (widgettype == "integration") {
-		$('#widget_description').html("POPVOX widgets can be integrated into several other services. Please <a href=\"/about/contact\">contact us</a> for details.");
-		$('.preview_pane').hide();
-		$('.config_pane').css({width: '640px'});
+	if (widgettype == "bill_button") {
+		$('#widget_description').html("Send your readers to weigh in on bills on POPVOX using a custom button that shows real-time support or opposition on the bill.");
+		$('#code').css({width: "260px"});
+		$('.config_pane').css({width: '600px'});
+		$('.preview_pane').css({width: '280'});
+	}
+	
+	if (widgettype == "popvox_button") {
+		$('#widget_description').html("Send your readers to POPVOX with this button.");
+		$('#code').css({width: "260px"});
+		$('.config_pane').css({width: '600px'});
+		$('.preview_pane').css({width: '280'});
 	}
 
 	window.setTimeout("update_preview(" + (is_initial ? 'true' : 'false') + ")", 600);
@@ -467,7 +475,6 @@ function update_preview(is_initial) {
 			
 			var support_oppose = match[1];
 			var billtype = match[2].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
-			if (billtype == "X") billtype = "Generic Proposal";
 			var billnumber = match[3];
 			var congressnumber = match[5]; // possibly undefined, GovTrack style prev congress search
 			if (!congressnumber) congressnumber = {{current_congress}};
@@ -499,7 +506,6 @@ function update_preview(is_initial) {
 			
 			var support_oppose = match[0];
 			var billtype = match[1].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
-			if (billtype == "X") billtype = "Generic Proposal";
 			var billnumber = match[2];
 			var congressnumber = match[4]; // possibly undefined, GovTrack style prev congress search
 			if (!congressnumber) congressnumber = {{current_congress}};
@@ -524,6 +530,29 @@ function update_preview(is_initial) {
 		{% endif %}
 	}
 	
+	if (widgettype == "bill_button") {
+		$('#billbutton_bill_error').hide();
+		var bill_re = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES|X)(\d+)(\/(\d+))?$/i;
+		var match = bill_re.exec($('#billbutton_bill').val().replace(/\s/g, "").replace(/\./g, ""));
+		if (!match) {
+			$('#billbutton_bill_error').text("Example bill numbers are H.R. 1, S. 2, H.Res. 3, etc.");
+			$('#billbutton_bill_error').show();
+			return;
+		}
+		
+		var billtype = match[1].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
+		var billnumber = match[2];
+		var congressnumber = match[4]; // possibly undefined, GovTrack style prev congress search
+		if (!congressnumber) congressnumber = {{current_congress}};
+			
+		bill = congressnumber + "/" + billtype + billnumber;
+		opts += "&bill=" + bill + "&stats=1&title=1";
+		
+		default_width = 280;
+		default_height = 100;
+		can_change_height = false;
+	}
+
 	if (widgettype == "integration" || widgettype == "splash") {
 		return;
 	}
@@ -534,7 +563,7 @@ function update_preview(is_initial) {
 	var account = "";
 	
 	{% if accounts|length > 0 %}
-	if (current_account.permissions["widget_theme"]) {
+	if (current_account.permissions["widget_theme"] && widgettype != "bill_button") {
 		// Only apply these configuration options if they are permitted.
 		var clrs = ["sbg", "sbg2", "sfg", "lnk", "bg", "fg", "fg2"];
 		for (var e in clrs)
@@ -544,7 +573,17 @@ function update_preview(is_initial) {
 	{% endif %}
 		
 	function make_code(host, width, height, demo) {
-		return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + (demo ? "&demo=1{% if user.is_staff or user.username == "demo_org_staffer"%}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+		if (widgettype == "bill_button") {
+			if (demo) {
+				return '<iframe src="' + host + "/widgets/js/bill.html?iframe=1" + opts + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+			} else {
+				return '<' + 'script src="' + host + "/widgets/js/bill.js?" + opts + '"> ' + '<' + '/script>';
+			}
+		} else if (widgettype == "popvox_button") {
+			return '<a href="https://www.popvox.com/bills" style="text-decoration: none; border: none;"><img src="https://www.popvox.com/media/buttons/popvox_bills_widget.gif" alt="write congress at POPVOX" width="158" height="100" border="0"/></a>';
+		} else {
+			return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + (demo ? "&demo=1{% if user.is_staff or user.username == "demo_org_staffer"%}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0"> </iframe>';
+		}
 	}
 
 	var prv = make_code("", default_width, default_height, true);
@@ -659,6 +698,8 @@ var minicolors_opts = {
 	
 		<li><a href="#writecongress"><span>Write Congress</span></a></li>
 		<li><a href="#commentstream"><span>Comment Stream</span></a></li>
+		<li><a href="#bill_button"><span>Link to a Bill</span></a></li>
+		<li><a href="#popvox_button"><span>Link to POPVOX</span></a></li>
 		
 		<li><a href="#integration"><span>Facebook</span></a></li>
 	</ul>
@@ -741,7 +782,7 @@ var minicolors_opts = {
 		</div>
 	</div><!-- e:splash -->
 
-	<div class="tab_writecongress tab_commentstream">
+	<div class="tab_writecongress tab_commentstream tab_bill_button tab_popvox_button">
 	<div class="config_pane">
 		<p id="widget_description"></p>
 	
@@ -807,6 +848,16 @@ var minicolors_opts = {
 				<div class="clear"> </div>
 			</div><!-- e: block -->
 			
+			<div class="block2 widget_opts bill_button_opts">
+				<div class="vert">
+					<label for="billbutton_bill">Choose a bill</label>
+					<input id="billbutton_bill" type="text" value="S. 724" style="width: 8em"/>
+				</div>
+				<div class="clear"> </div>
+										
+				<div id="billbutton_bill_error" class="error"> </div>
+			</div><!-- e: block -->
+			
 			<div class="block3 widget_opts commentstream_opts writecongress_opts">
 				<!--<h4>Basic </h4><p class="free">(free)</p>-->
 				<h5 class="clear">Widget Dimensions</h5>
@@ -833,6 +884,7 @@ var minicolors_opts = {
 				<div class="clear"> </div>
 			</div><!-- e: block2 -->
 			
+			<div class="widget_opts tab_writecongress tab_commentstream">
 			<div class="plus">
 				<h4>Pro Options</h4>
 				<div class="clear"> </div>
@@ -955,6 +1007,7 @@ var minicolors_opts = {
 				</div>
 		
 			</div>
+			</div>
 		</form><!-- e: form -->
 		
 		{% if accounts|length == 0 %}
@@ -963,7 +1016,7 @@ var minicolors_opts = {
 		</div>
 		{% endif %}
 		
-		<div id="features_write_congress" class="plus_teaser">
+		<div id="features_write_congress" class="plus_teaser widget_opts writecongress_opts commentstream_opts">
 			<h3>With a Pro account you can:</h3>
 			<ul>
 				<li id="customize">

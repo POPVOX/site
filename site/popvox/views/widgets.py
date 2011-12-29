@@ -38,6 +38,16 @@ def bill_js(request):
 	}, context_instance=RequestContext(request),
 	mimetype="text/javascript")
 
+@strong_cache
+@do_not_track_compliance
+def bill_iframe(request):
+	try:
+		bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
+	except:
+		bill = None
+	
+	return HttpResponse("""<html><body><script src="/widgets/js/bill.js?bill=%s&stats=%d&title=%d&iframe=%d"> </script></body></html>""" % (bill.url().replace("/bills/us/", ""), int(request.GET.get("stats", "0")), int(request.GET.get("title", "0")), int(request.GET.get("iframe", "0"))))
+
 @do_not_track_compliance
 def commentmapus(request):
 	count = { }
