@@ -1,7 +1,241 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Grade Your Rep{% endblock %}
+{% block title %}POPVOX - Your Hill{% endblock %}
 {% block title2 %}{% endblock %}
-{% block description %}See How Your Representative Has Voted On Bills You've Weighed In On{% endblock %}
+{% block description %}See how your representative voted On bills you have weighed in on.{% endblock %}
+{% block head %}
+<style>
+
+/*.myhill {
+	background: url(http://sodiumhalogen.com/up/te mp_hill_4c3b.jpg) -130px -104px no-repeat;
+	display: block;
+	height: 900px;
+	}
+	*/
+	.myhill h1 {
+		margin-bottom: 0px;
+		height: 30px;
+		}
+
+.myhill h3 {
+	margin-top: 0;
+	padding-top: 20px;
+	font: bold 14px helvetica, san-serif; 
+	background: none;
+	}
+	
+	.user {
+		margin: 6px 0 0 240px;
+		width: 175px;
+		height: 90px;
+		background: #fff;
+		float: left;
+		}
+		
+		.user p {
+			color: #CC6A11;
+			text-transform: uppercase;
+			text-align: center;
+			font: bold 18px helvetica, san-serif;
+			padding: 35px 0 0;
+			}
+
+	.rep {
+		margin-top: 6px;
+		padding: 5px;
+		width: 165px;
+		height: 80px;
+		float: left;
+		}
+		
+		.rep img {
+			float: left;
+			}
+
+	.rep h3 {
+		color: #CC6A11;
+		margin-left: 10px;
+		padding: 0;
+		width: 75px;
+		text-transform: none;
+		font-size: 13px;
+		float: left;
+		}
+		
+		.rep h3 span {
+			display: block;
+			margin: 10px 0;
+			text-transform: uppercase;
+			}
+
+	#overview {
+		height: 107px;
+		background: url(/media/features/myhill/bg_overview.png) left center no-repeat;
+		}
+		
+	#overview h3 {
+		color: #fff;
+		text-transform: none;
+		font: normal 15px/20px helvetica, san-serif;
+		width: 225px;
+		margin: 0 20px 0 20px;
+		padding: 15px 0 0;
+		float: left;
+		}
+		
+		#overview h3 span {
+			font: bold 15px helvetica;
+			margin-left: 0;
+			}
+		
+		#overview ul {
+			width: 175px;
+			margin-top: 8px;
+			float: left;
+			}
+			
+			#overview ul.last {
+				width: 100px;
+				}
+			
+		#overview ul.rep_key {
+			float: left;
+			width: 220px;
+			}
+			
+			#overview ul li {
+				padding-left: 22px;
+				line-height: 18px;
+				color: #fff;
+				}
+				
+				#overview ul li.voted {
+					background: url(/media/features/myhill/hill_icon_bill_sm.png) left center no-repeat;
+					}
+
+				#overview ul li.agreed {
+					background: url(/media/features/myhill/hill_icon_smile_sm.png) left center no-repeat;
+					}
+
+				#overview ul li.disagreed {
+					background: url(/media/features/myhill/hill_icon_frown_sm.png) left center no-repeat;
+					}
+
+				#overview ul li.absent {
+					background: url(/media/features/myhill/hill_icon_boo_sm.png) left center no-repeat;
+					}
+
+				#overview ul li.abstained {
+					background: url(/media/features/myhill/hill_icon_shush_sm.png) left center no-repeat;
+					}
+
+		.myhill table {
+			border-collapse: collapse;
+			width: 100%;
+			margin: 0;
+			padding: 0;
+			}
+			
+			.myhill table td {
+				border: 1px solid #d4d1ca;
+				border-width: 0 1px 1px 0;
+				width: 175px;
+				height: 50px;
+				vertical-align: top;
+				}
+				
+			.myhill table td.name {
+				width: 240px;
+				border-width: 0 1px 1px 0;
+				}
+				
+				.myhill table td.name h3 {
+					margin: 8px 0 5px;
+					text-transform: none;
+					}
+
+			.myhill table td.user_col {
+				background: #fff;
+				}	
+				
+				.myhill table td.user_col p {
+					font: bold 12px/15px helvetica, san-serif;
+					padding-left: 55px;
+					position: relative;
+					}
+					
+					.myhill table td.user_col p.comment {
+						text-transform: uppercase;
+						margin-top: 0px;
+						padding-top: 40px;
+						}
+						
+					.myhill table td.user_col p span {
+						background: url(/media/features/myhill/hill_quote.png) left 1px no-repeat;
+						display: block;
+						width: 13px;
+						height: 10px;
+						float: left;
+						}
+
+				
+			.myhill table td.agree {
+				background: #fff /*url(/media/features/myhill/hill_icon_smile_orange.png) 150px 10px no-repeat*/;
+				}	
+
+			.myhill table td p {
+				padding: 25px 10px 0 60px;
+				min-height: 35px;
+				font-size: 14px;
+				}
+				
+			.myhill table td p.heart {
+				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
+				}
+				
+			.myhill table td p.anti {
+				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
+				}
+				
+			.myhill table td p.yea {
+				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+
+			.myhill table td p.nay {
+				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+			.myhill table td p.absent {
+				background: url(/media/features/myhill/hill_icon_absent.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+			.myhill table td p.abstained {
+				background: url(/media/features/myhill/hill_icon_abstain.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+				
+				.myhill table td.name p {
+					background: url(/media/features/myhill/hill_icon_bill.png) 3px top no-repeat;
+					padding: 5px 0 0 40px;
+					margin: 0;
+					height: 0;
+					font: italic normal 12px georgia;
+					}
+						
+						.myhill table td.name p strong{
+							font: bold normal 12px helvetica;
+							}
+
+				.myhill table h3 {
+					padding: 5px 0 0;
+					margin: 0;
+					}
+
+</style>
+{% endblock %}
 {% block content %}
 
 <div class="content">
@@ -33,4 +267,147 @@
 	
 </div>
 
+<div class="content myhill">
+
+	<div class="col_9 col_top col_last ">
+		<h1 class="rule_btm">Member Match</h1>
+		
+		<h3>Your Members of Congress</h3>
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+	</div>
+	<div class="clear"> </div>
+	
+	<div class="col_12 col_top hill_table">
+		
+		<div class="user">
+			<p>Jane Doe</p>
+		</div>
+		<div class="rep">
+			<img src="/media/features/myhill/chaka.jpg" alt="chaka" width="80" height="80" />
+			<h3>Rep. Chaka Fattah <span>[D, PA-2]</span></h3>
+		</div>
+		<div class="rep">
+			<img src="/media/features/myhill/casey.jpg" alt="chaka" width="80" height="80" />
+			<h3>Sen. Robert Casey <span>[R, PA]</span></h3>
+		</div>
+		<div class="rep">		
+			<img src="/media/features/myhill/toomey.jpg" alt="chaka" width="80" height="80" />
+			<h3>Sen. Patrick Toomey <span>[R, PA]</span></h3>
+		</div>
+		<div class="clear"> </div>
+		
+		<div id="overview">
+			<h3>You weighed in on <span>5 bills</span>. Here&rsquo;s an overview of how your Congress Person scored on those same bills:</h3>
+			<ul class="rep_key">
+				<!--<li class="voted">Voted On</li>-->
+				<li class="agreed">Agreed with you</li>
+				<li class="disagreed">Disagreed with you</li>
+				<li class="absent">Absent</li>
+				<li class="abstained">Abstained</li>
+			</ul>
+			<ul>
+				<!--<li class="voted">3</li>-->
+				<li class="agreed">0</li>
+				<li class="disagreed">3</li>
+				<li class="absent">1</li>
+				<li class="abstained">0</li>
+			</ul>
+			<ul>
+				<!--<li class="voted">3</li>-->
+				<li class="agreed">2</li>
+				<li class="disagreed">0</li>
+				<li class="absent">2</li>
+				<li class="abstained">0</li>
+			</ul>
+			<ul class="last">
+				<!--<li class="voted">3</li>-->
+				<li class="agreed">1</li>
+				<li class="disagreed">2</li>
+				<li class="absent">0</li>
+				<li class="abstained">1</li>
+			</ul>
+			<div class="clear"> </div>
+		</div>
+		
+		<table>
+			<tr>
+				<td class="name">
+					<h3><a href="#">H.J.Res. 37: Regulating the Internet and broadband practices.</a></h3>
+					<p><strong>Status:</strong> Signed into law...</p>
+				</td>
+				<td class="user_col">
+					<p class="heart"><span></span>Lorem ipsum dolar sit amet consect... <a href="#">more</a></p>
+				</td>
+				<td>
+					<p class="absent">Absent</p>
+				</td>
+				<td class="agree">
+					<p class="yea">Voted Yea</p>
+				</td>
+				<td>
+					<p class="nay">Voted Nay</p>
+				</td>
+			</tr>
+			<tr>
+				<td class="name">
+					<h3><a href="#">H.R. 2527: National Baseball Hall of Fame Commemorative Coin Act</a></h3>
+					<p><strong>Status:</strong> Defeated...</p>
+				</td>
+				<td class="user_col">
+					<p class="heart"><span></span>Lorem ipsum dolar sit amet consect... <a href="#">more</a></p>
+				</td>
+				<td>
+					<p class="nay">Voted Nay</p>
+				</td>
+				<td class="agree">
+					<p class="yea">Voted Yea</p>
+				</td>
+				<td>
+					<p class="abstained">Abstained</p>
+				</td>
+			</tr>
+			<tr>
+				<td class="name">
+					<h3><a href="#">H.R. 2940: Access to Capital for Job Creators Act</a></h3>
+					<p><strong>Status:</strong> Passed to Senate...</p>
+				</td>
+				<td class="user_col">
+					<p class="anti comment"><a href="#">Add Comment</a></p>
+				</td>
+				<td>
+					<p class="yea">Voted Yea</p>
+				</td>
+				<td>
+					<p class="absent">Absent</p>
+				</td>
+				<td class="agree">
+					<p class="nay">Voted Nay</p>
+				</td>
+			</tr>
+			<tr>
+				<td class="name">
+					<h3><a href="#">H.R. 1070: Small Company Capital Formation Act of 2011</a></h3>
+					<p><strong>Status:</strong> Referred to House Ways and Means...</p>
+				</td>
+				<td class="user_col">
+					<p class="heart comment"><a href="#">Add Comment</a></p>
+				</td>
+				<td>
+					<p class="nay">Voted Yea</p>
+				</td>
+				<td>
+					<p class="absent">Absent</p>
+				</td>
+				<td>
+					<p class="nay">Voted Nay</p>
+				</td>
+			</tr>
+		</table>
+			
+		<div class="clear"> </div>
+		
+	</div>
+	
+	
+</div>
 {% endblock %}

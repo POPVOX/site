@@ -517,7 +517,11 @@ dd { margin-bottom: 1em     }
     background: url("bg_rule.gif") repeat-x left bottom;
     padding-bottom: 15px;
     }
-
+    
+.rule_top {
+    background: url("bg_rule.gif") repeat-x left top;
+	}
+	
 .no_rule {
     background: none;
     margin: 0;
