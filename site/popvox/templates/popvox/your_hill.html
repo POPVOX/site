@@ -1,0 +1,36 @@
+{% extends "master.html" %}
+{% block title %}POPVOX - Grade Your Rep{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}See How Your Representative Has Voted On Bills You've Weighed In On{% endblock %}
+{% block content %}
+
+<div class="content">
+
+	<div class="col_9 col_top col_last">
+	<h1>Your Members of Congress are:</h1>
+        {% for member in votes %}
+          <h3>{{member}}</h3>
+        {% endfor %}
+        <h2>Here are the bills they've voted on:</h2>
+        {% for member, bill in billinfo.items %}
+          <h3>{{member}}:</h3>
+          {% for bill, info in bill.items %}
+            <p><b>{{bill.displaynumber}}</b>: {{bill.title_no_number}}</p>
+            {% with info.0 as comment and info.1 as vote %}
+              <p><b>You weighed in:</b> {{comment.position}} <b>Your Comment:</b> {{comment.message}}</p>
+              <p><b>{{member}} voted:</b> {{vote}}</p>
+            {% endwith %}
+          {% endfor %}
+        {% endfor %}
+        <h2>Here are their scores:</h2>
+        {% for member, percentages in votes.items %}
+          <h3>{{member}}:</h3>
+          {% for vote, percent in percentages.items %}
+            <p><b>{{vote}}</b>: {{percent}}</p>
+          {% endfor %}
+        {% endfor %}
+	</div>
+	
+</div>
+
+{% endblock %}

@@ -21,6 +21,7 @@ import popvox.govtrack
 
 from settings import MIXPANEL_API_KEY
 
+import csv
 import urllib
 from xml.dom.minidom import parse, parseString
 
@@ -940,6 +941,27 @@ def who_members(request): #this page doesn't exist, but we could do some cool st
 @login_required
 def your_hill(request):
   
+    def attendancecheck(memberid):
+      with open('/tmp/attendance.csv', 'rb') as f:
+        reader = csv.reader(f)
+        for row in reader:
+          row = list(row)
+          row[1] = float(row[1])
+          row[2] = float(row[2])
+          if int(row[0]) == memberid:
+            if row[1] < 10:
+              row[1] = "%.1f" % row[1]
+            else:
+              row[1] = str(int(row[1]))
+
+            if row[2] < 10:
+                row.append("%.1f" % (100.0 - row[2])) #adding the inverse percentile to the list
+                row[2] = "%.1f" % row[2]
+            else:
+                row.append(str(int(100.0 - row[2]))) #adding the inverse percentile to the list
+                row[2] = str(int(row[2]))
+            return row
+  
     def getmemberids(userid):
       #select the user's state and district:
       address = PostalAddress.objects.get(user=userid)
@@ -1068,15 +1090,16 @@ def your_hill(request):
       for member in memberids:
         scores = getscore(billvotes, member)
         membername = popvox.govtrack.getMemberOfCongress(member)['name']
+        attendance = attendancecheck(member)
         if scores:
-          percentages = {'agree': scores[0], 'disagree': scores[1], 'abstain': scores[2], 'absent': scores[3], 'attendance': '[percentage]'}
+          percentages = {'agree': scores[0], 'disagree': scores[1], 'abstain': scores[2], 'absent': scores[3], 'missed': attendance[1], 'percentile': attendance[2]}
           votes[membername] = percentages
           voterecord[membername] = scores[4]
           billinfo[membername] = {}
           for bill, vote in voterecord[membername].iteritems():
             billinfo[membername][bill] = [billcomments[bill], vote]
         else:
-          votes[membername] = {'agree': 0, 'disagree': 0, 'abstain': 0, 'absent': 0, 'attendance': 0}
+          votes[membername] = {'agree': 0, 'disagree': 0, 'abstain': 0, 'absent': 0, 'missed': attendance[1], 'percentile': attendance[2]}
       
       return render_to_response('popvox/your_hill.html', {'billinfo': billinfo, 'billvotes': billvotes, 'memberids': memberids, 'voterecord': voterecord, 'votes' : votes},
         
