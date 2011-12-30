@@ -1,7 +1,7 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Your Hill{% endblock %}
+{% block title %}POPVOX - Congress Match{% endblock %}
 {% block title2 %}{% endblock %}
-{% block description %}See how your representative voted On bills you have weighed in on.{% endblock %}
+{% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
 {% block head %}
 <style>
 
@@ -66,6 +66,13 @@
 			margin: 10px 0;
 			text-transform: uppercase;
 			}
+			
+	p.small {
+		margin-top: 20px;
+		font-size: 12px;
+		line-height: 130%;
+		color: #555;
+		}
 
 	#overview {
 		height: 107px;
@@ -78,7 +85,7 @@
 		font: normal 15px/20px helvetica, san-serif;
 		width: 225px;
 		margin: 0 20px 0 20px;
-		padding: 15px 0 0;
+		padding: 20px 0 0;
 		float: left;
 		}
 		
@@ -89,7 +96,7 @@
 		
 		#overview ul {
 			width: 175px;
-			margin-top: 8px;
+			margin-top: 20px;
 			float: left;
 			}
 			
@@ -241,10 +248,10 @@
 <div class="content myhill">
 
 	<div class="col_9 col_top col_last ">
-		<h1 class="rule_btm">Member Match</h1>
+		<h1 class="rule_btm">Congress Match</h1>
 		
-		<h3>Your Members of Congress</h3>
-		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+		<h3>How Did Your Members of Congress Vote?</h3>
+		<p>Are your senators and representative voting the way you want them to? Here is a personalized grid that displays every bill on which you weighed in, along with how your legislators voted if a vote was held on the bill. That includes letting you know if your Member of Congress abstained or was absent.  </p>
 	</div>
 	<div class="clear"> </div>
 
@@ -265,11 +272,11 @@
 		
 		<div id="overview">
 			<h3>You weighed in on <span>{{ billvotes|length }} bill{{ billvotes|pluralize }}</span>.
-			    Here&rsquo;s an overview of how your Congress Person scored on those same bills:</h3>
+			    Here&rsquo;s an overview of how your Members of Congress voted on those bills:</h3>
 			<ul class="rep_key">
 				<!--<li class="voted">Voted On</li>-->
-				<li class="agreed">Agreed with you</li>
-				<li class="disagreed">Disagreed with you</li>
+				<li class="agreed">Agreed with You</li>
+				<li class="disagreed">Disagreed with You</li>
 				<li class="absent">Absent</li>
 				{% if had_abstain %}<li class="abstained">Abstained</li>{% endif %}
 			</ul>
@@ -307,13 +314,14 @@
 					{% endif %}
 					</p>
 				</td>
-				{% for vote in votes %}
+				{% for vote, reference in votes %}
 				<td {% if vote == comment.position %}class="agree"{% endif %}>
 					{% if vote == "+" %}<p class="yea">Yea</p>{% endif %}
 					{% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
 					{% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
 					{% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
 					{% if vote == "NR" %}{% endif %}
+					<!--{{reference}}-->
 				</td>
 				{% endfor %}
 			</tr>
@@ -324,6 +332,7 @@
 		
 	</div>
 	
+	<p class="small">Not all bills come up for a vote in the House and Senate. Some bills are voted on multiple times as the House and Senate try to come to an agreement, in which case we show how your Members of Congress voted in the most recent vote on the bill.</p>
 	
 </div>
 {% endblock %}

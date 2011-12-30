@@ -938,164 +938,156 @@ def who_members(request): #this page doesn't exist, but we could do some cool st
         
     context_instance=RequestContext(request))
 
-_your_hill_attendance_data = None
+_congress_match_attendance_data = None
 @login_required
-def your_hill(request):
-  
-    def get_attendance_data():
-      attendance_data = { }
-      with open('/tmp/attendance.csv', 'rb') as f: # TODO: we should move this file
-        reader = csv.reader(f)
-        for row in reader:
-          row = list(row)
-          id = int(row[0])       # member ID
-          row[1] = float(row[1]) # percent missed votes
-          row[2] = float(row[2]) # percentile
-          if row[1] < 10: # format the percent missed votes
-            row[1] = "%.1f" % row[1]
-          else:
-            row[1] = str(int(row[1]))
-          if row[2] < 40:
-            row[2] = "better than %.0f%% of Members of Congress" % (100.0-row[2])
-          elif row[2] > 60:
-            row[2] = "worse than %.0f%% of Members of Congress" % row[2]
-          else:
-            row[2] = "that's about average"
-          attendance_data[id] = (row[1], row[2])
-      return attendance_data
-  
-    def attendancecheck(memberid):
-      global _your_hill_attendance_data
-      if _your_hill_attendance_data == None:
-        _your_hill_attendance_data = get_attendance_data()
-      return _your_hill_attendance_data.get(memberid, None)
+def congress_match(request):
 
-    def getmemberids(address):
-      #select the user's state and district:
-      userstate = address.state
-      userdist  = address.congressionaldistrict
-      usersd    = userstate+str(userdist)
+	def get_attendance_data():
+		attendance_data = { }
+		with open('/mnt/persistent/data/analysis/attendance.csv', 'rb') as f: # TODO: we should move this file
+			reader = csv.reader(f)
+			for row in reader:
+				row = list(row)
+				id = int(row[0])       # member ID
+				row[1] = float(row[1]) # percent missed votes
+				row[2] = float(row[2]) # percentile
+				if row[1] < 10: # format the percent missed votes
+					row[1] = "%.1f" % row[1]
+				else:
+					row[1] = str(int(row[1]))
+				if row[2] < 40:
+					row[2] = "better than %.0f%% of Members of Congress" % (100.0-row[2])
+				elif row[2] > 60:
+					row[2] = "worse than %.0f%% of Members of Congress" % row[2]
+				else:
+					row[2] = "that's about average"
+				attendance_data[id] = (row[1], row[2])
+			return attendance_data
+	
+	def attendancecheck(memberid):
+		global _congress_match_attendance_data
+		if _congress_match_attendance_data == None:
+			_congress_match_attendance_data = get_attendance_data()
+		return _congress_match_attendance_data.get(memberid, None)
+	
+	def getmemberids(address):
+		#select the user's state and district:
+		userstate = address.state
+		userdist  = address.congressionaldistrict
+		usersd    = userstate+str(userdist)
+		
+		#find the govtrack ids corresponding to the user's members (note: can't assume number of reps):
+		members = popvox.govtrack.getMembersOfCongressForDistrict(usersd)
+		memberids = []
+		
+		for member in members:
+			memberids.append(member['id'])
+		return memberids
+	
+	prof = request.user.get_profile()
+	
+	if prof.is_leg_staff() or prof.is_org_admin():
+		return HttpResponseRedirect("/home")
 
-      #find the govtrack ids corresponding to the user's members (note: can't assume number of reps):
-      members = popvox.govtrack.getMembersOfCongressForDistrict(usersd)
-      memberids = []
+	congress = popvox.govtrack.CURRENT_CONGRESS
+	
+	try:
+		most_recent_address = PostalAddress.objects.filter(user=request.user).order_by('-created')[0]
+	except IndexError:
+		# user has no address! therefore no comments either!
+		return render_to_response('popvox/home_match.html', {'billvotes': [], 'members': []},
+			context_instance=RequestContext(request))
+	
+	memberids = getmemberids(most_recent_address)
+	
+	#grab the user's bills and positions:
+	usercomments = UserComment.objects.filter(user=request.user)
+	
+	billvotes = []
 
-      for member in members:
-        memberids.append(member['id'])
-      return memberids
-      
-    def votecheck(voters, member):
-      #get how a particular member voted in a particular vote
-      for voter in voters:
-          voterid = voter.getAttribute("id")
-          if int(voterid) == member:
-              return voter.getAttribute("vote")
-      return "NR"
-        
-    user = request.user
-    userid = user.id
-    prof = user.get_profile()
-        
-    if prof.is_leg_staff():
-        raise Http404()
-        
-    elif prof.is_org_admin():
-        raise Http404()
-    
-    else:
-      congress = popvox.govtrack.CURRENT_CONGRESS
+	for comment in usercomments:
+		#turning bill ids into bill numbers:
+		if not comment.bill.is_bill(): continue
+		
+		#grabbing bill info
+		bill_type = comment.bill.billtype
+		bill_num  = str(comment.bill.billnumber)
+		billstr = bill_type+bill_num
+		billinfo = open('/mnt/persistent/data/govtrack/us/'+str(congress)+'/bills/'+billstr+'.xml')
+		billinfo = billinfo.read()
+		
+		#checking to see if there's been a roll call vote on the bill
+		#since a bill can be voted on more than once (usually once
+		#per chamber!), loop through the votes and aggregate everyone's
+		#votes into a single dict.
+		dom1 = parseString(billinfo)
+		allvotes = dom1.getElementsByTagName("vote")
+		allvoters = { }
+		for vote in allvotes:
+			if vote.getAttribute("how") != "roll": continue
+			
+			#pulling the roll:
+			roll = vote.getAttribute("roll")
+			where = vote.getAttribute("where")
+			date =  vote.getAttribute("datetime")
+			yearre = re.compile(r'^\d{4}')
+			year = re.match(yearre, date).group(0)
+			votexml = "/mnt/persistent/data/govtrack/us/" + str(congress) + "/rolls/"+where+year+"-"+roll+".xml"
+			
+			#parsing the voters for that roll"
+			voteinfo = open(votexml)
+			voteinfo = voteinfo.read()
+			dom2 = parseString(voteinfo)
+			voters = dom2.getElementsByTagName("voter")
+			for voter in voters:
+				voterid = int(voter.getAttribute("id"))
+				votervote = voter.getAttribute("vote")
+				allvoters[voterid] = (votervote, where+year+"-"+roll)
+			
+		#creating an array of the votes. if a Member wasn't in any
+		#roll call, mark with NR for no roll. For each Member, record
+		# a tuple of how the Member voted ("+" etc.) and a string giving
+		# a reference to the vote (already put inside allvoters).
+		voters_votes = []
+		for member in memberids:
+			voters_votes.append( allvoters.get(member, ("NR", None)) )
+		billvotes.append( (comment, voters_votes) )
+		
+	# get member info for column header
+	members = []
+	for id in memberids:
+		members.append(popvox.govtrack.getMemberOfCongress(id))
+	
+	# get overall stats by member
+	stats = []
+	had_abstain = False
+	for id in memberids: # init each member to zeroes
+		stats.append({ "agree": 0, "disagree": 0, "0": 0, "P": 0, "_TOTAL_": 0 })
+	for comment, votes in billvotes: # for each vote...
+		for i, (vote, ref) in enumerate(votes): # and each member...
+			if vote in ("+", "-"): # increment the stats
+				if vote == comment.position:
+					stats[i]["agree"] += 1
+				else:
+					stats[i]["disagree"] += 1
+				stats[i]["_TOTAL_"] += 1
+			elif vote in ("0", "P"): # also increment the stats
+				stats[i][vote] += 1
+				stats[i]["_TOTAL_"] += 1
+				if vote == "P":
+					had_abstain = True
+			elif vote == "NR":
+				pass # member did not have opportunity to vote
+	for i, memstat in enumerate(stats):
+		for key in ('agree', 'disagree', '0', 'P'):
+			if memstat["_TOTAL_"] > 0:
+				memstat[key+"_percent"] = ("%.0f" % (100.0*memstat[key]/memstat["_TOTAL_"]))
+			else:
+				memstat[key+"_percent"] = 0
+		memstat["attendance"] = attendancecheck(memberids[i])
 
-      try:
-        most_recent_address = PostalAddress.objects.filter(user=request.user).order_by('-created')[0]
-      except IndexError:
-        # user has no address! therefore no comments either!
-        return render_to_response('popvox/your_hill.html', {'billvotes': [], 'members': []},
-          context_instance=RequestContext(request))
-        
-      memberids = getmemberids(most_recent_address)
-      
-      #grab the user's bills and positions:
-      usercomments = UserComment.objects.filter(user=userid)
-      
-      billvotes = []
-      
-      for comment in usercomments:
-        #turning bill ids into bill numbers:
-	if not comment.bill.is_bill(): continue
-
-        #grabbing bill info
-        bill_type = comment.bill.billtype
-        bill_num  = str(comment.bill.billnumber)
-        billstr = bill_type+bill_num
-        billinfo = open('/mnt/persistent/data/govtrack/us/'+str(congress)+'/bills/'+billstr+'.xml')
-        billinfo = billinfo.read()
-        
-        #checking to see if there's been a roll call vote on the bill:
-        dom1 = parseString(billinfo)
-        vote = dom1.getElementsByTagName("vote")
-        if vote.length == 0:
-            continue
-        how = vote[0].getAttribute("how")  ## EEK: looking at index 0 means we will never see a second vote
-        if how != "roll":
-            continue
-          
-        #pulling the roll:
-        roll = vote[0].getAttribute("roll")
-        where = vote[0].getAttribute("where")
-        date =  vote[0].getAttribute("datetime")
-        yearre = re.compile(r'^\d{4}')
-        year = re.match(yearre, date).group(0)
-        votexml = "/mnt/persistent/data/govtrack/us/112/rolls/"+where+year+"-"+roll+".xml"
-        
-        #parsing the voters for that roll"
-        voteinfo = open(votexml)
-        voteinfo = voteinfo.read()
-        dom2 = parseString(voteinfo)
-        voters = dom2.getElementsByTagName("voter")
-        
-        #creating an array of the votes:
-        voters_votes = []
-        for member in memberids:
-          voters_votes.append( votecheck(voters, member) )
-          
-        billvotes.append( (comment, voters_votes) )
-
-      # get member info for column header
-      members = []
-      for id in memberids:
-        members.append(popvox.govtrack.getMemberOfCongress(id))
-
-      # get overall stats by member
-      stats = []
-      had_abstain = False
-      for id in memberids: # init each member to zeroes
-        stats.append({ "agree": 0, "disagree": 0, "0": 0, "P": 0, "_TOTAL_": 0 })
-      for comment, votes in billvotes: # for each vote...
-        for i, vote in enumerate(votes): # and each member...
-          if vote in ("+", "-"): # increment the stats
-            if vote == comment.position:
-              stats[i]["agree"] += 1
-            else:
-              stats[i]["disagree"] += 1
-            stats[i]["_TOTAL_"] += 1
-          elif vote in ("0", "P"): # also increment the stats
-            stats[i][vote] += 1
-            stats[i]["_TOTAL_"] += 1
-            if vote == "P":
-              had_abstain = True
-          elif vote == "NR":
-            pass # member did not have opportunity to vote
-      for i, memstat in enumerate(stats):
-        for key in ('agree', 'disagree', '0', 'P'):
-          if memstat["_TOTAL_"] > 0:
-            memstat[key+"_percent"] = ("%.0f" % (100.0*memstat[key]/memstat["_TOTAL_"]))
-          else:
-            memstat[key+"_percent"] = 0
-        memstat["attendance"] = attendancecheck(memberids[i])
-      
-      return render_to_response('popvox/your_hill.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats,
-		'had_abstain': had_abstain},
-        context_instance=RequestContext(request))
+	return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
+		context_instance=RequestContext(request))
 
 @login_required
 def delete_account(request):

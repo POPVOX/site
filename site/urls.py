@@ -23,12 +23,12 @@ urlpatterns = patterns('',
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	
 	(r'^delete_account.html$', 'popvox.views.home.delete_account'),
-	(r'^your_hill.html$', 'popvox.views.home.your_hill'),
 	
 	(r'^delete_account_confirmed.html$', 'popvox.views.home.delete_account_confirmed'),
 	
 	(r'^home$', 'popvox.views.home.home'),
 	(r'^home/suggestions$', 'popvox.views.home.home_suggestions'),
+	(r'^home/match$', 'popvox.views.home.congress_match'),
 	(r'^docket$', 'popvox.views.home.docket'),
 	(r'^ajax/docket/bill_categories$', 'popvox.views.home.legstaff_bill_categories'),
 	(r'^ajax/docket/bill_category_panel$', 'popvox.views.home.legstaff_bill_category_panel'),

@@ -9,7 +9,7 @@ import re
 from xml.dom.minidom import parse, parseString
 import os
 
-rolls = os.listdir('/mnt/persistent/data/govtrack/us/112/rolls/')
+rolls = os.listdir('/mnt/persistent/data/govtrack/us/%d/rolls/' % CURRENT_CONGRESS)
 
 totalvotes= {}
 missedvotes = {} #"0"
@@ -19,7 +19,7 @@ percent_attended = {}
 
 for roll in rolls:
   #pulling the roll:
-  rollxml = "/mnt/persistent/data/govtrack/us/112/rolls/"+roll
+  rollxml = "/mnt/persistent/data/govtrack/us/" + str(CURRENT_CONGRESS) + "/rolls/"+roll
 
   #parsing the voters for that roll"
   voteinfo = open(rollxml)
@@ -54,7 +54,7 @@ percentages.sort()
 
 percentile_missed = {}
 
-with open('/tmp/attendance.csv', 'wb') as f:
+with open('/mnt/persistent/data/analysis/attendance.csv', 'wb') as f:
     for member in members:
       rank = percentages.index(percent_missed[member])
       percentile_missed[member] = 100*rank/float(len(percentages))
