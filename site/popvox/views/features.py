@@ -350,6 +350,29 @@ def legstaff_facebook_report(request):
 	return render_to_response('popvox/features/congress_facebook_report.html', {
 		"is_leg_staff": is_leg_staff
 		}, context_instance=RequestContext(request))
+		
+def agree_index(request):
+    repgrades = []
+    with open('grade_reps.csv', 'rb') as f:
+      reader = csv.reader(f)
+      for row in reader:
+        repgrades.append(row)
+        
+    house = []
+    senate = []
+    for row in repgrades:
+      memberinfo = popvox.govtrack.getMemberOfCongress(row[0]) #row[0] is the memberid
+      if memberinfo['type'] == 'sen': #sorting by chamber
+        senate.append(row)
+      else:
+        house.append(row)
+        
+    house = sorted(house, key=lambda house: float(house[5])) #sort house by score
+    senate = sorted(senate, key=lambda senate: float(senate[5])) #sort senate by score
+    
+    return render_to_response('popvox/agree_index.html', {'house': house, 'senate': senate},
+      context_instance=RequestContext(request))
+      
 
 @json_response
 @user_passes_test(lambda u : u.is_authenticated() and u.userprofile.is_leg_staff())
