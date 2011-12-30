@@ -238,35 +238,6 @@
 {% endblock %}
 {% block content %}
 
-<div class="content">
-
-	<div class="col_9 col_top col_last">
-	<h1>Your Members of Congress are:</h1>
-        {% for member in votes %}
-          <h3>{{member}}</h3>
-        {% endfor %}
-        <h2>Here are the bills they've voted on:</h2>
-        {% for member, bill in billinfo.items %}
-          <h3>{{member}}:</h3>
-          {% for bill, info in bill.items %}
-            <p><b>{{bill.displaynumber}}</b>: {{bill.title_no_number}}</p>
-            {% with info.0 as comment and info.1 as vote %}
-              <p><b>You weighed in:</b> {{comment.position}} <b>Your Comment:</b> {{comment.message}}</p>
-              <p><b>{{member}} voted:</b> {{vote}}</p>
-            {% endwith %}
-          {% endfor %}
-        {% endfor %}
-        <h2>Here are their scores:</h2>
-        {% for member, percentages in votes.items %}
-          <h3>{{member}}:</h3>
-          {% for vote, percent in percentages.items %}
-            <p><b>{{vote}}</b>: {{percent}}</p>
-          {% endfor %}
-        {% endfor %}
-	</div>
-	
-</div>
-
 <div class="content myhill">
 
 	<div class="col_9 col_top col_last ">
@@ -276,132 +247,77 @@
 		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
 	</div>
 	<div class="clear"> </div>
-	
+
+
 	<div class="col_12 col_top hill_table">
 		
 		<div class="user">
-			<p>Jane Doe</p>
+			<p>{{most_recent_address.firstname}} {{most_recent_address.lastname}}</p>
 		</div>
+		{% for member in members %}
 		<div class="rep">
-			<img src="/media/features/myhill/chaka.jpg" alt="chaka" width="80" height="80" />
-			<h3>Rep. Chaka Fattah <span>[D, PA-2]</span></h3>
+			<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
+			<h3>{{member.name}}</h3>
+			<!--<h3>Rep. Chaka Fattah <span>[D, PA-2]</span></h3>-->
 		</div>
-		<div class="rep">
-			<img src="/media/features/myhill/casey.jpg" alt="chaka" width="80" height="80" />
-			<h3>Sen. Robert Casey <span>[R, PA]</span></h3>
-		</div>
-		<div class="rep">		
-			<img src="/media/features/myhill/toomey.jpg" alt="chaka" width="80" height="80" />
-			<h3>Sen. Patrick Toomey <span>[R, PA]</span></h3>
-		</div>
+		{% endfor %}
 		<div class="clear"> </div>
 		
 		<div id="overview">
-			<h3>You weighed in on <span>5 bills</span>. Here&rsquo;s an overview of how your Congress Person scored on those same bills:</h3>
+			<h3>You weighed in on <span>{{ billvotes|length }} bill{{ billvotes|pluralize }}</span>.
+			    Here&rsquo;s an overview of how your Congress Person scored on those same bills:</h3>
 			<ul class="rep_key">
 				<!--<li class="voted">Voted On</li>-->
 				<li class="agreed">Agreed with you</li>
 				<li class="disagreed">Disagreed with you</li>
 				<li class="absent">Absent</li>
-				<li class="abstained">Abstained</li>
+				{% if had_abstain %}<li class="abstained">Abstained</li>{% endif %}
 			</ul>
-			<ul>
+			{% for memstats in stats %}
+			<ul {% if forloop.last %}class="last"{% endif %}>
 				<!--<li class="voted">3</li>-->
-				<li class="agreed">0</li>
-				<li class="disagreed">3</li>
-				<li class="absent">1</li>
-				<li class="abstained">0</li>
+				<li class="agreed">{{memstats.agree}} ({{memstats.agree_percent}}%)</li>
+				<li class="disagreed">{{memstats.disagree}} ({{memstats.disagree_percent}}%)</li>
+				<li class="absent">
+					{{memstats.0}} ({{memstats.0_percent}}%)
+					{% if memstats.attendance %}
+						<span style="cursor: pointer" title="overall missed votes is {{memstats.attendance.0}}%, {{memstats.attendance.1}}">*</span>
+					{% endif %}
+				</li>
+				{% if had_abstain %}<li class="abstained">{{memstats.P}} ({{memstats.P_percent}}%)</li>{% endif %}
 			</ul>
-			<ul>
-				<!--<li class="voted">3</li>-->
-				<li class="agreed">2</li>
-				<li class="disagreed">0</li>
-				<li class="absent">2</li>
-				<li class="abstained">0</li>
-			</ul>
-			<ul class="last">
-				<!--<li class="voted">3</li>-->
-				<li class="agreed">1</li>
-				<li class="disagreed">2</li>
-				<li class="absent">0</li>
-				<li class="abstained">1</li>
-			</ul>
+			{% endfor %}
 			<div class="clear"> </div>
 		</div>
-		
+
 		<table>
+			{% for comment, votes in billvotes %}
 			<tr>
 				<td class="name">
-					<h3><a href="#">H.J.Res. 37: Regulating the Internet and broadband practices.</a></h3>
-					<p><strong>Status:</strong> Signed into law...</p>
+					<h3><a href="{{comment.bill.url}}">{{comment.bill.title|truncatewords:13}}</a></h3>
+					<p><strong>Status:</strong> {{comment.bill.status_advanced}}</p>
 				</td>
 				<td class="user_col">
-					<p class="heart"><span></span>Lorem ipsum dolar sit amet consect... <a href="#">more</a></p>
+					<p class="{% if comment.position == "+" %}heart{% else %}anti{% endif %} {% if not comment.message %}comment{% endif %}">
+					{% if not comment.message %}
+						<a href="{{comment.bill.url}}/comment">Add Comment</a>
+					{% else %}
+						<span></span>
+						{{comment.message|truncatewords:7}} <a href="{{comment.url}}">more</a>
+					{% endif %}
+					</p>
 				</td>
-				<td>
-					<p class="absent">Absent</p>
+				{% for vote in votes %}
+				<td {% if vote == comment.position %}class="agree"{% endif %}>
+					{% if vote == "+" %}<p class="yea">Yea</p>{% endif %}
+					{% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
+					{% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
+					{% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
+					{% if vote == "NR" %}{% endif %}
 				</td>
-				<td class="agree">
-					<p class="yea">Voted Yea</p>
-				</td>
-				<td>
-					<p class="nay">Voted Nay</p>
-				</td>
+				{% endfor %}
 			</tr>
-			<tr>
-				<td class="name">
-					<h3><a href="#">H.R. 2527: National Baseball Hall of Fame Commemorative Coin Act</a></h3>
-					<p><strong>Status:</strong> Defeated...</p>
-				</td>
-				<td class="user_col">
-					<p class="heart"><span></span>Lorem ipsum dolar sit amet consect... <a href="#">more</a></p>
-				</td>
-				<td>
-					<p class="nay">Voted Nay</p>
-				</td>
-				<td class="agree">
-					<p class="yea">Voted Yea</p>
-				</td>
-				<td>
-					<p class="abstained">Abstained</p>
-				</td>
-			</tr>
-			<tr>
-				<td class="name">
-					<h3><a href="#">H.R. 2940: Access to Capital for Job Creators Act</a></h3>
-					<p><strong>Status:</strong> Passed to Senate...</p>
-				</td>
-				<td class="user_col">
-					<p class="anti comment"><a href="#">Add Comment</a></p>
-				</td>
-				<td>
-					<p class="yea">Voted Yea</p>
-				</td>
-				<td>
-					<p class="absent">Absent</p>
-				</td>
-				<td class="agree">
-					<p class="nay">Voted Nay</p>
-				</td>
-			</tr>
-			<tr>
-				<td class="name">
-					<h3><a href="#">H.R. 1070: Small Company Capital Formation Act of 2011</a></h3>
-					<p><strong>Status:</strong> Referred to House Ways and Means...</p>
-				</td>
-				<td class="user_col">
-					<p class="heart comment"><a href="#">Add Comment</a></p>
-				</td>
-				<td>
-					<p class="nay">Voted Yea</p>
-				</td>
-				<td>
-					<p class="absent">Absent</p>
-				</td>
-				<td>
-					<p class="nay">Voted Nay</p>
-				</td>
-			</tr>
+			{% endfor %}
 		</table>
 			
 		<div class="clear"> </div>
