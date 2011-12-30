@@ -984,11 +984,6 @@ def congress_match(request):
 			memberids.append(member['id'])
 		return memberids
 	
-	prof = request.user.get_profile()
-	
-	if prof.is_leg_staff() or prof.is_org_admin():
-		return HttpResponseRedirect("/home")
-
 	congress = popvox.govtrack.CURRENT_CONGRESS
 	
 	try:

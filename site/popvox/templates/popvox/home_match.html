@@ -257,9 +257,12 @@
 
 
 	<div class="col_12 col_top hill_table">
-		
 		<div class="user">
-			<p>{{most_recent_address.firstname}} {{most_recent_address.lastname}}</p>
+			{% if most_recent_address %}
+				<p>{{most_recent_address.firstname}} {{most_recent_address.lastname}}</p>
+			{% else %}
+				<p>You</p>
+			{% endif %}
 		</div>
 		{% for member in members %}
 		<div class="rep">
@@ -267,6 +270,16 @@
 			<h3>{{member.name}}</h3>
 			<!--<h3>Rep. Chaka Fattah <span>[D, PA-2]</span></h3>-->
 		</div>
+		{% empty %}
+			<div class="rep">
+				<h3>Your Representative</h3>
+			</div>
+			<div class="rep">
+				<h3>Your Senator</h3>
+			</div>
+			<div class="rep">
+				<h3>Your Senator</h3>
+			</div>
 		{% endfor %}
 		<div class="clear"> </div>
 		
@@ -293,6 +306,25 @@
 				</li>
 				{% if had_abstain %}<li class="abstained">{{memstats.P}} ({{memstats.P_percent}}%)</li>{% endif %}
 			</ul>
+			{% empty %}
+				<ul>
+					<!--<li class="voted">3</li>-->
+					<li class="agreed">...</li>
+					<li class="disagreed">...</li>
+					<li class="absent">...</li>
+				</ul>
+				<ul>
+					<!--<li class="voted">3</li>-->
+					<li class="agreed">...</li>
+					<li class="disagreed">...</li>
+					<li class="absent">...</li>
+				</ul>
+				<ul class="last">
+					<!--<li class="voted">3</li>-->
+					<li class="agreed">...</li>
+					<li class="disagreed">...</li>
+					<li class="absent">...</li>
+				</ul>
 			{% endfor %}
 			<div class="clear"> </div>
 		</div>
@@ -325,14 +357,24 @@
 				</td>
 				{% endfor %}
 			</tr>
+			{% empty %}
+				<tr>
+					<td class="name">
+					</td>
+					<td class="user_col">
+						<p>You have not weighed in on any bills in Congress. Go <a href="/bills">find a bill</a> to get started.</p>
+					</td>
+					<td> </td>
+					<td> </td>
+					<td> </td>
+				</tr>
 			{% endfor %}
 		</table>
 			
 		<div class="clear"> </div>
 		
+		<p class="small">Not all bills come up for a vote in the House and Senate. Some bills are voted on multiple times as the House and Senate try to come to an agreement, in which case we show how your Members of Congress voted in the most recent vote on the bill.</p>
 	</div>
-	
-	<p class="small">Not all bills come up for a vote in the House and Senate. Some bills are voted on multiple times as the House and Senate try to come to an agreement, in which case we show how your Members of Congress voted in the most recent vote on the bill.</p>
 	
 </div>
 {% endblock %}
