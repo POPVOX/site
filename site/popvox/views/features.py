@@ -351,27 +351,37 @@ def legstaff_facebook_report(request):
 		"is_leg_staff": is_leg_staff
 		}, context_instance=RequestContext(request))
 		
-def agree_index(request):
-    repgrades = []
-    with open('grade_reps.csv', 'rb') as f:
-      reader = csv.reader(f)
-      for row in reader:
-        repgrades.append(row)
-        
-    house = []
-    senate = []
-    for row in repgrades:
-      memberinfo = popvox.govtrack.getMemberOfCongress(row[0]) #row[0] is the memberid
-      if memberinfo['type'] == 'sen': #sorting by chamber
-        senate.append(row)
-      else:
-        house.append(row)
-        
-    house = sorted(house, key=lambda house: float(house[5])) #sort house by score
-    senate = sorted(senate, key=lambda senate: float(senate[5])) #sort senate by score
-    
-    return render_to_response('popvox/agree_index.html', {'house': house, 'senate': senate},
-      context_instance=RequestContext(request))
+#@strong_cache
+def grade_reps(request):
+	import csv, popvox.govtrack
+	repgrades = []
+	with open('grade_reps.csv', 'rb') as f:
+		reader = csv.reader(f)
+		for row in reader:
+			if row[0] == 'mid': continue # header
+			row[6] = int(row[6])
+			row[5] = float(row[5]) if row[5] != "N/A" else None
+			repgrades.append(row)
+	
+	house = []
+	senate = []
+	for row in repgrades:
+		memberinfo = popvox.govtrack.getMemberOfCongress(int(row[0])) #row[0] is the memberid
+		if not memberinfo['current']: continue
+		if memberinfo['type'] == 'sen': #sorting by chamber
+			senate.append(row)
+		else:
+			house.append(row)
+	
+	house = sorted(house, key=lambda house: (house[5], house[6]), reverse=True) #sort house by score
+	senate = sorted(senate, key=lambda senate: (senate[5], senate[6]), reverse=True) #sort senate by score
+	for r in house+senate:
+		if r[5] != None:
+			r[5] = ("%0.f" % r[5])
+	
+	return render_to_response("popvox/features/grade_reps.html",
+	{ 'scores': [('Representatives', house), ('Senators', senate)] },
+	context_instance=RequestContext(request))
       
 
 @json_response

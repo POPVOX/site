@@ -118,6 +118,7 @@ urlpatterns = patterns('',
 	(r'^services/api/campaign/(\d+)/supporters/(csv|json)$', "popvox.views.services.download_supporters"),
 	
 	(r'^supercommittee$', 'popvox.views.features.supercommittee'),
+	#(r'^grading-congress$', 'popvox.views.features.grade_reps'),
 
 	(r'^ajax/district-lookup$', 'writeyourrep.district_lookup.district_lookup'),
 

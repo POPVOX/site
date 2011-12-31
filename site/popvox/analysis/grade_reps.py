@@ -100,7 +100,7 @@ for roll in rolls:
 		# the total number of positions we have.
 		total = mcounts["+"] + mcounts["-"]
 		p = binom.cdf(total-cnt, total, 0.5)
-		if p < .05:
+		if p < .025: # 5% confidence level when two-tailed
 			# the likelihood that we would see this many votes if the
 			# population were split is so low that we reject the null
 			# and accept that the population mean position is not

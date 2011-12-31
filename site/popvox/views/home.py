@@ -1015,6 +1015,9 @@ def congress_match(request):
 		#since a bill can be voted on more than once (usually once
 		#per chamber!), loop through the votes and aggregate everyone's
 		#votes into a single dict.
+		#a bill can be voted on multiple times in the same chamber
+		#(e.g. ping pong or conference reports), and we'll take the
+		#last vote encountered in the file, which is the most recent.
 		dom1 = parseString(billinfo)
 		allvotes = dom1.getElementsByTagName("vote")
 		allvoters = { }
