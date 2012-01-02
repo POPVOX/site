@@ -1069,6 +1069,16 @@ def congress_match(request):
 			voters_votes.append( allvoters.get(member, ("NR", None)) )
 		billvotes.append( (comment, voters_votes) )
 		
+	# put all comments that have had votes first and votes cast first,
+	# then comments with votes but no reps were elligible to vote,
+	# and then comments without votes, each group sorted by comment
+	# creation date reverse chronologically.
+	billvotes.sort(key = lambda x : (
+		x[1] != None,
+		x[1] != None and len([y for y in x[1] if y[0] == "NR"]) != len(x[1]),
+		x[0].created
+		), reverse=True)
+		
 	# get member info for column header
 	members = []
 	for id in memberids:
