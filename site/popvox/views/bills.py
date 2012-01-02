@@ -607,6 +607,7 @@ a reminder, please follow this link instead to stop future reminders:
 
 def get_comment_recipients(bill, address):
 	if address == None: return None
+	if address.state == None or address.congressionaldistrict == None: return # can be called with incomplete info
 	c = UserComment(bill=bill, address=address)
 	recips = c.get_recipients()
 	if type(recips) != list: return None
