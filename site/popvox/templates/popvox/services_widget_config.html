@@ -327,10 +327,11 @@ var writecongress_by_ocp;
 function change_widget(tabname, is_initial) {
 	widgettype = tabname;
 	
-	if (widgettype == "splash" || widgettype == "integration") {
+	if (widgettype == "splash") {
 		$('.config_pane, .preview_pane').hide();
 		$('#splash').show();
-		return;
+	} else if (widgettype == "integration") {
+		$('.config_pane, .preview_pane, #splash').hide();
 	} else {
 		$('.config_pane, .preview_pane').show();
 		$('#splash').hide();
