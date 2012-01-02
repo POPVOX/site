@@ -152,6 +152,7 @@
 			.myhill table td.name {
 				width: 240px;
 				border-width: 0 1px 1px 0;
+				padding-right: 10px;
 				}
 				
 				.myhill table td.name h3 {
@@ -234,11 +235,25 @@
 						.myhill table td.name p strong{
 							font: bold normal 12px helvetica;
 							}
-
-				.myhill table h3 {
-					padding: 5px 0 0;
+							
+			.myhill table td.novote {
+				text-align: center;
+				vertical-align: middle;
+				padding: 1em;
+				background-color: #dfdcd6;
+				}
+				.myhill table td.novote p {
+					padding: 0;
 					margin: 0;
-					}
+					min-height: 0;
+					font-style: italic;
+					font-size: 13px;
+				}
+
+			.myhill table h3 {
+				padding: 5px 0 0;
+				margin: 0;
+				}
 
 </style>
 {% endblock %}
@@ -345,16 +360,22 @@
 					{% endif %}
 					</p>
 				</td>
-				{% for vote, reference in votes %}
-				<td {% if vote == comment.position %}class="agree"{% endif %}>
-					{% if vote == "+" %}<p class="yea">Yea</p>{% endif %}
-					{% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
-					{% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
-					{% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
-					{% if vote == "NR" %}{% endif %}
-					<!--{{reference}}-->
-				</td>
-				{% endfor %}
+				{% if votes or not members %}
+					{% for vote, reference in votes %}
+					<td {% if vote == comment.position %}class="agree"{% endif %}>
+						{% if vote == "+" %}<p class="yea">Yea</p>{% endif %}
+						{% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
+						{% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
+						{% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
+						{% if vote == "NR" %}{% endif %}
+						<!--{{reference}}-->
+					</td>
+					{% endfor %}
+				{% else %}
+					<td colspan="{{members|length}}" class="novote">
+						<p>This {{comment.bill.proposition_type}} has not come up for a vote.</p>
+					</td>
+				{% endif %}
 			</tr>
 			{% empty %}
 				<tr>

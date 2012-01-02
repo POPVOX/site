@@ -1008,8 +1008,13 @@ def congress_match(request):
 		bill_type = comment.bill.billtype
 		bill_num  = str(comment.bill.billnumber)
 		billstr = bill_type+bill_num
-		billinfo = open('/mnt/persistent/data/govtrack/us/'+str(congress)+'/bills/'+billstr+'.xml')
-		billinfo = billinfo.read()
+		try:
+			billinfo = open('/mnt/persistent/data/govtrack/us/'+str(congress)+'/bills/'+billstr+'.xml')
+			billinfo = billinfo.read()
+			dom1 = parseString(billinfo)
+		except:
+			# not sure why the file might be missing or invalid, but just in case
+			continue
 		
 		#checking to see if there's been a roll call vote on the bill
 		#since a bill can be voted on more than once (usually once
@@ -1018,11 +1023,13 @@ def congress_match(request):
 		#a bill can be voted on multiple times in the same chamber
 		#(e.g. ping pong or conference reports), and we'll take the
 		#last vote encountered in the file, which is the most recent.
-		dom1 = parseString(billinfo)
 		allvotes = dom1.getElementsByTagName("vote")
 		allvoters = { }
+		had_vote = False
 		for vote in allvotes:
 			if vote.getAttribute("how") != "roll": continue
+			
+			had_vote = True
 			
 			#pulling the roll:
 			roll = vote.getAttribute("roll")
@@ -1033,14 +1040,25 @@ def congress_match(request):
 			votexml = "/mnt/persistent/data/govtrack/us/" + str(congress) + "/rolls/"+where+year+"-"+roll+".xml"
 			
 			#parsing the voters for that roll"
-			voteinfo = open(votexml)
-			voteinfo = voteinfo.read()
-			dom2 = parseString(voteinfo)
+			try:
+				voteinfo = open(votexml)
+				voteinfo = voteinfo.read()
+				dom2 = parseString(voteinfo)
+			except:
+				# not sure why the file might be missing or invalid, but just in case
+				continue
 			voters = dom2.getElementsByTagName("voter")
 			for voter in voters:
 				voterid = int(voter.getAttribute("id"))
 				votervote = voter.getAttribute("vote")
 				allvoters[voterid] = (votervote, where+year+"-"+roll)
+			
+		#if there was no vote on this bill, output something a little different
+		#(note that this is different from a vote but none of the user's reps
+		#actually cast a vote)
+		if not had_vote:
+			billvotes.append( (comment, None) )
+			continue
 			
 		#creating an array of the votes. if a Member wasn't in any
 		#roll call, mark with NR for no roll. For each Member, record
@@ -1062,6 +1080,7 @@ def congress_match(request):
 	for id in memberids: # init each member to zeroes
 		stats.append({ "agree": 0, "disagree": 0, "0": 0, "P": 0, "_TOTAL_": 0 })
 	for comment, votes in billvotes: # for each vote...
+		if not votes: continue # no vote on this bill
 		for i, (vote, ref) in enumerate(votes): # and each member...
 			if vote in ("+", "-"): # increment the stats
 				if vote == comment.position:
