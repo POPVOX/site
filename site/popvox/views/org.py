@@ -233,15 +233,15 @@ def org_update_fields(request, field, value, validate_only):
 		if m != None:
 			gid = m.group(1)
 
-		m = re.match(r"^http://(www.)?facebook.com/([^/ ]+)$", value)
+		m = re.match(r"^https?://(www.)?facebook.com/([^/ ]+)$", value)
 		if m != None:
 			gid = m.group(2)
 
-		m = re.match(r"^http://(www.)?facebook.com/group.php\?gid=(\d+)$", value)
+		m = re.match(r"^https?://(www.)?facebook.com/group.php\?gid=(\d+)$", value)
 		if m != None:
 			gid = m.group(2)
 
-		m = re.match(r"^http://(www.)?facebook.com/home.php\?sk=group_(\d+)$", value)
+		m = re.match(r"^https?://(www.)?facebook.com/home.php\?sk=group_(\d+)$", value)
 		if m != None:
 			gid = m.group(2)
 			
@@ -263,15 +263,17 @@ def org_update_fields(request, field, value, validate_only):
 			# If no logo is set, grab it from Facebook, if set in the picture property.
 			if not org.logo and type(fb) == dict and "picture" in fb:
 				try:
-					data = urlopen(fb["picture"]).read() # python docs indicate this may not read to end??
-					org_update_logo_2(org, data)
+					data = urlopen(fb["picture"])
+					org_update_logo_2(org, StringIO(data.read()))
 				except:
+					import traceback
+					traceback.print_exc()
 					pass
 			# or try the graph.facebook.com/.../picture URL.
-			elif not org.logo and type(fb) == dict and "id" in dict:
+			elif not org.logo and type(fb) == dict and "id" in fb:
 				try:
-					data = urlopen("http://graph.facebook.com/" + gid + "/picture?type=large").read() # python docs indicate this may not read to end??
-					org_update_logo_2(org, data)
+					data = urlopen("http://graph.facebook.com/" + fb["id"] + "/picture?type=large")
+					org_update_logo_2(org, StringIO(data.read()))
 				except:
 					pass
 			org.save()
