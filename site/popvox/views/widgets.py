@@ -46,7 +46,11 @@ def bill_iframe(request):
 	except:
 		bill = None
 	
-	return HttpResponse("""<html><body><script src="/widgets/js/bill.js?bill=%s&stats=%d&title=%d&iframe=%d"> </script></body></html>""" % (bill.url().replace("/bills/us/", ""), int(request.GET.get("stats", "0")), int(request.GET.get("title", "0")), int(request.GET.get("iframe", "0"))))
+	return HttpResponse("""<html><body><script src="/widgets/js/bill.js?%sstats=%d&title=%d&iframe=%d"> </script></body></html>""" % (
+		("bill=" + bill.url().replace("/bills/us/", "") + "&") if bill else "",
+		int(request.GET.get("stats", "0")),
+		int(request.GET.get("title", "0")),
+		int(request.GET.get("iframe", "0"))))
 
 @do_not_track_compliance
 def commentmapus(request):
