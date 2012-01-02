@@ -7,7 +7,7 @@ from inspectobj import get_related_objects
 class Command(BaseCommand):
 	option_list = BaseCommand.option_list
 	help = "Merges two objects in the database by updating references to the second to the first, and then deleting the second. Only makes changes if 'update' is specified."
-	args = 'app model id1 id2 [update]'
+	args = 'app model id_keep id_delete [update]'
 	requires_model_validation = True
 	
 	def handle(self, *args, **options):
