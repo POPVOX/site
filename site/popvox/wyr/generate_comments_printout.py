@@ -41,12 +41,22 @@ def create_tex(tex, serial):
 	outfile.write = lambda x : outfile_.write(x.encode("utf8", "replace"))
 	def escape_latex(x):
 		if not isinstance(x, (str, unicode)): raise ValueError(type(x))
-		x = re.sub(r"(\S{15})(\S{15})", r"\1" + u"\u00AD" + r"\2", x) # break up long sequences of otherwise unbreakable characters with soft hyphens, which just show up as hyphens so we replace then with LaTeX discretionary breaks below 
-		x = x.replace("\\", r"\\").replace("#", r"\#").replace("$", r"\$").replace("%", r"\%").replace("&", r"\&").replace("~", r"\~").replace("_", r"\_").replace("^", r"\^").replace("{", r"\{").replace("}", r"\}").replace(u"\u00AD", r"\discretionary{}{}{}")
+		# Break up long sequences of otherwise unbreakable characters with soft hyphens,
+		# which just show up as hyphens so we replace then with LaTeX discretionary breaks below.
+		# First try to break after non-word characters, but then break anywhere.
+		# We do this first because we don't want to break up any LaTeX commands.
+		x = re.sub(r"(\S{15}\W)(\S{15})", r"\1" + u"\u00AD" + r"\2", x)
+		x = re.sub(r"(\S{15})(\S{15})", r"\1" + u"\u00AD" + r"\2", x)
+		
+		# Escape special characters.
+		x = x.replace("\\", r"\\").replace("#", r"\#").replace("$", r"\$").replace("%", r"\%").replace("&", r"\&").replace("~", r"\~{}").replace("_", r"\_").replace("^", r"\^").replace("{", r"\{").replace("}", r"\}").replace(u"\u00AD", r"\discretionary{}{}{}")
+		
+		# Smart quotes.
 		x = re.sub(r'(\s)"', r'\1' + u"\u201C", x)
 		x = re.sub(r"(\s)'", r'\1' + u"\u2018", x)
 		x = re.sub(r'"', u"\u201D", x)
 		x = re.sub(r"'", u"\u2019", x)
+		
 		return x
 		
 	outfile.write_esc = lambda x : outfile.write(escape_latex(x))
