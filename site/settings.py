@@ -30,6 +30,14 @@ SERVER_EMAIL = "POPVOX <no.reply@popvox.com>"
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 
+# Django generates a Message-ID on mail using the system's
+# reported FQDN, but hosted in the cloud we're resolving
+# to some EC2 private internal network name. So override
+# the domain used with our actual domain name. Hopefully
+# this will prevent us from getting mail lost to black holes.
+import django.core.mail.message
+django.core.mail.message.DNS_NAME = 'popvox.com'
+
 if DEBUG:
 	# this is the default when DEBUG is true, but we'll be explicit.
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
