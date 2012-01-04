@@ -97,6 +97,8 @@ urlpatterns = patterns('',
 	(r'^accounts/register/(check_inbox|needs_approval)$', 'popvox.views.profile.register_response'),
 	(r'^accounts/switchuser/([A-Za-z0-9_]+)', 'popvox.views.profile.switch_to_demo_account'),
 	
+	(r'^accounts/unsubscribe', 'popvox.views.home.unsubscribe_me'),
+	
 	(r'^ajax/accounts/register$', 'popvox.views.profile.register_validation'),
 	(r'^ajax/accounts/profile/updatefields$', 'popvox.views.profile.account_profile_update'),
 	(r'^ajax/accounts/profile/updatefield$', 'popvox.views.profile.account_profile_update2'),
