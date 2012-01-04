@@ -77,6 +77,8 @@ if "LAST_ERR" in os.environ:
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_UNHANDLED_EXCEPTION)
 	if os.environ["LAST_ERR"] == "DD":
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT)
+	if os.environ["LAST_ERR"] == "CAPTCHA":
+		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE, delivery_attempts__trace__contains="CAPTCHA")
 if "RECENT" in os.environ:
 	comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=7))
 	
