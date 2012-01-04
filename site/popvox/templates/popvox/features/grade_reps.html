@@ -1,0 +1,77 @@
+{% extends "master.html" %}
+{% block title %}POPVOX - Grading Congress{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}See whether Members of Congress are voting with their constituents.{% endblock %}
+{% block head %}
+<style>
+.grade_reps h3 {
+	margin-top: 0;
+	padding-top: 20px;
+	font: bold 14px helvetica, san-serif; 
+	background: none;
+	}
+	
+		.grade_reps table {
+			border-collapse: collapse;
+			margin: 0;
+			padding: 0;
+			}
+			
+			.grade_reps table td, .grade_reps table th {
+				border: 1px solid #d4d1ca;
+				border-width: 0 1px 1px 1px;
+				vertical-align: top;
+				padding: 1em;
+				font-size: 12px;
+				}
+			.grade_reps table th {
+				border-width: 1px 1px 1px 1px;
+				font-weight: bold;
+				background-color: #EEE;
+				}
+
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="content grade_reps">
+
+	<div class="col_9 col_top col_last ">
+		<h1 class="rule_btm">Grading Congress</h1>
+		
+		<h3>How well do Members of Congress stack up with their constituents?</h3>
+		<p>After a year of helping people in every Congressional district share their opinions on pending bills with their legislators, POPVOX can start to show how often votes of representatives and senators lined up with the positions of the people they represent.</p>
+
+		<p>If you are a POPVOX user, see how your own Members of Congress lined up with your positions on POPVOX at our new <a href="/home/match">Congress Match</a> page.</p>
+
+		<p>The &ldquo;Agreement&rdquo; score below is the percentage of votes that the representative or senator cast that are in agreement with the majority of the constituents weighing in on POPVOX. This is a new index with several caveats:</p>
+
+		<ul class="bullets">
+        <li>Not all votes had enough constituent input on POPVOX within each state and district to provide statistically valid data.  We only counted a representative or senator&rsquo;s vote when the majority opinion of his or her constituents was statistically significant (at a 95% confidence level). The number of votes counted for each Member of Congress is shown &mdash; for many, just one vote met our criteria.</li>
+        <li>For some Members of Congress, there were no votes for which there was a statistically significant majority opinion among their constituents. These Members are marked to indicate that.</li>
+        <li>For the most part, Senators represent a larger and more diverse population than House members, with a lower level of homogeneity among constituents. We see considerably lower percentages of agreement among senators, and we believe this is to be expected.</li>
+        <li>Members of Leadership in either chamber are frequently charged with brokering unpopular compromises that they must subsequently support with votes.  In some cases, constituents may disagree with the position but understand the circumstances.</li>
+        </ul>
+
+	</div>
+	
+	<div class="clear"> </div>
+
+	{% for name, list in scores %}
+	<div class="col_5">
+		<h3>{{name}}</h3>
+		
+		<table>
+			<tr><th>Name</th> <th><nobr>Agreement %</nobr></th> <th>Votes</th></tr>
+			{% for id, name, pagr, psig, pnum, bagr, bnum in list %}
+				<tr>
+					<td>{{name}}</td>
+					<td>{% if bnum > 0 %}{{bagr}}{% else %}N/A{% endif %}</td>
+					<td>{{bnum}}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}

@@ -109,9 +109,12 @@ for roll in rolls:
 			if vote == pos:
 				moc_score[voterid]["bills_agreeing"] += 1
 			moc_score[voterid]["bills_total"] += 1
+		else:
+			if voterid == 412378:
+				print 100*mcounts["+"]/total, total
 
-		if voterid == 412378:
-			print rollxmlfile, bill, mcounts["+"], mcounts["-"], p, vote, pos
+		#if voterid == 412378:
+		#	print rollxmlfile, bill, mcounts["+"], mcounts["-"], p, vote, pos
 		
 def pct(a, b):
 	if b == 0: return "N/A"
