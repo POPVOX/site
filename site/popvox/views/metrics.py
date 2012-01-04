@@ -220,15 +220,16 @@ def metrics_report_spreadsheet(request, sheet):
 	elif sheet == "powerusers":
 		header = ['id', 'email', 'positions_count', 'firstname', 'lastname', 'unsubscribe_link']
 		qs = User.objects.all().annotate(positions_count=Count("comments")).order_by('-positions_count')
-		qs = qs[0:2000]
+		qs = qs[0:10000].iterator()
+
+		from settings import SITE_ROOT_URL
+		from home import unsubscribe_me_makehash, unsubscribe_me
+		unsub_base_url = SITE_ROOT_URL + reverse(unsubscribe_me) + "?"
 		def make_user_unsubscribe_link(obj):
 			# create a link that the user can visit to one-click unsubscribe himself,
 			# just take care to hash something so that people can't guess the URL
 			# to unsubscribe someone else.
-			from settings import SITE_ROOT_URL
-			from home import unsubscribe_me_makehash, unsubscribe_me
-			return SITE_ROOT_URL + reverse(unsubscribe_me) + "?" + urllib.urlencode({"email": obj.email, "key": unsubscribe_me_makehash(obj.email)})
-			
+			return unsub_base_url + urllib.urlencode({"email": obj.email, "key": unsubscribe_me_makehash(obj.email)})
 		extra_fields = {
 			"firstname": lambda obj : obj.postaladdress_set.order_by('-created')[0].firstname,
 			"lastname": lambda obj : obj.postaladdress_set.order_by('-created')[0].lastname,
