@@ -375,7 +375,8 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"organization",
 	"unsubscribe", "newsletteraction", "email.optin",
 	"enewssign", "enewsletter", "newsletteraction",
-	"countdown")
+	"countdown", "txthomesearch",
+	"field_f0a5e486-09e8-4c79-8776-7c1ea0c45f27")
 
 radio_choices = {
 	"reason": "legsitemail",
@@ -413,6 +414,7 @@ custom_mapping = {
 	"624_phone_second_text" : "phone_line",
 	"659_contact[postal_code]_text": "zip5",
 	"666_daytime-phone_text": "phone",
+	"721_field_5eb7428f-9e29-4ecb-a666-6bc56b6a435e_radio": "response_requested",
 	"728_phone1_text": "phone_areacode",
 	"728_phone2_text": "phone_prefix",
 	"728_phone3_text": "phone_line",
@@ -466,7 +468,9 @@ custom_overrides = {
 	'345_enews_radio': '',
 	"426_aff1_radio": "<AFFL>Subscribe</AFFL>",
 	"550_issue_type_radio": "issue",
+	"568_captcha_code_text": "vc7sr",
 	"568_subject_radio": "CRNR", # no response
+	"568_idresident_radio": "yes",
 	"583_affl1_select": "no action",
 	"584_msub_select": "Other",
 	"585_aff1_radio": "<affl>subscribe</affl>",
@@ -787,6 +791,24 @@ def parse_webform(webformurl, webform, webformid, id):
 			
 		elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
 			m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
+			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
+			try:
+				image_content = urllib2.urlopen(urlparse.urljoin(webformurl, m.group(1))).read()
+			except:
+				raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img did not load.")
+			
+			# solve the captcha
+			import deathbycaptcha, StringIO
+			dbc = deathbycaptcha.SocketClient(settings.DEATHBYCAPTCHA_USERNAME, settings.DEATHBYCAPTCHA_PASSWORD)
+			print 'Calling DeathByCaptcha, remaining balance $%s.' % (dbc.get_balance()/100.0)
+			solution = dbc.decode(StringIO.StringIO(image_content))
+			if not solution: raise WebformParseException("Form uses a CAPTCHA but DeathByCaptcha returned nothing.")
+				
+			field_default[attr] = solution['text']
+			continue
+			
+		elif ax in ("verification", "validation", "contactform:captcha", "captcha_0ad40428-0789-4ce6-91ca-b7b15180caca"):
+			m = re.search(r'<img src="((http://.*.(senate|house).gov/)?(captcha/\d+.cfm|.*/captcha.cfm\?CFID=.*?&CFTOKEN=.*?|CaptchaImage.aspx\?guid=[\w\-]+))"', webform)
 			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
 			try:
 				image_content = urllib2.urlopen(urlparse.urljoin(webformurl, m.group(1))).read()
