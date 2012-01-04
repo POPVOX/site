@@ -1131,7 +1131,33 @@ def delete_account(request):
         return render_to_response('popvox/delete_account.html', {},
         
     context_instance=RequestContext(request))
-    
+
+def unsubscribe_me_makehash(email):
+	from settings import SECRET_KEY, SITE_ROOT_URL
+	import hashlib
+	sha = hashlib.sha1()
+	sha.update(SECRET_KEY)
+	sha.update(email)
+	return sha.hexdigest()
+	
+def unsubscribe_me(request):
+	email = request.GET.get("email", "---invalid---")
+	key = request.GET.get("key", "")
+	
+	if key != unsubscribe_me_makehash(email):
+		return HttpResponse("You have followed an invalid link.")
+	
+	try:
+		u = User.objects.get(email=email)
+	except User.DoesNotExist:
+		return HttpResponse("You have followed an invalid link.")
+		
+	p = u.userprofile
+	p.allow_mass_mails = False
+	p.save()
+	
+	return HttpResponse("You have been unsubscribed.")
+
 @login_required
 def delete_account_confirmed(request):
     user = request.user

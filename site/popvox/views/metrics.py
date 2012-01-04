@@ -6,6 +6,7 @@ from django.db import connection, transaction
 from django.db.models import Count
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from popvox.models import UserComment, Org, OrgContact, UserLegStaffRole
 
@@ -15,6 +16,7 @@ import calendar
 import csv
 from scipy import stats
 from collections import OrderedDict
+import urllib
 
 @user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
 def metrics_by_period(request):
@@ -193,12 +195,21 @@ def metrics_report_spreadsheet(request, sheet):
 		}
 
 	elif sheet == "powerusers":
-		header = ['id', 'email', 'positions_count', 'firstname', 'lastname']
+		header = ['id', 'email', 'positions_count', 'firstname', 'lastname', 'unsubscribe_link']
 		qs = User.objects.all().annotate(positions_count=Count("comments")).order_by('-positions_count')
 		qs = qs[0:2000]
+		def make_user_unsubscribe_link(obj):
+			# create a link that the user can visit to one-click unsubscribe himself,
+			# just take care to hash something so that people can't guess the URL
+			# to unsubscribe someone else.
+			from settings import SITE_ROOT_URL
+			from home import unsubscribe_me_makehash, unsubscribe_me
+			return SITE_ROOT_URL + reverse(unsubscribe_me) + "?" + urllib.urlencode({"email": obj.email, "key": unsubscribe_me_makehash(obj.email)})
+			
 		extra_fields = {
 			"firstname": lambda obj : obj.postaladdress_set.order_by('-created')[0].firstname,
-			"lastname": lambda obj : obj.postaladdress_set.order_by('-created')[0].lastname
+			"lastname": lambda obj : obj.postaladdress_set.order_by('-created')[0].lastname,
+			"unsubscribe_link": make_user_unsubscribe_link
 		}
 		
 	elif sheet == "supercommittee":
