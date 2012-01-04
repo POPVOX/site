@@ -38,20 +38,20 @@ def banner(request, formatid, outputformat):
 	# it is executed synchronously with respect to other jQuery ajax calls.
 	# In the second stage, we pass the id of the div and fill it in with the
 	# banner using jQuery.
-	if outputformat == "js" and request.GET.get("ss", "") != "2":
+	if outputformat == "js" and request.GET.get("jquery", "") == "1" and request.GET.get("ss", "") != "2":
 		url = request.build_absolute_uri()
 		if not "?" in url:
 			url += "?"
 		else:
 			url += "&"
 		url += "ss=2"
-		if request.GET.get("jquery", "") != "1":
-			js = "document.write(\"<script src='" + escapejs(url) + "'> </script>\");"
-		else:
-			divid = "adserver_placement_" + str(random.randint(0, 10000))
-			url += "&div_id=" + divid
-			js = "document.write(\"<div id='" + escapejs(divid) + "'> </div>\");" \
-				+  "$.ajax({async:false,crossDomain:true,dataType:'script',url: '" + escapejs(url) + "' } );"
+		divid = "adserver_placement_" + str(random.randint(0, 10000))
+		url += "&div_id=" + divid
+		js = ""
+		js += "document.write(\"<div id='%s'> </div>\");\n" % divid
+		js += "function %s() { $.ajax({dataType:'script',url:'%s',complete:function() { if (adserver_chain.length == 0) adserver_chain = null; else adserver_chain.pop()(); } } ); }\n" % (divid, escapejs(url))
+		js += "if (typeof adserver_chain === 'undefined' || adserver_chain == null) { adserver_chain = []; %s(); }\n" % divid
+		js += "else { adserver_chain.push(%s); }" % divid
 		response = HttpResponse(js, mimetype="text/javascript")
 		return response
 		
