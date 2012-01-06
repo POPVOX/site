@@ -182,6 +182,7 @@ def metrics_report_spreadsheet(request, sheet):
 	writer = csv.writer(response)
 	
 	extra_fields = { }
+	notes = None
 	
 	if sheet == "orgs":
 		header = ['id', 'slug', 'name', 'website']
@@ -193,6 +194,28 @@ def metrics_report_spreadsheet(request, sheet):
 		extra_fields = {
 			"registered": lambda obj : "yes" if User.objects.filter(email=obj.email).exists() else "no"
 		}
+		
+	elif sheet == "topbills":
+		from popvox.models import Bill, UserComment
+		header = ['id', 'count', 'title', '#pro', '#con']
+		filters = {}
+		if "state" in request.GET:
+			filters["state"] = request.GET["state"]
+			if "district" in request.GET:
+				filters["congressionaldistrict"] = request.GET["district"]
+		if "days" in request.GET:
+			filters["created__gt"] = datetime.now() - timedelta(days=float(request.GET["days"]))
+		if filters:
+			notes = ", ".join([ k+"="+str(v) for k,v in filters.items() ])
+		qs = Bill.objects.all()\
+			.filter(**dict( ("usercomments__"+k,v) for k,v in filters.items() ))\
+			.annotate(count=Count('usercomments'))\
+			.order_by('-count')\
+			[0:50]
+		extra_fields = {
+			"#pro": lambda bill : UserComment.objects.filter(bill=bill, position="+", **filters).count(),
+			"#con": lambda bill : UserComment.objects.filter(bill=bill, position="-", **filters).count(),
+			}
 
 	elif sheet == "powerusers":
 		header = ['id', 'email', 'positions_count', 'firstname', 'lastname', 'unsubscribe_link']
@@ -259,6 +282,9 @@ def metrics_report_spreadsheet(request, sheet):
 			ret = ", ".join(unicode(r) for r in ret.all())
 			
 		return ret
+	
+	if notes:
+		writer.writerow([notes])
 	
 	writer.writerow(header)
 	for obj in qs:
