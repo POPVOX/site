@@ -1,6 +1,7 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
 {% block title %}{{position.action_headline}} - {{position.campaign.org.name}}{% endblock%}
+{% block description %}POPVOX - {{position.action_headline}} - {{position.campaign.org.name}}{% endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 <script>

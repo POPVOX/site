@@ -1,6 +1,7 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
 {% block title %}Preview Comment on {{ bill.title }}{% endblock%}
+{% block description %}Preview your comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block finalscript %}<script>mpmetrics.track('comment preview', { 'bill': '{{bill.displaynumber|escapejs}}', 'personalized': {% if message %}'yes'{% else %}'no'{% endif %}, 'had_error': {% if newaccount_error %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
 {% block head %}

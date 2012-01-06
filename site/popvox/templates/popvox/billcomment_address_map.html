@@ -1,6 +1,7 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
 {% block title %}Finish Comment on {{ bill.title }}{% endblock%}
+{% block description %}We couldn&rsquo;t locate your Congressional district based on the address you entered earlier. We need your help to determine where you live.{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block finalscript %}<script>mpmetrics.track('comment addressmap', { 'bill': '{{bill.displaynumber|escapejs}}' );</script>{% endblock %}
 {% block head %}

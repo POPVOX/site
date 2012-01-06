@@ -2,6 +2,7 @@
 {% load popvox_utils %}
 {% load humanize %}
 {% block title %}{{ cam.org.name }} - {{ cam.name }}{% endblock %}
+{% block description %}{{ cam.org.name }} has a legislative agenda on POPVOX about {{ cam.name }}.{% endblock%}
 {%block nav_orgadmin_class_profile%}{%if admin%}active{%endif%}{%endblock%}
 {%block nav_orgadmin_class_orgs%}{%if not admin%}active{%endif%}{%endblock%}
 {%block nav_citzen_class_orgs%}active{%endblock%}

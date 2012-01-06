@@ -1,5 +1,6 @@
 {% extends "master.html" %}
 {% block title %}Comment on {{ bill.title }}{% endblock%}
+{% block description %}Tell your elected officials why you {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title }}.{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block finalscript %}
 <script>

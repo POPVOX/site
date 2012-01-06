@@ -2,6 +2,7 @@
 {% load popvox_utils %}
 {% load humanize %}
 {% block title %}{{ org.name }}{% endblock%}
+{% block description %}POPVOX Profile: {% if org.description %}{{org.description}}{% else %}{{org.name}} has a profile and legislative agenda on POPVOX.{% endif %}{% endblock%}
 {%block nav_orgadmin_class_profile%}{%if admin%}active{%endif%}{%endblock%}
 {%block nav_orgadmin_class_orgs%}{%if not admin%}active{%endif%}{%endblock%}
 {%block nav_citzen_class_orgs%}active{%endblock%}
