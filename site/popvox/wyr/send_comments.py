@@ -12,7 +12,7 @@ from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, Or
 from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress
 
 from writeyourrep.send_message import Message, send_message, Endpoint, DeliveryRecord
-from writeyourrep.addressnorm import verify_adddress
+from writeyourrep.addressnorm import verify_adddress, validate_phone
 
 mocs_require_phone_number = (
 	412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,
@@ -218,7 +218,14 @@ def process_comment(comment, thread_id):
 			msg.county = comment.address.county
 		if msg.address2.lower() == msg.city.lower():
 			msg.address2 = ""
-		
+			
+		# If we know the MoC wants a phone number, skip any message with an impossible phone number
+		if gid in mocs_require_phone_number:
+			try:
+				validate_phone(comment.address.phonenumber)
+			except:
+				continue
+	
 		# Get the last attempt to deliver to this recipient.
 		last_delivery_attempt = None
 		try:

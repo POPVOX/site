@@ -970,10 +970,12 @@ def send_message_webform(di, msg, deliveryrec):
 		
 		# Make sure that if there were options given for a prefix that they accept our
 		# prefixes. We'll deal with the wrath of an unexpected response.
-		if v == "prefix" and postdata[k] == "Reverend" and msg.firstname == "Jacob" and di.id == 677: postdata[k] = "Mr."
-		if v == "prefix" and field_options[k] != None: field_options[k]["reverend"] = "Reverend"
-		if v == "prefix" and field_options[k] != None: field_options[k]["pastor"] = "Pastor"
-		if v == "prefix" and field_options[k] != None: field_options[k]["dr."] = "Dr."
+		if v == "prefix" and postdata[k] == "Reverend" and msg.firstname in ("Jacob", "Mike") and di.id in (677, 691): postdata[k] = "Mr."
+		if v == "prefix" and postdata[k] == "Dr." and msg.firstname in ("James",) and di.id == 710: postdata[k] = "Mr."
+			# pretend they accept this... confusing to diagnose tho!
+		#if v == "prefix" and field_options[k] != None: field_options[k]["reverend"] = "Reverend"
+		#if v == "prefix" and field_options[k] != None: field_options[k]["pastor"] = "Pastor"
+		#if v == "prefix" and field_options[k] != None: field_options[k]["dr."] = "Dr."
 		
 		# Make sure that if there were options given for a suffix that we accept a blank suffix.
 		if v == "suffix" and field_options[k] != None: field_options[k][""] = ""
@@ -1042,7 +1044,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# Thess guys have some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input.
-	if di.id in (13, 37, 121, 124, 140, 147, 159, 161, 166, 176, 209, 221, 244, 280, 324, 341, 386, 426, 570, 577, 585, 588, 598, 599, 600, 604, 605, 607, 608, 611, 613, 639, 641, 646, 665, 678, 693, 703, 706, 709, 710, 713, 718, 730, 734, 736, 746, 749, 753, 774, 775, 780, 783, 784, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
+	if di.id in (13, 37, 121, 124, 140, 147, 150, 159, 161, 166, 176, 209, 221, 226, 244, 280, 324, 341, 386, 426, 570, 577, 585, 588, 598, 599, 600, 604, 605, 606, 607, 608, 611, 613, 639, 641, 646, 649, 665, 678, 688, 691, 693, 703, 706, 709, 710, 713, 717, 718, 730, 734, 736, 746, 749, 753, 756, 774, 775, 780, 783, 784, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -1132,8 +1134,9 @@ def send_message_webform(di, msg, deliveryrec):
 	if m:
 		raise WebformParseException("Form-reported " + m.group(1))
 	
-	if "Invalid CAPTCHA value" in ret:
-		raise WebformParseException("Response says 'Invalid CAPTCHA value'")
+	for s in ("Invalid CAPTCHA value", "incorrect validation code"):
+		if s in ret:
+			raise WebformParseException("Response says invalid CAPTCHA value: " + s)
 
 	if di.webformresponse == None or di.webformresponse.strip() == "":
 		deliveryrec.trace += u"\n" + ret + u"\n\n"
@@ -1289,21 +1292,21 @@ def send_message(msg, moc, previous_attempt, loginfo):
 		if not alt_zip:
 			from popvox.models import PostalAddress
 			try:
-				alt_zip = PostalAddress.objects.filter(state=msg.state, congressionaldistrict=msg.congressionaldistrict, zipcode__startswith=msg.zipcode, zipcode__contains="-")[0].zipcode
+				alt_zip = PostalAddress.objects.filter(state=msg.state, congressionaldistrict=msg.congressionaldistrict, zipcode__startswith=msg.zipcode+"-")[0].zipcode
 			except IndexError:
 				pass
 		if alt_zip:
 			msg.zipcode = alt_zip
 	if len(msg.zipcode.split("-")) != 2:
 		msg.zip5 = msg.zipcode
-		msg.zip4 = ""
+		msg.zip4 = "0000" # some forms need the field filled in, and when there is no +4 for the ZIP code, 0000 works
 	else:
 		msg.zip5, msg.zip4 = msg.zipcode.split("-")
 	msg.phone_areacode = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[0:3]
 	msg.phone_prefix = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[3:6]
 	msg.phone_line = "".join([c for c in msg.phone + "0000000000" if c.isdigit()])[6:10]
 	if govtrackrecipientid == 400633 and len(msg.phone) > 0 and msg.phone[0] == '1': msg.phone = msg.phone[1:]
-	if govtrackrecipientid in (400616,400055,412469,412249,412469):
+	if govtrackrecipientid in (400616,400055,412469,412249,412469,400076):
 		msg.phone = "".join([d for d in msg.phone if d.isdigit()][0:10])
 		if govtrackrecipientid == 412249 and msg.phone != "":
 			msg.phone = ("%s-%s-%s" % (msg.phone[0:3], msg.phone[3:6], msg.phone[6:10]))

@@ -95,6 +95,26 @@ def verify_adddress_cached(address, ret, validate=True):
 	address.timezone = ret["GeoLocationInfo"]["TimeZone"]
 	address.county = ret["County"]
 
+def validate_phone(phonenumber):
+	phonenumber = "".join([d for d in phonenumber if d.isdigit()])
+	
+	# chop off optional initial 1
+	if phonenumber.startswith("1"):
+		phonenumber = phonenumber[1:]
+
+	# there must be at least 10 digits after that
+	if len(phonenumber) < 10:
+		raise ValueError("Phone number must be at least 10 digits.")
+
+	if phonenumber[0] in ("0", "1"):
+		raise ValueError("Phone number area code cannot start with a 0 or 1.")
+	if phonenumber[3] in ("0", "1"):
+		raise ValueError("Phone number local number cannot start with a 0 or 1.")
+	if phonenumber[1:3] == "11" or phonenumber[0:3] == "555":
+		raise ValueError("Phone number has an invalid area code.")
+	if phonenumber[3:8] == "55501":
+		raise ValueError("Phone number is in the fictitious block.")
+
 if __name__ == "__main__":
 	from popvox.models import PostalAddress
 	address = PostalAddress()
