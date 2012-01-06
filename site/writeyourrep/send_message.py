@@ -468,7 +468,6 @@ custom_overrides = {
 	'345_enews_radio': '',
 	"426_aff1_radio": "<AFFL>Subscribe</AFFL>",
 	"550_issue_type_radio": "issue",
-	"568_captcha_code_text": "vc7sr",
 	"568_subject_radio": "CRNR", # no response
 	"568_idresident_radio": "yes",
 	"583_affl1_select": "no action",
@@ -823,6 +822,12 @@ def parse_webform(webformurl, webform, webformid, id):
 			if not solution: raise WebformParseException("Form uses a CAPTCHA but DeathByCaptcha returned nothing.")
 				
 			field_default[attr] = solution['text']
+			continue
+			
+		elif ax == "captcha_code":
+			m = re.search(r'captcha_audio/captcha_([^\.]+)\.wav', webform)
+			if not m: raise WebformParseException("Form uses a dumb CAPTCHA but the answer wasn't found.")
+			field_default[attr] = m.group(1)
 			continue
 
 		else:
