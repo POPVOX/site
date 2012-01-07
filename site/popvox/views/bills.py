@@ -573,20 +573,11 @@ class DelayedCommentAction:
 	def email_subject(self):
 		return "Confirm Your Letter on " + Bill.objects.get(id=self.bill).shortname + " -- POPVOX"
 		
-	def email_body(self):
-		return """Thanks for coming to POPVOX and commenting on legislation. To finish creating your account so that your position on %s can be delivered, just follow this link:
-
-<URL>
-
-If the link is not clickable, please copy and paste it into your web browser.
-
-All the best,
-
-POPVOX
-
-(We'll send this email again soon in case you miss it the first time. If you do not wish to complete the action and do not want to get a reminder, please follow this link instead to stop future reminders: <KILL_URL>)
-
-%s""" % (Bill.objects.get(id=self.bill).nicename, ("For your records, your pending message is:\n\n" + self.comment_session_state["message"]) if self.comment_session_state["message"].strip() != "" else "")
+	def email_templates(self):
+		return ("popvox/emails/billcomment_confirm_email", {
+			"bill": Bill.objects.get(id=self.bill).shortname,
+			"comment": self.comment_session_state["message"].strip() if self.comment_session_state["message"].strip() != "" else ""
+		})
 
 	def email_should_resend(self):
 		return not User.objects.filter(email = self.registrationinfo.email).exists()

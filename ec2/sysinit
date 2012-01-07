@@ -44,7 +44,7 @@ apt-get install -y \
  postfix rdiff-backup \
  git-core subversion mercurial \
  nginx-full python-flup mysql-client \
- python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml sphinxsearch \
+ python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml python-cssutils sphinxsearch \
  memcached python-memcache \
  poppler-utils libqtcore4 pdftk graphicsmagick \
  python-mechanize python-matplotlib python-scipy python-rsvg \

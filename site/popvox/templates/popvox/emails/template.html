@@ -1,44 +1,17 @@
 {% extends "emailverification/htmltemplate.html" %}
-{% block subject %}{{subject}}{% endblock %}
 {% block head %}
-	<style>
-		body, td { color: #4b494a; font-family: Arial, Helvetica, sans-serif; font-size: 8px; }
-		a { color: #cd680e; }
-		div.rule { margin: 15px 0 15px 0; height: 4px; background: url(https://www.popvox.com/media/email/rule.jpg) repeat-x; }
-	</style>
-	{% block head2 %}
-	{% endblock %}
-{% endblock %}
-{% block h_styles %}
-	{% comment %}should be applied inline{% endcomment %}
+<style>
+	#backgroundTable { background-color: #e7e4dd; color: black; padding: 10px; }
 	h1 {
 	   color: #414046 !important;
 	   font-size: 32px;
 	   line-height: 100% !important;
+	   font-family: Arial, Helvetica, sans-serif; 
 	}
-	
-	h2, h3, h4, h5, h6 {
-	   color: #cd680e !important;
-	   line-height: 100% !important;
-	}
-	
-	h2 {
-	   font-size: 24px;
-	}	
-	
-	h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
-	   color: blue !important;
-	}
-	
-	h1 a:active, h2 a:active,  h3 a:active, h4 a:active, h5 a:active, h6 a:active {
-	   color: red !important;
-	}
-	
-	h1 a:visited, h2 a:visited,  h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited {
-	   color: purple !important;
-	}
+	p { color: #4b494a; font-family: Arial, Helvetica, sans-serif; font-size: 11pt; }
+	a { color: #cd680e; }
+</style>
 {% endblock %}
-{% block backgroundcss %}background-color: #e7e4dd; color: black; padding: 10px; width: 615px !important;{% endblock %}
 {% block body %}
 	<table width="100%">
 	<tr>
@@ -48,12 +21,15 @@
 	</tr>
 	</table>
 	
-	<div class="rule" style="> </div>
+	<div style="margin: 15px 0 15px 0; height: 4px;"><img src="https://www.popvox.com/media/email/rule.jpg" height="4" width="594" /></div>
 	
 	{% block body2 %}
 	{% endblock %}
 	
-	<div class="rule" style="margin: 15px 0 15px 0; height: 4px; background: url(https://www.popvox.com/media/email/rule.jpg) repeat-x;"> </div>
+	<div style="margin: 15px 0 15px 0; height: 4px;"><img src="https://www.popvox.com/media/email/rule.jpg" height="4" width="594" /></div>
 	
-	<p class="footer"><a href="http://www.popvox.com">POPVOX.COM</a> | REDWOOD CITY, CA | WASHINGTON, DC</p>
+	<p class="footer"><a href="http://www.popvox.com">POPVOX.COM</a> | Your voice verified, quantified, and amplified.</p>
+
+	{% block unsubscribe %}
+	{% endblock %}
 {% endblock %}

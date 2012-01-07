@@ -39,6 +39,14 @@ def send_record_email(email, action, r):
 			ctx["URL"] = return_url
 			ctx["KILL_URL"] = kill_url
 			emailbody = templ.render(ctx)
+		elif hasattr(action, "email_templates"):
+			template_name, template_context_vars = action.email_templates()
+			templ = get_template(template_name + ".txt")
+			ctx = Context(template_context_vars)
+			ctx["URL"] = return_url
+			ctx["KILL_URL"] = kill_url
+			ctx["subject"] = emailsubject
+			emailbody = templ.render(ctx)
 		else:
 			raise ValueError("Action object is missing email_body and email_text_template. You must implement one.")
 		
@@ -47,7 +55,7 @@ def send_record_email(email, action, r):
 		if hasattr(action, "email_from_address"):
 			fromaddr = action.email_from_address()
 			
-		if not hasattr(action, "email_html_template"):
+		if not hasattr(action, "email_html_template") and not hasattr(action, "email_templates"):
 			# text only
 			send_mail(emailsubject, emailbody, fromaddr,
 				[email], fail_silently=False)
@@ -56,13 +64,34 @@ def send_record_email(email, action, r):
 			# text+html
 			email = EmailMultiAlternatives(emailsubject, emailbody, fromaddr, [email])
 			
-			template_name, template_context_vars = action.email_html_template()
-			templ = get_template(template_name)
-			ctx = Context(template_context_vars)
-			ctx["URL"] = return_url
-			ctx["KILL_URL"] = kill_url
-			html_content = templ.render(ctx)
+			if hasattr(action, "email_html_template"):
+				template_name, template_context_vars = action.email_html_template()
+				templ = get_template(template_name)
+				ctx = Context(template_context_vars)
+				ctx["URL"] = return_url
+				ctx["KILL_URL"] = kill_url
+				ctx["subject"] = emailsubject
+				html_content = templ.render(ctx)
+			else:
+				# template_name, ctx are already initialized above
+				templ = get_template(template_name + ".html")
+				html_content = templ.render(ctx)
 
+			# Email clients are horribly bad at interpreting CSS and vary in how
+			# they do so. Some clients like Gmail don't interpret <style> nodes
+			# and that CSS should be repeated inline on each element. That is
+			# very annoying to encode in a template, so we'll take care of that
+			# here by parsing <style> nodes (except <style inline="false">) and
+			# applying those CSS rules inline to all matching elements. Only a
+			# small amount of CSS selectors are supported.
+			#
+			# This requires that cssutils be installed.
+			#try:
+			import movecssinline
+			html_content = movecssinline.apply_css(html_content)
+			#except:
+			#	pass
+			
 			email.attach_alternative(html_content, "text/html")
 			
 			email.send(fail_silently=False)

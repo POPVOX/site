@@ -1,0 +1,26 @@
+{% extends "popvox/emails/template.html" %}
+{% load popvox_utils %}
+{% block h1 %}
+	<h1>Your Comment is Pending</h1>
+{% endblock %}
+{% block body2 %}
+<p>Thanks for coming to POPVOX and commenting on legislation. To finish creating your account so that your position on {{bill}} can be delivered, just click this link:</p>
+
+<p style="margin-left: 1em"><a href="{{URL}}">{{URL}}</a></p>
+
+<p>All the best,</p>
+
+<p>POPVOX</p>
+
+{% if comment %}
+<hr size="1"/>
+<p>For your records, your pending message is:</p>
+{{comment|wraplines:"p"}}
+{% endif %}
+
+{% endblock %}
+
+{% block unsubscribe %}
+<p style="font-size: 10pt;">We will send this email again soon in case you miss it the first time. If you do not wish to complete the action and do not want to get a reminder, please <a href="{{KILL_URL}}">click here</a> to stop future reminders.</p>
+{% endblock %}
+
