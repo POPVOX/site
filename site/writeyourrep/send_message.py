@@ -1152,7 +1152,7 @@ def send_message_webform(di, msg, deliveryrec):
 	if m:
 		raise WebformParseException("Form-reported " + m.group(1))
 	
-	for s in ("Invalid CAPTCHA value", "incorrect validation code"):
+	for s in ("Invalid CAPTCHA value", "incorrect validation code", "Captcha failure"):
 		if s in ret:
 			raise WebformParseException("Response says invalid CAPTCHA value: " + s)
 
