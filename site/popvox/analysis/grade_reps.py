@@ -88,9 +88,6 @@ for roll in rolls:
 		
 		if mcounts["+"] > mcounts["-"]:
 			cnt = mcounts["+"]
-			pos = "+"
-		elif mcounts["+"] == mcounts["-"]:
-			continue # public is split
 		else:
 			cnt = mcounts["-"]
 			pos = "-"
