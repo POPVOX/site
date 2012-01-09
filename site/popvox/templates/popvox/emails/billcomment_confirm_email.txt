@@ -1,4 +1,4 @@
-Thanks for coming to POPVOX and commenting on legislation. To finish creating your account so that your position on {{bill}} can be delivered, just follow this link:
+Thanks for coming to POPVOX and commenting on legislation. To finish creating your account so that your position on {{bill|safe}} can be delivered, just follow this link:
 
   {{URL}}
 
@@ -14,6 +14,6 @@ POPVOX
 -------------------------------------------------
 For your records, your pending message is:
 
-{{comment}}
+{{comment|safe}}
 {% endif %}
 
