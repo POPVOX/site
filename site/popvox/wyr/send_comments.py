@@ -13,6 +13,7 @@ from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress
 
 from writeyourrep.send_message import Message, send_message, Endpoint, DeliveryRecord
 from writeyourrep.addressnorm import verify_adddress, validate_phone
+from writeyourrep.district_lookup import county_lookup_coordinate
 
 mocs_require_phone_number = (
 	412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,
@@ -73,6 +74,8 @@ if "LAST_ERR" in os.environ:
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR, delivery_attempts__trace__contains="timed out")
 	if os.environ["LAST_ERR"] == "HTTP":
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_HTTP_ERROR)
+	if os.environ["LAST_ERR"] == "FP":
+		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE)
 	if os.environ["LAST_ERR"] == "UE":
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_UNHANDLED_EXCEPTION)
 	if os.environ["LAST_ERR"] == "DD":
@@ -88,6 +91,11 @@ def process_comment(comment, thread_id):
 	# since we don't deliver message-less comments, when we activate an endpoint we
 	# end up sending the backlog of those comments. don't bother.
 	if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=31):
+		return
+	
+	# skip flagged addresses... when I put this into the .filter(),
+	# a SQL error is generated over ambiguous 'state' column
+	if comment.address.flagged_hold_mail:
 		return
 	
 	# Who are we delivering to? Anyone?
@@ -212,10 +220,18 @@ def process_comment(comment, thread_id):
 			continue
 			
 		# Special field cleanups for particular endpoints.
-		if gid in (412246,400050) and msg.county == None and comment.address.cdyne_response == None:
-			print thread_id, "Normalize Address", comment.address.id
-			comment.address.normalize()
-			msg.county = comment.address.county
+		if gid in (412246,400050) and msg.county == None:
+			if comment.address.cdyne_response == None:
+				print thread_id, "Normalize Address", comment.address.id
+				comment.address.normalize()
+				msg.county = comment.address.county
+			else:
+				county = county_lookup_coordinate(comment.address.longitude, comment.address.latitude)
+				if county and county[0] == comment.address.state: # is a (state, county) tuple
+					print thread_id, "Found County", comment.address.id, county
+					comment.address.county = county[1]
+					comment.address.save()
+					msg.county = comment.address.county
 		if msg.address2.lower() == msg.city.lower():
 			msg.address2 = ""
 			
@@ -346,15 +362,25 @@ def process_comments_group(thread_index, thread_count):
 	# the modulus operator works right. the modulus is applied to the commenting
 	# user's state so that each endpoint is confined to a particular thread so that
 	# endpoint delays are properly executed in a serial fashion.
-	
-	for comment in comments_iter\
+
+	cm = comments_iter\
 		.extra(where=["(ORD(MID(state,1,1))+ORD(MID(state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
 		.order_by('created')\
-		.select_related("bill", "user")\
-		.iterator():
-			
-		if os.path.exists("/tmp/break"): break
-		process_comment(comment, "T" + str(thread_index+1))
+		.select_related("bill", "user")
+
+	count = cm.count()
+	batch = 5000
+	start = 0
+	while start < count:
+		# use list() to complete the query at once rather than
+		# hog the db as we try to send items
+		for comment in list(cm[start:min(start+batch, count)]):
+			if os.path.exists("/tmp/break"): break
+			process_comment(comment, "T" + str(thread_index+1))
+		start += batch
+
+		from django import db
+		db.reset_queries()
 		
 if not "THREADS" in os.environ or "TARGET" in os.environ:
 	# when we are targetting a single endpoint, don't multi-thread it
@@ -377,7 +403,8 @@ print "Success:", success
 print "Failure:", failure
 print "Needs Attention:", needs_attention
 print "Pending:", pending
-print "Held for Offline Delivery:", held_for_offline 
+print "Held for Offline Delivery:", held_for_offline
+print "Potential print-out size:", UserCommentOfflineDeliveryRecord.objects.all().count()
 
 #for gid in target_counts:
 #	print target_counts[gid], gid, Endpoint.objects.get(govtrackid=gid).id, getMemberOfCongress(gid)["name"]

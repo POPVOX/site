@@ -1023,6 +1023,8 @@ class PostalAddress(models.Model):
 	county = models.CharField(max_length=64, blank=True, null=True)
 	cdyne_response = models.TextField(blank=True, null=True)
 
+	flagged_hold_mail = models.BooleanField(default=False)
+
 	#class Meta:
 	#		ordering = ["nameprefix"]
 

@@ -289,6 +289,16 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 		ucodr.delete()
 		
 elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
+	# delete UCDOR objects for mail that has since been delivered
+	for uc in UserCommentOfflineDeliveryRecord.objects.all():
+		if uc.comment.delivery_attempts.filter(target__govtrackid=uc.target.id, success=True).exists():
+			uc.delete()
+	
+	# delete UCDOR objects for mail that has since had an address marked not to deliver
+	for uc in UserCommentOfflineDeliveryRecord.objects.filter(comment__address__flagged_hold_mail=True):
+		uc.delete()
+			
+	# generate and email the pdf
 	serial = datetime.datetime.now().strftime("%Y-%m-%dT%H%M")
 	path = tempfile.mkdtemp()
 	try:
