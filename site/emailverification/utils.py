@@ -86,11 +86,14 @@ def send_record_email(email, action, r):
 			# small amount of CSS selectors are supported.
 			#
 			# This requires that cssutils be installed.
-			#try:
-			import movecssinline
-			html_content = movecssinline.apply_css(html_content)
-			#except:
-			#	pass
+			#
+			# The HTML body must be well-formed XML. If it is not, an exception
+			# will be raised, caught, and ignored. Check your templates!
+			try:
+				import movecssinline
+				html_content = movecssinline.apply_css(html_content)
+			except:
+				pass
 			
 			email.attach_alternative(html_content, "text/html")
 			

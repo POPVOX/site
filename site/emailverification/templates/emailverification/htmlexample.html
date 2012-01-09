@@ -1,16 +1,15 @@
 {% extends "emailverification/htmltemplate.html" %}
-{% block subject %}You've Got Mail{% endblock %}
 {% block head %}
 	<style>
 	body { font-family: Comic Sans MS; }
+	#backgroundTable { background-color: #EEEEFF; }
 	</style>
 {% endblock %}
-{% block backgroundcss %}background-color: #EEEEFF;{% endblock %}
 {% block body %}
-<div style="padding: 1em">
-<p style="margin: 1em 0;">Thanks for opening this email! {{info}}</p>
-<p style="margin: 1em 0;">Please click the following link:</p>
-<p style="margin: 1em 0;">{{URL}}</p>
-<p style="margin: 1em 0;">Thanks!</p>
+<div>
+<p>Thanks for opening this email! {{info}}</p>
+<p>Please click the following link:</p>
+<p><a href="{{URL}}">{{URL}}</a></p>
+<p>Thanks!</p>
 </div>
 {% endblock %}
