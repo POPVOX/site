@@ -409,6 +409,8 @@ custom_mapping = {
 	"37_affl3": "enews_subscribe",
 	"37_field_302e8a41-000d-419e-991e-40c7cb96f97c_radio": "topicarea",
 	"146_topic_checkbox": "topicarea",
+	"230_phone3_text": "phone_prefix",
+	"230_phone4_text": "phone_line",
 	"554_number_text": "address_split_number",
 	"554_name_text": "address_split_street", 
 	"554_quadrant_select": "address_split_quadrant", 
@@ -1062,7 +1064,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# Thess guys have some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input.
-	if di.id in (13, 37, 121, 124, 140, 147, 150, 159, 161, 166, 176, 209, 221, 226, 244, 280, 316, 324, 341, 386, 426, 458, 528, 570, 577, 585, 588, 598, 599, 600, 604, 605, 606, 607, 608, 611, 613, 639, 641, 646, 649, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 713, 717, 718, 730, 734, 736, 746, 749, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
+	if di.id in (13, 37, 121, 124, 140, 147, 150, 159, 161, 166, 176, 209, 221, 226, 244, 280, 316, 319, 324, 341, 386, 426, 458, 528, 570, 577, 585, 588, 598, 599, 600, 604, 605, 606, 607, 608, 611, 613, 639, 641, 646, 649, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 713, 717, 718, 730, 734, 736, 746, 749, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
