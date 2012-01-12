@@ -297,6 +297,13 @@ elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
 	# delete UCDOR objects for mail that has since had an address marked not to deliver
 	for uc in UserCommentOfflineDeliveryRecord.objects.filter(comment__address__flagged_hold_mail=True):
 		uc.delete()
+		
+	# delete UCDOR objects that are targetting reps that we no longer need to target because
+	# e.g. the district changed because of a district disagreement.
+	for uc in UserCommentOfflineDeliveryRecord.objects.all().select_related("comment", "comment__address", "target"):
+		recips = uc.comment.get_recipients()
+		if not recips or not uc.target.id in [r["id"] for r in recips]:
+			uc.delete()
 			
 	# generate and email the pdf
 	serial = datetime.datetime.now().strftime("%Y-%m-%dT%H%M")

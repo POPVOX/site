@@ -1,6 +1,6 @@
 #!runscript
 
-import re
+import re, sys
 from datetime import datetime, timedelta
 
 from popvox.models import UserComment
@@ -9,14 +9,26 @@ from writeyourrep.district_lookup import district_lookup_zipcode_housedotgov, di
 
 seen_addrs = set()
 
-for d in DeliveryRecord.objects.filter(next_attempt__isnull=True, failure_reason=DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT, created__gt=datetime.now()-timedelta(days=3)):
-	
+dd = DeliveryRecord.objects.filter(next_attempt__isnull=True, failure_reason=DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT, created__gt=datetime.now()-timedelta(days=3))
+
+if len(sys.argv) == 2:
+	dd = dd.filter(id=sys.argv[1])
+
+for d in dd:
 	m = re.search(r"^comment #(\d+) ", d.trace)
 	if not m: continue
 	
-	comment = UserComment.objects.get(id=m.group(1))
+	comment = UserComment.objects.filter(id=m.group(1)).select_related("address").get()
 	addr = comment.address
-	
+
+	# When we fix this address and re-run it, the old delivery record remains in the
+	# system because the new delivery attempt probably went to a different office.
+	# So that we don't flag it again, check that we still have pending deliveries for
+	# the office targetted by the record.
+	recips = comment.get_recipients()
+	if not recips or not d.target.govtrackid in [r["id"] for r in recips]:
+		continue
+
 	if addr.id in seen_addrs: continue
 	seen_addrs.add(addr.id)
 	
@@ -35,4 +47,5 @@ for d in DeliveryRecord.objects.filter(next_attempt__isnull=True, failure_reason
 		addr.congressionaldistrict = ret_house[1]
 		addr.save()
 	else:
-		print "?? ADDR="+str(addr.id), (addr.state, addr.congressionaldistrict), addr.zipcode, "vs", ret_house, ret_googlegis, ret_cdynegis
+		#print "?? ADDR="+str(addr.id), (addr.state, addr.congressionaldistrict), addr.zipcode, "vs", ret_house, ret_googlegis, ret_cdynegis
+		pass
