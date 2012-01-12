@@ -156,7 +156,7 @@ class Bill(models.Model):
 	description = models.TextField(blank=True, null=True)
 	introduced_date = models.DateField()
 	current_status = models.TextField(help_text="For non-bill actions, enter DRAFT.")
-	current_status_date = models.DateTimeField(help_text="For non-bill actions, just choose today.")
+	current_status_date = models.DateTimeField(help_text="For non-bill actions, just choose today.", db_index=True)
 	num_cosponsors = models.IntegerField()
 	latest_action = models.TextField(blank=True)
 	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
@@ -344,9 +344,10 @@ class Bill(models.Model):
 		
 	@classmethod
 	def from_hashtag(cls, hashtag):
-		m = re.match(r"\#([a-z]+)(\d+)/(\d+)", hashtag)
+		m = re.match(r"\#([a-z]+)(\d+)(/(\d+))?", hashtag)
+		if not m: raise ValueError()
 		return Bill.objects.get(
-			congressnumber = m.group(3),
+			congressnumber = m.group(4) if m.group(4) else govtrack.CURRENT_CONGRESS,
 			billtype = Bill.slug_to_type[m.group(1)],
 			billnumber = m.group(2),
 			vehicle_for = None)
@@ -772,6 +773,10 @@ class OrgCampaignPosition(models.Model):
 			return self.get_service_account_campaign(create=False) != None
 		except:
 			return False
+	def verb(self):
+		if self.position == "+": return "endorsed"
+		if self.position == "-": return "opposed"
+		if self.position == "0": return "posted a statement on"
 
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 
@@ -1318,15 +1323,19 @@ class UserComment(models.Model):
 		# Group successful deliveries by date, and unsuccessful deliveries uniquely by target.
 		retd = { }
 		for d in self.delivery_attempts.filter(next_attempt__isnull = True):
-			if d.target.govtrackid in recips:
-				recips.remove(d.target.govtrackid)
 			if d.success:
 				if not d.created.strftime("%x") in retd:
 					retd[d.created.strftime("%x")] = []
 				retd[d.created.strftime("%x")].append(d.target.govtrackid)
-			elif self.message != None: # don't talk about failures
+				
+			# don't talk about failures when the user didn't write a message, or
+			# if we are no longer targetting that office as a recipient.
+			elif self.message != None and d.target.govtrackid in recips:
 				retd[govtrack.getMemberOfCongress(d.target.govtrackid)["sortkey"]] = "We had trouble delivering " + ref1.lower() + " to " + govtrack.getMemberOfCongress(d.target.govtrackid)["name"] + " but we will try again. "
-		
+
+			if d.target.govtrackid in recips:
+				recips.remove(d.target.govtrackid)
+
 		# Serialize into text for the user.
 		retk = list(retd.keys())
 		retk.sort(key = lambda x : (type(x) != str, x))

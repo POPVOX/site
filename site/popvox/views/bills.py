@@ -347,14 +347,14 @@ def bill_comments(bill, **filterargs):
 		.select_related("user")
 
 def bill_statistics_cache(f):
-	def g(bill, shortdescription, longdescription, want_timeseries=False, force_data=False, **filterargs):
+	def g(bill, shortdescription, longdescription, want_timeseries=False, force_data=False, as_of=None, **filterargs):
 		cache_key = ("bill_statistics_cache:%d,%s,%s" % (bill.id, shortdescription.replace(" ", ""), want_timeseries)) 
 		
 		ret = cache.get(cache_key)
 		if ret != None and want_timeseries:
 			return ret
 		
-		ret = f(bill, shortdescription, longdescription, want_timeseries, force_data, **filterargs)
+		ret = f(bill, shortdescription, longdescription, want_timeseries, force_data, as_of, **filterargs)
 		
 		cache.set(cache_key, ret, 60*60*2) # two hours
 
@@ -362,7 +362,7 @@ def bill_statistics_cache(f):
 	return g
 
 @bill_statistics_cache # the arguments must match in the decorator!
-def bill_statistics(bill, shortdescription, longdescription, want_timeseries, force_data, **filterargs):
+def bill_statistics(bill, shortdescription, longdescription, want_timeseries, force_data, as_of, **filterargs):
 	# If any of the filters is None, meaning it is based on demographic info
 	# that the user has not set, return None for the whole statistic group.
 	for key in filterargs:
@@ -374,6 +374,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, fo
 	
 	# Get all counts at once, where stage = 0 if the comment was before the end of
 	# the session, 1 if after the end of the session.
+	if as_of: filterargs["created__lt"] = as_of
 	counts = bill_comments(bill, **filterargs).order_by().extra(select={"stage": "popvox_usercomment.created > '" + enddate.strftime("%Y-%m-%d") + "'"}).values("position", "stage").annotate(count=Count("id"))
 	
 	pro = 0

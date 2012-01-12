@@ -1288,4 +1288,206 @@ def recommend_from_text(request):
 			break
 	
 	return { "autocomplete": autocomplete, "bills": pull_bills(prompts) }
+
+def user_activity_feed(user):
+	# Gets the user activity feed which is a list of feed items, each item
+	# a dict with fields:
+	#  ....
 	
+	# Define generators that iterate over feed items in reverse chronological
+	# order for different sorts of events that go into your feed.
+	#
+	# CTA: primary call to action
+	# AUX: auxiliary call to action
+	# GFX: graphic/media to go along with item
+	
+	def your_comments(limit):
+		# the positions you left
+		#  CTA: share
+		#  AUX: view bill
+		#  GFX: preview?
+		for c in user.comments.all().order_by('-updated')[0:limit]:
+			yield {
+				"date": c.updated,
+				"name": "You " + c.verb(tense="past") + " " + c.bill.shortname + ".",
+				"description": "",
+			}
+
+	def your_deliveries(limit):
+		# deliveries of your comments
+		#  CTA: share
+		#  AUX: view bill
+		#  GFX: ?
+		from writeyourrep.models import DeliveryRecord
+		from popvox.govtrack import getMemberOfCongress
+		for d in DeliveryRecord.objects.filter(comments__user=user, success=True)[0:limit]:
+			c = d.comments.all()[0]
+			yield {
+				"date": d.created,
+				"name": "Your position on " + c.bill.shortname + " was delivered to " + getMemberOfCongress(d.target.govtrackid)["name"],
+				"description": "",
+			}
+			
+	def your_commented_bills_status(limit):
+		# status of bills you have commented on
+		#  CTA: share
+		#  AUX: view bill
+		#  GFX: ?
+		for b in Bill.objects.filter(usercomments__user=user).order_by('-current_status_date'):
+			c = UserComment.objects.get(user=user, bill=b)
+			yield {
+				"date": b.current_status_date,
+				"name": b.shortname + ": " + b.status_advanced(),
+				"description": "You " + c.verb(tense="past") + " the " + b.proposition_type() + " on " + str(c.created) + ".",
+				"mutually_exclusive_with": ("status", b), # used by your_bookmarked_bills_status
+			}
+	
+	def your_bookmarked_bills_status(limit):
+		# status of bills you have bookmarked but not commented on
+		#  CTA: weigh in
+		#  AUX: share
+		#  GFX: ?
+		for b in Bill.objects.filter(trackedby__user=user).order_by('-current_status_date'):
+			yield {
+				"date": b.current_status_date,
+				"name": b.shortname + ": " + b.status_advanced(),
+				"description": "You bookmarked this bill.",
+				"mutually_exclusive_with": ("status", b), # your_commented_bills_status must be processed first
+			}
+			
+	def your_bills_now(limit):
+		# for each bill you have weighed in on, every time the number of people weighing
+		# in doubles, include it in the feed.
+		#  CTA: share
+		#  AUX: view report
+		#  GFX: pie chart
+		import math
+		from popvox.views.bills import bill_statistics
+		ret = []
+		for c in user.comments.all():
+			# I suspect that people will want to see updates more for bills they
+			# actually wrote something about.
+			if c.message:
+				doubling = 1.5
+			else:
+				doubling = 1.95
+			
+			# how many comments were left at the time you weighed in?
+			nc1 = c.bill.usercomments.filter(created__lt=c.created).count() + 1
+			
+			# how many comments are left now?
+			nc2 = c.bill.usercomments.count()
+			
+			# how many times has it doubled since then? i.e. 2^x = nc2/nc1
+			x = (math.log(nc2) - math.log(nc1)) / math.log(doubling)
+			
+			# find the time of the most recent doubling, i.e. the time of the
+			# nc1*2^[x]'th comment where [x] is x rounded down to the nearest integer.
+			x = math.floor(x)
+			if x <= 0.0: continue # has not doubled yet, or maybe it has gone down!
+			try:
+				c2 = c.bill.usercomments.order_by('created')[int(doubling**x * nc1)]
+			except IndexError:
+				# weird?
+				continue
+			
+			# get the statistics as of that date
+			stats = bill_statistics(c.bill, "POPVOX", "POPVOX Nation", as_of = c2.created)
+			if not stats: continue
+			
+			ret.append({
+				"date": c2.created,
+				"name": str(stats["total"]) + " people have now weighed in on " + c.bill.shortname + ".",
+				"description": "You were individual number " + str(nc1) + ". Here is how the " + c.bill.proposition_type() + " is doing now....",
+			})
+			
+		# We can't efficiently query these events in date order, so we pull them all
+		# and return the most recent in date order.
+		ret.sort(key = lambda item : item["date"], reverse=True)
+		for item in ret[0:limit]:
+			yield item
+			
+	def new_bills(limit):
+		# What newly introduced bills do we think you might be interested in?
+		#  CTA: weigh in (if you haven't already)
+		#  AUX: share
+		#  GFX: ?
+		
+		limit /= 5 # these can be overwhelming, don't deliver so many
+		
+		# Get the issue areas that the user is interested in.
+		top_issues = IssueArea.objects.all().annotate(count=Count("id")).filter(bills__usercomments__user=user).order_by('-count')
+		count = 0
+		for i, ix in enumerate(top_issues):
+			count2 = 0
+			for bill in Bill.objects.filter(topterm=ix, current_status__in=('INTRODUCED', 'REFERRED')).order_by('-current_status_date'):
+				yield {
+					"date": bill.current_status_date,
+					"name": "New " + bill.proposition_type() + ": " + bill.nicename,
+					"description": "We thought you might be interested in this because you have weighed in on " + ix.name + " bills.",
+				}
+				
+				count += 1
+				if count == limit: return
+				
+				# spread out the returned items across the user's top issue areas, with
+				# more for the first issue area, and a little less for the second, and on.
+				count2 += 1
+				if count2 > limit/(i+3): break
+
+	def new_org_positions(limit):
+		# What new organization position statements do we think you might be interested in?
+		#  CTA: view position statement
+		#  AUX: weigh in or share?
+		#  GFX: ?
+		
+		limit /= 5 # these can be overwhelming, don't deliver so many
+		
+		# Get the issue areas that the user is interested in.
+		top_issues = IssueArea.objects.all().annotate(count=Count("id")).filter(bills__usercomments__user=user).order_by('-count')
+		count = 0
+		for i, ix in enumerate(top_issues):
+			count2 = 0
+			for ocp in OrgCampaignPosition.objects.filter(bill__topterm=ix).order_by('-created').select_related("campaign", "campaign__org", "bill"):
+				yield {
+					"date": ocp.created,
+					"name": ocp.campaign.org.name + " " + ocp.verb() + " " + ocp.bill.nicename,
+					"description": "We thought you might be interested in this because you have weighed in on " + ix.name + " bills.",
+				}
+				
+				count += 1
+				if count == limit: return
+				
+				# spread out the returned items across the user's top issue areas, with
+				# more for the first issue area, and a little less for the second, and on.
+				count2 += 1
+				if count2 > limit/(i+3): break
+
+	#upcoming votes - haven't commented: weigh in [ share] | pie
+	#upcoming votes - already commented: share [ bill report ] | your position
+
+	feed_size = 25
+	sources = (your_comments, your_deliveries, your_commented_bills_status, your_bookmarked_bills_status, your_bills_now, new_bills, new_org_positions)
+	exclusions = set()
+	feed = []
+	for source in sources:
+		for item in source(feed_size):
+			# allow feed items to be hidden if some other particular feed item has
+			# already been included.
+			if item.get("mutually_exclusive_with", None) in exclusions:
+				continue
+				
+			feed.append(item)
+			
+			# mark what this feed item is about if it is used to hide other types
+			# of similar feed items.
+			if "mutually_exclusive_with" in item:
+				exclusions.add(item["mutually_exclusive_with"])
+			
+	
+	feed.sort(key = lambda item : item["date"], reverse=True)
+	feed = feed[0:feed_size]
+	
+	return feed
+	
+
