@@ -76,7 +76,7 @@ def apply_css_inline(node, css, context=[]):
 def apply_css(htmldocument):
 	from StringIO import StringIO
 	
-	doc = parseString(htmldocument)
+	doc = parseString(htmldocument.encode("utf8"))
 	
 	def getnodetext(n, w=None):
 		if w == None: w = StringIO()
