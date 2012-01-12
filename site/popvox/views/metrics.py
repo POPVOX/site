@@ -270,10 +270,38 @@ def metrics_report_spreadsheet(request, sheet):
 			setattr(bill, "total" + "_opp_pct", round(100.0 * float(c_b) / float(c_c)) if c_c > 0 else "")
 			qs.append(bill)
 
+	elif sheet == "bill":
+		from popvox.models import Bill
+		from popvox.govtrack import getMembersOfCongressForDistrict
+		header = ["state", "district", "member", "percent_support", "percent_oppose", "number_support", "number_oppose", "total_positions"]
+		bill = Bill.from_hashtag("#" + request.GET.get("bill", ""))
+		notes = bill.title
+		report = { }
+		for rec in bill.usercomments.values("state", "congressionaldistrict", "position").annotate(count=Count("id")):
+			for sd in ((rec["state"], None), (rec["state"], rec["congressionaldistrict"])):
+				if not sd in report: report[sd] = { "state": sd[0], "district": sd[1], "+": 0, "-": 0 }
+				report[sd][rec["position"]] += rec["count"]
+		qs = sorted(report.values(), key = lambda v : (v["state"], v["district"]))
+		for rec in qs:
+			if rec["district"] == None:
+				rec["district"] = "-"
+				rec["member"] = ", ".join([m["name"] for m in getMembersOfCongressForDistrict(rec["state"], moctype="sen")])
+			else:
+				rec["member"] = ", ".join([m["name"] for m in getMembersOfCongressForDistrict(rec["state"] + str(rec["district"]), moctype="rep")])
+			rec["number_support"] = rec["+"]
+			rec["number_oppose"] = rec["-"]
+			rec["total_positions"] = rec["+"] + rec["-"]
+			if rec["total_positions"] > 0:
+				rec["percent_support"] = int(round(100.0 * rec["number_support"] / rec["total_positions"]))
+				rec["percent_oppose"] = int(round(100.0 * rec["number_oppose"] / rec["total_positions"]))
+		
 	else:
 		raise Http404()
 	
 	def getfield(obj, f):
+		if isinstance(obj, dict):
+			return obj.get(f, "")
+		
 		ret = obj
 		for ff in f.split("__"):
 			ret = getattr(ret, ff, "")
@@ -284,7 +312,7 @@ def metrics_report_spreadsheet(request, sheet):
 		return ret
 	
 	if notes:
-		writer.writerow([notes])
+		writer.writerow([notes.encode("utf8")])
 	
 	writer.writerow(header)
 	for obj in qs:
