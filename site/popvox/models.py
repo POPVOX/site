@@ -493,6 +493,7 @@ class Org(models.Model):
  
 	def set_default_slug(self):
 		import string
+
 		# generate slug from website address's letter characters
 		if self.website != None:
 			m = re.match(r"^(http://)?(www\.)?([^/]*)\.(com|net|org|us|int)", self.website)
@@ -501,17 +502,18 @@ class Org(models.Model):
 				for c in str(m.group(3)):
 					if c in string.letters+string.digits:
 						self.slug += c.lower()
-				if self.slug != "":
+				if self.slug != "" and not Org.objects.filter(slug=self.slug).exists():
 					return
+
 		# else, generate slug from all uppercase letters in name except letters within parenthesis
 		self.slug = ""
 		for c in re.sub(r"\(.*?\)", "", self.name):
 			if c == c.upper() and c != c.lower():
 				self.slug += c.lower()
-		if self.slug != "":
+		if self.slug != "" and not Org.objects.filter(slug=self.slug).exists():
 			return
-			
-		self.slug = "org"
+		
+		if self.slug == "": self.slug = "org"
 			
 		# check if it's in use, and if so add a numeric suffix to make it distinct
 		suffix = ""
