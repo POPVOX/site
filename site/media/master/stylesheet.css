@@ -2857,10 +2857,6 @@ ul#issuearealist { margin-top: 10px     }
     padding: 0 10px 10px;
     }
 
-.activity {
-    
-    }
-
 
 
 
@@ -5015,5 +5011,443 @@ ul.issue_list li a.active{
 	font-style: italic;
 	color: #888;
 	}
+
+
+/* user dashboard */
+.userdash {
+	background: url(_temp/te mp.jpg) center top no-repeat;
+	display: block;
+	height: 1000px;
+	}
+	
+	.userdash h1 {
+		margin-bottom: 18px;
+		padding-bottom: 15px;
+		}
+		
+	.userdash ul#bar {
+		margin: 15px 0 15px;
+		padding-top: 5px;
+		font: normal 25px/42px 'BebasNeueRegular', helvetica, arial, sans-serif;
+		color:  #fff;
+		background: #75757d;
+		height: 37px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		-khtml-border-radius: 5px;
+		border-radius: 5px;
+		}
+	
+		.userdash ul#bar li {
+			float: left;
+			text-align: center;
+			}
+			
+			.userdash ul#bar li.c6 {
+				width: 460px;
+				background: url(_temp/userdash_divider.png) right 2px no-repeat;
+				}
+
+			.userdash ul#bar li.c3 {
+				width: 250px;
+				background: url(_temp/userdash_divider.png) right 2px no-repeat;
+				}
+				
+			.userdash ul#bar li.c3l {
+				width: 228px;
+				}
+				
+				
+	.userdash .col_6 {
+		margin: 0;
+		padding: 0;
+		}
+
+	.userdash div.date,
+	.userdash div.btn_r {
+		float: right;
+		display: block;
+		width: 90px;
+		height: 12px;
+		margin-top: 5px;
+		}
+			
+			.userdash div.btn_r {
+				width: 50px;
+				height: 70px;
+				margin: 0 0 5px 10px;
+				padding: 0;
+				display: block;
+				}
+		
+	.userdash div.date p,
+	.userdash div.btn_r p {
+			margin: 0;
+			padding: 1px 0;
+			height: 15px;
+			}
+
+		.userdash div.date p span {
+			float: left;
+			padding-right: 10px;
+			font-size: 12px;
+			}
+		
+		.userdash div.date a,
+		.userdash div.btn_r a {
+			width: 15px;
+		    height: 15px;
+		    display: block;
+		    text-indent: -9999em;
+		    margin: 2px 0 0;
+		    border: none;
+			float: left;
+		    }
+		    
+		    .userdash div.date a:hover {
+				background-position: left -15px;
+				}
+				
+			.userdash div a.fav:hover,
+			.userdash div a.hide:hover {
+				background-position: left -20px;
+				}
+			
+		a.fav {
+			background: url(_temp/b_follow.png) left top no-repeat;
+			}
+			
+			a.fav.faved {
+				background: url(_temp/b_following.png) left top no-repeat;
+				}
+	
+		.userdash div a.hide {
+			background: url(_temp/b_hide.png) left top no-repeat;
+			width: 10px;
+			
+		    }
+		    
+		    .userdash div.btn_r a.fav {
+				margin-left: 20px;
+				}
+		    
+		    .userdash div.date a:hover {
+				background-position: left -20px;
+				cursor: pointer;
+				}
+
+	.col_6 ul.activity h3 {
+		font: bold 14px/18px helvetica, san-serif;
+		text-transform: none;
+		padding: 0 10px;
+		margin-top: 5px;
+		background: none;
+		}
+		
+	.pie {
+		display: block;
+		width: 50px;
+		height: 50px;
+		background: url(_temp/pie.png) left top no-repeat;
+		float: right;
+		margin: 0 10px 5px;
+		}
+
+	ul.activity li {
+/*		border: 1px solid green;*/
+		background: #d4d1ca;
+		margin-bottom: 5px;
+		padding-top: 5px;
+		min-height: 80px;
+		}
+		
+	ul.activity li div p {
+		display: block;
+		padding: 5px 0 0 50px;
+		}
+
+		ul.activity li div.details p.detail {
+			height: 33px;
+			margin-bottom: 10px;
+			}
+		
+		ul.activity li div p.take_action {
+			background: none;
+			font-size: 12px/12px;
+			padding: 0;
+			height: 20px;
+			margin: 0 0 0 50px;
+			}
+			
+		ul.activity li div >p.take_action a {
+			background: none;
+			margin: 0 0 0 0px;
+			padding: 0;
+			width: 185px;
+			height: 12px;
+			text-indent: 0;
+			display: block;
+			float: left;
+			}
+			
+		ul.activity li div >p span {
+			display: block;
+			float: left;
+			}
+			
+		ul.activity li div >p a.twitter {
+			background: url(_temp/b_dash_twitter.png) left top no-repeat;
+			margin: 2px 0 0 5px;
+			padding: 0;
+			width: 14px;
+			height: 15px;
+			text-indent: -9999em;
+			display: block;
+			float: left;
+			}
+
+		ul.activity li div >p a.facebook {
+			background: url(_temp/b_dash_facebook.png) left top no-repeat;
+			margin: 2px 0 0 0px;
+			padding: 0;
+			width: 19px;
+			height: 15px;
+			text-indent: -9999em;
+			display: block;
+			float: left;
+			}
+			
+		ul.activity li div >p a.star {
+			background: url(_temp/b_dash_star.png) left top no-repeat;
+			margin: 2px 0 0 0px;
+			padding: 0;
+			width: 19px;
+			height: 15px;
+			text-indent: -9999em;
+			display: block;
+			float: left;
+			}
+
+		ul.activity li div >p a.link {
+			background: url(_temp/b_dash_link.png) left top no-repeat;
+			margin: 2px 0 0 0px;
+			padding: 0;
+			width: 19px;
+			height: 15px;
+			text-indent: -9999em;
+			display: block;
+			float: left;
+			}
+			
+			ul.activity li div >p a.twitter:hover,
+			ul.activity li div >p a.facebook:hover,
+			ul.activity li div >p a.star:hover,
+			ul.activity li div >p a.link:hover {
+				background-position: left -21px;
+				text-decoration: none;
+				border-bottom: 0;
+				}
+
+	ul.activity li div p.bill {
+		background: url(_temp/icon_act_bill.png) 10px top no-repeat;
+		margin-bottom: 2px;
+		}
+		
+	ul.activity li div p.comment {
+		background: url(_temp/icon_act_comment.png) 10px 5px no-repeat;
+		margin-bottom: 2px;
+		}
+	
+	ul.activity li div p.org_psn {
+		background: url(_temp/icon_act_org_psn.png) 10px 5px no-repeat;
+		margin-bottom: 2px;
+		}
+	
+	ul.activity li div p.support {
+		background: url(_temp/icon_act_heart.png) 10px 5px no-repeat;
+		margin-bottom: 2px;
+		}
+		
+	ul.activity li div p.oppose {
+		background: url(_temp/icon_act_anti.png) 10px 5px no-repeat;
+		margin-bottom: 2px;
+		}
+
+	ul.activity li div p.co-sponsor {
+		background: url(_temp/icon_act_congress.png) 10px 5px no-repeat;
+		margin-bottom: 2px;
+		}
+	
+	ul.activity li div p.weighed_in {
+		background: url(_temp/icon_act_people.png) 10px 5px no-repeat;
+		margin-bottom: 2px;
+		}	
+	
+
+.userdash .col_3 {
+	margin: 0 0 0 20px;
+	padding: 0;
+	}		
+
+	.userdash .col_3 h3 {
+		font: bold 14px/18px helvetica, san-serif;
+		text-transform: none;
+		padding: 0;
+		margin-top: 5px;
+		background: none;
+		}
+		
+		.userdash .col_3 .pie {
+			margin: 0 0 10px 0;
+			}
+	
+		.userdash ul.suggest_bills li {
+			border-bottom: 1px solid #a9a59b;
+			padding-bottom: 5px;
+			margin-bottom: 5px;
+			}
+			
+		.userdash ul.suggest_bills li a.weigh_in {
+			font-weight: bold;
+			font-size: 11px;
+			}
+
+.userdash ul.suggest_orgs li {
+	clear: both;
+	border-bottom: 1px solid #a9a59b;
+	padding-bottom: 5px;
+	margin-bottom: 5px;
+	min-height: 25px;
+	}
+	
+	.userdash ul.suggest_orgs li h3 {
+		font-size: 12px;
+		line-height: 12px;
+		}
+	
+	.userdash ul.suggest_orgs a.fav,
+	.userdash ul.following_congress a.fav,
+	.userdash ul.following_bills a.fav,
+	.userdash ul.following_issues a.fav,
+	.userdash ul.following_orgs a.fav {
+		width: 10px;
+	    height: 15px;
+	    display: block;
+	    text-indent: -9999em;
+	    margin: 2px 0 0 10px;
+	    border: none;
+		float: right;
+		}
+	
+	.userdash ul.suggest_orgs img {
+		float: left;
+		margin: 0 5px 5px 0;
+		display: block;
+		}
+		
+	userdash .col_3 ul.suggest_orgs h3 {
+		margin-left: 20px;
+		}
+	
+.userdash .col_3 ul.following_congress {
+	margin: 0 0 10px;
+	border-bottom: 1px solid #a9a59b;
+	}
+	
+	.userdash .col_3 ul.following_congress h2 {
+		margin-top: 0;
+		padding: 5px 0 8px 30px;
+		font: bold 13px/18px helvetica;
+		text-transform: uppercase;
+		background: url(_temp/icon_follow_congress.png) left top no-repeat;
+		border: 0;
+		}
+		
+		.userdash .col_3 ul.following_congress li {
+			margin-bottom: 15px;
+			}
+			
+		.userdash .col_3 ul.following_congress li img {
+			float: left;
+			margin-right: 5px;
+			}
+			
+		.userdash .col_3.col_follow ul li h3 {
+			font-size: 12px;
+			line-height: 12px;
+			}
+			
+		.userdash .col_3 ul.following_congress li h3 a span {
+			margin-left: 0;
+			text-transform: uppercase;
+			font: normal 12px/12px helvetica, sans-serif;
+			}
+	
+.userdash .col_3 ul.following_bills {
+	margin: 0 0 10px;
+	border-bottom: 1px solid #a9a59b;
+	}
+
+	.userdash .col_3 ul.following_bills h2 {
+		margin-top: 0;
+		padding: 5px 0 5px 30px;
+		font: bold 13px/18px helvetica;
+		text-transform: uppercase;
+		background: url(_temp/icon_follow_bills.png) left top no-repeat;
+		border: 0;
+		}
+		
+	.userdash .col_3 ul.following_bills li {
+		margin-bottom: 12px;
+		}
+		
+.userdash .col_3 ul.following_issues {
+	margin: 0 0 10px;
+	border-bottom: 1px solid #a9a59b;
+	}
+
+	.userdash .col_3 ul.following_issues h2 {
+		margin-top: 0;
+		padding: 5px 0 5px 30px;
+		font: bold 13px/18px helvetica;
+		text-transform: uppercase;
+		background: url(_temp/icon_follow_issues.png) left 5px no-repeat;
+		border: 0;
+		}
+
+	.userdash .col_3 ul.following_issues {
+		border-bottom: 1px solid #a9a59b;
+		}
+		
+	.userdash .col_3 ul.following_issues li {
+			margin-bottom: 12px;
+			}
+
+.userdash .col_3 ul.following_orgs {
+	}
+
+	.userdash .col_3 ul.following_orgs h2 {
+		margin-top: 0;
+		padding: 5px 0 5px 30px;
+		font: bold 13px/18px helvetica;
+		text-transform: uppercase;
+		background: url(_temp/icon_follow_orgs.png) left 5px no-repeat;
+		border: 0;
+		}
+		
+	.userdash ul.following_orgs li {
+		clear: both;
+		padding-bottom: 5px;
+		margin-bottom: 5px;
+		min-height: 25px;
+		}
+		
+	.userdash ul.following_orgs img {
+		float: left;
+		margin: 0 5px 5px 0;
+		display: block;
+		}
+	
+
 
 
