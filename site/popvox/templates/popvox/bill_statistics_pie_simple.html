@@ -7,6 +7,7 @@
 				<script>bill_chart('chart-container-{{bill.id}}{{chart_id}}', {{stats.pro_pct}}, {{stats.con_pct}} {% if chart_opts %}, {{chart_opts}}{% endif %});</script>
 			{% if not chart_no_links %}</a>{% endif %}
 		</div>
+		{% if not chart_no_numbers %}
 		 <div style="float: left; width: 110px">
 			<p class="chart_stats">
 				<span class="chart_title">{{ stats.longdescription}}:</span><br />
@@ -20,6 +21,7 @@
 			</p>
 			{% endif %}
 		</div>
+		{% endif %}
 	</div>
 {% endif %}
 {% if not chart_no_links %}

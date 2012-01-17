@@ -1109,6 +1109,7 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
 		comment.bill = bill
 		comment.position = position
 		comment.method = method
+		comment.seq = bill.usercomments.count()
 	
 	# We're updating an existing record.
 	else:

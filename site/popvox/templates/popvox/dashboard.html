@@ -5,6 +5,33 @@
 {% block description %}Your POPVOX dashboard alerts you to recent activity on POPVOX and in Congress and gives you suggestions for other bills to write about.{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+function hide_prompt(billid) {
+	ajax(
+		"/ajax/accounts/profile/trackbill",
+		{
+			bill: billid,
+			track: "-"
+		},
+		{
+			success: function(ret) {
+				var has_remaining_sugs = false;
+				$('#suggestions li:visible').each(function() {
+					if (this.getAttribute("billid") == billid)
+						$(this).fadeOut();
+					else
+						has_remaining_sugs = true;
+				});
+				if (!has_remaining_sugs) {
+					$('#nomoresugs').fadeIn();
+				}
+			}
+		});
+	return false;
+}
+</script>
 {% endblock %}
 {% block content %}
 <div class="content userdash">
@@ -19,8 +46,8 @@
 	<div class="col_12 col_top user_dash">
 		<ul id="bar">
 			<li class="c6">Activity Feed</li>
-			<li class="c3">Suggestions</li>
-			<li class="c3l">Following</li>
+			<li class="c6l">Suggestions</li>
+			<!--<li class="c3l">Following</li>-->
 		</ul>
 		
 		<div class="col_6">
@@ -169,6 +196,70 @@
 			</ul>
 		</div> <!-- e: col_6 -->
 		
+		<div class="col_6 col_last">
+			<p id="nomoresugs" style="display: none">You&rsquo;ve cleared out all of your suggestions. Try <a href="javascript:window.location.reload()">reloading this page</a> for more suggestions.</p>
+			
+			<ul id="suggestions" class="suggest_bills">
+			{% for sug in suggestions %}
+				<li billid="{{sug.bill.id}}">
+					<div class="btn_r">
+						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
+						<div class="pie">
+							{% with sug.bill as bill %}
+								{% bill_statistics bill as stats %}
+								{% include "popvox/bill_statistics_pie_simple.html" with chart_size="50" chart_no_links="1" chart_no_numbers="1" %}
+							{% endwith %}
+						</div>
+					</div>
+					<h3><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h3>
+					<a href="#" class="weigh_in">WEIGH IN</a>
+					<p class="info">
+						{% if sug.source %}
+							Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.
+						{% else %}
+							This bill is trending on POPVOX.
+						{% endif %}
+						<span>Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</span>
+					</p>
+					<div class="clear"> </div>
+				</li>
+			
+				{% comment %}
+				<div class="col_9 rule suggestion">
+					<div class="col_6">
+						<h4 style="margin-bottom: 8px"></h4>
+						{% if sug.source %}
+							<p>Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
+						{% else %}
+							<p>This bill is trending on POPVOX.</p>
+						{% endif %}
+						<div style="float: left; margin-left: 15px;"><a class="action" href="{{sug.bill.url}}">Action</a></div>
+						<div style="float: left; margin-left: 15px;"><p style="margin-top: 1px; font-weight: bold;">Let Congress know <a href="{{sug.bill.url}}">what you think</a>.</p></div>
+						<p class="clear">{{sug.bill.status}}
+						<span style="font-style: italic">Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</span></p>
+					</div>
+					
+					<div class="col_3 col_last">
+					{% bill_statistics sug.bill as stats %}
+					{% with sug.bill as bill %}
+					{% with bill.id as chart_id %}
+						{% include "popvox/bill_statistics_pie_simple.html" %}
+					{% endwith %}
+					{% endwith %}
+					</div>
+					
+					<div class="clear"> </div>
+				</div>
+				{% endcomment %}
+		
+			{% empty %}
+			
+				<p>We have no suggested actions for you at this time. Your <a href="/home">home dashboard</a> will show you the comments you have left so far.</p>
+			
+			{% endfor %}
+		</div>
+	
+		{% comment %}
 		<div class="col_3">
 			<ul class="suggest_bills">
 				<li>
@@ -313,7 +404,7 @@
 			</ul>
 
 		</div><!-- e: col_3 -->
-
+		{% endcomment %}
 			
 		<div class="clear"> </div>
 		

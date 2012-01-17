@@ -317,7 +317,6 @@ def compute_prompts(user):
 	# Compute prompts for action for users by looking at the bills he has commented
 	# on, plus trending bills (with a weight).
 	
-		
 	# For each source bill, find similar target bills. Remember the similarity
 	# and source for each target.
 	targets = {}
@@ -327,6 +326,10 @@ def compute_prompts(user):
 		for target_bill, similarity in chain(( (s.bill2, s.similarity) for s in source_bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in source_bill.similar_bills_two.all().select_related("bill1"))):
 			if not target_bill.isAlive():
 				continue
+				
+			if "Super Committee" in target_bill.title: # HACK
+				continue
+				
 			if not target_bill in targets: targets[target_bill] = []
 			targets[target_bill].append( (source_bill, similarity) )
 			max_sim = max(similarity, max_sim)
@@ -1308,13 +1311,10 @@ def user_activity_feed(user):
 	#	scan for the not-most-recent actions of a bill (reported, voted, etc)?
 	#	when your MoC cosponsors a bill you commented on or bookmarked
 	
-	import random
-	top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
-	user = top_users[800 + random.randint(0, 200)]
-	user = User.objects.get(id=user["user"])
-	
 	# list() forces execution here so it does not get evaluated in subqueries
 	your_bill_list_ids = list(user.comments.order_by().values_list('bill', flat=True))
+	
+	your_antitracked_bills = list(user.userprofile.antitracked_bills.values_list('id', flat=True))
 	
 	def your_comments(limit):
 		# the positions you left
@@ -1452,6 +1452,9 @@ def user_activity_feed(user):
 			if x <= 0.0: continue # has not doubled yet, or maybe it has gone down!
 			try:
 				#c2 = c.bill.usercomments.order_by('created')[int(doubling**x * nc1)]
+				# Look at that numbered comment, or the next, in case that comment was
+				# deleted, or if there was some weird concurrency thing and no comment
+				# exists at that index.
 				c2 = c.bill.usercomments.filter(seq__gte=int(doubling**x * nc1)).order_by('seq')[0]
 			except IndexError:
 				# weird?
@@ -1498,6 +1501,9 @@ def user_activity_feed(user):
 		for org, agreecount in orgs:
 			counter2 = 0
 			for ocp in OrgCampaignPosition.objects.filter(campaign__org=org).select_related("campaign__org", "bill").order_by('-created'):
+				if ocp.bill.id in your_antitracked_bills:
+					continue
+				
 				yield {
 					"action_type": "org_position",
 					"date": ocp.created,
@@ -1549,11 +1555,16 @@ def individual_dashboard(request):
 	prof = user.get_profile()
 	if prof == None or prof.is_leg_staff() or prof.is_org_admin():
 		raise Http404()
-		
+
+	import random
+	top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
+	user = top_users[800 + random.randint(0, 200)]
+	user = User.objects.get(id=user["user"])
+	
 	return render_to_response('popvox/dashboard.html',
 		{ 
-		#"suggestions": compute_prompts(user)[0:4],
-		"feed_items": user_activity_feed(request.user),
+		"suggestions": compute_prompts(user),
+		"feed_items": user_activity_feed(user),
 		 "adserver_targets": ["user_home"],
 			},
 		context_instance=RequestContext(request))
