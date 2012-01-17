@@ -6,9 +6,15 @@ import os.path
 
 execfile("/mnt/persistent/config/tokens.py")
 
-DEBUG = ("DEBUG" in os.environ)
+DEBUG = ("DEBUG" in os.environ) or os.path.exists(os.path.dirname(__file__) + "/debug")
 TEMPLATE_DEBUG = DEBUG
-INTERNAL_IPS = ('127.0.0.1') # used by django.core.context_processors.debug
+INTERNAL_IPS = ('127.0.0.1',) # used by django.core.context_processors.debug
+if "SSH_CONNECTION" in os.environ:
+	# When launched from an SSH session, add the remote hose to
+	# the list of INTERNAL_IPSs so that he can see the SQL
+	# debugging output.
+	INTERNAL_IPS = ('127.0.0.1', os.environ["SSH_CONNECTION"].split(" ")[0])
+	print "Internal IPs:", repr(INTERNAL_IPS)
 if os.path.exists("/home/www/slave"):
 	for line in open("/home/www/slave"):
 		name, val = line.strip().split("=")
@@ -38,7 +44,7 @@ MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 import django.core.mail.message
 django.core.mail.message.DNS_NAME = 'popvox.com'
 
-if DEBUG:
+if False:
 	# this is the default when DEBUG is true, but we'll be explicit.
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 elif os.environ.get("EMAIL_BACKEND") in ("AWS-SES",):
@@ -71,7 +77,7 @@ else:
 SEND_BROKEN_LINK_EMAILS = False
 CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
 
-if not DEBUG or "REMOTEDB" in os.environ:
+if True:
 	mysqlhost = "localhost" # unix domain
 	mysqluser = "root"
 	if "REMOTEDB" in os.environ and os.environ["REMOTEDB"] == "1":
@@ -147,10 +153,6 @@ CACHES = {
 AUTH_PROFILE_MODULE = 'popvox.UserProfile'
 LOGIN_URL = "/accounts/login"
 LOGIN_REDIRECT_URL = "/home"
-
-if os.path.exists(os.path.dirname(__file__) + "/debug"):
-	DEBUG=True
-	TEMPLATE_DEBUG=True
 
 TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
