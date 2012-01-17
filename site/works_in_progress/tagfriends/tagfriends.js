@@ -1,0 +1,1 @@
+../../tagfriends/static/js/tagfriends.js
