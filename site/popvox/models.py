@@ -167,6 +167,9 @@ class Bill(models.Model):
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)
 	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House',), ('c', 'Congress House+Senate')], blank=True, null=True, help_text="This is required for Generic Proposal-type bill actions to route messages to the right place.")
+	
+	upcoming_event_post_date = models.DateTimeField(help_text="When adding an upcoming event, set this date to the date you are posting the information (i.e. now).", null=True, db_index=True)
+	upcoming_event = models.CharField(max_length=64, null=True, help_text="The text of an upcoming event. Start with a verb that would follow the bill number, e.g. \"is coming up for a vote on Aug. 1\". Do not end with a period.")
 
 	srcfilehash = models.CharField(max_length=32, blank=True)
 	
@@ -183,7 +186,7 @@ class Bill(models.Model):
 
 	def url(self):
 		vehicleid = ""
-		if self.vehicle_for != None:
+		if self.vehicle_for_id != None:
 			vehicleid = 1
 			b = self
 			while b.replaced_vehicle.exists():
@@ -1173,6 +1176,17 @@ class UserComment(models.Model):
 	status = models.IntegerField(choices=[(COMMENT_NOT_REVIEWED, 'Not Reviewed (Default)'), (COMMENT_ACCEPTED, 'Reviewed & Accepted'), (COMMENT_REJECTED, 'Rejected -- Still Deliver'), (COMMENT_REJECTED_STOP_DELIVERY, 'Rejected -- Stop Delivery'), (COMMENT_REJECTED_REVISED, 'Rejected-then-Revised - Waiting Approval'), (COMMENT_HOLD, 'Hold Delivery')], default=COMMENT_NOT_REVIEWED)
 	method = models.IntegerField(choices=[(METHOD_SITE, 'Site'), (METHOD_CUSTOMIZED_PAGE, 'Customized Landing Page'), (METHOD_WIDGET, 'Widget')])
 
+	# an approximate zero-based sequence number of this comment on the bill, so each comment knows if it was the 1st, 2nd, etc.
+	seq = models.IntegerField()
+		# to initialize this column:
+		# for b in Bill.objects.all():
+		#  seq = 0
+		#  for c in b.usercomments.order_by("created"):
+		#   c.seq = seq
+		#   c.save()
+		#   seq += 1
+		#  print b
+
 	# repeated from the address for better indexing
 	state = models.CharField(max_length=2)
 	congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
@@ -1194,7 +1208,7 @@ class UserComment(models.Model):
 	class Meta:
 			verbose_name = "user comment"
 			ordering = ["-created"]
-			unique_together = (("user", "bill"),)
+			unique_together = (("user", "bill"), ("bill", "seq"))
 	def __unicode__(self):
 		return self.user.username + " -- " + self.bill.displaynumber() + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()
 
@@ -1253,6 +1267,8 @@ class UserComment(models.Model):
 		return self.verb(tense="imp")
 	def verb_ing(self):
 		return self.verb(tense="ing")
+	def verb_past(self):
+		return self.verb(tense="past")
 
 	def shares(self):
 		import shorturl

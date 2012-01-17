@@ -5,7 +5,7 @@ from django.views.generic.simple import direct_to_template
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.db.models.query import QuerySet
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
@@ -1301,16 +1301,32 @@ def user_activity_feed(user):
 	# AUX: auxiliary call to action
 	# GFX: graphic/media to go along with item
 	
+	# other things we need:
+	#	upcoming votes - haven't commented: weigh in [ share] | pie
+	# 	upcoming votes - already commented: share [ bill report ] | your position
+	#	house bill reaches 100 cosponsors, senate bill reaches 10
+	#	scan for the not-most-recent actions of a bill (reported, voted, etc)?
+	#	when your MoC cosponsors a bill you commented on or bookmarked
+	
+	import random
+	top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
+	user = top_users[800 + random.randint(0, 200)]
+	user = User.objects.get(id=user["user"])
+	
+	# list() forces execution here so it does not get evaluated in subqueries
+	your_bill_list_ids = list(user.comments.order_by().values_list('bill', flat=True))
+	
 	def your_comments(limit):
 		# the positions you left
 		#  CTA: share
 		#  AUX: view bill
 		#  GFX: preview?
-		for c in user.comments.all().order_by('-updated')[0:limit]:
+		for c in user.comments.all().select_related("bill").only("updated", "position", "created", "bill__congressnumber", "bill__billtype", "bill__billnumber", "bill__title", "bill__street_name", "bill__vehicle_for").order_by('-updated')[0:limit]:
 			yield {
+				"action_type": "comment",
 				"date": c.updated,
-				"name": "You " + c.verb(tense="past") + " " + c.bill.shortname + ".",
-				"description": "",
+				"verb": c.verb(tense="past"),
+				"bill": c.bill,
 			}
 
 	def your_deliveries(limit):
@@ -1318,65 +1334,114 @@ def user_activity_feed(user):
 		#  CTA: share
 		#  AUX: view bill
 		#  GFX: ?
-		from writeyourrep.models import DeliveryRecord
-		from popvox.govtrack import getMemberOfCongress
-		for d in DeliveryRecord.objects.filter(comments__user=user, success=True)[0:limit]:
-			c = d.comments.all()[0]
+		
+		# It is difficult to write an efficient ORM query to get the results ordered by the delivery
+		# record creation date and get MySQL to do the join in the right order. We have to start with
+		# UserComment to get the join right, but then we can't have the ORM return comments because
+		# it'll be distinct and we'll lose the reference to the joined row of the delivery records table.
+		# Filtering on a many-to-many and using values() will get the raw JOIN results which will have
+		# the distinct delivery records.
+		for row in user.comments.filter(delivery_attempts__success=True).order_by("-delivery_attempts__created").values("id", "delivery_attempts__id", "delivery_attempts__created"):
 			yield {
-				"date": d.created,
-				"name": "Your position on " + c.bill.shortname + " was delivered to " + getMemberOfCongress(d.target.govtrackid)["name"],
-				"description": "",
+				"action_type": "delivery",
+				"date": row["delivery_attempts__created"],
+				#"bill": c.bill,
+				#"verb": c.verb(tense="ing"),
+				#"message": c.message,
+				#"recipient": getMemberOfCongress(d.target.govtrackid)["name"],
 			}
+		
+		# Too slow!
+		
+		#from writeyourrep.models import DeliveryRecord
+		from popvox.govtrack import getMemberOfCongress
+		#for d in DeliveryRecord.objects.filter(comments__user=user, success=True).only("created", "target__govtrackid").order_by('-created')[0:limit]:
+		#	c = d.comments.all().only("position", "created", "message", "bill__congressnumber", "bill__billtype", "bill__billnumber", "bill__title", "bill__street_name", "bill__vehicle_for")[0]
+		#for c in user.comments
+		#	yield {
+		#		"action_type": "delivery",
+		#		"date": d.created,
+		#		"bill": c.bill,
+		#		"verb": c.verb(tense="ing"),
+		#		"message": c.message,
+		#		"recipient": getMemberOfCongress(d.target.govtrackid)["name"],
+		#	}
 			
 	def your_commented_bills_status(limit):
 		# status of bills you have commented on
 		#  CTA: share
 		#  AUX: view bill
 		#  GFX: ?
-		for b in Bill.objects.filter(usercomments__user=user).order_by('-current_status_date'):
-			c = UserComment.objects.get(user=user, bill=b)
-			yield {
-				"date": b.current_status_date,
-				"name": b.shortname + ": " + b.status_advanced(),
-				"description": "You " + c.verb(tense="past") + " the " + b.proposition_type() + " on " + str(c.created) + ".",
-				"mutually_exclusive_with": ("status", b), # used by your_bookmarked_bills_status
-			}
-	
+		
+		def get_comment_closure(bill):
+			def f():
+				return UserComment.objects.get(bill=bill, user=user)
+			return f
+		
+		for status_type in ("current_status", "upcoming_event"):
+			datefield = status_type + "_date"
+			if status_type == "upcoming_event": datefield = status_type + "_post_date"
+			
+			for bill in Bill.objects.filter(id__in=your_bill_list_ids).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield):
+				yield {
+					"action_type": "bill_" + status_type,
+					"date": getattr(bill, datefield),
+					"bill": bill,
+					"comment": get_comment_closure(bill),
+					"mutually_exclusive_with": (status_type, bill), # used by your_bookmarked_bills_status
+				}
+			
 	def your_bookmarked_bills_status(limit):
 		# status of bills you have bookmarked but not commented on
 		#  CTA: weigh in
 		#  AUX: share
 		#  GFX: ?
-		for b in Bill.objects.filter(trackedby__user=user).order_by('-current_status_date'):
-			yield {
-				"date": b.current_status_date,
-				"name": b.shortname + ": " + b.status_advanced(),
-				"description": "You bookmarked this bill.",
-				"mutually_exclusive_with": ("status", b), # your_commented_bills_status must be processed first
-			}
+		
+		for status_type in ("current_status", "upcoming_event"):
+			datefield = status_type + "_date"
+			if status_type == "upcoming_event": datefield = status_type + "_post_date"
 			
+			for bill in Bill.objects.filter(trackedby__user=user).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield):
+				yield {
+					"action_type": "bill_" + status_type,
+					"date": getattr(bill, datefield),
+					"bill": bill,
+					"mutually_exclusive_with": (status_type, bill), # used by your_bookmarked_bills_status
+				}
+		
 	def your_bills_now(limit):
 		# for each bill you have weighed in on, every time the number of people weighing
 		# in doubles, include it in the feed.
 		#  CTA: share
 		#  AUX: view report
 		#  GFX: pie chart
+		
+		# get the statistics as of that date
+		def get_stats_buildclosure(bill, date):
+			def get_stats_closure():
+				return bill_statistics(bill, "POPVOX", "POPVOX Nation", as_of = date)
+			return get_stats_closure
+		
+		# get a list of the total number of comments on all of the bills the user
+		# has weighed in on. use a list() to force the inner query to evaluate first.
+		bill_counts = dict(Bill.objects.filter(id__in=your_bill_list_ids).values("id").annotate(count=Count("usercomments")).order_by().values_list("id", "count"))
+		
 		import math
 		from popvox.views.bills import bill_statistics
 		ret = []
-		for c in user.comments.all():
+		for c in user.comments.all().select_related("bill"):
 			# I suspect that people will want to see updates more for bills they
 			# actually wrote something about.
 			if c.message:
-				doubling = 1.5
+				doubling = 1.75
 			else:
 				doubling = 1.95
 			
 			# how many comments were left at the time you weighed in?
-			nc1 = c.bill.usercomments.filter(created__lt=c.created).count() + 1
+			nc1 = c.seq + 1 # c.bill.usercomments.filter(created__lt=c.created).count() + 1
 			
 			# how many comments are left now?
-			nc2 = c.bill.usercomments.count()
+			nc2 = bill_counts.get(c.bill_id, 1) # c.bill.usercomments.count()
 			
 			# how many times has it doubled since then? i.e. 2^x = nc2/nc1
 			x = (math.log(nc2) - math.log(nc1)) / math.log(doubling)
@@ -1386,19 +1451,18 @@ def user_activity_feed(user):
 			x = math.floor(x)
 			if x <= 0.0: continue # has not doubled yet, or maybe it has gone down!
 			try:
-				c2 = c.bill.usercomments.order_by('created')[int(doubling**x * nc1)]
+				#c2 = c.bill.usercomments.order_by('created')[int(doubling**x * nc1)]
+				c2 = c.bill.usercomments.filter(seq__gte=int(doubling**x * nc1)).order_by('seq')[0]
 			except IndexError:
 				# weird?
 				continue
 			
-			# get the statistics as of that date
-			stats = bill_statistics(c.bill, "POPVOX", "POPVOX Nation", as_of = c2.created)
-			if not stats: continue
-			
 			ret.append({
+				"action_type": "bill_now",
 				"date": c2.created,
-				"name": str(stats["total"]) + " people have now weighed in on " + c.bill.shortname + ".",
-				"description": "You were individual number " + str(nc1) + ". Here is how the " + c.bill.proposition_type() + " is doing now....",
+				"bill": c.bill,
+				"stats": get_stats_buildclosure(c.bill, c2.created),
+				"your_number": nc1,
 			})
 			
 		# We can't efficiently query these events in date order, so we pull them all
@@ -1407,67 +1471,55 @@ def user_activity_feed(user):
 		for item in ret[0:limit]:
 			yield item
 			
-	def new_bills(limit):
-		# What newly introduced bills do we think you might be interested in?
-		#  CTA: weigh in (if you haven't already)
-		#  AUX: share
-		#  GFX: ?
-		
-		limit /= 5 # these can be overwhelming, don't deliver so many
-		
-		# Get the issue areas that the user is interested in.
-		top_issues = IssueArea.objects.all().annotate(count=Count("id")).filter(bills__usercomments__user=user).order_by('-count')
-		count = 0
-		for i, ix in enumerate(top_issues):
-			count2 = 0
-			for bill in Bill.objects.filter(topterm=ix, current_status__in=('INTRODUCED', 'REFERRED')).order_by('-current_status_date'):
-				yield {
-					"date": bill.current_status_date,
-					"name": "New " + bill.proposition_type() + ": " + bill.nicename,
-					"description": "We thought you might be interested in this because you have weighed in on " + ix.name + " bills.",
-				}
-				
-				count += 1
-				if count == limit: return
-				
-				# spread out the returned items across the user's top issue areas, with
-				# more for the first issue area, and a little less for the second, and on.
-				count2 += 1
-				if count2 > limit/(i+3): break
-
 	def new_org_positions(limit):
 		# What new organization position statements do we think you might be interested in?
 		#  CTA: view position statement
 		#  AUX: weigh in or share?
 		#  GFX: ?
 		
-		limit /= 5 # these can be overwhelming, don't deliver so many
+		# Look at the orgs that have agreed with this person on bills, and suggest other
+		# positions they are taking.
 		
-		# Get the issue areas that the user is interested in.
-		top_issues = IssueArea.objects.all().annotate(count=Count("id")).filter(bills__usercomments__user=user).order_by('-count')
-		count = 0
-		for i, ix in enumerate(top_issues):
-			count2 = 0
-			for ocp in OrgCampaignPosition.objects.filter(bill__topterm=ix).order_by('-created').select_related("campaign", "campaign__org", "bill"):
+		# First find the orgs that most agree with this user.
+		from django.db.models import F
+		orgs = { }
+		for ocp in OrgCampaignPosition.objects.filter(bill__usercomments__user=user, position=F("bill__usercomments__position")).select_related("campaign__org"):
+			org = ocp.campaign.org
+			orgs[org] = orgs.get(org, 0) + 1
+		
+		orgs = sorted(orgs.items(), key = lambda kv : kv[1], reverse=True)
+		
+		def get_max_sim(bill):
+			m1 = BillSimilarity.objects.filter(bill1=bill, bill2__usercomments__user=user).aggregate(Max("similarity"))["similarity__max"]
+			m2 = BillSimilarity.objects.filter(bill2=bill, bill1__usercomments__user=user).aggregate(Max("similarity"))["similarity__max"]
+			return max(m1, m2)
+		
+		counter = 0
+		for org, agreecount in orgs:
+			counter2 = 0
+			for ocp in OrgCampaignPosition.objects.filter(campaign__org=org).select_related("campaign__org", "bill").order_by('-created'):
 				yield {
+					"action_type": "org_position",
 					"date": ocp.created,
-					"name": ocp.campaign.org.name + " " + ocp.verb() + " " + ocp.bill.nicename,
-					"description": "We thought you might be interested in this because you have weighed in on " + ix.name + " bills.",
+					"org": ocp.campaign.org,
+					"verb": ocp.verb(),
+					"bill": ocp.bill,
+					"numagreements": agreecount,
+					#"simscore": get_max_sim(ocp.bill),
 				}
 				
-				count += 1
-				if count == limit: return
-				
-				# spread out the returned items across the user's top issue areas, with
-				# more for the first issue area, and a little less for the second, and on.
-				count2 += 1
-				if count2 > limit/(i+3): break
+				# Maximum of limit/2 actions returned.
+				counter += 1
+				if counter >= limit/2:
+					return
+					
+				# Maximum of 3 actions returned per organization.
+				counter2 += 1
+				if counter2 == 3:
+					break
 
-	#upcoming votes - haven't commented: weigh in [ share] | pie
-	#upcoming votes - already commented: share [ bill report ] | your position
-
-	feed_size = 25
-	sources = (your_comments, your_deliveries, your_commented_bills_status, your_bookmarked_bills_status, your_bills_now, new_bills, new_org_positions)
+	feed_size = 15
+	sources = (your_comments, your_commented_bills_status, your_bookmarked_bills_status, your_bills_now, new_org_positions)
 	exclusions = set()
 	feed = []
 	for source in sources:
@@ -1490,4 +1542,19 @@ def user_activity_feed(user):
 	
 	return feed
 	
+@csrf_protect
+@login_required
+def individual_dashboard(request):
+	user = request.user
+	prof = user.get_profile()
+	if prof == None or prof.is_leg_staff() or prof.is_org_admin():
+		raise Http404()
+		
+	return render_to_response('popvox/dashboard.html',
+		{ 
+		#"suggestions": compute_prompts(user)[0:4],
+		"feed_items": user_activity_feed(request.user),
+		 "adserver_targets": ["user_home"],
+			},
+		context_instance=RequestContext(request))
 

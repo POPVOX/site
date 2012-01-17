@@ -1,0 +1,326 @@
+{% extends "master.html" %}
+{% load humanize %}
+{% load popvox_utils %}
+{% block title %}Dashboard{% endblock%}
+{% block description %}Your POPVOX dashboard alerts you to recent activity on POPVOX and in Congress and gives you suggestions for other bills to write about.{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block head %}
+{% endblock %}
+{% block content %}
+<div class="content userdash">
+
+	<div class="col_9 col_top col_last ">
+		<h1 class="rule_btm">Your Dashboard</h1>
+		
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+	</div>
+	<div class="clear"> </div>
+	
+	<div class="col_12 col_top user_dash">
+		<ul id="bar">
+			<li class="c6">Activity Feed</li>
+			<li class="c3">Suggestions</li>
+			<li class="c3l">Following</li>
+		</ul>
+		
+		<div class="col_6">
+			<ul class="activity">
+				{% for item in feed_items %}
+					<li>
+						<div class="date">
+							<p><span>{{item.date|date2}}</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+						</div>
+					
+						{% if item.action_type == "comment" %}
+							<h3>You {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</h3>
+							<div class="details">
+							</div>
+						{% endif %}
+						
+						{% if item.action_type == "delivery" %}
+							<h3>Your {% if item.message %}letter{% else %}position{% endif %} {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> was delivered to {{item.recipient}}.</h3>
+							<div class="details">
+							</div>
+						{% endif %}
+						
+						{% if item.action_type == "org_position" %}
+							<h3><a href="{{item.org.url}}">{{item.org.name}}</a> {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</h3>
+							<div class="details">
+								<p class="detail">This organization shares your position on {{item.numagreements}} bill{{item.numagreements|pluralize}}.</p>
+							</div>
+						{% endif %}
+						
+						{% if item.action_type == "bill_now" %}
+							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
+							<div class="details">
+								{% with item.stats as stats %}
+								<p class="detail bill">{% if stats %}{{stats.total}} people have now weighed in. {% endif %}You were the {{item.your_number|ordinal}} person to weigh in.</p>
+								{% endwith %}
+							</div>
+						{% endif %}
+						
+						{% if item.action_type == "bill_current_status" %}
+							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
+							<div class="details">
+								<p class="detail">{{item.bill.status}}</p>
+								{% with item.comment as comment %}
+								{% if item.comment %}
+									<p class="detail bill">You {{item.comment.verb_past}} this {{item.bill.proposition_type}} on {{item.comment.created|date2}}.</p>
+								{% endif %}
+								{% endwith %}
+							</div>
+						{% endif %}
+						
+						{% if item.action_type == "bill_upcoming_event" %}
+							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
+							<div class="details">
+								<p class="detail bill">{{item.bill.upcoming_event}}</p>
+								{% with item.comment as comment %}
+								{% if item.comment %}
+									<p class="detail bill">You {{item.comment.verb_past}} this {{item.bill.proposition_type}} on {{item.comment.created|date2}}.</p>
+								{% endif %}
+								{% endwith %}
+							</div>
+						{% endif %}
+					</li>
+				{% endfor %}
+			
+				{% comment %}
+				<li>
+					<div class="date">
+						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+					</div>
+					<h3><a href="#">HR 4646: Debt Free America Act</a></h3>
+					<div class="details">
+						<div class="pie"></div>
+						<p class="detail bill"><strong>Status:</strong> Referred to House Ways and Means...</p>
+						<p class="take_action"><a href="#">WEIGH IN</a> <span>SHARE</span> <a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="star">star</a><a href="#" class="link">link</a></p>
+						<div class="clear"> </div>
+					</div>
+				</li>
+				<li>
+					<div class="date">
+						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+					</div>
+					<h3><a href="#">You commented on HR 424: Puppies are America Act</a></h3>
+					<div class="details">
+						<div class="pie"></div>
+						<p class="detail comment">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras massa sapien, adipiscing in mattis eget, lobortis...</p>
+						<p class="take_action"><a href="#">WEIGH IN</a> <span>SHARE</span> <a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="star">star</a><a href="#" class="link">link</a></p>
+						<div class="clear"> </div>
+					</div>
+				</li>
+				<li>
+					<div class="date">
+						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+					</div>
+					<h3><a href="#">American Association of Colleges of Pharmacy endorses HR 646</a></h3>
+					<div class="details">
+						<div class="pie"></div>
+						<p class="detail org_psn">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+						<div class="clear"> </div>
+					</div>
+				</li>
+				<li>
+					<div class="date">
+						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+					</div>
+					<h3><a href="#">Rep. Chaka Fattah</a> <span>[D, PA-2]</span></h3>
+					<div class="details">
+						<div class="pie"></div>
+						<p class="detail co-sponsor">Co-sponsored <a href="#">HR 423</a></p>
+						<div class="clear"> </div>
+					</div>
+				</li>
+				<li>
+					<div class="date">
+						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+					</div>
+					<h3>You weighed in on HR 446</h3>
+					<div class="details">
+						<div class="pie"></div>
+						<p class="detail weighed_in">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+						<div class="clear"> </div>
+					</div>
+				</li>
+				<li>
+					<div class="date">
+						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+					</div>
+					<h3>You supported HR 1235</h3>
+					<div class="details">
+						<div class="pie"></div>
+						<p class="detail support">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+						<div class="clear"> </div>
+					</div>
+				</li>
+				<li>
+					<div class="date">
+						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+					</div>
+					<h3>You opposed HR 1225</h3>
+					<div class="details">
+						<div class="pie"></div>
+						<p class="detail oppose">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+						<div class="clear"> </div>
+					</div>
+				</li>
+				{% endcomment %}
+			</ul>
+		</div> <!-- e: col_6 -->
+		
+		<div class="col_3">
+			<ul class="suggest_bills">
+				<li>
+					<div class="btn_r">
+						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
+						<div class="pie"></div>
+					</div>
+					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
+					<a href="#" class="weigh_in">WEIGH IN</a>
+				</li>
+				<li>
+					<div class="btn_r">
+						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
+						<div class="pie"></div>
+					</div>
+					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
+					<a href="#" class="weigh_in">WEIGH IN</a>
+				</li>
+				<li>
+					<div class="btn_r">
+						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
+						<div class="pie"></div>
+					</div>
+					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
+					<a href="#" class="weigh_in">WEIGH IN</a>
+				</li>
+				<li>
+					<div class="btn_r">
+						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
+						<div class="pie"></div>
+					</div>
+					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
+					<a href="#" class="weigh_in">WEIGH IN</a>
+				</li>
+			</ul>
+			<ul class="suggest_orgs">
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_beer.jpg" alt="org name"/>
+					<h3><a href="#">Beer Institute</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_aacp.jpg" alt="org name"/>
+					<h3><a href="#">American Association of Colleges of Pharmacy (AACP)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_ctj.jpg" alt="org name"/>
+					<h3><a href="#">Citizens for Tax Stuff</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_ghlf.jpg" alt="org name"/>
+					<h3><a href="#">Global Healthy Living Foundation (GHLF)</a></h3>
+				</li>
+			</ul>
+		</div><!-- e: col_3 -->
+		
+		<div class="col_3 col_follow">
+			<ul class="following_congress">
+				<h2>Congress People</h2>
+				<li>
+					<img src="/media/master/_temp/fattah.jpg" alt="rep name"/>
+					<h3><a href="#">Sen. Chaka Fattah<br /><span>[D, PA]</span></a></h3>
+				</li>
+				<li>
+					<img src="/media/master/_temp/smith.jpg" alt="rep name"/>
+					<h3><a href="#">Rep. John Smith<br /><span>[R, TN-7]</span></a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<img src="/media/master/_temp/fattah.jpg" alt="rep name"/>
+					<h3><a href="#">Sen. Chaka Fattah<br /><span>[D, PA]</span></a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<img src="/media/master/_temp/smith.jpg" alt="rep name"/>
+					<h3><a href="#">Rep. John Smith<br /><span>[R, TN-7]</span></a></h3>
+				</li>
+			</ul>
+			<ul class="following_bills">
+				<h2>Bills</h2>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">HR 456: Debt Free America Act</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">HR 456: Debt Free America Act</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">HR 456: Debt Free America Act</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">HR 456: Debt Free America Act</a></h3>
+				</li>
+			</ul>
+			<ul class="following_issues">
+				<h2>Issue Areas</h2>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">Arts, Culture, REligion (25)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">Education (316)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">Health (625)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">Taxation (619)</a></h3>
+				</li>
+			</ul>
+			<ul class="following_orgs">
+				<h2>Organizations</h2>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_beer.jpg" alt="org name"/>
+					<h3><a href="#">Beer Institute</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_aacp.jpg" alt="org name"/>
+					<h3><a href="#">American Association of Colleges of Pharmacy (AACP)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_ctj.jpg" alt="org name"/>
+					<h3><a href="#">Citizens for Tax Stuff</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_ghlf.jpg" alt="org name"/>
+					<h3><a href="#">Global Healthy Living Foundation (GHLF)</a></h3>
+				</li>
+			</ul>
+
+		</div><!-- e: col_3 -->
+
+			
+		<div class="clear"> </div>
+		
+	</div><!-- e: col_12 -->
+	
+	
+</div>
+
+{% endblock %}
+
