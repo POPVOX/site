@@ -122,6 +122,11 @@ def staticpage(request, page):
 		raise Http404()
     
 def raise_error(request):
+	## dump memory state #
+	#from meliae import scanner
+	#scanner.dump_all_objects('meliae.json')
+	## dump memory state #
+
 	raise ValueError("Hmmph!")
 
 def sitedown(request):

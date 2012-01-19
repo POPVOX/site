@@ -213,6 +213,7 @@ INSTALLED_APPS = (
     'picklefield',
     'django_ses',
     'articles',
+    #'django_dowser',
     'jquery',
     'writeyourrep',
     'phone_number_twilio',

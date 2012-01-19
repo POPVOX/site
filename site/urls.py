@@ -172,6 +172,8 @@ urlpatterns = patterns('',
 	(r'^admin/', include(admin.site.urls)),
 
 	(r"^error$", "popvox.views.main.raise_error"),
+
+	#(r'^dowser/', include('django_dowser.urls')),
 )
 
 # for running a site that handles the admin interface only
