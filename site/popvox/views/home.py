@@ -1556,13 +1556,17 @@ def individual_dashboard(request):
 	if prof == None or prof.is_leg_staff() or prof.is_org_admin():
 		raise Http404()
 
-	import random
-	top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
-	user = top_users[800 + random.randint(0, 200)]
-	user = User.objects.get(id=user["user"])
+	if not "user" in request.GET:
+		import random
+		top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
+		user = top_users[800 + random.randint(0, 200)]
+		user = User.objects.get(id=user["user"])
+	else:
+		user = User.objects.get(id=request.GET["user"])
 	
 	return render_to_response('popvox/dashboard.html',
-		{ 
+		{
+		"userid": user.id,
 		"suggestions": compute_prompts(user),
 		"feed_items": user_activity_feed(user),
 		 "adserver_targets": ["user_home"],
