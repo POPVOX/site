@@ -10,7 +10,7 @@ USERHOME=/home/www
 
 SLAVES=
 for host in `$USERHOME/sources/site/mysql_shell.sh -NBe "select hostport from farm"`; do
-	SLAVES="$SLAVES\n\tserver $host; # AUTO FARM SLAVE"
+	SLAVES="$SLAVES\n\tserver $host weight=5; # AUTO FARM SLAVE"
 done
 
 grep -v "AUTO FARM SLAVE" $USERHOME/nginx.conf > /tmp/nginx.conf.new
