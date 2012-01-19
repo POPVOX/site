@@ -27,7 +27,10 @@ for user in `ls /home|grep -v ubuntu`; do
 	su $user -c "/home/$user/sources/site/fcgi";
 done
 
-echo "restarting searchd..."
-searchd
+# only the master server has this...
+if [ -f /etc/sphinxsearch/sphinx.conf ]; then
+	echo "restarting searchd..."
+	searchd;
+fi
 
 exit 0
