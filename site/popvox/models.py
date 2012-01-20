@@ -1335,32 +1335,40 @@ class UserComment(models.Model):
 			return ", ".join(recips)
 	
 	def delivery_status(self, ref1="Your message", ref2="you"):
+		from writeyourrep.models import Endpoint
+		
 		recips_ = self.get_recipients()
 		recips = [g["id"] for g in recips_] if type(recips_) == list else []
 		
-		# Group successful deliveries by date, and unsuccessful deliveries uniquely by target.
+		# Group successful deliveries by date and method, and unsuccessful deliveries uniquely by target.
 		retd = { }
 		for d in self.delivery_attempts.filter(next_attempt__isnull = True):
 			if d.success:
-				if not d.created.strftime("%x") in retd:
-					retd[d.created.strftime("%x")] = []
-				retd[d.created.strftime("%x")].append(d.target.govtrackid)
+				key = (d.created.strftime("%x"), d.method)
+				if not key in retd:
+					retd[key] = []
+				retd[key].append(d.target.govtrackid)
 				
 			# don't talk about failures when the user didn't write a message, or
 			# if we are no longer targetting that office as a recipient.
 			elif self.message != None and d.target.govtrackid in recips:
 				retd[govtrack.getMemberOfCongress(d.target.govtrackid)["sortkey"]] = "We had trouble delivering " + ref1.lower() + " to " + govtrack.getMemberOfCongress(d.target.govtrackid)["name"] + " but we will try again. "
 
+			# remove from list so we know who we haven't attempted yet
 			if d.target.govtrackid in recips:
 				recips.remove(d.target.govtrackid)
 
 		# Serialize into text for the user.
 		retk = list(retd.keys())
-		retk.sort(key = lambda x : (type(x) != str, x))
+		retk.sort(key = lambda x : (type(x) != tuple, x))
 		ret = ""
 		for k in retk:
-			if type(k) == str:
-				ret += ref1 + " was delivered to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in retd[k]]) + " on " + k + ". "
+			if type(k) == tuple:
+				if k[1] != Endpoint.METHOD_OFFSITE_DELIVERY:
+					verb = "delivered"
+				else:
+					verb = "sent"
+				ret += ref1 + " was " + verb + " to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in retd[k]]) + " on " + k[0] + ". "
 			else:
 				ret += retd[k]
 				
