@@ -11,8 +11,9 @@ class Endpoint(models.Model):
 	METHOD_HOUSE_WRITEREP = 3
 	METHOD_INPERSON = 4
 	METHOD_STAFFDOWNLOAD = 5
+	METHOD_OFFSITE_DELIVERY = 6 # the 160 D Street NE delivery acceptance office
 	
-	METHOD_CHOICES = [(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP"), (METHOD_INPERSON, "In-Person Delivery"), (METHOD_STAFFDOWNLOAD, "Staff Download")]
+	METHOD_CHOICES = [(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP"), (METHOD_INPERSON, "In-Person Delivery"), (METHOD_STAFFDOWNLOAD, "Staff Download"), (METHOD_OFFSITE_DELIVERY, "Dropped off at 160 D Street NE")]
 	
 	govtrackid = models.IntegerField(help_text="Do not change the GovTrack ID, i.e. the person, once it is set. An Endpoint is for a particular person in a particular office.")
 	office = models.CharField(max_length=6, help_text="Identify the office that this person is currently serving, e.g. CA-H01 for CA's 1st district congressman, TX-S3 for the Texas Senate office that is Class 3. The office identifier is used to prevent re-submission of a comment to the same office when the person serving in that office changes (i.e. resignation followed by replacement). Do not change the office field once it is set. An Endpoint is for a particular person in a particular office.")

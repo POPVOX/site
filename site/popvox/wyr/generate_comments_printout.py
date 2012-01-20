@@ -141,9 +141,7 @@ def create_tex(tex, serial):
 
 			comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position).select_related("comment")
 			
-			# if there are only comments without messages, skip this group
-			if not comments_in_topic.filter(comment__message__isnull=False).exists():
-				continue
+			# Reminder: Dont skip any messages that are already in a batch at this point!
 
 			outfile.write(r"\hrule\bigskip" + "\n\n")
 			outfile.write(r"{\large \bf \noindent ")
@@ -260,20 +258,29 @@ elif len(sys.argv) == 3 and sys.argv[1] == "kill":
 	else:
 		UserCommentOfflineDeliveryRecord.objects.filter(batch = sys.argv[2]).delete()
 elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
+	if sys.argv[2] == "inperson":
+		method = Endpoint.METHOD_INPERSON
+		methodname = "delivered via paper copy"
+	elif sys.argv[2] == "offsite":
+		method = Endpoint.METHOD_OFFSITE_DELIVERY
+		methodname = "delivery via off-site delivery acceptance office"
+	else:
+		raise ValueError("Must specify 'inperson' or 'offsite' method.")
+	
 	recs = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False)
-	if sys.argv[2] != "all":
+	if sys.argv[3] != "all":
 		b = []
-		for c in sys.argv[2:]:
+		for c in sys.argv[3:]:
 			b.extend(re.split(r"\s+", c))
 		b = [c for c in b if c.strip() != ""]
 		recs = recs.filter(batch__in = b)
 	for ucodr in recs:
 		dr = DeliveryRecord()
 		dr.target = Endpoint.objects.get(govtrackid=ucodr.target.id, office=getMemberOfCongress(ucodr.target.id)["office_id"])
-		dr.trace = "comment #" + unicode(ucodr.comment.id) + " delivered via paper copy\nbatch " + ucodr.batch + "\n"
+		dr.trace = "comment #" + unicode(ucodr.comment.id) + " " + methodname + "\nbatch " + ucodr.batch + "\n"
 		dr.success = True
 		dr.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
-		dr.method = Endpoint.METHOD_INPERSON
+		dr.method = method
 		dr.save()
 		
 		try:
@@ -290,17 +297,17 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 		
 elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
 	# delete UCDOR objects for mail that has since been delivered
-	for uc in UserCommentOfflineDeliveryRecord.objects.all():
+	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None):
 		if uc.comment.delivery_attempts.filter(target__govtrackid=uc.target.id, success=True).exists():
 			uc.delete()
 	
 	# delete UCDOR objects for mail that has since had an address marked not to deliver
-	for uc in UserCommentOfflineDeliveryRecord.objects.filter(comment__address__flagged_hold_mail=True):
+	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None, comment__address__flagged_hold_mail=True):
 		uc.delete()
 		
 	# delete UCDOR objects that are targetting reps that we no longer need to target because
 	# e.g. the district changed because of a district disagreement.
-	for uc in UserCommentOfflineDeliveryRecord.objects.all().select_related("comment", "comment__address", "target"):
+	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None).select_related("comment", "comment__address", "target"):
 		recips = uc.comment.get_recipients()
 		if not recips or not uc.target.id in [r["id"] for r in recips]:
 			uc.delete()
