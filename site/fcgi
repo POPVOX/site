@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # Start, graceful switch, or stop the FastCGI Python instance.
