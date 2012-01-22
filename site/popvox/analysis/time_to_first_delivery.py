@@ -8,7 +8,7 @@ batch_size = 2000
 
 values = []
 for batch in range(0, num_comments, batch_size):
-	print batch, num_comments
+	print batch, "/", num_comments
 	for c in source[batch:min(batch+batch_size, num_comments)]:
 		da = c.delivery_attempts.filter(success=True).order_by('created')
 		try:

@@ -4,6 +4,8 @@ from django.db.models.fields.related import ManyToOneRel, OneToOneRel
 
 from inspectobj import get_related_objects
 
+from popvox.models import UserComment
+
 class Command(BaseCommand):
 	option_list = BaseCommand.option_list
 	help = "Merges two objects in the database by updating references to the second to the first, and then deleting the second. Only makes changes if 'update' is specified."
@@ -12,7 +14,8 @@ class Command(BaseCommand):
 	
 	def handle(self, *args, **options):
 		if len(args) not in (4, 5):
-			raise ValueError("Expected four arguments.")
+			print "Expected: " + Command.args
+			return
 			
 		model = ContentType.objects.get(app_label=args[0], model=args[1]).model_class()
 
@@ -32,18 +35,28 @@ class Command(BaseCommand):
 				print "UPDATE", len(objs), model.__module__ + "." + model.__name__ + "->" + field.name
 				for ob in objs:
 					error = ""
-					if args[-1] == "update":
+					
+					# Check that making the change would not violate a uniqueness constraint.
+					if hasattr(model, "_meta"):
+						uniques = getattr(model._meta, "unique_together", [])
+						for fieldset in uniques:
+							if field.name in fieldset: # only check if we are changing one of the fields
+								filters = dict([ (f, getattr(ob, f) if f != field.name else obj1) for f in fieldset  ])
+								if model.objects.filter(**filters).exists():
+									error = "changing reference would violate uniqueness constraint " + repr(fieldset)
+					
+					if args[-1] == "update" and error == "":
 						try:
 							setattr(ob, field.name, obj1)
 							ob.save()
 						except Exception as e:
 							error = unicode(e)
 					if len(objs) < 15 or error != "":
-						print "\t", ob, error
+						print "\t", str(ob)[0:25] + (":" if error != "" else ""), error
 					
 			elif type(field.rel) == OneToOneRel:
 				# can't update one to one because presumably obj1 already has one
-				print field.rel.on_delete.__name__, len(objs), "one-to-one relation to", model.__module__ + "." + model.__name__, "(" + field.name + ")"
+				print field.rel.on_delete.__name__ + " DELETE", len(objs), "one-to-one relation to", model.__module__ + "." + model.__name__, "(" + field.name + ")"
 				if len(objs) < 15:
 					for ob in objs: print "\t", ob
 			else:
