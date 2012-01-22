@@ -15,4 +15,12 @@ socket.setdefaulttimeout(30)
 ret = C().open("https://%s.popvox.com/" % os.environ["USER"])
 if ret.getcode() != 200:
 	print os.environ["USER"], "returned status code", ret.getcode()
-	subprocess.call(["./fcgi"], shell=True)
+
+	# runscript sets this, which causes major problems because
+	# it prevents the User creation signal handler from executing
+	# which leaves our db in an inconsistent state of not creating
+	# UserProfile objects.
+	env = dict(os.environ)
+	del env["LOADING_DUMP_DATA"]
+
+	subprocess.call(["./fcgi"], shell=True, env=env)
