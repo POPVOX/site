@@ -1577,9 +1577,9 @@ class ServiceAccount(models.Model):
 	@staticmethod
 	def get_or_create(**kwargs):
 		acct, is_new = ServiceAccount.objects.get_or_create(**kwargs)
-		#if is_new:
-		#	for perm in ("widget_theme", "salsa", "fb_page", "writecongress_ocp"):
-		#		acct.permissions.add(ServiceAccountPermission.objects.get(name=perm))
+		if is_new:
+			for perm in ("fb_page",): #"widget_theme", "salsa", "fb_page", "writecongress_ocp"):
+				acct.permissions.add(ServiceAccountPermission.objects.get(name=perm))
 		return acct
 	
 class ServiceAccountCampaign(models.Model):
