@@ -1,3 +1,5 @@
+/* @override https://william.popvox.com/media/master/stylesheet.css */
+
 /*
 
 
@@ -5015,7 +5017,7 @@ ul.issue_list li a.active{
 
 /* user dashboard */
 .userdash {
-	background: url(_temp/te mp.jpg) center top no-repeat;
+	background: url(_temp/usr-dash_temp.jpg) center -71px no-repeat;
 	display: block;
 	height: 1000px;
 	}
@@ -5070,7 +5072,7 @@ ul.issue_list li a.active{
 	.userdash div.btn_r {
 		float: right;
 		display: block;
-		width: 90px;
+		width: 80px;
 		height: 12px;
 		margin-top: 5px;
 		}
@@ -5086,14 +5088,17 @@ ul.issue_list li a.active{
 	.userdash div.date p,
 	.userdash div.btn_r p {
 			margin: 0;
-			padding: 1px 0;
+			padding: 0;
 			height: 15px;
 			}
 
 		.userdash div.date p span {
 			float: left;
+			width: 52px;
 			padding-right: 10px;
 			font-size: 12px;
+			line-height: 12px;
+			display: block;
 			}
 		
 		.userdash div.date a,
@@ -5127,7 +5132,7 @@ ul.issue_list li a.active{
 		.userdash div a.hide {
 			background: url(_temp/b_hide.png) left top no-repeat;
 			width: 10px;
-			
+			margin-top: 2px;
 		    }
 		    
 		    .userdash div.btn_r a.fav {
@@ -5144,115 +5149,205 @@ ul.issue_list li a.active{
 		text-transform: none;
 		padding: 0 10px;
 		margin-top: 5px;
+		margin-bottom: 5px;
 		background: none;
+		width: 350px;
 		}
 		
 	.pie {
 		display: block;
-		width: 50px;
-		height: 50px;
-		/*background: url(_temp/pie.png) left top no-repeat;*/
+		width: 55px;
+		height: 55px;
+		background: url(_temp/pie.png) left top no-repeat;
 		float: right;
-		/*margin: 0 10px 5px;*/
+		margin: 0px;
 		}
 
+	.user_dash .col_6 .pie {
+		margin: 5px 25px 5px 0px;
+		}
+		
 	ul.activity li {
-/*		border: 1px solid green;*/
-		background: #d4d1ca;
-		margin-bottom: 5px;
+/*
+		border: 1px solid green;
+		background: #d4d1ca;	
+*/
+		background: #d4d1ca;	
+		margin-bottom: 10px;
 		padding-top: 5px;
-		min-height: 80px;
+		min-height: 130px;
 		}
 		
 	ul.activity li div p {
 		display: block;
-		padding: 5px 0 0 50px;
+		padding: 0px 0 0 10px;
+		width: 350px;
 		}
 
+		ul.activity li div.details {
+			min-height: 60px;
+			display: block;
+			}
+			
 		ul.activity li div.details p.detail {
-			height: 33px;
 			margin-bottom: 10px;
 			}
+
+		ul.activity li div.details p.detail.bill {
+			width: 290px;
+			margin-bottom: 10px;
+			padding-left: 60px;
+			font: italic normal 12px/14px georgia, serif;
+			}
 		
-		ul.activity li div p.take_action {
-			background: none;
-			font-size: 12px/12px;
-			padding: 0;
-			height: 20px;
-			margin: 0 0 0 50px;
+		ul.activity li div span#action {
+			width: 160px;
 			}
 			
-		ul.activity li div >p.take_action a {
+		ul.activity li p.take_action {
+			background: url(_temp/icon_act_bill.png) 10px top no-repeat;
+			font-size: 11px/11px;
+			font-weight: bold;
+			padding: 5px 0 0 60px;
+			width: 400px;
+			height: 30px;
+			margin: 0;
+			position: relative;
+			}
+			
+		ul.activity li p.take_action a {
 			background: none;
-			margin: 0 0 0 0px;
+			margin: 0 10px 0 0px;
 			padding: 0;
-			width: 185px;
 			height: 12px;
 			text-indent: 0;
+			font-size: 12px;
+			display: block;
+			float: left;
+			}
+				
+		ul.activity li p span {
 			display: block;
 			float: left;
 			}
 			
-		ul.activity li div >p span {
-			display: block;
-			float: left;
-			}
+			ul.activity li span.social {
+				height: 16px;
+				margin-left: 115px;
+				margin-right: 4px;
+				}
+				
+			ul.activity li span.social a {
+				text-indent: -9999em;
+				}
 			
-		ul.activity li div >p a.twitter {
-			background: url(_temp/b_dash_twitter.png) left top no-repeat;
-			margin: 2px 0 0 5px;
+		ul.activity li p a.twitter {
+			background: url(_temp/i_tw.png) left top no-repeat;
+			margin: 2px 4px 0 0px;
 			padding: 0;
-			width: 14px;
-			height: 15px;
+			width: 16px;
+			height: 16px;
 			text-indent: -9999em;
 			display: block;
 			float: left;
 			}
 
-		ul.activity li div >p a.facebook {
-			background: url(_temp/b_dash_facebook.png) left top no-repeat;
-			margin: 2px 0 0 0px;
+		ul.activity li p a.facebook {
+			background: url(_temp/i_fb.png) left top no-repeat;
+			margin: 2px 4px 0 0px;
 			padding: 0;
-			width: 19px;
-			height: 15px;
+			width: 16px;
+			height: 16px;
 			text-indent: -9999em;
 			display: block;
 			float: left;
 			}
 			
-		ul.activity li div >p a.star {
-			background: url(_temp/b_dash_star.png) left top no-repeat;
-			margin: 2px 0 0 0px;
+		ul.activity li p a.google {
+			background: url(_temp/i_google.png) left top no-repeat;
+			margin: 2px 4px 0 0px;
 			padding: 0;
-			width: 19px;
-			height: 15px;
+			width: 16px;
+			height: 16px;
 			text-indent: -9999em;
 			display: block;
 			float: left;
 			}
 
-		ul.activity li div >p a.link {
-			background: url(_temp/b_dash_link.png) left top no-repeat;
-			margin: 2px 0 0 0px;
+		ul.activity li p a.reddit {
+			background: url(_temp/i_reddit.png) left top no-repeat;
+			margin: 2px 4px 0 0px;
 			padding: 0;
-			width: 19px;
-			height: 15px;
+			width: 16px;
+			height: 16px;
+			text-indent: -9999em;
+			display: block;
+			float: left;
+			}
+
+		ul.activity li p a.tumblr {
+			background: url(_temp/i_tumblr.png) left top no-repeat;
+			margin: 2px 4px 0 0px;
+			padding: 0;
+			width: 16px;
+			height: 16px;
 			text-indent: -9999em;
 			display: block;
 			float: left;
 			}
 			
+		ul.activity li p a.email {
+			background: url(_temp/i_email.png) left top no-repeat;
+			margin: 2px 4px 0 0px;
+			padding: 0;
+			width: 16px;
+			height: 16px;
+			text-indent: -9999em;
+			display: block;
+			float: left;
+			}
+
 			ul.activity li div >p a.twitter:hover,
 			ul.activity li div >p a.facebook:hover,
-			ul.activity li div >p a.star:hover,
-			ul.activity li div >p a.link:hover {
-				background-position: left -21px;
+			ul.activity li div >p a.google:hover,
+			ul.activity li div >p a.reddit:hover,
+			ul.activity li div >p a.tumblr:hover,
+			ul.activity li div >p a.email:hover,
+			ul.activity li div >p a.fav:hover {
+				background-position: left -25px;
+				text-decoration: none;
+				border-bottom: 0;
+				}
+			
+		ul.activity li p a.fav {
+			background: url(_temp/b_following.png) left top no-repeat;
+			margin: 3px 4px 0 0px;
+			padding: 0;
+			width: 13px;
+			height: 16px;
+			text-indent: -9999em;
+			display: block;
+			float: left;
+			}
+			
+			ul.activity li p a.fav:hover {
+				background-position: left -20px;
+				text-decoration: none;
+				border-bottom: 0;
+				}
+x			
+			ul.activity li div >p a.twitter:hover,
+			ul.activity li div >p a.facebook:hover,
+			ul.activity li div >p a.google:hover,
+			ul.activity li div >p a.reddit:hover,
+			ul.activity li div >p a.tumblr:hover,
+			ul.activity li div >p a.email:hover {
+				background-position: left -25px;
 				text-decoration: none;
 				border-bottom: 0;
 				}
 
 	ul.activity li div p.bill {
-		background: url(_temp/icon_act_bill.png) 10px top no-repeat;
 		margin-bottom: 2px;
 		}
 		
@@ -5293,7 +5388,7 @@ ul.issue_list li a.active{
 	}		
 
 	.userdash ul.suggest_bills h3 {
-		font: bold 14px/18px helvetica, san-serif;
+		font: bold 12px/14px helvetica, san-serif;
 		text-transform: none;
 		padding: 0;
 		margin-top: 5px;
@@ -5305,9 +5400,10 @@ ul.issue_list li a.active{
 			}
 	
 		.userdash ul.suggest_bills li {
-			border-bottom: 1px solid #a9a59b;
+			border: 1px solid #a9a59b;
 			padding-bottom: 5px;
 			margin-bottom: 5px;
+			
 			}
 			
 		.userdash ul.suggest_bills li a.weigh_in {
@@ -5451,6 +5547,7 @@ ul.issue_list li a.active{
 		display: block;
 		}
 	
+
 
 
 
