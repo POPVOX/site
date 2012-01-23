@@ -59,14 +59,19 @@ while [ "`netstat -tln |grep $PORT`" != "" ]; do
 	sleep 1;
 done
 
-echo "Starting $HOSTNAME:$PORT...";
+INSTANCES=8
+if [ "$USER" == "josh" ]; then
+	INSTANCES=1
+fi
+
+echo "Starting $HOSTNAME:$PORT x $INSTANCES...";
 
 # select a PIDFILE
 PIDFILE=/tmp/django-fcgi-$USER-$PORT.pid
 
 ./manage runfcgi host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
                  workdir=$MYDIR umask=0002 debug=1 \
-                 maxchildren=8 \
+                 maxchildren=$INSTANCES \
                  outlog=~/logs/output_log errlog=~/logs/error_log ;
 
 if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
