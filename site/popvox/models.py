@@ -347,7 +347,7 @@ class Bill(models.Model):
 		
 	@classmethod
 	def from_hashtag(cls, hashtag):
-		m = re.match(r"\#([a-z]+)(\d+)(/(\d+))?", hashtag)
+		m = re.match(r"^\#([a-z]+)(\d+)(/(\d+))?$", hashtag)
 		if not m: raise ValueError()
 		return Bill.objects.get(
 			congressnumber = m.group(4) if m.group(4) else govtrack.CURRENT_CONGRESS,
@@ -1723,6 +1723,21 @@ def sacar_saved_callback(sender, instance, created, **kwargs):
 		sys.stderr.write("sacar_saved_callback " + str(instance.id) + " " + str(instance) + ": " + unicode(e).encode("utf8") + " [" + unicode(getattr(e, "response_data", "")).encode("utf8") + "]\n")
 		pass
 django.db.models.signals.post_save.connect(sacar_saved_callback, sender=ServiceAccountCampaignActionRecord)
+
+# USER SEGMENTATION AND BILL-TO-BILL RECOMMENDATIONS #
+
+class BillRecommendation(models.Model):
+	name = models.CharField(max_length=128)
+	message = tinymce_models.HTMLField(blank=True)
+	usersegment = models.TextField()
+	recommendations = models.TextField()
+	because = models.CharField(max_length=128)
+	priority = models.PositiveIntegerField(default=0)
+	created = models.DateTimeField()#auto_now_add=True, db_index=True)
+	active = models.BooleanField(default=False)
+
+	def __unicode__(self):
+		return "BillRecommendation(" + str(self.created) + " " + self.name + ")"
 
 if not "LOADING_DUMP_DATA" in os.environ and not os.path.exists("/home/www/slave"):
 	# Make sure that we have MoC and CC records for all people

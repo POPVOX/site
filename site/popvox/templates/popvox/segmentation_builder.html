@@ -1,0 +1,277 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}POPVOX User Segment Builder{% endblock%}
+{% block head %}
+<script src="/media/js/jquery.dataTables.js"> </script>
+<script src="/media/js/jquery.ba-bbq.min.js"> </script>
+<script>
+	var segment = null;
+	function load_segment() {
+		$.ajax({
+				url: "/segments/parse",
+				type: "POST",
+				data: {
+					segment: $("#segment_input").val()
+				},
+				dataType: "json",
+				success: function(res) {
+					if (res.error) {
+						$('#parse_error').text(res.error).fadeIn();
+						return
+					}
+					
+					$('#parse_error').fadeOut();
+					$('#current_segment_description').text(res.description);
+					$('#current_segment_count').text(res.count);
+					
+					segment = res.segment;
+					
+					$('#users_table').dataTable({
+							"bDestroy": true,
+							"bProcessing": true,
+							"bServerSide": true,
+							"aLengthMenu": [15, 30, 50],
+							"bFilter": false,
+							"iDisplayLength": 15,
+							"sAjaxSource": "/segments/table",
+							"fnServerData": function ( sSource, aoData, fnCallback ) {
+								aoData.push({ "name": "segment", "value": segment });
+								$.ajax( {
+									"dataType": 'json', 
+									"type": "POST", 
+									"url": sSource, 
+									"data": aoData, 
+									"success": fnCallback
+								} );
+							}
+					});
+					
+				}
+		});
+	}
+	
+	function create_conversion() {
+		$.ajax({
+				url: "/segments/create_conversion",
+				type: "POST",
+				data: {
+					segment: $("#segment_input").val(),
+					name: $("#conversion_name").val(),
+					bills: $("#conversion_bills").val(),
+					because: $("#conversion_because").val()
+				},
+				dataType: "json",
+				success: function(res) {
+					if (res.error) {
+						$('#b2b_error').text(res.error).fadeIn();
+						return
+					}
+					
+					$('#b2b_error').fadeOut();
+					
+					window.location = res.redirect_url;
+				}
+		});
+	}
+	
+	$(function() {
+		load_segment();
+		
+		$('#update').click(load_segment);
+	});
+</script>
+
+<style>
+.dataTables_scroll {
+width: 780px;
+font-size: 12px;
+}
+
+.dataTables_wrapper {
+background: #414046;
+width: 779px;
+font-size: 11px;
+}
+
+.dataTables_scrollHead {
+background: #75757D;
+color: white;
+}
+
+.even td {
+border: 1px #e8e5e0 solid;
+border-left: none;
+
+}
+
+.odd td {
+border: 1px #e8e5e0 solid;
+border-top: none;
+border-bottom: none;
+border-left: none;
+}
+
+td {
+padding: 8px;
+}
+
+th {
+padding: 8px;
+text-transform: uppercase;
+background: #ded8d4;
+}
+
+.odd {
+background: #d4d1ca;
+}
+
+.even {
+background: #ded8d4;
+}
+
+thead th {
+text-transform: uppercase;
+font-weight: bold;
+font-size: 12px;
+border: 1px #e8e5e0 solid;
+border-left: none;
+border-top: none;
+padding-right: 1px;
+}
+
+.dataTables_info {
+background: #414046;
+padding: 8px;
+width: 763px;
+color: white;
+font-size: 12px;
+}
+
+.dataTables_length {
+float: right;
+color: white;
+padding: 8px;
+}
+
+.supporters_download {
+margin: 8px;
+}
+
+.dataTables_paginate {
+width: 100px;
+float:right;
+margin-top: -30px;
+padding: 8px;
+}
+.dataTables_paginate .paginate_enabled_previous {
+float: left;
+width: 44px;
+height:11px;
+background: url(/media/widget/previous.png) no-repeat;
+cursor: pointer;
+}
+.dataTables_paginate .paginate_enabled_next {
+float:right;
+width:44px;
+height: 11px;
+background: url(/media/widget/next.png) no-repeat;
+cursor: pointer;
+}
+.dataTables_paginate .paginate_disabled_previous {
+background: none;
+cursor: default;
+}
+.dataTables_paginate .paginate_disabled_next {
+background: none;
+cursor: default;
+}
+
+#filters h4{
+	margin-top: 1em;
+	font-size: 12px;
+	font-weight: bold;
+}
+#filters input {
+	font-size: 11px;
+	width: 100%;
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="content">
+	
+	<h1 class="mar_no_btm">Rachna&rsquo;s User Segment Builder</h1>
+			
+	<div id="filters" class="col_3 col_top">
+		<h3 class="no_rule">Type A Segment</h3>
+		
+		<p id="parse_error" class="error"> </p>
+	
+		<textarea id="segment_input" style="width: 100%; height: 6em"></textarea>
+		
+		<input id="update" type="button" value="Update"/>
+		
+		<h3>Directions</h3>
+		
+		<p>Here are examples of what you can enter:</p>
+		
+		<p>(weighed in on issue commerce)</p>
+		<p>(weighed in on bill hjres32)</p>
+		<p>(weighed in on bill hjres32/111)</p>
+		<p>(weighed in on proposal 456)</p>
+		<p>(weighed in at least 20 times)</p>
+		<p>(weighed in at most 40 times)</p>
+		<p>NOT(....)</p>
+		<p>((...) AND (...) . . .)</p>
+		<p>((...) OR (...) . . .)</p>
+
+	</div>
+
+	<div class="col_9 col_top col_last">
+		<ul id="tabs" class="tabs">
+			<li><a href="#users"><span>Matching Users</span></a></li>
+			<li><a href="#conversion"><span>Make a Conversion</span></a></li>
+		</ul>
+		
+		<div class="tab_users">
+			<p><span id="current_segment_count">...</span> users are in this segment: <span id="current_segment_description">...</span>.</p>
+		
+			<table id="users_table">
+				<thead>
+					<tr>
+						<th>Screen Name</th>
+						<th>Email</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="tab_conversion">
+			<h3 class="no_rule">Create a Bill Recommendation</h3>
+			
+			<div class="form">
+			<label for="conversion_name">Name</label>
+			<input id="conversion_name" placeholder="Regulations: HR 872 => S 718"/>
+		
+			<label for="conversion_bills">Suggested Bills</label>
+			<input id="conversion_bills" placeholder="hjres32, hr501" />
+			
+			<label for="conversion_because">You got this because...</label>
+			<input id="conversion_because" placeholder="you weighed in on regulations bills" />
+			
+			<input type="button" class="submit" value="Create B2B" onclick="create_conversion()"/>
+			
+			<p id="b2b_error" class="error"> </p>
+			</div>
+		</div>
+		
+		<script>$('#tabs').pvtabs()</script>
+
+	</div>
+	
+</div><!-- e: content -->
+
+{% endblock %}
+

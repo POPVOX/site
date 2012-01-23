@@ -104,6 +104,7 @@ admin.site.register(ServiceAccount, ServiceAccountAdmin)
 admin.site.register(ServiceAccountPermission)
 admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)
 admin.site.register(ServiceAccountCampaignActionRecord, ServiceAccountCampaignActionRecordAdmin)
+admin.site.register(BillRecommendation)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html', 'make_short_urls', 'report_short_urls']

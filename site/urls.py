@@ -39,10 +39,16 @@ urlpatterns = patterns('',
 	
 	(r'^activity$', 'popvox.views.home.activity'),
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),
+	
+	# internal pages
 	(r'^waiting-for-reintroduction$', 'popvox.views.home.waiting_for_reintroduction'),
 	(r'^delivery-status-report$', 'popvox.views.home.delivery_status_report'),
 	(r'^metrics$', 'popvox.views.metrics.metrics_by_period'),
 	(r'^reports/(\w+)$', 'popvox.views.metrics.metrics_report_spreadsheet'),
+	(r'^segments$', 'popvox.views.segmentation.segmentation_builder'),
+	(r'^segments/parse$', 'popvox.views.segmentation.segmentation_parse'),
+	(r'^segments/table$', 'popvox.views.segmentation.segmentation_table'),
+	(r'^segments/create_conversion$', 'popvox.views.segmentation.segmentation_create_conversion'),
 	
 	(r'^calendar$', 'popvox.views.home.calendar'),
 	
