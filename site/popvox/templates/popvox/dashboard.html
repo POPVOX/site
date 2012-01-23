@@ -82,9 +82,7 @@ function hide_prompt(billid) {
 						{% if item.action_type == "bill_now" %}
 							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
 							<div class="details">
-								{% with item.stats as stats %}
-								<p class="detail bill">{% if stats %}{{stats.total}} people have now weighed in. {% endif %}You were the {{item.your_number|ordinal}} person to weigh in.</p>
-								{% endwith %}
+								<p class="detail bill">{{item.bill.stats.2}} people have now weighed in. You were the {{item.your_number|ordinal}} person to weigh in.</p>
 							</div>
 						{% endif %}
 						
@@ -206,12 +204,9 @@ function hide_prompt(billid) {
 				<li billid="{{sug.bill.id}}">
 					<div class="btn_r">
 						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie">
-							{% with sug.bill as bill %}
-								{% bill_statistics bill as stats %}
-								{% include "popvox/bill_statistics_pie_simple.html" with chart_size="50" chart_no_links="1" chart_no_numbers="1" %}
-							{% endwith %}
+						<div class="pie" id="sug_pie_{{sug.bill.id}}">
 						</div>
+						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}});</script>
 					</div>
 					<h3><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h3>
 					<a href="#" class="weigh_in">WEIGH IN</a>

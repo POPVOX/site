@@ -4,7 +4,7 @@ from django.template import RequestContext, TemplateDoesNotExist
 from django.views.generic.simple import direct_to_template
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
-from django.db import transaction
+from django.db import transaction, connection
 from django.db.models import Count, Max
 from django.db.models.query import QuerySet
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
@@ -321,34 +321,46 @@ def compute_prompts(user):
 	# and source for each target.
 	targets = {}
 	max_sim = 0
-	for c in user.comments.all().select_related("bill"):
-		source_bill = c.bill
-		for target_bill, similarity in chain(( (s.bill2, s.similarity) for s in source_bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in source_bill.similar_bills_two.all().select_related("bill1"))):
-			if not target_bill.isAlive():
-				continue
-				
-			if "Super Committee" in target_bill.title: # HACK
-				continue
-				
-			if not target_bill in targets: targets[target_bill] = []
-			targets[target_bill].append( (source_bill, similarity) )
-			max_sim = max(similarity, max_sim)
+	sb = set(Bill.objects.filter(usercomments__user=user).values_list('id', flat=True))
+	
+	for source_bill, target_bill, similarity in chain(
+		BillSimilarity.objects.filter(bill1__in=sb).values_list("bill1", "bill2", "similarity").order_by('-similarity')[0:50],
+		BillSimilarity.objects.filter(bill2__in=sb).values_list("bill2", "bill1", "similarity").order_by('-similarity')[0:50]):
+			
+		if not target_bill in targets: targets[target_bill] = []
+		targets[target_bill].append( (source_bill, similarity) )
+		max_sim = max(similarity, max_sim)
 	
 	from bills import get_popular_bills
 	for bill in get_popular_bills():
-		if bill.isAlive() and bill not in targets:
-			targets[bill] = [(None, max_sim/10.0)]
+		if bill.isAlive() and bill.id not in targets:
+			targets[bill.id] = [(None, max_sim/10.0)]
 	
 	# Put the targets in descending weighted similarity order.
 	targets = list(targets.items()) # (target_bill, [list of (source,similarity) pairs]), where source can be null if it is coming from the tending bills list
 	targets.sort(key = lambda x : -sum([y[1] for y in x[1]]))
 	
 	# Remove the recommendations that the user has anti-tracked or commented on.
-	hidden_bills = set(user.userprofile.antitracked_bills.all()) | set(Bill.objects.filter(usercomments__user=user))
-	targets = filter(lambda x : not x[0] in hidden_bills, targets)
+	hidden_bills = set(user.userprofile.antitracked_bills.all().values_list("id", flat=True)) | set(Bill.objects.filter(usercomments__user=user).values_list("id", flat=True))
 	
-	# Take the top reccomendations.
-	targets = targets[:15]
+	# Map the first 15 entries from id to Bill objects, filtering out bad suggestions.
+	all_bills = set()
+	for target_bill, source_sim_pairs in targets:
+		if target_bill not in hidden_bills:
+			all_bills.add(target_bill)
+		for source, sim in source_sim_pairs:
+			if source != None:
+				all_bills.add(source)
+	all_bills = Bill.objects.in_bulk(all_bills)
+	targets_ = []
+	for target_bill, source_sim_pairs in targets:
+		if target_bill in hidden_bills: continue
+		target_bill = all_bills[target_bill]
+		if not target_bill.isAlive(): continue
+		if "Super Committee" in target_bill.title: continue # HACK
+		targets_.append( (target_bill, [(all_bills[ss[0]] if ss[0] != None else None, ss[1]) for ss in source_sim_pairs]) )
+		if len(targets_) >= 15: break
+	targets = targets_
 	
 	# Replace the list of target sources with just the highest-weighted source for each target.
 	for i in xrange(len(targets)):
@@ -356,6 +368,8 @@ def compute_prompts(user):
 		targets[i] = { "bill": targets[i][0], "source": targets[i][1][0][0] }
 	
 	# targets is now a list of (target, source) pairs.
+	
+	adorn_bill_stats([item["bill"] for item in targets])
 	
 	return targets
 
@@ -1373,16 +1387,25 @@ def user_activity_feed(user):
 		#  AUX: view bill
 		#  GFX: ?
 		
+		# on the first attempt to pull the comment, pull in all of the comments
+		# for any of the returned bills and cache them.
+		bill_list = set()
+		comment_cache = { }
 		def get_comment_closure(bill):
 			def f():
-				return UserComment.objects.get(bill=bill, user=user)
+				#return UserComment.objects.get(bill=bill, user=user)
+				if len(comment_cache) == 0:
+					for c in user.comments.filter(bill__in=bill_list).select_related("bill"):
+						comment_cache[c.bill_id] = c
+				return comment_cache[bill.id]
 			return f
 		
 		for status_type in ("current_status", "upcoming_event"):
 			datefield = status_type + "_date"
 			if status_type == "upcoming_event": datefield = status_type + "_post_date"
 			
-			for bill in Bill.objects.filter(id__in=your_bill_list_ids).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield):
+			for bill in Bill.objects.filter(id__in=your_bill_list_ids).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield)[0:limit]:
+				bill_list.add(bill.id)
 				yield {
 					"action_type": "bill_" + status_type,
 					"date": getattr(bill, datefield),
@@ -1416,15 +1439,11 @@ def user_activity_feed(user):
 		#  AUX: view report
 		#  GFX: pie chart
 		
-		# get the statistics as of that date
-		def get_stats_buildclosure(bill, date):
-			def get_stats_closure():
-				return bill_statistics(bill, "POPVOX", "POPVOX Nation", as_of = date)
-			return get_stats_closure
-		
 		# get a list of the total number of comments on all of the bills the user
 		# has weighed in on. use a list() to force the inner query to evaluate first.
-		bill_counts = dict(Bill.objects.filter(id__in=your_bill_list_ids).values("id").annotate(count=Count("usercomments")).order_by().values_list("id", "count"))
+		# run the Count() on a column that is in the index (count(*) would be nice
+		# but django won't allow that).
+		bill_counts = dict(UserComment.objects.filter(bill__in=your_bill_list_ids).values("bill").annotate(count=Count("bill")).order_by().values_list("bill", "count"))
 		
 		import math
 		from popvox.views.bills import bill_statistics
@@ -1464,7 +1483,6 @@ def user_activity_feed(user):
 				"action_type": "bill_now",
 				"date": c2.created,
 				"bill": c.bill,
-				"stats": get_stats_buildclosure(c.bill, c2.created),
 				"your_number": nc1,
 			})
 			
@@ -1546,15 +1564,29 @@ def user_activity_feed(user):
 	feed.sort(key = lambda item : item["date"], reverse=True)
 	feed = feed[0:feed_size]
 	
-	return feed
+	adorn_bill_stats([item["bill"] for item in feed if "bill" in item])
 	
+	return feed
+
+def adorn_bill_stats(bills):
+	# adorn all bill objects with pro/con counts
+	bill_list = { }
+	for bill in bills:
+		bill_list[bill.id] = { "+": 0, "-": 0 }
+	c = connection.cursor()
+	c.execute("SELECT bill_id, position, COUNT(*) as count FROM popvox_usercomment WHERE bill_id IN (%s) GROUP BY bill_id, position" % ",".join([str(id) for id in bill_list.keys()]))
+	for row in c.fetchall():
+		bill_list[row[0]][row[1]] = row[2]
+	for bill in bills:
+		bill.stats = (bill_list[bill.id]["+"], bill_list[bill.id]["-"], bill_list[bill.id]["+"]+bill_list[bill.id]["-"])
+
 @csrf_protect
 @login_required
 def individual_dashboard(request):
 	user = request.user
-	prof = user.get_profile()
-	if prof == None or prof.is_leg_staff() or prof.is_org_admin():
-		raise Http404()
+	#prof = user.get_profile()
+	#if prof == None or prof.is_leg_staff() or prof.is_org_admin():
+	#	raise Http404()
 
 	if not "user" in request.GET:
 		import random
