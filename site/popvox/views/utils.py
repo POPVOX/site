@@ -32,7 +32,7 @@ def formatDateTime(d, withtime=True, tz="EST"):
 		else:
 			return d.strftime("%A")
 	elif (now - d).days < 120:
-		return d.strftime("%B %d").replace(" 0", " ")
+		return d.strftime("%b %d").replace(" 0", " ")
 	else:
 		return d.strftime("%b %d, %Y").replace(" 0", " ")
 		

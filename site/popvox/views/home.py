@@ -328,13 +328,13 @@ def compute_prompts(user):
 		BillSimilarity.objects.filter(bill2__in=sb).values_list("bill2", "bill1", "similarity").order_by('-similarity')[0:50]):
 			
 		if not target_bill in targets: targets[target_bill] = []
-		targets[target_bill].append( (source_bill, similarity) )
+		targets[target_bill].append( (source_bill, similarity, "similarity") )
 		max_sim = max(similarity, max_sim)
 	
 	from bills import get_popular_bills
 	for bill in get_popular_bills():
 		if bill.isAlive() and bill.id not in targets:
-			targets[bill.id] = [(None, max_sim/10.0)]
+			targets[bill.id] = [(None, max_sim/10.0, "trending")]
 	
 	# Put the targets in descending weighted similarity order.
 	targets = list(targets.items()) # (target_bill, [list of (source,similarity) pairs]), where source can be null if it is coming from the tending bills list
@@ -348,7 +348,7 @@ def compute_prompts(user):
 	for target_bill, source_sim_pairs in targets:
 		if target_bill not in hidden_bills:
 			all_bills.add(target_bill)
-		for source, sim in source_sim_pairs:
+		for source, sim, sugtype in source_sim_pairs:
 			if source != None:
 				all_bills.add(source)
 	all_bills = Bill.objects.in_bulk(all_bills)
@@ -358,14 +358,14 @@ def compute_prompts(user):
 		target_bill = all_bills[target_bill]
 		if not target_bill.isAlive(): continue
 		if "Super Committee" in target_bill.title: continue # HACK
-		targets_.append( (target_bill, [(all_bills[ss[0]] if ss[0] != None else None, ss[1]) for ss in source_sim_pairs]) )
+		targets_.append( (target_bill, [(all_bills[ss[0]] if ss[0] != None else None, ss[1], ss[2]) for ss in source_sim_pairs]) )
 		if len(targets_) >= 15: break
 	targets = targets_
 	
 	# Replace the list of target sources with just the highest-weighted source for each target.
 	for i in xrange(len(targets)):
 		targets[i][1].sort(key = lambda x : -x[1])
-		targets[i] = { "bill": targets[i][0], "source": targets[i][1][0][0] }
+		targets[i] = { "bill": targets[i][0], "source": targets[i][1][0][0], "type": targets[i][1][0][2] }
 	
 	# targets is now a list of (target, source) pairs.
 	
