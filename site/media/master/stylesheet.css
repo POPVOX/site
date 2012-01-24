@@ -5078,7 +5078,7 @@ ul.issue_list li a.active{
 		}
 			
 			.userdash div.btn_r {
-				width: 50px;
+				width: 80px;
 				height: 70px;
 				margin: 0 0 5px 10px;
 				padding: 0;
@@ -5087,9 +5087,10 @@ ul.issue_list li a.active{
 		
 	.userdash div.date p,
 	.userdash div.btn_r p {
-			margin: 0;
+			margin: 5px 0 0;
 			padding: 0;
 			height: 15px;
+			width: 75px;
 			}
 
 		.userdash div.date p span {
@@ -5119,6 +5120,8 @@ ul.issue_list li a.active{
 			.userdash div a.fav:hover,
 			.userdash div a.hide:hover {
 				background-position: left -20px;
+				text-decoration: none;
+				border: none;
 				}
 			
 		a.fav {
@@ -5427,20 +5430,22 @@ ul.issue_list li a.active{
 				}
 
 			.userdash ul.suggest_bills li p.info {
-				margin-bottom: 0px;
+				margin: 10px 0 0 0;
+				color: #75747c;
+				font: normal 11px/14px helvetica, sans-serif;
+				line-height: 14px;
 				}
 							
 		.userdash ul.suggest_bills li a.suggested {
-			color: #75747c;
-			font-size: 11px;
-			}
+			text-decoration: none;			}
 			
 			.userdash ul.suggest_bills li a.suggested:hover {
 				color: #CC6A11;
 				}
 
 		
-		.userdash .col_3 .fav {
+		.userdash .suggest_bills .fav {
+			margin-top: 10px;
 			width: 13px;
 			height: 16px;
 			text-indent: -9999em;
