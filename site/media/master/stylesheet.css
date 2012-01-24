@@ -5064,8 +5064,8 @@ ul.issue_list li a.active{
 				}
 				
 	.userdash .col_6 {
-		margin: 0;
-		padding: 0;
+		margin-top: 0;
+		padding-top: 0;
 		}
 
 	.userdash div.date,
@@ -5418,7 +5418,12 @@ ul.issue_list li a.active{
 			border-bottom: 1px solid #a9a59b;
 			margin-bottom: 15px;
 			padding-bottom: 15px;
+			width: 220px;
+			float: left;
 			}
+			.userdash ul.suggest_bills li.right {
+				margin-left: 15px;
+				}
 
 			.userdash ul.suggest_bills li p.info {
 				margin-bottom: 0px;

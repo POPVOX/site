@@ -203,12 +203,12 @@ function hide_prompt(billid) {
 			</ul>
 		</div> <!-- e: col_6 -->
 		
-		<div class="col_3 col_last">
+		<div class="col_6 col_last">
 			<p id="nomoresugs" style="display: none">You&rsquo;ve cleared out all of your suggestions. Try <a href="javascript:window.location.reload()">reloading this page</a> for more suggestions.</p>
 			
 			<ul id="suggestions" class="suggest_bills">
 			{% for sug in suggestions %}
-				<li billid="{{sug.bill.id}}">
+				<li billid="{{sug.bill.id}}" {% if not forloop.counter0|divisibleby:2 %}class="right"{% else %}class="clear"{% endif %}>
 					<div class="btn_r">
 						<p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}});">hide</a></p>
 						<div class="pie">
@@ -225,7 +225,7 @@ function hide_prompt(billid) {
 					<a href="#" class="fav faved">favorite</a>
 					<p class="info">
 						{% if sug.source %}
-							<a href="{{sug.source.url}}" title="Suggested because you weighed in on {{sug.source.title|truncatewords:10}}" class="suggested">Suggested why?</a>
+							Suggested because you weighed in on <a href="{{sug.source.url}}" title="{{sug.source.nicename|truncatewords:15}}" class="suggested">{{sug.source.shortname}}</a>
 						{% else %}
 							This bill is trending on POPVOX.
 						{% endif %}
@@ -268,72 +268,6 @@ function hide_prompt(billid) {
 			{% endfor %}
 		</div>
 
-
-		<div class="col_3 col_last">
-			<p id="nomoresugs" style="display: none">You&rsquo;ve cleared out all of your suggestions. Try <a href="javascript:window.location.reload()">reloading this page</a> for more suggestions.</p>
-			
-			<ul id="suggestions" class="suggest_bills">
-			{% for sug in suggestions %}
-				<li billid="{{sug.bill.id}}">
-					<div class="btn_r">
-						<p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}});">hide</a></p>
-						<div class="pie" id="sug_pie_{{sug.bill.id}}">
-						</div>
-						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}});</script>
-					</div>
-					<h3><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h3>
-					<div class="weigh">
-						<a href="#" class="weigh_in">weigh in</a>
-					</div>
-					<a href="#" class="fav faved">favorite</a>
-					<p class="info">
-						{% if sug.source %}
-							<a href="{{sug.source.url}}" title="Suggested because you weighed in on {{sug.source.title|truncatewords:10}}" class="suggested">Suggested why?</a>
-						{% else %}
-							This bill is trending on POPVOX.
-						{% endif %}
-					</p>
-					<div class="clear"> </div>
-				</li>
-			
-				{% comment %}
-				<div class="col_9 rule suggestion">
-					<div class="col_6">
-						<h4 style="margin-bottom: 8px"></h4>
-						{% if sug.source %}
-							<p>Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
-						{% else %}
-							<p>This bill is trending on POPVOX.</p>
-						{% endif %}
-						<div style="float: left; margin-left: 15px;"><a class="action" href="{{sug.bill.url}}">Action</a></div>
-						<div style="float: left; margin-left: 15px;"><p style="margin-top: 1px; font-weight: bold;">Let Congress know <a href="{{sug.bill.url}}">what you think</a>.</p></div>
-						<p class="clear">{{sug.bill.status}}
-						<span style="font-style: italic">Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</span></p>
-					</div>
-					
-					<div class="col_3 col_last">
-					{% bill_statistics sug.bill as stats %}
-					{% with sug.bill as bill %}
-					{% with bill.id as chart_id %}
-						{% include "popvox/bill_statistics_pie_simple.html" %}
-					{% endwith %}
-					{% endwith %}
-					</div>
-					
-					<div class="clear"> </div>
-				</div>
-				{% endcomment %}
-		
-			{% empty %}
-			
-				<p>We have no suggested actions for you at this time. Your <a href="/home">home dashboard</a> will show you the comments you have left so far.</p>
-			
-			{% endfor %}
-		</div>
-
-
-
-	
 		{% comment %}
 		<div class="col_3">
 			<ul class="suggest_bills">
