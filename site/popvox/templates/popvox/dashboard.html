@@ -55,7 +55,7 @@ function hide_prompt(billid) {
 		<div class="col_6">
 			<ul class="activity">
 				{% for item in feed_items %}
-					<li>
+					<li class="{{item.action_type}}">
 						<div class="date">
 							<p><span>{{item.date|date2}}</span> <a href="#" class="hide">hide</a></p>
 							<div class="pie"></div>
@@ -65,22 +65,22 @@ function hide_prompt(billid) {
 							<h3>You {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</h3>
 							<div class="details">
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a><a href="#" class="add_comment">add comment</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "delivery" %}
 							<h3>Your {% if item.message %}letter{% else %}position{% endif %} {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> was delivered to {{item.recipient}}.</h3>
 							<div class="details">
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a><a href="#" class="add_comment">add comment</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "org_position" %}
-							<h3><a href="{{item.org.url}}">{{item.org.name}}</a> {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</h3>
+							<h3><a href="{{item.org.url}}">{{item.org.name}}</a> <span class="secondary">{{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</span></h3>
 							<div class="details">
 								<p class="detail">This organization shares your position on {{item.numagreements}} bill{{item.numagreements|pluralize}}.</p>
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a><a href="#" class="add_comment">add comment</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action"><span id="action"><a href="#" class="weigh_in">read more</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "bill_now" %}
@@ -88,20 +88,20 @@ function hide_prompt(billid) {
 							<div class="details">
 								<p class="detail bill">{{item.bill.stats.2}} people have now weighed in. You were the {{item.your_number|ordinal}} person to weigh in.</p>
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a><a href="#" class="add_comment">add comment</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action"><span id="action"><a href="#" class="view_report">view stats</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "bill_current_status" %}
+							{% with item.comment as comment %}
 							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
 							<div class="details">
 								<p class="detail">{{item.bill.status}}</p>
-								{% with item.comment as comment %}
-								{% if item.comment %}
-									<p class="detail bill">You {{item.comment.verb_past}} this {{item.bill.proposition_type}} on {{item.comment.created|date2}}.</p>
+								{% if comment %}
+									<p class="detail bill">You {{comment.verb_past}} this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
 								{% endif %}
-								{% endwith %}
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a><a href="#" class="add_comment">add comment</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action">{% if comment %}<span id="action"><a href="#" class="weigh_in">weigh in</a></span>{% endif %} <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							{% endwith %}
 						{% endif %}
 						
 						{% if item.action_type == "bill_upcoming_event" %}
@@ -114,7 +114,7 @@ function hide_prompt(billid) {
 								{% endif %}
 								{% endwith %}
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a><a href="#" class="add_comment">add comment</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 					</li>
 				{% endfor %}
@@ -128,7 +128,7 @@ function hide_prompt(billid) {
 					<div class="details">
 						<div class="pie"></div>
 						<p class="detail bill"><strong>Status:</strong> Referred to House Ways and Means...</p>
-						<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a><a href="#" class="add_comment">add comment</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+						<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						<div class="clear"> </div>
 					</div>
 				</li>
@@ -210,25 +210,25 @@ function hide_prompt(billid) {
 			{% for sug in suggestions %}
 				<li billid="{{sug.bill.id}}">
 					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a></p>
+						<p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}});">hide</a></p>
 						<div class="pie">
 							{% with sug.bill as bill %}
 								{% bill_statistics bill as stats %}
-								{% include "popvox/bill_statistics_pie_simple.html" with chart_size="50" chart_no_links="1" chart_no_numbers="1" %}
+								{% include "popvox/bill_statistics_pie_simple.html" with chart_size="55" chart_no_links="1" chart_no_numbers="1" %}
 							{% endwith %}
 						</div>
 					</div>
 					<h3><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h3>
 					<div class="weigh">
-						<a href="#" class="weigh_in">WEIGH IN</a><a href="#" class="hide">hide</a>
+						<a href="#" class="weigh_in">weigh in</a>
 					</div>
+					<a href="#" class="fav faved">favorite</a>
 					<p class="info">
 						{% if sug.source %}
-							Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.
+							<a href="{{sug.source.url}}" title="Suggested because you weighed in on {{sug.source.title|truncatewords:10}}" class="suggested">Suggested why?</a>
 						{% else %}
 							This bill is trending on POPVOX.
 						{% endif %}
-						<span>Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</span>
 					</p>
 					<div class="clear"> </div>
 				</li>
@@ -276,20 +276,22 @@ function hide_prompt(billid) {
 			{% for sug in suggestions %}
 				<li billid="{{sug.bill.id}}">
 					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
+						<p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}});">hide</a></p>
 						<div class="pie" id="sug_pie_{{sug.bill.id}}">
 						</div>
 						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}});</script>
 					</div>
 					<h3><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
+					<div class="weigh">
+						<a href="#" class="weigh_in">weigh in</a>
+					</div>
+					<a href="#" class="fav faved">favorite</a>
 					<p class="info">
 						{% if sug.source %}
-							Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.
+							<a href="{{sug.source.url}}" title="Suggested because you weighed in on {{sug.source.title|truncatewords:10}}" class="suggested">Suggested why?</a>
 						{% else %}
 							This bill is trending on POPVOX.
 						{% endif %}
-						<span>Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</span>
 					</p>
 					<div class="clear"> </div>
 				</li>

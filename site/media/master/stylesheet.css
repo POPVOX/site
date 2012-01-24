@@ -5017,7 +5017,7 @@ ul.issue_list li a.active{
 
 /* user dashboard */
 .userdash {
-	background: url(_temp/usr-dash_temp.jpg) center -71px no-repeat;
+	background: url(_temp/usr-dash_t emp.jpg) center -71px no-repeat; 
 	display: block;
 	height: 1000px;
 	}
@@ -5109,7 +5109,7 @@ ul.issue_list li a.active{
 		    text-indent: -9999em;
 		    margin: 2px 0 0;
 		    border: none;
-			float: left;
+			float: right;
 		    }
 		    
 		    .userdash div.date a:hover {
@@ -5154,17 +5154,24 @@ ul.issue_list li a.active{
 		width: 350px;
 		}
 		
+		.col_6 ul.activity h3 span {
+		    font: normal 14px/18px helvetica, san-serif;
+		    text-transform: none;
+		    display: inline;
+		    margin-left: 0px;
+		    }
+		
 	.pie {
 		display: block;
 		width: 55px;
 		height: 55px;
-		background: url(_temp/pie.png) left top no-repeat;
 		float: right;
 		margin: 0px;
 		}
 
 	.user_dash .col_6 .pie {
 		margin: 5px 25px 5px 0px;
+		background: url(_temp/pie.png) left top no-repeat;
 		}
 		
 	ul.activity li {
@@ -5194,18 +5201,17 @@ ul.issue_list li a.active{
 			}
 
 		ul.activity li div.details p.detail.bill {
-			width: 290px;
 			margin-bottom: 10px;
-			padding-left: 60px;
+/*			padding-left: 60px;
+			width: 290px;
 			font: italic normal 12px/14px georgia, serif;
-			}
+*/			}
 		
-		ul.activity li div span#action {
-			width: 160px;
+		ul.activity li p.take_action span#action {
+			width: 245px;
 			}
 			
 		ul.activity li p.take_action {
-			background: url(_temp/icon_act_bill.png) 10px top no-repeat;
 			font-size: 11px/11px;
 			font-weight: bold;
 			padding: 5px 0 0 60px;
@@ -5226,6 +5232,25 @@ ul.issue_list li a.active{
 			float: left;
 			}
 				
+/* */
+		ul.activity li.org_position p.take_action {
+			background: url(_temp/icon_act_org_psn.png) 10px 6px no-repeat;
+			}
+
+		ul.activity li.bill_now p.take_action {
+			background: url(_temp/icon_act_bill.png) 10px top no-repeat;
+			}
+
+		ul.activity li.bill_current_status p.take_action {
+			background: url(_temp/icon_act_change.png) 10px 4px no-repeat;
+			}
+
+		ul.activity li.comment p.take_action {
+			background: url(_temp/icon_act_comment.png) 10px 5px no-repeat;
+			}
+
+
+
 		ul.activity li p span {
 			display: block;
 			float: left;
@@ -5233,7 +5258,7 @@ ul.issue_list li a.active{
 			
 			ul.activity li span.social {
 				height: 16px;
-				margin-left: 115px;
+				margin-left: 12px;
 				margin-right: 4px;
 				}
 				
@@ -5307,13 +5332,13 @@ ul.issue_list li a.active{
 			float: left;
 			}
 
-			ul.activity li div >p a.twitter:hover,
-			ul.activity li div >p a.facebook:hover,
-			ul.activity li div >p a.google:hover,
-			ul.activity li div >p a.reddit:hover,
-			ul.activity li div >p a.tumblr:hover,
-			ul.activity li div >p a.email:hover,
-			ul.activity li div >p a.fav:hover {
+			ul.activity li p a.twitter:hover,
+			ul.activity li p a.facebook:hover,
+			ul.activity li p a.google:hover,
+			ul.activity li p a.reddit:hover,
+			ul.activity li p a.tumblr:hover,
+			ul.activity li p a.email:hover,
+			ul.activity li p a.fav:hover {
 				background-position: left -25px;
 				text-decoration: none;
 				border-bottom: 0;
@@ -5332,17 +5357,6 @@ ul.issue_list li a.active{
 			
 			ul.activity li p a.fav:hover {
 				background-position: left -20px;
-				text-decoration: none;
-				border-bottom: 0;
-				}
-x			
-			ul.activity li div >p a.twitter:hover,
-			ul.activity li div >p a.facebook:hover,
-			ul.activity li div >p a.google:hover,
-			ul.activity li div >p a.reddit:hover,
-			ul.activity li div >p a.tumblr:hover,
-			ul.activity li div >p a.email:hover {
-				background-position: left -25px;
 				text-decoration: none;
 				border-bottom: 0;
 				}
@@ -5393,23 +5407,48 @@ x
 		padding: 0;
 		margin-top: 5px;
 		background: none;
+		min-height: 60px;
 		}
 		
 		.userdash .col_3 .pie {
-			/*margin: 0 0 10px 0;*/
+/*			border: 1px solid red;*/
 			}
 	
 		.userdash ul.suggest_bills li {
-			border: 1px solid #a9a59b;
-			padding-bottom: 5px;
-			margin-bottom: 5px;
-			
+			border-bottom: 1px solid #a9a59b;
+			margin-bottom: 15px;
+			padding-bottom: 15px;
 			}
-			
-		.userdash ul.suggest_bills li a.weigh_in {
-			font-weight: bold;
+
+			.userdash ul.suggest_bills li p.info {
+				margin-bottom: 0px;
+				}
+							
+		.userdash ul.suggest_bills li a.suggested {
+			color: #75747c;
 			font-size: 11px;
 			}
+			
+			.userdash ul.suggest_bills li a.suggested:hover {
+				color: #CC6A11;
+				}
+
+		
+		.userdash .col_3 .fav {
+			width: 13px;
+			height: 16px;
+			text-indent: -9999em;
+			display: block;
+			float: right;
+			}
+	
+		.userdash ul.suggest_bills li a.weigh_in {
+			font-weight: bold;
+			font-size: 12px;
+			margin: 0;
+			}
+			
+		
 
 .userdash ul.suggest_orgs li {
 	clear: both;
