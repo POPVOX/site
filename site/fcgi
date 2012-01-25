@@ -71,7 +71,7 @@ PIDFILE=/tmp/django-fcgi-$USER-$PORT.pid
 
 ./manage runfcgi host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
                  workdir=$MYDIR umask=0002 debug=1 \
-                 maxchildren=$INSTANCES \
+                 maxchildren=$INSTANCES maxspare=$INSTANCES \
                  outlog=~/logs/output_log errlog=~/logs/error_log ;
 
 if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
