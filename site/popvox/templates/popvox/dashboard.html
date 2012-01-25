@@ -102,16 +102,38 @@ $(function() {
 					<li class="{{item.action_type}}">
 						<div class="date">
 							<p><span>{{item.date|date2}}</span> <a href="#" class="hide">hide</a></p>
-							<div class="pie"></div>
+
+							<div class="pie">
+								{% if item.action_type == "comment" or item.action_type == "bill_now" or item.action_type == "bill_current_status" or item.action_type == "bill_upcoming_event" %}
+									<div class="pie" id="act_pie_{{forloop.counter0}}"> </div>
+									<script>bill_chart("act_pie_{{forloop.counter0}}", {{item.bill.stats.0}}, {{item.bill.stats.1}}, { bg: "#D4D1CA" });</script>
+								{% endif %}
+								
+								{% if item.action_type == "org_position" %}
+									{% if item.org.logo %}
+										<img src="{{item.org.logo.url}}" width="55" height="42" title="{{item.org.name}}"/>
+									{% endif %}
+								{% endif %}
+							</div>
 						</div>
 					
-						{% if item.action_type == "comment" %}
-							<h3>You {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</h3>
+						{% if item.action_type == "comment" and not item.comment.message %}
+							<h3>You {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncate:75}}</a>.</h3>
 							<div class="details">
+								<p>You were the {{item.comment.seq|ordinal_html}} person to weigh in.</p>
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action"> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
-						
+
+						{% if item.action_type == "comment" and item.comment.message %}
+							<h3>You wrote <a href="{{item.comment.url}}">a comment {{item.comment.verb_ing}}</a> {{item.bill.nicename|truncate:75}}.</h3>
+							<div class="details">
+								<p>You wrote, &ldquo;{{item.comment.message|truncate:100}}&rdquo;</p>
+								<p>{{item.comment.delivery_status}}</p>
+							</div>
+							<p class="take_action"> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+						{% endif %}
+
 						{% if item.action_type == "delivery" %}
 							<h3>Your {% if item.message %}letter{% else %}position{% endif %} {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> was delivered to {{item.recipient}}.</h3>
 							<div class="details">
@@ -124,27 +146,37 @@ $(function() {
 							<div class="details">
 								<p class="detail">This organization shares your position on {{item.numagreements}} bill{{item.numagreements|pluralize}}.</p>
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">read more</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action"><span id="action"><a href="{{item.org.url}}" class="weigh_in">read their position</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "bill_now" %}
-							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
+							{% comment %}<h3><a href="{{item.bill.url}}">{{item.bill.shortname}}</a> <span class="secondary">has {% if item.comment.position == "+" %}{{item.bill.stats.0|intcomma}} supporters{% else %}{{item.bill.stats.1|intcomma}} opponents{% endif %}.</span></h3>{% endcomment %}
+							<h3>{{item.new_count|intcomma}} people have now weighed in on <a href="{{item.bill.url}}">{{item.bill.nicename|truncate:75}}</a>.</h3>
 							<div class="details">
-								<p class="detail bill">{{item.bill.stats.2|intcomma}} people have now weighed in. You were #{{item.your_number|intcomma}}.</p>
+								<p class="detail bill">You were the {{item.your_number|ordinal_html}} person to weigh in.</p>
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="view_report">view stats</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action"><span id="action">
+								{% if item.comment.message %}
+									<a href="{{item.comment.url}}" class="view_comment">share your comment</a>
+								{% else %}
+									<a href="{{item.bill.url}}/report" class="view_report">read comments</a>
+								{% endif %}
+							</span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "bill_current_status" %}
 							{% with item.comment as comment %}
-							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
+							{% with item.bill.status_sentence as status %}
+							<h3>{{status.0}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncate:100}}</a>{% if status.1 %} {{status.1}}{% endif %}.</h3>
 							<div class="details">
 								<p class="detail">{{item.bill.status}}</p>
 								{% if comment %}
 									<p class="detail bill">You {{comment.verb_past}} this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
 								{% endif %}
+								<p>Link to congress match if this is a vote!!!</p>
 							</div>
-							<p class="take_action">{% if comment %}<span id="action"><a href="#" class="weigh_in">weigh in</a></span>{% endif %} <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							<p class="take_action">{% if not comment %}<span id="action"><a href="{{item.bill.url}}" class="weigh_in">weigh in</a></span>{% endif %} <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
+							{% endwith %}
 							{% endwith %}
 						{% endif %}
 						
@@ -265,16 +297,16 @@ $(function() {
 						<div class="pie" id="sug_pie_{{sug.bill.id}}"> </div>
 						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}});</script>
 					</div>
-					<h3><a href="{{sug.bill.url}}" onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'main', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');">{{sug.bill.title|truncate:55}}</a></h3>
+					<h3><a href="{{sug.bill.url}}" onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'main', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');">{{sug.bill.nicename|truncate:55}}</a></h3>
 					<div class="weigh">
 						<a href="{{sug.bill.url}}" class="weigh_in"  onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'secondary', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');">weigh in</a>
 					</div>
 					<a href="#" class="fav faved">favorite</a>
 					<p class="info">
 						{% if sug.source %}
-							Because you weighed in on <a href="{{sug.source.url}}" title="{{sug.source.nicename|truncatewords:15}}" class="suggested">{{sug.source.shortname}}</a>
+							Suggested because you weighed in on <a href="{{sug.source.url}}" title="{{sug.source.nicename|truncate:250}}" class="suggested">{{sug.source.nicename|truncate:75}}</a>
 						{% else %}
-							This bill is trending on POPVOX.
+							This {{sug.bill.proposition_type}} is trending on POPVOX.
 						{% endif %}
 					</p>
 					<div class="clear"> </div>

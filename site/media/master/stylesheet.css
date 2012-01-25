@@ -5173,8 +5173,7 @@ ul.issue_list li a.active{
 		}
 
 	.user_dash .col_6 .pie {
-		margin: 5px 25px 5px 0px;
-		background: url(_temp/pie.png) left top no-repeat;
+		margin: 5px 0px 5px 0px;
 		}
 		
 	ul.activity li {
@@ -5185,7 +5184,7 @@ ul.issue_list li a.active{
 		background: #d4d1ca;	
 		margin-bottom: 10px;
 		padding-top: 5px;
-		min-height: 130px;
+		/*min-height: 130px;*/
 		}
 		
 	ul.activity li div p {
@@ -5195,7 +5194,7 @@ ul.issue_list li a.active{
 		}
 
 		ul.activity li div.details {
-			min-height: 60px;
+			/*min-height: 60px;*/
 			display: block;
 			}
 			
@@ -5443,6 +5442,10 @@ ul.issue_list li a.active{
 				color: #CC6A11;
 				}
 
+			.userdash ul.suggest_bills li .info {
+				height: 42px;
+				}
+			
 		
 		.userdash .suggest_bills .fav {
 			margin-top: 10px;

@@ -289,6 +289,11 @@ class Bill(models.Model):
 			return govtrack.getBillStatusAdvanced(self, True)
 		else:
 			return "N/A"
+	def status_sentence(self):
+		if self.is_bill():
+			return govtrack.getBillStatusSentence(self)
+		else:
+			return "N/A"
 	def isAlive(self):
 		# alive = pending further Congressional action
 		if not self.is_bill(): return self.congressnumber == govtrack.CURRENT_CONGRESS

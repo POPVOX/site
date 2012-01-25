@@ -1324,6 +1324,7 @@ def user_activity_feed(user):
 	#	house bill reaches 100 cosponsors, senate bill reaches 10
 	#	scan for the not-most-recent actions of a bill (reported, voted, etc)?
 	#	when your MoC cosponsors a bill you commented on or bookmarked
+	# if you weighed on a bill that was re-introduced
 	
 	# list() forces execution here so it does not get evaluated in subqueries
 	your_bill_list_ids = list(user.comments.order_by().values_list('bill', flat=True))
@@ -1335,12 +1336,13 @@ def user_activity_feed(user):
 		#  CTA: share
 		#  AUX: view bill
 		#  GFX: preview?
-		for c in user.comments.all().select_related("bill").only("updated", "position", "created", "bill__congressnumber", "bill__billtype", "bill__billnumber", "bill__title", "bill__street_name", "bill__vehicle_for").order_by('-updated')[0:limit]:
+		for c in user.comments.all().select_related("bill").only("updated", "position", "created", "message", "seq", "bill__congressnumber", "bill__billtype", "bill__billnumber", "bill__title", "bill__street_name", "bill__vehicle_for").order_by('-updated')[0:limit]:
 			yield {
 				"action_type": "comment",
 				"date": c.updated,
 				"verb": c.verb(tense="past"),
 				"bill": c.bill,
+				"comment": c,
 			}
 
 	def your_deliveries(limit):
@@ -1380,7 +1382,9 @@ def user_activity_feed(user):
 		#		"message": c.message,
 		#		"recipient": getMemberOfCongress(d.target.govtrackid)["name"],
 		#	}
-			
+		
+	billtypes_with_status = ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc')
+	
 	def your_commented_bills_status(limit):
 		# status of bills you have commented on
 		#  CTA: share
@@ -1404,7 +1408,7 @@ def user_activity_feed(user):
 			datefield = status_type + "_date"
 			if status_type == "upcoming_event": datefield = status_type + "_post_date"
 			
-			for bill in Bill.objects.filter(id__in=your_bill_list_ids).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield)[0:limit]:
+			for bill in Bill.objects.filter(id__in=your_bill_list_ids, billtype__in=billtypes_with_status).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield)[0:limit]:
 				bill_list.add(bill.id)
 				yield {
 					"action_type": "bill_" + status_type,
@@ -1424,7 +1428,7 @@ def user_activity_feed(user):
 			datefield = status_type + "_date"
 			if status_type == "upcoming_event": datefield = status_type + "_post_date"
 			
-			for bill in Bill.objects.filter(trackedby__user=user).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield):
+			for bill in Bill.objects.filter(trackedby__user=user, billtype__in=billtypes_with_status).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield):
 				yield {
 					"action_type": "bill_" + status_type,
 					"date": getattr(bill, datefield),
@@ -1452,9 +1456,9 @@ def user_activity_feed(user):
 			# I suspect that people will want to see updates more for bills they
 			# actually wrote something about.
 			if c.message:
-				doubling = 1.75
+				doubling = 2
 			else:
-				doubling = 1.95
+				doubling = 2.5
 			
 			# how many comments were left at the time you weighed in?
 			nc1 = c.seq + 1 # c.bill.usercomments.filter(created__lt=c.created).count() + 1
@@ -1469,12 +1473,14 @@ def user_activity_feed(user):
 			# nc1*2^[x]'th comment where [x] is x rounded down to the nearest integer.
 			x = math.floor(x)
 			if x <= 0.0: continue # has not doubled yet, or maybe it has gone down!
+			new_count = int(doubling**x * nc1)
+			
 			try:
 				#c2 = c.bill.usercomments.order_by('created')[int(doubling**x * nc1)]
 				# Look at that numbered comment, or the next, in case that comment was
 				# deleted, or if there was some weird concurrency thing and no comment
 				# exists at that index.
-				c2 = c.bill.usercomments.filter(seq__gte=int(doubling**x * nc1)).order_by('seq')[0]
+				c2 = c.bill.usercomments.filter(seq__gte=new_count).order_by('seq')[0]
 			except IndexError:
 				# weird?
 				continue
@@ -1484,6 +1490,8 @@ def user_activity_feed(user):
 				"date": c2.created,
 				"bill": c.bill,
 				"your_number": nc1,
+				"new_count": new_count,
+				"comment": c,
 			})
 			
 		# We can't efficiently query these events in date order, so we pull them all
@@ -1507,13 +1515,12 @@ def user_activity_feed(user):
 		for ocp in OrgCampaignPosition.objects.filter(bill__usercomments__user=user, position=F("bill__usercomments__position")).select_related("campaign__org"):
 			org = ocp.campaign.org
 			orgs[org] = orgs.get(org, 0) + 1
+			
+		# Get the number of bills on the legislative agendas of these orgs.
+		org_agenda_size = dict(OrgCampaignPosition.objects.filter(campaign__org__in=orgs).values("campaign__org").annotate(count=Count("campaign__org")).order_by().values_list("campaign__org", "count"))
 		
-		orgs = sorted(orgs.items(), key = lambda kv : kv[1], reverse=True)
-		
-		def get_max_sim(bill):
-			m1 = BillSimilarity.objects.filter(bill1=bill, bill2__usercomments__user=user).aggregate(Max("similarity"))["similarity__max"]
-			m2 = BillSimilarity.objects.filter(bill2=bill, bill1__usercomments__user=user).aggregate(Max("similarity"))["similarity__max"]
-			return max(m1, m2)
+		# Sort orgs by the percent of the org's agenda that matches the user.
+		orgs = sorted(orgs.items(), key = lambda kv : float(kv[1]) / float(org_agenda_size.get(kv[0].id, 1)), reverse=True)
 		
 		counter = 0
 		for org, agreecount in orgs:

@@ -3,6 +3,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
 from django.template import Context, Template, Variable, TemplateSyntaxError, Library
+from django.contrib.humanize.templatetags import humanize
 
 import cgi
 import re
@@ -255,7 +256,7 @@ def ordinal_html(num):
 	else:
 		suffix = "th"
 	
-	return mark_safe(str(num) + "<sup>" + suffix + "</sup>")
+	return mark_safe(humanize.intcomma(num) + "<sup>" + suffix + "</sup>")
 
 # based on http://djangosnippets.org/snippets/1907/
 class ObfuscatedEmailNode(template.Node):
