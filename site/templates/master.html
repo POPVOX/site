@@ -377,16 +377,26 @@ $(function() {
 <script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('6db7097c351adc437da30e64e0d86d12'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
 <script>
 {% comment %}wont work on cached page...
-mpmetrics.register({
-	'user type': {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}
-});
-{% if user.is_authenticated %}mpmetrics.identify("pv_uid_{{user.id}}");{% endif %}
 {% with request.session.shorturl.target.meta as surlm %}
 	{% if surlm.mixpanel_event %}
 		mpmetrics.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
 	{% endif %}
 {% endwith %}
 {% endcomment %}
+master_state(function (res) {
+	if (!res.user) {
+		mpmetrics.register({ 'user type': "anonymous" });
+	} else {
+		mpmetrics.identify("pv_uid_" + res.user.id);
+		mpmetrics.name_tag(res.user.email);
+		if (res.user.legstaffrole)
+			mpmetrics.register({ 'user type': "legstaff" });
+		else if (res.user.orgs.length > 0)
+			mpmetrics.register({ 'user type': "orgstaff" });
+		else
+			mpmetrics.register({ 'user type': "individual" });
+	}
+});
 </script>
 
 {% if request.META.HTTP_DNT != 1 %}
