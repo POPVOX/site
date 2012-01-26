@@ -7,8 +7,18 @@
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
-<script>
 
+{% if request.META.HTTP_DNT != "1" %}
+<script type="text/javascript">var switchTo5x=true;</script><script type="text/javascript" src="https://ws.sharethis.com/button/buttons.js"></script><script type="text/javascript">
+	stLight.options({publisher:'753d474b-c1f6-4c9b-b4c5-b640d654d2aa'});
+	stLight.subscribe("click", function(event,service) {
+		// would be nice to know which item was clicked
+		mpmetrics.track("dashboard_share", { service: service });
+	}); 
+</script>
+{% endif %}
+
+<script>
 var is_sug_hide_animating = 0;
 
 function click_prompt(billid, billindex, link, sugtype, href) {
@@ -72,10 +82,16 @@ function hide_prompt(billid, billindex, sugtype) {
 	return false;
 }
 
+
+
 $(function() {
 	mpmetrics.track("dashboard_load");
 });
 </script>
+
+<style>
+sup { font-size: 85%; font-style: italic; vertical-align:super; }
+</style>
 {% endblock %}
 {% block content %}
 <div class="content userdash">
@@ -101,7 +117,7 @@ $(function() {
 				{% for item in feed_items %}
 					<li class="{{item.action_type}}">
 						<div class="date">
-							<p><span>{{item.date|date2}}</span> <a href="#" class="hide">hide</a></p>
+							<p><span>{{item.date|date2}}</span> {% comment %}<a href="#" class="hide">hide</a> {% endcomment %}</p>
 
 							<div class="pie">
 								{% if item.action_type == "comment" or item.action_type == "bill_now" or item.action_type == "bill_current_status" or item.action_type == "bill_upcoming_event" %}
@@ -122,7 +138,6 @@ $(function() {
 							<div class="details">
 								<p>You were the {{item.comment.seq|ordinal_html}} person to weigh in.</p>
 							</div>
-							<p class="take_action"> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 
 						{% if item.action_type == "comment" and item.comment.message %}
@@ -131,7 +146,6 @@ $(function() {
 								<p>You wrote, &ldquo;{{item.comment.message|truncate:100}}&rdquo;</p>
 								<p>{{item.comment.delivery_status}}</p>
 							</div>
-							<p class="take_action"> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 
 						{% if item.action_type == "delivery" %}
@@ -146,7 +160,6 @@ $(function() {
 							<div class="details">
 								<p class="detail">This organization shares your position on {{item.numagreements}} bill{{item.numagreements|pluralize}}.</p>
 							</div>
-							<p class="take_action"><span id="action"><a href="{{item.org.url}}" class="weigh_in">read their position</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "bill_now" %}
@@ -155,19 +168,12 @@ $(function() {
 							<div class="details">
 								<p class="detail bill">You were the {{item.your_number|ordinal_html}} person to weigh in.</p>
 							</div>
-							<p class="take_action"><span id="action">
-								{% if item.comment.message %}
-									<a href="{{item.comment.url}}" class="view_comment">share your comment</a>
-								{% else %}
-									<a href="{{item.bill.url}}/report" class="view_report">read comments</a>
-								{% endif %}
-							</span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "bill_current_status" %}
 							{% with item.comment as comment %}
 							{% with item.bill.status_sentence as status %}
-							<h3>{{status.0}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncate:100}}</a>{% if status.1 %} {{status.1}}{% endif %}.</h3>
+							<h3>{% if status.0 %}{{status.0}} {% endif %}<a href="{{item.bill.url}}">{{item.bill.nicename|truncate:100}}</a>{% if status.1 %} {{status.1}}{% endif %}.</h3>
 							<div class="details">
 								<p class="detail">{{item.bill.status}}</p>
 								{% if comment %}
@@ -175,7 +181,6 @@ $(function() {
 								{% endif %}
 								<p>Link to congress match if this is a vote!!!</p>
 							</div>
-							<p class="take_action">{% if not comment %}<span id="action"><a href="{{item.bill.url}}" class="weigh_in">weigh in</a></span>{% endif %} <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 							{% endwith %}
 							{% endwith %}
 						{% endif %}
@@ -190,92 +195,35 @@ $(function() {
 								{% endif %}
 								{% endwith %}
 							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
+						
+						<p class="take_action">
+							<span id="action"><a href="{{item.button.2}}" class="{{item.button.1}}">{{item.button.0}}</a></span>
+							
+							<span class="social">
+								<span class="st_facebook" st_title="{{item.share.0}}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
+								<span class="st_twitter" st_title="{{item.share.0}}{% if item.share.2 %} {{item.share.2}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
+								<span class="st_email" st_title="{{item.share.0}}{% if item.share.2 %} {{item.share.2}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}" st_summary="{{item.share.0}}"></span>
+								<span class="st_plusone" st_title="{{item.share.0}}{% if item.share.2 %} {{item.share.2}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
+								
+								{% comment %}<span class="st_digg" st_title="{{item.share.0}}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
+								<span class="st_reddit" st_title="{{item.share.0}}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
+							
+								
+								<a href="#" class="twitter">twitter</a>
+								<a href="#" class="facebook">facebook</a>
+								<a href="#" class="google">google</a>
+								<a href="#" class="reddit">reedit</a>
+								<a href="#" class="tumblr">tumblr</a>
+								<a href="#" class="email">email</a>{% endcomment %}
+							</span>
+							
+							{% comment %}<a href="#" class="fav">favorite</a>{% endcomment %}
+						</p>
+
 					</li>
 				{% endfor %}
-			
-				{% comment %}
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act</a></h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail bill"><strong>Status:</strong> Referred to House Ways and Means...</p>
-						<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a> </p>
-					</div>
-					<h3><a href="#">You commented on HR 424: Puppies are America Act</a></h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail comment">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras massa sapien, adipiscing in mattis eget, lobortis...</p>
-						<p class="take_action"><a href="#">WEIGH IN</a> <span>SHARE</span> <a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="star">star</a><a href="#" class="link">link</a></p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3><a href="#">American Association of Colleges of Pharmacy endorses HR 646</a></h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail org_psn">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3><a href="#">Rep. Chaka Fattah</a> <span>[D, PA-2]</span></h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail co-sponsor">Co-sponsored <a href="#">HR 423</a></p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3>You weighed in on HR 446</h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail weighed_in">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3>You supported HR 1235</h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail support">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3>You opposed HR 1225</h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail oppose">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				{% endcomment %}
+
 			</ul>
 		</div> <!-- e: col_6 -->
 		
@@ -314,71 +262,12 @@ $(function() {
 			
 			{% empty %}
 			
-				<p>We have no suggested actions for you at this time. Your <a href="/home">home dashboard</a> will show you the comments you have left so far.</p>
+				<p>We have no suggested actions for you at this time.</p>
 			
 			{% endfor %}
 		</div>
 
 		{% comment %}
-		<div class="col_3">
-			<ul class="suggest_bills">
-				<li>
-					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie"></div>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
-				</li>
-				<li>
-					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie"></div>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
-				</li>
-				<li>
-					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie"></div>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
-				</li>
-				<li>
-					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie"></div>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
-				</li>
-			</ul>
-			<ul class="suggest_orgs">
-				<li>
-					<a href="#" class="fav faved">favorite</a>
-					<img src="/media/master/_temp/org_beer.jpg" alt="org name"/>
-					<h3><a href="#">Beer Institute</a></h3>
-				</li>
-				<li>
-					<a href="#" class="fav faved">favorite</a>
-					<img src="/media/master/_temp/org_aacp.jpg" alt="org name"/>
-					<h3><a href="#">American Association of Colleges of Pharmacy (AACP)</a></h3>
-				</li>
-				<li>
-					<a href="#" class="fav faved">favorite</a>
-					<img src="/media/master/_temp/org_ctj.jpg" alt="org name"/>
-					<h3><a href="#">Citizens for Tax Stuff</a></h3>
-				</li>
-				<li>
-					<a href="#" class="fav faved">favorite</a>
-					<img src="/media/master/_temp/org_ghlf.jpg" alt="org name"/>
-					<h3><a href="#">Global Healthy Living Foundation (GHLF)</a></h3>
-				</li>
-			</ul>
-		</div><!-- e: col_3 -->
-		
 		<div class="col_3 col_follow">
 			<ul class="following_congress">
 				<h2>Congress People</h2>

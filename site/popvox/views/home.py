@@ -19,7 +19,7 @@ from popvox.models import *
 from popvox.views.bills import bill_statistics, get_default_statistics_context
 import popvox.govtrack
 
-from settings import MIXPANEL_API_KEY
+from settings import MIXPANEL_API_KEY, SITE_ROOT_URL
 
 import csv
 import urllib
@@ -1331,6 +1331,23 @@ def user_activity_feed(user):
 	
 	your_antitracked_bills = list(user.userprofile.antitracked_bills.values_list('id', flat=True))
 	
+	def comment_button(c):
+		if c.message:
+			return ("share your comment", "your_comment", c.url())
+		return ("share the bill", "the_bill", c.bill.url())
+	def comment_share(c):
+		# Try to embed hashtag inside the bill name.
+		# Turn the hashtag into a regular expression that admits spaces and
+		# periods between its characters, to account for how bill numbers
+		# are formatted in titles versus hashtags
+		regex = r"[\.\s]*".join(re.escape(c) for c in c.bill.hashtag().replace("#", ""))
+		title = re.sub(regex, c.bill.hashtag(), c.bill.nicename, flags=re.I)
+		
+		return (
+			"I " + c.verb(tense="past") + " " + title + " on @POPVOX",
+			c.url() if c.message else c.bill.url(),
+			c.bill.hashtag() if not c.bill.hashtag() in title else None)
+	
 	def your_comments(limit):
 		# the positions you left
 		#  CTA: share
@@ -1343,6 +1360,8 @@ def user_activity_feed(user):
 				"verb": c.verb(tense="past"),
 				"bill": c.bill,
 				"comment": c,
+				"button": comment_button(c),
+				"share": comment_share(c),
 			}
 
 	def your_deliveries(limit):
@@ -1395,13 +1414,16 @@ def user_activity_feed(user):
 		# for any of the returned bills and cache them.
 		bill_list = set()
 		comment_cache = { }
-		def get_comment_closure(bill):
+		def get_comment_closure(bill, curry=None):
 			def f():
 				#return UserComment.objects.get(bill=bill, user=user)
 				if len(comment_cache) == 0:
 					for c in user.comments.filter(bill__in=bill_list).select_related("bill"):
 						comment_cache[c.bill_id] = c
-				return comment_cache[bill.id]
+				if not curry:
+					return comment_cache[bill.id]
+				else:
+					return curry(comment_cache[bill.id])
 			return f
 		
 		for status_type in ("current_status", "upcoming_event"):
@@ -1416,6 +1438,8 @@ def user_activity_feed(user):
 					"bill": bill,
 					"comment": get_comment_closure(bill),
 					"mutually_exclusive_with": (status_type, bill), # used by your_bookmarked_bills_status
+					"button": get_comment_closure(bill, curry=comment_button),
+					"share": get_comment_closure(bill, curry=comment_share),
 				}
 			
 	def your_bookmarked_bills_status(limit):
@@ -1434,6 +1458,8 @@ def user_activity_feed(user):
 					"date": getattr(bill, datefield),
 					"bill": bill,
 					"mutually_exclusive_with": (status_type, bill), # used by your_bookmarked_bills_status
+					"button": ("weigh in", "weigh_in", bill.url()),
+					"share": (bill.nicename, bill.url(), bill.hashtag()),
 				}
 		
 	def your_bills_now(limit):
@@ -1492,6 +1518,8 @@ def user_activity_feed(user):
 				"your_number": nc1,
 				"new_count": new_count,
 				"comment": c,
+				"button": comment_button(c),
+				"share": comment_share(c),
 			})
 			
 		# We can't efficiently query these events in date order, so we pull them all
@@ -1536,7 +1564,8 @@ def user_activity_feed(user):
 					"verb": ocp.verb(),
 					"bill": ocp.bill,
 					"numagreements": agreecount,
-					#"simscore": get_max_sim(ocp.bill),
+					"button": ("read their position", "org_position", org.url()),
+					"share": (org.name + " " + ocp.verb() + " " + ocp.bill.nicename, org.url(), ocp.bill.hashtag())
 				}
 				
 				# Maximum of limit/2 actions returned.
@@ -1608,7 +1637,8 @@ def individual_dashboard(request):
 		"userid": user.id,
 		"suggestions": compute_prompts(user),
 		"feed_items": user_activity_feed(user),
-		 "adserver_targets": ["user_home"],
+		"SITE_ROOT_URL": SITE_ROOT_URL,
+		"adserver_targets": ["user_home"],
 			},
 		context_instance=RequestContext(request))
 
