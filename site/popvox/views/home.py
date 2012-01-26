@@ -1353,7 +1353,7 @@ def user_activity_feed(user):
 		#  CTA: share
 		#  AUX: view bill
 		#  GFX: preview?
-		for c in user.comments.all().select_related("bill").only("updated", "position", "created", "message", "seq", "bill__congressnumber", "bill__billtype", "bill__billnumber", "bill__title", "bill__street_name", "bill__vehicle_for").order_by('-updated')[0:limit]:
+		for c in user.comments.all().select_related("bill").only("updated", "position", "created", "message", "seq", "bill__congressnumber", "bill__billtype", "bill__billnumber", "bill__title", "bill__street_name", "bill__vehicle_for", "bill__hashtags").order_by('-updated')[0:limit]:
 			yield {
 				"action_type": "comment",
 				"date": c.updated,
@@ -1430,7 +1430,7 @@ def user_activity_feed(user):
 			datefield = status_type + "_date"
 			if status_type == "upcoming_event": datefield = status_type + "_post_date"
 			
-			for bill in Bill.objects.filter(id__in=your_bill_list_ids, billtype__in=billtypes_with_status).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield)[0:limit]:
+			for bill in Bill.objects.filter(id__in=your_bill_list_ids, billtype__in=billtypes_with_status).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", "hashtags", datefield, status_type, "vehicle_for").order_by('-' + datefield)[0:limit]:
 				bill_list.add(bill.id)
 				yield {
 					"action_type": "bill_" + status_type,
@@ -1452,7 +1452,7 @@ def user_activity_feed(user):
 			datefield = status_type + "_date"
 			if status_type == "upcoming_event": datefield = status_type + "_post_date"
 			
-			for bill in Bill.objects.filter(trackedby__user=user, billtype__in=billtypes_with_status).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield):
+			for bill in Bill.objects.filter(trackedby__user=user, billtype__in=billtypes_with_status).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for", "hashtags").order_by('-' + datefield):
 				yield {
 					"action_type": "bill_" + status_type,
 					"date": getattr(bill, datefield),
