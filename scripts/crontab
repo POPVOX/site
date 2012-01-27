@@ -1,5 +1,6 @@
 MAILTO=josh@popvox.com
- 10 2,8 * * * nice /home/www/sources/scripts/daily.sh
+ 10 4   * * * nice /home/www/sources/scripts/nightly.sh
+ 10 11  * * * nice /home/www/sources/scripts/morningly.sh
  20 *   * * * nice /home/www/sources/scripts/hourly.sh
  *  *   * * * sudo su www -c "nice /home/www/sources/scripts/minutely.sh"
  *  *   * * * nice /home/www/sources/ec2/update_nginx_farm -q
