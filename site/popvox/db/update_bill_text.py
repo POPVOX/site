@@ -72,7 +72,7 @@ bill_status_names = {
 def fetch_page(url, args=None, method="GET", decode=False):
 	if method == "GET" and args != None:
 		url += "?" + urllib.urlencode(args).encode("utf8")
-	print url, "..."
+	#print url, "..."
 	req = urllib2.Request(url)
 	resp = urllib2.urlopen(req)
 	if resp.getcode() != 200:
