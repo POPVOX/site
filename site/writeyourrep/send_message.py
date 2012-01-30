@@ -802,7 +802,8 @@ def parse_webform(webformurl, webform, webformid, id):
 			field_default[attr] = m.group(1)
 			continue
 			
-		elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
+		elif re.match(r"captcha_[0-9a-f\-]", ax):
+		#elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
 			m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
 			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
 			try:
