@@ -12,7 +12,8 @@ import pickle, base64, re
 
 from jquery.ajax import json_response
 
-from popvox.models import Bill, BillRecommendation
+from popvox.models import Bill, BillRecommendation, UserComment
+from datetime import timedelta
 
 class UserSegment(object):
 	def describe(self):
@@ -78,7 +79,7 @@ class SegmentCommentedOnBill(UserSegment):
 		from popvox.models import Bill
 		return "weighed in on %s" % Bill.objects.get(id=self.bill_id).nicename
 	def apply_filter(self, qs):
-		return qs.filter(comments__bill__id=self.bill_id)
+		return qs.filter(comments__bill__id=self.bill_id, comments__method=UserComment.METHOD_SITE)
 	def conjunction_optimization_priority(self):
 		return 3
 		
@@ -363,20 +364,33 @@ def compute_rachna_conversion_rate():
 		# the user segment (though the match may involve things they did
 		# later) took action on any of the recs.
 		
-		if br.name == "Internet: HR 3261 => S 968 etc": continue
-		print br.name
+		print br.id, br.name
+		print br.created
 		
-		base = User.objects.filter(id__in=s.search(), date_joined__lt=br.created)
+		recs = [int(b) for b in br.recommendations.split(",")]
+		print [Bill.objects.get(id=r).title for r in recs]
+		
+		base = User.objects.filter(id__in=s.search(), date_joined__lt=br.created, userprofile__allow_mass_mails=True)
+		
+		if br.id == 17:
+			print "using email list file"
+			base = User.objects.filter(email__in=open("/home/josh/b2b_hr822_emails.txt").read().split("\n"))
+			base = User.objects.filter(id__in=set(u.id for u in base))
+		else:
+			continue
+		
 		total = len(base)
-		converted = base.filter(comments__bill__in=br.recommendations.split(","), comments__created__gt=br.created).count()
+		converted = base.filter(comments__bill__in=recs, comments__created__gt=br.created.date(), comments__created__lt=br.created+timedelta(days=4), comments__method=UserComment.METHOD_SITE).only("id").distinct().count()
 		
-		print 100*converted/total, "% of", total
+		actions = UserComment.objects.filter(user__in=base, bill__in=recs, created__gt=br.created.date(), created__lt=br.created+timedelta(days=4), method=UserComment.METHOD_SITE).count()
+		
+		print converted, "(" + str(int(round(100.0*converted/total))) + "%) of", total, "users took action;", actions, "positions in all"
 		print
 		
 		all_total += total
 		all_converted += converted
 		
 	print 100*all_converted/all_total, "%"
-
+	
 compute_rachna_conversion_rate()
 
