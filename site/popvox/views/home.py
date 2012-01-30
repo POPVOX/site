@@ -1322,9 +1322,10 @@ def user_activity_feed(user):
 	#	upcoming votes - haven't commented: weigh in [ share] | pie
 	# 	upcoming votes - already commented: share [ bill report ] | your position
 	#	house bill reaches 100 cosponsors, senate bill reaches 10
-	#	scan for the not-most-recent actions of a bill (reported, voted, etc)?
+	#	scan for the not-most-recent actions of a bill (reported, voted, etc) but make sure status text is not in present tense?
 	#	when your MoC cosponsors a bill you commented on or bookmarked
 	# if you weighed on a bill that was re-introduced
+	# message deliveries
 	
 	# list() forces execution here so it does not get evaluated in subqueries
 	your_bill_list_ids = list(user.comments.order_by().values_list('bill', flat=True))
@@ -1344,6 +1345,7 @@ def user_activity_feed(user):
 		title = re.sub(regex, c.bill.hashtag(), c.bill.nicename, flags=re.I)
 		
 		return (
+			"share your comment" if c.message else "share this bill",
 			"I " + c.verb(tense="past") + " " + title + " on @POPVOX",
 			c.url() if c.message else c.bill.url(),
 			c.bill.hashtag() if not c.bill.hashtag() in title else None)
@@ -1362,6 +1364,7 @@ def user_activity_feed(user):
 				"comment": c,
 				"button": comment_button(c),
 				"share": comment_share(c),
+				"metrics_props": { "message": c.message != None },
 			}
 
 	def your_deliveries(limit):
@@ -1440,6 +1443,7 @@ def user_activity_feed(user):
 					"mutually_exclusive_with": (status_type, bill), # used by your_bookmarked_bills_status
 					"button": get_comment_closure(bill, curry=comment_button),
 					"share": get_comment_closure(bill, curry=comment_share),
+					"metrics_props": get_comment_closure(bill, lambda c : { "source": "weighed_in", "message": c.message != None }),
 				}
 			
 	def your_bookmarked_bills_status(limit):
@@ -1459,7 +1463,8 @@ def user_activity_feed(user):
 					"bill": bill,
 					"mutually_exclusive_with": (status_type, bill), # used by your_bookmarked_bills_status
 					"button": ("weigh in", "weigh_in", bill.url()),
-					"share": (bill.nicename, bill.url(), bill.hashtag()),
+					"share": ("share this bill", bill.nicename, bill.url(), bill.hashtag()),
+					"metrics_props": { "source": "bookmark" },
 				}
 		
 	def your_bills_now(limit):
@@ -1520,6 +1525,7 @@ def user_activity_feed(user):
 				"comment": c,
 				"button": comment_button(c),
 				"share": comment_share(c),
+				"metrics_props": { "message": c.message != None, "factor": x, "their_number": nc1 },
 			})
 			
 		# We can't efficiently query these events in date order, so we pull them all
@@ -1565,7 +1571,8 @@ def user_activity_feed(user):
 					"bill": ocp.bill,
 					"numagreements": agreecount,
 					"button": ("read their position", "org_position", org.url()),
-					"share": (org.name + " " + ocp.verb() + " " + ocp.bill.nicename, org.url(), ocp.bill.hashtag())
+					"share": ("share this organization", org.name + " " + ocp.verb() + " " + ocp.bill.nicename, org.url(), ocp.bill.hashtag()),
+					"metrics_props": { "shared_bills": agreecount },
 				}
 				
 				# Maximum of limit/2 actions returned.

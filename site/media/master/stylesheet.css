@@ -5209,7 +5209,7 @@ ul.issue_list li a.active{
 			font: italic normal 12px/14px georgia, serif;
 */			}
 		
-		ul.activity li p.take_action span#action {
+		ul.activity li p.take_action span.action_descr {
 			width: 245px;
 			}
 			
@@ -5220,7 +5220,8 @@ ul.issue_list li a.active{
 			width: 400px;
 			height: 30px;
 			margin: 0;
-			position: relative;
+			clear: both;
+			text-align: right;
 			}
 			
 		ul.activity li p.take_action a {
@@ -5259,6 +5260,7 @@ ul.issue_list li a.active{
 			}
 			
 			ul.activity li span.social {
+				float: right;
 				height: 16px;
 				margin-left: 12px;
 				margin-right: 4px;
@@ -5269,7 +5271,7 @@ ul.issue_list li a.active{
 				}
 			
 		ul.activity li p a.twitter {
-			background: url(_temp/i_tw.png) left top no-repeat;
+			background: url(/media/icons/sm/i_tw.png) left top no-repeat;
 			margin: 2px 4px 0 0px;
 			padding: 0;
 			width: 16px;
@@ -5280,7 +5282,7 @@ ul.issue_list li a.active{
 			}
 
 		ul.activity li p a.facebook {
-			background: url(_temp/i_fb.png) left top no-repeat;
+			background: url(/media/icons/sm/i_fb.png) left top no-repeat;
 			margin: 2px 4px 0 0px;
 			padding: 0;
 			width: 16px;
@@ -5291,7 +5293,7 @@ ul.issue_list li a.active{
 			}
 			
 		ul.activity li p a.google {
-			background: url(_temp/i_google.png) left top no-repeat;
+			background: url(/media/icons/sm/i_google.png) left top no-repeat;
 			margin: 2px 4px 0 0px;
 			padding: 0;
 			width: 16px;
@@ -5302,7 +5304,7 @@ ul.issue_list li a.active{
 			}
 
 		ul.activity li p a.reddit {
-			background: url(_temp/i_reddit.png) left top no-repeat;
+			background: url(/media/icons/sm/i_reddit.png) left top no-repeat;
 			margin: 2px 4px 0 0px;
 			padding: 0;
 			width: 16px;
@@ -5313,7 +5315,7 @@ ul.issue_list li a.active{
 			}
 
 		ul.activity li p a.tumblr {
-			background: url(_temp/i_tumblr.png) left top no-repeat;
+			background: url(/media/icons/sm/i_tumblr.png) left top no-repeat;
 			margin: 2px 4px 0 0px;
 			padding: 0;
 			width: 16px;
@@ -5324,7 +5326,7 @@ ul.issue_list li a.active{
 			}
 			
 		ul.activity li p a.email {
-			background: url(_temp/i_email.png) left top no-repeat;
+			background: url(/media/icons/sm/i_email.png) left top no-repeat;
 			margin: 2px 4px 0 0px;
 			padding: 0;
 			width: 16px;
@@ -5397,11 +5399,6 @@ ul.issue_list li a.active{
 		margin-bottom: 2px;
 		}	
 	
-
-.userdash .col_3 {
-	margin: 0 0 0 20px;
-	padding: 0;
-	}		
 
 	.userdash ul.suggest_bills h3 {
 		font: bold 12px/14px helvetica, san-serif;

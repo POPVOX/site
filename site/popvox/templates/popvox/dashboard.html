@@ -82,7 +82,27 @@ function hide_prompt(billid, billindex, sugtype) {
 	return false;
 }
 
-
+function activity_feedback(node, relevant) {
+	var info = $(node).parents("p.feedback");
+	
+	var event = {
+		relevant: relevant ? "yes" : "no",
+		item_type: info.attr("item_type"),
+		item_position: info.attr("item_position")
+		 };
+	
+	if (info.attr("item_props") != "") {
+		var props = eval("[" + info.attr("item_props") + "]")[0];
+		for (var key in props)
+			event[key] = props[key];
+	}
+	
+	mpmetrics.track("dashboard_activity_feedback", event);
+	
+	info.find("*").fadeOut(function() { info.text("Your feedback makes POPVOX better. Thank you."); });
+	
+	return false;
+}
 
 $(function() {
 	mpmetrics.track("dashboard_load");
@@ -91,18 +111,23 @@ $(function() {
 
 <style>
 sup { font-size: 85%; font-style: italic; vertical-align:super; }
+p.feedback { border-top: 1px solid #BBB; padding: 2px 10px 2px 10px; font-size: 10px; color: #666; }
+p.feedback a { color: #CC7722; }
 </style>
 {% endblock %}
 {% block content %}
 <div class="content userdash">
 
-	<div class="col_9 col_top col_last ">
+	<div class="col_9 col_top">
 		<h1 class="rule_btm">Your Dashboard</h1>
 		
 		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
 		
 		<p>Lock to this user with <a href="/home/_dashboard_?user={{userid}}">?user={{userid}}</a></p>
 	</div>
+	
+	{% include "ads/rightbar_single.html" %}
+	
 	<div class="clear"> </div>
 	
 	<div class="col_12 col_top user_dash">
@@ -131,6 +156,8 @@ sup { font-size: 85%; font-style: italic; vertical-align:super; }
 									{% endif %}
 								{% endif %}
 							</div>
+							
+							<div class="clear"> </div>
 						</div>
 					
 						{% if item.action_type == "comment" and not item.comment.message %}
@@ -150,9 +177,6 @@ sup { font-size: 85%; font-style: italic; vertical-align:super; }
 
 						{% if item.action_type == "delivery" %}
 							<h3>Your {% if item.message %}letter{% else %}position{% endif %} {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> was delivered to {{item.recipient}}.</h3>
-							<div class="details">
-							</div>
-							<p class="take_action"><span id="action"><a href="#" class="weigh_in">weigh in</a></span> <span class="social"><a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="google">google</a><a href="#" class="reddit">reedit</a><a href="#" class="tumblr">tumblr</a><a href="#" class="email">email</a></span> <a href="#" class="fav">favorite</a></p>
 						{% endif %}
 						
 						{% if item.action_type == "org_position" %}
@@ -164,9 +188,14 @@ sup { font-size: 85%; font-style: italic; vertical-align:super; }
 						
 						{% if item.action_type == "bill_now" %}
 							{% comment %}<h3><a href="{{item.bill.url}}">{{item.bill.shortname}}</a> <span class="secondary">has {% if item.comment.position == "+" %}{{item.bill.stats.0|intcomma}} supporters{% else %}{{item.bill.stats.1|intcomma}} opponents{% endif %}.</span></h3>{% endcomment %}
-							<h3>{{item.new_count|intcomma}} people have now weighed in on <a href="{{item.bill.url}}">{{item.bill.nicename|truncate:75}}</a>.</h3>
+							<h3>{{item.new_count|intcomma}} people have now weighed in on <a href="{{item.bill.url}}/report">{{item.bill.nicename|truncate:75}}</a>.</h3>
 							<div class="details">
-								<p class="detail bill">You were the {{item.your_number|ordinal_html}} person to weigh in.</p>
+								<p class="detail bill">
+									{% if item.comment.message %}
+									You wrote <a href="{{item.comment.url}}">a comment {{item.comment.verb_ing}}</a> this {{item.comment.bill.proposition_type}} on {{item.comment.created|date2}}.
+									{% endif %}
+									You were the {{item.your_number|ordinal_html}} person to weigh in.
+								</p>
 							</div>
 						{% endif %}
 						
@@ -176,7 +205,10 @@ sup { font-size: 85%; font-style: italic; vertical-align:super; }
 							<h3>{% if status.0 %}{{status.0}} {% endif %}<a href="{{item.bill.url}}">{{item.bill.nicename|truncate:100}}</a>{% if status.1 %} {{status.1}}{% endif %}.</h3>
 							<div class="details">
 								<p class="detail">{{item.bill.status}}</p>
-								{% if comment %}
+								{% if comment and comment.message %}
+									<p class="detail bill">You wrote <a href="{{comment.url}}">a comment {{comment.verb_ing}}</a> this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
+								{% endif %}
+								{% if comment and not comment.message %}
 									<p class="detail bill">You {{comment.verb_past}} this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
 								{% endif %}
 								<p>Link to congress match if this is a vote!!!</p>
@@ -198,19 +230,19 @@ sup { font-size: 85%; font-style: italic; vertical-align:super; }
 						{% endif %}
 						
 						<p class="take_action">
-							<span id="action"><a href="{{item.button.2}}" class="{{item.button.1}}">{{item.button.0}}</a></span>
+							{% comment %}
+							<span class="action"><a href="{{item.button.2}}" class="{{item.button.1}}">{{item.button.0}}</a></span>
+							
+							<span class="action_descr">{{item.share.0}}</span>
+							{% endcomment %}
 							
 							<span class="social">
-								<span class="st_facebook" st_title="{{item.share.0}}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
-								<span class="st_twitter" st_title="{{item.share.0}}{% if item.share.2 %} {{item.share.2}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
-								<span class="st_email" st_title="{{item.share.0}}{% if item.share.2 %} {{item.share.2}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}" st_summary="{{item.share.0}}"></span>
-								<span class="st_plusone" st_title="{{item.share.0}}{% if item.share.2 %} {{item.share.2}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
+								<span class="st_facebook" st_title="{{item.share.1}}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								<span class="st_twitter" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								<span class="st_email" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}" st_summary="{{item.share.1}}"></span>
+								<span class="st_plusone" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
 								
-								{% comment %}<span class="st_digg" st_title="{{item.share.0}}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
-								<span class="st_reddit" st_title="{{item.share.0}}" st_url="{{SITE_ROOT_URL}}{{item.share.1}}"></span>
-							
-								
-								<a href="#" class="twitter">twitter</a>
+								{% comment %}<a href="#" class="twitter">twitter</a>
 								<a href="#" class="facebook">facebook</a>
 								<a href="#" class="google">google</a>
 								<a href="#" class="reddit">reedit</a>
@@ -221,6 +253,11 @@ sup { font-size: 85%; font-style: italic; vertical-align:super; }
 							{% comment %}<a href="#" class="fav">favorite</a>{% endcomment %}
 						</p>
 
+						<p class="feedback" item_type="{{item.action_type}}" item_props="{{item.metrics_props|json|force_escape}}" item_position="{{forloop.counter0}}">
+							<span>Is this update useful to you?</span>
+							&nbsp;
+							<a href="#" onclick="return activity_feedback(this, true);">Yes</a> | <a href="#" onclick="return activity_feedback(this, false);">No</a>
+						</p>
 					</li>
 				{% endfor %}
 
