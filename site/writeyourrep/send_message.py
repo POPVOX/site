@@ -380,7 +380,8 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"unsubscribe", "newsletteraction", "email.optin",
 	"enewssign", "enewsletter", "newsletteraction",
 	"countdown", "txthomesearch",
-	"field_f0a5e486-09e8-4c79-8776-7c1ea0c45f27")
+	"field_f0a5e486-09e8-4c79-8776-7c1ea0c45f27",
+	"aff1req")
 
 radio_choices = {
 	"reason": "legsitemail",
