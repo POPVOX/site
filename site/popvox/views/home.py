@@ -1022,13 +1022,8 @@ def congress_match(request):
 		if not comment.bill.is_bill(): continue
 		
 		#grabbing bill info
-		bill_type = comment.bill.billtype
-		bill_num  = str(comment.bill.billnumber)
-		billstr = bill_type+bill_num
 		try:
-			billinfo = open('/mnt/persistent/data/govtrack/us/'+str(congress)+'/bills/'+billstr+'.xml')
-			billinfo = billinfo.read()
-			dom1 = parseString(billinfo)
+			dom1 = popvox.govtrack.getBillMetadata(comment.bill)
 		except:
 			# not sure why the file might be missing or invalid, but just in case
 			continue
@@ -1429,6 +1424,56 @@ def user_activity_feed(user):
 					return curry(comment_cache[bill.id])
 			return f
 		
+		def vote_results(comment):
+			# If the current status of this bill is one in which a vote
+			# may have occurred, check the bill XML file if there is
+			# a recorded vote for that status, and if so, pull in
+			# the votes of the Members for this user.
+			
+			from popvox.govtrack import isStatusAVote
+			if not isStatusAVote(comment.bill.current_status): return None
+			
+			# Check the bill XML file for a recorded vote.
+			try:
+				dom1 = popvox.govtrack.getBillMetadata(comment.bill)
+			except:
+				return None
+			for vote in dom1.getElementsByTagName("vote"):
+				if vote.getAttribute("state") != comment.bill.current_status: continue
+				if vote.getAttribute("how") != "roll":
+					return ("no-data", "The %s was voted on %s. No record of individual votes was kept." % (comment.bill.proposition_type(), vote.getAttribute("how")))
+				break
+			else:
+				# did not find a recorded vote for this state
+				return None
+			
+			# Who are the user's members?
+			mocs = popvox.govtrack.getMembersOfCongressForDistrict(comment.state + str(comment.congressionaldistrict))
+			mocs = set([m["id"] for m in mocs])
+			
+			# How did the user's Members vote?
+			roll = vote.getAttribute("roll")
+			where = vote.getAttribute("where")
+			date =  vote.getAttribute("datetime")
+			yearre = re.compile(r'^\d{4}')
+			year = re.match(yearre, date).group(0)
+			votexml = "/mnt/persistent/data/govtrack/us/" + str(comment.bill.congressnumber) + "/rolls/"+where+year+"-"+roll+".xml"
+			try:
+				dom2 = parse(open(votexml))
+			except:
+				return None
+			ret = { }
+			for voter in dom2.getElementsByTagName("voter"):
+				voterid = int(voter.getAttribute("id"))
+				votervote = voter.getAttribute("vote")
+				if voterid in mocs and votervote in ("+", "-", "0", "P"):
+					ret[voterid] = votervote
+			
+			# The user has no Members who voted on this bill.
+			if len(ret) == 0: return None
+			
+			return ("table", [ (popvox.govtrack.getMemberOfCongress(m), ret[m]) for m in ret ])
+		
 		for status_type in ("current_status", "upcoming_event"):
 			datefield = status_type + "_date"
 			if status_type == "upcoming_event": datefield = status_type + "_post_date"
@@ -1444,6 +1489,7 @@ def user_activity_feed(user):
 					"button": get_comment_closure(bill, curry=comment_button),
 					"share": get_comment_closure(bill, curry=comment_share),
 					"metrics_props": get_comment_closure(bill, lambda c : { "source": "weighed_in", "message": c.message != None }),
+					"recorded_vote": get_comment_closure(bill, curry=vote_results),
 				}
 			
 	def your_bookmarked_bills_status(limit):

@@ -121,12 +121,12 @@ p.feedback a { color: #CC7722; }
 	<div class="col_9 col_top">
 		<h1 class="rule_btm">Your Dashboard</h1>
 		
-		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+		<p><strong>We heard you wanted more.</strong> This is your new POPVOX dashboard, showing you recent activity on bills you recently commented on and other activity, and suggestions for other issues to weigh in on that you may be interested. Keep a look out for more improvements to this page coming soon, like better suggestions. <em>Posted Jan. 32, 2012.</em></p>
 		
 		<p>Lock to this user with <a href="/home/_dashboard_?user={{userid}}">?user={{userid}}</a></p>
 	</div>
 	
-	{% include "ads/rightbar_single.html" %}
+	{% include "ads/rightbar_single.html" with no_rule=1 %}
 	
 	<div class="clear"> </div>
 	
@@ -150,7 +150,7 @@ p.feedback a { color: #CC7722; }
 									<script>bill_chart("act_pie_{{forloop.counter0}}", {{item.bill.stats.0}}, {{item.bill.stats.1}}, { bg: "#D4D1CA", nopad: true });</script>
 								{% endif %}
 								
-								{% if item.action_type == "org_position" %}
+								{% if item.action_type == "org_position" and 0 %}
 									{% if item.org.logo %}
 										<img src="{{item.org.logo.url}}" width="55" height="42" title="{{item.org.name}}"/>
 									{% endif %}
@@ -211,7 +211,20 @@ p.feedback a { color: #CC7722; }
 								{% if comment and not comment.message %}
 									<p class="detail bill">You {{comment.verb_past}} this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
 								{% endif %}
-								<p>Link to congress match if this is a vote!!!</p>
+								{% with item.recorded_vote as vote %}
+									{% if vote.0 == "no-data" %}{{vote.1}}{% endif %}
+									{% if vote.0 == "table" %}
+										<p class="detail">Compare your position against your elected officials on <a href="/home/match">Congress Match</a>. Here is how they voted:</p>
+										{% for row in vote.1 %}
+											<p class="subdetail">{{row.0.name}}
+											{% if row.1 == "+" %}voted in favor.{% endif %}
+											{% if row.1 == "-" %}voted against.{% endif %}
+											{% if row.1 == "0" %}was absent.{% endif %}
+											{% if row.1 == "P" %}abstained.{% endif %}
+											</p>
+										{% endfor %}
+									{% endif %}
+								{% endwith %}
 							</div>
 							{% endwith %}
 							{% endwith %}

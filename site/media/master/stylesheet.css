@@ -5503,8 +5503,9 @@ ul.issue_list li a.active{
 			width: 220px;
 			float: left;
 			}
-			.userdash ul.suggest_bills li.right {
-				margin-left: 15px;
+			.userdash ul.suggest_bills li.left {
+				margin-right: 10px;
+				clear: both;
 				}
 
 			.userdash ul.suggest_bills li p.info {
