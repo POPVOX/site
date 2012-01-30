@@ -20,7 +20,8 @@ class DeliveryRecordAdmin(admin.ModelAdmin):
 
 	def queryset(self, request):
 		qs = super(DeliveryRecordAdmin, self).queryset(request)
-		return qs.filter(next_attempt__isnull=True)#.exclude(target__method=Endpoint.METHOD_NONE)
+		# .filter(=None) causes an unnecessary join
+		return qs.exclude(next_attempt__isnull=False)#.exclude(target__method=Endpoint.METHOD_NONE)
 
 	def make_success(self, request, queryset):
 		queryset.update(success=True, failure_reason=DeliveryRecord.FAILURE_NO_FAILURE)

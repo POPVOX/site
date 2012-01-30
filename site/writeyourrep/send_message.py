@@ -22,7 +22,7 @@ import socket
 socket.setdefaulttimeout(10) # ten seconds
 cookiejar = cookielib.CookieJar()
 proxy_handler = urllib2.ProxyHandler({'http': 'http://localhost:8124/'})
-	# ssh -L8124:localhost:8124 tauberer@tauber.dyndns.org polipo proxyPort=8124
+	# ssh -L8124:localhost:8124 tauberer@tauberer.dyndns.org polipo proxyPort=8124
 http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar)) #, proxy_handler)
 http_last_url = ""
 extra_cookies = { }
@@ -515,6 +515,7 @@ custom_overrides = {
 	"791_typeofresponse_select": "email",
 	"805_issue_radio": "",
 	"830_contactform:cd:rblformat_radio": "html",
+	"838_state_select": "KYKentucky",
 	"839_field_5fef6d8e-3cf0-4915-aaec-a017cfbf311c_radio": "voice",
 	"867_message-type_radio":"legislative",
 	"869_aff1req_text": "",
@@ -953,6 +954,12 @@ def send_message_webform(di, msg, deliveryrec):
 		
 		if di.id != 361: # text is always present in form
 			test_zipcode_rejected(webform, deliveryrec)
+
+		# Rep. Chandler via House WYR
+		m = re.search(r'<meta http-equiv="refresh" content="0 ; URL=(https?:.*)"', webform)
+		if m:
+			webformurl = m.group(1).replace(" ", "%20")
+			webform = urlopen(webformurl, {}, "GET", deliveryrec).read()
 		
 	if len(webform_stages) > 0 and webform_stages[0] == "add-district-zip-cookie":
 		webform_stages.pop(0)
