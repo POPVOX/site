@@ -5064,9 +5064,13 @@ ul.issue_list li a.active{
 				}
 				
 	.userdash .col_6 {
-		margin-top: 0;
+		margin: 0;
 		padding-top: 0;
 		}
+
+		.userdash .col_6.col_last {
+			width: 480px;
+			}
 
 	.userdash div.date,
 	.userdash div.btn_r {
@@ -5075,10 +5079,11 @@ ul.issue_list li a.active{
 		width: 80px;
 		height: 12px;
 		margin-top: 5px;
+		position: relative;
 		}
 			
 			.userdash div.btn_r {
-				width: 80px;
+				width: 70px;
 				height: 70px;
 				margin: 0 0 5px 10px;
 				padding: 0;
@@ -5091,12 +5096,13 @@ ul.issue_list li a.active{
 			padding: 0;
 			height: 15px;
 			width: 75px;
+			text-align: right;
 			}
 
 		.userdash div.date p span {
-			float: left;
+			float: right;
 			width: 52px;
-			padding-right: 10px;
+			padding-right: 5px;
 			font-size: 12px;
 			line-height: 12px;
 			display: block;
@@ -5125,15 +5131,18 @@ ul.issue_list li a.active{
 				}
 			
 		a.fav {
-			background: url(_temp/b_follow.png) left top no-repeat;
+			background: none;
+/*			background: url(_temp/b_follow.png) left top no-repeat;*/
 			}
 			
 			a.fav.faved {
-				background: url(_temp/b_following.png) left top no-repeat;
+				background: none;
+/*				background: url(_temp/b_following.png) left top no-repeat;*/
 				}
 	
 		.userdash div a.hide {
-			background: url(_temp/b_hide.png) left top no-repeat;
+			background: none;
+/*			background: url(_temp/b_hide.png) left top no-repeat; */
 			width: 10px;
 			margin-top: 2px;
 		    }
@@ -5169,13 +5178,28 @@ ul.issue_list li a.active{
 		width: 55px;
 		height: 55px;
 		float: right;
-		margin: 0px;
+/*		border: 1px solid black; */
 		}
 
-	.user_dash .col_6 .pie {
-		margin: 5px 0px 5px 0px;
+	.user_dash .col_6 ul.activity .pie {
+		margin: 5px 10px 5px 0px;
+/*		background: url(_temp/pie.png) left top no-repeat;*/
 		}
 		
+		.user_dash .col_6 .pie img {
+			/* for IE */
+			filter:alpha(opacity=30);
+			/* CSS3 standard */
+			opacity:0.3;
+			}
+
+		.user_dash .col_6 .pie img:hover {
+			/* for IE */
+			filter:alpha(opacity=100);
+			/* CSS3 standard */
+			opacity: 1;
+			}		
+			
 	ul.activity li {
 /*
 		border: 1px solid green;
@@ -5184,7 +5208,7 @@ ul.issue_list li a.active{
 		background: #d4d1ca;	
 		margin-bottom: 10px;
 		padding-top: 5px;
-		/*min-height: 130px;*/
+		min-height: 130px;
 		}
 		
 	ul.activity li div p {
@@ -5194,7 +5218,7 @@ ul.issue_list li a.active{
 		}
 
 		ul.activity li div.details {
-			/*min-height: 60px;*/
+			min-height: 60px;
 			display: block;
 			}
 			
@@ -5210,7 +5234,7 @@ ul.issue_list li a.active{
 */			}
 		
 		ul.activity li p.take_action span.action_descr {
-			width: 245px;
+			width: 260px;
 			}
 			
 		ul.activity li p.take_action {
@@ -5349,10 +5373,12 @@ ul.issue_list li a.active{
 				}
 			
 		ul.activity li p a.fav {
-			background: url(_temp/b_following.png) left top no-repeat;
+			background: none;
+/*			background: url(_temp/b_following.png) left top no-repeat; */
 			margin: 3px 4px 0 0px;
 			padding: 0;
-			width: 13px;
+			width: 0;
+/*			width: 13px; */
 			height: 16px;
 			text-indent: -9999em;
 			display: block;
@@ -5417,12 +5443,12 @@ ul.issue_list li a.active{
 			border-bottom: 1px solid #a9a59b;
 			margin-bottom: 15px;
 			padding-bottom: 15px;
+			margin-left: 15px;
 			width: 220px;
 			float: left;
 			}
-			.userdash ul.suggest_bills li.left {
-				clear: both;
-				margin-right: 15px;
+			.userdash ul.suggest_bills li.right {
+				margin-left: 15px;
 				}
 
 			.userdash ul.suggest_bills li p.info {
@@ -5439,10 +5465,6 @@ ul.issue_list li a.active{
 				color: #CC6A11;
 				}
 
-			.userdash ul.suggest_bills li .info {
-				height: 42px;
-				}
-			
 		
 		.userdash .suggest_bills .fav {
 			margin-top: 10px;

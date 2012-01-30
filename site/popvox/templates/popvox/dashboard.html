@@ -147,7 +147,7 @@ p.feedback a { color: #CC7722; }
 							<div class="pie">
 								{% if item.action_type == "comment" or item.action_type == "bill_now" or item.action_type == "bill_current_status" or item.action_type == "bill_upcoming_event" %}
 									<div class="pie" id="act_pie_{{forloop.counter0}}"> </div>
-									<script>bill_chart("act_pie_{{forloop.counter0}}", {{item.bill.stats.0}}, {{item.bill.stats.1}}, { bg: "#D4D1CA" });</script>
+									<script>bill_chart("act_pie_{{forloop.counter0}}", {{item.bill.stats.0}}, {{item.bill.stats.1}}, { bg: "#D4D1CA", nopad: true });</script>
 								{% endif %}
 								
 								{% if item.action_type == "org_position" %}
@@ -278,9 +278,9 @@ p.feedback a { color: #CC7722; }
 				{% endif %}
 				<li billid="{{sug.bill.id}}" {% if forloop.counter0|divisibleby:2 %}class="left"{% endif %}>
 					<div class="btn_r">
-						<p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');" style="text-indent: 0">hide</a></p>
+						<!-- <p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');" xxstyle="text-indent: 0">hide</a></p> -->
 						<div class="pie" id="sug_pie_{{sug.bill.id}}"> </div>
-						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}});</script>
+						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}}, { nopad: true });</script>
 					</div>
 					<h3><a href="{{sug.bill.url}}" onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'main', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');">{{sug.bill.nicename|truncate:55}}</a></h3>
 					<div class="weigh">
