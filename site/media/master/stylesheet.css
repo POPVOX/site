@@ -60,6 +60,7 @@ body.grid { background: #e8e5df url("http://www.sodiumhalogen.com/_images/grid.p
 #content_head_r {
     float: right;
     width: 866px;
+/*  need if subnav, then no background */
     background: url(bg_content_head_r.gif) left bottom no-repeat;
     overflow: hidden;
     }
@@ -125,6 +126,22 @@ body.grid { background: #e8e5df url("http://www.sodiumhalogen.com/_images/grid.p
         color: #fff;
         width: 100px;
         }
+        
+	#nav li#profilemenu a {
+        font: italic normal 12px/12px georgia, serif;
+
+		}  
+
+ul.dropnav li a {
+	position: relative;
+	display: block;
+    float: left;
+    font-size: 12px;
+    height: auto;
+    line-height: 1.4em;
+    padding: 10px 0 6px 14px;
+    width: 184px;
+}
 
 ul#nav_2 {
     clear: both;
@@ -162,6 +179,50 @@ ul#nav_2 {
     background: url(bg_nav2_active.png) center top no-repeat;
     color: #e47816;
     }
+
+
+
+
+/* ---- sub nav ----*/
+#subnav {
+	margin-top: 5px;
+	width: 840px;
+	}
+
+#subnav li {
+	float: left;
+	}
+	
+	
+	#subnav a {
+		text-transform: uppercase;
+		font: bold 12px/18px helvetica, san-serif;
+		margin-right: 15px;
+		color: #404045;
+		}
+	
+	#subnav a:hover,
+	#subnav a.active {
+    	color: #CC6A11;
+    	border: 0;
+		}
+
+/* ----dropnav---- */
+#subnav li div {
+		background: url("../_images/dbgt.png") no-repeat scroll left top transparent;
+		display: block;
+		left: 0;
+		padding-top: 15px;
+		position: absolute;
+		top: 40px;
+		width: 246px;
+		}
+
+	#subnav li:hover div {
+		display: block;
+		}
+
+
 
 /* ----master profile dropdown---- */
 
@@ -5016,11 +5077,11 @@ ul.issue_list li a.active{
 
 
 /* user dashboard */
-.userdash {
-	background: url(_temp/usr-dash_t emp.jpg) center -71px no-repeat; 
+/*.userdash {
+	background: url(_temp/usr-dash_t emp.jpg) center -71px no-repeat;
 	display: block;
 	height: 1000px;
-	}
+	}*/
 	
 	.userdash h1 {
 		margin-bottom: 18px;
@@ -5047,12 +5108,12 @@ ul.issue_list li a.active{
 			
 			.userdash ul#bar li.c6 {
 				width: 460px;
-				background: url(_temp/userdash_divider.png) right 2px no-repeat;
+				background: url(/media/assets/dashboard/userdash_divider.png) right 2px no-repeat;
 				}
 
 			.userdash ul#bar li.c3 {
 				width: 250px;
-				background: url(_temp/userdash_divider.png) right 2px no-repeat;
+				background: url(/media/assets/dashboard/userdash_divider.png) right 2px no-repeat;
 				}
 				
 			.userdash ul#bar li.c3l {
@@ -5076,7 +5137,7 @@ ul.issue_list li a.active{
 	.userdash div.btn_r {
 		float: right;
 		display: block;
-		width: 80px;
+		width: 90px;
 		height: 12px;
 		margin-top: 5px;
 		position: relative;
@@ -5142,7 +5203,9 @@ ul.issue_list li a.active{
 	
 		.userdash div a.hide {
 			background: none;
-/*			background: url(_temp/b_hide.png) left top no-repeat; */
+			background: url(/media/assets/dashboard/b_hide.png) left top no-repeat;
+			text-indent: -9999em;
+			text-align: left;
 			width: 10px;
 			margin-top: 2px;
 		    }
@@ -5182,23 +5245,18 @@ ul.issue_list li a.active{
 		}
 
 	.user_dash .col_6 ul.activity .pie {
-		margin: 5px 10px 5px 0px;
+		margin: 5px 4px 5px 0px;
 /*		background: url(_temp/pie.png) left top no-repeat;*/
 		}
 		
+		.user_dash .col_6 ul.activity .pie #act_pie2.pie {
+			padding-left: 2px;
+			}
+		
 		.user_dash .col_6 .pie img {
-			/* for IE */
-			filter:alpha(opacity=30);
-			/* CSS3 standard */
-			opacity:0.3;
+			display: none;
 			}
 
-		.user_dash .col_6 .pie img:hover {
-			/* for IE */
-			filter:alpha(opacity=100);
-			/* CSS3 standard */
-			opacity: 1;
-			}		
 			
 	ul.activity li {
 /*
@@ -5241,11 +5299,9 @@ ul.issue_list li a.active{
 			font-size: 11px/11px;
 			font-weight: bold;
 			padding: 5px 0 0 60px;
-			width: 400px;
 			height: 30px;
 			margin: 0;
 			clear: both;
-			text-align: right;
 			}
 			
 		ul.activity li p.take_action a {
@@ -5261,19 +5317,19 @@ ul.issue_list li a.active{
 				
 /* */
 		ul.activity li.org_position p.take_action {
-			background: url(_temp/icon_act_org_psn.png) 10px 6px no-repeat;
+			background: url(/media/assets/dashboard/icon_act_org_psn.png) 10px 6px no-repeat;
 			}
 
 		ul.activity li.bill_now p.take_action {
-			background: url(_temp/icon_act_bill.png) 10px top no-repeat;
+			background: url(/media/assets/dashboard/icon_act_bill.png) 10px top no-repeat;
 			}
 
 		ul.activity li.bill_current_status p.take_action {
-			background: url(_temp/icon_act_change.png) 10px 4px no-repeat;
+			background: url(/media/assets/dashboard/icon_act_change.png) 10px 4px no-repeat;
 			}
 
 		ul.activity li.comment p.take_action {
-			background: url(_temp/icon_act_comment.png) 10px 5px no-repeat;
+			background: url(/media/assets/dashboard/icon_act_comment.png) 10px 5px no-repeat;
 			}
 
 
@@ -5284,10 +5340,10 @@ ul.issue_list li a.active{
 			}
 			
 			ul.activity li span.social {
-				float: right;
 				height: 16px;
 				margin-left: 12px;
-				margin-right: 4px;
+				/*margin-right: 4px;*/
+				float: right;
 				}
 				
 			ul.activity li span.social a {
@@ -5396,32 +5452,32 @@ ul.issue_list li a.active{
 		}
 		
 	ul.activity li div p.comment {
-		background: url(_temp/icon_act_comment.png) 10px 5px no-repeat;
+		background: url(/media/assets/dashboard/icon_act_comment.png) 10px 5px no-repeat;
 		margin-bottom: 2px;
 		}
 	
 	ul.activity li div p.org_psn {
-		background: url(_temp/icon_act_org_psn.png) 10px 5px no-repeat;
+		background: url(/media/assets/dashboard/icon_act_org_psn.png) 10px 5px no-repeat;
 		margin-bottom: 2px;
 		}
 	
 	ul.activity li div p.support {
-		background: url(_temp/icon_act_heart.png) 10px 5px no-repeat;
+		background: url(/media/assets/dashboard/icon_act_heart.png) 10px 5px no-repeat;
 		margin-bottom: 2px;
 		}
 		
 	ul.activity li div p.oppose {
-		background: url(_temp/icon_act_anti.png) 10px 5px no-repeat;
+		background: url(/media/assets/dashboard/icon_act_anti.png) 10px 5px no-repeat;
 		margin-bottom: 2px;
 		}
 
 	ul.activity li div p.co-sponsor {
-		background: url(_temp/icon_act_congress.png) 10px 5px no-repeat;
+		background: url(/media/assets/dashboard/icon_act_congress.png) 10px 5px no-repeat;
 		margin-bottom: 2px;
 		}
 	
 	ul.activity li div p.weighed_in {
-		background: url(_temp/icon_act_people.png) 10px 5px no-repeat;
+		background: url(/media/assets/dashboard/icon_act_people.png) 10px 5px no-repeat;
 		margin-bottom: 2px;
 		}	
 	

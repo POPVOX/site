@@ -278,7 +278,7 @@ p.feedback a { color: #CC7722; }
 				{% endif %}
 				<li billid="{{sug.bill.id}}" {% if forloop.counter0|divisibleby:2 %}class="left"{% endif %}>
 					<div class="btn_r">
-						<!-- <p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');" xxstyle="text-indent: 0">hide</a></p> -->
+						<p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');" xxstyle="text-indent: 0">hide</a></p>
 						<div class="pie" id="sug_pie_{{sug.bill.id}}"> </div>
 						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}}, { nopad: true });</script>
 					</div>
