@@ -1462,12 +1462,16 @@ def user_activity_feed(user):
 				dom2 = parse(open(votexml))
 			except:
 				return None
+			verbs = { "+": "voted in favor", "-": "voted against", "0": "was absent", "P": "abstained" }
+			for opt in dom2.getElementsByTagName("option"):
+				if opt.getAttribute("key") in ("+", "-"):
+					verbs[opt.getAttribute("key")] = "voted " + opt.firstChild.data.lower() 
 			ret = { }
 			for voter in dom2.getElementsByTagName("voter"):
 				voterid = int(voter.getAttribute("id"))
 				votervote = voter.getAttribute("vote")
 				if voterid in mocs and votervote in ("+", "-", "0", "P"):
-					ret[voterid] = votervote
+					ret[voterid] = verbs[votervote]
 			
 			# The user has no Members who voted on this bill.
 			if len(ret) == 0: return None
