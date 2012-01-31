@@ -5,6 +5,7 @@
 {% block description %}Your POPVOX dashboard alerts you to recent activity on POPVOX and in Congress and gives you suggestions for other bills to write about.{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
+<link rel="stylesheet" href="/media/assets/dashboard/dashboard.css" type="text/css" media="screen" /> 
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 
@@ -204,27 +205,30 @@ p.feedback a { color: #CC7722; }
 							{% with item.bill.status_sentence as status %}
 							<h3>{% if status.0 %}{{status.0}} {% endif %}<a href="{{item.bill.url}}">{{item.bill.nicename|truncate:100}}</a>{% if status.1 %} {{status.1}}{% endif %}.</h3>
 							<div class="details">
-								<p class="detail">{{item.bill.status}}</p>
-								{% if comment and comment.message %}
-									<p class="detail bill">You wrote <a href="{{comment.url}}">a comment {{comment.verb_ing}}</a> this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
-								{% endif %}
-								{% if comment and not comment.message %}
-									<p class="detail bill">You {{comment.verb_past}} this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
-								{% endif %}
+								<p class="detail">{{item.bill.status}}
 								{% with item.recorded_vote as vote %}
 									{% if vote.0 == "no-data" %}{{vote.1}}{% endif %}
 									{% if vote.0 == "table" %}
-										<p class="detail">Compare your position against your elected officials on <a href="/home/match">Congress Match</a>. Here is how they voted:</p>
+										Here is how your elected officials voted: <em>(for more see <a href="/home/match">Congress Match</a>)</em></p>
 										{% for row in vote.1 %}
-											<p class="subdetail">{{row.0.name}}
+											<p class="subdetail" style="margin-left: 1.5em">{{row.0.name}}
 											{% if row.1 == "+" %}voted in favor.{% endif %}
 											{% if row.1 == "-" %}voted against.{% endif %}
 											{% if row.1 == "0" %}was absent.{% endif %}
 											{% if row.1 == "P" %}abstained.{% endif %}
 											</p>
 										{% endfor %}
+										<p><!-- dummy -->
 									{% endif %}
 								{% endwith %}
+								</p>
+								
+								{% if comment and comment.message %}
+									<p class="detail bill">You wrote <a href="{{comment.url}}">a comment {{comment.verb_ing}}</a> this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
+								{% endif %}
+								{% if comment and not comment.message %}
+									<p class="detail bill">You {{comment.verb_past}} this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
+								{% endif %}
 							</div>
 							{% endwith %}
 							{% endwith %}
@@ -302,7 +306,7 @@ p.feedback a { color: #CC7722; }
 					<a href="#" class="fav faved">favorite</a>
 					<p class="info">
 						{% if sug.source %}
-							Suggested because you weighed in on <a href="{{sug.source.url}}" title="{{sug.source.nicename|truncate:250}}" class="suggested">{{sug.source.nicename|truncate:75}}</a>
+							Because you weighed in on <a href="{{sug.source.url}}" title="{{sug.source.nicename|truncate:250}}" class="suggested">{{sug.source.shortname}}</a>.
 						{% else %}
 							This {{sug.bill.proposition_type}} is trending on POPVOX.
 						{% endif %}
