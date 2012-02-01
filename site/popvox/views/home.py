@@ -1001,8 +1001,6 @@ def congress_match(request):
 			memberids.append(member['id'])
 		return memberids
 	
-	congress = popvox.govtrack.CURRENT_CONGRESS
-	
 	try:
 		most_recent_address = PostalAddress.objects.filter(user=request.user).order_by('-created')[0]
 	except IndexError:
@@ -1049,7 +1047,7 @@ def congress_match(request):
 			date =  vote.getAttribute("datetime")
 			yearre = re.compile(r'^\d{4}')
 			year = re.match(yearre, date).group(0)
-			votexml = "/mnt/persistent/data/govtrack/us/" + str(congress) + "/rolls/"+where+year+"-"+roll+".xml"
+			votexml = "/mnt/persistent/data/govtrack/us/" + str(bill_cong) + "/rolls/"+where+year+"-"+roll+".xml"
 			
 			#parsing the voters for that roll"
 			try:
