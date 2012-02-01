@@ -418,13 +418,9 @@ def home(request):
 			   },
 			context_instance=RequestContext(request))
 	else:
-		return render_to_response('popvox/homefeed.html',
-			{ 
-			"suggestions": compute_prompts(user)[0:4],
-			"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
-		     "adserver_targets": ["user_home"],
-			    },
-			context_instance=RequestContext(request))
+		return history(request)
+		#return individual_dashboard(request)
+
 
 @csrf_protect
 @login_required
@@ -1697,3 +1693,17 @@ def individual_dashboard(request):
 			},
 		context_instance=RequestContext(request))
 
+@csrf_protect
+@login_required
+def history(request):
+	user = request.user
+	prof = user.get_profile()
+	if prof.is_leg_staff() or prof.is_org_admin():
+		raise Http404()
+	else:
+		return render_to_response('popvox/history.html',
+		{ 
+		"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
+			"adserver_targets": ["user_home"],
+			},
+		context_instance=RequestContext(request))
