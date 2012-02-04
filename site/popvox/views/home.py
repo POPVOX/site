@@ -381,6 +381,10 @@ def home(request):
 	if prof == None:
 		raise Http404()
 		
+
+	if user.is_authenticated() and (user.is_staff | user.is_superuser) and "user" in request.GET:
+		return individual_dashboard(request)
+
 	if prof.is_leg_staff():
 		msgs = get_legstaff_undelivered_messages(user)
 		if msgs != None: msgs = msgs.count()
@@ -1643,6 +1647,7 @@ def user_activity_feed(user):
 
 def adorn_bill_stats(bills):
 	# adorn all bill objects with pro/con counts
+	if len(bills) == 0: return
 	bill_list = { }
 	for bill in bills:
 		bill_list[bill.id] = { "+": 0, "-": 0 }

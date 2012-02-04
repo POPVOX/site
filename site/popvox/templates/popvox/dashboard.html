@@ -273,6 +273,8 @@ p.feedback a { color: #CC7722; }
 							<a href="#" onclick="return activity_feedback(this, true);">Yes</a> | <a href="#" onclick="return activity_feedback(this, false);">No</a>
 						</p>
 					</li>
+				{% empty %}
+					<p>We have no activity items to show you. Start by <a href="/bills">finding a bill</a> you have an opinion about and send a message to Congress.</p>
 				{% endfor %}
 
 			</ul>
