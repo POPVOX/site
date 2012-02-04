@@ -1447,6 +1447,14 @@ class UserCommentReferral(models.Model):
 			except:
 				# race condition on uniqueness
 				pass
+			
+	@staticmethod
+	def for_referrer(referrer):
+		from django.contrib.contenttypes.models import ContentType
+		return UserCommentReferral.objects.filter(
+			referrer_content_type=ContentType.objects.get_for_model(referrer),
+			referrer_object_id=referrer.id)
+		
 
 class UserCommentOfflineDeliveryRecord(models.Model):
 	comment = models.ForeignKey(UserComment, db_index=True, on_delete=models.CASCADE)
@@ -1700,34 +1708,186 @@ class ServiceAccountCampaignActionRecord(models.Model):
 def sacar_saved_callback(sender, instance, created, **kwargs):
 	# Save data back to CRM.
 	if "LOADING_DUMP_DATA" in os.environ: return
-
-	campaign = instance.campaign
-	acct = campaign.account
-	if acct.getopt("salsa", None) == None: return
 	try:
-		url = "http://%s/o/%s/p/d/popvox/popvox/public/api/add_supporter.sjs" % (
-			acct.getopt("salsa", None)["node"],
-			acct.getopt("salsa", None)["org_id"])
-		data = {
-			"api_key": acct.secret_key,
-			"action_id": "popvox_sac_" + str(campaign.id),
-			"action_name": campaign.bill.title,
-			"supporter_email": instance.email,
-			"supporter_firstname": instance.firstname,
-			"supporter_lastname": instance.lastname,
-			"supporter_zip": instance.zipcode,
-			"tracking_code": "popvox_sacar_" + str(instance.id),
-			}
-		if instance.completed_comment != None:
-			data["supporter_zip"] = instance.completed_comment.address.zipcode
-			data["supporter_state"] = instance.completed_comment.address.state
-			data["supporter_district"] = instance.completed_comment.address.state + ("%02d" % instance.completed_comment.address.congressionaldistrict)
-		ret = http_rest_json(url, data)
+		campaign = instance.campaign
+		acct = campaign.account
+		
+		if acct.getopt("salsa", None) != None:
+			sacar_save_salsa(acct, campaign, instance)
+			
+		if acct.getopt("civicrm", None) != None:
+			scar_save_civicrm(acct, campaign, instance)
+		
 	except Exception as e:
 		import sys
 		sys.stderr.write("sacar_saved_callback " + str(instance.id) + " " + str(instance) + ": " + unicode(e).encode("utf8") + " [" + unicode(getattr(e, "response_data", "")).encode("utf8") + "]\n")
-		pass
 django.db.models.signals.post_save.connect(sacar_saved_callback, sender=ServiceAccountCampaignActionRecord)
+
+def sacar_save_salsa(acct, campaign, instance):
+	url = "http://%s/o/%s/p/d/popvox/popvox/public/api/add_supporter.sjs" % (
+		acct.getopt("salsa", None)["node"],
+		acct.getopt("salsa", None)["org_id"])
+	data = {
+		"api_key": acct.secret_key,
+		"action_id": "popvox_sac_" + str(campaign.id),
+		"action_name": campaign.bill.title,
+		"supporter_email": instance.email,
+		"supporter_firstname": instance.firstname,
+		"supporter_lastname": instance.lastname,
+		"supporter_zip": instance.zipcode,
+		"tracking_code": "popvox_sacar_" + str(instance.id),
+		}
+	if instance.completed_comment != None:
+		data["supporter_zip"] = instance.completed_comment.address.zipcode
+		data["supporter_state"] = instance.completed_comment.address.state
+		data["supporter_district"] = instance.completed_comment.address.state + ("%02d" % instance.completed_comment.address.congressionaldistrict)
+	ret = http_rest_json(url, data)
+	
+def scar_save_civicrm(acct, campaign, instance):
+	civi_info = acct.getopt("civicrm")
+	
+	import urllib, urllib2, json, re
+	
+	request_timeout = 10
+	
+	# Log in to get credentials cookie. Create a plain OpenerDirector
+	# that does not include support for redirects so we can properly
+	# detect if login worked.
+	
+	opener = urllib2.OpenerDirector()
+	opener.add_handler(urllib2.HTTPSHandler())
+	ret = opener.open(civi_info["url_root"] + "/user/login?destination=admin/user/user", urllib.urlencode({"name": civi_info["username"], "pass": civi_info["password"], "form_id": "user_login", "op": "Log in", "form_build_id": "form-405bf5fb0fc8a0334c514952b1d87eea"}), request_timeout)
+	if ret.getcode() != 302 or "/admin/user/user" not in ret.info()["Location"]:
+		raise Exception("Login to CiviCRM site failed.")
+	
+	cookies = { }
+	for cookie in ret.info().getallmatchingheaders("Set-Cookie"):
+		m = re.match(r"Set-Cookie: ([^=]+)=([^;]+);.*", cookie)
+		if m:
+			cookies[m.group(1)] = m.group(2)
+	
+	def call_civi(raise_on_error=True, **params):
+		req = urllib2.Request(civi_info["url_root"] + "/civicrm/ajax/rest?json=1&version=3&" + urllib.urlencode(params))
+		for k, v in cookies.items():
+			req.add_header("Cookie", k + "=" + v)
+		data = opener.open(req, None, request_timeout).read()
+		resp = json.loads(data)
+		if resp.get("is_error", 0) != 0 and raise_on_error:
+			raise Exception("CiviCRM API call returned an error: " + resp.get("error_message", ""))
+		return resp
+	
+	def get_record(record_type, **query):
+		ret = call_civi(entity=record_type, action="getsingle", raise_on_error=False, **query)
+		if ret.get("is_error", 0) != 0: return None
+		return ret
+	
+	def get_constant(const_type, alteratives, raise_if_not_found=True):
+		values = call_civi(entity="Constant", action="get", name=const_type)
+		values = dict((v,k) for (k,v) in values["values"].items())
+		for alt in alteratives:
+			if alt in values:
+				return values[alt]
+		if raise_if_not_found:
+			raise Exception("CiviCRM site does not have value for constant %s for value %s." % (const_type, repr(alternatives)))
+		return None
+		
+	def create_or_update(record_type, existing_record_id, **params):
+		if existing_record_id:
+			params["id"] = existing_record_id
+		ret = call_civi(
+			entity=record_type,
+			action="create" if not existing_record_id else "update",
+			**params)
+		return ret["values"][unicode(ret["id"])] 
+	
+	location_type = get_constant("locationType", ["Home", "Main", "Other"])
+	
+	email_record = get_record("Email", email=instance.email)
+	
+	# Create or update a Contact for this individual.
+	contact_record = create_or_update(
+		"Contact",
+		email_record["contact_id"] if email_record else None,
+		
+		contact_type = "Individual",
+		first_name = instance.firstname if not instance.completed_comment else instance.completed_comment.address.firstname,
+		last_name = instance.lastname if not instance.completed_comment else instance.completed_comment.address.lastname,
+		prefix_id = get_constant("individualPrefix", [instance.completed_comment.address.nameprefix], raise_if_not_found=False) if instance.completed_comment else None,
+		suffix_id = get_constant("individualSuffix", [instance.completed_comment.address.namesuffix], raise_if_not_found=False) if instance.completed_comment else None,
+		source = "POPVOX")
+	
+	if not email_record:
+		# Create an Email record for the email address & contact if none exists.
+		email_record = call_civi(
+			entity="Email",
+			action="create",
+			contact_id = contact_record["id"],
+			email = instance.email,
+			location_type_id = location_type,
+			phone_type_id = get_constant("phoneType", ["Home", "Main", "Other"], raise_if_not_found=False),
+			is_primary = 1)
+		
+	contact_id = email_record["contact_id"]
+	
+	if not instance.completed_comment:
+		# Set the zip code for this individual if it is not set, but don't update
+		# until we have ZIP+4 if a zip code is already set.
+		address_record = get_record("Address", contact_id=contact_id, location_type_id=location_type)
+		if not address_record:
+			address_record = call_civi(
+				entity="Address",
+				action="create",
+				contact_id = contact_id,
+				location_type_id = location_type,
+				postal_code = instance.zipcode[0:5],
+				postal_code_suffix = instance.zipcode[6:10],
+				country_id = 1228, # United States
+				is_primary = 1,
+				is_billing = 0,
+				)
+	else:
+		# Update the home address for this individual.
+		address_record = get_record("Address", contact_id=contact_id, location_type_id=location_type)
+		address_record = create_or_update(
+			"Address",
+			address_record["id"] if address_record else None,
+			contact_id = contact_id,
+			location_type_id = location_type,
+			postal_code = instance.completed_comment.address.zipcode[0:5],
+			postal_code_suffix = instance.completed_comment.address.zipcode[6:10],
+			country_id = 1228, # United States
+			street_address = instance.completed_comment.address.address1,
+			supplemental_address_1 = instance.completed_comment.address.address2,
+			city = instance.completed_comment.address.city,
+			state_province_id = get_constant("stateProvince", [govtrack.statenames[instance.completed_comment.address.state]]),
+			timezone = instance.completed_comment.address.timezone,
+			geo_code_1 = instance.completed_comment.address.latitude,
+			geo_code_2 = instance.completed_comment.address.longitude,
+			is_primary = 1,
+			is_billing = 0,
+			)
+	
+		# Update the home phone for this individual.
+		phone_type_id = get_constant("phoneType", ["Home", "Main", "Other"])
+		phone_record = get_record("Phone", contact_id=contact_id, phone_type_id = phone_type_id)
+		phone_record = create_or_update(
+			"Phone",
+			phone_record["id"] if phone_record else None,
+			contact_id = contact_id,
+			location_type_id = location_type,
+			phone_type_id = phone_type_id,
+			phone = instance.completed_comment.address.phonenumber,
+			is_primary = 1,
+			is_billing = 0)
+
+	# Campaign
+		# name = "POPVOX Widget for HR1234..."
+		# external_identifier = something set by us that should not be changed by the user
+	# 
+	# Activity
+		# source_contact / target_contact = user
+		# activity_date_time
+		# 
 
 # USER SEGMENTATION AND BILL-TO-BILL RECOMMENDATIONS #
 
