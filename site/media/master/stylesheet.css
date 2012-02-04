@@ -60,8 +60,8 @@ body.grid { background: #e8e5df url("http://www.sodiumhalogen.com/_images/grid.p
 #content_head_r {
     float: right;
     width: 866px;
-/*  need if subnav, then no background */
-    background: url(bg_content_head_r.gif) left bottom no-repeat;
+/*  if subnav, then no background 
+    background: url(bg_content_head_r.gif) left bottom no-repeat; */
     overflow: hidden;
     }
 
@@ -296,36 +296,6 @@ ul#nav_2 {
     }
 
 #search_head .submit_search:hover { background-position: left bottom    }
-
-#whoami {
-    width: 600px;
-    height: 20px;
-    display: block;
-    clear: both;
-    text-align: right;
-    margin-top: 3px;
-    }
-
-    #whoami p {
-        font: italic normal 12px/12px georgia, serif;
-        position: relative;
-        margin: 0;
-        }
-
-    #whoami a {
-        height: 12px;
-        font: bold 12px/12px helvetica, arial, sans-serif;
-        color: #404045;
-        text-decoration: none;
-        border: none;
-        margin-right: -5px;
-        padding-right: 15px;
-        background: url(b_pencil_sm.png) right top no-repeat;
-        }
-        
-		#whoami a:hover {
-			color: #CC6A11;
-			}
 
 #logo {
     background: url(logo.png) left top no-repeat;

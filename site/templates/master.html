@@ -179,7 +179,18 @@
 				{% block navbarlinks %}{% endblock %}
 				<li class="last admin" style="display: none;"><a style="font-weight: bold; color: #FCC" href="/admin">ADMIN</a></li>
 				{% block loginblock %}
+				<li class="profilelink" style="display: none;"><a href="/accounts/profile">Account</a></li>
 				<li class="logoutlink" style="display: none;"><a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a></li>
+				{% comment %}
+				<li id="profilemenu" style="display: none;">
+					<a href="#"></a>
+					<ul>
+						<a href="/home">Home</a>
+						<a href="/accounts/profile">Account Settings</a>
+						<a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a>
+					</ul>
+				</li>
+				{% endcomment %}
 				<li class="loginlink" style="display: none;"><a href="/accounts/login" onclick="document.location = '/accounts/login' + login_redirect; return false;">Join or Login</a></li>
 				{% endblock %}
 				<li><a href="/blog">Blog</a></li>
@@ -238,16 +249,20 @@
 				</div>
 			</ul>
 			{% endblock %}
-			<div id="whoami">
-				<p>
-					<span style="display: none">
-					Welcome, <a href="/accounts/profile"></a>
-					</span>
-					
-					<script>if (document.cookie == "") document.write("NOTE: Many features of POPVOX will not work correctly when cookies are disabled.");</script>
-					<noscript>NOTE: Many features of POPVOX will not work correctly with Javascript disabled.</noscript>
-				</p>
-			</div>
+			<ul id="subnav">
+				<li><a href="#">Item One</a></li>
+				<li><a href="#">Item Two</a></li>
+				{% comment %}
+					<div>
+						<ul class="dropnav">
+							<li><a href="#">Blog Home</a></li>
+							<li><a href="#">Press Releases</a></li>
+							<li><a href="#">Why POPVOX Works</a></li>
+							<li><a href="#">Team Bios</a></li>
+						</ul>
+					</div>
+				{% endcomment %}
+			</ul>
 		</div>
 	</div><!-- e: head --> 
 
@@ -256,16 +271,14 @@
 			$('#nav .loginlink').show();
 			$('#nav_2 .individual_role').show();
 		} else {
-			$('#nav .logoutlink').show();
+			$('#nav .profilelink, #nav .logoutlink').show();
 			if (res.user.admin)
 				$('#nav .admin').show();
 
-			$('#whoami span').show();
-			
 			if (res.user.legstaffrole) {
 				$('#nav_2 .legstaff_role').show();
 				$('#nav_2 .individual_role').hide();
-				$('#whoami a').text(res.user.fullname);
+				$('#nav .profilelink a').text(res.user.fullname);
 			} else if (res.user.orgs.length > 0) {
 				$('#nav_2 .individual_role').hide();
 				$('#nav_2 .orgadmin_role').show();
@@ -284,13 +297,13 @@
 								.text(res.user.orgs[i].name)
 							);
 				}
-				$('#whoami a').text(res.user.fullname);
+				$('#nav .profilelink a').text(res.user.fullname);
 			} else {
 				$('#nav_2 .individual_role').show();
 				$('#nav_2 .individual_role .homelink a').attr('href', '/home');
 				if (res.user.serviceaccounts.length > 0)
 					$('#nav_2 .individual_role .analyticslink').show();
-				$('#whoami a').text(res.user.screenname);
+				$('#nav .profilelink a').text(res.user.screenname);
 			}
 		}
 	});
