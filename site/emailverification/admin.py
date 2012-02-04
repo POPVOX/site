@@ -3,7 +3,7 @@ from django.contrib import admin
 
 class RecordAdmin(admin.ModelAdmin):
 	readonly_fields = ("email", "code", "searchkey", "action")
-	search_fields = ["email"]
+	search_fields = ["email", "code"]
 	list_display = ["created", "email", "link", "description"]
 	actions = ['visit']
 

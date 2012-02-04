@@ -197,6 +197,9 @@ class RegisterUserAction:
 	
 	etcetera = { }
 
+	def __repr__(self):
+		return "RegisterUserAction(%s)" % repr(self.__dict__)
+
 	def email_subject(self):
 		return "POPVOX: Finish Creating Your Account"
 		

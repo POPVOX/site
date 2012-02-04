@@ -23,4 +23,4 @@ if ret.getcode() != 200:
 	env = dict(os.environ)
 	del env["LOADING_DUMP_DATA"]
 
-	subprocess.call(["./fcgi"], shell=True, env=env)
+	#subprocess.call(["./fcgi"], shell=True, env=env)
