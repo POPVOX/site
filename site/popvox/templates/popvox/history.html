@@ -1,85 +1,29 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
-{% block title %}Home{% endblock%}
-{% block description %}Your POPVOX home gives you suggestions for other bills to write about and lists comments you have sent to Congress.{% endblock%}
+{% block title %}History{% endblock%}
+{% block description %}Your POPVOX history lists positions you have taken on issues before Congress.{% endblock%}
 {%block nav_citzen_class_home%}active{%endblock%}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script>
-function clear_all_panels() {
-	$('#newsfeed').hide();
-	$('#pverify').hide();
-}
-
-function phone_number_twilio_callback() {
-	$('#verify_phone').fadeOut();
-	clear_all_panels();
-	$('#newsfeed').fadeIn(); 
-	$('#status').fadeIn();
-	$('#status').text("Your phone number has been verified.");
-	$('#status').delay(3000).fadeOut();
-}
 {% include "popvox/bookmarked_bills.js" %}
 </script>
-<style>
-.action {
-	display: block;
-	float: left;
-	margin: 4px 15px 20px 0;
-}
-</style>
 {% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 <div class="content"> 
 
 <div class="col_9 col_top">
-	<h1>Home</h1>
-	<a id="edit_tip" href="/accounts/profile">edit profile</a>
+	<h1>Your History</h1>
 
-	<div class="col_6 col_top">
-		<div id="status" style="display: none; position: absolute; margin-top: -1em; color: #497">
-		</div>
-		
-		<div id="postmsg" style="display: none; margin: 1em 0 1em 0; border: 1px solid black; color: #497; padding: .75em">
-		</div>
-		
-		<script>
-		if (window.location.hash == "#welcome") {
-			$('#postmsg').text("Welcome to POPVOX!")
-			$('#postmsg').show();
-		}
-		</script>
-		
-		<div id="newsfeed" class="col_9 col_top">
-			<script>
-			function hide_prompt(billid) {
-				ajax(
-					"/ajax/accounts/profile/trackbill",
-					{
-						bill: billid,
-						track: "-"
-					},
-					{
-						success: function(ret) {
-							var has_remaining_sugs = false;
-							$('#suggestions ul.prompts li').each(function() {
-								if (this.getAttribute("billid") == billid)
-									$(this).fadeOut();
-								else
-									has_remaining_sugs = true;
-							});
-							//if (!has_remaining_sugs) $('#suggestions').fadeOut(); // there is still the last two bullets
-						}
-					});
-				return false;
-			}
-			</script>
-					
+	<ul id="tabs" class="tabs">
+		<li><a href="#positions"><span>Positions</span></a></il>
+		<li><a href="#bookmarks"><span>Bookmarks</span></a></il>
+	</ul>
+	<div class="tabs_panel">
+		<div class="tab_positions">
 			 <div class="mar_top">
-				 <h3>Your Recent Comments</h3>
-				
 				{% with user.comments.all as comments %}
 				{% if comments|length == 0 %}
 					<p>You have not made any comments on legislation yet. Go <a href="/bills">find a bill</a> that you have an opinion about.</p>
@@ -112,57 +56,23 @@ function phone_number_twilio_callback() {
 				{% endfor %}
 				{% endwith %}
 			</div><!-- e:mar -->
-		</div>
+		</div> <!-- e:tab -->
 		
-		<div id="pverify" style="display: none">
-			<h2>Verify A Phone Number</h2>
-			<p>Verifying a phone number helps us ensure that no one is gaming the system by registering many accounts. We won&rsquo;t save your phone number in our records, but we will be able to make sure that no two people use the same number.</p>
-			{% include "phone_number_twilio/verify.html" %}
-			<p><input type='button' value='Cancel' onclick="clear_all_panels(); $('#newsfeed').fadeIn();"/></p>
-		</div>
-		
-	</div>
-	
-<!--	
-	<div class="col_3 col_top col_last">
-		<div class="block homework">
-			{% if not user.phonenumber.get.verified %}
-			<h3>Homework</h3>
-
-			<div id="verify_phone pad_btm">
-				<h4>Verify A Phone Number</h4>
-				<p>Verifying a phone number helps us ensure that users do not create multiple accounts to stuff the ballot. This step is optional.</p>
-				<div class="clear"><a class="b_verify_phone btn" href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Verify Phone</a></div>
-				<div class="clear"> </div>
-			</div>
+		<div class="tab_bookmarks" style="display: none">
+			{% if tracked_bills %}
+				{% include "popvox/bookmarked_bills.html" with bookmarkhideh3="1" %}
+			{% else %}
+				<p style="height: 500px">You have not bookmarked any bills or proposals yet.</p>
 			{% endif %}
+		</div>
+	</div> <!-- e:panel -->
 	
-			<div class="mar_top">
-				<h3>Settings</h3>
-			
-				<p><a class="b_edit_profile btn" href="/accounts/profile">Edit Profile</a></p>
+	<script>$('#tabs').pvtabs();</script>
 	
-				{% if user.phonenumber.get.verified %}
-				<p>
-					Phone Number: Verified
-					{% if not user.phonenumber.get.locked_until %}
-					(<a href="#" onclick="clear_all_panels(); $('#pverify').fadeIn(); return false;">Change Number</a>)
-					{% endif %}
-					{% if user.phonenumber.get.locked_until %}
-					<span style="color: #888">(Locked until {{ user.phonenumber.get.locked_until }})</span>
-					{% endif %}
-				</p>
-				{% endif %}
-			</div><!-- e:mar
-		</div><!-- e:block 
-	</div>
--->	
-	
-	{% include "popvox/bookmarked_bills.html" %}
-</div>
+</div> <!-- col_9 -->
 
 	{% include "ads/rightbar.html" %}
 
-</div>
+</div> <!-- e:content -->
 {% endblock %}
 

@@ -249,10 +249,12 @@
 				</div>
 			</ul>
 			{% endblock %}
+			{% block subnav %}
+			{% endblock %}
+			{% comment %}
 			<ul id="subnav">
 				<li><a href="#">Item One</a></li>
 				<li><a href="#">Item Two</a></li>
-				{% comment %}
 					<div>
 						<ul class="dropnav">
 							<li><a href="#">Blog Home</a></li>
@@ -261,8 +263,8 @@
 							<li><a href="#">Team Bios</a></li>
 						</ul>
 					</div>
-				{% endcomment %}
 			</ul>
+			{% endcomment %}
 		</div>
 	</div><!-- e: head --> 
 

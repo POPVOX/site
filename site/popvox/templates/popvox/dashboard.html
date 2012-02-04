@@ -116,13 +116,14 @@ p.feedback { border-top: 1px solid #BBB; padding: 2px 10px 2px 10px; font-size: 
 p.feedback a { color: #CC7722; }
 </style>
 {% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 <div class="content userdash">
 
 	<div class="col_9 col_top">
 		<h1 class="rule_btm">Your Dashboard</h1>
 		
-		<p><strong>Welcome to your new Dashboard!</strong> Thanks to feedback from POPVOX users, we overhauled the Home page. Now you&rsquo;ll see status updates on bills you previously weighed in on and lots of bill suggestions, tailored just for you. From here, you can also share bills on Facebook, Twitter or Google+. We hope you keep coming back to your POPVOX Dashboard &mdash; and stay tuned for more changes! <!--<em>Posted Feb. 1, 2012.</em>--></p>
+		<p><strong>Welcome to your new Dashboard!</strong> Thanks to feedback from POPVOX users, we overhauled the Home page. Now you&rsquo;ll see status updates on bills you previously weighed in on and lots of bill suggestions, tailored just for you. From here, you can also share bills on Facebook, Twitter or Google+. Thanks for using POPVOX &mdash; stay tuned for more changes! <em>(Looking for your recent comments or bookmarks? Click on <a href="/home/history">History</a>.)</em> <!--<em>Posted Feb. 1, 2012.</em>--></p>
 		
 		{% if random_user %}
 		<p>Lock to this user with <a href="/home/_dashboard_?user={{userid}}">?user={{userid}}</a></p>
@@ -211,11 +212,11 @@ p.feedback a { color: #CC7722; }
 								{% with item.recorded_vote as vote %}
 									{% if vote.0 == "no-data" %}{{vote.1}}{% endif %}
 									{% if vote.0 == "table" %}
-										Here is how your elected officials voted: <em>(for more see <a href="/home/match">Congress Match</a>)</em></p>
+										Here is how your elected officials voted:</p>
 										{% for row in vote.1 %}
-											<p class="subdetail" style="margin-left: 1.5em; margin-bottom: .5em;">{{row.0.name}} {{row.1}}.</p>
+											<p class="subdetail" style="margin-left: 1.5em; margin-bottom: .5em; font-style: italic;">{{row.0.name}} {{row.1}}.</p>
 										{% endfor %}
-										<p><!-- dummy -->
+										<p>For more, see <a href="/home/match">Congress Match</a>.
 									{% endif %}
 								{% endwith %}
 								</p>
@@ -232,9 +233,8 @@ p.feedback a { color: #CC7722; }
 						{% endif %}
 						
 						{% if item.action_type == "bill_upcoming_event" %}
-							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
+							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> {{item.bill.upcoming_event}}.</h3>
 							<div class="details">
-								<p class="detail bill">{{item.bill.upcoming_event}}</p>
 								{% with item.comment as comment %}
 								{% if item.comment %}
 									<p class="detail bill">You {{item.comment.verb_past}} this {{item.bill.proposition_type}} on {{item.comment.created|date2}}.</p>
@@ -292,11 +292,11 @@ p.feedback a { color: #CC7722; }
 				{% endif %}
 				<li billid="{{sug.bill.id}}" {% if forloop.counter0|divisibleby:2 %}class="left"{% endif %}>
 					<div class="btn_r">
-						<p><a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');" xxstyle="text-indent: 0">hide</a></p>
+						<a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');" xxstyle="text-indent: 0">hide</a>
 						<div class="pie" id="sug_pie_{{sug.bill.id}}"> </div>
 						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}}, { nopad: true });</script>
 					</div>
-					<h3><a href="{{sug.bill.url}}" onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'main', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');">{{sug.bill.nicename|truncate:55}}</a></h3>
+					<h3><a href="{{sug.bill.url}}" onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'main', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');" title="{{sug.bill.nicename|truncate:250}}">{{sug.bill.nicename|truncate:55}}</a></h3>
 					<div class="weigh">
 						<a href="{{sug.bill.url}}" class="weigh_in"  onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'secondary', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');">weigh in</a>
 					</div>

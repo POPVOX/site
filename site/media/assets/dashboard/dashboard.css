@@ -77,13 +77,12 @@
 			margin: 5px 0 0;
 			padding: 0;
 			height: 15px;
-			width: 75px;
+			width: 85px;
 			text-align: right;
 			}
 
 		.userdash div.date p span {
 			float: right;
-			width: 52px;
 			padding-right: 5px;
 			font-size: 12px;
 			line-height: 12px;
@@ -162,6 +161,7 @@
 		width: 55px;
 		height: 55px;
 		float: right;
+		clear: right;
 /*		border: 1px solid black; */
 		}
 

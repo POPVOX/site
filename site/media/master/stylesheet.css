@@ -185,6 +185,7 @@ ul#nav_2 {
 
 /* ---- sub nav ----*/
 #subnav {
+	margin-left: 5px;
 	margin-top: 5px;
 	width: 840px;
 	}
@@ -2997,22 +2998,6 @@ h1#landing {
         height: 118px;
         }
         
-#edit_tip {
-	background: url(bg_edit_profile.png) left top no-repeat;
-	display: block;
-	width: 86px;
-	height: 29px;
-	position: absolute;
-	top: 0px;
-	right: 260px;
-	text-indent: -9999em;
-	}
-	
-	#edit_tip:hover {
-		border: none;
-		background-position: left bottom;
-		}
-
 .b_get_started_l {
     width: 185px;
     height: 47px;
@@ -3080,10 +3065,6 @@ h3#news_feed { background: url(h3_news_feed.png) left top no-repeat     }
     font-size: 14px;
     margin-bottom: 14px;
     }
-
-/* newsfeed */
-
-#newsfeed .col_6 { padding-top: 5px     }
 
 .hm_ads h3 {
     height: 58px;
