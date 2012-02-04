@@ -472,22 +472,6 @@ def legstaff_bill_category_panel(request):
 		},
 		context_instance=RequestContext(request))
 	
-@csrf_protect
-@login_required
-def home_suggestions(request):
-	prof = request.user.get_profile()
-	if prof == None:
-		raise Http404()
-		
-	if prof.is_leg_staff() or prof.is_org_admin():
-		return HttpResponseRedirect("/home")
-
-	return render_to_response('popvox/home_suggestions.html',
-		{ 
-		"suggestions": compute_prompts(request.user)
-		    },
-		context_instance=RequestContext(request))
-
 def activity(request):
 	default_state, default_district = get_default_statistics_context(request.user)
 	
