@@ -122,9 +122,11 @@ p.feedback a { color: #CC7722; }
 	<div class="col_9 col_top">
 		<h1 class="rule_btm">Your Dashboard</h1>
 		
-		<p><strong>We heard you wanted more.</strong> This is your new POPVOX dashboard, showing you recent activity on bills you recently commented on and other activity, and suggestions for other issues to weigh in on that you may be interested. Keep a look out for more improvements to this page coming soon, like better suggestions. <em>Posted Jan. 32, 2012.</em></p>
+		<p><strong>Welcome to your new Dashboard!</strong> Thanks to feedback from POPVOX users, we overhauled the Home page. Now you&rsquo;ll see status updates on bills you previously weighed in on and lots of bill suggestions, tailored just for you. From here, you can also share bills on Facebook, Twitter or Google+. We hope you keep coming back to your POPVOX Dashboard &mdash; and stay tuned for more changes! <!--<em>Posted Feb. 1, 2012.</em>--></p>
 		
+		{% if random_user %}
 		<p>Lock to this user with <a href="/home/_dashboard_?user={{userid}}">?user={{userid}}</a></p>
+		{% endif %}
 	</div>
 	
 	{% include "ads/rightbar_single.html" with no_rule=1 %}

@@ -1587,18 +1587,21 @@ def user_activity_feed(user):
 		# Look at the orgs that have agreed with this person on bills, and suggest other
 		# positions they are taking.
 		
-		# First find the orgs that most agree with this user.
 		from django.db.models import F
+		import math
+
+		# First find the orgs that most agree with this user.
 		orgs = { }
-		for ocp in OrgCampaignPosition.objects.filter(bill__usercomments__user=user, position=F("bill__usercomments__position")).select_related("campaign__org"):
+		for ocp in OrgCampaignPosition.objects.filter(bill__usercomments__user=user, position=F("bill__usercomments__position"), campaign__visible=True, campaign__org__visible=True).select_related("campaign__org"):
 			org = ocp.campaign.org
 			orgs[org] = orgs.get(org, 0) + 1
 			
 		# Get the number of bills on the legislative agendas of these orgs.
 		org_agenda_size = dict(OrgCampaignPosition.objects.filter(campaign__org__in=orgs).values("campaign__org").annotate(count=Count("campaign__org")).order_by().values_list("campaign__org", "count"))
 		
-		# Sort orgs by the percent of the org's agenda that matches the user.
-		orgs = sorted(orgs.items(), key = lambda kv : float(kv[1]) / float(org_agenda_size.get(kv[0].id, 1)), reverse=True)
+		# Sort orgs by the number of positions that the user has the same position
+		# on, but weighed against the total number of positions in the org's agenda.
+		orgs = sorted(orgs.items(), key = lambda kv : float(kv[1]) / math.sqrt(float(org_agenda_size.get(kv[0].id, 1))), reverse=True)
 		
 		counter = 0
 		for org, agreecount in orgs:
@@ -1606,7 +1609,7 @@ def user_activity_feed(user):
 			for ocp in OrgCampaignPosition.objects.filter(campaign__org=org).select_related("campaign__org", "bill").order_by('-created'):
 				if ocp.bill.id in your_antitracked_bills:
 					continue
-				
+					
 				yield {
 					"action_type": "org_position",
 					"date": ocp.created,
@@ -1671,18 +1674,22 @@ def adorn_bill_stats(bills):
 @login_required
 def individual_dashboard(request):
 	user = request.user
-	#prof = user.get_profile()
-	#if prof == None or prof.is_leg_staff() or prof.is_org_admin():
-	#	raise Http404()
 
-	if not "user" in request.GET:
-		import random
-		top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
-		user = top_users[800 + random.randint(0, 200)]
-		user = User.objects.get(id=user["user"])
-	else:
-		user = User.objects.get(id=request.GET["user"])
-	
+	random_user = False
+	if user.is_authenticated() and (user.is_staff | user.is_superuser):
+		if not "user" in request.GET:
+			import random
+			top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
+			user = top_users[800 + random.randint(0, 200)]
+			user = User.objects.get(id=user["user"])
+			random_user = True
+		else:
+			user = User.objects.get(id=request.GET["user"])
+
+	prof = user.get_profile()
+	if prof.is_leg_staff() or prof.is_org_admin():
+		raise Http404()
+
 	return render_to_response('popvox/dashboard.html',
 		{
 		"userid": user.id,
@@ -1690,6 +1697,7 @@ def individual_dashboard(request):
 		"feed_items": user_activity_feed(user),
 		"SITE_ROOT_URL": SITE_ROOT_URL,
 		"adserver_targets": ["user_home"],
+		"random_user": random_user,
 			},
 		context_instance=RequestContext(request))
 
