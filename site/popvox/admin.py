@@ -86,6 +86,10 @@ class ServiceAccountCampaignActionRecordAdmin(admin.ModelAdmin):
 	def info(self, obj):
 		return obj.campaign.bill.displaynumber()
 
+class BillRecommendationAdmin(admin.ModelAdmin):
+	search_fields = ["name"]
+	list_display = ["created", "name", "because"]
+
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
 admin.site.register(Org, OrgAdmin)
@@ -104,7 +108,7 @@ admin.site.register(ServiceAccount, ServiceAccountAdmin)
 admin.site.register(ServiceAccountPermission)
 admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)
 admin.site.register(ServiceAccountCampaignActionRecord, ServiceAccountCampaignActionRecordAdmin)
-admin.site.register(BillRecommendation)
+admin.site.register(BillRecommendation, BillRecommendationAdmin)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html', 'make_short_urls', 'report_short_urls']

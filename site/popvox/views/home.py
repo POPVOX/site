@@ -316,56 +316,77 @@ def get_legstaff_district_bills(user):
 def compute_prompts(user):
 	# Compute prompts for action for users by looking at the bills he has commented
 	# on, plus trending bills (with a weight).
+
+	# Remove the recommendations that the user has anti-tracked or commented on.
+	hidden_bills = set(user.userprofile.antitracked_bills.all().values_list("id", flat=True)) | set(Bill.objects.filter(usercomments__user=user).values_list("id", flat=True))
+
+	targets = {}
 	
+	# For all active bill recommendations, test if the user matches the segment
+	# and add the recommendations. Limit the number we put into the mix.
+	from popvox.views.segmentation import UserSegment
+	from math import log
+	n = 0
+	j = 0
+	for b2b in BillRecommendation.objects.filter(active=True).order_by('-created'):
+		seg = UserSegment.load(b2b.usersegment)
+		if seg.matches(user):
+			score = 2.0/(1+log(j+1)/4)
+			j += 1
+			recs = [int(b) for b in b2b.recommendations.split(",")]
+			for i, target_bill in enumerate([b for b in recs if b not in hidden_bills]):
+				if target_bill in hidden_bills: continue
+				if not target_bill in targets: targets[target_bill] = []
+				# when a b2b has multiple recommendations, de-weight them by position
+				# so they scatter a bit in the UI.
+				targets[target_bill].append( (None, score/(1+log(i+1)/4), "b2b", b2b.because) )
+				n += 1
+				if n == 10: break
+			if n == 10: break
+				
 	# For each source bill, find similar target bills. Remember the similarity
 	# and source for each target.
-	targets = {}
 	max_sim = 0
 	sb = set(Bill.objects.filter(usercomments__user=user).values_list('id', flat=True))
-	
 	for source_bill, target_bill, similarity in chain(
 		BillSimilarity.objects.filter(bill1__in=sb).values_list("bill1", "bill2", "similarity").order_by('-similarity')[0:50],
 		BillSimilarity.objects.filter(bill2__in=sb).values_list("bill2", "bill1", "similarity").order_by('-similarity')[0:50]):
 			
+		if target_bill in hidden_bills: continue
 		if not target_bill in targets: targets[target_bill] = []
-		targets[target_bill].append( (source_bill, similarity, "similarity") )
+		targets[target_bill].append( (source_bill, similarity, "similarity", None) )
 		max_sim = max(similarity, max_sim)
 	
 	from bills import get_popular_bills
 	for bill in get_popular_bills():
-		if bill.isAlive() and bill.id not in targets:
-			targets[bill.id] = [(None, max_sim/10.0, "trending")]
+		if bill.id not in targets and bill.id not in hidden_bills:
+			targets[bill.id] = [(None, max_sim/10.0, "trending", None)]
 	
-	# Put the targets in descending weighted similarity order.
+	# Put the targets in descending similarity order, summing over the similarity scores used to pick out the target across all sources.
 	targets = list(targets.items()) # (target_bill, [list of (source,similarity) pairs]), where source can be null if it is coming from the tending bills list
 	targets.sort(key = lambda x : -sum([y[1] for y in x[1]]))
 	
-	# Remove the recommendations that the user has anti-tracked or commented on.
-	hidden_bills = set(user.userprofile.antitracked_bills.all().values_list("id", flat=True)) | set(Bill.objects.filter(usercomments__user=user).values_list("id", flat=True))
-	
-	# Map the first 15 entries from id to Bill objects, filtering out bad suggestions.
+	# Map the first N entries from id to Bill objects, filtering out bad suggestions.
 	all_bills = set()
 	for target_bill, source_sim_pairs in targets:
-		if target_bill not in hidden_bills:
-			all_bills.add(target_bill)
-		for source, sim, sugtype in source_sim_pairs:
+		all_bills.add(target_bill)
+		for source, sim, sugtype, sugdescr in source_sim_pairs:
 			if source != None:
 				all_bills.add(source)
 	all_bills = Bill.objects.in_bulk(all_bills)
 	targets_ = []
 	for target_bill, source_sim_pairs in targets:
-		if target_bill in hidden_bills: continue
 		target_bill = all_bills[target_bill]
 		if not target_bill.isAlive(): continue
 		if "Super Committee" in target_bill.title: continue # HACK
-		targets_.append( (target_bill, [(all_bills[ss[0]] if ss[0] != None else None, ss[1], ss[2]) for ss in source_sim_pairs]) )
-		if len(targets_) >= 15: break
+		targets_.append( (target_bill, [(all_bills[ss[0]] if ss[0] != None else None, ss[1], ss[2], ss[3]) for ss in source_sim_pairs]) )
+		if len(targets_) >= 20: break
 	targets = targets_
 	
 	# Replace the list of target sources with just the highest-weighted source for each target.
 	for i in xrange(len(targets)):
 		targets[i][1].sort(key = lambda x : -x[1])
-		targets[i] = { "bill": targets[i][0], "source": targets[i][1][0][0], "type": targets[i][1][0][2] }
+		targets[i] = { "bill": targets[i][0], "source": targets[i][1][0][0], "type": targets[i][1][0][2], "because": targets[i][1][0][3] }
 	
 	# targets is now a list of (target, source) pairs.
 	
@@ -1665,7 +1686,7 @@ def individual_dashboard(request):
 
 	random_user = False
 	if user.is_authenticated() and (user.is_staff | user.is_superuser):
-		if not "user" in request.GET:
+		if request.GET.get("user", "random") == "random":
 			import random
 			top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
 			user = top_users[800 + random.randint(0, 200)]

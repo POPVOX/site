@@ -294,7 +294,7 @@ p.feedback a { color: #CC7722; }
 				{% endif %}
 				<li billid="{{sug.bill.id}}" {% if forloop.counter0|divisibleby:2 %}class="left"{% endif %}>
 					<div class="btn_r">
-						<a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');" xxstyle="text-indent: 0">hide</a>
+						<a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');">hide</a>
 						<div class="pie" id="sug_pie_{{sug.bill.id}}"> </div>
 						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}}, { nopad: true });</script>
 					</div>
@@ -307,7 +307,11 @@ p.feedback a { color: #CC7722; }
 						{% if sug.source %}
 							Because you weighed in on <a href="{{sug.source.url}}" title="{{sug.source.nicename|truncate:250}}" class="suggested">{{sug.source.shortname}}</a>.
 						{% else %}
-							This {{sug.bill.proposition_type}} is trending on POPVOX.
+							{% if sug.type == "trending" %}
+								This {{sug.bill.proposition_type}} is trending on POPVOX.
+							{% else %}
+								Because {{sug.because}}.
+							{% endif %}
 						{% endif %}
 					</p>
 					<div class="clear"> </div>

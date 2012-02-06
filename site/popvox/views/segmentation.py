@@ -21,7 +21,8 @@ class UserSegment(object):
 	
 	def apply_filter(self, qs):
 		# Takes a QuerySet over the Django User table and applies a filter
-		# to apply the criteria expressed in this segment.
+		# to apply the criteria expressed in this segment. Implement this,
+		# unless search() and matches() are both overridden.
 		raise Exception("Not implemented.")
 		
 	def search(self, scope=None):
@@ -34,6 +35,11 @@ class UserSegment(object):
 		if scope and len(scope) < 512:
 			qs = qs.filter(id__in=scope)
 		return set(qs)
+		
+	def matches(self, user):
+		# Returns a boolean indicating whether the particular user matches
+		# the segment.
+		return self.apply_filter(User.objects.filter(id=user.id)).exists()
 	
 	def conjunction_optimization_priority(self):
 		# Help optimize conjunctions by determining where in a conjunction
@@ -58,6 +64,8 @@ class EmptySegment(UserSegment):
 		return "{no one}"
 	def search(self, scope=None):
 		return set()
+	def matches(self, user):
+		return False
 
 class SegmentCommentedOnIssue(UserSegment):
 	issue_area_id = None
@@ -116,7 +124,9 @@ class InverseSegment(UserSegment):
 	def search(self, scope=None):
 		if scope == None:
 			scope = SegmentAllUsers.search()
-		return scope - segment.search()
+		return scope - self.segment.search()
+	def matches(self, user):
+		return not self.segment.matches(user)
 
 class ConjunctiveSegment(UserSegment):
 	conjuncts = None
@@ -136,6 +146,11 @@ class ConjunctiveSegment(UserSegment):
 			else:
 				ret &= segment.search(scope=ret)
 		return ret
+	def matches(self, user):
+		for conjunct in self.conjuncts:
+			if not conjunct.matches(user):
+				return False
+		return True
 	def conjunction_optimization_priority(self):
 		return max([s.conjunction_optimization_priority() for s in self.conjuncts])
 		
@@ -145,11 +160,16 @@ class DisjunctiveSegment(UserSegment):
 		self.disjuncts = disjuncts
 	def describe(self):
 		return " or ".join([("(%s)" % s.describe()) for s in self.disjuncts])
-	def apply_filter(self, qs, scope=None):
+	def search(self, scope=None):
 		ret = set()
 		for segment in self.disjuncts:
 			ret |= segment.search(scope)
 		return ret
+	def matches(self, user):
+		for disjunct in self.disjuncts:
+			if disjunct.matches(user):
+				return True
+		return False
 
 @user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
 def segmentation_builder(request):
@@ -162,7 +182,7 @@ def segmentation_parse(request):
 	if s.strip() == "":
 		s = SegmentAllUsers()
 	else:
-		s = parse_segment_description(s, top_level=True)
+		s = parse_segment_description(s)
 	if isinstance(s, UserSegment):
 		return {
 			"description": s.describe(),
@@ -176,7 +196,7 @@ def segmentation_parse(request):
 		}
 
 
-def parse_segment_description(descr, top_level=False):
+def parse_segment_description(descr, top_level=True):
 	# Parses descr into a UserSegment object, returning either
 	#   the UserSegment object it parsed, or
 	#   a tuple of the character position where an error ocurred and a string describing the parse error
@@ -240,7 +260,7 @@ def parse_segment_description(descr, top_level=False):
 				elif operator != op.strip():
 					return charpos, "These segments must all be separated by AND or all by OR, not mixed. Add additional parentheses to use both AND and OR."
 			else:
-				op_ret = parse_segment_description(op)
+				op_ret = parse_segment_description(op, top_level=False)
 				if type(op_ret) == tuple:
 					# return the error by add the character offset into our current character position
 					return (charpos + op_ret[0], op_ret[1])
@@ -336,7 +356,7 @@ def segmentation_create_conversion(request):
 	
 	br.because = request.POST["because"]
 	
-	br.usersegment = parse_segment_description(request.POST["segment"], top_level=True)
+	br.usersegment = parse_segment_description(request.POST["segment"])
 	if isinstance(br.usersegment, tuple):
 		return { "error": "Something is wrong with your segment. Try the Update button." }
 	else:
@@ -352,7 +372,7 @@ def segmentation_create_conversion(request):
 	
 	return { "redirect_url": "/admin/popvox/billrecommendation/%d" % br.id }
 
-#print parse_segment_description("(weighed in at least 6 times)", top_level=True)
+#print parse_segment_description("(weighed in at least 6 times)")
 
 def compute_rachna_conversion_rate():
 	all_total = 0
@@ -392,5 +412,4 @@ def compute_rachna_conversion_rate():
 		
 	print 100*all_converted/all_total, "%"
 	
-compute_rachna_conversion_rate()
 
