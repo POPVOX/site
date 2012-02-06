@@ -5,10 +5,70 @@
 {% block description %}Your POPVOX dashboard alerts you to recent activity on POPVOX and in Congress and gives you suggestions for other bills to write about.{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
+<link rel="stylesheet" href="/media/assets/dashboard/dashboard.css" type="text/css" media="screen" /> 
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
+
+{% if request.META.HTTP_DNT != "1" %}
+<script type="text/javascript">var switchTo5x=true;</script><script type="text/javascript" src="https://ws.sharethis.com/button/buttons.js"></script><script type="text/javascript">
+	stLight.options({publisher:'753d474b-c1f6-4c9b-b4c5-b640d654d2aa'});
+	stLight.subscribe("click", function(event,service) {
+		// would be nice to know which item was clicked
+		mpmetrics.track("dashboard_share", { service: service });
+	}); 
+</script>
+{% endif %}
+
 <script>
-function hide_prompt(billid) {
+var is_sug_hide_animating = 0;
+
+function click_prompt(billid, billindex, link, sugtype, href) {
+	mpmetrics.track('dashboard_suggestion_click', { bill: billid, position: billindex, link: link, type: sugtype}, function() { window.location = href; });
+	return false;
+}
+
+function hide_prompt(billid, billindex, sugtype) {
+	if (is_sug_hide_animating) return false;
+
+	// Lock the suggestions in place. Go in reverse order so that changing each to
+	// abs positioning doesn't affect later ones.
+	$('#suggestions li:visible').reverse().each(function() {
+		$(this).css({ position: "absolute", left: $(this).position().left, top: $(this).position().top });
+	});
+	
+	// Animate each starting after the one to remove to the position of the previous.
+	// Fade out the one being removed. They remain absolutely positioned afterwards.
+	var overall_index = 0;
+	var index = 0;
+	var found = false;
+	var prev_position = null;
+	$('#suggestions li:visible').each(function() {
+		var mypos = { left: $(this).position().left, top: $(this).position().top };
+		if (this.getAttribute("billid") == billid) {
+			$(this).fadeOut("slow");
+			found = true;
+		} else {
+			if (found) {
+				is_sug_hide_animating++;
+				$(this).delay(Math.pow(index, 1.2)*75).animate(prev_position, function() { is_sug_hide_animating--; if (!is_sug_hide_animating) $('#suggestions .hide').fadeIn(); });
+				if (overall_index % 2 == 0) { $(this).addClass("left"); }
+					else { $(this).removeClass("left"); }
+				index++;
+			}
+			overall_index++;
+		}
+		prev_position = mypos;
+	});
+	
+	if (overall_index == 0) {
+		$('#nomoresugs').fadeIn();
+	} else if (index > 0) {
+		// don't let the user try to hide while we're still animating.
+		$('#suggestions .hide').fadeOut();
+	}
+	
+	mpmetrics.track("dashboard_suggestion_hide", { bill: billid, position: billindex, type: sugtype }); 
+				
 	ajax(
 		"/ajax/accounts/profile/trackbill",
 		{
@@ -17,32 +77,61 @@ function hide_prompt(billid) {
 		},
 		{
 			success: function(ret) {
-				var has_remaining_sugs = false;
-				$('#suggestions li:visible').each(function() {
-					if (this.getAttribute("billid") == billid)
-						$(this).fadeOut();
-					else
-						has_remaining_sugs = true;
-				});
-				if (!has_remaining_sugs) {
-					$('#nomoresugs').fadeIn();
-				}
+				// Assuming success...
 			}
 		});
 	return false;
 }
+
+function activity_feedback(node, relevant) {
+	var info = $(node).parents("p.feedback");
+	
+	var event = {
+		relevant: relevant ? "yes" : "no",
+		item_type: info.attr("item_type"),
+		item_position: info.attr("item_position")
+		 };
+	
+	if (info.attr("item_props") != "") {
+		var props = eval("[" + info.attr("item_props") + "]")[0];
+		for (var key in props)
+			event[key] = props[key];
+	}
+	
+	mpmetrics.track("dashboard_activity_feedback", event);
+	
+	info.find("*").fadeOut(function() { info.text("Your feedback makes POPVOX better. Thank you."); });
+	
+	return false;
+}
+
+$(function() {
+	mpmetrics.track("dashboard_load");
+});
 </script>
+
+<style>
+sup { font-size: 85%; font-style: italic; vertical-align:super; }
+p.feedback { border-top: 1px solid #BBB; padding: 2px 10px 2px 10px; font-size: 10px; color: #666; }
+p.feedback a { color: #CC7722; }
+</style>
 {% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 <div class="content userdash">
 
-	<div class="col_9 col_top col_last ">
+	<div class="col_9 col_top">
 		<h1 class="rule_btm">Your Dashboard</h1>
 		
-		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+		<p><strong>Welcome to your new Dashboard!</strong> Thanks to feedback from POPVOX users, we overhauled the Home page. Now you&rsquo;ll see status updates on bills you previously weighed in on and lots of bill suggestions, tailored just for you. From here, you can also share bills on Facebook, Twitter or Google+. Thanks for using POPVOX &mdash; stay tuned for more changes! <em>(Looking for your recent comments or bookmarks? Click on <a href="/home/history">History</a>.)</em> <!--<em>Posted Feb. 1, 2012.</em>--></p>
 		
+		{% if random_user %}
 		<p>Lock to this user with <a href="/home/_dashboard_?user={{userid}}">?user={{userid}}</a></p>
+		{% endif %}
 	</div>
+	
+	{% include "ads/rightbar_single.html" with no_rule=1 %}
+	
 	<div class="clear"> </div>
 	
 	<div class="col_12 col_top user_dash">
@@ -55,43 +144,97 @@ function hide_prompt(billid) {
 		<div class="col_6">
 			<ul class="activity">
 				{% for item in feed_items %}
-					<li>
+					<li class="{{item.action_type}}">
 						<div class="date">
-							<p><span>{{item.date|date2}}</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
+							<p><span>{{item.date|date2}}</span> {% comment %}<a href="#" class="hide">hide</a> {% endcomment %}</p>
+
+							<div class="pie">
+								{% if item.action_type == "comment" or item.action_type == "bill_now" or item.action_type == "bill_current_status" or item.action_type == "bill_upcoming_event" %}
+									<div class="pie" id="act_pie_{{forloop.counter0}}"> </div>
+									<script>bill_chart("act_pie_{{forloop.counter0}}", {{item.bill.stats.0}}, {{item.bill.stats.1}}, { bg: "#D4D1CA", nopad: true });</script>
+								{% endif %}
+								
+								{% if item.action_type == "org_position" and 0 %}
+									{% if item.org.logo %}
+										<img src="{{item.org.logo.url}}" width="55" height="42" title="{{item.org.name}}"/>
+									{% endif %}
+								{% endif %}
+							</div>
+							
+							<div class="clear"> </div>
 						</div>
 					
-						{% if item.action_type == "comment" %}
-							<h3>You {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</h3>
+						{% if item.action_type == "comment" and not item.comment.message %}
+							<h3>You {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncate:75}}</a>.</h3>
 							<div class="details">
+								<p>You were the {{item.comment.seq|ordinal_html}} person to weigh in.</p>
 							</div>
 						{% endif %}
-						
+
+						{% if item.action_type == "comment" and item.comment.message %}
+							<h3>You wrote <a href="{{item.comment.url}}">a comment {{item.comment.verb_ing}}</a> {{item.bill.nicename|truncate:75}}.</h3>
+							<div class="details">
+								<p>You wrote, &ldquo;{{item.comment.message|truncate:100}}&rdquo;</p>
+								<p>{{item.comment.delivery_status}}</p>
+							</div>
+						{% endif %}
+
 						{% if item.action_type == "delivery" %}
 							<h3>Your {% if item.message %}letter{% else %}position{% endif %} {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> was delivered to {{item.recipient}}.</h3>
-							<div class="details">
-							</div>
 						{% endif %}
 						
 						{% if item.action_type == "org_position" %}
-							<h3><a href="{{item.org.url}}">{{item.org.name}}</a> {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</h3>
+							<h3><a href="{{item.org.url}}">{{item.org.name}}</a> <span class="secondary">{{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</span></h3>
 							<div class="details">
 								<p class="detail">This organization shares your position on {{item.numagreements}} bill{{item.numagreements|pluralize}}.</p>
 							</div>
 						{% endif %}
 						
 						{% if item.action_type == "bill_now" %}
-							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
+							{% comment %}<h3><a href="{{item.bill.url}}">{{item.bill.shortname}}</a> <span class="secondary">has {% if item.comment.position == "+" %}{{item.bill.stats.0|intcomma}} supporters{% else %}{{item.bill.stats.1|intcomma}} opponents{% endif %}.</span></h3>{% endcomment %}
+							<h3>{{item.new_count|intcomma}} people have now weighed in on <a href="{{item.bill.url}}/report">{{item.bill.nicename|truncate:75}}</a>.</h3>
 							<div class="details">
-								{% with item.stats as stats %}
-								<p class="detail bill">{% if stats %}{{stats.total}} people have now weighed in. {% endif %}You were the {{item.your_number|ordinal}} person to weigh in.</p>
-								{% endwith %}
+								<p class="detail bill">
+									{% if item.comment.message %}
+									You wrote <a href="{{item.comment.url}}">a comment {{item.comment.verb_ing}}</a> this {{item.comment.bill.proposition_type}} on {{item.comment.created|date2}}.
+									{% endif %}
+									You were the {{item.your_number|ordinal_html}} person to weigh in.
+								</p>
 							</div>
 						{% endif %}
 						
 						{% if item.action_type == "bill_current_status" %}
-							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
+							{% with item.comment as comment %}
+							{% with item.bill.status_sentence as status %}
+							<h3>{% if status.0 %}{{status.0}} {% endif %}<a href="{{item.bill.url}}">{{item.bill.nicename|truncate:100}}</a>{% if status.1 %} {{status.1}}{% endif %}.</h3>
 							<div class="details">
-								<p class="detail">{{item.bill.status}}</p>
+								<p class="detail">{{item.bill.status}}
+								{% with item.recorded_vote as vote %}
+									{% if vote.0 == "no-data" %}{{vote.1}}{% endif %}
+									{% if vote.0 == "table" %}
+										Here is how your elected officials voted:</p>
+										{% for row in vote.1 %}
+											<p class="subdetail" style="margin-left: 1.5em; margin-bottom: .5em; font-style: italic;">{{row.0.name}} {{row.1}}.</p>
+										{% endfor %}
+										<p>For more, see <a href="/home/match">Congress Match</a>.
+									{% endif %}
+								{% endwith %}
+								</p>
+								
+								{% if comment and comment.message %}
+									<p class="detail bill">You wrote <a href="{{comment.url}}">a comment {{comment.verb_ing}}</a> this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
+								{% endif %}
+								{% if comment and not comment.message %}
+									<p class="detail bill">You {{comment.verb_past}} this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
+								{% endif %}
+							</div>
+							{% endwith %}
+							{% endwith %}
+						{% endif %}
+						
+						{% if item.action_type == "bill_upcoming_event" %}
+							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> {{item.bill.upcoming_event}}.</h3>
+							<div class="details">
 								{% with item.comment as comment %}
 								{% if item.comment %}
 									<p class="detail bill">You {{item.comment.verb_past}} this {{item.bill.proposition_type}} on {{item.comment.created|date2}}.</p>
@@ -100,101 +243,40 @@ function hide_prompt(billid) {
 							</div>
 						{% endif %}
 						
-						{% if item.action_type == "bill_upcoming_event" %}
-							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a></h3>
-							<div class="details">
-								<p class="detail bill">{{item.bill.upcoming_event}}</p>
-								{% with item.comment as comment %}
-								{% if item.comment %}
-									<p class="detail bill">You {{item.comment.verb_past}} this {{item.bill.proposition_type}} on {{item.comment.created|date2}}.</p>
-								{% endif %}
-								{% endwith %}
-							</div>
-						{% endif %}
+						<p class="take_action">
+							{% comment %}
+							<span class="action"><a href="{{item.button.2}}" class="{{item.button.1}}">{{item.button.0}}</a></span>
+							
+							<span class="action_descr">{{item.share.0}}</span>
+							{% endcomment %}
+							
+							<span class="social">
+								<span class="st_facebook" st_title="{{item.share.1}}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								<span class="st_twitter" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								<span class="st_email" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}" st_summary="{{item.share.1}}"></span>
+								<span class="st_plusone" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								
+								{% comment %}<a href="#" class="twitter">twitter</a>
+								<a href="#" class="facebook">facebook</a>
+								<a href="#" class="google">google</a>
+								<a href="#" class="reddit">reedit</a>
+								<a href="#" class="tumblr">tumblr</a>
+								<a href="#" class="email">email</a>{% endcomment %}
+							</span>
+							
+							{% comment %}<a href="#" class="fav">favorite</a>{% endcomment %}
+						</p>
+
+						<p class="feedback" item_type="{{item.action_type}}" item_props="{{item.metrics_props|json|force_escape}}" item_position="{{forloop.counter0}}">
+							<span>Is this update useful to you?</span>
+							&nbsp;
+							<a href="#" onclick="return activity_feedback(this, true);">Yes</a> | <a href="#" onclick="return activity_feedback(this, false);">No</a>
+						</p>
 					</li>
+				{% empty %}
+					<p>We have no activity items to show you. Start by <a href="/bills">finding a bill</a> you have an opinion about and send a message to Congress.</p>
 				{% endfor %}
-			
-				{% comment %}
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act</a></h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail bill"><strong>Status:</strong> Referred to House Ways and Means...</p>
-						<p class="take_action"><a href="#">WEIGH IN</a> <span>SHARE</span> <a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="star">star</a><a href="#" class="link">link</a></p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3><a href="#">You commented on HR 424: Puppies are America Act</a></h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail comment">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras massa sapien, adipiscing in mattis eget, lobortis...</p>
-						<p class="take_action"><a href="#">WEIGH IN</a> <span>SHARE</span> <a href="#" class="twitter">twitter</a> <a href="#" class="facebook">facebook</a><a href="#" class="star">star</a><a href="#" class="link">link</a></p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3><a href="#">American Association of Colleges of Pharmacy endorses HR 646</a></h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail org_psn">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3><a href="#">Rep. Chaka Fattah</a> <span>[D, PA-2]</span></h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail co-sponsor">Co-sponsored <a href="#">HR 423</a></p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3>You weighed in on HR 446</h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail weighed_in">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3>You supported HR 1235</h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail support">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				<li>
-					<div class="date">
-						<p><span>12/05/11</span> <a href="#" class="fav">favorite</a><a href="#" class="hide">hide</a></p>
-					</div>
-					<h3>You opposed HR 1225</h3>
-					<div class="details">
-						<div class="pie"></div>
-						<p class="detail oppose">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-						<div class="clear"> </div>
-					</div>
-				</li>
-				{% endcomment %}
+
 			</ul>
 		</div> <!-- e: col_6 -->
 		
@@ -203,124 +285,42 @@ function hide_prompt(billid) {
 			
 			<ul id="suggestions" class="suggest_bills">
 			{% for sug in suggestions %}
-				<li billid="{{sug.bill.id}}">
+				{% if forloop.counter0 == 0 %}
+					<script>
+					$(function() {
+						mpmetrics.track('dashboard_suggestion_hit', { bill: {{sug.bill.id}}, position: {{forloop.counter0}}, type: '{{sug.type|escapejs}}' });
+					});
+					</script>
+				{% endif %}
+				<li billid="{{sug.bill.id}}" {% if forloop.counter0|divisibleby:2 %}class="left"{% endif %}>
 					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie">
-							{% with sug.bill as bill %}
-								{% bill_statistics bill as stats %}
-								{% include "popvox/bill_statistics_pie_simple.html" with chart_size="50" chart_no_links="1" chart_no_numbers="1" %}
-							{% endwith %}
-						</div>
+						<a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');" xxstyle="text-indent: 0">hide</a>
+						<div class="pie" id="sug_pie_{{sug.bill.id}}"> </div>
+						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}}, { nopad: true });</script>
 					</div>
-					<h3><a href="{{sug.bill.url}}">{{sug.bill.title|truncatewords:10}}</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
+					<h3><a href="{{sug.bill.url}}" onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'main', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');" title="{{sug.bill.nicename|truncate:250}}">{{sug.bill.nicename|truncate:55}}</a></h3>
+					<div class="weigh">
+						<a href="{{sug.bill.url}}" class="weigh_in"  onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'secondary', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');">weigh in</a>
+					</div>
+					<a href="#" class="fav faved">favorite</a>
 					<p class="info">
 						{% if sug.source %}
-							Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.
+							Because you weighed in on <a href="{{sug.source.url}}" title="{{sug.source.nicename|truncate:250}}" class="suggested">{{sug.source.shortname}}</a>.
 						{% else %}
-							This bill is trending on POPVOX.
+							This {{sug.bill.proposition_type}} is trending on POPVOX.
 						{% endif %}
-						<span>Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</span>
 					</p>
 					<div class="clear"> </div>
 				</li>
 			
-				{% comment %}
-				<div class="col_9 rule suggestion">
-					<div class="col_6">
-						<h4 style="margin-bottom: 8px"></h4>
-						{% if sug.source %}
-							<p>Recommended because you weighed in on <a href="{{sug.source.url}}">{{sug.source.title|truncatewords:10}}</a>.</p>
-						{% else %}
-							<p>This bill is trending on POPVOX.</p>
-						{% endif %}
-						<div style="float: left; margin-left: 15px;"><a class="action" href="{{sug.bill.url}}">Action</a></div>
-						<div style="float: left; margin-left: 15px;"><p style="margin-top: 1px; font-weight: bold;">Let Congress know <a href="{{sug.bill.url}}">what you think</a>.</p></div>
-						<p class="clear">{{sug.bill.status}}
-						<span style="font-style: italic">Not interested? <a href="#" onclick="return hide_prompt({{sug.bill.id}});">Hide this</a>.</span></p>
-					</div>
-					
-					<div class="col_3 col_last">
-					{% bill_statistics sug.bill as stats %}
-					{% with sug.bill as bill %}
-					{% with bill.id as chart_id %}
-						{% include "popvox/bill_statistics_pie_simple.html" %}
-					{% endwith %}
-					{% endwith %}
-					</div>
-					
-					<div class="clear"> </div>
-				</div>
-				{% endcomment %}
-		
 			{% empty %}
 			
-				<p>We have no suggested actions for you at this time. Your <a href="/home">home dashboard</a> will show you the comments you have left so far.</p>
+				<p>We have no suggested actions for you at this time.</p>
 			
 			{% endfor %}
 		</div>
-	
+
 		{% comment %}
-		<div class="col_3">
-			<ul class="suggest_bills">
-				<li>
-					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie"></div>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
-				</li>
-				<li>
-					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie"></div>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
-				</li>
-				<li>
-					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie"></div>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
-				</li>
-				<li>
-					<div class="btn_r">
-						<p><a href="#" class="fav faved">favorite</a><a href="#" class="hide">hide</a></p>
-						<div class="pie"></div>
-					</div>
-					<h3><a href="#">HR 4646: Debt Free America Act Debt Free America Act...</a></h3>
-					<a href="#" class="weigh_in">WEIGH IN</a>
-				</li>
-			</ul>
-			<ul class="suggest_orgs">
-				<li>
-					<a href="#" class="fav faved">favorite</a>
-					<img src="/media/master/_temp/org_beer.jpg" alt="org name"/>
-					<h3><a href="#">Beer Institute</a></h3>
-				</li>
-				<li>
-					<a href="#" class="fav faved">favorite</a>
-					<img src="/media/master/_temp/org_aacp.jpg" alt="org name"/>
-					<h3><a href="#">American Association of Colleges of Pharmacy (AACP)</a></h3>
-				</li>
-				<li>
-					<a href="#" class="fav faved">favorite</a>
-					<img src="/media/master/_temp/org_ctj.jpg" alt="org name"/>
-					<h3><a href="#">Citizens for Tax Stuff</a></h3>
-				</li>
-				<li>
-					<a href="#" class="fav faved">favorite</a>
-					<img src="/media/master/_temp/org_ghlf.jpg" alt="org name"/>
-					<h3><a href="#">Global Healthy Living Foundation (GHLF)</a></h3>
-				</li>
-			</ul>
-		</div><!-- e: col_3 -->
-		
 		<div class="col_3 col_follow">
 			<ul class="following_congress">
 				<h2>Congress People</h2>

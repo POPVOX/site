@@ -22,7 +22,7 @@ import socket
 socket.setdefaulttimeout(10) # ten seconds
 cookiejar = cookielib.CookieJar()
 proxy_handler = urllib2.ProxyHandler({'http': 'http://localhost:8124/'})
-	# ssh -L8124:localhost:8124 tauberer@tauber.dyndns.org polipo proxyPort=8124
+	# ssh -L8124:localhost:8124 tauberer@tauberer.dyndns.org polipo proxyPort=8124
 http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar)) #, proxy_handler)
 http_last_url = ""
 extra_cookies = { }
@@ -377,10 +377,12 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"h03", "H03",
 	"name-title", 'military', "personalcode",
 	"organization",
-	"unsubscribe", "newsletteraction", "email.optin",
+	"unsubscribe", "newsletteraction", "email.optin", "newslettercode",
+	"q1",
 	"enewssign", "enewsletter", "newsletteraction",
 	"countdown", "txthomesearch",
-	"field_f0a5e486-09e8-4c79-8776-7c1ea0c45f27")
+	"field_f0a5e486-09e8-4c79-8776-7c1ea0c45f27",
+	"aff1req")
 
 radio_choices = {
 	"reason": "legsitemail",
@@ -415,6 +417,17 @@ custom_mapping = {
 	"554_name_text": "address_split_street", 
 	"554_quadrant_select": "address_split_quadrant", 
 	"554_apartment_text": "address_split_suite", 
+	"566_field_f14022b2-ce41-4b48-baaa-3ea936d0dc49_text": "firstname",
+	"566_field_b1cbecaf-fa94-47ce-8e08-413af45c40a3_text": "lastname",
+	"566_field_d9fc9586-2976-4549-af04-9cb756a4ccf6_text": "address1",
+	"566_field_e593f76a-3be3-4e05-8b68-fd4c067eea76_text": "address2",
+	"566_field_40d5d76f-f7f7-4d8b-bb9d-57bc5161e745_text": "city",
+	"566_field_d8006472-32dd-437c-8e3a-9ec6919a1200_select": "state",
+	"566_field_d612f7d3-c97e-40b4-9525-a3fb97965c23_text": "zipcode",
+	"566_field_34077b89-d0f0-42cf-a62e-26a3cdefeab8_text": "phone",
+	"566_field_502cc83d-39f8-415e-8205-061f1b2f23fa_select": "topicarea",
+	"566_field_7694661f-5de4-433e-8682-3972ebcf2e27_text": "subjectline",
+	"566_field_5d0df2c0-8a69-4230-aab8-b0f872ceb818_textarea": "message",
 	"613_zipcode_text": "zip5",
 	"624_phone_prefix_text" : "phone_areacode",
 	"624_phone_first_text" : "phone_prefix",
@@ -514,6 +527,7 @@ custom_overrides = {
 	"791_typeofresponse_select": "email",
 	"805_issue_radio": "",
 	"830_contactform:cd:rblformat_radio": "html",
+	"838_state_select": "KYKentucky",
 	"839_field_5fef6d8e-3cf0-4915-aaec-a017cfbf311c_radio": "voice",
 	"867_message-type_radio":"legislative",
 	"869_aff1req_text": "",
@@ -800,7 +814,8 @@ def parse_webform(webformurl, webform, webformid, id):
 			field_default[attr] = m.group(1)
 			continue
 			
-		elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
+		elif re.match(r"captcha_[0-9a-f\-]", ax):
+		#elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
 			m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
 			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
 			try:
@@ -952,6 +967,12 @@ def send_message_webform(di, msg, deliveryrec):
 		
 		if di.id != 361: # text is always present in form
 			test_zipcode_rejected(webform, deliveryrec)
+
+		# Rep. Chandler via House WYR
+		m = re.search(r'<meta http-equiv="refresh" content="0 ; URL=(https?:.*)"', webform)
+		if m:
+			webformurl = m.group(1).replace(" ", "%20")
+			webform = urlopen(webformurl, {}, "GET", deliveryrec).read()
 		
 	if len(webform_stages) > 0 and webform_stages[0] == "add-district-zip-cookie":
 		webform_stages.pop(0)
@@ -1158,10 +1179,26 @@ def send_message_webform(di, msg, deliveryrec):
 		if s in ret:
 			raise WebformParseException("Response says invalid CAPTCHA value: " + s)
 
+	#A lot of the forms use the same/similar responses; checking if any of those match before calling it an error:
+	common_responses = [ "Thank you for contacting me",
+	"Your form has been submitted",
+	"Thank you for your e-mail submission",
+	"Thank you for contacting my office",
+	"Thank you for your message",
+	"Thank you for submitting your information",
+	"The following information was sent to us",
+	"Thank you for sending me your email",
+	"Thank you for your correspondence",
+	"The following information has been submitted" ]
+	
+	for x in common_responses:
+		if x in ret:
+			return
+			
 	if di.webformresponse == None or di.webformresponse.strip() == "":
 		deliveryrec.trace += u"\n" + ret + u"\n\n"
 		raise SubmissionSuccessUnknownException("Webform's webformresponse text is not set.")
-		
+	
 	if di.webformresponse in ret:
 		return
 		

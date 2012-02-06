@@ -1,10 +1,12 @@
 {% load popvox_utils %}
 {% if tracked_bills %}
+	{% if not bookmarkhideh3 %}
 	<h3 class="clear">Bookmarked Legislation</h3>
+	{% endif %}
 	<table width="100%" cellspacing="0" border="0">
 	<thead>
 		<tr>
-			<th colspan="2" style="padding-left: 5px">Bill</th>
+			<th colspan="2" style="padding-left: 5px">Bill or Proposal</th>
 			<th colspan="2">Sponsor</th>
 			<th>Status</th>
 			<th></th>

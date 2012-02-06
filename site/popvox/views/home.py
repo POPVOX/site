@@ -4,7 +4,7 @@ from django.template import RequestContext, TemplateDoesNotExist
 from django.views.generic.simple import direct_to_template
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
-from django.db import transaction
+from django.db import transaction, connection
 from django.db.models import Count, Max
 from django.db.models.query import QuerySet
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
@@ -19,7 +19,7 @@ from popvox.models import *
 from popvox.views.bills import bill_statistics, get_default_statistics_context
 import popvox.govtrack
 
-from settings import MIXPANEL_API_KEY
+from settings import MIXPANEL_API_KEY, SITE_ROOT_URL
 
 import csv
 import urllib
@@ -321,41 +321,55 @@ def compute_prompts(user):
 	# and source for each target.
 	targets = {}
 	max_sim = 0
-	for c in user.comments.all().select_related("bill"):
-		source_bill = c.bill
-		for target_bill, similarity in chain(( (s.bill2, s.similarity) for s in source_bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in source_bill.similar_bills_two.all().select_related("bill1"))):
-			if not target_bill.isAlive():
-				continue
-				
-			if "Super Committee" in target_bill.title: # HACK
-				continue
-				
-			if not target_bill in targets: targets[target_bill] = []
-			targets[target_bill].append( (source_bill, similarity) )
-			max_sim = max(similarity, max_sim)
+	sb = set(Bill.objects.filter(usercomments__user=user).values_list('id', flat=True))
+	
+	for source_bill, target_bill, similarity in chain(
+		BillSimilarity.objects.filter(bill1__in=sb).values_list("bill1", "bill2", "similarity").order_by('-similarity')[0:50],
+		BillSimilarity.objects.filter(bill2__in=sb).values_list("bill2", "bill1", "similarity").order_by('-similarity')[0:50]):
+			
+		if not target_bill in targets: targets[target_bill] = []
+		targets[target_bill].append( (source_bill, similarity, "similarity") )
+		max_sim = max(similarity, max_sim)
 	
 	from bills import get_popular_bills
 	for bill in get_popular_bills():
-		if bill.isAlive() and bill not in targets:
-			targets[bill] = [(None, max_sim/10.0)]
+		if bill.isAlive() and bill.id not in targets:
+			targets[bill.id] = [(None, max_sim/10.0, "trending")]
 	
 	# Put the targets in descending weighted similarity order.
 	targets = list(targets.items()) # (target_bill, [list of (source,similarity) pairs]), where source can be null if it is coming from the tending bills list
 	targets.sort(key = lambda x : -sum([y[1] for y in x[1]]))
 	
 	# Remove the recommendations that the user has anti-tracked or commented on.
-	hidden_bills = set(user.userprofile.antitracked_bills.all()) | set(Bill.objects.filter(usercomments__user=user))
-	targets = filter(lambda x : not x[0] in hidden_bills, targets)
+	hidden_bills = set(user.userprofile.antitracked_bills.all().values_list("id", flat=True)) | set(Bill.objects.filter(usercomments__user=user).values_list("id", flat=True))
 	
-	# Take the top reccomendations.
-	targets = targets[:15]
+	# Map the first 15 entries from id to Bill objects, filtering out bad suggestions.
+	all_bills = set()
+	for target_bill, source_sim_pairs in targets:
+		if target_bill not in hidden_bills:
+			all_bills.add(target_bill)
+		for source, sim, sugtype in source_sim_pairs:
+			if source != None:
+				all_bills.add(source)
+	all_bills = Bill.objects.in_bulk(all_bills)
+	targets_ = []
+	for target_bill, source_sim_pairs in targets:
+		if target_bill in hidden_bills: continue
+		target_bill = all_bills[target_bill]
+		if not target_bill.isAlive(): continue
+		if "Super Committee" in target_bill.title: continue # HACK
+		targets_.append( (target_bill, [(all_bills[ss[0]] if ss[0] != None else None, ss[1], ss[2]) for ss in source_sim_pairs]) )
+		if len(targets_) >= 15: break
+	targets = targets_
 	
 	# Replace the list of target sources with just the highest-weighted source for each target.
 	for i in xrange(len(targets)):
 		targets[i][1].sort(key = lambda x : -x[1])
-		targets[i] = { "bill": targets[i][0], "source": targets[i][1][0][0] }
+		targets[i] = { "bill": targets[i][0], "source": targets[i][1][0][0], "type": targets[i][1][0][2] }
 	
 	# targets is now a list of (target, source) pairs.
+	
+	adorn_bill_stats([item["bill"] for item in targets])
 	
 	return targets
 
@@ -367,6 +381,10 @@ def home(request):
 	if prof == None:
 		raise Http404()
 		
+
+	if user.is_authenticated() and (user.is_staff | user.is_superuser) and "user" in request.GET:
+		return individual_dashboard(request)
+
 	if prof.is_leg_staff():
 		msgs = get_legstaff_undelivered_messages(user)
 		if msgs != None: msgs = msgs.count()
@@ -404,13 +422,8 @@ def home(request):
 			   },
 			context_instance=RequestContext(request))
 	else:
-		return render_to_response('popvox/homefeed.html',
-			{ 
-			"suggestions": compute_prompts(user)[0:4],
-			"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
-		     "adserver_targets": ["user_home"],
-			    },
-			context_instance=RequestContext(request))
+		return individual_dashboard(request)
+
 
 @csrf_protect
 @login_required
@@ -463,22 +476,6 @@ def legstaff_bill_category_panel(request):
 		},
 		context_instance=RequestContext(request))
 	
-@csrf_protect
-@login_required
-def home_suggestions(request):
-	prof = request.user.get_profile()
-	if prof == None:
-		raise Http404()
-		
-	if prof.is_leg_staff() or prof.is_org_admin():
-		return HttpResponseRedirect("/home")
-
-	return render_to_response('popvox/home_suggestions.html',
-		{ 
-		"suggestions": compute_prompts(request.user)
-		    },
-		context_instance=RequestContext(request))
-
 def activity(request):
 	default_state, default_district = get_default_statistics_context(request.user)
 	
@@ -987,8 +984,6 @@ def congress_match(request):
 			memberids.append(member['id'])
 		return memberids
 	
-	congress = popvox.govtrack.CURRENT_CONGRESS
-	
 	try:
 		most_recent_address = PostalAddress.objects.filter(user=request.user).order_by('-created')[0]
 	except IndexError:
@@ -1008,13 +1003,8 @@ def congress_match(request):
 		if not comment.bill.is_bill(): continue
 		
 		#grabbing bill info
-		bill_type = comment.bill.billtype
-		bill_num  = str(comment.bill.billnumber)
-		billstr = bill_type+bill_num
 		try:
-			billinfo = open('/mnt/persistent/data/govtrack/us/'+str(congress)+'/bills/'+billstr+'.xml')
-			billinfo = billinfo.read()
-			dom1 = parseString(billinfo)
+			dom1 = popvox.govtrack.getBillMetadata(comment.bill)
 		except:
 			# not sure why the file might be missing or invalid, but just in case
 			continue
@@ -1040,7 +1030,7 @@ def congress_match(request):
 			date =  vote.getAttribute("datetime")
 			yearre = re.compile(r'^\d{4}')
 			year = re.match(yearre, date).group(0)
-			votexml = "/mnt/persistent/data/govtrack/us/" + str(congress) + "/rolls/"+where+year+"-"+roll+".xml"
+			votexml = "/mnt/persistent/data/govtrack/us/" + str(comment.bill.congressnumber) + "/rolls/"+where+year+"-"+roll+".xml"
 			
 			#parsing the voters for that roll"
 			try:
@@ -1308,25 +1298,49 @@ def user_activity_feed(user):
 	#	upcoming votes - haven't commented: weigh in [ share] | pie
 	# 	upcoming votes - already commented: share [ bill report ] | your position
 	#	house bill reaches 100 cosponsors, senate bill reaches 10
-	#	scan for the not-most-recent actions of a bill (reported, voted, etc)?
+	#	scan for the not-most-recent actions of a bill (reported, voted, etc) but make sure status text is not in present tense?
 	#	when your MoC cosponsors a bill you commented on or bookmarked
+	# if you weighed on a bill that was re-introduced
+	# message deliveries
 	
 	# list() forces execution here so it does not get evaluated in subqueries
 	your_bill_list_ids = list(user.comments.order_by().values_list('bill', flat=True))
 	
 	your_antitracked_bills = list(user.userprofile.antitracked_bills.values_list('id', flat=True))
 	
+	def comment_button(c):
+		if c.message:
+			return ("share your comment", "your_comment", c.url())
+		return ("share the bill", "the_bill", c.bill.url())
+	def comment_share(c):
+		# Try to embed hashtag inside the bill name.
+		# Turn the hashtag into a regular expression that admits spaces and
+		# periods between its characters, to account for how bill numbers
+		# are formatted in titles versus hashtags
+		regex = r"[\.\s]*".join(re.escape(c) for c in c.bill.hashtag().replace("#", ""))
+		title = re.sub(regex, c.bill.hashtag(), c.bill.nicename, flags=re.I)
+		
+		return (
+			"share your comment" if c.message else "share this bill",
+			"I " + c.verb(tense="past") + " " + title + " on @POPVOX",
+			c.url() if c.message else c.bill.url(),
+			c.bill.hashtag() if not c.bill.hashtag() in title else None)
+	
 	def your_comments(limit):
 		# the positions you left
 		#  CTA: share
 		#  AUX: view bill
 		#  GFX: preview?
-		for c in user.comments.all().select_related("bill").only("updated", "position", "created", "bill__congressnumber", "bill__billtype", "bill__billnumber", "bill__title", "bill__street_name", "bill__vehicle_for").order_by('-updated')[0:limit]:
+		for c in user.comments.all().select_related("bill", "address").order_by('-updated')[0:limit]:
 			yield {
 				"action_type": "comment",
 				"date": c.updated,
 				"verb": c.verb(tense="past"),
 				"bill": c.bill,
+				"comment": c,
+				"button": comment_button(c),
+				"share": comment_share(c),
+				"metrics_props": { "message": c.message != None },
 			}
 
 	def your_deliveries(limit):
@@ -1366,29 +1380,101 @@ def user_activity_feed(user):
 		#		"message": c.message,
 		#		"recipient": getMemberOfCongress(d.target.govtrackid)["name"],
 		#	}
-			
+		
+	billtypes_with_status = ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc')
+	
 	def your_commented_bills_status(limit):
 		# status of bills you have commented on
 		#  CTA: share
 		#  AUX: view bill
 		#  GFX: ?
 		
-		def get_comment_closure(bill):
+		# on the first attempt to pull the comment, pull in all of the comments
+		# for any of the returned bills and cache them.
+		bill_list = set()
+		comment_cache = { }
+		def get_comment_closure(bill, curry=None):
 			def f():
-				return UserComment.objects.get(bill=bill, user=user)
+				#return UserComment.objects.get(bill=bill, user=user)
+				if len(comment_cache) == 0:
+					for c in user.comments.filter(bill__in=bill_list).select_related("bill"):
+						comment_cache[c.bill_id] = c
+				if not curry:
+					return comment_cache[bill.id]
+				else:
+					return curry(comment_cache[bill.id])
 			return f
+		
+		def vote_results(comment):
+			# If the current status of this bill is one in which a vote
+			# may have occurred, check the bill XML file if there is
+			# a recorded vote for that status, and if so, pull in
+			# the votes of the Members for this user.
+			
+			from popvox.govtrack import isStatusAVote
+			if not isStatusAVote(comment.bill.current_status): return None
+			
+			# Check the bill XML file for a recorded vote.
+			try:
+				dom1 = popvox.govtrack.getBillMetadata(comment.bill)
+			except:
+				return None
+			for vote in dom1.getElementsByTagName("vote"):
+				if vote.getAttribute("state") != comment.bill.current_status: continue
+				if vote.getAttribute("how") != "roll":
+					return ("no-data", "The %s was voted on %s. No record of individual votes was kept." % (comment.bill.proposition_type(), vote.getAttribute("how")))
+				break
+			else:
+				# did not find a recorded vote for this state
+				return None
+			
+			# Who are the user's members?
+			mocs = popvox.govtrack.getMembersOfCongressForDistrict(comment.state + str(comment.congressionaldistrict))
+			mocs = set([m["id"] for m in mocs])
+			
+			# How did the user's Members vote?
+			roll = vote.getAttribute("roll")
+			where = vote.getAttribute("where")
+			date =  vote.getAttribute("datetime")
+			yearre = re.compile(r'^\d{4}')
+			year = re.match(yearre, date).group(0)
+			votexml = "/mnt/persistent/data/govtrack/us/" + str(comment.bill.congressnumber) + "/rolls/"+where+year+"-"+roll+".xml"
+			try:
+				dom2 = parse(open(votexml))
+			except:
+				return None
+			verbs = { "+": "voted in favor", "-": "voted against", "0": "was absent", "P": "abstained" }
+			for opt in dom2.getElementsByTagName("option"):
+				if opt.getAttribute("key") in ("+", "-"):
+					verbs[opt.getAttribute("key")] = "voted " + opt.firstChild.data.lower() 
+			ret = { }
+			for voter in dom2.getElementsByTagName("voter"):
+				voterid = int(voter.getAttribute("id"))
+				votervote = voter.getAttribute("vote")
+				if voterid in mocs and votervote in ("+", "-", "0", "P"):
+					ret[voterid] = verbs[votervote]
+			
+			# The user has no Members who voted on this bill.
+			if len(ret) == 0: return None
+			
+			return ("table", [ (popvox.govtrack.getMemberOfCongress(m), ret[m]) for m in ret ])
 		
 		for status_type in ("current_status", "upcoming_event"):
 			datefield = status_type + "_date"
 			if status_type == "upcoming_event": datefield = status_type + "_post_date"
 			
-			for bill in Bill.objects.filter(id__in=your_bill_list_ids).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield):
+			for bill in Bill.objects.filter(id__in=your_bill_list_ids, billtype__in=billtypes_with_status).exclude(**{datefield: None}).order_by('-' + datefield)[0:limit]:
+				bill_list.add(bill.id)
 				yield {
 					"action_type": "bill_" + status_type,
 					"date": getattr(bill, datefield),
 					"bill": bill,
 					"comment": get_comment_closure(bill),
 					"mutually_exclusive_with": (status_type, bill), # used by your_bookmarked_bills_status
+					"button": get_comment_closure(bill, curry=comment_button),
+					"share": get_comment_closure(bill, curry=comment_share),
+					"metrics_props": get_comment_closure(bill, lambda c : { "source": "weighed_in", "message": c.message != None }),
+					"recorded_vote": get_comment_closure(bill, curry=vote_results),
 				}
 			
 	def your_bookmarked_bills_status(limit):
@@ -1401,12 +1487,15 @@ def user_activity_feed(user):
 			datefield = status_type + "_date"
 			if status_type == "upcoming_event": datefield = status_type + "_post_date"
 			
-			for bill in Bill.objects.filter(trackedby__user=user).exclude(**{datefield: None}).only("congressnumber", "billtype", "billnumber", "title", "street_name", datefield, status_type, "vehicle_for").order_by('-' + datefield):
+			for bill in Bill.objects.filter(trackedby__user=user, billtype__in=billtypes_with_status).exclude(**{datefield: None}).order_by('-' + datefield):
 				yield {
 					"action_type": "bill_" + status_type,
 					"date": getattr(bill, datefield),
 					"bill": bill,
 					"mutually_exclusive_with": (status_type, bill), # used by your_bookmarked_bills_status
+					"button": ("weigh in", "weigh_in", bill.url()),
+					"share": ("share this bill", bill.nicename, bill.url(), bill.hashtag()),
+					"metrics_props": { "source": "bookmark" },
 				}
 		
 	def your_bills_now(limit):
@@ -1416,15 +1505,11 @@ def user_activity_feed(user):
 		#  AUX: view report
 		#  GFX: pie chart
 		
-		# get the statistics as of that date
-		def get_stats_buildclosure(bill, date):
-			def get_stats_closure():
-				return bill_statistics(bill, "POPVOX", "POPVOX Nation", as_of = date)
-			return get_stats_closure
-		
 		# get a list of the total number of comments on all of the bills the user
 		# has weighed in on. use a list() to force the inner query to evaluate first.
-		bill_counts = dict(Bill.objects.filter(id__in=your_bill_list_ids).values("id").annotate(count=Count("usercomments")).order_by().values_list("id", "count"))
+		# run the Count() on a column that is in the index (count(*) would be nice
+		# but django won't allow that).
+		bill_counts = dict(UserComment.objects.filter(bill__in=your_bill_list_ids).values("bill").annotate(count=Count("bill")).order_by().values_list("bill", "count"))
 		
 		import math
 		from popvox.views.bills import bill_statistics
@@ -1433,9 +1518,9 @@ def user_activity_feed(user):
 			# I suspect that people will want to see updates more for bills they
 			# actually wrote something about.
 			if c.message:
-				doubling = 1.75
+				doubling = 2
 			else:
-				doubling = 1.95
+				doubling = 2.5
 			
 			# how many comments were left at the time you weighed in?
 			nc1 = c.seq + 1 # c.bill.usercomments.filter(created__lt=c.created).count() + 1
@@ -1450,12 +1535,14 @@ def user_activity_feed(user):
 			# nc1*2^[x]'th comment where [x] is x rounded down to the nearest integer.
 			x = math.floor(x)
 			if x <= 0.0: continue # has not doubled yet, or maybe it has gone down!
+			new_count = int(doubling**x * nc1)
+			
 			try:
 				#c2 = c.bill.usercomments.order_by('created')[int(doubling**x * nc1)]
 				# Look at that numbered comment, or the next, in case that comment was
 				# deleted, or if there was some weird concurrency thing and no comment
 				# exists at that index.
-				c2 = c.bill.usercomments.filter(seq__gte=int(doubling**x * nc1)).order_by('seq')[0]
+				c2 = c.bill.usercomments.filter(seq__gte=new_count).order_by('seq')[0]
 			except IndexError:
 				# weird?
 				continue
@@ -1464,8 +1551,12 @@ def user_activity_feed(user):
 				"action_type": "bill_now",
 				"date": c2.created,
 				"bill": c.bill,
-				"stats": get_stats_buildclosure(c.bill, c2.created),
 				"your_number": nc1,
+				"new_count": new_count,
+				"comment": c,
+				"button": comment_button(c),
+				"share": comment_share(c),
+				"metrics_props": { "message": c.message != None, "factor": x, "their_number": nc1 },
 			})
 			
 		# We can't efficiently query these events in date order, so we pull them all
@@ -1483,19 +1574,21 @@ def user_activity_feed(user):
 		# Look at the orgs that have agreed with this person on bills, and suggest other
 		# positions they are taking.
 		
-		# First find the orgs that most agree with this user.
 		from django.db.models import F
+		import math
+
+		# First find the orgs that most agree with this user.
 		orgs = { }
-		for ocp in OrgCampaignPosition.objects.filter(bill__usercomments__user=user, position=F("bill__usercomments__position")).select_related("campaign__org"):
+		for ocp in OrgCampaignPosition.objects.filter(bill__usercomments__user=user, position=F("bill__usercomments__position"), campaign__visible=True, campaign__org__visible=True).select_related("campaign__org"):
 			org = ocp.campaign.org
 			orgs[org] = orgs.get(org, 0) + 1
+			
+		# Get the number of bills on the legislative agendas of these orgs.
+		org_agenda_size = dict(OrgCampaignPosition.objects.filter(campaign__org__in=orgs).values("campaign__org").annotate(count=Count("campaign__org")).order_by().values_list("campaign__org", "count"))
 		
-		orgs = sorted(orgs.items(), key = lambda kv : kv[1], reverse=True)
-		
-		def get_max_sim(bill):
-			m1 = BillSimilarity.objects.filter(bill1=bill, bill2__usercomments__user=user).aggregate(Max("similarity"))["similarity__max"]
-			m2 = BillSimilarity.objects.filter(bill2=bill, bill1__usercomments__user=user).aggregate(Max("similarity"))["similarity__max"]
-			return max(m1, m2)
+		# Sort orgs by the number of positions that the user has the same position
+		# on, but weighed against the total number of positions in the org's agenda.
+		orgs = sorted(orgs.items(), key = lambda kv : float(kv[1]) / math.sqrt(float(org_agenda_size.get(kv[0].id, 1))), reverse=True)
 		
 		counter = 0
 		for org, agreecount in orgs:
@@ -1503,7 +1596,7 @@ def user_activity_feed(user):
 			for ocp in OrgCampaignPosition.objects.filter(campaign__org=org).select_related("campaign__org", "bill").order_by('-created'):
 				if ocp.bill.id in your_antitracked_bills:
 					continue
-				
+					
 				yield {
 					"action_type": "org_position",
 					"date": ocp.created,
@@ -1511,7 +1604,9 @@ def user_activity_feed(user):
 					"verb": ocp.verb(),
 					"bill": ocp.bill,
 					"numagreements": agreecount,
-					#"simscore": get_max_sim(ocp.bill),
+					"button": ("read their position", "org_position", org.url()),
+					"share": ("share this organization", org.name + " " + ocp.verb() + " " + ocp.bill.nicename, org.url(), ocp.bill.hashtag()),
+					"metrics_props": { "shared_bills": agreecount },
 				}
 				
 				# Maximum of limit/2 actions returned.
@@ -1524,7 +1619,7 @@ def user_activity_feed(user):
 				if counter2 == 3:
 					break
 
-	feed_size = 15
+	feed_size = 10
 	sources = (your_comments, your_commented_bills_status, your_bookmarked_bills_status, your_bills_now, new_org_positions)
 	exclusions = set()
 	feed = []
@@ -1546,30 +1641,65 @@ def user_activity_feed(user):
 	feed.sort(key = lambda item : item["date"], reverse=True)
 	feed = feed[0:feed_size]
 	
-	return feed
+	adorn_bill_stats([item["bill"] for item in feed if "bill" in item])
 	
+	return feed
+
+def adorn_bill_stats(bills):
+	# adorn all bill objects with pro/con counts
+	if len(bills) == 0: return
+	bill_list = { }
+	for bill in bills:
+		bill_list[bill.id] = { "+": 0, "-": 0 }
+	c = connection.cursor()
+	c.execute("SELECT bill_id, position, COUNT(*) as count FROM popvox_usercomment WHERE bill_id IN (%s) GROUP BY bill_id, position" % ",".join([str(id) for id in bill_list.keys()]))
+	for row in c.fetchall():
+		bill_list[row[0]][row[1]] = row[2]
+	for bill in bills:
+		bill.stats = (bill_list[bill.id]["+"], bill_list[bill.id]["-"], bill_list[bill.id]["+"]+bill_list[bill.id]["-"])
+
 @csrf_protect
 @login_required
 def individual_dashboard(request):
 	user = request.user
+
+	random_user = False
+	if user.is_authenticated() and (user.is_staff | user.is_superuser):
+		if not "user" in request.GET:
+			import random
+			top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
+			user = top_users[800 + random.randint(0, 200)]
+			user = User.objects.get(id=user["user"])
+			random_user = True
+		else:
+			user = User.objects.get(id=request.GET["user"])
+
 	prof = user.get_profile()
-	if prof == None or prof.is_leg_staff() or prof.is_org_admin():
+	if prof.is_leg_staff() or prof.is_org_admin():
 		raise Http404()
 
-	if not "user" in request.GET:
-		import random
-		top_users = UserComment.objects.values("user").annotate(count=Count("user")).order_by('-count')
-		user = top_users[800 + random.randint(0, 200)]
-		user = User.objects.get(id=user["user"])
-	else:
-		user = User.objects.get(id=request.GET["user"])
-	
 	return render_to_response('popvox/dashboard.html',
 		{
 		"userid": user.id,
 		"suggestions": compute_prompts(user),
 		"feed_items": user_activity_feed(user),
-		 "adserver_targets": ["user_home"],
+		"SITE_ROOT_URL": SITE_ROOT_URL,
+		"adserver_targets": ["user_home"],
+		"random_user": random_user,
 			},
 		context_instance=RequestContext(request))
 
+@csrf_protect
+@login_required
+def history(request):
+	user = request.user
+	prof = user.get_profile()
+	if prof.is_leg_staff() or prof.is_org_admin():
+		raise Http404()
+	else:
+		return render_to_response('popvox/history.html',
+		{ 
+		"tracked_bills": annotate_track_status(prof, prof.tracked_bills.all()),
+			"adserver_targets": ["user_home"],
+			},
+		context_instance=RequestContext(request))

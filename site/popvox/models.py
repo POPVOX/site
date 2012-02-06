@@ -168,8 +168,8 @@ class Bill(models.Model):
 	hold_metadata = models.BooleanField(default=False)
 	comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House',), ('c', 'Congress House+Senate')], blank=True, null=True, help_text="This is required for Generic Proposal-type bill actions to route messages to the right place.")
 	
-	upcoming_event_post_date = models.DateTimeField(help_text="When adding an upcoming event, set this date to the date you are posting the information (i.e. now).", null=True, db_index=True)
-	upcoming_event = models.CharField(max_length=64, null=True, help_text="The text of an upcoming event. Start with a verb that would follow the bill number, e.g. \"is coming up for a vote on Aug. 1\". Do not end with a period.")
+	upcoming_event_post_date = models.DateTimeField(help_text="When adding an upcoming event, set this date to the date you are posting the information (i.e. now).", blank=True, null=True, db_index=True)
+	upcoming_event = models.CharField(max_length=64, blank=True, null=True, help_text="The text of an upcoming event. Start with a verb that would follow the bill number, e.g. \"is coming up for a vote on Aug. 1\". Do not end with a period.")
 
 	srcfilehash = models.CharField(max_length=32, blank=True)
 	
@@ -287,6 +287,11 @@ class Bill(models.Model):
 	def status_advanced_abbreviated(self):
 		if self.is_bill():
 			return govtrack.getBillStatusAdvanced(self, True)
+		else:
+			return "N/A"
+	def status_sentence(self):
+		if self.is_bill():
+			return govtrack.getBillStatusSentence(self)
 		else:
 			return "N/A"
 	def isAlive(self):
@@ -1577,9 +1582,9 @@ class ServiceAccount(models.Model):
 	@staticmethod
 	def get_or_create(**kwargs):
 		acct, is_new = ServiceAccount.objects.get_or_create(**kwargs)
-		#if is_new:
-		#	for perm in ("widget_theme", "salsa", "fb_page", "writecongress_ocp"):
-		#		acct.permissions.add(ServiceAccountPermission.objects.get(name=perm))
+		if is_new:
+			for perm in ("fb_page",): #"widget_theme", "salsa", "fb_page", "writecongress_ocp"):
+				acct.permissions.add(ServiceAccountPermission.objects.get(name=perm))
 		return acct
 	
 class ServiceAccountCampaign(models.Model):

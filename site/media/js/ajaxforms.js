@@ -1,3 +1,6 @@
+// Not sure where I got this, but it's purty cool.
+jQuery.fn.reverse = [].reverse;
+
 // http://stackoverflow.com/questions/210717/using-jquery-to-center-a-div-on-the-screen
 jQuery.fn.center = function () {
 	this.css("position","absolute");

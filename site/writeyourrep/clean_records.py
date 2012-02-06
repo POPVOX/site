@@ -22,6 +22,11 @@ def delete(descr, **filters):
 
 # General cleanup.
 
+delete("really old failed records",
+	success=False,
+	created__lt=datetime.now()-timedelta(days=120)
+	)
+
 delete("old superseded failed records",
 	success=False,
 	next_attempt__isnull=False,

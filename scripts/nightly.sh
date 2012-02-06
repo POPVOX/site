@@ -12,7 +12,6 @@ python popvox/db/update_bill_metadata.py
 python popvox/db/compute_prompts.py
 python popvox/db/update_bill_text.py
 annalee/attendancechecker.py
-python annalee/morningtea.py
 ./manage cleanup
 ./manage clear_expired_email_verifications
 

@@ -55,6 +55,7 @@
 		var issuearea_list = [{% for issue in user.userprofile.issues.all %}[{{issue.id}}, "{{issue.name|escapejs}}"],{% endfor %}];						
 		</script>
 {% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 	<div class="section">
 

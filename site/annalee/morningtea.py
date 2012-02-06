@@ -29,7 +29,6 @@ if pending > 500:
 else:
   other.append(pendmessage)
 
-
 #are the Thomas scrapers running?
 def scrapercheck():
   congress = str(CURRENT_CONGRESS)
@@ -83,12 +82,61 @@ if security and packages:
 else:
   urgent.append("Software Packages: Something's wrong with the checker.")
 
+#How much disk space do we have free?
+diskspace = subprocess.check_output(['df', '-h'])
+disks = diskspace.split("\n")
+disks = disks[:-1] #remove empty list at the end of this list
+fulldisks = []
+gooddisks = []
+for disk in disks[1:]: #skip the title line
+  diskinfo = disk.split()
+  name = diskinfo[0]
+  devdisk = re.search(r'/dev', name)
+  if devdisk:
+    fullspace = diskinfo[4]
+    fullspacenum = int(fullspace[:-1])
+    if fullspacenum >= 70:
+      fulldisks.append([name, fullspace])
+    else:
+      gooddisks.append([name, fullspace])
+#sort by percent full:
+if fulldisks:
+  fulldisks.sort(key=lambda disk: disk[1], reverse=True)
+  fdwarn = "The following disks are getting full:\n"
+  for disk in fulldisks:
+    fdiskmessage = disk[0]+" is "+disk[1]+" percent full.\n"
+    fdwarn += fdiskmessage
+  urgent.append(fdwarn)
+
+if gooddisks:
+  gooddisks.sort(key=lambda disk: disk[1], reverse=True)
+  gdinfo = "Here's how much disk space we're using:\n"
+  for disk in gooddisks:
+    gdiskmessage = disk[0]+" is "+disk[1]+" percent full.\n"
+    gdinfo += gdiskmessage
+  other.append(gdinfo)
+  
+
+
+#Are we still running the latest version of jquery?
+current = urllib.urlopen('media/js/jquery.js')
+current = current.read()
+
+recent = urllib.urlopen('http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
+recent = recent.read()
+
+if recent == current:
+  other.append("jquery is up-to-date.")
+else:
+  urgent.append("There appears to be a new version of jquery.")
+
+#Reporting all the answers:
 if urgent == []:
   print "Good Morning, Josh."
   print
   print "There are no urgent updates at this time."
 else:
-  print "Rainy morning, Josh." # when Thunderbird alerts new mail I see the first few words so having the first few words indiate the presence of an urgent notice is helpful
+  print "Rainy morning, Josh." # when Thunderbird alerts new mail I see the first few words so having the first few words indicate the presence of an urgent notice is helpful
   print
   print "URGENT"
   print

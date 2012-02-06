@@ -4,7 +4,11 @@ function bill_chart(container, pro_pct, con_pct, opts) {
 		chart: {
 			backgroundColor: (!opts || !opts.bg) ? "#e8e5df" : opts.bg,
 			renderTo: container,
-			margin: [0,0,0,0]
+			margin: [0,0,0,0],
+			spacingTop: 0,
+			spacingLeft: 0,
+			spacingRight: 0,
+			spacingBottom: 0
 		},
 		tooltip: {
 			enabled: false, //opts && opts.small,
@@ -21,7 +25,8 @@ function bill_chart(container, pro_pct, con_pct, opts) {
 				shadow: false,
 				//borderColor: "#8BB6D9",
 				borderWidth: 0,
-				innerSize: "40%",
+				innerSize: (!opts || !opts.nopad) ? "40%" : "50%",
+				size: (!opts || !opts.nopad) ? "75%" : "95%",
 				dataLabels: {
 					enabled: (opts && opts.labels ? true : false),
 					distance: -30,

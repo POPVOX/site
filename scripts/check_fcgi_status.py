@@ -12,7 +12,7 @@ class C(urllib.FancyURLopener):
 		return ("demo", "avocado")
 
 socket.setdefaulttimeout(30)
-ret = C().open("https://%s.popvox.com/" % os.environ["USER"])
+ret = C().open("https://%s.popvox.com/?nocache=1" % os.environ["USER"])
 if ret.getcode() != 200:
 	print os.environ["USER"], "returned status code", ret.getcode()
 
@@ -23,4 +23,4 @@ if ret.getcode() != 200:
 	env = dict(os.environ)
 	del env["LOADING_DUMP_DATA"]
 
-	subprocess.call(["./fcgi"], shell=True, env=env)
+	#subprocess.call(["./fcgi"], shell=True, env=env)

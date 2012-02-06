@@ -14,8 +14,9 @@ class Command(BaseCommand):
 
 		# Copy the LiveRecord hits into the Hit table, where they will get indexed.
 		c = connection.cursor()
-		c.execute("INSERT INTO trafficanalysis_hit SELECT * FROM trafficanalysis_liverecord WHERE batch = 1")
+		c.execute("INSERT LOW_PRIORITY IGNORE INTO trafficanalysis_hit SELECT * FROM trafficanalysis_liverecord WHERE batch = 1")
 		
 		# Clear out processed LiveRecord rows.
-		LiveRecord.objects.filter(batch=1).delete()
+		c.execute("DELETE FROM trafficanalysis_liverecord WHERE batch = 1")
+		#LiveRecord.objects.filter(batch=1).delete() # memory issue...
 

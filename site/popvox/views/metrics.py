@@ -93,70 +93,70 @@ def metrics_by_period(request):
 		for c in general_stats[period]:
 			c[1]["dateformat"] = dateformat
 	
-	# update user profiles to flag whether a user is a widget-only user or not
-	c = connection.cursor()
-	c.execute("update popvox_userprofile set is_widget_user = true;")
-	c.execute("update popvox_userprofile set is_widget_user = false where exists (select * from popvox_usercomment where popvox_userprofile.user_id=popvox_usercomment.user_id and method<>%d);" % UserComment.METHOD_WIDGET)
-
-	cohort_where = "(select is_widget_user from popvox_userprofile where auth_user.id=user_id)=0"
-
-	cohort_sizes = get_stats("date_joined", "count(*)", "auth_user WHERE " + cohort_where, period="month")
-	cohort_sizes2 = dict(((c["date"], c["count"]) for c in cohort_sizes))
-	
-	cohort_num_positions = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id WHERE " + cohort_where + " AND method<>%d" % UserComment.METHOD_WIDGET, period="month")
-	for co in cohort_num_positions: co["count"] = round(float(co["count"]) / float(cohort_sizes2[co["date"]]), 1)
-	
-	cohort_num_comments = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id where " + cohort_where + " AND method<>%d AND popvox_usercomment.message is not null" % UserComment.METHOD_WIDGET, period="month")
-	for co in cohort_num_comments: co["count"] = round(float(co["count"]) / float(cohort_sizes2[co["date"]]), 1)
-	
-	cohort_login_types = {}
-	c.execute("select min(date(date_joined)), provider, count(*) from auth_user left join registration_authrecord on auth_user.id=registration_authrecord.user_id WHERE " + cohort_where + " group by year(date_joined), month(date_joined), provider")
-	for dt, provider, count in c.fetchall():
-		dt = dt.replace(day=1)
-		if not dt in cohort_login_types: cohort_login_types[dt] = { "date": dt }
-		cohort_login_types[dt][provider] = 100*count/cohort_sizes2[dt]
-	c.execute("select min(date(date_joined)), count(*) from auth_user where " + cohort_where + " AND not exists(select * from registration_authrecord where auth_user.id=registration_authrecord.user_id) group by year(date_joined), month(date_joined)")
-	for dt, count in c.fetchall():
-		dt = dt.replace(day=1)
-		if not dt in cohort_login_types: cohort_login_types[dt] = { "date": dt }
-		cohort_login_types[dt]["password"] = 100*count/cohort_sizes2[dt]
-	cohort_login_types = cohort_login_types.values()
-
-	def median(nums):
-		nums.sort()
-		if len(nums) == 0:
-			return None
-		elif len(nums) == 1:
-			return nums[0]
-		elif len(nums) % 2 == 0:
-			return (float(nums[len(nums)/2]) + float(nums[len(nums)/2+1]))/2.0
-		else:
-			return float(nums[len(nums)/2+1])
-			
-	def mean(nums):
-		if len(nums) == 0:
-			return None
-		return round(float(sum(nums))/float(len(nums)), 1)
-		
-	def pctile(nums, num):
-		if len(nums) == 0:
-			return None
-		return 100 * len([n for n in nums if n >= num]) / len(nums)
-	
-	cohort_retention = []
-	c = connection.cursor()
-	for cohort in cohort_sizes2.keys():
-		c.execute(("select min(created), max(created) from popvox_usercomment left join auth_user on popvox_usercomment.user_id=auth_user.id where year(auth_user.date_joined)=%d and month(auth_user.date_joined)=%d AND " + cohort_where + " group by auth_user.id") % (cohort.year, cohort.month))
-		retention = [(row[1] - row[0]).days for row in c.fetchall()]
-		cohort_retention.append({ "date": cohort, "median": median(retention), "mean": mean(retention), "pctile_1day": pctile(retention, 1), "pctile_7days": pctile(retention, 7), "pctile_30days": pctile(retention, 30) })
-	
-	by_cohort = merge_by_day({
-			"size": cohort_sizes,
-			"positions_per_user": cohort_num_positions,
-			"comments_per_user": cohort_num_comments,
-			"retention": cohort_retention,
-			"login_types": cohort_login_types,
-		})
+	# # update user profiles to flag whether a user is a widget-only user or not
+	# c = connection.cursor()
+	# c.execute("update popvox_userprofile set is_widget_user = true;")
+	# c.execute("update popvox_userprofile set is_widget_user = false where exists (select * from popvox_usercomment where popvox_userprofile.user_id=popvox_usercomment.user_id and method<>%d);" % UserComment.METHOD_WIDGET)
+# 
+	# cohort_where = "(select is_widget_user from popvox_userprofile where auth_user.id=user_id)=0"
+# 
+	# cohort_sizes = get_stats("date_joined", "count(*)", "auth_user WHERE " + cohort_where, period="month")
+	# cohort_sizes2 = dict(((c["date"], c["count"]) for c in cohort_sizes))
+	# 
+	# cohort_num_positions = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id WHERE " + cohort_where + " AND method<>%d" % UserComment.METHOD_WIDGET, period="month")
+	# for co in cohort_num_positions: co["count"] = round(float(co["count"]) / float(cohort_sizes2[co["date"]]), 1)
+	# 
+	# cohort_num_comments = get_stats("date_joined", "count(*)", "auth_user left join popvox_usercomment on auth_user.id=popvox_usercomment.user_id where " + cohort_where + " AND method<>%d AND popvox_usercomment.message is not null" % UserComment.METHOD_WIDGET, period="month")
+	# for co in cohort_num_comments: co["count"] = round(float(co["count"]) / float(cohort_sizes2[co["date"]]), 1)
+	# 
+	# cohort_login_types = {}
+	# c.execute("select min(date(date_joined)), provider, count(*) from auth_user left join registration_authrecord on auth_user.id=registration_authrecord.user_id WHERE " + cohort_where + " group by year(date_joined), month(date_joined), provider")
+	# for dt, provider, count in c.fetchall():
+		# dt = dt.replace(day=1)
+		# if not dt in cohort_login_types: cohort_login_types[dt] = { "date": dt }
+		# cohort_login_types[dt][provider] = 100*count/cohort_sizes2[dt]
+	# c.execute("select min(date(date_joined)), count(*) from auth_user where " + cohort_where + " AND not exists(select * from registration_authrecord where auth_user.id=registration_authrecord.user_id) group by year(date_joined), month(date_joined)")
+	# for dt, count in c.fetchall():
+		# dt = dt.replace(day=1)
+		# if not dt in cohort_login_types: cohort_login_types[dt] = { "date": dt }
+		# cohort_login_types[dt]["password"] = 100*count/cohort_sizes2[dt]
+	# cohort_login_types = cohort_login_types.values()
+# 
+	# def median(nums):
+		# nums.sort()
+		# if len(nums) == 0:
+			# return None
+		# elif len(nums) == 1:
+			# return nums[0]
+		# elif len(nums) % 2 == 0:
+			# return (float(nums[len(nums)/2]) + float(nums[len(nums)/2+1]))/2.0
+		# else:
+			# return float(nums[len(nums)/2+1])
+			# 
+	# def mean(nums):
+		# if len(nums) == 0:
+			# return None
+		# return round(float(sum(nums))/float(len(nums)), 1)
+		# 
+	# def pctile(nums, num):
+		# if len(nums) == 0:
+			# return None
+		# return 100 * len([n for n in nums if n >= num]) / len(nums)
+	# 
+	# cohort_retention = []
+	# c = connection.cursor()
+	# for cohort in cohort_sizes2.keys():
+		# c.execute(("select min(created), max(created) from popvox_usercomment left join auth_user on popvox_usercomment.user_id=auth_user.id where year(auth_user.date_joined)=%d and month(auth_user.date_joined)=%d AND " + cohort_where + " group by auth_user.id") % (cohort.year, cohort.month))
+		# retention = [(row[1] - row[0]).days for row in c.fetchall()]
+		# cohort_retention.append({ "date": cohort, "median": median(retention), "mean": mean(retention), "pctile_1day": pctile(retention, 1), "pctile_7days": pctile(retention, 7), "pctile_30days": pctile(retention, 30) })
+	# 
+	# by_cohort = merge_by_day({
+			# "size": cohort_sizes,
+			# "positions_per_user": cohort_num_positions,
+			# "comments_per_user": cohort_num_comments,
+			# "retention": cohort_retention,
+			# "login_types": cohort_login_types,
+		# })
 
 	return render_to_response("popvox/metrics.html", {
 		"count_users": User.objects.all().count(),
@@ -167,7 +167,7 @@ def metrics_by_period(request):
 		"count_orgs_all": Org.objects.filter(visible=True).count(),
 		
 		"general_stats": general_stats,
-		"by_cohort": by_cohort,
+		#"by_cohort": by_cohort,
 		}, context_instance=RequestContext(request))
 
 

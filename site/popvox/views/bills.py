@@ -10,6 +10,7 @@ from django.views.decorators.cache import cache_page
 from django.template.defaultfilters import truncatewords
 from django.utils.html import strip_tags
 from django.db.models import Count
+from django.db import connection
 from django.core.cache import cache
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
@@ -347,22 +348,23 @@ def bill_comments(bill, **filterargs):
 		.select_related("user")
 
 def bill_statistics_cache(f):
-	def g(bill, shortdescription, longdescription, want_timeseries=False, force_data=False, as_of=None, **filterargs):
-		cache_key = ("bill_statistics_cache:%d,%s,%s" % (bill.id, shortdescription.replace(" ", ""), want_timeseries)) 
+	def g(bill, shortdescription, longdescription, want_timeseries=False, want_totalcomments=False, force_data=False, as_of=None, **filterargs):
+		cache_key = ("bill_statistics_cache:%d,%s,%s,%s,%s" % (bill.id, shortdescription.replace(" ", ""), want_timeseries, want_totalcomments, as_of))
+		if as_of: cache_key = None
 		
-		ret = cache.get(cache_key)
-		if ret != None and want_timeseries:
+		ret = cache.get(cache_key) if cache_key else None
+		if ret != None:
 			return ret
 		
-		ret = f(bill, shortdescription, longdescription, want_timeseries, force_data, as_of, **filterargs)
+		ret = f(bill, shortdescription, longdescription, want_timeseries, want_totalcomments, force_data, as_of, **filterargs)
 		
-		cache.set(cache_key, ret, 60*60*2) # two hours
+		if cache_key: cache.set(cache_key, ret, 60*60*2 if want_timeseries else 30) # for timeseries two hours, otherwise 30 seconds
 
 		return ret
 	return g
 
 @bill_statistics_cache # the arguments must match in the decorator!
-def bill_statistics(bill, shortdescription, longdescription, want_timeseries, force_data, as_of, **filterargs):
+def bill_statistics(bill, shortdescription, longdescription, want_timeseries, want_totalcomments, force_data, as_of, **filterargs):
 	# If any of the filters is None, meaning it is based on demographic info
 	# that the user has not set, return None for the whole statistic group.
 	for key in filterargs:
@@ -375,17 +377,29 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, fo
 	# Get all counts at once, where stage = 0 if the comment was before the end of
 	# the session, 1 if after the end of the session.
 	if as_of: filterargs["created__lt"] = as_of
-	counts = bill_comments(bill, **filterargs).order_by().extra(select={"stage": "popvox_usercomment.created > '" + enddate.strftime("%Y-%m-%d") + "'"}).values("position", "stage").annotate(count=Count("id"))
+	
+	if bill.congressnumber < CURRENT_CONGRESS:
+		counts = bill_comments(bill, **filterargs).order_by().extra(select={"stage": "popvox_usercomment.created > '" + enddate.strftime("%Y-%m-%d") + "'"}).values("position", "stage").annotate(count=Count("id"))
+	else:
+		if len(filterargs) > 0:
+			counts = bill_comments(bill, **filterargs).order_by().values("position").annotate(count=Count("id"))
+		else:
+			# Django 1.3 messes up this query by duplicating position in the GROUP BY, making MySQL
+			# "Using temporary; Using filesort". 
+			# For the simple case, write our own SQL.
+			c = connection.cursor()
+			c.execute("SELECT position, COUNT(*) as count FROM popvox_usercomment WHERE bill_id=%d GROUP BY position" % bill.id)
+			counts = [{ "position": r[0], "count": r[1] } for r in c.fetchall()]
 	
 	pro = 0
 	con = 0
 	pro_reintro = 0
 	for item in counts:
-		if item["position"] == "+" and item["stage"] == 0:
+		if item["position"] == "+" and item.get("stage", 0) == 0:
 			pro = item["count"]
-		if item["position"] == "-" and item["stage"] == 0:
+		if item["position"] == "-" and item.get("stage", 0) == 0:
 			con = item["count"]
-		if item["position"] == "+" and item["stage"] == 1:
+		if item["position"] == "+" and item.get("stage", 0) == 1:
 			pro_reintro = item["count"]
 		
 	# Don't display statistics when there's very little data,
@@ -434,7 +448,7 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, fo
 		"longdescription": longdescription,
 		"total": pro+con, "pro":pro, "con":con,
 		"pro_pct": int(round(100.0*pro/float(pro+con))) if pro+con > 0 else 0, "con_pct": int(round(100.0*con/float(pro+con))) if pro+con > 0 else 0,
-		"total_comments": bill_comments(bill, **filterargs).filter(message__isnull=False).count(),
+		"total_comments": bill_comments(bill, **filterargs).filter(message__isnull=False).count() if want_totalcomments else None,
 		"timeseries": time_series,
 		"pro_reintro": pro_reintro}
 
@@ -1512,6 +1526,9 @@ POPVOX
 	return HttpResponseRedirect(comment.url())
 
 def get_default_statistics_context(user, individuals=True):
+	if hasattr(user, "popvox_default_statistics_context"):
+		return user.popvox_default_statistics_context
+	
 	default_state = None
 	default_district = None
 	if user.is_authenticated():
@@ -1526,6 +1543,9 @@ def get_default_statistics_context(user, individuals=True):
 			if len(addresses) > 0:
 				default_state = addresses[0].state
 				default_district = addresses[0].congressionaldistrict
+	
+	user.popvox_default_statistics_context = (default_state, default_district)	
+			
 	return default_state, default_district
 
 @strong_cache
@@ -1825,17 +1845,19 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 				"appreciated": c.id in user_appreciated,
 				} for c in comments ],
 		"stats": {
-			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True, force_data=True),
+			"overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True, want_totalcomments=True, force_data=True),
 			"state": bill_statistics(bill,
 				state,
 				govtrack.statenames[state],
 				want_timeseries=True,
+				want_totalcomments=True,
 				state=state)
 					if state != None else None,
 			"district": bill_statistics(bill,
 				state + "-" + str(district),
 				state + "-" + str(district),
 				want_timeseries=True,
+				want_totalcomments=True,
 				state=state,
 				congressionaldistrict=district)
 					if state != None and district not in (None, 0) else None,

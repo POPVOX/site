@@ -3,6 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
  
 <head profile="http://gmpg.org/xfn/11"> 
+	<meta name="msvalidate.01" content="AAB0CC0BF4F5C4B3069B1B2D77798217" />
+
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /><!--[if lte IE 7]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
 	<meta name="viewport" content="width=1000, initial-scale=1" />
@@ -179,7 +181,18 @@
 				{% block navbarlinks %}{% endblock %}
 				<li class="last admin" style="display: none;"><a style="font-weight: bold; color: #FCC" href="/admin">ADMIN</a></li>
 				{% block loginblock %}
+				<li class="profilelink" style="display: none;"><a href="/accounts/profile">Account</a></li>
 				<li class="logoutlink" style="display: none;"><a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a></li>
+				{% comment %}
+				<li id="profilemenu" style="display: none;">
+					<a href="#"></a>
+					<ul>
+						<a href="/home">Home</a>
+						<a href="/accounts/profile">Account Settings</a>
+						<a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a>
+					</ul>
+				</li>
+				{% endcomment %}
 				<li class="loginlink" style="display: none;"><a href="/accounts/login" onclick="document.location = '/accounts/login' + login_redirect; return false;">Join or Login</a></li>
 				{% endblock %}
 				<li><a href="/blog">Blog</a></li>
@@ -238,16 +251,22 @@
 				</div>
 			</ul>
 			{% endblock %}
-			<div id="whoami">
-				<p>
-					<span style="display: none">
-					Welcome, <a href="/accounts/profile"></a>
-					</span>
-					
-					<script>if (document.cookie == "") document.write("NOTE: Many features of POPVOX will not work correctly when cookies are disabled.");</script>
-					<noscript>NOTE: Many features of POPVOX will not work correctly with Javascript disabled.</noscript>
-				</p>
-			</div>
+			{% block subnav %}
+			{% endblock %}
+			{% comment %}
+			<ul id="subnav">
+				<li><a href="#">Item One</a></li>
+				<li><a href="#">Item Two</a></li>
+					<div>
+						<ul class="dropnav">
+							<li><a href="#">Blog Home</a></li>
+							<li><a href="#">Press Releases</a></li>
+							<li><a href="#">Why POPVOX Works</a></li>
+							<li><a href="#">Team Bios</a></li>
+						</ul>
+					</div>
+			</ul>
+			{% endcomment %}
 		</div>
 	</div><!-- e: head --> 
 
@@ -256,16 +275,14 @@
 			$('#nav .loginlink').show();
 			$('#nav_2 .individual_role').show();
 		} else {
-			$('#nav .logoutlink').show();
+			$('#nav .profilelink, #nav .logoutlink').show();
 			if (res.user.admin)
 				$('#nav .admin').show();
 
-			$('#whoami span').show();
-			
 			if (res.user.legstaffrole) {
 				$('#nav_2 .legstaff_role').show();
 				$('#nav_2 .individual_role').hide();
-				$('#whoami a').text(res.user.fullname);
+				$('#nav .profilelink a').text(res.user.fullname);
 			} else if (res.user.orgs.length > 0) {
 				$('#nav_2 .individual_role').hide();
 				$('#nav_2 .orgadmin_role').show();
@@ -284,13 +301,13 @@
 								.text(res.user.orgs[i].name)
 							);
 				}
-				$('#whoami a').text(res.user.fullname);
+				$('#nav .profilelink a').text(res.user.fullname);
 			} else {
 				$('#nav_2 .individual_role').show();
 				$('#nav_2 .individual_role .homelink a').attr('href', '/home');
 				if (res.user.serviceaccounts.length > 0)
 					$('#nav_2 .individual_role .analyticslink').show();
-				$('#whoami a').text(res.user.screenname);
+				$('#nav .profilelink a').text(res.user.screenname);
 			}
 		}
 	});
@@ -360,16 +377,26 @@ $(function() {
 <script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('6db7097c351adc437da30e64e0d86d12'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
 <script>
 {% comment %}wont work on cached page...
-mpmetrics.register({
-	'user type': {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}
-});
-{% if user.is_authenticated %}mpmetrics.identify("pv_uid_{{user.id}}");{% endif %}
 {% with request.session.shorturl.target.meta as surlm %}
 	{% if surlm.mixpanel_event %}
 		mpmetrics.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
 	{% endif %}
 {% endwith %}
 {% endcomment %}
+master_state(function (res) {
+	if (!res.user) {
+		mpmetrics.register({ 'user type': "anonymous" });
+	} else {
+		mpmetrics.identify("pv_uid_" + res.user.id);
+		mpmetrics.name_tag(res.user.email);
+		if (res.user.legstaffrole)
+			mpmetrics.register({ 'user type': "legstaff" });
+		else if (res.user.orgs.length > 0)
+			mpmetrics.register({ 'user type': "orgstaff" });
+		else
+			mpmetrics.register({ 'user type': "individual" });
+	}
+});
 </script>
 
 {% if request.META.HTTP_DNT != 1 %}

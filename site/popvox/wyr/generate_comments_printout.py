@@ -309,7 +309,7 @@ elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
 	# e.g. the district changed because of a district disagreement.
 	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None).select_related("comment", "comment__address", "target"):
 		recips = uc.comment.get_recipients()
-		if not recips or not uc.target.id in [r["id"] for r in recips]:
+		if not recips or type(recips) == str or not uc.target.id in [r["id"] for r in recips]:
 			uc.delete()
 			
 	# generate and email the pdf

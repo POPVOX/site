@@ -1,0 +1,78 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}History{% endblock%}
+{% block description %}Your POPVOX history lists positions you have taken on issues before Congress.{% endblock%}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+{% include "popvox/bookmarked_bills.js" %}
+</script>
+{% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{% block content %}
+<div class="content"> 
+
+<div class="col_9 col_top">
+	<h1>Your History</h1>
+
+	<ul id="tabs" class="tabs">
+		<li><a href="#positions"><span>Positions</span></a></il>
+		<li><a href="#bookmarks"><span>Bookmarks</span></a></il>
+	</ul>
+	<div class="tabs_panel">
+		<div class="tab_positions">
+			 <div class="mar_top">
+				{% with user.comments.all as comments %}
+				{% if comments|length == 0 %}
+					<p>You have not made any comments on legislation yet. Go <a href="/bills">find a bill</a> that you have an opinion about.</p>
+				{% endif %}
+				{% for comment in comments %}
+					<div class="{% if comment.position == "+" %}endorse{% else %}oppose{% endif %}">
+						<p class="date">{{comment.updated|date2}}</p>
+						<h4>You {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.shortname}}</a></h4>
+						{% if comment.message %}
+						<p style="margin-bottom: 0">&ldquo;{{comment.message|truncatewords:30}}&rdquo; </p>
+						<p style="margin-bottom: 0"><small>({{comment.delivery_status}})</small></p>
+						{% if comment.status = 1 %}
+							<p><small>({{comment.review_status}})</small></p>
+						{% endif %}
+						{% if comment.status > 1 %}
+							<p class="error">{{comment.review_status}}</p>
+						{% endif %}
+						{% else %}
+						<p style="margin-bottom: 0"><small>{{comment.bill.title_no_number|truncatewords:10}}</small></p>
+						{% endif %}
+						<div>
+							<!--<p class="tag">you {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.shortname}}</a></p>-->
+							<p class="edit edit_box">
+								<a href="{{comment.bill.url}}/comment">change</a> |
+								<a href="{{comment.url}}">share</a> |
+								<a href="{{comment.bill.url}}/report">what others wrote</a>
+							</p>
+						</div>
+					</div>
+				{% endfor %}
+				{% endwith %}
+			</div><!-- e:mar -->
+		</div> <!-- e:tab -->
+		
+		<div class="tab_bookmarks" style="display: none">
+			{% if tracked_bills %}
+				{% include "popvox/bookmarked_bills.html" with bookmarkhideh3="1" %}
+			{% else %}
+				<p style="height: 500px">You have not bookmarked any bills or proposals yet.</p>
+			{% endif %}
+		</div>
+	</div> <!-- e:panel -->
+	
+	<script>$('#tabs').pvtabs();</script>
+	
+</div> <!-- col_9 -->
+
+	{% include "ads/rightbar.html" %}
+
+</div> <!-- e:content -->
+{% endblock %}
+

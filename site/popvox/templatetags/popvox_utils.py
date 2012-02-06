@@ -3,6 +3,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
 from django.template import Context, Template, Variable, TemplateSyntaxError, Library
+from django.contrib.humanize.templatetags import humanize
 
 import cgi
 import re
@@ -255,7 +256,7 @@ def ordinal_html(num):
 	else:
 		suffix = "th"
 	
-	return mark_safe(str(num) + "<sup>" + suffix + "</sup>")
+	return mark_safe(humanize.intcomma(num) + "<sup>" + suffix + "</sup>")
 
 # based on http://djangosnippets.org/snippets/1907/
 class ObfuscatedEmailNode(template.Node):
@@ -289,4 +290,86 @@ def obfuscated_email(parser, token):
 		raise template.TemplateSyntaxError("%r tag accept one argument, the email address" % tokens[0])
 	return ObfuscatedEmailNode(tokens[1])
 register.tag('obfuscated_email', obfuscated_email)
+
+@register.filter
+@stringfilter
+def truncate(value, arg):
+	"""Truncates value to arg character-widths, cutting only at word boundaries if possible."""
+	
+	if value == "": return value
+	
+	arg = int(arg)
+	
+	# Compute the pixel widths of ASCII characters using this JavaScript code
+	# and then paste the Python dict in the output below.
+	"""
+	<div id="test_container"></div>
+	<div id="output_container"></div>
+	<script>
+	var output = "{";
+	for (var i = 0; i < 128; i++) {
+		var chr;
+		if (i == 0) chr = "..."; // our truncation mark
+		else if (i == 32) chr = "&nbsp;";
+		else chr = String.fromCharCode(i);
+		$('#test_container').html("<span class='start'/>" + chr + "<span class='end'/>");
+		var width = ($('#test_container span.end').position().left-$('#test_container span.start').position().left);
+		if (width > 0) output += i + ": " + width + ", ";
+	}
+	output += "}";
+	$('#output_container').html(output);
+	</script>
+	"""
+	
+	# Here are the pixel widths of ASCII characters as computed for the standard
+	# body text font using the Javascript above. The argument to this filter is
+	# relative to the mean character width, i.e. we multiply the argument by the mean.
+	# Character zero stores the width of "...", our symbol for cut-off text.
+	char_widths = {0: 12, 32: 4, 33: 4, 34: 5, 35: 8, 36: 8, 37: 12, 38: 9, 39: 3, 40: 5, 41: 5, 42: 5, 43: 8, 44: 4, 45: 5, 46: 4, 47: 4, 48: 8, 49: 8, 50: 8, 51: 8, 52: 8, 53: 8, 54: 8, 55: 8, 56: 8, 57: 8, 58: 4, 59: 4, 60: 8, 61: 8, 62: 8, 63: 8, 64: 14, 65: 9, 66: 9, 67: 10, 68: 10, 69: 9, 70: 9, 71: 11, 72: 10, 73: 4, 74: 7, 75: 9, 76: 8, 77: 12, 78: 10, 79: 11, 80: 9, 81: 11, 82: 10, 83: 9, 84: 9, 85: 10, 86: 9, 87: 13, 88: 9, 89: 9, 90: 9, 91: 4, 92: 4, 93: 4, 94: 7, 95: 8, 96: 5, 97: 8, 98: 8, 99: 7, 100: 8, 101: 8, 102: 4, 103: 8, 104: 8, 105: 3, 106: 3, 107: 7, 108: 3, 109: 12, 110: 8, 111: 8, 112: 8, 113: 8, 114: 5, 115: 7, 116: 4, 117: 8, 118: 7, 119: 10, 120: 7, 121: 7, 122: 7, 123: 5, 124: 4, 125: 5, 126: 8, }
+	mean_char_width = sum([v for v in char_widths.values()])/len(char_widths)
+	arg *= mean_char_width
+	
+	# Convert value to ASCII in order to compute pixel width of characters.
+	# http://stackoverflow.com/questions/816285/where-is-pythons-best-ascii-for-this-unicode-database.
+	import unicodedata
+	punctuation = { 0x2018:0x27, 0x2019:0x27, 0x201C:0x22, 0x201D:0x22 }
+
+	# The ASCII equivalent may not have the same number of characters as the
+	# original because some Unicode characters like ellipsis are converted into
+	# a sequence of ASCII characters, i.e. three consecutive periods. So do the
+	# conversion character by character so that we know the width of each
+	# character.
+		
+	# Compute the pixel length if we truncated at....
+	length_at = []
+	for i in xrange(len(value)):
+		value_ascii = unicodedata.normalize('NFKD', value[i].translate(punctuation)).encode('ascii', 'replace')
+		char_width = 0
+		for ch in value_ascii:
+			char_width += char_widths.get(ch, mean_char_width)
+		length_at.append(char_width + (length_at[-1] if i > 0 else 0))
+		
+	# If the text fits unchanged, use it.
+	if length_at[-1] <= arg: return value
+	
+	# Split the text into words and compute the pixel length if we truncate at the end of each word.
+	words = re.split(r"(\W+)", value)
+	wc = 0
+	length_at_word = []
+	for i in xrange(len(words)):
+		wc += len(words[i])
+		length_at_word.append(length_at[wc-1])
+	
+	# Work backwards to find out the first word to chop that fits.
+	for i in reversed(range(len(words))):
+		if length_at_word[i] + char_widths[0] <= arg:
+			return "".join(words[0:i+1]) + "..."
+			
+	# Work forwards to add as many characters as will fit.
+	ret = ""
+	for i in xrange(len(value)):
+		if length_at[i] + char_widths[0] > arg: break
+		ret += value[i]
+	
+	return ret + "..."
 
