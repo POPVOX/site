@@ -441,6 +441,7 @@ custom_mapping = {
 	"740_phone_prefix_text": "phone_areacode",
 	"740_phone_first_text": "phone_prefix",
 	"740_phone_second_text": "phone_line",
+	"755_field_e5d28fe4-5b68-4619-9940-81168686475d_radio": "response_requested",
 	"757_name_text": "firstname",
 	"761_phone1_text": "phone_areacode",
 	"761_phone2_text": "phone_prefix",
@@ -526,6 +527,7 @@ custom_overrides = {
 	"789_affl1_radio": "",
 	"791_typeofresponse_select": "email",
 	"805_issue_radio": "",
+	"808_enewssign_radio": "<AFFL_DEL>Subscribe</AFFL_DEL>",
 	"830_contactform:cd:rblformat_radio": "html",
 	"838_state_select": "KYKentucky",
 	"839_field_5fef6d8e-3cf0-4915-aaec-a017cfbf311c_radio": "voice",
@@ -814,7 +816,8 @@ def parse_webform(webformurl, webform, webformid, id):
 			field_default[attr] = m.group(1)
 			continue
 			
-		elif re.match(r"captcha_[0-9a-f\-]", ax):
+		elif re.match(r"captcha_[0-9a-f\-]", ax) \
+			and ax not in ("captcha_code", "captcha_0ad40428-0789-4ce6-91ca-b7b15180caca",):
 		#elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
 			m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
 			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
@@ -1175,7 +1178,7 @@ def send_message_webform(di, msg, deliveryrec):
 	if m:
 		raise WebformParseException("Form-reported " + m.group(1))
 	
-	for s in ("Invalid CAPTCHA value", "incorrect validation code", "Captcha failure"):
+	for s in ("Invalid CAPTCHA value", "incorrect validation code", "Captcha failure", "Your secret code was not entered correctly"):
 		if s in ret:
 			raise WebformParseException("Response says invalid CAPTCHA value: " + s)
 

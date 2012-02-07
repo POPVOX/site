@@ -10,7 +10,7 @@
 # is rasterized to a PNG first with:
 # pdftoppm -png -cropbox -r 300 popvox/wyr/coverletter.pdf > popvox/wyr/coverletter.png
 
-from django.db.models import Max
+from django.db.models import Count
 from django.core.mail import EmailMultiAlternatives
 
 import datetime, re, shutil, subprocess, sys, tempfile, os.path
@@ -133,7 +133,7 @@ def create_tex(tex, serial):
 
 		outfile.write(r"\bigskip" + "\n\n")
 		
-		use_pagebreaks = topics_in_batch.count() < 10
+		use_pagebreaks = topics_in_batch.count() < 10 and False
 		
 		for t2 in topics_in_batch.order_by("comment__bill", "comment__position"):
 			position = t2["comment__position"]
@@ -250,6 +250,23 @@ def create_tex(tex, serial):
 	
 	outfile_.close()
 	
+def clean_ucodrs():
+	# delete UCDOR objects for mail that has since been delivered
+	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None):
+		if uc.comment.delivery_attempts.filter(target__govtrackid=uc.target.id, success=True).exists():
+			uc.delete()
+	
+	# delete UCDOR objects for mail that has since had an address marked not to deliver
+	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None, comment__address__flagged_hold_mail=True):
+		uc.delete()
+		
+	# delete UCDOR objects that are targetting reps that we no longer need to target because
+	# e.g. the district changed because of a district disagreement.
+	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None).select_related("comment", "comment__address", "target"):
+		recips = uc.comment.get_recipients()
+		if not recips or type(recips) == str or not uc.target.id in [r["id"] for r in recips]:
+			uc.delete()
+	
 if len(sys.argv) == 2 and sys.argv[1] == "resetbatchnumbers":
 	UserCommentOfflineDeliveryRecord.objects.all().update(batch=None)
 elif len(sys.argv) == 3 and sys.argv[1] == "kill":
@@ -294,23 +311,26 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 		print ucodr.comment
 
 		ucodr.delete()
-		
-elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
-	# delete UCDOR objects for mail that has since been delivered
-	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None):
-		if uc.comment.delivery_attempts.filter(target__govtrackid=uc.target.id, success=True).exists():
-			uc.delete()
+
+elif len(sys.argv) == 2 and sys.argv[1] == "status":
+	clean_ucodrs()
+
+	from popvox.govtrack import getMemberOfCongress
+	from writeyourrep.models import Endpoint
+	from csv import writer
 	
-	# delete UCDOR objects for mail that has since had an address marked not to deliver
-	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None, comment__address__flagged_hold_mail=True):
-		uc.delete()
-		
-	# delete UCDOR objects that are targetting reps that we no longer need to target because
-	# e.g. the district changed because of a district disagreement.
-	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None).select_related("comment", "comment__address", "target"):
-		recips = uc.comment.get_recipients()
-		if not recips or type(recips) == str or not uc.target.id in [r["id"] for r in recips]:
-			uc.delete()
+	out = writer(sys.stdout)
+	out.writerow(["count", "govtrackid", "endpointid", "member"])
+
+	for rec in UserCommentOfflineDeliveryRecord.objects.values("target").annotate(count=Count("target")).order_by("count").values("target", "count"):
+		try:
+			endpoint = Endpoint.objects.get(govtrackid=rec["target"]).id
+		except:
+			endpoint = ""
+		out.writerow([ rec["count"], rec["target"], endpoint, getMemberOfCongress(rec["target"])["name"].encode("utf8") ])
+
+elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
+	clean_ucodrs()
 			
 	# generate and email the pdf
 	serial = datetime.datetime.now().strftime("%Y-%m-%dT%H%M")
