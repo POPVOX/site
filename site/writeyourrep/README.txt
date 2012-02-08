@@ -55,6 +55,10 @@ There are three delivery methods and four options that can be set:
 			  only one such form on the page. Use with caution!
 			* "@@" to match the first form on the page. Use with caution!
 			
+		post-to:URL
+		Changes the URL that the form is posted to (i.e. changes the "action" URL on the form
+		selected by the previous FORMSPEC).
+			
 		verifystage:FORMSPEC
 		Some forms repeat-back the submitted fields and then have yet another form
 		that actually submits the information. Usually that form is submitted automatically

@@ -382,7 +382,8 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"enewssign", "enewsletter", "newsletteraction",
 	"countdown", "txthomesearch",
 	"field_f0a5e486-09e8-4c79-8776-7c1ea0c45f27",
-	"aff1req")
+	"aff1req",
+	"contactform$cd$rblformat")
 
 radio_choices = {
 	"reason": "legsitemail",
@@ -496,6 +497,7 @@ custom_overrides = {
 	"550_issue_type_radio": "issue",
 	"568_subject_radio": "CRNR", # no response
 	"568_idresident_radio": "yes",
+	"576_group1_radio": "N",
 	"583_affl1_select": "no action",
 	"584_msub_select": "Other",
 	"585_enews_select": "no",
@@ -714,6 +716,11 @@ def parse_webform(webformurl, webform, webformid, id):
 		ax = ax.replace("contactformcdtxt", "")
 		ax = ax.replace("contactformcdddl", "")
 		ax = ax.replace("contactformcimtxt", "")
+		ax = ax.replace("contactform$cd$txt", "") # 830
+		ax = ax.replace("contactform$cd$ddl", "") # 830
+		ax = ax.replace("contactform:cd:ddl", "") # 830
+		ax = ax.replace("contactform$cim$txt", "") # 830
+		ax = ax.replace("contactform:cim:txt", "") # 830
 
 		if ax.startswith("ctl00$") and ax.endswith("$zip"): ax = "zip5"
 		if id == 636 and ax == "zipcode": ax = "zip5"
@@ -836,13 +843,17 @@ def parse_webform(webformurl, webform, webformid, id):
 			field_default[attr] = solution['text']
 			continue
 			
-		elif ax in ("verification", "validation", "contactform:captcha", "captcha_0ad40428-0789-4ce6-91ca-b7b15180caca"):
+		elif ax in ("verification", "validation", "contactform$captcha", "contactform:captcha", "captcha_0ad40428-0789-4ce6-91ca-b7b15180caca"):
 			m = re.search(r'<img src="((http://.*.(senate|house).gov/)?(captcha/\d+.cfm|.*/captcha.cfm\?CFID=.*?&CFTOKEN=.*?|CaptchaImage.aspx\?guid=[\w\-]+))"', webform)
 			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
+			image_url = urlparse.urljoin(webformurl, m.group(1))
 			try:
-				image_content = urllib2.urlopen(urlparse.urljoin(webformurl, m.group(1))).read()
+				image_content = urllib2.urlopen(image_url).read()
 			except:
 				raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img did not load.")
+			
+			if len(image_content) == 0:
+				raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA image content was empty from %s." % image_url)
 			
 			# solve the captcha
 			import deathbycaptcha, StringIO
@@ -915,6 +926,7 @@ def send_message_webform(di, msg, deliveryrec):
 	if not "#" in di.webform:
 		raise WebformParseException("Webform URL should specify a # and the id, name, .class, or @action of the form")
 		
+	alternate_post_url = None
 	webformurl, webformid = di.webform.split("#")
 	webform_stages = webformid.split(',')
 
@@ -937,7 +949,7 @@ def send_message_webform(di, msg, deliveryrec):
 	if len(webform_stages) > 0 and webform_stages[0] == "add-district-zip-cookie":
 		webform_stages.pop(0)
 		extra_cookies["District"] = msg.zipcode
-
+		
 	# Some webforms are in two stages: first enter your zipcode to verify,
 	# and then enter the rest of the info. To signal this, we'll give a pair
 	# of form IDs.
@@ -1101,6 +1113,10 @@ def send_message_webform(di, msg, deliveryrec):
 		return
 			
 	# submit the data via POST and check the result.
+	
+	# let us override the URL we post data to, to spoof Javascript
+	if len(webform_stages) > 0 and webform_stages[0].startswith("post-to:"):
+		formaction = webform_stages.pop()[len("post-to:"):]
 
 	ret = urlopen(formaction, postdata, formmethod, deliveryrec)
 	ret, ret_code, ret_url = ret.read(), ret.getcode(), ret.geturl()
