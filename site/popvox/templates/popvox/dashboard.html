@@ -23,7 +23,7 @@
 var is_sug_hide_animating = 0;
 
 function click_prompt(billid, billindex, link, sugtype, href) {
-	mpmetrics.track('dashboard_suggestion_click', { bill: billid, position: billindex, link: link, type: sugtype}, function() { window.location = href; });
+	mpmetrics.track('dashboard_suggestion_click', { bill: billid, position: billindex, link: link, type: sugtype}, function() { window.open(href, "_self"); });
 	return false;
 }
 
