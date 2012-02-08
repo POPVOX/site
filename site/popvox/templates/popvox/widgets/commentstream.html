@@ -104,7 +104,7 @@
 			<div id="widget_top">
 				<h1>{{title1}}</h1>
 				{% if url %}
-					<h2><a href="{{url}}" target="_blank">{{title2|truncatewords:10}}</a></h2>
+					<h2><a href="{{url}}" target="_blank">{{title2|truncate:80}}</a></h2>
 				{% else %}
 					<h2>{{title2|truncatewords:10}}</h2>
 				{% endif %}

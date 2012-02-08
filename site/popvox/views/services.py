@@ -191,7 +191,7 @@ def widget_render_commentstream(request, account, permissions):
 		if len(cx) == 1: # the bills have to be processed first
 			show_bill_number = False
 			title1 = "Comments sent to Congress"
-			title2 = bx[0].title
+			title2 = bx[0].nicename
 			url = SITE_ROOT_URL + bx[0].url()
 
 	if "issue" in request.GET:
