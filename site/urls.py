@@ -14,6 +14,7 @@ urlpatterns = patterns('',
 	(r'site-down', 'popvox.views.main.sitedown'),
 	
 	(r'ajax/master-state', 'popvox.views.main.master_state'),
+	(r'ajax/get-short-url', 'popvox.views.main.get_short_url'),
 	
 	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|advertising|faq|blog_template|features/opendataday2011)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	(r'^press$', 'popvox.views.main.press_page'),
@@ -23,7 +24,6 @@ urlpatterns = patterns('',
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	
 	(r'^delete_account.html$', 'popvox.views.home.delete_account'),
-	
 	(r'^delete_account_confirmed.html$', 'popvox.views.home.delete_account_confirmed'),
 	
 	(r'^home$', 'popvox.views.home.home'),

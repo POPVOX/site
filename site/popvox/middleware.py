@@ -74,3 +74,8 @@ class SessionFromFormMiddleware(object):
 			engine = import_module(settings.SESSION_ENGINE)
 			request.session = engine.SessionStore(request.REQUEST["session"])
 			request.session.modified = True # force write to cookie so that session persists
+			
+def template_context_processor(request):
+	if request.path.startswith("/blog"):
+		return { "show_share_footer": True }
+	return { }

@@ -148,6 +148,7 @@ def bills(request):
 	return render_to_response('popvox/bill_list.html', {
 		'trending_bills': get_popular_bills2(),
 		"issues": bills_issue_areas(),
+		"show_share_footer": True,
 		}, context_instance=RequestContext(request))
 
 def bills_issue_areas():
@@ -504,6 +505,7 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
 			"deadbox": not bill.isAlive(),
 			"nextchamber": ch,
 			"orgs": orgs,
+			"show_share_footer": True,
 		}, context_instance=RequestContext(request))
 
 def bill_userstate(request, congressnumber, billtype, billnumber, vehicleid):
@@ -576,7 +578,11 @@ def bill_userstate(request, congressnumber, billtype, billnumber, vehicleid):
 
 	return ret
 bill.user_state = bill_userstate
-	
+
+def bill_get_object(request, congressnumber, billtype, billnumber, vehicleid):
+	return getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
+bill.get_object = bill_get_object
+
 pending_comment_session_key = "popvox.views.bills.billcomment__pendingcomment"
 
 # This is an email verification callback.
@@ -1247,6 +1253,7 @@ def billshare(request, congressnumber, billtype, billnumber, vehicleid, commenti
 			"user_position": user_position,
 			"SITE_ROOT_URL": SITE_ROOT_URL,
 			"finished_url": finished_url,
+			"show_share_footer": True,
 		}, context_instance=RequestContext(request))
 
 def billshare_userstate(request, congressnumber, billtype, billnumber, vehicleid, commentid = None):
@@ -1263,6 +1270,16 @@ def billshare_userstate(request, congressnumber, billtype, billnumber, vehicleid
 			}
 	return ret
 billshare.user_state = billshare_userstate
+
+def billshare_get_object(request, congressnumber, billtype, billnumber, vehicleid, commentid = None):
+	if commentid != None:
+		return get_object_or_404(UserComment, id=int(commentid))
+	elif request.user.is_authenticated():
+		bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
+		return request.user.comments.filter(bill = bill)
+	else:
+		return None
+billshare.get_object = billshare_get_object
 
 def send_mail2(subject, message, from_email, recipient_list, fail_silently=False):
 	from django.core.mail import EmailMessage
@@ -1612,6 +1629,7 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 			"bot_comments": bot_comments,
 			"tag_cloud_support": tag_cloud_support,
 			"tag_cloud_oppose": tag_cloud_oppose,
+			"show_share_footer": True,
 		}, context_instance=RequestContext(request))
 def billreport_userstate(request, congressnumber, billtype, billnumber, vehicleid):
 	ret = { }
@@ -1627,6 +1645,9 @@ def billreport_userstate(request, congressnumber, billtype, billnumber, vehiclei
 		
 	return ret
 billreport.user_state = billreport_userstate
+def billreport_get_object(request, congressnumber, billtype, billnumber, vehicleid):
+	return getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
+billreport.get_object = billreport_get_object
 
 def can_appreciate(request, bill):
 	# Can I appreciate comments? Only if I've weighed in on this bill and
@@ -2030,5 +2051,6 @@ def billdoc(request, congressnumber, billtype, billnumber, vehicleid, orgslug, d
 		'doc': doc,
 		'admin': org.is_admin(request.user),
 		'docupdated': doc.updated.strftime("%b %d, %Y %I:%M %p"),
+		"show_share_footer": True,
 		}, context_instance=RequestContext(request))
 

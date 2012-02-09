@@ -17,6 +17,7 @@ from xml.dom import minidom
 from datetime import datetime, timedelta
 
 from popvox.models import *
+import shorturl
 
 @csrf_protect
 def master_state(request):
@@ -76,6 +77,49 @@ def master_state(request):
 	response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
 	return response
 
+@csrf_protect
+def get_short_url(request):
+	# If the view function for the page indicated in the url parameter has a get_object
+	# attribute function, call that function with the same parameters as was called for
+	# the main page view function.
+	#
+	# The return value is an ORM object that we can use to generate a shorturl.
+	obj = None
+	m = None
+	try:
+		m = resolve(request.POST["url"])
+		if hasattr(m.func, "get_object"):
+			obj = m.func.get_object(request, *m.args, **m.kwargs)
+	except:
+		pass
+	
+	data = None
+	
+	if obj:
+		rec, created = shorturl.models.Record.objects.get_or_create(
+			target = obj,
+			owner = request.user if request.user.is_authenticated() else None
+			)
+		
+		data = {
+			"shorturl": rec.url(),
+			"title": (obj.nicename[0:80] + " via @POPVOX") if hasattr(obj, "nicename") else None,
+			"hashtag": obj.hashtag() if hasattr(obj, "hashtag") else None,
+		}
+	else:
+		data = {
+			"shorturl": settings.SITE_ROOT_URL + request.POST["url"],
+		}
+		
+	if not m:
+		data["view"] = "unknown"
+	else:
+		data["view"] = m.url_name
+
+	response = HttpResponse(json.dumps(data), mimetype="text/json")
+	response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+	return response
+
 def strong_cache(f):
 	# Marks a view as being strongly cached, meaning that all
 	# user state is acquired through the AJAX call to master-state.
@@ -87,6 +131,7 @@ def strong_cache(f):
 			request.session = None
 			request.user = AnonymousUser()
 		return f(request, *args, **kwargs)
+	g.__name__ = f.__name__
 	if hasattr(f, "user_state"):
 		g.user_state = f.user_state
 	return g
@@ -117,6 +162,7 @@ def staticpage(request, page):
 				"page": page,
 				"news": news,
 				"supercommittee_bill_list": supercommittee_bill_list,
+				"show_share_footer": True,
 			}, context_instance=RequestContext(request))
 	except TemplateDoesNotExist:
 		raise Http404()
@@ -153,7 +199,7 @@ def press_page(request):
     return render_to_response("popvox/press.html", { "press": arts }, context_instance=RequestContext(request))
 
 def legal_page(request):
-    return render_to_response("popvox/legal.html", context_instance=RequestContext(request))
+    return render_to_response("popvox/legal.html", { "show_share_footer": True }, context_instance=RequestContext(request))
 
 @json_response
 def subscribe_to_mail_list(request):

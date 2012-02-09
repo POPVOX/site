@@ -33,6 +33,7 @@ def orgs(request):
 	return render_to_response('popvox/org_list.html', {
 		'issueareas': IssueArea.objects.filter(parent=None).order_by('name'),
 		"states": ((state, name) for state, name in govtrack.statelist if Org.objects.filter(visible=True, homestate=state).exists()),
+		"show_share_footer": True,
 		#'recent': Org.objects.filter(visible=True).order_by('-updated')[0:30],
 		}, context_instance=RequestContext(request))
 
@@ -65,6 +66,7 @@ def org(request, orgslug):
 		"coalition_can_leave": Org.objects.filter(admins__user=request.user).filter(ispartofcoalition=org)
 			if request.user.is_authenticated() and org.admins.exists() and org.iscoalition else None,
 		
+		"show_share_footer": True,
 		}, context_instance=RequestContext(request))
 
 @csrf_protect
@@ -573,7 +575,7 @@ def orgcampaign(request, orgslug, campaignslug):
 			
 	set_last_campaign_viewed(request, cam)
 	
-	return render_to_response('popvox/campaign.html', {'cam': cam, 'admin': cam.org.is_admin(request.user)}, context_instance=RequestContext(request))
+	return render_to_response('popvox/campaign.html', {'cam': cam, 'admin': cam.org.is_admin(request.user), 		"show_share_footer": True }, context_instance=RequestContext(request))
 
 @csrf_protect
 @login_required

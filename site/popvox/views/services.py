@@ -43,7 +43,9 @@ def widget_config(request):
 		"states": statelist,
 		"current_congress": CURRENT_CONGRESS,
 		
-		"MIXPANEL_API_KEY": MIXPANEL_API_KEY
+		"MIXPANEL_API_KEY": MIXPANEL_API_KEY,
+		
+		"show_share_footer": True,
 		}, context_instance=RequestContext(request))
 
 @csrf_protect

@@ -329,7 +329,7 @@ ul#nav_2 {
 #footer {
     position: relative;
     margin: 0 20px;
-    padding: 20px 0 40px;
+    padding: 20px 0 50px;
     overflow: hidden;
     line-height: 1.8em;
     background: url("bg_rule.gif") repeat-x left top;
@@ -5026,5 +5026,53 @@ ul.issue_list li a.active{
 	color: #888;
 	}
 
+/* share footer */
 
+#share_footer { 
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	width: 926px;
+	height: 42px;
+	margin-left: -486px;
+	padding: 10px 28px 0;
+	background: url('/media/master/ftr_share.png') no-repeat;
+}
 
+#share_footer h3 {
+	color: #cc6a11;
+	float: left;
+	margin: 0 18px 0 0;
+	line-height: 52px;
+	padding: 0;
+	background: none;
+}
+
+#share_footer ul {
+	padding-top: 13px;
+
+}
+
+#share_footer li {
+	float: left;
+}
+
+#share_footer a.icon {
+	display: block;
+	width: 16px;
+	height: 16px;
+	text-indent: -9999px;
+	margin-right: 7px;
+}
+
+#share_footer a.icon:hover {
+	border-bottom: 0;
+}
+
+#share_footer a.icon.twitter 	{ background: url(/media/icons/sm/i_tw.png) left top no-repeat; }
+#share_footer a.icon.facebook 	{ background: url(/media/icons/sm/i_fb.png) left top no-repeat; }
+#share_footer a.icon.google 	{ background: url(/media/icons/sm/i_google.png) left top no-repeat; }
+#share_footer a.icon.reddit 	{ background: url(/media/icons/sm/i_reddit.png) left top no-repeat; }
+#share_footer a.icon.tumblr 	{ background: url(/media/icons/sm/i_tumblr.png) left top no-repeat; }
+#share_footer a.icon.email 		{ background: url(/media/icons/sm/i_email.png) left top no-repeat; }
+#share_footer li.facebook_like  { margin-left: 50px; margin-top: -2px; } 

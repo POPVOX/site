@@ -185,6 +185,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 	"django.core.context_processors.media",
 	"django.contrib.messages.context_processors.messages",
 	'django.core.context_processors.request',
+	'popvox.middleware.template_context_processor',
 	)
 
 ROOT_URLCONF = 'urls'

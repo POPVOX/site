@@ -325,7 +325,8 @@ def supercommittee(request):
 	
 	return render(request, "popvox/features/supercommittee.html",
 		{
-			"bills": bill_list
+			"bills": bill_list,
+			"show_share_footer": True,
 		})
 
 def supercommittee_userstate(request):
@@ -348,7 +349,8 @@ def legstaff_facebook_report(request):
 			is_leg_staff = True
 	
 	return render_to_response('popvox/features/congress_facebook_report.html', {
-		"is_leg_staff": is_leg_staff
+		"is_leg_staff": is_leg_staff,
+		"show_share_footer": True,
 		}, context_instance=RequestContext(request))
 		
 #@strong_cache

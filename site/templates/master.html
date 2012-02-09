@@ -80,19 +80,13 @@
 		else
 			on_master_state_load.push(func);
 	}
-	if (document.cookie != "" || window.location.protocol == "http:") {
+	if (document.cookie != "") {
 		// Normally, it is unnecessary to call the master-state view if there
 		// are no cookies because the view will return nothing useful.
 		// (TODO: Detect for only cookies that influence the response, like
 		// sessionid and csrftoken? If the user is not logged in but has
 		// a tracking cookie then there's no need to call this. Although it
 		// might be useful for server-side session tracking.)
-		//
-		// On http:, where we run the blog, there will be no cookies set
-		// since our cookies are secure-only, but we can still fetch the
-		// master state since this request will get redirected to https:.
-		// In our dev setup, that request will error out because of the
-		// invalid SSL cert, but in the production environment it might work.
 		$.ajax({
 			url: "/ajax/master-state",
 			data: { url: window.location.pathname },
@@ -365,7 +359,66 @@
 	</div><!-- e: footer -->
 		
 </div><!-- e: wrap --> 
- 
+
+{% if show_share_footer %}
+<div id="share_footer">
+	<h3>Share This Page</h3>
+	<ul>
+		<li><a href="#" class="icon twitter">twitter</a></li>
+		<li><a href="#" class="icon facebook">facebook</a></li>
+		<li><a href="#" class="icon reddit">reddit</a></li>
+		<li><a href="#" class="icon tumblr">tumblr</a></li>
+		
+		{% if request.META.HTTP_DNT != 1 %}
+		<li class="facebook_like">
+			<iframe src="//www.facebook.com/plugins/like.php?href={{request.build_absolute_uri|urlencode}}&amp;send=false&amp;layout=button_count&amp;width=50&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font=verdana&amp;height=21&amp;appId=247867291947651" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:21px;" allowTransparency="true"></iframe>
+		</li>
+		<li class="google_plusone">
+			<!-- Place this tag where you want the +1 button to render -->
+			<div class="g-plusone" data-size="small" data-href="{{request.build_absolute_uri}}"></div>
+			
+			<!-- Place this render call where appropriate -->
+			<script type="text/javascript">
+			  (function() {
+				var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+				po.src = 'https://apis.google.com/js/plusone.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+			  })();
+			</script>
+		</li>
+		{% endif %}
+	</ul>
+</div>
+<script src="/media/js/popvox.js"> </script>
+<script>
+function share_footer_share() {
+	var share_type = $(this).text();
+	
+	if (window.location.protocol == "http:") {
+		// For the blog, we can't call the AJAX interface to get a shorturl.
+		// We don't have a shorturl anyway.
+		share_link(share_type, $('title').text(), window.location.href, null);
+		mpmetrics.track("master_share", { service: share_type, view: "http", url: window.location.href });
+		return false;
+	}
+	
+	$.ajax({
+		url: "/ajax/get-short-url",
+		data: { url: "{{request.path|escapejs}}" },
+		type: "POST",
+		dataType: "json",
+		success: function(res) {
+			if (!res.title) res.title = $('title').text();
+			share_link(share_type, res.title, res.shorturl, res.hashtag);
+			mpmetrics.track("master_share", { service: share_type, view: res.view, url: window.location.href });
+		}
+	});
+	return false;
+}
+$('#share_footer a.icon').click(share_footer_share);
+</script>
+{% endif %}
+
 <script>
 {% comment %}// http://www.badlydrawntoy.com/2009/03/03/replacing-target_blank-for-strict-xhtml-using-jquery-redux/ {% endcomment %}
 $(function() {
@@ -377,7 +430,7 @@ $(function() {
 {% if not debug %}
 <script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script>
 {% endif %}
-<script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('6db7097c351adc437da30e64e0d86d12'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: function(event,props,callback) { callback(); },  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn, identify: null_fn, name_tag: null_fn }; } </script>
+<script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('6db7097c351adc437da30e64e0d86d12'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: function(event,props,callback) { if (callback) callback(); },  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn, identify: null_fn, name_tag: null_fn }; } </script>
 <script>
 {% comment %}wont work on cached page...
 {% with request.session.shorturl.target.meta as surlm %}
