@@ -217,6 +217,7 @@ common_fieldnames = {
 	"street_address_2": "address2",
 	"address01": "address1",
 	"address02": "address2",
+	"streetaddresscontinued": "address2",
 	"streetaddress1": "address1",
 	"streetaddress2": "address2",
 	"mailing_streetaddress1": "address1",
@@ -382,8 +383,11 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"enewssign", "enewsletter", "newsletteraction",
 	"countdown", "txthomesearch",
 	"field_f0a5e486-09e8-4c79-8776-7c1ea0c45f27",
-	"aff1req",
-	"contactform$cd$rblformat")
+	"contactform$cd$rblformat",
+	"ratings[how_is_the_112th_congress_doing?]",
+	"ratings[how_am_i_doing_as_your_representative?]",
+	"ratings[is_the_112th_congress_addressing_the_issues_that_concern_you?]",
+	"aff1req")
 
 radio_choices = {
 	"reason": "legsitemail",
@@ -414,6 +418,7 @@ custom_mapping = {
 	"146_topic_checkbox": "topicarea",
 	"230_phone3_text": "phone_prefix",
 	"230_phone4_text": "phone_line",
+	"503_contact_pref_radio": "response_requested",
 	"554_number_text": "address_split_number",
 	"554_name_text": "address_split_street", 
 	"554_quadrant_select": "address_split_quadrant", 
@@ -442,6 +447,9 @@ custom_mapping = {
 	"740_phone_prefix_text": "phone_areacode",
 	"740_phone_first_text": "phone_prefix",
 	"740_phone_second_text": "phone_line",
+	"741_field_0150929b-ae7d-4ec8-ac86-647e121e8610_text": "zip5",
+	"741_field_a8731eec-5954-4ac5-a623-b840d3f4d9fc_select": "topicarea",
+	"741_field_59e68b70-1f23-4b9a-a19c-e40156896a9b_textarea": "message",
 	"755_field_e5d28fe4-5b68-4619-9940-81168686475d_radio": "response_requested",
 	"757_name_text": "firstname",
 	"761_phone1_text": "phone_areacode",
@@ -494,6 +502,7 @@ custom_overrides = {
 	'204_action_radio': '', # subscribe
 	'345_enews_radio': '',
 	"426_aff1_radio": "<AFFL>Subscribe</AFFL>",
+	"503_phonetype_radio": "voice",
 	"550_issue_type_radio": "issue",
 	"568_subject_radio": "CRNR", # no response
 	"568_idresident_radio": "yes",
@@ -517,6 +526,7 @@ custom_overrides = {
 	"690_aff2_radio": "",
 	"694_affll_radio": "No",
 	"732_field_1807499f-bb47-4a2b-81af-4d6c2497c5e5_radio": " ",
+	"741_field_217b8539-2613-4996-852b-f56184a42b20_radio": "email",
 	"746_aff1req_text": "",
 	"748_messagetype_radio": "express an opinion or share your views with me",
 	"757_add2_text": "",

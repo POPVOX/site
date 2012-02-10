@@ -350,6 +350,16 @@
 				<td class="name">
 					<h3><a href="{{comment.bill.url}}">{{comment.bill.title|truncatewords:13}}</a></h3>
 					<p><strong>Status:</strong> {{comment.bill.status_advanced}}</p>
+                    <!--attempting to get the pie chart in-->
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="55" height="55">
+                    <defs>
+                    <rect rx="5" ry="5" fill="#D4D1CA" x="0" y="0" width="55" height="55" stroke-width="0" stroke="#4572A7">
+                    <g class="highcharts-series-group" zIndex="3">
+                    <g class="highcharts-point" zIndex="5">
+                    <g class="highcharts-point" zIndex="5">
+                    <g class="highcharts-tracker" zIndex="9">
+                    </svg>
+                    <!--end pie chart-->
 				</td>
 				<td class="user_col">
 					<p class="{% if comment.position == "+" %}heart{% else %}anti{% endif %} {% if not comment.message %}comment{% endif %}">
@@ -368,6 +378,7 @@
 						{% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
 						{% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
 						{% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
+						{% if vote == "CS" %}<p class="yea">Co-Sponsor</p>{% endif %}
 						{% if vote == "NR" %}{% endif %}
 						<!--{{reference}}-->
 					</td>

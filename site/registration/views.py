@@ -25,35 +25,43 @@ def loginform(request):
 	
 	if "email" in request.POST and "password" in request.POST:
 		email = None
+		username = None
 		try:
 			email = forms.EmailField().clean(request.POST["email"])
 		except forms.ValidationError, e:
-			errors = "That's not a valid email address."
-			
+			try:
+				username = validate_username(request.POST["email"], for_login=True)
+			except forms.ValidationError, e:
+				errors = "That is not a valid email address/username."
 		password = None
 		try:
 			password = forms.CharField().clean(request.POST["password"])
 		except forms.ValidationError, e:
 			#print e
 			pass
-	
-		if email != None and password != None:
+		
+		user = None
+		if email:
 			user = authenticate(email=email, password=password)
-			if user is not None:
-				if user.is_active:
-					login(request, user)
-					if request.POST.get("next","").strip() != "":
-						try:
-							validate_next(request, request.POST["next"]) # raises exception on error
-							return HttpResponseRedirect(request.POST["next"])
-						except Exception, e:
-							#print e
-							pass # fall through
-					return HttpResponseRedirect(LOGIN_REDIRECT_URL)
-				else:
-					errors = "Your account has been disabled!"
+		else:
+			user = authenticate(username=username, password=password)
+			
+		if user is not None:
+			if user.is_active:
+				login(request, user)
+				if request.POST.get("next","").strip() != "":
+					try:
+						validate_next(request, request.POST["next"]) # raises exception on error
+						return HttpResponseRedirect(request.POST["next"])
+					except Exception, e:
+						#print e
+						pass # fall through
+				return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 			else:
-				errors = "Your email and password were incorrect."
+				errors = "Your account has been disabled!"
+		else:
+			errors = "Your login credentials were incorrect."
+
 		    
 	return render_to_response('registration/login.html', {
 		"errors": errors,
@@ -425,11 +433,25 @@ class DirectLoginBackend(ModelBackend):
 
 @json_response
 def ajax_get_login_type(request):
-	email = validate_email(request.POST["email"], for_login=True)
+	email = None
+	username = None
 	try:
-		u = User.objects.get(email=email)
-	except User.DoesNotExist:
-		return { "status": "success", "result": "not-recognized" }
+		email = validate_email(request.POST["email"], for_login=True)
+	except forms.ValidationError, e:
+		try:
+			username = validate_username(request.POST["email"], for_login=True)
+		except forms.ValidationError, e:
+			return { "status": "fail", "msg": "That is not a valid email address or username."}
+	if email:
+		try:
+			u = User.objects.get(email=email)
+		except User.DoesNotExist:
+			return { "status": "success", "result": "not-recognized" }
+	elif username:
+		try:
+			u = User.objects.get(username=username)
+		except User.DoesNotExist:
+			return { "status": "success", "result": "not-recognized" }
 
 	if not u.is_active:
 		return { "status": "fail", "msg": "Your account has been disabled." }
@@ -442,9 +464,21 @@ def ajax_get_login_type(request):
 
 @json_response
 def ajax_login(request):
-	email = validate_email(request.POST["email"], for_login=True)
+	email = None
+	username = None
+	try:
+		email = validate_email(request.POST["email"], for_login=True)
+	except forms.ValidationError, e:
+		try:
+			username = validate_username(request.POST["email"], for_login=True)
+		except forms.ValidationError, e:
+			return { "status": "fail", "msg": "That is not a valid email address or username."}
 	password = validate_password(request.POST["password"])
-	user = authenticate(email=email, password=password)
+	user = None
+	if email:
+		user = authenticate(email=email, password=password)
+	else:
+		user = authenticate(username=username, password=password)
 	if user == None:
 		sso = AuthRecord.objects.filter(user__email=email)
 		if len(sso) >= 1: # could also be the password is wrong
