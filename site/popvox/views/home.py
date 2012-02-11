@@ -1014,11 +1014,6 @@ def congress_match(request):
 		for member in members:
 			memberids.append(member['id'])
 		return memberids
-		
-	def cosponsorcheck(memberid):
-		#determine if one of the user's members cosponsored a bill the user commented on
-		cocomments = UserComment.objects.filter(bill__cosponsors=memberid, user=request.user)
-		return cocomments
 	
 	try:
 		most_recent_address = PostalAddress.objects.filter(user=request.user).order_by('-created')[0]
@@ -1028,15 +1023,11 @@ def congress_match(request):
 			context_instance=RequestContext(request))
 	
 	memberids = getmemberids(most_recent_address)
-	print "---------------"
 	
 	#grab the user's bills and positions:
 	usercomments = UserComment.objects.filter(user=request.user)
 	
 	billvotes = []
-	cosponsorships = {}
-	for member in memberids:
-		cosponsorships[member] = cosponsorcheck(member)
 
 	for comment in usercomments:
 		#turning bill ids into bill numbers:
@@ -1085,30 +1076,21 @@ def congress_match(request):
 				voterid = int(voter.getAttribute("id"))
 				votervote = voter.getAttribute("vote")
 				allvoters[voterid] = (votervote, where+year+"-"+roll)
-
+			
+		#if there was no vote on this bill, output something a little different
+		#(note that this is different from a vote but none of the user's reps
+		#actually cast a vote)
+		if not had_vote:
+			billvotes.append( (comment, None) )
+			continue
 			
 		#creating an array of the votes. if a Member wasn't in any
 		#roll call, mark with NR for no roll. For each Member, record
 		# a tuple of how the Member voted ("+" etc.) and a string giving
-		# a reference to the vote (both pulled from allvoters).
-		#also includes whether the member cosponsored the bill
+		# a reference to the vote (already put inside allvoters).
 		voters_votes = []
 		for member in memberids:
-			if not had_vote:
-				if comment in cosponsorships[member]:
-					voters_votes.append(("CS", None))
-				#if there was no vote on this bill and there are no cosponsors, output something a little different
-				#(note that this is different from a vote but none of the user's reps
-				#actually cast a vote)
-				else:
-					billvotes.append( (comment, None) )
-			elif member in allvoters:
-				voters_votes.append( allvoters.get(member))
-			else:
-				if comment in cosponsorships[member]:
-					voters_votes.append(("CS", None))
-				else:
-					voters_votes.append(("NR", None))
+			voters_votes.append( allvoters.get(member, ("NR", None)) )
 		billvotes.append( (comment, voters_votes) )
 		
 	# put all comments that have had votes first and votes cast first,
