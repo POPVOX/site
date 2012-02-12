@@ -203,7 +203,8 @@ class Bill(models.Model):
 		return self.billtype in ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc', 'ha', 'sa')
 
 	def proposition_type(self):
-		if self.billtype in ('h', 's', 'hr', 'sr', 'hj', 'sj', 'hc', 'sc'): return "bill"
+		if self.billtype in ('h', 's'): return "bill"
+		if self.billtype in ('hr', 'sr', 'hj', 'sj', 'hc', 'sc'): return "resolution"
 		if self.billtype in ('ha', 'sa'): return "amendment"
 		if self.billtype in ('dh', 'ds'): return "draft"
 		return "proposal"
