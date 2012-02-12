@@ -35,7 +35,7 @@ class UserLegStaffRoleAdmin(admin.ModelAdmin):
 
 class UserCommentAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user", "bill", "address")
-	readonly_fields = ("user","bill","address", "delivery_attempts")
+	readonly_fields = ("user","bill","address", "delivery_attempts", "created", "updated")
 	search_fields = ("user__username", "user__email")
 	list_display = ['created', 'user', 'position', 'bill', 'message_trunc', 'address', 'status_info']
 	actions = ['set_status_hold']
