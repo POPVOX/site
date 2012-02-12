@@ -1,5 +1,33 @@
 {% load humanize %}
 {% load popvox_utils %}
+{% comment %}
+Integration Information
+
+For Drupal or other PHP:
+------------------------
+<?php
+   global $user;
+   $user_info = array(
+      "email" => $user->mail,
+      
+      # Include only the fields which you will actually provide.
+      #"first_name" => "",
+      #"last_name" => "",
+      #"zipcode" => "",
+      #"prefix" => "",
+      #"suffix" => "",
+      #"address1" => "",
+      #"address2" => "",
+      #"city" => "",
+      #"state" => "",
+      #"phonenumber" => "",
+      
+      # Use this only if the user has been logged in with a username and password
+      #"authentication_hmac" => hash_hmac("sha256", $user->mail, "SECRET KEY"),
+   );
+   echo "#user_info=" . urlencode(http_build_query($user_info, "", "&"));
+?>
+{% endcomment %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -149,15 +177,18 @@
 				if (hash_user_info.last_name) $('#lastname').set_text(hash_user_info.last_name);
 				if (hash_user_info.zipcode) $('#zipcode').set_text(hash_user_info.zipcode);
 			});
-		
-		} else if (document.cookie.indexOf("sessionid") >= 0) {
-			// If the user appears to be logged in, then pre-fill the form fields
+		}
+		if (document.cookie.indexOf("sessionid") >= 0 || (hash_user_info && hash_user_info.authentication_hmac)) {
+			// If the user appears to be logged in, or we have a hash argument that authenticates
+			// the user's email address from the calling website, then pre-fill the form fields
 			// with the user's information once the page has loaded.
 			$(function() {
 				$.ajax({
 						url: window.location.pathname,
 						data: {
 							action: "get-user-info",
+							email: (hash_user_info ? hash_user_info.email : null),
+							email_auth_hmac: (hash_user_info ? hash_user_info.authentication_hmac : null)
 						},
 						type: "POST",
 						dataType: "json",
@@ -345,7 +376,10 @@
 							$("#panel_login .error").text(data.msg);
 						} else {
 							$("#panel_login .error").text("");
-							identity = data.identity;
+							// the original log in may have given us address info- don't overwrite it.
+							if (!identity) identity = Object();
+							for (var key in data.identity)
+								identity[key] = data.identity[key];
 							show_address();
 						}
 					},

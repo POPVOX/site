@@ -1869,7 +1869,7 @@ def scar_save_civicrm(acct, campaign, instance):
 			)
 	
 		# Update the home phone for this individual.
-		phone_type_id = get_constant("phoneType", ["Home", "Main", "Other"])
+		phone_type_id = get_constant("phoneType", ["Phone", "Other"])
 		phone_record = get_record("Phone", contact_id=contact_id, phone_type_id = phone_type_id)
 		phone_record = create_or_update(
 			"Phone",
@@ -1881,14 +1881,30 @@ def scar_save_civicrm(acct, campaign, instance):
 			is_primary = 1,
 			is_billing = 0)
 
-	# Campaign
-		# name = "POPVOX Widget for HR1234..."
-		# external_identifier = something set by us that should not be changed by the user
-	# 
-	# Activity
-		# source_contact / target_contact = user
-		# activity_date_time
-		# 
+	# Create or update the Campaign record. The Campaign external_identifier field only seems
+	# to accept numbers, so we use the name field, which isn't displayed anywhere, to key
+	# on our id for the campaign.
+	ext_id = "popvox_sac_" + str(campaign.id)
+	campaign_record = get_record("Campaign", name=ext_id)
+	campaign_record = create_or_update(
+		"Campaign",
+		campaign_record["id"] if campaign_record else None,
+		name=ext_id,
+		title="POPVOX Widget for " + campaign.bill.nicename,
+		)
+
+	# Create or update an Activity record.
+	activity_type_id = get_constant("ActivityType", ["Petition", "Webform Submission"])
+	activity = get_record("Activity", source_contact_id=contact_id, campaign_id=campaign_record["id"])
+	activity = create_or_update(
+		"Activity",
+		activity["id"] if activity else None,
+		source_contact_id=contact_id,
+		activity_type_id=activity_type_id,
+		campaign_id=campaign_record["id"],
+		activity_date_time=instance.updated.isoformat(),
+		activity_subject="Took action on POPVOX widget on %s with result of '%s'." % (campaign.bill.shortname, instance.completed_stage),
+		)
 
 # USER SEGMENTATION AND BILL-TO-BILL RECOMMENDATIONS #
 

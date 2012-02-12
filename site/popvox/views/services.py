@@ -30,7 +30,7 @@ import re
 import random, math
 from itertools import chain
 from base64 import urlsafe_b64decode
-import hashlib
+import hashlib, hmac
 
 @csrf_protect_if_logged_in
 def widget_config(request):
@@ -345,6 +345,21 @@ def widget_render_writecongress_action(request, account, permissions):
 		# If the user is logged in, return the user's info to pre-fill form fields.
 		if request.user.is_authenticated():
 			return { "identity": widget_render_writecongress_get_identity(request.user) }
+			
+		# With the widget_pass_login permission, a HMAC signature of the email address using
+		# the account's secret key tells us to treat the user as logged in under the email
+		# address given. We have to trust that the account holder only provides the signature,
+		# which is exposed publicly, if the user has authenticated himself in some way.
+		elif request.POST.get("email", "") != "" and request.POST.get("email_auth_hmac", "") != "" and account != None and "widget_pass_login" in permissions:
+			if request.POST["email_auth_hmac"].lower() == hmac.new(account.secret_key, request.POST["email"], hashlib.sha256).hexdigest().lower():
+				# Try to log in this user.
+				try:
+					user = User.objects.get(email=request.POST["email"])
+					user = authenticate(user_object = user)
+					login(request, user)
+					return { "identity": widget_render_writecongress_get_identity(user) }
+				except:
+					return { }
 		else:
 			return { }
 	
