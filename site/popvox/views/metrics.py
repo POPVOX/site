@@ -7,6 +7,7 @@ from django.db.models import Count
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.views.decorators.cache import cache_page
 
 from popvox.models import UserComment, Org, OrgContact, UserLegStaffRole
 
@@ -325,4 +326,22 @@ def metrics_report_spreadsheet(request, sheet):
 		writer.writerow([unicode(getfield(obj, h)).encode("utf8") for h in header])
 	
 	return response
+
+@user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
+def delivery_status_chart(request):
+	from popvox.models import RawText
+	from datetime import date
+	
+	data = RawText.objects.get(name="delivery_status_chart_info").text
+	data = data.replace("datetime.date", "")
+	buckets = eval(data)
+	
+	return render_to_response("popvox/delivery_status_chart.html", {
+		"data": buckets,
+		"xaxis": [date(*b["date"]).strftime("%b ") + str(b["date"][2]) for b in buckets],
+		"delivered": [b["delivered"] for b in buckets],
+		"comment_delivered": [b["comment_delivered"] for b in buckets],
+		"delays_median": [b["delays"]["median"] if b["delays"] else None for b in buckets],
+		"delays_97p": [b["delays"]["97p"] if b["delays"] else None for b in buckets],
+	})
 	

@@ -42,6 +42,7 @@ urlpatterns = patterns('',
 	# internal pages
 	(r'^waiting-for-reintroduction$', 'popvox.views.home.waiting_for_reintroduction'),
 	(r'^delivery-status-report$', 'popvox.views.home.delivery_status_report'),
+	(r'^delivery-status-chart$', 'popvox.views.metrics.delivery_status_chart'),
 	(r'^metrics$', 'popvox.views.metrics.metrics_by_period'),
 	(r'^reports/(\w+)$', 'popvox.views.metrics.metrics_report_spreadsheet'),
 	(r'^segments$', 'popvox.views.segmentation.segmentation_builder'),
