@@ -408,7 +408,7 @@ def home(request):
 
 	if prof.is_leg_staff():
 		msgs = get_legstaff_undelivered_messages(user)
-		if msgs != None: msgs = msgs.count()
+		if msgs != None: msgs = len(msgs)
 		
 		return render_to_response('popvox/home_legstaff_dashboard.html',
 			{
@@ -503,7 +503,7 @@ def activity(request):
 	msgs = None
 	if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
 		msgs = get_legstaff_undelivered_messages(request.user)
-		if msgs != None: msgs = msgs.count()
+		if msgs != None: msgs = len(msgs)
 		
 	return render_to_response('popvox/activity.html', {
 			"default_state": default_state if default_state != None else "",
@@ -772,7 +772,7 @@ def get_legstaff_undelivered_messages(user):
 		filters["congressionaldistrict"] = member["district"]
 		
 	# Return undelivered messages that are also not queued for off-line delivery.
-	return UserComment.objects.filter(
+	q = UserComment.objects.filter(
 			created__gt = datetime.now() - timedelta(days=60),
 			**filters
 		).exclude(
@@ -781,8 +781,17 @@ def get_legstaff_undelivered_messages(user):
 		).exclude(
 			usercommentofflinedeliveryrecord__target=role.member,
 			usercommentofflinedeliveryrecord__batch__isnull=False
-		)
-		
+		).select_related()
+	
+	def deliv(m):
+		# the time limit is also set in send_messages.py, should really go in
+		# get_recipients.
+		if m.message == None and m.updated < datetime.now()-timedelta(days=31): return False
+		r = m.get_recipients()
+		if not isinstance(r, (tuple,list)): return False
+		return member in r
+	return [m for m in q if deliv(m)]
+
 @csrf_protect
 @user_passes_test(lambda u : u.is_authenticated() and u.userprofile.is_leg_staff())
 def legstaff_download_messages(request):
@@ -835,7 +844,8 @@ def legstaff_download_messages(request):
 			is_new = False
 			download_date = datetime.strptime(request.POST["date"], date_format)
 			
-		msgs = msgs.order_by('created')
+		#msgs = msgs.order_by('created')
+		msgs.sort(key = lambda c : c.created)
 			
 		import csv
 		from django.http import HttpResponse
@@ -928,7 +938,7 @@ UA: %s
 	delivered_message_dates = [(d, d.strftime(date_format)) for d in delivered_message_dates]
 
 	return render_to_response('popvox/legstaff_download_messages.html', {
-		"new_messages": msgs.count(),
+		"new_messages": len(msgs),
 		"delivered_message_dates": delivered_message_dates,
 		}, context_instance=RequestContext(request))
 

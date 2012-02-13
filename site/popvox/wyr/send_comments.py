@@ -89,7 +89,8 @@ def process_comment(comment, thread_id):
 	global success, failure, needs_attention, pending, held_for_offline
 
 	# since we don't deliver message-less comments, when we activate an endpoint we
-	# end up sending the backlog of those comments. don't bother.
+	# end up sending the backlog of those comments. don't bother. This is also in
+	# the legstaff mail download function.
 	if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=31):
 		return
 	
