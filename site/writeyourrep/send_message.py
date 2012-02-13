@@ -22,12 +22,13 @@ import socket
 socket.setdefaulttimeout(10) # ten seconds
 cookiejar = cookielib.CookieJar()
 proxy_handler = urllib2.ProxyHandler({'http': 'http://localhost:8124/'})
+http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
 	# ssh -L8124:localhost:8124 tauberer@tauberer.dyndns.org polipo proxyPort=8124
-http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar)) #, proxy_handler)
+#http = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar), proxy_handler)
 http_last_url = ""
 extra_cookies = { }
 
-def urlopen(url, data, method, deliveryrec):
+def urlopen(url, data, method, deliveryrec, store_as_next_referrer=True):
 	global http_last_url
 	global cookiejar
 	
@@ -73,7 +74,8 @@ def urlopen(url, data, method, deliveryrec):
 	deliveryrec.trace += unicode(ret.getcode()) + unicode(" " + ret.geturl() + "\n")
 	deliveryrec.trace += unicode("".join(ret.info().headers) + "\n")
 	
-	http_last_url = url
+	if store_as_next_referrer:
+		http_last_url = url
 	
 	return ret
 
@@ -622,7 +624,7 @@ def find_webform(htmlstring, webformid, webformurl):
 	#print htmlstring
 	raise WebformParseException("Form %s is missing at %s. Choices are: %s" % (webformid, webformurl, ", ".join([repr(s) for s in altforms])))
 
-def parse_webform(webformurl, webform, webformid, id):
+def parse_webform(webformurl, webform, webformid, id, dr):
 	#print webform
 	doc, form, formaction, formmethod = find_webform(webform, webformid, webformurl)
 	
@@ -858,9 +860,9 @@ def parse_webform(webformurl, webform, webformid, id):
 			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
 			image_url = urlparse.urljoin(webformurl, m.group(1))
 			try:
-				image_content = urllib2.urlopen(image_url).read()
-			except:
-				raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img did not load.")
+				image_content = urlopen(image_url, {}, "GET", dr, store_as_next_referrer=False).read()
+			except Exception as e:
+				raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img did not load: " + unicode(e))
 			
 			if len(image_content) == 0:
 				raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA image content was empty from %s." % image_url)
@@ -872,7 +874,7 @@ def parse_webform(webformurl, webform, webformid, id):
 			solution = dbc.decode(StringIO.StringIO(image_content))
 			if not solution: raise WebformParseException("Form uses a CAPTCHA but DeathByCaptcha returned nothing.")
 				
-			field_default[attr] = solution['text']
+			field_default[attr] = solution['text'].upper()
 			continue
 			
 		elif ax == "captcha_code":
@@ -968,7 +970,7 @@ def send_message_webform(di, msg, deliveryrec):
 		webformid_stage1 = webform_stages.pop(0)[len("zipstage:"):]
 		
 		# Parse the fields.
-		field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, webform, webformid_stage1, di.id)
+		field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, webform, webformid_stage1, di.id, deliveryrec)
 		
 		# Submit the zipcode to get the second stage form.
 		postdata = { }
@@ -1005,7 +1007,7 @@ def send_message_webform(di, msg, deliveryrec):
 
 	webformid = webform_stages.pop(0) if len(webform_stages) > 0 else "<not entered>"
 	try:
-		field_map, field_options, field_default, formaction, formmethod = parse_webform(webformurl, webform, webformid, di.id)
+		field_map, field_options, field_default, formaction, formmethod = parse_webform(webformurl, webform, webformid, di.id, deliveryrec)
 	except:
 		deliveryrec.trace += u"\n" + webform.decode('utf8', 'replace') + u"\n\n"
 		raise
@@ -1296,7 +1298,7 @@ def send_message_housewyr(msg, deliveryrec):
 	
 	webformurl = writerep_house_gov
 	for formname, responsetext in (("@/htbin/wrep_const", '/htbin/wrep_save'), ("@/htbin/wrep_save", "Your message has been sent.|I want to thank you for contacting me through electronic mail|Thank you for contacting my office|Thank you for getting in touch|Your email has been submitted|I have received your message|Your email has been submitted|Thank You for Your Correspondence|your message has been received|we look forward to your comments|I have received your message|Thanks for your e-mail message|I will be responding to your email in specific detail|Thank you for your message|Your message has been received|Thank you for taking the time to contact me|Thank you for contacting me by email|Thank you for contacting me through Write Your Representative|Thank you for contacting me and my staff!|<h2>Thank you for writing.</h2>|Thank you again for your comments")):
-		field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, ret, formname, "housewyr")
+		field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, ret, formname, "housewyr", deliveryrec)
 		
 		postdata = { }
 		for k, v in field_map.items():
