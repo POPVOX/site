@@ -1,0 +1,90 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Message Delivery Status Chart{% endblock%}
+{% block description %}{% endblock%}
+
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+
+<style>
+.chart {
+	padding: 8px 1px 8px 1px;
+	border: 1px solid #AAA;
+	margin: 1.5em 0 1.5em 0;
+}
+</style>
+
+<script>
+function make_chart(id, title, xaxis, yaxis_label, yaxis_max, series) {
+   chart = new Highcharts.Chart({
+      chart: {
+         renderTo: id,
+         backgroundColor: "#E8E5DF",
+         height: 250,
+      },
+      title: {
+         text: title,
+         style: { color: "#404045", font: "normal 24px/32px 'BebasNeueRegular', helvetica, arial, sans-serif" }
+      },
+      credits: { enabled: false },
+      legend: { enabled: series.length > 1 },
+      xAxis: [{
+         categories: xaxis,
+         title: {
+            style: { color: "#404045", font: "normal 12px/14px helvetica, arial, sans-serif" },
+            text: "Date Message Was Created by User"
+         }
+      }],
+      yAxis: {
+         title: {
+            style: { color: "#404045", font: "normal 12px/14px helvetica, arial, sans-serif" },
+            text: yaxis_label
+         },
+         min: 0,
+         max: yaxis_max,
+         gridLineWidth: 1
+      },
+      
+      plotOptions: {
+      },
+      
+      series: series,
+      
+      colors: ["#CC6A11", "#FFCC33"]
+   });
+}
+
+$(function() {
+	make_chart("percent_comments_delivered", "Percent of Messages Delivered", {{xaxis|json}}, "Percent", 100, [{ name: "Percent", data: {{delivered|json}} }]);
+	make_chart("message_delay", "Time To Deliver Your Message", {{xaxis|json}}, "Days", 20, [{name: "Median (Days)", data: {{delays_median|json}} }, {name: "97th Percentile (Days)", data: {{delays_97p|json}} }]);
+});
+</script>
+{% endblock %}
+
+{% block content %}
+	<h1>Delivery Status Report</h1>
+	
+	<p>The POPVOX team is working constantly to get your messages into Congress. We submit most messages electronically within 1&ndash;2 days of you writing it. During that time, POPVOX staff are busy keeping our delivery system up to date with each of the 541 Congressional offices. Each office accepts mail in a slightly different way, and POPVOX must keep up with each office’s frequent changes to their mail systems.</p>
+	
+	<p>You can check on the status of your messages on your <a href="/home/history">History</a> page.</p>
+	
+	<p>The charts below show you how we&rsquo;re doing. This first chart shows the percentage of messages that have been delivered so far, organized by the date on which the message was created by the user.</p>
+	
+	<div id="percent_comments_delivered" class="chart">
+	</div>
+	
+	<p>Messages that cannot be delivered, such as because of a vacancy in Congress, are not included. At this time, if you choose to not write a personal message and it cannot be submitted electronically, we do not guarantee delivery, although we still really try. Those messages <em>are</em> included in the chart and account for a portion of the undelivered messages.</p>
+	
+	<p>The next chart shows you how long it took POPVOX to deliver messages on each day. The &ldquo;median&rdquo; time, in dark orange, shows you that most messages are delivered within 1&ndash;2 days.</p>
+	
+	<div id="message_delay" class="chart">
+	</div>
+	
+	<p>A message can be delivered to up to three offices, your representative and two senators. We&rsquo;re just counting the time to the first delivery here.</p>
+
+	<p>The &ldquo;97th percentile&rdquo; time, in lighter yellow, shows the time it has taken to deliver the most delayed 3 percent of messages. In other words, fewer than 3 percent of messages are delayed by more than about 6 days (typically). While most offices accept most mail electronically, messages from constituents with unusual addresses are often not accepted electronically and must be printed out and delivered in person, which creates most of the additional delays you see in the 97th percentile line.</p>
+	
+	<p>The times for the most recent few days are omitted since not all of the messages have been delivered yet (and so we don&rsquo;t know how long it will take yet).</p>
+	
+{% endblock %}
+
