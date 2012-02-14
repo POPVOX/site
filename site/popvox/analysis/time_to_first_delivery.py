@@ -42,6 +42,9 @@ for batch in range(0, count, batch_size):
 		if c.message:
 			bucket["comment_delivered"] += 1
 
+	from django import db
+	db.reset_queries()
+
 buckets = buckets.values()
 buckets.sort(key = lambda b : b["date"])
 
@@ -62,7 +65,6 @@ for bucket in buckets:
 		bucket["delays"] = { "median": round(median(bucket["delays"]), 1), "97p": round(percentile(bucket["delays"], 97), 1) }
 	else:
 		bucket["delays"] = None
-		
 
 rt = RawText.objects.get(name="delivery_status_chart_info")
 rt.text = repr(buckets)

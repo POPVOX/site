@@ -8,6 +8,7 @@ from django.core.cache.backends.filebased import CacheClass as FileBasedCache
 import os, os.path
 from urllib import urlencode
 from xml.dom import minidom
+from lxml import etree
 from datetime import datetime
 import re
 import feedparser
@@ -75,58 +76,58 @@ def loadpeople():
 	people = { }
 	senators = { }
 	congresspeople = { }
-	xml = minidom.parse(open_govtrack_file("us/people.xml"))
-	for node in xml.getElementsByTagName("person"):
+	xml = etree.parse(open_govtrack_file("us/people.xml"))
+	for node in xml.xpath("person"):
 		px = {
-			"id": int(node.getAttribute("id")),
-			"name": node.getAttribute("name"),
-			"lastname": node.getAttribute("lastname"),
+			"id": int(node.get("id")),
+			"name": node.get("name"),
+			"lastname": node.get("lastname"),
 			"current": False,
-			"sortkey": node.getAttribute("lastname") + ", " + node.getAttribute("firstname") + " " + node.getAttribute("middlename")
+			"sortkey": node.get("lastname") + ", " + node.get("firstname") + ((" " + node.get("middlename")) if node.get("middlename") else "")
 		}
-		people[int(node.getAttribute("id"))] = px
+		people[int(node.get("id"))] = px
 				
-		for role in node.getElementsByTagName("role"):
+		for role in node.xpath("role"):
 			# roles are in chronological order, so the last party sticks
-			if role.getAttribute("party") != "":
-				px["party"] = role.getAttribute("party")[0]
+			if role.get("party") != "":
+				px["party"] = role.get("party")[0]
 			else:
 				px["party"] = "?"
 			
-			if role.getAttribute("current") == "1" and role.getAttribute("type") in ("sen", "rep"):
+			if role.get("current") == "1" and role.get("type") in ("sen", "rep"):
 				px["current"] = True
-				px["type"] = role.getAttribute("type")
-				px["state"] = role.getAttribute("state")
-				px["district"] = int(role.getAttribute("district")) if role.getAttribute("type") == "rep" else None
-				px["class"] = int(role.getAttribute("class")) if role.getAttribute("type") == "sen" else None
-				px["address"] = role.getAttribute("address")
-				px["url"] = role.getAttribute("url")
+				px["type"] = role.get("type")
+				px["state"] = role.get("state")
+				px["district"] = int(role.get("district")) if role.get("type") == "rep" else None
+				px["class"] = int(role.get("class")) if role.get("type") == "sen" else None
+				px["address"] = role.get("address")
+				px["url"] = role.get("url")
 				
-				if node.hasAttribute("facebookgraphid"):
-					px["facebookgraphid"] = node.getAttribute("facebookgraphid")
+				if node.get("facebookgraphid"):
+					px["facebookgraphid"] = node.get("facebookgraphid")
 			
-				if role.getAttribute("type") == "sen":
-					if not role.getAttribute("state") in senators:
-						senators[role.getAttribute("state")] = []
-					senators[role.getAttribute("state")].append(int(node.getAttribute("id")))
-					senators[role.getAttribute("state")].sort(key = lambda x : people[x]["sortkey"])
+				if role.get("type") == "sen":
+					if not role.get("state") in senators:
+						senators[role.get("state")] = []
+					senators[role.get("state")].append(int(node.get("id")))
+					senators[role.get("state")].sort(key = lambda x : people[x]["sortkey"])
 					px["sortkey"] += " (Senate)"
 					px["office_id"] = ("%s-S%d" % (px["state"], px["class"]))
 				
-				if role.getAttribute("type") == "rep":
-					congresspeople[role.getAttribute("state")+role.getAttribute("district")] = int(node.getAttribute("id"))
+				if role.get("type") == "rep":
+					congresspeople[role.get("state")+role.get("district")] = int(node.get("id"))
 					px["sortkey"] += " (House)"
 					px["office_id"] = ("%s-H%02d" % (px["state"], px["district"]))
 
 	# committee assignments
-	xml = minidom.parse(open_govtrack_file("us/%d/committees.xml" % CURRENT_CONGRESS))
-	for node in xml.getElementsByTagName("committee") + xml.getElementsByTagName("subcommittee"):
-		cid = node.getAttribute("code")
+	xml = etree.parse(open_govtrack_file("us/%d/committees.xml" % CURRENT_CONGRESS))
+	for node in xml.xpath("committee|subcommittee"):
+		cid = node.get("code")
 		if cid == "": continue # subcommittee without a code?
-		if node.tagName == "subcommittee":
-			cid = node.parentNode.getAttribute("code") + cid
-		for mnode in node.getElementsByTagName("member"):
-			pid = int(mnode.getAttribute("id"))
+		if node.tag == "subcommittee":
+			cid = node.getparent().get("code") + cid
+		for mnode in node.xpath("member"):
+			pid = int(mnode.get("id"))
 			if not pid in people: continue
 			px = people[pid]
 			if not "committees" in px: px["committees"] = []
@@ -140,7 +141,6 @@ def loadpeople():
 	cache.set("govtrack_people_list", people_list, 60*60*24)
 	cache.set("govtrack_senators", senators, 60*60*24)
 	cache.set("govtrack_congresspeople", congresspeople, 60*60*24)
-
 	
 def getMembersOfCongress():
 	global people_list

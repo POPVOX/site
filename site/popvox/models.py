@@ -1930,4 +1930,3 @@ if not "LOADING_DUMP_DATA" in os.environ and not os.path.exists("/home/www/slave
 	# the M2M field.
 	MemberOfCongress.init_members()
 	CongressionalCommittee.init_committees()
-
