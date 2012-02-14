@@ -831,11 +831,12 @@ def parse_webform(webformurl, webform, webformid, id, dr):
 			recaptcha_response = urllib2.urlopen(recaptcha_iframe, urllib.urlencode({ "recaptcha_challenge_field": recaptcha_challenge_field, "recaptcha_response_field": solution['text'], "submit": "I'm a human" })).read()
 			m = re.search(r'<textarea rows="5" cols="100">(.*)</textarea>', recaptcha_response)
 			if not m: raise WebformParseException("Form uses reCAPTCHA but reCAPTCHA response didnt seem to be correct: " + recaptcha_response)
-				
+			
+			dr.dbc_captcha_id = solution["captcha"]
 			field_default[attr] = m.group(1)
 			continue
 			
-		elif re.match(r"captcha_[0-9a-f\-]", ax) \
+		elif re.match(r"captcha[0-9a-f\-_]*", ax) \
 			and ax not in ("captcha_code", "captcha_0ad40428-0789-4ce6-91ca-b7b15180caca",):
 		#elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
 			m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
@@ -852,6 +853,7 @@ def parse_webform(webformurl, webform, webformid, id, dr):
 			solution = dbc.decode(StringIO.StringIO(image_content))
 			if not solution: raise WebformParseException("Form uses a CAPTCHA but DeathByCaptcha returned nothing.")
 				
+			dr.dbc_captcha_id = solution["captcha"]
 			field_default[attr] = solution['text']
 			continue
 			
@@ -874,7 +876,8 @@ def parse_webform(webformurl, webform, webformid, id, dr):
 			solution = dbc.decode(StringIO.StringIO(image_content))
 			if not solution: raise WebformParseException("Form uses a CAPTCHA but DeathByCaptcha returned nothing.")
 				
-			field_default[attr] = solution['text'].upper()
+			dr.dbc_captcha_id = solution["captcha"]
+			field_default[attr] = solution['text']
 			continue
 			
 		elif ax == "captcha_code":
@@ -1206,8 +1209,16 @@ def send_message_webform(di, msg, deliveryrec):
 	if m:
 		raise WebformParseException("Form-reported " + m.group(1))
 	
-	for s in ("Invalid CAPTCHA value", "incorrect validation code", "Captcha failure", "Your secret code was not entered correctly"):
+	for s in ("Invalid CAPTCHA value", "incorrect validation code", "Captcha failure", "Your secret code was not entered correctly", "Captcha Code does not match"):
 		if s in ret:
+			if hasattr(deliveryrec, "dbc_captcha_id"):
+				dbc = deathbycaptcha.SocketClient(settings.DEATHBYCAPTCHA_USERNAME, settings.DEATHBYCAPTCHA_PASSWORD)
+				print 'Calling DeathByCaptcha to report incorrect value.'
+				try:
+					dbc.report(deliveryrec.dbc_captcha_id)
+				except Exception as e:
+					print '...reporting failed: ' + str(e)
+			
 			raise WebformParseException("Response says invalid CAPTCHA value: " + s)
 
 	#A lot of the forms use the same/similar responses; checking if any of those match before calling it an error:
