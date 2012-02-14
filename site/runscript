@@ -1,6 +1,5 @@
 #!/bin/bash
 export PYTHONPATH=.:libs
 export DJANGO_SETTINGS_MODULE=settings
-export LOADING_DUMP_DATA=1
 python -u "$@"
 
