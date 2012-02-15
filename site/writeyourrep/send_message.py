@@ -417,6 +417,7 @@ custom_mapping = {
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
 	"37_affl3": "enews_subscribe",
 	"37_field_302e8a41-000d-419e-991e-40c7cb96f97c_radio": "topicarea",
+	"141_enews_select": "response_requested",
 	"146_topic_checkbox": "topicarea",
 	"230_phone3_text": "phone_prefix",
 	"230_phone4_text": "phone_line",
