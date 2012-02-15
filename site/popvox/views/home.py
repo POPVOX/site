@@ -1098,9 +1098,10 @@ def congress_match(request):
 	# and then comments without votes, each group sorted by comment
 	# creation date reverse chronologically.
 	billvotes.sort(key = lambda x : (
-		x[1] != None,
-		x[1] != None and len([y for y in x[1] if y[0] == "NR"]) != len(x[1]),
-		x[0].created
+		x[1] != None, #There's something in vote
+		x[1] != None and len([y for y in x[1] if y[0] =="NR"]) != len(x[1]), #There's a vote or cosponsor
+		x[1] != None and len([y for y in x[1] if y[0] in ("CS", "NR")]) != len(x[1]), #There's a vote
+		x[0].created #created date
 		), reverse=True)
 		
 	# get member info for column header
