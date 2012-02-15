@@ -1756,6 +1756,7 @@ def scar_save_civicrm(acct, campaign, instance):
 	# detect if login worked.
 	
 	opener = urllib2.OpenerDirector()
+	opener.add_handler(urllib2.HTTPHandler())
 	opener.add_handler(urllib2.HTTPSHandler())
 	ret = opener.open(civi_info["url_root"] + "/user/login?destination=admin/user/user", urllib.urlencode({"name": civi_info["username"], "pass": civi_info["password"], "form_id": "user_login", "op": "Log in", "form_build_id": "form-405bf5fb0fc8a0334c514952b1d87eea"}), request_timeout)
 	if ret.getcode() != 302 or "/admin/user/user" not in ret.info()["Location"]:
@@ -1817,11 +1818,12 @@ def scar_save_civicrm(acct, campaign, instance):
 		suffix_id = get_constant("individualSuffix", [instance.completed_comment.address.namesuffix], raise_if_not_found=False) if instance.completed_comment else None,
 		source = "POPVOX")
 	
-	if not email_record:
+	if not email_record or "contact_id" not in email_record:
 		# Create an Email record for the email address & contact if none exists.
-		email_record = call_civi(
-			entity="Email",
-			action="create",
+		email_record = create_or_update(
+			"Email",
+			email_record["id"] if email_record else None,
+			
 			contact_id = contact_record["id"],
 			email = instance.email,
 			location_type_id = location_type,
