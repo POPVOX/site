@@ -23,7 +23,8 @@ su ubuntu -c "git daemon --base-path=/mnt/persistent/ --export-all --detach --en
 
 for user in `ls /home|grep -v ubuntu`; do
 	echo "restarting FCGI for $user...";
-	su $user -c "cd /home/$user/sources/site; git pull --rebase;"
+		# have to || true the next line because rebase may fail if there are unstaged changes, which ends this whole script
+	su $user -c "cd /home/$user/sources/site; git pull --rebase" || true;
 	su $user -c "/home/$user/sources/site/fcgi";
 done
 
