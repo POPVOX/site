@@ -145,7 +145,7 @@ function getshorturl() {
 						
 					{% if bill.reintroduced_as %}<p>It was reintroduced in the {{bill.reintroduced_as.congressnumber|ordinal}} Congress as <a href="{{bill.reintroduced_as.url}}">{{bill.reintroduced_as.displaynumber}}</a>.</p>{% endif %}
 				{% else %}
-					<p>This {{bill.proposition_type}} {{bill.getDeadReason}}. You can no longer write a comment about this {{bill.proposition_type}}.</p>
+					<p>This {{bill.proposition_type}} {{bill.getDeadReason}}{% if bill.vehicle_for %} (see <a href="{{bill.vehicle_for.url}}">new page</a>){% endif %}. You can no longer write a comment about this {{bill.proposition_type}}.</p>
 				{% endif %}
 			</div>
 			{% endif %}			
