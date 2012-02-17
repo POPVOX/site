@@ -167,7 +167,7 @@ p.feedback a { color: #CC7722; }
 						{% if item.action_type == "comment" and not item.comment.message %}
 							<h3>You {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncate:75}}</a>.</h3>
 							<div class="details">
-								<p>You were the {{item.comment.seq|ordinal_html}} person to weigh in.</p>
+								<p>You were the {{item.comment.seq|add:1|ordinal_html}} person to weigh in.</p>
 							</div>
 						{% endif %}
 
