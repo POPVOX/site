@@ -416,6 +416,12 @@ function share_footer_share() {
 	return false;
 }
 $('#share_footer a.icon').click(share_footer_share);
+
+// Mobile Safari before iOS 5 does not support fixed positioning, so revert to static
+// so that it goes to the bottom of the page.
+if (navigator.userAgent.match(/Mobile\//) && navigator.userAgent.match(/Safari\//) && !navigator.userAgent.match(/OS 5_\d+ like Mac/)) {
+	$('#share_footer').css({ position: "static", marginLeft: "0" });
+}
 </script>
 {% endif %}
 
