@@ -94,6 +94,8 @@ def create_tex(tex, serial):
 	targets2 = []
 	
 	for govtrack_id, batch in targets:
+		if "ONLY" in os.environ and int(os.environ["ONLY"]) != govtrack_id: continue
+		
 		topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).values("comment__bill", "comment__position").distinct()
 		
 		if batch != None:
@@ -231,20 +233,23 @@ def create_tex(tex, serial):
 		if not use_pagebreaks: # pagebreak before next office
 			outfile.write(r"\clearpage" + "\n")
 
-	outfile.write(r"\clearpage" + "\n")
-	outfile.write(r"\markboth{Hit Sheet " + serial + "r}{Hit Sheet " + serial + r"}" + "\n")
-	outfile.write(r"\noindent ")
-	for govtrack_id, batch_no, target_errors in targets2:
-		p = getMemberOfCongress(govtrack_id)
-		outfile.write_esc("#" + batch_no[len(serial)+1:])
-		outfile.write(r" --- ")
-		outfile.write_esc(p["lastname"] + " " + p["state"] + (str(p["district"]) if p["district"]!=None else ""))
-		outfile.write(r"  --- ")
-		outfile.write_esc(" ".join(p["address"][0:10].split(" ")[0:2]))
-		outfile.write(r"  --- ")
-		outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no).count()) + " ")
-		outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method",)]))
-		outfile.write(r" \\" + "\n")
+	# Print a final summary page of all of the offices included in the PDF,
+	# unless SUMMARY=0 is set on the command line.
+	if "SUMMARY" not in os.environ or os.environ["SUMMARY"] == "1":
+		outfile.write(r"\clearpage" + "\n")
+		outfile.write(r"\markboth{Hit Sheet " + serial + "r}{Hit Sheet " + serial + r"}" + "\n")
+		outfile.write(r"\noindent ")
+		for govtrack_id, batch_no, target_errors in targets2:
+			p = getMemberOfCongress(govtrack_id)
+			outfile.write_esc("#" + batch_no[len(serial)+1:])
+			outfile.write(r" --- ")
+			outfile.write_esc(p["lastname"] + " " + p["state"] + (str(p["district"]) if p["district"]!=None else ""))
+			outfile.write(r"  --- ")
+			outfile.write_esc(" ".join(p["address"][0:10].split(" ")[0:2]))
+			outfile.write(r"  --- ")
+			outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no).count()) + " ")
+			outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method",)]))
+			outfile.write(r" \\" + "\n")
 	
 	outfile.write(r"\end{document}" + "\n")
 	
