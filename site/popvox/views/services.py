@@ -351,7 +351,7 @@ def widget_render_writecongress_action(request, account, permissions):
 		# address given. We have to trust that the account holder only provides the signature,
 		# which is exposed publicly, if the user has authenticated himself in some way.
 		elif request.POST.get("email", "") != "" and request.POST.get("email_auth_hmac", "") != "" and account != None and "widget_pass_login" in permissions:
-			if request.POST["email_auth_hmac"].lower() == hmac.new(account.secret_key, request.POST["email"], hashlib.sha256).hexdigest().lower():
+			if request.POST["email_auth_hmac"].lower() == hmac.new(account.secret_key.encode("ascii"), request.POST["email"].encode("utf8"), hashlib.sha256).hexdigest().lower():
 				# Try to log in this user.
 				try:
 					user = User.objects.get(email=request.POST["email"])
