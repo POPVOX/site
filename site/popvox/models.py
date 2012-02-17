@@ -1745,6 +1745,11 @@ def sacar_save_salsa(acct, campaign, instance):
 	ret = http_rest_json(url, data)
 	
 def scar_save_civicrm(acct, campaign, instance):
+	# This requires CiviCRM 3.4 or 4.0.
+	#
+	# The API explorer is at /civicrm/ajax/docs/api/.
+	# Docs: http://wiki.civicrm.org/confluence/display/CRMDOC40/CiviCRM+Public+APIs
+	
 	civi_info = acct.getopt("civicrm")
 	
 	import urllib, urllib2, json, re
@@ -1779,9 +1784,17 @@ def scar_save_civicrm(acct, campaign, instance):
 		return resp
 	
 	def get_record(record_type, **query):
-		ret = call_civi(entity=record_type, action="getsingle", raise_on_error=False, **query)
+		#ret = call_civi(entity=record_type, action="getsingle", raise_on_error=False, **query)
+		# There can always be duplicate records, so we should never really use getsingle which will
+		# fail in that case. Instead, use get and select the first.
+		ret = call_civi(entity=record_type, action="get", raise_on_error=False, **query)
 		if ret.get("is_error", 0) != 0: return None
-		return ret
+		if ret["count"] == 0: return None
+		
+		# For stability, choose the record with the lexicographically first key.
+		key = sorted(ret["values"].keys())[0]
+		
+		return ret["values"][key]
 	
 	def get_constant(const_type, alteratives, raise_if_not_found=True):
 		values = call_civi(entity="Constant", action="get", name=const_type)
@@ -1793,7 +1806,18 @@ def scar_save_civicrm(acct, campaign, instance):
 			raise Exception("CiviCRM site does not have value for constant %s for value %s." % (const_type, repr(alternatives)))
 		return None
 		
-	def create_or_update(record_type, existing_record_id, **params):
+	def create_or_update(record_type, existing_record_id, check_if_exists=False, **params):
+		# Records can point to deleted records, and that causes problems
+		# if we try to update a deleted record. For instance, an Email record
+		# can have a contact_id that is deleted, which means it is in CiviCRM
+		# but is not recognized by the API. When we do an update on it, we
+		# get an error.
+		if existing_record_id and check_if_exists:
+			rec = get_record(record_type, id=existing_record_id)
+			if not rec: # no such record
+				existing_record_id = None # create a new one below
+		
+		#
 		if existing_record_id:
 			params["id"] = existing_record_id
 		ret = call_civi(
@@ -1804,12 +1828,13 @@ def scar_save_civicrm(acct, campaign, instance):
 	
 	location_type = get_constant("locationType", ["Home", "Main", "Other"])
 	
-	email_record = get_record("Email", email=instance.email)
+	email_record = get_record("Email", email=instance.email, location_type_id=location_type)
 	
 	# Create or update a Contact for this individual.
 	contact_record = create_or_update(
 		"Contact",
 		email_record["contact_id"] if email_record else None,
+		check_if_exists=True,
 		
 		contact_type = "Individual",
 		first_name = instance.firstname if not instance.completed_comment else instance.completed_comment.address.firstname,
@@ -1818,7 +1843,7 @@ def scar_save_civicrm(acct, campaign, instance):
 		suffix_id = get_constant("individualSuffix", [instance.completed_comment.address.namesuffix], raise_if_not_found=False) if instance.completed_comment else None,
 		source = "POPVOX")
 	
-	if not email_record or "contact_id" not in email_record:
+	if not email_record or email_record.get("contact_id", None) != contact_record["id"]:
 		# Create an Email record for the email address & contact if none exists.
 		email_record = create_or_update(
 			"Email",
