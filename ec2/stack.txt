@@ -66,29 +66,16 @@ Network Solutions
 	
 		expires April 25, 2012
 
-DNS on occams.info
-------------------
-
-	72.249.66.163, with reverse DNS to www.popvox.com
-	named.conf.local has entries for thevoxpop.us, popvox.com, popvox.net, pvox.co...
-	all use popvox.hosts zone file
-	sendonary slave dns @ rimuhosting
-
 Amazon Web Services
 
-	need to secure the password
-	need to secure the associated email addresses
+	need to secure the associated email addresses so account can't be easily hijacked
 
-	additional logins for josh, annalee
+	additional IAM logins for josh, annalee
 
 Server Boxes
 
 	ssh access template in ec2/authorized_keys:
 	josh, william, annalee
-
-	"intern test server": josh, joshlewis
-
-	CHECK: SSH disallows password authentication
 
 Apple Developer Account
 
@@ -118,17 +105,11 @@ Google OAuth
 	
 Facebook App
 
-	The application is configured under Josh's personal account.
+	admins are: Josh, Marci, Rachna
 	
 LinkedIn
 	
-	The application is owned by Josh.
-
-WordPress on occams.info
-	/etc/wordpress/config-www.popvox.com.php
-	A symlink is in /usr/share/wordpress/wp-content/themes to blog-theme
-	The admin account has tauberer@gmail.com as its email address,
-	but the site's contact address is josh@popvox.com.
+	admins are: Josh, Marci, Rachna
 
 Disqus
 
