@@ -1,17 +1,12 @@
 External Services
 =================
 
-
 Other services we use...
-
-
-Twilio:
-	we have a local 202 number
-	if someone dials it, a URL is set in twilio to receive the call
 
 Pivotal Tracker
 
 	access to: josh, william, annalee, marci, rachna, shane
+	admins are: josh, annalee@popvox.com, marcidale@gmail.com
 
 DropBox
 
@@ -30,7 +25,5 @@ Scribd
 
 Google/Doubleclick for Publishers Small Business
 	josh@popvox.com
-	
-YouTube
-	josh@popvox.com
+	(not using this)
 

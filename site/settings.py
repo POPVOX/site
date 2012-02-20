@@ -217,7 +217,6 @@ INSTALLED_APPS = (
     #'django_dowser',
     'jquery',
     'writeyourrep',
-    'phone_number_twilio',
     'emailverification',
     'shorturl',
     'registration',
@@ -244,10 +243,6 @@ ADSERVER_USE_JQUERY = True
 # registration app
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
 USERNAME_BLACKLIST_TERMS = ["admin", "popvox", "fuck"]
-
-# phone_number_twilio app
-TWILIO_INCOMING_RESPONSE = "Thank you for calling pop vox. For more information, please see pop vox dot com. Goodbye."
-TWILIO_STORE_HASHED_NUMBERS = True
 
 # Registration.
 FACEBOOK_AUTH_SCOPE = "email" #,offline_access,publish_stream,user_location"
