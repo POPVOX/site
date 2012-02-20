@@ -9,16 +9,6 @@
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 
-{% if request.META.HTTP_DNT != "1" %}
-<script type="text/javascript">var switchTo5x=true;</script><script type="text/javascript" src="https://ws.sharethis.com/button/buttons.js"></script><script type="text/javascript">
-	stLight.options({publisher:'753d474b-c1f6-4c9b-b4c5-b640d654d2aa'});
-	stLight.subscribe("click", function(event,service) {
-		// would be nice to know which item was clicked
-		mpmetrics.track("dashboard_share", { service: service });
-	}); 
-</script>
-{% endif %}
-
 <script>
 var is_sug_hide_animating = 0;
 
@@ -103,6 +93,25 @@ function activity_feedback(node, relevant) {
 	info.find("*").fadeOut(function() { info.text("Your feedback makes POPVOX better. Thank you."); });
 	
 	return false;
+}
+
+function share_activity_item(share_type, url, itemindex) {
+	$.ajax({
+		url: "/ajax/get-short-url",
+		data: { url: url },
+		type: "POST",
+		dataType: "json",
+		success: function(res) {
+			share_link(share_type, res.title, res.shorturl, res.hashtag);
+			mpmetrics.track("dashboard_share", { service: share_type, position: itemindex });
+		}
+	});
+	return false;
+}
+
+function g_plusone_callback(info) {
+	if (info.state == "on")
+		mpmetrics.track("dashboard_share", { service: "g_plusone", position: "unknown" });
 }
 
 $(function() {
@@ -251,14 +260,25 @@ p.feedback a { color: #CC7722; }
 							{% endcomment %}
 							
 							<span class="social">
+								{% comment %}
+								--- this is for ShareThis, which we're not using anymore ---
 								<span class="st_facebook" st_title="{{item.share.1}}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
 								<span class="st_twitter" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
 								<span class="st_email" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}" st_summary="{{item.share.1}}"></span>
 								<span class="st_plusone" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								{% endcomment %}
 								
-								{% comment %}<a href="#" class="twitter">twitter</a>
-								<a href="#" class="facebook">facebook</a>
-								<a href="#" class="google">google</a>
+								<a href="#" class="facebook" onclick="return share_activity_item('facebook', '{{item.share.2|escapejs}}', {{forloop.counter0}})">facebook</a>
+								<a href="#" class="twitter" onclick="return share_activity_item('twitter', '{{item.share.2|escapejs}}', {{forloop.counter0}})">twitter</a>
+														
+								{% if request.META.HTTP_DNT != 1 %}
+								{% comment %}g+'s default div tag breaks the parse of the page because we are inside a span now{% endcomment %}
+								<span style="margin: 2px 4px 0 0px">
+									<g:plusone size="small" href="{{SITE_ROOT_URL}}{{item.share.2}}" annotation="none" callback="g_plusone_callback"> </g:plusone>
+								</span>
+								{% endif %}
+		
+								{% comment %}<a href="#" class="google">google</a>
 								<a href="#" class="reddit">reedit</a>
 								<a href="#" class="tumblr">tumblr</a>
 								<a href="#" class="email">email</a>{% endcomment %}
@@ -418,6 +438,17 @@ p.feedback a { color: #CC7722; }
 	
 	
 </div>
+
+{% if request.META.HTTP_DNT != 1 %}
+{% comment %}Our master share bar is disabled on this page, otherwise we'd be loading this script twice.{% endcomment %}
+<script type="text/javascript">
+  (function() {
+	var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+	po.src = 'https://apis.google.com/js/plusone.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+{% endif %}
 
 {% endblock %}
 
