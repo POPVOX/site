@@ -76,6 +76,10 @@ Server Boxes
 
 	ssh access template in ec2/authorized_keys:
 	josh, william, annalee
+	
+CDYNE
+
+	access to: josh, marci, ben (usernames are all @popvox.com)
 
 Apple Developer Account
 
