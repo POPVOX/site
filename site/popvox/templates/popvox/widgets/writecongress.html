@@ -27,6 +27,14 @@ For Drupal or other PHP:
    );
    echo "#user_info=" . urlencode(http_build_query($user_info, "", "&"));
 ?>
+
+Notes:
+* "SECRET KEY" is a secret API key associated with the client's account on POPVOX. It must be kept secret (i.e. NOT used client-side).
+* The entire data structure is placed into the URL *fragment* at the very end of the iframe SRC attribute, as "#user_info=[url-encoded-user-data]".
+* [url-encoded-user-data] is a querystring-like encoding of the data structure which is then URL-encoded (fields are basically encoded a second time).
+* All of the fields are optional -- don't include them at all if you don't have the data. Fields that are restricted to values from a list (e.g. prefix) will be ignored if they aren't in our list, and the user will be asked to choose.
+* The authentication_hmac parameter should only be used if the user accessing the page is logged in (with the email address given) --- if the value is made available to someone else, they will be able to impersonate the user.
+
 {% endcomment %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
