@@ -707,36 +707,12 @@ class WriteCongressEmailVerificationCallback:
 			org = None
 		return "Finish Your Letter to Congress" + (" - " + org.name + " Needs Your Help" if org != None else "")
 	
-	def email_body(self):
-		return """%s,
-
-Thank you for sharing your opinion using the Write Congress tool from POPVOX.
-
-In order to complete delivery to your Representative or Senators, we need to
-verify your email address. We may also need some additional information from
-you to meet your legislator's specific requirements.
-
-To finish your letter and ensure delivery to Congress, click here:
-
-     <URL>
-
-     (If the link is not clickable, please copy and paste it into your web browser.)%s
-
-Thanks again,
-
-POPVOX
-
-
-(We'll send this email again soon in case you miss it the first time.
-If you do not wish to complete the action and do not want to get
-a reminder, please follow this link instead to stop future reminders:
-<KILL_URL>)""" % (self.post["useraddress_firstname"], ("""
-	
-We've also created an account for you at POPVOX so you can revise
-your comment and check on its status.
-
-     Your POPVOX password is: """ + self.password) if not User.objects.filter(email=self.post["email"]).exists() else "")
-
+	def email_templates(self):
+		return ("popvox/emails/wiget_writecongress_confirm_email", {
+			"dear": self.post["useraddress_firstname"],
+			"password": self.password if not User.objects.filter(email=self.post["email"]).exists() else None,
+		})
+		
 	def email_should_resend(self):
 		if "userid" in self.post and self.post["userid"] != "":
 			user = User.objects.get(id=self.post["userid"])

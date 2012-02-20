@@ -1,0 +1,35 @@
+{% extends "popvox/emails/template.html" %}
+{% load popvox_utils %}
+{% block h1 %}
+	<h1>Finish Your Letter to Congress</h1>
+{% endblock %}
+{% block body2 %}
+<p>{{dear}},</p>
+
+<p>Thank you for sharing your opinion using the Write Congress tool from POPVOX.</p>
+
+<p>In order to complete delivery to your Representative or Senators, we need to
+verify your email address. We may also need some additional information from
+you to meet your legislator's specific requirements.</p>
+
+<p>To finish your letter and ensure delivery to Congress, click here:</p>
+
+<p style="margin-left: 1em"><a href="{{URL}}">{{URL}}</a></p>
+
+{% if password %}
+<p>We've also created an account for you at POPVOX so you can revise
+your comment and check on its status.</p>
+
+<p style="margin-left: 1em">Your POPVOX password is: {{password}}</p>
+{% endif %}
+
+<p>Thanks again,</p>
+
+<p>POPVOX</p>
+{% endblock %}
+
+{% block unsubscribe %}
+<p style="font-size: 10pt;">We'll send this email again soon in case you miss it the first time.
+If you do not wish to complete the action and do not want to get a reminder, please <a href="{{KILL_URL}}">click here</a> to stop future reminders.</p>
+{% endblock %}
+

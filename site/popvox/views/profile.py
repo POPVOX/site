@@ -202,21 +202,9 @@ class RegisterUserAction:
 
 	def email_subject(self):
 		return "POPVOX: Finish Creating Your Account"
-		
-	def email_body(self):
-		return """Thanks for coming to POPVOX. To finish creating your account
-just follow this link. You may have to copy and paste it into your web browser.
 
-<URL>
-
-All the best,
-
-POPVOX
-
-
-If you did not request or do not want to create a POPVOX account,
-please use the following link to end future emails like this one:
-<KILL_URL>"""
+	def email_templates(self):
+		return ("popvox/emails/register_confirm_email", { })
 
 	def email_should_resend(self):
 		return not User.objects.filter(email=self.email).exists()
