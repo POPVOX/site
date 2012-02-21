@@ -258,5 +258,5 @@ DISQUS_FORUM_SHORTNAME = "popvoxnation" #The name of your Disqus site. Used to l
 ARTICLES_TEASER_LIMIT = 100 #The number of words to display in the teaser. Defaults to 75.
 ARTICLES_AUTO_TAG = False #Whether or not to automatically tag articles. Defaults to True.
 
-
-
+# Cut-off age for a message with no comment before we stop trying to deliver the message
+POSITION_DELIVERY_CUTOFF_DAYS = 31

@@ -15,6 +15,8 @@ from writeyourrep.send_message import Message, send_message, Endpoint, DeliveryR
 from writeyourrep.addressnorm import verify_adddress, validate_phone
 from writeyourrep.district_lookup import county_lookup_coordinate
 
+from settings import POSITION_DELIVERY_CUTOFF_DAYS
+
 mocs_require_phone_number = (
 	412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,
 	300062,400255,400633,400408,400089,400310,412011,400325,400183,412378,
@@ -91,7 +93,7 @@ def process_comment(comment, thread_id):
 	# since we don't deliver message-less comments, when we activate an endpoint we
 	# end up sending the backlog of those comments. don't bother. This is also in
 	# the legstaff mail download function.
-	if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=31):
+	if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=POSITION_DELIVERY_CUTOFF_DAYS):
 		return
 	
 	# skip flagged addresses... when I put this into the .filter(),

@@ -18,7 +18,7 @@ import datetime, re, shutil, subprocess, sys, tempfile, os.path
 from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign
 from popvox.govtrack import getMemberOfCongress
 from writeyourrep.models import DeliveryRecord, Endpoint
-from settings import SERVER_EMAIL
+from settings import SERVER_EMAIL, POSITION_DELIVERY_CUTOFF_DAYS
 
 buildings = {
 	"cannon": "house",
@@ -256,6 +256,12 @@ def create_tex(tex, serial):
 	outfile_.close()
 	
 def clean_ucodrs():
+	# delete UCODR objects for no-message positions that are too old
+	UserCommentOfflineDeliveryRecord.objects.filter(batch=None,
+		comment__message=None,
+		comment__updated__lt=datetime.datetime.now()-datetime.timedelta(days=POSITION_DELIVERY_CUTOFF_DAYS))\
+		.delete()
+	
 	# delete UCDOR objects for mail that has since been delivered
 	for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None):
 		if uc.comment.delivery_attempts.filter(target__govtrackid=uc.target.id, success=True).exists():
@@ -271,7 +277,7 @@ def clean_ucodrs():
 		recips = uc.comment.get_recipients()
 		if not recips or type(recips) == str or not uc.target.id in [r["id"] for r in recips]:
 			uc.delete()
-	
+
 if len(sys.argv) == 2 and sys.argv[1] == "resetbatchnumbers":
 	UserCommentOfflineDeliveryRecord.objects.all().update(batch=None)
 elif len(sys.argv) == 3 and sys.argv[1] == "kill":
