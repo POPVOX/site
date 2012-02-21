@@ -60,7 +60,8 @@ elif os.environ.get("EMAIL_BACKEND") in ("AWS-SES",):
 	#   plus with django_ses.urls mapped to /admin/ses for the dash.
 	#  We should really be monitoring the statistics.
 	EMAIL_BACKEND = 'django_ses.SESBackend'
-elif os.environ.get("EMAIL_BACKEND") == "SENDGRID":
+elif os.environ.get("EMAIL_BACKEND") == "SENDGRID" or True:
+	# be sure to set SPF record: v=spf1 a mx include:sendgrid.net ~all
 	EMAIL_HOST = "smtp.sendgrid.net"
 	EMAIL_HOST_USER = SENDGRID_USERNAME
 	EMAIL_HOST_PASSWORD = SENDGRID_PASSWORD
