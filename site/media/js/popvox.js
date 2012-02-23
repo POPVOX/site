@@ -16,16 +16,16 @@ function share_link(method, text, url, hashtag) {
 	if (method == "facebook") {
 		// based on share bookmarklet: http://www.facebook.com/share_options.php
 		var f="http://www.facebook.com/share";
-		var p=".php?src=bm&v=4&i=1299162093&u=" + encodeURIComponent(url) + "&t=" + encodeURIComponent(text);
+		var p=".php?src=bm&v=4&i=1299162093&u=" + encodeURIComponent(url) + (text ? "&t=" + encodeURIComponent(text) : "");
 		share_open_popup(f+"r"+p, f+p);
 	} else if (method == "twitter") {
-		var p1 = "http://twitter.com/intent/tweet?related=popvox&hashtags=" + (hashtag ? encodeURIComponent(hashtag.replace("#", "")) : "") + "&url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text);
-		var p2 = "http://twitter.com/home?status=" + encodeURIComponent(text + (hashtag ? " " + hashtag : "") + " " + url);
+		var p1 = "http://twitter.com/intent/tweet?via=POPVOX&related=POPVOX&hashtags=" + (hashtag ? encodeURIComponent(hashtag.replace("#", "")) : "") + "&url=" + encodeURIComponent(url) + (text ? "&text=" + encodeURIComponent(text) : "");
+		var p2 = "http://twitter.com/home?status=" + encodeURIComponent((text ? text : "") + (hashtag ? " " + hashtag : "") + " " + url + " via @POPVOX");
 		share_open_popup(p1, p2);
 	} else if (method == "reddit") {
 		window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(url);
 	} else if (method == "tumblr") {
-		share_open_popup('https://www.tumblr.com/share/link?url=' + encodeURIComponent(url) + "&name=" + encodeURIComponent(text), null);
+		share_open_popup('https://www.tumblr.com/share/link?url=' + encodeURIComponent(url) + (text ? "&name=" + encodeURIComponent(text) : ""), null);
 	}
 }
 

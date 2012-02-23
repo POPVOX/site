@@ -103,7 +103,7 @@ def get_short_url(request):
 		
 		data = {
 			"shorturl": rec.url(),
-			"title": (obj.nicename[0:80] + " via @POPVOX") if hasattr(obj, "nicename") else None,
+			"title": obj.nicename[0:80] if hasattr(obj, "nicename") else None,
 			"hashtag": obj.hashtag() if hasattr(obj, "hashtag") else None,
 		}
 	else:

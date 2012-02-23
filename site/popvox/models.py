@@ -1420,6 +1420,13 @@ class UserComment(models.Model):
 		
 	def referrers(self):
 		return [ucr.referrer for ucr in self.usercommentreferral_set.all()]
+		
+	# these are used for generating text for sharing
+	@property
+	def nicename(self):
+		return self.user.username + " " + self.verb() + " " + self.bill.nicename
+	def hashtag(self):
+		return self.bill.hashtag()
 
 class UserCommentReferral(models.Model):
 	# This class is used to avoid cascaded deletes on UserComment objects
