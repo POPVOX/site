@@ -12,7 +12,7 @@ from django.conf import settings
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 
 import json
-import re
+import re, functools
 from xml.dom import minidom
 from datetime import datetime, timedelta
 
@@ -125,15 +125,13 @@ def strong_cache(f):
 	# user state is acquired through the AJAX call to master-state.
 	# A strongly cached view has no access to Django session
 	# state and is marked for upstream caching.
+	@functools.wraps(f)
 	def g(request, *args, **kwargs):
 		if "nocache" not in request.GET:
 			request.strong_cache = True
 			request.session = None
 			request.user = AnonymousUser()
 		return f(request, *args, **kwargs)
-	g.__name__ = f.__name__
-	if hasattr(f, "user_state"):
-		g.user_state = f.user_state
 	return g
 
 @strong_cache

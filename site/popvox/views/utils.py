@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.db import connection
 from django.views.decorators.csrf import csrf_protect
 
-import urllib, re, math, pytz
+import urllib, re, math, pytz, functools
 from datetime import datetime, timedelta, time
 import hashlib, numpy
 
@@ -37,6 +37,8 @@ def formatDateTime(d, withtime=True, tz="EST"):
 		return d.strftime("%b %d, %Y").replace(" 0", " ")
 		
 def cache_page_postkeyed(duration, vary_by_user=False):
+	# This is not being used anywhere and if it is used, it should be updated
+	# to use @functools.wraps(func).
 	def f(func):
 		def g(request, *args, **kwargs):
 			if vary_by_user and request.user.is_authenticated():
@@ -62,6 +64,8 @@ def cache_page_postkeyed(duration, vary_by_user=False):
 
 
 def require_lock(*tables):
+	# this is not currently being used anywhere since it is really bad for performance
+	# but if it is, it should be updated to use @functools.wraps(func).
 	def _lock(func):
 		def _do_lock(*args, **kwargs):
 			cursor = connection.cursor()
@@ -77,6 +81,7 @@ def require_lock(*tables):
 def csrf_protect_if_logged_in(f):
 	f_protected = csrf_protect(f)
 	
+	@functools.wraps(f)
 	def g(request, *args, **kwargs):
 		if request.user.is_authenticated():
 			return f_protected(request, *args, **kwargs)
