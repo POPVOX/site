@@ -359,7 +359,7 @@ elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
 			msg = EmailMultiAlternatives("User Messages Delivery PDF",
 				"",
 				SERVER_EMAIL,
-				["josh@popvox.com"])
+				["josh@popvox.com", "annalee@popvox.com"])
 			msg.attach('messages_' + serial + '.pdf', f.read(), "application/pdf")
 			msg.send()
 			
