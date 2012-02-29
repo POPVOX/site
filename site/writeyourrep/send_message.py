@@ -391,7 +391,8 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"ratings[how_is_the_112th_congress_doing?]",
 	"ratings[how_am_i_doing_as_your_representative?]",
 	"ratings[is_the_112th_congress_addressing_the_issues_that_concern_you?]",
-	"aff1req")
+	"aff1req",
+	"phcell")
 
 radio_choices = {
 	"reason": "legsitemail",
