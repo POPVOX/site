@@ -163,6 +163,7 @@ class Bill(models.Model):
 	migrate_to = models.ForeignKey('Bill', related_name='migrate_from', blank=True, null=True, on_delete=models.SET_NULL)
 	
 	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase. For non-bill actions, this is an alternate short name for the action.")
+	ask = models.CharField(max_length=100, blank=True, null=True, help_text="Use for Non-Bill Actions only. This field changes the 'how should your member of congress vote' text on the bill page.")
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
 	hold_metadata = models.BooleanField(default=False)

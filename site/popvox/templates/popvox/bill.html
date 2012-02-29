@@ -330,13 +330,19 @@ function getshorturl() {
 			<p>
 				{% if nextchamber == "s" %}The next vote on this bill will occur in the Senate. {% endif %}
 				{% if nextchamber == "h" %}The next vote on this bill will occur in the House of Representatives. {% endif %}
-				<span id="howshouldtheyvote">
+				{%if bill.ask%}
+					<span id="howshouldtheyvote">
+					{{bill.ask}}
+					</span>
+				{%else%}
+					<span id="howshouldtheyvote">
 					{% if nextchamber == "s" %}How should your senators vote?{% endif %}
 					{% if nextchamber == "h" %}How should your representative vote?{% endif %}
 					{% if nextchamber != "s" and nextchamber != "h" %}How should your Members of Congress vote?{% endif %}
-				</span>
+					</span>
+					<script>master_state(function(res) { if (res.page.mocs) $('#howshouldtheyvote').text("How should " + res.page.mocs + " vote?"); });</script>
+				{% endif %}
 			</p>
-			<script>master_state(function(res) { if (res.page.mocs) $('#howshouldtheyvote').text("How should " + res.page.mocs + " vote?"); });</script>
 			
 			<div><small id="getshorturl"><a href="#" onclick="return getshorturl()">Share this {{bill.proposition_type}}</a></small></div>
 		</div>

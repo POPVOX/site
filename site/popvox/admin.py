@@ -11,8 +11,8 @@ class BillAdmin(admin.ModelAdmin):
 	fieldsets = (
 		("Primary Key", { "fields": ('congressnumber', 'billtype', 'billnumber', 'vehicle_for')}),
 		("Required Metadata", { "fields": ('title', 'introduced_date', 'current_status', 'current_status_date', 'num_cosponsors')}),
-		("Usual Metadata", { "fields": ('description', 'street_name', 'notes', 'hashtags', 'comments_to_chamber')}),
-		("Optional Metadata", { "fields": ('sponsor', 'cosponsors', 'committees', 'topterm', 'issues', 'latest_action', 'reintroduced_as', 'migrate_to', 'hold_metadata')}),
+		("Usual Metadata", { "fields": ('description', 'street_name', 'ask', 'notes', 'hashtags', 'topterm', 'comments_to_chamber')}),
+		("Optional Metadata", { "fields": ('sponsor', 'cosponsors', 'committees', 'issues', 'latest_action', 'reintroduced_as', 'migrate_to', 'hold_metadata')}),
 		("Upcoming Event", { "fields": ( 'upcoming_event_post_date', 'upcoming_event' ) }),
 		)
 
