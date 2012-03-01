@@ -38,16 +38,29 @@ add-apt-repository -y ppa:nginx/stable
 apt-get update
 apt-get upgrade -y
 
+# Utilities for system administration.
 apt-get install -y \
- update-notifier-common unzip elinks mutt \
+ update-notifier-common elinks mutt
+
+# Core dependencies (needed for local environment installs of the site).
+apt-get install -y \
+ unzip \
+ git-core subversion mercurial \
+ python-django \
+ python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml python-cssutils python-tz python-numpy python-scipy python-rsvg \
+ sphinxsearch \
+ memcached python-memcache
+
+# Dependencies for production servers.
+apt-get install -y \
+ nginx-full python-flup mysql-client
+ 
+# Dependencies for the master server. 
+apt-get install -y \
  nfs-common nfs-kernel-server \
  postfix rdiff-backup \
- git-core subversion mercurial \
- nginx-full python-flup mysql-client \
- python-beautifulsoup python-html5lib python-feedparser python-recaptcha python-httplib2 python-mysqldb python-imaging python-markdown python-lxml python-cssutils sphinxsearch \
- memcached python-memcache \
  poppler-utils libqtcore4 pdftk graphicsmagick \
- python-mechanize python-matplotlib python-scipy python-rsvg \
+ python-mechanize python-matplotlib \
  python-reverend texlive-latex-base texlive-latex-recommended texlive-xetex fontconfig ttf-linux-libertine
 
 ## Custom packages
@@ -55,7 +68,6 @@ apt-get install -y \
 #wget http://launchpadlibrarian.net/64542273/$DJANGO
 #dpkg -i $DJANGO
 #rm $DJANGO
-apt-get install python-django
 
 # in /usr/share/pyshared/django/middleware/csrf.py, disabled strict referrer checking
 # because too many people suppress referer header.

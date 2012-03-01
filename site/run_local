@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Install the "core dependencies" listed in ../ec2/sysinit.
+#
+# cd ../libs; ./checkouts
 # rm database.sqlite
 # LOCAL=1 LOADING_FIXTURE=1 ./manage syncdb
 # LOCAL=1 ./manage syncdb # initializes MemberOfCongress, CongressionalCommittee tables
