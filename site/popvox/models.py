@@ -1634,7 +1634,7 @@ class ServiceAccountCampaign(models.Model):
 				'event' : ['widget_writecongress_hit', 'widget_writecongress_start', 'widget_writecongress_send', 'widget_writecongress_share'],
 				'unit' : 'day',   # month+24 is useful just for getting totals
 				'interval' : 365, # but when returning details need daily stats
-				'type': 'unique',
+				'type': 'unique', # 'general' would get total non-unique hits
 				'bucket': self.mixpanel_bucket()
 				})
 		except:
@@ -1825,7 +1825,6 @@ def scar_save_civicrm(acct, campaign, instance):
 			if not rec: # no such record
 				existing_record_id = None # create a new one below
 		
-		#
 		if existing_record_id:
 			params["id"] = existing_record_id
 		ret = call_civi(
