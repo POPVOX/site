@@ -1,1 +1,0 @@
-DEBUG=1 ./manage runserver --settings=settings

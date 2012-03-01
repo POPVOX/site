@@ -5,25 +5,35 @@ from django.template import RequestContext
 
 import string
 
-import recaptcha.client.captcha
+try:
+	import recaptcha.client.captcha
+	
+	# due to changes on April 21, 2011, we must use a different api server
+	if recaptcha.client.captcha.API_SSL_SERVER== "https://api-secure.recaptcha.net":
+		# these won't work in newer recaptcha lib because it creates the full path differently
+		recaptcha.client.captcha.API_SSL_SERVER="https://www.google.com/recaptcha/api"
+		recaptcha.client.captcha.API_SERVER="http://www.google.com/recaptcha/api"
+		recaptcha.client.captcha.VERIFY_SERVER="www.google.com/recaptcha/api"
 
-# due to changes on April 21, 2011, we must use a different api server
-if recaptcha.client.captcha.API_SSL_SERVER== "https://api-secure.recaptcha.net":
-	# these won't work in newer recaptcha lib because it creates the full path differently
-	recaptcha.client.captcha.API_SSL_SERVER="https://www.google.com/recaptcha/api"
-	recaptcha.client.captcha.API_SERVER="http://www.google.com/recaptcha/api"
-	recaptcha.client.captcha.VERIFY_SERVER="www.google.com/recaptcha/api"
-
+	from settings import RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY
+	
+	def check_has_recaptcha():
+		pass
+except:
+	def check_has_recaptcha():
+		raise ImportError("recaptcha.client.captcha is not available or RECAPTCHA_{PUBLIC,PRIVATE}_KEY settings are not set.")
+	
 from jquery.ajax import validation_error_message
 from emailverification.utils import send_email_verification
 
-from settings import RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY
 from settings import APP_NICE_SHORT_NAME, USERNAME_BLACKLIST_TERMS
 
 def captcha_html(error = None):
+	check_has_recaptcha()
 	return recaptcha.client.captcha.displayhtml(RECAPTCHA_PUBLIC_KEY, error = error, use_ssl=True)
 
 def validate_captcha(request):
+	check_has_recaptcha()
 	# This may have to be the last check in a form because if the captcha succeeds, the user
 	# cannot resubmit without a new captcha. (I hope. reCAPTCHA should not be open
 	# to replay-attacks.)

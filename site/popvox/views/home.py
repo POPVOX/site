@@ -19,7 +19,7 @@ from popvox.models import *
 from popvox.views.bills import bill_statistics, get_default_statistics_context
 import popvox.govtrack
 
-from settings import MIXPANEL_API_KEY, SITE_ROOT_URL
+from settings import SITE_ROOT_URL
 
 import csv
 import urllib

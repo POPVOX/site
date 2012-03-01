@@ -957,7 +957,7 @@ def user_saved_callback(sender, instance, created, **kwargs):
 		p.save()
 
 		send_mail('New account: ' + instance.username, 'New account created: ' + instance.username + " (" + instance.email + ")", "info@popvox.com", ["marci@popvox.com", "rachna@popvox.com"], fail_silently=True)
-if not "LOADING_DUMP_DATA" in os.environ:
+if not "LOADING_FIXTURE" in os.environ:
 	# When we're loading from a fixture, we get the UserProfile record later so we cannot
 	# create it now or we get a duplicate value for index error.
 	django.db.models.signals.post_save.connect(user_saved_callback, sender=User)
@@ -1716,7 +1716,7 @@ class ServiceAccountCampaignActionRecord(models.Model):
 		unique_together = [('campaign', 'email')]
 def sacar_saved_callback(sender, instance, created, **kwargs):
 	# Save data back to CRM.
-	if "LOADING_DUMP_DATA" in os.environ: return
+	if "LOADING_FIXTURE" in os.environ: return
 	try:
 		campaign = instance.campaign
 		acct = campaign.account
@@ -1955,7 +1955,7 @@ class BillRecommendation(models.Model):
 	def __unicode__(self):
 		return "BillRecommendation(" + str(self.created) + " " + self.name + ")"
 
-if not "LOADING_DUMP_DATA" in os.environ and not os.path.exists("/home/www/slave"):
+if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave"):
 	# Make sure that we have MoC and CC records for all people
 	# and committees that exist in Congress. Accessing these
 	# models now prevents any further ManyToMany relationships

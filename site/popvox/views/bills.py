@@ -28,7 +28,7 @@ from popvox.govtrack import CURRENT_CONGRESS, getMembersOfCongressForDistrict, o
 from emailverification.utils import send_email_verification
 from utils import formatDateTime, cache_page_postkeyed, csrf_protect_if_logged_in
 
-from settings import DEBUG, SERVER_EMAIL, TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET, SITE_ROOT_URL
+from settings import DEBUG, SERVER_EMAIL, SITE_ROOT_URL
 
 popular_bills_cache = None
 popular_bills_cache_2 = None
@@ -953,7 +953,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
 				"useraddress_states": govtrack.statelist,
 				"captcha": captcha_html(getattr(e, "recaptcha_error", None)) if require_captcha else "",
 				"error": validation_error_message(e), # accepts ValidationError, KeyError, ValueError
-				"error_is_validation": isinstance(e, AddressVerificationError) and not e.mandatory,
+				"error_is_validation": isinstance(e, AddressVerificationError) and not e.mandatory or str(e) == "cannot import name CDYNE_LICENSE_KEY",
 				"recipients": get_comment_recipients(bill, address_record),
 				}, context_instance=RequestContext(request))
 		
@@ -1239,10 +1239,13 @@ def billshare(request, congressnumber, billtype, billnumber, vehicleid, commenti
 
 	finished_url = "/home"
 	
-	# supercommittee feature redirect
-	from features import supercommittee_bill_list_ids
-	if bill.id in supercommittee_bill_list_ids:
-		finished_url = "/supercommittee"
+	## supercommittee feature redirect
+	## when we ran the supercommittee feature, we wanted to bring users back to the
+	## supercommittee page after they finished leaving a comment, but now we want
+	## to avoid this dependency to another part of the code.
+	#from features import supercommittee_bill_list_ids
+	#if bill.id in supercommittee_bill_list_ids:
+	#	finished_url = "/supercommittee"
 
 	return render_to_response('popvox/billcomment_view.html', {
 			'bill': bill,
@@ -1401,6 +1404,8 @@ Go to %s to have your voice be heard!""" % (
 		return { "status": "success", "msg": "Message sent." }
 
 	elif request.POST["method"] == "twitter":
+		from settings import TWITTER_OAUTH_TOKEN, TWITTER_OAUTH_TOKEN_SECRET
+		
 		tweet = ""
 		if not bill.hashtag() in request.POST["message"]:
 			tweet += " " + bill.hashtag()

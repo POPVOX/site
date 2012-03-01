@@ -123,6 +123,17 @@ def district_lookup_address(addr):
 	return None
 
 def district_lookup_coordinate(lng, lat):
+	# When running locally, we don't have the database table, but we can
+	# query popvox.com's district-lookup API.
+	import os
+	if "LOCAL" in os.environ:
+		import simplejson
+		ret = simplejson.loads(urlopen("http://www.popvox.com/ajax/district-lookup?lat=%f&lng=%f" % (lat, lng)).read())
+		if ret["status"] == "success":
+			return ret["state"], ret["district"]
+		else:
+			return None
+	
 	# Find all of the districts whose bounding box contains the point.
 	cursor = connection.cursor()
 	cursor.execute("SELECT state, district FROM congressionaldistrictpolygons WHERE MBRContains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])

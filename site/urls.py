@@ -19,7 +19,6 @@ urlpatterns = patterns('',
 	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|advertising|faq|blog_template|features/opendataday2011)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	(r'^press$', 'popvox.views.main.press_page'),
 	(r'^legal$', 'popvox.views.main.legal_page'),
-	(r'^blog/', include('articles.urls')),
 
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	
@@ -173,13 +172,18 @@ urlpatterns = patterns('',
 
 	#(r'^about/photos/', include('stockphoto.urls')),
 
-	(r'^admin/ses', include('django_ses.urls')),
 	(r'^admin/', include(admin.site.urls)),
 
 	(r"^error$", "popvox.views.main.raise_error"),
 
 	#(r'^dowser/', include('django_dowser.urls')),
 )
+
+if not "LOCAL" in os.environ:
+	# dependency to articles app is not available locally, see settings.py
+	urlpatterns += patterns('',
+		(r'^blog/', include('articles.urls')),
+		)
 
 # for running a site that handles the admin interface only
 if "ADMIN_SITE" in os.environ and os.environ["ADMIN_SITE"] == "1":
