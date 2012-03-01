@@ -1,0 +1,1410 @@
+<django-objects version="1.0">
+  <object pk="3" model="popvox.rawtext">
+    <field type="SlugField" name="name">bills_left</field>
+    <field type="IntegerField" name="format">0</field>
+    <field type="TextField" name="text">&lt;!-- category_icon_XXX: environment, governance, guns, health, immigration, international, money, technology, bank, eye, farm, gov, grad, money, pentagon, plane, tank --&gt;
+
+&lt;div class="category_icon_container"&gt;
+			&lt;div class="category_icon category_icon_governance"&gt;&lt;/div&gt;
+			&lt;h2&gt;
+				Heard on the Hill
+			&lt;/h2&gt;
+			&lt;p&gt;
+				&lt;strong&gt;Week of 2/27: Here's what we're hearing about -- and what's heading for a vote.&lt;/strong&gt;
+			&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr2117"&gt;The Protecting Academic Freedom in Higher Education Act&lt;/a&gt;&lt;small&gt; (HR 2117) prohibits the Education Dept. from overreaching into academic affairs and program eligibility under title IV of the Higher Education Act of 1965. (&lt;em&gt;House vote Tuesday.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr1433"&gt;The Private Property Rights Protection Act&lt;/a&gt;&lt;small&gt; (HR 1433) protects private property rights. (&lt;em&gt;House vote Tuesday.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr4089"&gt;HR 4089&lt;/a&gt;&lt;small&gt; protects and enhances opportunities for recreational hunting, fishing and shooting. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr4036"&gt;The Pass a Budget Now Act&lt;/a&gt;&lt;small&gt; (HR 4074) imposes a daily reduction in the rates of pay for Members of Congress if Congress fails to agree to a concurrent resolution on the budget.&lt;/small&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr4074"&gt;The Freedom From Union Violence Act&lt;/a&gt;&lt;small&gt; (HR 4074) amends the Hobbs Act. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr665"&gt;The Excess Federal Building and Property Disposal Act&lt;/a&gt;&lt;small&gt; (HR 665) establishes a pilot program for the expedited disposal of Federal real property. (&lt;em&gt;House vote Wednesday.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr3902"&gt;HR 3902&lt;/a&gt;&lt;small&gt; amends the District of Columbia Home Rule Act to revise the timing of special elections for local office in the District of Columbia. (&lt;em&gt;House vote Wednesday.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+			&lt;div class="clear"&gt; &lt;/div&gt;
+&lt;/div&gt;
+
+
+	&lt;div class="category_icon_container"&gt;
+			&lt;div class="category_icon category_icon_international"&gt;&lt;/div&gt;
+			&lt;h2&gt;
+				&lt;a href="http://www.popvox.com/blog/2012/issue-spotlight-syria/"&gt;Issue Spotlight: Syria&lt;/a&gt;
+			&lt;/h2&gt;
+
+			&lt;p&gt;
+&lt;strong&gt;As violence in Syria continues, we want to highlight some bills related to Syria that have been introduced in Congress.&lt;/strong&gt; We hope you'll weigh in on these bills on POPVOX and share with your friends and networks.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="../../../../bills/us/112/sres180"&gt;S Res 180&lt;/a&gt;&lt;small&gt; (and &lt;a href="../../../../bills/us/112/hres296"&gt;H Res 296&lt;/a&gt;) express support for peaceful demonstrations and universal freedoms in Syria and condemning the human rights violations by the Assad regime.&lt;/small&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="../../../../bills/us/112/s1472"&gt;The Syria Sanctions Act (S 1472)&lt;/a&gt;&lt;small&gt; imposes sanctions on persons making certain investments that directly and significantly contribute to the enhancement of the ability of Syria to develop its petroleum resources.&lt;/small&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="../../../../bills/us/112/hr2106"&gt;The Syria Freedom Support Act (HR 2106)&lt;/a&gt;&lt;small&gt; strengthens sanctions against the Government of Syria, enhances multilateral commitment to address the Government of Syria's threatening policies, and establishes a program to support a transition to a democratically-elected government in Syria.&lt;/small&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="../../../../bills/us/112/hres549"&gt;H Res 549&lt;/a&gt;&lt;small&gt; (and &lt;a href="../../../../bills/us/112/sres370"&gt;S Res 370&lt;/a&gt;) call for democratic change in Syria.&lt;/small&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="../../../../bills/us/112/s2034"&gt;The Syrian Human Rights Accountability Act (S 2034)&lt;/a&gt;&lt;small&gt; imposes sanctions with respect to human rights abuses committed against the people of Syria.&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+			&lt;div class="clear"&gt; &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div class="category_icon_container"&gt;
+			&lt;div class="category_icon category_icon_governance"&gt;&lt;/div&gt;
+			&lt;h2&gt;
+				Heard on the Hill
+			&lt;/h2&gt;
+			&lt;p&gt;
+				&lt;strong&gt;Week of 2/20: Here's what we're hearing about -- and what's heading for a vote.&lt;/strong&gt;
+			&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/s2118"&gt;The Health Care Bureaucrats Elimination Act&lt;/a&gt;&lt;small&gt; (S 2118) removes unelected, unaccountable bureaucrats from seniors’ personal health decisions by
+repealing the Independent Payment Advisory Board. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/s2115"&gt;The State Waters Partnership Act&lt;/a&gt;&lt;small&gt; (S 2115) limits the authority of the EPA Administrator with respect to certain numeric nutrient criteria. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr4070"&gt;HR 4070&lt;/a&gt;&lt;small&gt; clarifies certain provisions relating to the interests of Iran in certain assets. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hr4066"&gt;The Health Information Technology Reform Act&lt;/a&gt;&lt;small&gt; (HR 4066) excludes pathologists from incentive payments and penalties under Medicare and Medicaid relating to the meaningful use of electronic health records. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/s2117"&gt;The Adult Education and Economic Growth Act&lt;/a&gt;&lt;small&gt; (S 2117) increases access to adult eduction to provide for economic growth. (&lt;em&gt;Just
+introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/hconres101"&gt;H Con Res 101&lt;/a&gt;&lt;small&gt; expresses the sense of the Congress that our current tax incentives for retirement savings provide important benefits to
+Americans to help plan for a financially secure retirement. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/sres380"&gt;S Res 380&lt;/a&gt;&lt;small&gt; expresses the sense of the Senate regarding the importance of preventing the Government of Iran from acquiring nuclear
+weapons capability. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;a href="https://www.popvox.com/bills/us/112/s2120"&gt;The Prompt Notification of Short Sales Act&lt;/a&gt;&lt;small&gt; (S 2120) requires the lender or servicer of a home mortgage upon a request by the homeowner for a
+short sale, to make a prompt decision whether to allow the sale. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+ &lt;li&gt;
+					&lt;a href="https://www.popvox.com/bills/us/112/s2111"&gt;The Cyber Crime Protection Security Act&lt;/a&gt;&lt;small&gt; (S 2111) enhances punishment for identity theft and other violations of data privacy and security. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+ &lt;li&gt;
+					&lt;a href="https://www.popvox.com/bills/us/112/s2105"&gt;The Cybersecurity Act&lt;/a&gt;&lt;small&gt; (S 2105) enhances the security and resiliency of the cyber and communications infrastructure of the United States. (&lt;em&gt;Senate begins consideration this week.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+ &lt;li&gt;
+					&lt;a href="https://www.popvox.com/bills/us/112/sres379"&gt;S Res 379&lt;/a&gt;&lt;small&gt; : An original resolution condemning violence by the Government of Syria against the Syrian people. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+ &lt;li&gt;
+					&lt;a href="https://www.popvox.com/bills/us/112/hr4063"&gt;The Guns-Free National Parks Act&lt;/a&gt;&lt;small&gt; (HR 4063) restores the ban on carrying a loaded gun in a national park or wildlife refuge. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+					&lt;a href="https://www.popvox.com/bills/us/112/hr4054"&gt;The Restore Public Trust Act&lt;/a&gt;&lt;small&gt; (HR 4054) requires the disclosure of political intelligence activities and enhances the prosecution of public corruption, which were two provisions that were not included in the House-passed &lt;a href="https://www.popvox.com/bills/us/112/hr1148"&gt;STOCK Act&lt;/a&gt;, &lt;a href="http://www.louise.house.gov/index.php?option=com_content&amp;view=article&amp;id=2664:slaughter-and-walz-write-to-house-and-senate-leadership-urging-conference-committee&amp;catid=101:2012-press-releases&amp;Itemid=55"&gt;according to the bill sponsors&lt;/a&gt;. (&lt;em&gt;Just introduced.&lt;/em&gt;)&lt;/small&gt;
+&lt;/li&gt;
+
+&lt;/ul&gt;
+&lt;div class="clear"&gt;&lt;/div&gt;
+		&lt;/div&gt;
+
+	&lt;div class="category_icon_container"&gt;
+			&lt;div class="category_icon category_icon_health"&gt;&lt;/div&gt;
+			&lt;h2&gt;
+				&lt;a href="http://www.popvox.com/blog/2012/issue-spotlight-elder-care/"&gt;Issue Spotlight: Elder Care&lt;/a&gt;
+			&lt;/h2&gt;
+
+			&lt;p&gt;
+&lt;strong&gt;Nearly one in four households provide care to someone who is aged. With that in mind, we pulled together some bills that are related to elder care.&lt;/strong&gt; We hope you'll weigh in on &lt;a href="http://www.popvox.com/blog/2012/issue-spotlight-elder-care/"&gt;these bills&lt;/a&gt; and share with your friends and networks.&lt;/p&gt;
+
+			&lt;div class="clear"&gt; &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div class="category_icon_container"&gt;
+			&lt;div class="category_icon category_icon_governance"&gt;&lt;/div&gt;
+			&lt;h2&gt;
+				Heard on the Hill: Week of 2/13
+			&lt;/h2&gt;
+			&lt;p&gt;
+				&lt;strong&gt;Weekly Round-up, 2/13: &lt;a href="http://www.popvox.com/blog/2012/weekly-bill-round-week-213/"&gt; Here's what we're hearing about -- and what's heading for a vote.&lt;/a&gt;&lt;/strong&gt;
+			&lt;/p&gt;
+
+			&lt;div class="clear"&gt; &lt;/div&gt;
+&lt;/div&gt;
+
+
+		&lt;div class="category_icon_container spotlight"&gt;
+			&lt;div class="category_icon category_icon_governance"&gt;&lt;/div&gt;
+			&lt;h2&gt;How Well Do your Elected Officials Represent You?&lt;/h2&gt;
+
+&lt;p&gt;
+&lt;strong&gt;Check out Congress Match at &lt;a href="http://www.popvox.com/home/match"&gt;www.popvox.com/home/match&lt;/a&gt;&lt;/strong&gt;. &lt;em&gt;(You must be logged in to POPVOX.)&lt;/em&gt;&lt;/p&gt;
+
+			&lt;div class="clear"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+
+	&lt;div class="category_icon_container"&gt;
+			&lt;div class="category_icon category_icon_technology"&gt;&lt;/div&gt;
+			&lt;h2&gt;
+				&lt;a href="http://www.popvox.com/blog/2012/issue-spotlight-startups/"&gt;Issue Spotlight: Startups&lt;/a&gt;
+			&lt;/h2&gt;
+
+			&lt;p&gt;
+&lt;strong&gt;The POPVOX team was invited to attend the &lt;em&gt;State of Entrepreneurship&lt;/em&gt; briefing yesterday.&lt;/strong&gt; In conjunction with this event, the Kauffman Foundation &lt;a href="http://www.kauffman.org/newsroom/the-state-of-entrepreneurship-state-and-local-governments-hold-the-key-to-accelerating-economic-growth-in-2012.aspx"&gt;released two reports&lt;/a&gt;: "State Startup Act" and "License to Grow." (POPVOX was one of several startups invited to attend the event.)&lt;/p&gt;
+&lt;p&gt;Inspired by the event, we pulled together a list of bills relating to startups. We hope you'll weigh in on &lt;a href="http://www.popvox.com/blog/2012/issue-spotlight-startups/"&gt;these bills&lt;/a&gt; and share with your friends and networks.&lt;/p&gt;
+
+			&lt;div class="clear"&gt; &lt;/div&gt;
+&lt;/div&gt;
+
+
+		&lt;div class="category_icon_container spotlight"&gt;
+			&lt;div class="category_icon category_icon_governance"&gt;&lt;/div&gt;
+			&lt;h2&gt;
+				&lt;a href="http://www.popvox.com/blog/2011/what-congress-heard-in-2011/"&gt;The Top 10 Bills of 2011&lt;/a&gt;
+			&lt;/h2&gt;
+			&lt;p&gt;
+				Some dominated the headlines, some never got a vote. The bills that moved people to contact Congress in 2011 span the gamut from jobs to taxes, internet policy and immigration.  
+ &lt;/p&gt;
+
+&lt;p&gt;
+&lt;strong&gt;Check out the &lt;a href="http://www.popvox.com/blog/2011/what-congress-heard-in-2011/"&gt;The Top 10 Bills of 2011&lt;/a&gt;. How many have you weighed in on?&lt;/strong&gt;&lt;/p&gt;
+
+
+			&lt;div class="clear"&gt;&lt;/div&gt;
+&lt;/div&gt;</field>
+  </object>
+  <object pk="4" model="popvox.rawtext">
+    <field type="SlugField" name="name">bills_right</field>
+    <field type="IntegerField" name="format">0</field>
+    <field type="TextField" name="text">&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://www.popvox.com/bills/us/112/s1549"&gt;American Jobs Act&lt;/a&gt;&lt;small&gt; (S 1549) provides tax relief for American workers and businesses; puts workers back on the job while rebuilding and modernizing America (The President's proposal introduced by Sen. Maj. Leader Reid)&lt;/small&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.popvox.com/bills/us/112/hr2005"&gt;Combating Autism Reauthorization Act&lt;/a&gt;&lt;small&gt; (HR 2005) (House vote on Tues.) &lt;/small&gt;&lt;/li&gt;	
+&lt;li&gt;&lt;a href="https://www.popvox.com/bills/us/112/hr1852"&gt;Children's Hospital GME Support Reauthorization Act&lt;/a&gt;&lt;small&gt; (HR 1852)  reauthorizes support for graduate medical education programs in children’s hospitals (House vote on Tues.) &lt;/small&gt;&lt;/li&gt;	
+&lt;li&gt;&lt;a href="https://www.popvox.com/bills/us/112/hr2646"&gt;Veterans Health Care Facilities Capital Improvement Act&lt;/a&gt;&lt;small&gt; (HR 2646) authorizes certain VA major medical facility projects (House vote on Tues.) &lt;/small&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.popvox.com/bills/us/112/hr2189"&gt;Death in Custody Reporting Act&lt;/a&gt;&lt;small&gt; (HR 2189) encourages States to report deaths of individuals in the custody of law enforcement agencies to the Attorney General (House vote on Tues.) &lt;/small&gt;&lt;/li&gt;
+
+
+
+	{% comment %}
+	&lt;li&gt;&lt;a href="/bills/us/112/s565"&gt;Startup Visa bill&lt;/a&gt;
+		&lt;small&gt;for entrepreneurs who've received significant investment to establish a business in the U.S. (S. 565)&lt;/small&gt;&lt;/li&gt;
+		
+	&lt;li&gt;&lt;a href="/bills/us/112/hr3"&gt;No Taxpayer Funding for Abortion Act&lt;/a&gt;
+		&lt;small&gt;prohibits taxpayer funded abortions and provides for conscience protections (H.R. 3)&lt;/small&gt;&lt;/li&gt;
+	{% endcomment %}
+&lt;/ul&gt;
+&lt;p&gt;These bills come from a combination of news alerts and what POPVOX hears from Hill contacts. To suggest a bill, email us at &lt;a href="mailto:info@popvox.com"&gt;info@popvox.com&lt;/a&gt;.&lt;/p&gt;</field>
+  </object>
+  <object pk="5" model="popvox.rawtext">
+    <field type="SlugField" name="name">calendar_last_update</field>
+    <field type="IntegerField" name="format">1</field>
+    <field type="TextField" name="text">Last updated December 25, 2011.</field>
+  </object>
+  <object pk="15" model="popvox.rawtext">
+    <field type="SlugField" name="name">delivery_status_chart_info</field>
+    <field type="IntegerField" name="format">0</field>
+    <field type="TextField" name="text">[{'count': 946, 'delivered': 98.2, 'comment_delivered': 97.7, 'delays': {'median': 3.8, '97p': 7.7}, 'comment_count': 221, 'date': datetime.date(2012, 2, 6)}, {'count': 1176, 'delivered': 98.3, 'comment_delivered': 96.5, 'delays': {'median': 2.7, '97p': 6.8}, 'comment_count': 170, 'date': datetime.date(2012, 2, 7)}, {'count': 887, 'delivered': 98.9, 'comment_delivered': 98.5, 'delays': {'median': 1.8, '97p': 4.1}, 'comment_count': 194, 'date': datetime.date(2012, 2, 8)}, {'count': 685, 'delivered': 99.3, 'comment_delivered': 97.6, 'delays': {'median': 1.1, '97p': 4.1}, 'comment_count': 167, 'date': datetime.date(2012, 2, 9)}, {'count': 608, 'delivered': 99.2, 'comment_delivered': 98.3, 'delays': {'median': 1.4, '97p': 3.1}, 'comment_count': 176, 'date': datetime.date(2012, 2, 10)}, {'count': 482, 'delivered': 99.4, 'comment_delivered': 98.3, 'delays': {'median': 2.0, '97p': 2.5}, 'comment_count': 119, 'date': datetime.date(2012, 2, 11)}, {'count': 455, 'delivered': 99.3, 'comment_delivered': 97.8, 'delays': {'median': 1.1, '97p': 2.6}, 'comment_count': 136, 'date': datetime.date(2012, 2, 12)}, {'count': 787, 'delivered': 97.1, 'comment_delivered': 98.3, 'delays': None, 'comment_count': 175, 'date': datetime.date(2012, 2, 13)}, {'count': 655, 'delivered': 98.2, 'comment_delivered': 96.8, 'delays': {'median': 1.1, '97p': 1.6}, 'comment_count': 190, 'date': datetime.date(2012, 2, 14)}, {'count': 881, 'delivered': 98.4, 'comment_delivered': 97.8, 'delays': {'median': 1.0, '97p': 4.7}, 'comment_count': 229, 'date': datetime.date(2012, 2, 15)}, {'count': 850, 'delivered': 94.4, 'comment_delivered': 90.8, 'delays': None, 'comment_count': 272, 'date': datetime.date(2012, 2, 16)}, {'count': 827, 'delivered': 94.2, 'comment_delivered': 89.1, 'delays': None, 'comment_count': 156, 'date': datetime.date(2012, 2, 17)}, {'count': 584, 'delivered': 92.3, 'comment_delivered': 94.0, 'delays': None, 'comment_count': 134, 'date': datetime.date(2012, 2, 18)}]</field>
+  </object>
+  <object pk="9" model="popvox.rawtext">
+    <field type="SlugField" name="name">govtrack_blast_a</field>
+    <field type="IntegerField" name="format">0</field>
+    <field type="TextField" name="text">From: GovTrack.us &lt;operations@govtrack.us&gt;
+Subject: Introducing POPVOX, from the creator of GovTrack.us
+Content-Type: multipart/alternative;
+ boundary="------------090104030603060400080705"
+
+This is a multi-part message in MIME format.
+--------------090104030603060400080705
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Dear GovTrack user:
+
+I’m excited to personally introduce you to GovTrack’s new sister site, 
+www.POPVOX.com, where you can write letters to Congress and see
+what others are saying.
+
+Increasingly, interactions between constituents and Congress have 
+devolved into screeching, beat-your-drum-louder protests or a ping-pong 
+game of organization press releases. I co-founded POPVOX last year with 
+a former Congressional staffer and a former lobbyist to reduce this 
+noise and to offer a honed experience to constituents like you and to 
+Congressional staff.
+
+GovTrack transformed access to government data by providing free 
+comprehensive legislative tracking for individuals. POPVOX is a natural 
+extension of GovTrack into a small part of the world of advocacy.
+
+My co-founders and I want to revolutionize how individuals and advocacy 
+groups/trade associations communicate with Members of Congress with an 
+interactive, transparent and public platform. Here's what POPVOX does:
+
+    * Your letters to Congress are delivered and verified.
+      POPVOX delivers constituent messages to appropriate Congressional
+      offices as well as posts them publicly to the site to extend their
+      influence. Our sign-up process is designed to help you write the
+      most effective letter, based on our experience on Capitol Hill.
+      You'll even receive a confirmation when your message is delivered
+      to a Congressional office.
+
+    * What people are saying on bills in Congress.
+      POPVOX’s public, nonpartisan platform for legislation overlays
+      individuals’ comments on pending bills, legislative positions
+      taken by organizations/trade groups, and statements offered by
+      Congress and the Administration—on top of the same basic bill
+      information you trust from GovTrack. POPVOX puts meat on a bill’s
+      bones.
+
+    * Direct access to sentiment in your district.
+      Reports on constituent sentiment enable Congress, organizations
+      and the media to gauge how people perceive issues through
+      real-life stories.
+
+    * Bill reports with bottom-line data.
+      POPVOX’s Bill Report provides proof positive of constituent
+      sentiment on specific bills. And with a cumulative line graph of
+      support vs. opposition over time, it’s also a great way to assess
+      trends.
+
+    * Widgets and advocacy tools for organizations.
+      Embed customized advocacy tools onto your own websites, including
+      a Comment Stream and Write Congress tool. Organizations can design
+      their own legislative campaign landing page (with a custom short
+      URL) and direct people to act on specific bills.
+      (see http://pvox.co/oOEeV3)
+
+I hope you will try out POPVOX &lt;http://pvox.co/YVZY35&gt; and share it with 
+your friends, family and community. To see what POPVOX users are 
+weighing in on in real-time, visit http://pvox.co/KN3MW8. Let me know
+what you think by dropping me a note at info@popvox.com.
+
+PS. See what The Washington Post had to say:
+http://www.washingtonpost.com/business/capitalbusiness/popvox-connects-advocacy-groups-public-to-congress/2011/05/20/AGTwaGEH_story.html
+
+Thanks so much,
+
+Josh Tauberer
+Founder of GovTrack, and
+CTO and co-founder of POPVOX
+
+You are receiving this email  because you have a registered account on 
+www.GovTrack.us. The last time we bothered you was a few years ago and 
+we don't plan to do this often, but if you'd like to stop future 
+announcement emails, please edit your account settings at 
+http://www.govtrack.us/users/account.xpd.
+
+	
+--------------090104030603060400080705
+Content-Type: multipart/related;
+ boundary="------------010206010602080209090105"
+
+
+--------------010206010602080209090105
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body text="#000000" bgcolor="#ffffff"&gt;
+    &lt;style type="text/css"&gt;p { margin-bottom: 0.08in; }a:link {  }&lt;/style&gt;
+    &lt;table width="100%" border="0" cellpadding="20" cellspacing="2"&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td valign="top"&gt;
+            &lt;p&gt;Dear GovTrack user:&lt;/p&gt;
+            &lt;p&gt;I’m excited to personally introduce you to GovTrack’s new
+              sister site, &lt;b&gt; &lt;a href="http://pvox.co/pjRfES"&gt;POPVOX&lt;/a&gt;&lt;/b&gt;,
+              at &lt;a class="moz-txt-link-abbreviated"
+                href="http://pvox.co/q7rfq2"&gt;www.popvox.com&lt;/a&gt;, where
+              you can&lt;b&gt; write letters to Congress and see what others
+                are saying&lt;/b&gt;. &lt;/p&gt;
+            &lt;p&gt;Increasingly, interactions between constituents and
+              Congress have devolved into screeching,
+              beat-your-drum-louder protests or a ping-pong game of
+              organization press releases. &lt;b&gt;I co-founded POPVOX last
+                year with a former Congressional staffer and a former
+                lobbyist&lt;/b&gt; to reduce this noise and to offer a honed
+              experience to constituents like you and to Congressional
+              staff.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;
+              &lt;style type="text/css"&gt;p { margin-bottom: 0.08in; }&lt;/style&gt;GovTrack
+
+
+
+              transformed access to government data by providing free
+              comprehensive legislative tracking for individuals. POPVOX
+              is a natural extension of GovTrack into a small part of
+              the world of advocacy.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;My co-founders and I want to revolutionize how
+              individuals and advocacy groups/trade associations
+              communicate with Members of Congress with an interactive,
+              transparent and public platform. Here's what POPVOX does:&lt;br&gt;
+            &lt;/p&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;Your letters to Congress are delivered and
+                    verified.&lt;/b&gt;&lt;br&gt;
+                  POPVOX delivers constituent messages to appropriate
+                  Congressional offices as well as posts them publicly
+                  to the site to extend their influence. Our sign-up
+                  process is designed to help you write the most
+                  effective letter, based on our experience on Capitol
+                  Hill. You'll even receive a confirmation when your
+                  message is delivered to a Congressional office.&lt;/p&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;What people are saying on bills in Congress.&lt;/b&gt;&lt;br&gt;
+                  POPVOX’s public, nonpartisan platform for legislation
+                  overlays individuals’ comments on pending bills,
+                  legislative positions taken by organizations/trade
+                  groups, and statements offered by Congress and the
+                  Administration—on top of the same basic bill
+                  information you trust from GovTrack. POPVOX puts meat
+                  on a bill’s bones. &lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;Direct access to sentiment in your district.&lt;/b&gt;&lt;br&gt;
+                  Reports on constituent sentiment enable Congress,
+                  organizations and the media to gauge how people
+                  perceive issues through real-life stories. &lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;Bill reports with bottom-line data.&lt;/b&gt;&lt;br&gt;
+                  POPVOX’s Bill Report provides proof positive of
+                  constituent sentiment on specific bills. And with a
+                  cumulative line graph of support vs. opposition over
+                  time, it’s also a great way to assess trends.&lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;Widgets and advocacy tools for organizations.&lt;/b&gt;&lt;br&gt;
+                  Embed customized advocacy tools onto your own
+                  websites, including a &lt;a
+                    href="http://pvox.co/DNip91"&gt;Comment
+Stream
+
+
+
+                    and Write Congress tool&lt;/a&gt;. Organizations can
+                  design their own legislative campaign landing page
+                  (with a custom short URL) and direct people to act on
+                  specific bills. &lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;p&gt;I hope you will try out &lt;a href="http://pvox.co/vMn2Uv"&gt;POPVOX&lt;/a&gt;
+              and share it with your friends, family and community. To
+              see what POPVOX users are weighing in on in real-time,
+              visit &lt;a href="http://pvox.co/biSE2M"&gt;www.popvox.com/bills&lt;/a&gt;.
+              Let me know what you think by dropping me a note at &lt;a
+                href="mailto:info@popvox.com"&gt;info@popvox.com&lt;/a&gt;.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;PS. See &lt;a
+href="http://www.washingtonpost.com/business/capitalbusiness/popvox-connects-advocacy-groups-public-to-congress/2011/05/20/AGTwaGEH_story.html"&gt;what
+
+
+                The Washington Post had to say&lt;/a&gt;.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;Thanks so much,&lt;/p&gt;
+            &lt;p&gt;Josh Tauberer&lt;br&gt;
+              Founder of GovTrack, and&lt;br&gt;
+              CTO and co-founder of POPVOX&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;&lt;small&gt;&lt;i&gt;You are receiving this email  because you have
+                  a registered account on &lt;a
+                    class="moz-txt-link-abbreviated"
+                    href="http://www.GovTrack.us"&gt;www.GovTrack.us&lt;/a&gt;.
+                  The last time we bothered you was a few years ago and
+                  we don't plan to do this often, but if you'd like to
+                  stop future announcement emails, please edit your
+                  account settings at &lt;a
+                    href="http://www.govtrack.us/users/account.xpd"&gt;http://www.govtrack.us/users/account.xpd&lt;/a&gt;.&lt;/i&gt;&lt;/small&gt;&lt;br&gt;
+            &lt;/p&gt;
+          &lt;/td&gt;
+          &lt;td valign="top"&gt;
+            &lt;div align="center"&gt;
+              &lt;style type="text/css"&gt;p { margin-bottom: 0.08in; }&lt;/style&gt;
+            &lt;/div&gt;
+            &lt;p style="margin-bottom: 0in;" align="center"&gt;&lt;a
+                href="http://pvox.co/5vKWmb"&gt;&lt;img alt="POPVOX"
+                  src="cid:part1.05090305.00010503@popvox.com"
+                  height="87" hspace="0" vspace="0" width="200"
+                  border="0"&gt;&lt;/a&gt;&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;" align="center"&gt;&lt;big&gt;&lt;big&gt;&lt;b&gt;Trending
+
+
+
+                    Bills&lt;/b&gt;&lt;/big&gt;&lt;/big&gt;&lt;br&gt;
+            &lt;/p&gt;
+            &lt;br&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;big&gt;&lt;b&gt;HR 25: Fair Tax Act&lt;/b&gt;&lt;/big&gt;,
+              repeals the income tax, abolishes the IRS and enacts a
+              national sales tax&lt;br&gt;
+              &lt;a href="http://pvox.co/ZjQNts"&gt;weigh
+                in at http://pvox.co/nHDW9r&lt;/a&gt;&lt;br&gt;
+              &lt;i&gt;on POPVOX now: 87% Support | 13% Oppose&lt;/i&gt;&lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;big&gt;&lt;b&gt;S 570&lt;/b&gt;&lt;/big&gt;,
+              prohibiting the Justice Dept. from tracking the purchases
+              of multiple rifles and shotguns&lt;br&gt;
+              &lt;a href="http://pvox.co/TZXm2u"&gt;weigh
+                in at http://pvox.co/ReNvNS&lt;/a&gt;&lt;br&gt;
+              &lt;i&gt;on POPVOX now: 77% Support | 23% Oppose&lt;/i&gt;&lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;big&gt;&lt;b&gt;S 968: PROTECT IP Act&lt;/b&gt;&lt;/big&gt;,
+              prevents online threats to economic creativity and theft
+              of intellectual property&lt;br&gt;
+              &lt;a href="http://pvox.co/FCaej7"&gt;weigh
+                in at http://pvox.co/UVyVkS&lt;/a&gt;&lt;br&gt;
+              &lt;i&gt;on POPVOX now: 11% Support | 89% Oppose&lt;/i&gt;&lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;big&gt;&lt;b&gt;S 163: Full Faith and
+                  Credit Act&lt;/b&gt;&lt;/big&gt;, requires the Government
+              prioritize all debt obligations held by the public in the
+              event the debt limit is reached&lt;br&gt;
+              &lt;a href="http://pvox.co/Y1sPas"&gt;weigh
+                in at http://pvox.co/wjuBM7&lt;/a&gt;&lt;i&gt;&lt;br&gt;
+                on POPVOX now: 84% Support | 16% Oppose&lt;/i&gt;&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;b&gt;&lt;big&gt;HR 645: Second
+                  Amendment Enforcement Act&lt;/big&gt;,&lt;/b&gt; restores Second
+              Amendment rights in the District of Columbia&lt;br&gt;
+              &lt;a href="http://pvox.co/RoWmQz"&gt;weigh
+                in at http://pvox.co/P0UmGz&lt;/a&gt;&lt;br&gt;
+              &lt;i&gt;on POPVOX now: 88% Support | 12% Oppose&lt;/i&gt;&lt;/p&gt;
+          &lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;br&gt;
+    &lt;br&gt;
+  &lt;/body&gt;
+
+&lt;/html&gt;
+
+--------------010206010602080209090105
+Content-Type: image/gif;
+ name="size_optimized.gif"
+Content-Transfer-Encoding: base64
+Content-ID: &lt;part1.05090305.00010503@popvox.com&gt;
+Content-Disposition: inline;
+ filename="size_optimized.gif"
+
+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
+--------------010206010602080209090105--
+
+--------------090104030603060400080705--
+</field>
+  </object>
+  <object pk="10" model="popvox.rawtext">
+    <field type="SlugField" name="name">govtrack_blast_b</field>
+    <field type="IntegerField" name="format">0</field>
+    <field type="TextField" name="text">From: GovTrack.us &lt;operations@govtrack.us&gt;
+Subject: Introducing POPVOX, from the creator of GovTrack.us
+Content-Type: text/plain; charset=UTF-8; format=flowed
+
+Dear GovTrack user:
+
+I’m excited to personally introduce you to GovTrack’s new sister site, 
+www.POPVOX.com, where you can write letters to Congress and see
+what others are saying.
+
+Increasingly, interactions between constituents and Congress have 
+devolved into screeching, beat-your-drum-louder protests or a ping-pong 
+game of organization press releases. I co-founded POPVOX last year with 
+a former Congressional staffer and a former lobbyist to reduce this 
+noise and to offer a honed experience to constituents like you and to 
+Congressional staff.
+
+GovTrack transformed access to government data by providing free 
+comprehensive legislative tracking for individuals. POPVOX is a natural 
+extension of GovTrack into a small part of the world of advocacy.
+
+My co-founders and I want to revolutionize how individuals and advocacy 
+groups/trade associations communicate with Members of Congress with an 
+interactive, transparent and public platform. Here's what POPVOX does:
+
+    * Your letters to Congress are delivered and verified.
+      POPVOX delivers constituent messages to appropriate Congressional
+      offices as well as posts them publicly to the site to extend their
+      influence. Our sign-up process is designed to help you write the
+      most effective letter, based on our experience on Capitol Hill.
+      You'll even receive a confirmation when your message is delivered
+      to a Congressional office.
+
+    * What people are saying on bills in Congress.
+      POPVOX’s public, nonpartisan platform for legislation overlays
+      individuals’ comments on pending bills, legislative positions
+      taken by organizations/trade groups, and statements offered by
+      Congress and the Administration—on top of the same basic bill
+      information you trust from GovTrack. POPVOX puts meat on a bill’s
+      bones.
+
+    * Direct access to sentiment in your district.
+      Reports on constituent sentiment enable Congress, organizations
+      and the media to gauge how people perceive issues through
+      real-life stories.
+
+    * Bill reports with bottom-line data.
+      POPVOX’s Bill Report provides proof positive of constituent
+      sentiment on specific bills. And with a cumulative line graph of
+      support vs. opposition over time, it’s also a great way to assess
+      trends.
+
+    * Widgets and advocacy tools for organizations.
+      Embed customized advocacy tools onto your own websites, including
+      a Comment Stream and Write Congress tool. Organizations can design
+      their own legislative campaign landing page (with a custom short
+      URL) and direct people to act on specific bills.
+      (see http://pvox.co/2QnOoW)
+
+I hope you will try out POPVOX &lt;http://www.popvox.com&gt; and share it with 
+your friends, family and community. To see what POPVOX users are 
+weighing in on in real-time, visit http://pvox.co/wrSY6T. Let me know
+what you think by dropping me a note at info@popvox.com.
+
+PS. See what The Washington Post had to say:
+http://www.washingtonpost.com/business/capitalbusiness/popvox-connects-advocacy-groups-public-to-congress/2011/05/20/AGTwaGEH_story.html
+
+Thanks so much,
+
+Josh Tauberer
+Founder of GovTrack, and
+CTO and co-founder of POPVOX
+
+You are receiving this email  because you have a registered account on 
+www.GovTrack.us. The last time we bothered you was a few years ago and 
+we don't plan to do this often, but if you'd like to stop future 
+announcement emails, please edit your account settings at 
+http://www.govtrack.us/users/account.xpd.
+</field>
+  </object>
+  <object pk="11" model="popvox.rawtext">
+    <field type="SlugField" name="name">govtrack_blast_c</field>
+    <field type="IntegerField" name="format">0</field>
+    <field type="TextField" name="text">From: GovTrack.us &lt;operations@govtrack.us&gt;
+Subject: Introducing POPVOX, from the creator of GovTrack.us
+Content-Type: multipart/alternative;
+ boundary="------------090104030603060400080705"
+
+This is a multi-part message in MIME format.
+--------------090104030603060400080705
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Dear GovTrack user:
+
+I’m excited to personally introduce you to GovTrack’s new sister site, 
+www.POPVOX.com, where you can write letters to Congress and see
+what others are saying.
+
+Here's what POPVOX does:
+
+    * Your letters to Congress are delivered and verified.
+      POPVOX delivers constituent messages to appropriate Congressional
+      offices as well as posts them publicly to the site to extend their
+      influence. Our sign-up process is designed to help you write the
+      most effective letter, based on our experience on Capitol Hill.
+      You'll even receive a confirmation when your message is delivered
+      to a Congressional office.
+
+    * What people are saying on bills in Congress.
+      POPVOX’s public, nonpartisan platform for legislation overlays
+      individuals’ comments on pending bills, legislative positions
+      taken by organizations/trade groups, and statements offered by
+      Congress and the Administration—on top of the same basic bill
+      information you trust from GovTrack. POPVOX puts meat on a bill’s
+      bones.
+
+    * Direct access to sentiment in your district.
+      Reports on constituent sentiment enable Congress, organizations
+      and the media to gauge how people perceive issues through
+      real-life stories.
+
+    * Bill reports with bottom-line data.
+      POPVOX’s Bill Report provides proof positive of constituent
+      sentiment on specific bills. And with a cumulative line graph of
+      support vs. opposition over time, it’s also a great way to assess
+      trends.
+
+    * Widgets and advocacy tools for organizations.
+      Embed customized advocacy tools onto your own websites, including
+      a Comment Stream and Write Congress tool. Organizations can design
+      their own legislative campaign landing page (with a custom short
+      URL) and direct people to act on specific bills.
+      (see http://pvox.co/KwZjFa)
+
+I hope you will try out POPVOX &lt;http://pvox.co/UzJoUM&gt; and share it with 
+your friends, family and community. To see what POPVOX users are 
+weighing in on in real-time, visit http://pvox.co/RBHPNi. Let me know
+what you think by dropping me a note at info@popvox.com.
+
+PS. See what The Washington Post had to say:
+http://www.washingtonpost.com/business/capitalbusiness/popvox-connects-advocacy-groups-public-to-congress/2011/05/20/AGTwaGEH_story.html
+
+Thanks so much,
+
+Josh Tauberer
+Founder of GovTrack, and
+CTO and co-founder of POPVOX
+
+You are receiving this email  because you have a registered account on 
+www.GovTrack.us. The last time we bothered you was a few years ago and 
+we don't plan to do this often, but if you'd like to stop future 
+announcement emails, please edit your account settings at 
+http://www.govtrack.us/users/account.xpd.
+
+	
+--------------090104030603060400080705
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body text="#000000" bgcolor="#ffffff"&gt;
+    &lt;style type="text/css"&gt;p { margin-bottom: 0.08in; }a:link {  }&lt;/style&gt;
+            &lt;p&gt;Dear GovTrack user:&lt;/p&gt;
+            &lt;p&gt;I’m excited to personally introduce you to GovTrack’s new
+              sister site, &lt;b&gt; &lt;a href="http://pvox.co/vQPHCT"&gt;POPVOX&lt;/a&gt;&lt;/b&gt;,
+              at &lt;a class="moz-txt-link-abbreviated"
+                href="http://pvox.co/DyEu4k"&gt;www.popvox.com&lt;/a&gt;, where
+              you can&lt;b&gt; write letters to Congress and see what others
+                are saying&lt;/b&gt;. &lt;/p&gt;
+            &lt;p&gt;Here's what POPVOX does:&lt;br&gt;
+            &lt;/p&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;Your letters to Congress are delivered and
+                    verified.&lt;/b&gt;&lt;br&gt;
+                  POPVOX delivers constituent messages to appropriate
+                  Congressional offices as well as posts them publicly
+                  to the site to extend their influence. Our sign-up
+                  process is designed to help you write the most
+                  effective letter, based on our experience on Capitol
+                  Hill. You'll even receive a confirmation when your
+                  message is delivered to a Congressional office.&lt;/p&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;What people are saying on bills in Congress.&lt;/b&gt;&lt;br&gt;
+                  POPVOX’s public, nonpartisan platform for legislation
+                  overlays individuals’ comments on pending bills,
+                  legislative positions taken by organizations/trade
+                  groups, and statements offered by Congress and the
+                  Administration—on top of the same basic bill
+                  information you trust from GovTrack. POPVOX puts meat
+                  on a bill’s bones. &lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;Direct access to sentiment in your district.&lt;/b&gt;&lt;br&gt;
+                  Reports on constituent sentiment enable Congress,
+                  organizations and the media to gauge how people
+                  perceive issues through real-life stories. &lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;Bill reports with bottom-line data.&lt;/b&gt;&lt;br&gt;
+                  POPVOX’s Bill Report provides proof positive of
+                  constituent sentiment on specific bills. And with a
+                  cumulative line graph of support vs. opposition over
+                  time, it’s also a great way to assess trends.&lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;&lt;b&gt;Widgets and advocacy tools for organizations.&lt;/b&gt;&lt;br&gt;
+                  Embed customized advocacy tools onto your own
+                  websites, including a &lt;a
+                    href="http://pvox.co/Y0e39Q"&gt;Comment
+Stream
+
+
+
+                    and Write Congress tool&lt;/a&gt;. Organizations can
+                  design their own legislative campaign landing page
+                  (with a custom short URL) and direct people to act on
+                  specific bills. &lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;p&gt;I hope you will try out &lt;a href="http://pvox.co/q8og9f"&gt;POPVOX&lt;/a&gt;
+              and share it with your friends, family and community. To
+              see what POPVOX users are weighing in on in real-time,
+              visit &lt;a href="http://pvox.co/hDSkrZ"&gt;www.popvox.com/bills&lt;/a&gt;.
+              Let me know what you think by dropping me a note at &lt;a
+                href="mailto:info@popvox.com"&gt;info@popvox.com&lt;/a&gt;.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;PS. See &lt;a
+href="http://www.washingtonpost.com/business/capitalbusiness/popvox-connects-advocacy-groups-public-to-congress/2011/05/20/AGTwaGEH_story.html"&gt;what
+
+
+                The Washington Post had to say&lt;/a&gt;.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;Thanks so much,&lt;/p&gt;
+            &lt;p&gt;Josh Tauberer&lt;br&gt;
+              Founder of GovTrack, and&lt;br&gt;
+              CTO and co-founder of POPVOX&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;&lt;small&gt;&lt;i&gt;You are receiving this email  because you have
+                  a registered account on &lt;a
+                    class="moz-txt-link-abbreviated"
+                    href="http://www.GovTrack.us"&gt;www.GovTrack.us&lt;/a&gt;.
+                  The last time we bothered you was a few years ago and
+                  we don't plan to do this often, but if you'd like to
+                  stop future announcement emails, please edit your
+                  account settings at &lt;a
+                    href="http://www.govtrack.us/users/account.xpd"&gt;http://www.govtrack.us/users/account.xpd&lt;/a&gt;.&lt;/i&gt;&lt;/small&gt;&lt;br&gt;
+            &lt;/p&gt;
+    &lt;br&gt;
+    &lt;br&gt;
+  &lt;/body&gt;
+
+&lt;/html&gt;
+
+--------------090104030603060400080705--
+</field>
+  </object>
+  <object pk="12" model="popvox.rawtext">
+    <field type="SlugField" name="name">govtrack_blast_d</field>
+    <field type="IntegerField" name="format">0</field>
+    <field type="TextField" name="text">From: GovTrack.us &lt;operations@govtrack.us&gt;
+Subject: Introducing POPVOX, from the creator of GovTrack.us
+Content-Type: multipart/alternative;
+ boundary="------------090104030603060400080705"
+
+This is a multi-part message in MIME format.
+--------------090104030603060400080705
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Dear GovTrack user:
+
+I’m excited to personally introduce you to GovTrack’s new sister site, 
+www.POPVOX.com, where you can write letters to Congress and see
+what others are saying.
+
+Increasingly, interactions between constituents and Congress have 
+devolved into screeching, beat-your-drum-louder protests or a ping-pong 
+game of organization press releases. I co-founded POPVOX last year with 
+a former Congressional staffer and a former lobbyist to reduce this 
+noise and to offer a honed experience to constituents like you and to 
+Congressional staff.
+
+Here's what's trending on POPVOX now:
+
+HR 25: Fair Tax Act, repeals the income tax, abolishes the IRS and 
+enacts a national sales tax
+ - - weigh in at http://pvox.co/7OJcbN 
+ - - on POPVOX now: 87% Support | 13% Oppose
+
+S 570, prohibiting the Justice Dept. from tracking the purchases of 
+multiple rifles and shotguns
+ - - weigh in at http://pvox.co/hgtSSz 
+ - - on POPVOX now: 77% Support | 23% Oppose
+
+S 968: PROTECT IP Act, prevents online threats to economic creativity 
+and theft of intellectual property
+ - - weigh in at http://pvox.co/egbwtR 
+ - - on POPVOX now: 11% Support | 89% Oppose
+
+S 163: Full Faith and Credit Act, requires the Government prioritize 
+all debt obligations held by the public in the event the debt limit is 
+reached
+ - - weigh in at http://pvox.co/tSCBPY 
+ - - on POPVOX now: 84% Support | 16% Oppose
+
+HR 645: Second Amendment Enforcement Act, restores Second Amendment 
+rights in the District of Columbia
+ - - weigh in at http://pvox.co/tZSy5L 
+ - - on POPVOX now: 88% Support | 12% Oppose
+
+I hope you will try out POPVOX &lt;http://pvox.co/9QneNT&gt; and share it with 
+your friends, family and community. To see what POPVOX users are 
+weighing in on in real-time, visit http://pvox.co/WJwXk9. Let me know
+what you think by dropping me a note at info@popvox.com.
+
+PS. See what The Washington Post had to say:
+http://www.washingtonpost.com/business/capitalbusiness/popvox-connects-advocacy-groups-public-to-congress/2011/05/20/AGTwaGEH_story.html
+
+Thanks so much,
+
+Josh Tauberer
+Founder of GovTrack, and
+CTO and co-founder of POPVOX
+
+You are receiving this email  because you have a registered account on 
+www.GovTrack.us. The last time we bothered you was a few years ago and 
+we don't plan to do this often, but if you'd like to stop future 
+announcement emails, please edit your account settings at 
+http://www.govtrack.us/users/account.xpd.
+
+	
+--------------090104030603060400080705
+Content-Type: multipart/related;
+ boundary="------------010206010602080209090105"
+
+
+--------------010206010602080209090105
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body text="#000000" bgcolor="#ffffff"&gt;
+    &lt;style type="text/css"&gt;p { margin-bottom: 0.08in; }a:link {  }&lt;/style&gt;
+    &lt;table width="100%" border="0" cellpadding="20" cellspacing="2"&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td valign="top"&gt;
+            &lt;p&gt;Dear GovTrack user:&lt;/p&gt;
+            &lt;p&gt;I’m excited to personally introduce you to GovTrack’s new
+              sister site, &lt;b&gt; &lt;a href="http://pvox.co/4Zqjbc"&gt;POPVOX&lt;/a&gt;&lt;/b&gt;,
+              at &lt;a class="moz-txt-link-abbreviated"
+                href="http://pvox.co/HZO809"&gt;www.popvox.com&lt;/a&gt;, where
+              you can&lt;b&gt; write letters to Congress and see what others
+                are saying&lt;/b&gt;. &lt;/p&gt;
+            &lt;p&gt;Increasingly, interactions between constituents and
+              Congress have devolved into screeching,
+              beat-your-drum-louder protests or a ping-pong game of
+              organization press releases. I co-founded POPVOX last
+                year with a former Congressional staffer and a former
+                lobbyist to reduce this noise and to offer a honed
+              experience to constituents like you and to Congressional
+              staff.&lt;br&gt;
+            &lt;/p&gt;
+
+            &lt;p style="margin-bottom: 0in;" align="center"&gt;&lt;big&gt;&lt;big&gt;&lt;b&gt;Trending
+                    Bills on POPVOX Now:&lt;/b&gt;&lt;/big&gt;&lt;/big&gt;&lt;br&gt;
+            &lt;/p&gt;
+            &lt;br&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;big&gt;&lt;b&gt;HR 25: Fair Tax Act&lt;/b&gt;&lt;/big&gt;,
+              repeals the income tax, abolishes the IRS and enacts a
+              national sales tax&lt;br&gt; - - 
+              &lt;a href="http://pvox.co/meZnZX"&gt;weigh
+                in at http://pvox.co/2A6q05&lt;/a&gt;&lt;br&gt; - - 
+              &lt;i&gt;on POPVOX now: 87% Support | 13% Oppose&lt;/i&gt;&lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;big&gt;&lt;b&gt;S 570&lt;/b&gt;&lt;/big&gt;,
+              prohibiting the Justice Dept. from tracking the purchases
+              of multiple rifles and shotguns&lt;br&gt; - - 
+              &lt;a href="http://pvox.co/qfmtDe"&gt;weigh
+                in at http://pvox.co/qDBs3v&lt;/a&gt;&lt;br&gt; - - 
+              &lt;i&gt;on POPVOX now: 77% Support | 23% Oppose&lt;/i&gt;&lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;big&gt;&lt;b&gt;S 968: PROTECT IP Act&lt;/b&gt;&lt;/big&gt;,
+              prevents online threats to economic creativity and theft
+              of intellectual property&lt;br&gt; - - 
+              &lt;a href="http://pvox.co/mT8t88"&gt;weigh
+                in at http://pvox.co/cgtt10&lt;/a&gt;&lt;br&gt; - - 
+              &lt;i&gt;on POPVOX now: 11% Support | 89% Oppose&lt;/i&gt;&lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;big&gt;&lt;b&gt;S 163: Full Faith and
+                  Credit Act&lt;/b&gt;&lt;/big&gt;, requires the Government
+              prioritize all debt obligations held by the public in the
+              event the debt limit is reached&lt;br&gt; - - 
+              &lt;a href="http://pvox.co/seFAbb"&gt;weigh
+                in at http://pvox.co/6ybdNN&lt;/a&gt;&lt;i&gt;&lt;br&gt; - - 
+                on POPVOX now: 84% Support | 16% Oppose&lt;/i&gt;&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p style="margin-bottom: 0in;"&gt;&lt;b&gt;&lt;big&gt;HR 645: Second
+                  Amendment Enforcement Act&lt;/big&gt;,&lt;/b&gt; restores Second
+              Amendment rights in the District of Columbia&lt;br&gt; - - 
+              &lt;a href="http://pvox.co/RAPmUt"&gt;weigh
+                in at http://pvox.co/HFumos&lt;/a&gt;&lt;br&gt; - - 
+              &lt;i&gt;on POPVOX now: 88% Support | 12% Oppose&lt;/i&gt;&lt;/p&gt;
+
+            &lt;p&gt;I hope you will try out &lt;a href="http://pvox.co/1Zv4AV"&gt;POPVOX&lt;/a&gt;
+              and share it with your friends, family and community. To
+              see what POPVOX users are weighing in on in real-time,
+              visit &lt;a href="http://pvox.co/xbO9f8"&gt;www.popvox.com/bills&lt;/a&gt;.
+              Let me know what you think by dropping me a note at &lt;a
+                href="mailto:info@popvox.com"&gt;info@popvox.com&lt;/a&gt;.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;PS. See &lt;a
+href="http://www.washingtonpost.com/business/capitalbusiness/popvox-connects-advocacy-groups-public-to-congress/2011/05/20/AGTwaGEH_story.html"&gt;what
+                The Washington Post had to say&lt;/a&gt;.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;Thanks so much,&lt;/p&gt;
+            &lt;p&gt;Josh Tauberer&lt;br&gt;
+              Founder of GovTrack, and&lt;br&gt;
+              CTO and co-founder of POPVOX&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;&lt;small&gt;&lt;i&gt;You are receiving this email  because you have
+                  a registered account on &lt;a
+                    class="moz-txt-link-abbreviated"
+                    href="http://www.GovTrack.us"&gt;www.GovTrack.us&lt;/a&gt;.
+                  The last time we bothered you was a few years ago and
+                  we don't plan to do this often, but if you'd like to
+                  stop future announcement emails, please edit your
+                  account settings at &lt;a
+                    href="http://www.govtrack.us/users/account.xpd"&gt;http://www.govtrack.us/users/account.xpd&lt;/a&gt;.&lt;/i&gt;&lt;/small&gt;&lt;br&gt;
+            &lt;/p&gt;
+          &lt;/td&gt;
+          &lt;td valign="top"&gt;
+            &lt;div align="center"&gt;
+              &lt;style type="text/css"&gt;p { margin-bottom: 0.08in; }&lt;/style&gt;
+            &lt;/div&gt;
+            &lt;p style="margin-bottom: 0in;" align="center"&gt;&lt;a
+                href="http://pvox.co/p8TVQr"&gt;&lt;img alt="POPVOX"
+                  src="cid:part1.05090305.00010503@popvox.com"
+                  height="87" hspace="0" vspace="0" width="200"
+                  border="0"&gt;&lt;/a&gt;&lt;br&gt;
+            &lt;/p&gt;
+
+            &lt;p&gt;
+              &lt;style type="text/css"&gt;p { margin-bottom: 0.08in; }&lt;/style&gt;While GovTrack
+              transformed access to government data by providing free
+              comprehensive legislative tracking for individuals, POPVOX
+              is a natural extension of GovTrack into a small part of
+              the world of advocacy.&lt;br&gt;
+            &lt;/p&gt;
+            &lt;p&gt;My co-founders and I want to revolutionize how
+              individuals and advocacy groups/trade associations
+              communicate with Members of Congress with an interactive,
+              transparent and public platform. Here's what POPVOX does:&lt;br&gt;
+            &lt;/p&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;Your letters to Congress are delivered and
+                    verified.&lt;/p&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                &lt;p&gt;See what people are saying on bills in Congress.&lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;Direct access to sentiment in your district.&lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;Bill reports with bottom-line data.&lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;ul&gt;
+              &lt;li&gt;
+                &lt;p&gt;Widgets and advocacy tools for organizations. (&lt;a
+                    href="http://pvox.co/nJy5mW"&gt;more info&lt;/a&gt;)&lt;/p&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+
+
+          &lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;br&gt;
+    &lt;br&gt;
+  &lt;/body&gt;
+
+&lt;/html&gt;
+
+--------------010206010602080209090105
+Content-Type: image/gif;
+ name="size_optimized.gif"
+Content-Transfer-Encoding: base64
+Content-ID: &lt;part1.05090305.00010503@popvox.com&gt;
+Content-Disposition: inline;
+ filename="size_optimized.gif"
+
+R0lGODlhyABXAIQQAMtwKM1zMtKARNWHVNaNV9iVY92db9+leuOwi+e+nuvJr/DVwvTfzvfp
+4P339P7//P//////////////////////////////////////////////////////////////
+/yH5BAEKABAALAAAAADIAFcAAAX+4COOZGmeaKqubOu+cCzPdG3feK7vfO//wKBwSCwaj8ik
+cslsOp/QqHRKrVqv2Kx2u3V4v+CweEwum8XctKnBWCjeioQcoUDY74e8/mAo+P+AgYKDgQZ7
+end3cgl0cG8LDWpTDQcEAQCYmJcBm5ycAJugoqGko6alqKejnqygl5mgAgIGDJJPCQKsuq6a
+vam/qsDCosSZr7u8AQe2TAivxceana2kn8PXp9bJup/Ex5sFDsxICa7T28mwpb7B7cPs3c/S
+6N0AB+LjRAv18r3e5v/+YRsY7Rs7f9pWKcg3xEEBXtkCqgNobaC7gAkLrkJ4MIAAhkL2zasW
+MWPJi9f+OtFT6YkiRGoLQf5IoI1lSZI2W+qseG4nyo3C5G0yIJOHOAcHVk7DmdNiUIpLI778
+pQtf0R0GDKYyFYxpz3Rb44UyxrUmy7HSrur4kvWsqAFw48qFGw+ouwGN3CAYALbg3L8DmMLr
+NsIBHKsvGjxC4WBBpQECBhxIEOlE48Uv3ChYgNiFg6wbeTUA84DMAgS5UD3jJCCBGQWBV3Ua
+faaxM7FoPZUW9wmBDAKYlpVogADjJQKcSzigiWmBC5qXYsLwwpcfr1pHj5beDeZ2WVADXGff
+nt0LbIyjyav3wt27VwBWi3vsvIKBq8oiiK/e9YmW8rYB4JcCA68gQF8LDlX+5E0ADGi33Xrc
+LVBdOgVE8oUJ2nnRQFvJWPggPuN9sUAu6PRiVQObSNeCAZgYcCJwnhiQwAJtuMHiJgJIJ04D
+AmASjgoJzjcdd7EVtImAjLFnXj2g3MMekGAQNxKSlpHXmDucPPnAAawl9olz+ZEIQIWdfcGl
+Jio+sA8nvqVQHCZUvhBkbpg0SAIaIij5mUoDaJmnFwzQduduoB2pXBiDenGbSsZkuIAoYLIg
+3wCVNfAQm4MWtiQmAtRSmHwMWiZSAJHKuV0DfJlDTWVHVULAqwQcoEB5DjRgTICdNZBAYJ4Q
+oACrX/BoDX7iFADrqwckF2FL6CDWAIxEreBFam3+LvdJAuoxpsAnP5LAIihI1rqJbwd6VkA0
+ZAGQnoaWcGPgnw7wGsBCIDaW6kgDRHoUc5x4yBt/wpFXZEYgilCOR3GWsC24+W0ScAvQzftg
+ae0SgJgDlgBgcQ1fyMsNwyOg6hIAYJoJnlXiEAiQLwKU/MVsiC2VIrw3TgWfsz0C4BqQXAZA
+lDhJCVnuocAB8NGdo7ZZmjMgx4Ayxqula2d+RW9UbWnQ7QyimBxx0meeWLuC8gP9ePKwA0yr
+9qSZl3SLAoqgRPrKzixYReAlDSr5QNpgPspJmjJ0TE1FAqKqkyvvflFOpyXwe3gx2P5pa78x
+n9OipouqQp99zVVpLQD+A4ywbb9DxtvkCeca3QCKlyzjp2eaZvxSJthRnS4okedJ09ckiKmV
+NG6XlhqS1mFa2JkKglLmAxnfkwKJnAHNiYtD7t1lYbtV1wcowdMgOG73ncjrKgIQmyD1+MDd
+E0vl33npxV8FoLfpI4ldpn1ZYviAArFYlarSMeAfKCyjMk20j2OFsRSjiuGhB4jsFMoaASce
+pqZ1LJATnhoB01glgrLhigSGE4smLrad6uSuBCbsHSfo5hlxrClAmdqfNQDHMdNVA2Z/QoAB
+dmgAOmAvbAF412785hOw5C1PQRMQUnjYQ3ppijmzu0TBCrMw+SnHb+Wzytxo8CiQPW1UpJr+
+WOASeK5WMDBR3MmUsOyBGJVpxSwN3BLplGMlsOVnQi6xoh3DBArAfct1I6AWDUanx4mt0WsJ
+M9WOYnOr2YiRhCgrlPP+5BZUHBAf7ZrihyxzqZu8ToOXCB0IPVEyEcBoknIyzCYyNIJUcSha
+OPBCGa0DJ2lpqpMBoJT74JEONmLvFcSq0qnaRRJYaHI7I4ob2KAjShLIZ2My6BkBsCc9hN0N
+AAAco4ZSxR9wffJinyOFoLzgt8F0wokiwB8MGQMvfplTbDEUR8aUhjHc7QaZnsignFKFLcTw
+i16g0ifHyrigTFjoCwxIqEJtlJtLnNALHLLgmDoTtHWyR6ELVUD+z+p3kJvRcVMHHBU4HeCw
+6VxpjukjUcAcEotEIog6qrnPnYhZl5wIYG21mpBNdDnKVaKMG0I5i1nGppwezauaV3OmTGFA
+op8VpozQTGfOqFe9PCkQIsXQp8i+YRJpPBSiQgGFiyh6jDgyqSa++B186FgY6Ix1lT/M0ytu
++oKaxfFNMFwbIU8Iu1MVSVXh8+sCuwJMsIkIQD5Lz4fAuE4JAlYaEhWL3iyjCV2drlxV7B4K
+FgXAxpASBUlpWuAShNVncPBZv3scL27KymAhCoSy82IHYbGyG95qhDEEm3wOYNQMEhUpmaiQ
+CvSDiT6dSBRC1JQpOTU0YW7zhji8o0D+RjIWTgg3jaw0AQMyNixNWW4nttWGg+IqrlH8iD7p
+m2VrphYyBaQul0rkFTRfV6ucaTYFT3tv1GoZsqIpCK37yRc1x0uCEeGGeGmtrs1IQeA97ikT
+s9rjD4FrwFjZ4QAFINElDBBMvNYuriKoYjY9YzjZODJ9f41pEdnU3N1s9CWdQettLxgN9A5K
+gPAVo4PJmRGzRPhB/PsbUe/khTO1rK+7ee9EmlMrQOkUvKrIBgJoIwZKpGssDaKyUHGy4LXq
+TzsKVAaI/0RNXIDXI1N2cGqcmtvC8Oq+noPoNnjiExHapaar7SECEoBho0bWjFFuyp0DoL8T
+tCFQByoXexT+c2E6sFc5owkXfkuzOpcmqVD77egb+8KVGSMDNx7kciWh8gxhEpmtbUb1JnWc
+6kSjsW7cQd6cu1KMwQCFUfu1s1kayWsjQWMUHxkyme1o41cPWdgFI2GhY2mtw2nELNSgdVho
+XD8uR7HHK4blmF2taiEUu9u29Gwj/9vLKw+6HTNWyq0hy6TvbKNULZawvFWt7C+DW8cNBhI1
+OUQWrmajq2CZ9a7JreJff7ervBszsefd4rWl2pZsTbbTRFTndfBycOf+d1plUyJViVDUo4C3
+cxmubxDH++FTzHfJ2xleUpdIwYJ2NoBTi2d0P/YSyZ33qr9t6kc6rdAS16aigEH+DxPfhCoo
+sfjIKtlQMa864iSftMmrmqmgm2rAhknxxZMXGoMnLyfTJTjY+dENvPB8wlFn59SpvvBsXf2e
+wXJvagkLvij3u9a0nYjFNXKT8FCJ28fU+doFr3aou53ttKrV6hbAeL0A+FaSyUMf+gCIHfqB
+8pfnYQEmb3nK9zAPOkTAAfZsB0YkIA6PaDwkqHz2trc+t/VGMtoP//b1mEF9CxpWbXbPe9pQ
+2fcaQpSfAu/6Zfc89rAGumERaO8MdccgZDEuGi7UWt6HgfXBj9IY2gz4tB//4SufvcpbGGc9
+LWk/1ogehBJP/fXb3vzWF3z3Wd3c2J9c4Ttn9RhhHaz+WaJ/frDTWu43P4kHISg3cvQXfsiX
+fFW3fMwWbkN3aywEBMkmgOP3eilnfMa3gOEnfvpXQ/W3G6wDFHFEBeO1PMqXgFInYfencBnY
+goWnKaQhgzDFEqgEL9xhfkbgIChoeK83eB8Ygx4Igx14KIniWVylLJ9kGdZHfPi1hD3YgCoY
+gxxYhC94A/f3NBrCKLxThd6Tg2cghPP3gywIfkJYfES4ggr4BVWEc1BYBVHogfcGhERYbFb3
+hVdXHnDjCgJFeD+XA3FYfHNYhvinhkO4Ft7DNqGkaIgIiPeWgYPoc4VoiPmXhpFoauXxQjHh
+hX8YS4/YdmYoiX6ogWjYiLL3Rx5hxoiOuIr4B4mhaH+deIg20ILIti8BwFejWHuz+IlPN4mi
+GIQ9J4ueeIqDwiMJY4nByHytCIq+CItsV4lY+HbjQYOEOIzWqHOu2Iyw94zQyIoMWIS5SIx4
+uIy96IfOqIvdqIwMWIGFiIykOI7YyIzmuI3omI7RiGQh+I4z4I7dNob6WI3AmIxXuIv4yIT6
+x4+hiHgISIa/CIP+iJC+iGppCJHhiCC8SHz5CJAW6YMBaRRASInwSJDkiJEKmJAX6YBIIGwd
+SZEdeYr+GInnSIwDWQTItpHXKJLxWI7AGJPfKIxHoJLxxpJCeZJT+H0RSYozeQMhAAA7
+--------------010206010602080209090105--
+
+--------------090104030603060400080705--
+</field>
+  </object>
+  <object pk="7" model="popvox.rawtext">
+    <field type="SlugField" name="name">registration-user</field>
+    <field type="IntegerField" name="format">1</field>
+    <field type="TextField" name="text">Dear %s:
+
+Thanks for using POPVOX to make your voice heard! POPVOX provides a transparent, public record of what Congress is hearing from constituents, helping to drive accountability and responsiveness. 
+
+Your message will be delivered to your legislator and aggregated with others who have weighed in. To check the status of your message delivery, visit https://www.popvox.com/home/history.
+
+With POPVOX, you can also can keep track of the bills that matter to you -- and use the "share" feature to build support for your positions among your friends, community and social networks. Then see the "opinion pies" move!
+
+To see what other POPVOX users are weighing in on, visit &lt;http://popvox.com/bills&gt; or stay in touch on Facebook at www.facebook.com/POPVOXnation. 
+
+---------------------------------------
+WHAT'S TRENDING ON POPVOX RIGHT NOW
+
+The Syrian Human Rights Accountability Act (S 2034)
+&lt;http://pvox.co/9irBc2&gt;
+62% Support | 38% Oppose
+
+The Second Amendment Protection Act (HR 3594)
+&lt;http://pvox.co/gx4tgN&gt;
+89% Support | 11% Oppose
+
+The Puppy Uniform Protection and Safety Act (HR 835)  
+&lt;http://pvox.co/zktAao&gt;  
+27% Support | 73% Oppose
+
+---------------------------------------
+
+POPVOX is still in beta, but we are working every day to make communicating with Washington easier. If you have feedback or questions -- or prefer not to receive emails from us, please email me at rachna@popvox.com.
+
+Thanks,  
+Rachna and the POPVOX Team  
+
+_____
+Rachna Choudhry  
+Co-founder
+POPVOX.com  
+Like us on Facebook at &lt;http://www.facebook.com/POPVOXnation&gt;   
+Follow us on Twitter @POPVOX   
+_____
+To opt out of future emails from us use your account settings page: &lt;http://www.popvox.com/accounts/profile&gt;.
+
+POPVOX | 1425 K Street, NW, Suite 350 | Washington, DC 20005</field>
+  </object>
+  <object pk="2" model="popvox.rawtext">
+    <field type="SlugField" name="name">registration-userfollowup</field>
+    <field type="IntegerField" name="format">1</field>
+    <field type="TextField" name="text">Dear %s:
+
+Thanks for using POPVOX to make your voice heard! POPVOX provides a transparent, public record of what Congress is hearing from constituents, helping to drive accountability and responsiveness. 
+
+With POPVOX, you can:
+
+* Communicate directly with your Member of Congress and Senators -- and check the status of your message delivery to make sure your message gets to the right office.
+* Stay informed of the policies that matter to you and learn about other bills that might interest you.
+* Build support among your friends, community and social networks for bills -- and see the "opinion pies" move!
+
+To see what other POPVOX users are weighing in on, visit &lt;http://popvox.com/bills&gt;. 
+
+---------------------------------------
+WHAT'S TRENDING ON POPVOX RIGHT NOW
+
+
+The Enemy Expatriation Act (HR 3166)
+Adds engaging in or supporting hostilities against the U.S. to the list of acts resulting in loss of U.S. nationality
+&lt;http://pvox.co/GY3HmN&gt;
+9% Support | 91% Oppose
+
+The PROTECT IP Act (PIPA) (S 968)
+Prevents online theft of intellectual property
+&lt;http://pvox.co/zqgGdS&gt;
+5% Support | 95% Oppose
+
+The PUPS Act (HR 835)  
+Provides further protection for puppies
+&lt;http://pvox.co/zktAao&gt;  
+27% Support | 73% Oppose
+---------------------------------------
+
+POPVOX is still in beta, but we are working every day to make communicating with Washington easier.  We would appreciate your feedback and suggestions. Feel free to email me directly at rachna@popvox.com. 
+
+Thanks again,
+
+Rachna and the POPVOX Team
+
+P.S. If you prefer not to receive emails from us, please email me at rachna@popvox.com. Thanks!
+_____
+Rachna Choudhry  
+Co-founder  
+POPVOX  
+&lt;http://www.popvox.com&gt;  
+Find us on Facebook at &lt;http://www.facebook.com/POPVOXnation&gt;  
+Follow us on Twitter @POPVOX
+
+_____
+To opt out of future emails from us use your account settings page: &lt;http://www.popvox.com/accounts/profile&gt;.
+
+POPVOX | 1425 K Street, NW, Suite 350 | Washington, DC 20005</field>
+  </object>
+  <object pk="6" model="popvox.rawtext">
+    <field type="SlugField" name="name">userstickinessemail_A</field>
+    <field type="IntegerField" name="format">1</field>
+    <field type="TextField" name="text">What's hot on POPVOX?
+Dear %s:
+
+Did you know that more than 5,000 bills have already been introduced in the 112th Congress? Here are some of the trending bills POPVOX users are weighing in on right now! 
+
+---------------------------------------
+The President's American Jobs Act (S 1549)
+&lt;http://pvox.co/NPyHUR&gt;
+50% Support | 50% Oppose
+
+The Postal Reform Act (HR 2309)
+Restores the financial solvency of the US Postal Service.
+&lt;http://pvox.co/DxNd4J&gt;
+84% Support | 516% Oppose
+
+The Fair Tax Act (HR 25)  
+Repeals the income tax, abolishes the IRS and enacts a national sales tax administered by the States.  
+&lt;http://pvox.co/jvm2Zi&gt;  
+82% Support | 18% Oppose
+
+---------------------------------------
+
+POPVOX is a transformative advocacy platform that meshes legislative data with individuals’ personal stories and sentiment. (Learn more at &lt;http://pvox.co/0XqBO3&gt;.) 
+
+With POPVOX, you can:
+
+* Send a message directly to your Member of Congress and Senators -- and receive delivery confirmation.
+* Stay informed on the issues that matter to you, your family and your community.
+* Build support among your friends, community and social networks for bills that you weigh in on -- and see the "opinion pies" move!
+
+Get started at &lt;http://pvox.co/vMC2J9&gt; and let POPVOX deliver your message to Congress! Or subscribe to our daily email of Bill Picks at &lt;http://bit.ly/pPEWBi&gt;.
+
+Thanks,  
+The POPVOX Team
+
+P.S. You are receiving this email because you previously used POPVOX to communicate with Congress. If you prefer not to receive emails from us, or have questions, please email Rachna at rachna@popvox.com.
+
+Find us on Facebook at &lt;http://www.facebook.com/POPVOXnation&gt;  
+Follow us on Twitter @POPVOX  
+Read our privacy policy at &lt;http://pvox.co/pfsuGR&gt;
+
+_____
+To opt out of future emails from us, visit your account settings page: &lt;http://pvox.co/mTJ3P9&gt;
+
+POPVOX | 1425 K Street, NW, Suite 350 | Washington, DC 20005</field>
+  </object>
+  <object pk="13" model="popvox.rawtext">
+    <field type="SlugField" name="name">userstickinessemail_B</field>
+    <field type="IntegerField" name="format">1</field>
+    <field type="TextField" name="text">What are people commenting on at POPVOX?
+Dear %s:
+
+We miss your point of view on POPVOX! We hope you visit our advocacy platform again and check out one of the more than 4,000 bills have already been introduced in the 112th Congress. Here are a few trending bills POPVOX users are weighing in on right now! 
+
+---------------------------------------
+The President's American Jobs Act (proposal to Congress)
+&lt;http://pvox.co/BxOKOE&gt;
+50% Support | 50% Oppose
+
+Fair Tax Act (HR 25) 
+Repeals the income tax, abolishes the IRS and enacts a national sales tax to be administered primarily by the States  
+&lt;http://pvox.co/hG8fCJ&gt;  
+84% Support | 16% Oppose
+
+IDEA Full Funding Act (alternative name "The Saving Lives by Lowering Tobacco Use Act") (S 1403)
+Provides full Federal funding of part B of the Individuals with Disabilities Education Act and increases excise tax on small cigars and cigarettes
+&lt;http://pvox.co/pQBBpZ&gt; 
+8% Support | 92% Oppose
+
+---------------------------------------
+
+POPVOX is a transformative advocacy platform that meshes legislative data with individuals’ personal stories and sentiment. (Learn more at &lt;http://pvox.co/MrHyTk&gt;.) With POPVOX, you can:
+
+* Send a message directly to your Member of Congress and Senators -- and receive delivery confirmation.
+* Stay informed on the issues that matter to you, your family and your community.
+* Build support among your friends, community and social networks for bills that you weigh in on -- and see the "opinion pies" move!
+
+Get started at &lt;http://pvox.co/tAXaKE&gt; and let POPVOX deliver your message to Congress! Or subscribe to our daily email of Bill Picks at &lt;http://bit.ly/pPEWBi&gt; to stay updated on what's pending before Congress.
+
+Thanks,  
+The POPVOX Team
+
+Find us on Facebook at &lt;http://www.facebook.com/POPVOXnation&gt;  
+Follow us on Twitter @POPVOX  
+Read our privacy policy at &lt;http://pvox.co/qUGM1K&gt;
+
+P.S. You are receiving this email because you previously used POPVOX to communicate with Congress. If you prefer not to receive emails from us, or have questions, please email Rachna at rachna@popvox.com.
+
+_____
+To opt out of future emails from us, visit your account settings page: &lt;http://pvox.co/2oCo7V&gt;
+
+POPVOX | 1425 K Street, NW, Suite 350 | Washington, DC 20005</field>
+  </object>
+  <object pk="14" model="popvox.rawtext">
+    <field type="SlugField" name="name">userstickinessemail_C</field>
+    <field type="IntegerField" name="format">1</field>
+    <field type="TextField" name="text">Four thousand bills introduced -- have you weighed in?
+Dear %s:
+
+Did you know that more than 4,000 bills have already been introduced in the 112th Congress? We hope you'll use POPVOX again to weigh in on a few of these bills. Here's what's trending among POPVOX users right now: 
+
+---------------------------------------
+The President's American Jobs Act (proposal to Congress)
+&lt;http://pvox.co/BxOKOE&gt;
+50% Support | 50% Oppose
+
+IDEA Full Funding Act (alternative name "The Saving Lives by Lowering Tobacco Use Act") (S 1403)
+Provides full Federal funding of part B of the Individuals with Disabilities Education Act and increases excise tax on small cigars and cigarettes
+&lt;http://pvox.co/pQBBpZ&gt; 
+8% Support | 92% Oppose
+
+National Right-to-Carry Reciprocity Act (HR 822)
+Provide a national standard to carry concealed firearms
+&lt;http://pvox.co/WSSV7P&gt;  
+80% Support | 20% Oppose
+---------------------------------------
+
+POPVOX is a transformative advocacy platform that meshes legislative data with individuals’ personal stories and sentiment. (Learn more at &lt;http://pvox.co/iDXg7r&gt;.) With POPVOX, you can:
+
+* Send a message directly to your Member of Congress and Senators -- and receive delivery confirmation.
+* Stay informed on the issues that matter to you, your family and your community.
+* Build support among your friends, community and social networks for bills that you weigh in on -- and see the "opinion pies" move!
+
+Get started at &lt;http://pvox.co/GpCCEN&gt; and let POPVOX deliver your message to Congress! Or subscribe to our daily email of Bill Picks at &lt;http://bit.ly/pPEWBi&gt; to stay updated on what's pending before Congress.
+
+Thanks,  
+The POPVOX Team
+
+Find us on Facebook at &lt;http://www.facebook.com/POPVOXnation&gt;  
+Follow us on Twitter @POPVOX  
+Read our privacy policy at &lt;http://pvox.co/XaBVSC&gt;
+
+P.S. You are receiving this email because you previously used POPVOX to communicate with Congress. If you prefer not to receive emails from us, or have questions, please email Rachna at rachna@popvox.com.
+
+_____
+To opt out of future emails from us, visit your account settings page: &lt;http://pvox.co/Z76GBT&gt;
+
+POPVOX | 1425 K Street, NW, Suite 350 | Washington, DC 20005</field>
+  </object>
+</django-objects>

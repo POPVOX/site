@@ -1,0 +1,112 @@
+<django-objects version="1.0">
+  <object pk="21285" model="popvox.bill">
+    <field type="IntegerField" name="congressnumber">112</field>
+    <field type="CharField" name="billtype">hr</field>
+    <field type="IntegerField" name="billnumber">561</field>
+    <field to="popvox.bill" name="vehicle_for" rel="ManyToOneRel">
+      <None/>
+    </field>
+    <field to="popvox.memberofcongress" name="sponsor" rel="ManyToOneRel">400151</field>
+    <field to="popvox.issuearea" name="topterm" rel="ManyToOneRel">
+      <None/>
+    </field>
+    <field type="TextField" name="title">H.Res. 561: Recognizing the National Association of Journeymen Linemen and the profession of Journeymen Linemen and the contributions of these brave men and women to protect public safety and expressing support for designation of April 18, 2012, as National Journeymen Linemen Day.</field>
+    <field type="TextField" name="description">
+      <None/>
+    </field>
+    <field type="DateField" name="introduced_date">2012-02-17</field>
+    <field type="TextField" name="current_status">REFERRED</field>
+    <field type="DateTimeField" name="current_status_date">2012-02-17 00:00:00</field>
+    <field type="IntegerField" name="num_cosponsors">0</field>
+    <field type="TextField" name="latest_action"/>
+    <field to="popvox.bill" name="reintroduced_as" rel="ManyToOneRel">
+      <None/>
+    </field>
+    <field to="popvox.bill" name="migrate_to" rel="ManyToOneRel">
+      <None/>
+    </field>
+    <field type="CharField" name="street_name">Expressing support for National Journeymen Linemen Day, Apr. 18</field>
+    <field type="TextField" name="notes"/>
+    <field type="CharField" name="hashtags"/>
+    <field type="BooleanField" name="hold_metadata">False</field>
+    <field type="CharField" name="comments_to_chamber">
+      <None/>
+    </field>
+    <field type="DateTimeField" name="upcoming_event_post_date">
+      <None/>
+    </field>
+    <field type="CharField" name="upcoming_event"/>
+    <field type="CharField" name="srcfilehash">1e829c16fa670fa56a10a4474122499f</field>
+    <field to="popvox.memberofcongress" name="cosponsors" rel="ManyToManyRel"/>
+    <field to="popvox.congressionalcommittee" name="committees" rel="ManyToManyRel">
+      <object pk="19"/>
+    </field>
+    <field to="popvox.issuearea" name="issues" rel="ManyToManyRel"/>
+  </object>
+  <object pk="19986" model="popvox.bill">
+    <field type="IntegerField" name="congressnumber">112</field>
+    <field type="CharField" name="billtype">h</field>
+    <field type="IntegerField" name="billnumber">3359</field>
+    <field to="popvox.bill" name="vehicle_for" rel="ManyToOneRel">
+      <None/>
+    </field>
+    <field to="popvox.memberofcongress" name="sponsor" rel="ManyToOneRel">400283</field>
+    <field to="popvox.issuearea" name="topterm" rel="ManyToOneRel">114</field>
+    <field type="TextField" name="title">H.R. 3359: Traveling Exotic Animal Protection Act</field>
+    <field type="TextField" name="description">To amend the Animal Welfare Act to restrict the use of exotic and non-domesticated animals in traveling circuses and exhibitions.</field>
+    <field type="DateField" name="introduced_date">2011-11-03</field>
+    <field type="TextField" name="current_status">REFERRED</field>
+    <field type="DateTimeField" name="current_status_date">2011-11-03 00:00:00</field>
+    <field type="IntegerField" name="num_cosponsors">18</field>
+    <field type="TextField" name="latest_action">2012-02-15	1 new cosponsor(s): Rep. Charles Rangel [D, NY-15]</field>
+    <field to="popvox.bill" name="reintroduced_as" rel="ManyToOneRel">
+      <None/>
+    </field>
+    <field to="popvox.bill" name="migrate_to" rel="ManyToOneRel">
+      <None/>
+    </field>
+    <field type="CharField" name="street_name">the Traveling Exotic Animal Protection Act</field>
+    <field type="TextField" name="notes"/>
+    <field type="CharField" name="hashtags"/>
+    <field type="BooleanField" name="hold_metadata">False</field>
+    <field type="CharField" name="comments_to_chamber">
+      <None/>
+    </field>
+    <field type="DateTimeField" name="upcoming_event_post_date">
+      <None/>
+    </field>
+    <field type="CharField" name="upcoming_event">
+      <None/>
+    </field>
+    <field type="CharField" name="srcfilehash">06bf90bb8ec5b01bdc8cacb844b05210</field>
+    <field to="popvox.memberofcongress" name="cosponsors" rel="ManyToManyRel">
+      <object pk="400074"/>
+      <object pk="400129"/>
+      <object pk="400133"/>
+      <object pk="400209"/>
+      <object pk="400227"/>
+      <object pk="400289"/>
+      <object pk="400331"/>
+      <object pk="400333"/>
+      <object pk="400346"/>
+      <object pk="400360"/>
+      <object pk="400387"/>
+      <object pk="400415"/>
+      <object pk="400439"/>
+      <object pk="412189"/>
+      <object pk="412259"/>
+      <object pk="412305"/>
+      <object pk="412308"/>
+      <object pk="412383"/>
+    </field>
+    <field to="popvox.congressionalcommittee" name="committees" rel="ManyToManyRel">
+      <object pk="13"/>
+      <object pk="36"/>
+    </field>
+    <field to="popvox.issuearea" name="issues" rel="ManyToManyRel">
+      <object pk="147"/>
+      <object pk="114"/>
+      <object pk="111"/>
+    </field>
+  </object>
+</django-objects>
