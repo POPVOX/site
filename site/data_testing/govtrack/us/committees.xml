@@ -1,0 +1,2529 @@
+<?xml version="1.0"?>
+<committees>
+  <committee type="senate" code="SSAF" displayname="Senate Committee on Agriculture, Nutrition, and Forestry" url="http://agriculture.senate.gov/" abbrev="Ag,N&amp;F">
+    <thomas-names>
+      <name session="93">Senate Agriculture and Forestry</name>
+      <name session="94">Senate Agriculture and Forestry</name>
+      <name session="95">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="96">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="97">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="98">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="99">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="100">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="101">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="102">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="103">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="104">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="105">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="106">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="107">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="108">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="109">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="110">Senate Agriculture, Nutrition, and Forestry</name>
+      <name session="111">Senate Agriculture, Nutrition, and Forestry</name>
+	 <name session="112">Senate Agriculture, Nutrition, and Forestry</name>
+    </thomas-names>
+    <subcommittee code="8" displayname="Domestic and Foreign Marketing, Inspection, and Plant and Animal Health ">
+      <thomas-names>
+        <name session="97">Forestry, Water Resources, and Environment</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="9" displayname="Energy, Science and Technology">
+    </subcommittee>
+    <subcommittee code="10" displayname="Hunger, Nutrition, and Family Farms">
+    </subcommittee>
+    <subcommittee code="11" displayname="Production, Income Protection and Price Support">
+    </subcommittee>
+    <subcommittee code="12" displayname="Rural Revitalization, Conservation, Forestry, and Credit">
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSAP" displayname="Senate Committee on Appropriations" url="http://appropriations.senate.gov/" abbrev="Approps">
+    <thomas-names>
+      <name session="93">Senate Appropriations</name>
+      <name session="94">Senate Appropriations</name>
+      <name session="95">Senate Appropriations</name>
+      <name session="96">Senate Appropriations</name>
+      <name session="97">Senate Appropriations</name>
+      <name session="98">Senate Appropriations</name>
+      <name session="99">Senate Appropriations</name>
+      <name session="100">Senate Appropriations</name>
+      <name session="101">Senate Appropriations</name>
+      <name session="102">Senate Appropriations</name>
+      <name session="103">Senate Appropriations</name>
+      <name session="104">Senate Appropriations</name>
+      <name session="105">Senate Appropriations</name>
+      <name session="106">Senate Appropriations</name>
+      <name session="107">Senate Appropriations</name>
+      <name session="108">Senate Appropriations</name>
+      <name session="109">Senate Appropriations</name>
+      <name session="110">Senate Appropriations</name>
+      <name session="111">Senate Appropriations</name>
+	 <name session="112">Senate Appropriations</name>
+    </thomas-names>
+    <subcommittee code="1" displayname="Agriculture, Rural Development, Food and Drug Administration, and Related Agencies">
+      <thomas-names>
+        <name session="98">Agriculture and Related Agencies</name>
+        <name session="99">Agriculture and Related Agencies</name>
+        <name session="101">Agriculture and Related Agencies</name>
+        <name session="103">Agriculture, Rural Development, and Related Agencies</name>
+        <name session="104">Agriculture, Rural Development, and Related Agencies</name>
+        <name session="105">Agriculture, Rural Development, and Related Agencies</name>
+        <name session="106">Agriculture, Rural Development, and Related Agencies</name>
+        <name session="107">Agriculture, Rural Development, and Related Agencies</name>
+        <name session="108">Agriculture, Rural Development, and Related Agencies</name>
+        <name session="109">Agriculture, Rural Development, and Related Agencies</name>
+        <name session="110">Agriculture, Rural Development, Food and Drug Administration, and Related Agencies</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="16" displayname="Commerce, Justice, Science, and Related Agencies">
+      <thomas-names>
+        <name session="109">Commerce, Justice, and Science and Related Agencies</name>
+        <name session="110">Commerce, Justice, Science, and Related Agencies</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="2" displayname="Defense">
+      <thomas-names>
+        <name session="98">Defense</name>
+        <name session="101">Defense</name>
+        <name session="102">Defense</name>
+        <name session="103">Defense</name>
+        <name session="104">Defense</name>
+        <name session="105">Defense</name>
+        <name session="106">Defense</name>
+        <name session="107">Defense</name>
+        <name session="108">Defense</name>
+        <name session="109">Defense</name>
+        <name session="110">Defense</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="22" displayname="Energy and Water Development">
+      <thomas-names>
+        <name session="109">Energy and Water, and Related Agencies</name>
+        <name session="110">Energy and Water Development</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="23" displayname="Financial Services and General Government">
+      <thomas-names>
+        <name session="110">Financial Services and General Government</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="14" displayname="Homeland Security">
+      <thomas-names>
+        <name session="108">Homeland Security</name>
+        <name session="109">Homeland Security</name>
+        <name session="110">Homeland Security</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="17" displayname="Interior, Environment, and Related Agencies">
+      <thomas-names>
+        <name session="109">Interior and Related Agencies</name>
+        <name session="110">Interior, Environment, and Related Agencies</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="18" displayname="Labor, Health and Human Services, Education, and Related Agencies">
+      <thomas-names>
+        <name session="109">Labor, Health and Human Services, Education, and Related Agencies</name>
+        <name session="110">Labor, Health and Human Services, Education, and Related Agencies</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="8" displayname="Legislative Branch">
+      <thomas-names>
+        <name session="98">Legislative Branch</name>
+        <name session="99">Legislative Branch</name>
+        <name session="100">Legislative Branch</name>
+        <name session="102">Legislative Branch</name>
+        <name session="105">Legislative Branch</name>
+        <name session="106">Legislative Branch</name>
+        <name session="107">Legislative Branch</name>
+        <name session="108">Legislative Branch</name>
+        <name session="110">Legislative Branch</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="19" displayname="Military Construction and Veterans Affairs, and Related Agencies">
+      <thomas-names>
+        <name session="109">Military Construction and Veterans Affairs, and Related Agencies</name>
+        <name session="110">Military Construction and Veterans Affairs, and Related Agencies</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="20" displayname="State, Foreign Operations, and Related Programs">
+      <thomas-names>
+        <name session="109">State, Foreign Operations, and Related Programs</name>
+        <name session="110">State, Foreign Operations, and Related Programs</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="24" displayname="Transportation, Housing and Urban Development, and Related Agencies ">
+      <thomas-names>
+        <name session="110">Transportation, Housing and Urban Development, and Related Agencies</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSAS" displayname="Senate Committee on Armed Services" url="http://armed-services.senate.gov/" abbrev="ArmServs">
+    <thomas-names>
+      <name session="93">Senate Armed Services</name>
+      <name session="94">Senate Armed Services</name>
+      <name session="95">Senate Armed Services</name>
+      <name session="96">Senate Armed Services</name>
+      <name session="97">Senate Armed Services</name>
+      <name session="98">Senate Armed Services</name>
+      <name session="99">Senate Armed Services</name>
+      <name session="100">Senate Armed Services</name>
+      <name session="101">Senate Armed Services</name>
+      <name session="102">Senate Armed Services</name>
+      <name session="103">Senate Armed Services</name>
+      <name session="104">Senate Armed Services</name>
+      <name session="105">Senate Armed Services</name>
+      <name session="106">Senate Armed Services</name>
+      <name session="107">Senate Armed Services</name>
+      <name session="108">Senate Armed Services</name>
+      <name session="109">Senate Armed Services</name>
+      <name session="110">Senate Armed Services</name>
+      <name session="111">Senate Armed Services</name>
+	 <name session="112">Senate Armed Services</name>
+    </thomas-names>
+    <subcommittee code="14" displayname="Airland">
+      <thomas-names>
+        <name session="104">Airland Forces</name>
+        <name session="105">Airland Forces</name>
+        <name session="106">Airland</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="20" displayname="Emerging Threats and Capabilities">
+      <thomas-names>
+        <name session="99">Defense Acquisition Policy</name>
+        <name session="106">Emerging Threats and Capabilities</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="17" displayname="Personnel">
+      <thomas-names>
+        <name session="97">Strategic and Theater Nuclear Forces</name>
+        <name session="98">Strategic and Theater Nuclear Forces</name>
+        <name session="99">Strategic and Theater Nuclear Forces</name>
+        <name session="104">Personnel</name>
+        <name session="105">Personnel</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="15" displayname="Readiness and Management Support">
+      <thomas-names>
+        <name session="104">Readiness</name>
+        <name session="105">Readiness</name>
+        <name session="106">Readiness and Management Support</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="13" displayname="SeaPower">
+      <thomas-names>
+        <name session="104">SeaPower</name>
+        <name session="105">SeaPower</name>
+        <name session="106">SeaPower</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="16" displayname="Strategic Forces">
+      <thomas-names>
+        <name session="97">Tactical Warfare</name>
+        <name session="98">Tactical Warfare</name>
+        <name session="104">Strategic Forces</name>
+        <name session="105">Strategic Forces</name>
+        <name session="106">Strategic</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSBK" displayname="Senate Committee on Banking, Housing, and Urban Affairs" url="http://banking.senate.gov/" abbrev="Banking">
+    <thomas-names>
+      <name session="93">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="94">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="95">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="96">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="97">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="98">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="99">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="100">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="101">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="102">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="103">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="104">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="105">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="106">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="107">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="108">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="109">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="110">Senate Banking, Housing, and Urban Affairs</name>
+      <name session="111">Senate Banking, Housing, and Urban Affairs</name>
+	 <name session="112">Senate Banking, Housing, and Urban Affairs</name>
+    </thomas-names>
+    <subcommittee code="12" displayname="Economic Policy">
+      <thomas-names>
+        <name session="98">Federal Credit Programs</name>
+        <name session="106">Economic Policy</name>
+        <name session="108">Economic Policy</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="8" displayname="Financial Institutions">
+      <thomas-names>
+        <name session="104">Financial Institutions and Regulatory Relief</name>
+        <name session="105">Financial Institutions and Regulatory Relief</name>
+        <name session="106">Financial Institutions</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="9" displayname="Housing, Transportation and Community Development">
+      <thomas-names>
+        <name session="98">Rural Housing and Development</name>
+        <name session="105">Housing Opportunity and Community Development</name>
+        <name session="106">Housing and Transportation</name>
+        <name session="107">Housing and Transportation</name>
+        <name session="109">Housing and Transportation</name>
+        <name session="110">Housing, Transportation and Community Development</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="4" displayname="Securities, Insurance and Investment">
+      <thomas-names>
+        <name session="97">Securities</name>
+        <name session="98">Securities</name>
+        <name session="99">Securities</name>
+        <name session="100">Securities</name>
+        <name session="101">Securities</name>
+        <name session="102">Securities</name>
+        <name session="103">Securities</name>
+        <name session="104">Securities</name>
+        <name session="105">Securities</name>
+        <name session="107">Securities and Investment</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="5" displayname="Security and International Trade and Finance">
+      <thomas-names>
+        <name session="97">International Finance and Monetary Policy</name>
+        <name session="98">International Finance and Monetary Policy</name>
+        <name session="99">International Finance and Monetary Policy</name>
+        <name session="101">International Finance and Monetary Policy</name>
+        <name session="102">International Finance and Monetary Policy</name>
+        <name session="103">International Finance and Monetary Policy</name>
+        <name session="105">International Finance</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSCM" displayname="Senate Committee on Commerce, Science, and Transportation" url="http://commerce.senate.gov/" abbrev="CS&amp;Trans">
+    <thomas-names>
+      <name session="93">Senate Commerce</name>
+      <name session="94">Senate Commerce</name>
+      <name session="95">Senate Commerce, Science, and Transportation</name>
+      <name session="96">Senate Commerce, Science, and Transportation</name>
+      <name session="97">Senate Commerce, Science, and Transportation</name>
+      <name session="98">Senate Commerce, Science, and Transportation</name>
+      <name session="99">Senate Commerce, Science, and Transportation</name>
+      <name session="100">Senate Commerce, Science, and Transportation</name>
+      <name session="101">Senate Commerce, Science, and Transportation</name>
+      <name session="102">Senate Commerce, Science, and Transportation</name>
+      <name session="103">Senate Commerce, Science, and Transportation</name>
+      <name session="104">Senate Commerce, Science, and Transportation</name>
+      <name session="105">Senate Commerce, Science, and Transportation</name>
+      <name session="106">Senate Commerce, Science, and Transportation</name>
+      <name session="107">Senate Commerce, Science, and Transportation</name>
+      <name session="108">Senate Commerce, Science, and Transportation</name>
+      <name session="109">Senate Commerce, Science, and Transportation</name>
+      <name session="110">Senate Commerce, Science, and Transportation</name>
+      <name session="111">Senate Commerce, Science, and Transportation</name>
+	 <name session="112">Senate Commerce, Science, and Transportation</name>
+    </thomas-names>
+    <subcommittee code="1" displayname="Aviation Operations, Safety, and Security ">
+      <thomas-names>
+        <name session="97">Aviation</name>
+        <name session="98">Aviation</name>
+        <name session="99">Aviation</name>
+        <name session="100">Aviation</name>
+        <name session="101">Aviation</name>
+        <name session="102">Aviation</name>
+        <name session="103">Aviation</name>
+        <name session="104">Aviation</name>
+        <name session="105">Aviation</name>
+        <name session="107">Aviation</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="26" displayname="Communications and Technology">
+    </subcommittee>
+    <subcommittee code="27" displayname="Competitiveness, Innovation, and Export Promotion">
+    </subcommittee>
+    <subcommittee code="20" displayname="Consumer Protection, Product Safety, and Insurance ">
+      <thomas-names>
+        <name session="110">Consumer Protection, Product Safety, and Insurance</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="22" displayname="Oceans, Atmosphere, Fisheries, and Coast Guard">
+      <thomas-names>
+        <name session="110">Oceans, Atmosphere, Fisheries, and Coast Guard</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="24" displayname="Science and Space">
+    </subcommittee>
+    <subcommittee code="25" displayname="Surface Transportation and Merchant Marine">
+      <thomas-names>
+        <name session="110">Surface Transportation and Merchant Marine Infrastructure, Safety and Security</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSEG" displayname="Senate Committee on Energy and Natural Resources" url="http://energy.senate.gov/" abbrev="E&amp;NatRes">
+    <thomas-names>
+      <name session="93">Senate Interior and Insular Affairs</name>
+      <name session="94">Senate Interior and Insular Affairs</name>
+      <name session="95">Senate Energy and Natural Resources</name>
+      <name session="96">Senate Energy and Natural Resources</name>
+      <name session="97">Senate Energy and Natural Resources</name>
+      <name session="98">Senate Energy and Natural Resources</name>
+      <name session="99">Senate Energy and Natural Resources</name>
+      <name session="100">Senate Energy and Natural Resources</name>
+      <name session="101">Senate Energy and Natural Resources</name>
+      <name session="102">Senate Energy and Natural Resources</name>
+      <name session="103">Senate Energy and Natural Resources</name>
+      <name session="104">Senate Energy and Natural Resources</name>
+      <name session="105">Senate Energy and Natural Resources</name>
+      <name session="106">Senate Energy and Natural Resources</name>
+      <name session="107">Senate Energy and Natural Resources</name>
+      <name session="108">Senate Energy and Natural Resources</name>
+      <name session="109">Senate Energy and Natural Resources</name>
+      <name session="110">Senate Energy and Natural Resources</name>
+      <name session="111">Senate Energy and Natural Resources</name>
+	 <name session="112">Senate Energy and Natural Resources</name>
+    </thomas-names>
+    <subcommittee code="1" displayname="Energy">
+      <thomas-names>
+        <name session="97">Energy Research and Development</name>
+        <name session="98">Energy Research and Development</name>
+        <name session="99">Energy Research and Development</name>
+        <name session="100">Research and Development</name>
+        <name session="101">Energy Research and Development</name>
+        <name session="102">Energy Research and Development</name>
+        <name session="103">Energy Research and Development</name>
+        <name session="104">Energy Research and Development</name>
+        <name session="105">Energy Research, Development, Production and Regulation</name>
+        <name session="106">Energy Research, Development, Production and Regulation</name>
+        <name session="108">Energy</name>
+        <name session="110">Energy</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="4" displayname="National Parks">
+      <thomas-names>
+        <name session="97">Energy Conservation and Supply</name>
+        <name session="98">Energy Conservation and Supply</name>
+        <name session="100">Public Lands, National Parks and Forests</name>
+        <name session="101">Public Lands, National Parks and Forests</name>
+        <name session="102">Public Lands, National Parks and Forests</name>
+        <name session="103">Public Lands, National Parks and Forests</name>
+        <name session="104">Parks, Historic Preservation, and Recreation</name>
+        <name session="105">National Parks, Historic Preservation and Recreation</name>
+        <name session="106">National Parks, Historic Preservation and Recreation</name>
+        <name session="107">National Parks</name>
+        <name session="108">National Parks</name>
+        <name session="109">National Parks</name>
+        <name session="110">National Parks</name>
+        <name session="111">National Parks</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="3" displayname="Public Lands and Forests">
+      <thomas-names>
+        <name session="100">Water and Power</name>
+        <name session="101">Water and Power</name>
+        <name session="102">Water and Power</name>
+        <name session="103">Water and Power</name>
+        <name session="104">Forests and Public Land Management</name>
+        <name session="105">Forests and Public Land Management</name>
+        <name session="106">Forests and Public Land Management</name>
+        <name session="107">Public Lands and Forests</name>
+        <name session="108">Public Lands and Forests</name>
+        <name session="109">Public Lands and Forests</name>
+        <name session="110">Public Lands and Forests</name>
+        <name session="111">Public Lands and Forests</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="7" displayname="Water and Power">
+      <thomas-names>
+        <name session="97">Energy and Mineral Resources</name>
+        <name session="98">Energy and Mineral Resources</name>
+        <name session="105">Water and Power</name>
+        <name session="106">Water and Power</name>
+        <name session="107">Water and Power</name>
+        <name session="108">Water and Power</name>
+        <name session="109">Water and Power</name>
+        <name session="110">Water and Power</name>
+        <name session="111">Water and Power</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSEV" displayname="Senate Committee on Environment and Public Works" url="http://epw.senate.gov/" abbrev="Env&amp;PW">
+    <thomas-names>
+      <name session="93">Senate Public Works</name>
+      <name session="94">Senate Public Works</name>
+      <name session="95">Senate Environment and Public Works</name>
+      <name session="96">Senate Environment and Public Works</name>
+      <name session="97">Senate Environment and Public Works</name>
+      <name session="98">Senate Environment and Public Works</name>
+      <name session="99">Senate Environment and Public Works</name>
+      <name session="100">Senate Environment and Public Works</name>
+      <name session="101">Senate Environment and Public Works</name>
+      <name session="102">Senate Environment and Public Works</name>
+      <name session="103">Senate Environment and Public Works</name>
+      <name session="104">Senate Environment and Public Works</name>
+      <name session="105">Senate Environment and Public Works</name>
+      <name session="106">Senate Environment and Public Works</name>
+      <name session="107">Senate Environment and Public Works</name>
+      <name session="108">Senate Environment and Public Works</name>
+      <name session="109">Senate Environment and Public Works</name>
+      <name session="110">Senate Environment and Public Works</name>
+      <name session="111">Senate Environment and Public Works</name>
+	 <name session="112">Senate Environment and Public Works</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SSFI" displayname="Senate Committee on Finance" url="http://finance.senate.gov/" abbrev="SFC">
+    <thomas-names>
+      <name session="93">Senate Finance</name>
+      <name session="94">Senate Finance</name>
+      <name session="95">Senate Finance</name>
+      <name session="96">Senate Finance</name>
+      <name session="97">Senate Finance</name>
+      <name session="98">Senate Finance</name>
+      <name session="99">Senate Finance</name>
+      <name session="100">Senate Finance</name>
+      <name session="101">Senate Finance</name>
+      <name session="102">Senate Finance</name>
+      <name session="103">Senate Finance</name>
+      <name session="104">Senate Finance</name>
+      <name session="105">Senate Finance</name>
+      <name session="106">Senate Finance</name>
+      <name session="107">Senate Finance</name>
+      <name session="108">Senate Finance</name>
+      <name session="109">Senate Finance</name>
+      <name session="110">Senate Finance</name>
+      <name session="111">Senate Finance</name>
+	 <name session="112">Senate Finance</name>
+    </thomas-names>
+    <subcommittee code="12" displayname="Energy, Natural Resources, and Infrastructure">
+      <thomas-names>
+        <name session="97">Taxation and Debt Management</name>
+        <name session="98">Taxation and Debt Management</name>
+        <name session="99">Taxation and Debt Management</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="10" displayname="Health Care">
+      <thomas-names>
+        <name session="105">Health Care</name>
+        <name session="106">Health Care</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="13" displayname="International Trade, Customs, and Global Competitiveness">
+      <thomas-names>
+        <name session="98">Social Security and Income Maintenance Programs</name>
+        <name session="99">Social Security and Income Maintenance Programs</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="2" displayname="Social Security, Pensions and Family Policy">
+      <thomas-names>
+        <name session="100">Social Security and Family Policy</name>
+        <name session="101">Social Security and Family Policy</name>
+        <name session="102">Social Security and Family Policy</name>
+        <name session="104">Social Security and Family Policy</name>
+        <name session="105">Social Security and Family Policy</name>
+        <name session="107">Social Security and Family Policy</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="11" displayname="Taxation, IRS Oversight, and Long-term Growth">
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSFR" displayname="Senate Committee on Foreign Relations" url="http://foreign.senate.gov/" abbrev="ForRel">
+    <thomas-names>
+      <name session="93">Senate Foreign Relations</name>
+      <name session="94">Senate Foreign Relations</name>
+      <name session="95">Senate Foreign Relations</name>
+      <name session="96">Senate Foreign Relations</name>
+      <name session="97">Senate Foreign Relations</name>
+      <name session="98">Senate Foreign Relations</name>
+      <name session="99">Senate Foreign Relations</name>
+      <name session="100">Senate Foreign Relations</name>
+      <name session="101">Senate Foreign Relations</name>
+      <name session="102">Senate Foreign Relations</name>
+      <name session="103">Senate Foreign Relations</name>
+      <name session="104">Senate Foreign Relations</name>
+      <name session="105">Senate Foreign Relations</name>
+      <name session="106">Senate Foreign Relations</name>
+      <name session="107">Senate Foreign Relations</name>
+      <name session="108">Senate Foreign Relations</name>
+      <name session="109">Senate Foreign Relations</name>
+      <name session="110">Senate Foreign Relations</name>
+      <name session="111">Senate Foreign Relations</name>
+	 <name session="112">Senate Foreign Relations</name>
+    </thomas-names>
+    <subcommittee code="9" displayname="African Affairs">
+      <thomas-names>
+        <name session="98">African Affairs</name>
+        <name session="99">African Affairs</name>
+        <name session="102">African Affairs</name>
+        <name session="103">African Affairs</name>
+        <name session="104">African Affairs</name>
+        <name session="106">African Affairs</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="2" displayname="East Asian and Pacific Affairs">
+      <thomas-names>
+        <name session="98">East Asian and Pacific Affairs</name>
+        <name session="99">East Asian and Pacific Affairs</name>
+        <name session="100">East Asian and Pacific Affairs</name>
+        <name session="105">East Asian and Pacific Affairs</name>
+        <name session="108">East Asian and Pacific Affairs</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="1" displayname="European Affairs">
+      <thomas-names>
+        <name session="97">European Affairs</name>
+        <name session="98">European Affairs</name>
+        <name session="99">European Affairs</name>
+        <name session="108">European Affairs</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="12" displayname="International Development and Foreign Assistance, Economic Affairs and International Environmental Protection">
+    </subcommittee>
+    <subcommittee code="13" displayname="International Operations and Organizations, Human Rights, Democracy and Global Women's Issues">
+    </subcommittee>
+    <subcommittee code="7" displayname="Near Eastern and South and Central Asian Affairs">
+      <thomas-names>
+        <name session="98">Near Eastern and South Asian Affairs</name>
+        <name session="99">Near Eastern and South Asian Affairs</name>
+        <name session="100">Near Eastern and South Asian Affairs</name>
+        <name session="104">Near Eastern and South Asian Affairs</name>
+        <name session="106">Near Eastern and South Asian Affairs</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="6" displayname="Western Hemisphere, Peace Corps and Global Narcotics Affairs">
+      <thomas-names>
+        <name session="98">Western Hemisphere Affairs</name>
+        <name session="99">Western Hemisphere Affairs</name>
+        <name session="100">Western Hemisphere and Peace Corps Affairs</name>
+        <name session="102">Western Hemisphere and Peace Corps Affairs</name>
+        <name session="104">Western Hemisphere and Peace Corps Affairs</name>
+        <name session="105">Western Hemisphere, Peace Corps, Narcotics and Terrorism</name>
+        <name session="107">Western Hemisphere, Peace Corps and Narcotics Affairs</name>
+        <name session="110">Western Hemisphere, Peace Corps and Narcotics Affairs</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSHR" displayname="Senate Committee on Health, Education, Labor, and Pensions" url="http://help.senate.gov/" abbrev="HELP">
+    <thomas-names>
+      <name session="93">Senate Labor and Public Welfare</name>
+      <name session="94">Senate Labor and Public Welfare</name>
+      <name session="95">Senate Human Resources</name>
+      <name session="96">Senate Labor and Human Resources</name>
+      <name session="97">Senate Labor and Human Resources</name>
+      <name session="98">Senate Labor and Human Resources</name>
+      <name session="99">Senate Labor and Human Resources</name>
+      <name session="100">Senate Labor and Human Resources</name>
+      <name session="101">Senate Labor and Human Resources</name>
+      <name session="102">Senate Labor and Human Resources</name>
+      <name session="103">Senate Labor and Human Resources</name>
+      <name session="104">Senate Labor and Human Resources</name>
+      <name session="105">Senate Labor and Human Resources</name>
+      <name session="106">Senate Health, Education, Labor, and Pensions</name>
+      <name session="107">Senate Health, Education, Labor, and Pensions</name>
+      <name session="108">Senate Health, Education, Labor, and Pensions</name>
+      <name session="109">Senate Health, Education, Labor, and Pensions</name>
+      <name session="110">Senate Health, Education, Labor, and Pensions</name>
+      <name session="111">Senate Health, Education, Labor, and Pensions</name>
+	 <name session="112">Senate Health, Education, Labor, and Pensions</name>
+    </thomas-names>
+    <subcommittee code="9" displayname="Children and Families">
+      <thomas-names>
+        <name session="109">Education and Early Childhood Development</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="11" displayname="Employment and Workplace Safety">
+      <thomas-names>
+        <name session="98">Aging</name>
+        <name session="99">Aging</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="12" displayname="Retirement and Aging">
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SSGA" displayname="Senate Committee on Homeland Security and Governmental Affairs" url="http://hsgac.senate.gov/" abbrev="HS&amp;GovAff">
+    <thomas-names>
+      <name session="93">Senate Government Operations</name>
+      <name session="94">Senate Government Operations</name>
+      <name session="95">Senate Governmental Affairs</name>
+      <name session="96">Senate Governmental Affairs</name>
+      <name session="97">Senate Governmental Affairs</name>
+      <name session="98">Senate Governmental Affairs</name>
+      <name session="99">Senate Governmental Affairs</name>
+      <name session="100">Senate Governmental Affairs</name>
+      <name session="101">Senate Governmental Affairs</name>
+      <name session="102">Senate Governmental Affairs</name>
+      <name session="103">Senate Governmental Affairs</name>
+      <name session="104">Senate Governmental Affairs</name>
+      <name session="105">Senate Governmental Affairs</name>
+      <name session="106">Senate Governmental Affairs</name>
+      <name session="107">Senate Governmental Affairs</name>
+      <name session="108">Senate Governmental Affairs</name>
+      <name session="109">Senate Homeland Security and Governmental Affairs</name>
+      <name session="110">Senate Homeland Security and Governmental Affairs</name>
+      <name session="111">Senate Homeland Security and Governmental Affairs</name>
+	 <name session="112">Senate Homeland Security and Governmental Affairs</name>
+    </thomas-names>
+    <subcommittee code="13" displayname="Ad Hoc Subcommittee on Contracting Oversight">
+    </subcommittee>
+    <subcommittee code="11" displayname="Ad Hoc Subcommittee on Disaster Recovery">
+      <thomas-names>
+        <name session="110">Disaster Recovery (Ad Hoc)</name>
+        <name session="111">Disaster Recovery (Ad Hoc)</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="10" displayname="Ad Hoc Subcommittee on State, Local, and Private Sector Preparedness and Integration">
+      <thomas-names>
+        <name session="97">Federal Expenditures</name>
+        <name session="98">Information Management and Regulatory Affairs</name>
+        <name session="110">State, Local, and Private Sector Preparedness and Integration (Ad Hoc)</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="1" displayname="Investigations">
+    </subcommittee>
+    <subcommittee code="9" displayname="Federal Financial Management, Government Information, Federal Services, and International Security">
+      <thomas-names>
+        <name session="108">Financial Management, the Budget and International Security</name>
+        <name session="109">Federal Financial Management, Government Information, Federal Services, and International Security</name>
+        <name session="110">Federal Financial Management, Government Information, Federal Services, and International Security</name>
+        <name session="111">Federal Financial Management, Government Information, Federal Services, and International Security</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="3" displayname="Oversight of Government Management, the Federal Workforce, and the District of Columbia">
+      <thomas-names>
+        <name session="100">Oversight of Government Management</name>
+        <name session="101">Oversight of Government Management</name>
+        <name session="102">Oversight of Government Management</name>
+        <name session="103">Oversight of Government Management</name>
+        <name session="104">Oversight of Government Management and the District of Columbia</name>
+        <name session="105">Oversight of Government Management, Restructuring and the District of Columbia</name>
+        <name session="106">Oversight of Government Management, Restructuring and the District of Columbia</name>
+        <name session="107">Oversight of Government Management, the Federal Workforce, and the District of Columbia</name>
+        <name session="108">Oversight of Government Management, the Federal Workforce, and the District of Columbia</name>
+        <name session="109">Oversight of Government Management, the Federal Workforce, and the District of Columbia</name>
+        <name session="110">Oversight of Government Management, the Federal Workforce, and the District of Columbia</name>
+        <name session="111">Oversight of Government Management, the Federal Workforce, and the District of Columbia</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="senate" code="SLIA" displayname="Senate Committee on Indian Affairs" url="http://indian.senate.gov/" abbrev="IndAff">
+    <thomas-names>
+      <name session="95">Senate Indian Affairs (Select)</name>
+      <name session="96">Senate Indian Affairs (Select)</name>
+      <name session="97">Senate Indian Affairs (Select)</name>
+      <name session="98">Senate Indian Affairs (Permanent Select)</name>
+      <name session="99">Senate Indian Affairs (Permanent Select)</name>
+      <name session="100">Senate Indian Affairs (Permanent Select)</name>
+      <name session="101">Senate Indian Affairs (Permanent Select)</name>
+      <name session="102">Senate Indian Affairs (Permanent Select)</name>
+      <name session="103">Senate Indian Affairs</name>
+      <name session="104">Senate Indian Affairs</name>
+      <name session="105">Senate Indian Affairs</name>
+      <name session="106">Senate Indian Affairs</name>
+      <name session="107">Senate Indian Affairs</name>
+      <name session="108">Senate Indian Affairs</name>
+      <name session="109">Senate Indian Affairs</name>
+      <name session="110">Senate Indian Affairs</name>
+      <name session="111">Senate Indian Affairs</name>
+	 <name session="112">Senate Indian Affairs</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SSRA" displayname="Senate Committee on Rules and Administration" url="http://rules.senate.gov/" abbrev="Rules">
+    <thomas-names>
+      <name session="93">Senate Rules and Administration</name>
+      <name session="94">Senate Rules and Administration</name>
+      <name session="95">Senate Rules and Administration</name>
+      <name session="96">Senate Rules and Administration</name>
+      <name session="97">Senate Rules and Administration</name>
+      <name session="98">Senate Rules and Administration</name>
+      <name session="99">Senate Rules and Administration</name>
+      <name session="100">Senate Rules and Administration</name>
+      <name session="101">Senate Rules and Administration</name>
+      <name session="102">Senate Rules and Administration</name>
+      <name session="103">Senate Rules and Administration</name>
+      <name session="104">Senate Rules and Administration</name>
+      <name session="105">Senate Rules and Administration</name>
+      <name session="106">Senate Rules and Administration</name>
+      <name session="107">Senate Rules and Administration</name>
+      <name session="108">Senate Rules and Administration</name>
+      <name session="109">Senate Rules and Administration</name>
+      <name session="110">Senate Rules and Administration</name>
+      <name session="111">Senate Rules and Administration</name>
+	 <name session="112">Senate Rules and Administration</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SSSB" displayname="Senate Committee on Small Business and Entrepreneurship" url="http://sbc.senate.gov/" abbrev="SmallBiz">
+    <thomas-names>
+      <name session="95">Senate Small Business (Select)</name>
+      <name session="96">Senate Small Business (Select)</name>
+      <name session="97">Senate Small Business</name>
+      <name session="98">Senate Small Business</name>
+      <name session="99">Senate Small Business</name>
+      <name session="100">Senate Small Business</name>
+      <name session="101">Senate Small Business</name>
+      <name session="102">Senate Small Business</name>
+      <name session="103">Senate Small Business</name>
+      <name session="104">Senate Small Business</name>
+      <name session="105">Senate Small Business</name>
+      <name session="106">Senate Small Business</name>
+      <name session="107">Senate Small Business and Entrepreneurship</name>
+      <name session="108">Senate Small Business and Entrepreneurship</name>
+      <name session="109">Senate Small Business and Entrepreneurship</name>
+      <name session="110">Senate Small Business and Entrepreneurship</name>
+      <name session="111">Senate Small Business and Entrepreneurship</name>
+	 <name session="112">Senate Small Business and Entrepreneurship</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SSBU" displayname="Senate Committee on the Budget" url="http://budget.senate.gov/" abbrev="Budget">
+    <thomas-names>
+      <name session="93">Senate Budget</name>
+      <name session="94">Senate Budget</name>
+      <name session="95">Senate Budget</name>
+      <name session="96">Senate Budget</name>
+      <name session="97">Senate Budget</name>
+      <name session="98">Senate Budget</name>
+      <name session="99">Senate Budget</name>
+      <name session="100">Senate Budget</name>
+      <name session="101">Senate Budget</name>
+      <name session="102">Senate Budget</name>
+      <name session="103">Senate Budget</name>
+      <name session="104">Senate Budget</name>
+      <name session="105">Senate Budget</name>
+      <name session="106">Senate Budget</name>
+      <name session="107">Senate Budget</name>
+      <name session="108">Senate Budget</name>
+      <name session="109">Senate Budget</name>
+      <name session="110">Senate Budget</name>
+      <name session="111">Senate Budget</name>
+	 <name session="112">Senate Budget</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SSJU" displayname="Senate Committee on the Judiciary" url="http://judiciary.senate.gov/" abbrev="Judiciary">
+    <thomas-names>
+      <name session="93">Senate Judiciary</name>
+      <name session="94">Senate Judiciary</name>
+      <name session="95">Senate Judiciary</name>
+      <name session="96">Senate Judiciary</name>
+      <name session="97">Senate Judiciary</name>
+      <name session="98">Senate Judiciary</name>
+      <name session="99">Senate Judiciary</name>
+      <name session="100">Senate Judiciary</name>
+      <name session="101">Senate Judiciary</name>
+      <name session="102">Senate Judiciary</name>
+      <name session="103">Senate Judiciary</name>
+      <name session="104">Senate Judiciary</name>
+      <name session="105">Senate Judiciary</name>
+      <name session="106">Senate Judiciary</name>
+      <name session="107">Senate Judiciary</name>
+      <name session="108">Senate Judiciary</name>
+      <name session="109">Senate Judiciary</name>
+      <name session="110">Senate Judiciary</name>
+      <name session="111">Senate Judiciary</name>
+	 <name session="112">Senate Judiciary</name>
+    </thomas-names>
+    <subcommittee code="2" displayname="Administrative Oversight and the Courts"/>
+    <subcommittee code="1" displayname="Antitrust, Competition Policy and Consumer Rights"/>
+    <subcommittee code="15" displayname="Crime and Drugs"/>
+    <subcommittee code="20" displayname="Human Rights and the Law"/>
+    <subcommittee code="4" displayname="Immigration, Refugees and Border Security"/>
+    <subcommittee code="9" displayname="Terrorism and Homeland Security"/>
+    <subcommittee code="18" displayname="the Constitution"/>
+   </committee>
+  <committee type="senate" code="SSVA" displayname="Senate Committee on Veterans' Affairs" url="http://veterans.senate.gov/" abbrev="VA">
+    <thomas-names>
+      <name session="93">Senate Veterans' Affairs</name>
+      <name session="94">Senate Veterans' Affairs</name>
+      <name session="95">Senate Veterans' Affairs</name>
+      <name session="96">Senate Veterans' Affairs</name>
+      <name session="97">Senate Veterans' Affairs</name>
+      <name session="98">Senate Veterans' Affairs</name>
+      <name session="99">Senate Veterans' Affairs</name>
+      <name session="100">Senate Veterans' Affairs</name>
+      <name session="101">Senate Veterans' Affairs</name>
+      <name session="102">Senate Veterans' Affairs</name>
+      <name session="103">Senate Veterans' Affairs</name>
+      <name session="104">Senate Veterans' Affairs</name>
+      <name session="105">Senate Veterans' Affairs</name>
+      <name session="106">Senate Veterans' Affairs</name>
+      <name session="107">Senate Veterans' Affairs</name>
+      <name session="108">Senate Veterans' Affairs</name>
+      <name session="109">Senate Veterans' Affairs</name>
+      <name session="110">Senate Veterans' Affairs</name>
+      <name session="111">Senate Veterans' Affairs</name>
+	 <name session="112">Senate Veterans' Affairs</name>
+    </thomas-names>
+  </committee>
+  <committee type="joint" code="JSPR" displayname="Joint Committee on Printing" abbrev="JCP">
+  </committee>
+  <committee type="joint" code="JSTX" displayname="Joint Committee on Taxation" abbrev="JCT">
+  </committee>
+  <committee type="joint" code="JSLC" displayname="Joint Committee on the Library" abbrev="JCLib">
+  </committee>
+  <committee type="joint" code="JSEC" displayname="Joint Economic Committee" url="http://jec.senate.gov/" abbrev="JEC">
+  </committee>
+  <committee type="joint" code="JCSE" displayname="Commission on Security and Cooperation in Europe" abbrev="CSCE">
+  </committee>
+  <committee type="senate" code="SLET" displayname="Senate Select Committee on Ethics" url="http://ethics.senate.gov/" abbrev="SCEthics">
+    <thomas-names>
+      <name session="94">Senate Standards and Conduct (Select)</name>
+      <name session="95">Senate Ethics (Select)</name>
+      <name session="96">Senate Ethics (Select)</name>
+      <name session="97">Senate Ethics (Select)</name>
+      <name session="101">Senate Ethics (Select)</name>
+      <name session="103">Senate Ethics (Select)</name>
+      <name session="104">Senate Ethics (Select)</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SLIN" displayname="Senate Select Committee on Intelligence" url="http://intelligence.senate.gov/" abbrev="SCIntel">
+    <thomas-names>
+      <name session="94">Senate Intelligence (Select)</name>
+      <name session="95">Senate Intelligence (Select)</name>
+      <name session="96">Senate Intelligence (Select)</name>
+      <name session="97">Senate Intelligence (Select)</name>
+      <name session="98">Senate Intelligence (Select)</name>
+      <name session="99">Senate Intelligence (Select)</name>
+      <name session="100">Senate Intelligence (Select)</name>
+      <name session="101">Senate Intelligence (Select)</name>
+      <name session="102">Senate Intelligence (Select)</name>
+      <name session="103">Senate Intelligence (Select)</name>
+      <name session="104">Senate Intelligence (Select)</name>
+      <name session="105">Senate Intelligence (Select)</name>
+      <name session="106">Senate Intelligence (Select)</name>
+      <name session="107">Senate Intelligence (Select)</name>
+      <name session="108">Senate Intelligence (Select)</name>
+      <name session="109">Senate Intelligence (Select)</name>
+      <name session="110">Senate Intelligence (Select)</name>
+      <name session="111">Senate Intelligence (Select)</name>
+	 <name session="112">Senate Intelligence (Select)</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SPAG" displayname="Senate Special Committee on Aging" abbrev="SCAging">
+    <thomas-names>
+      <name session="93">Senate Aging (Special)</name>
+      <name session="97">Senate Aging (Special)</name>
+      <name session="98">Senate Aging (Special)</name>
+      <name session="99">Senate Aging (Special)</name>
+      <name session="100">Senate Aging (Special)</name>
+      <name session="101">Senate Aging (Special)</name>
+      <name session="102">Senate Aging (Special)</name>
+      <name session="105">Senate Aging (Special)</name>
+      <name session="106">Senate Aging (Special)</name>
+      <name session="107">Senate Aging (Special)</name>
+      <name session="108">Senate Aging (Special)</name>
+      <name session="109">Senate Aging (Special)</name>
+      <name session="110">Senate Aging (Special)</name>
+      <name session="111">Senate Aging (Special)</name>
+	 <name session="112">Senate Aging (Special)</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SCNC" displayname="United States Senate Caucus on International Narcotics Control" abbrev="USSCINC">
+  </committee>
+  <committee type="house" code="HSAG" displayname="House Committee on Agriculture" url="http://agriculture.house.gov/" abbrev="Ag">
+    <thomas-names>
+      <name session="93">House Agriculture</name>
+      <name session="94">House Agriculture</name>
+      <name session="95">House Agriculture</name>
+      <name session="96">House Agriculture</name>
+      <name session="97">House Agriculture</name>
+      <name session="98">House Agriculture</name>
+      <name session="99">House Agriculture</name>
+      <name session="100">House Agriculture</name>
+      <name session="101">House Agriculture</name>
+      <name session="102">House Agriculture</name>
+      <name session="103">House Agriculture</name>
+      <name session="104">House Agriculture</name>
+      <name session="105">House Agriculture</name>
+      <name session="106">House Agriculture</name>
+      <name session="107">House Agriculture</name>
+      <name session="108">House Agriculture</name>
+      <name session="109">House Agriculture</name>
+      <name session="110">House Agriculture</name>
+      <name session="111">House Agriculture</name>
+	 <name session="112">House Agriculture</name>
+    </thomas-names>
+    <subcommittee code="15" displayname="Conservation, Credit, Energy, and Research">
+      <thomas-names>
+        <name session="107">Conservation, Credit, Rural Development, and Research</name>
+        <name session="108">Conservation, Credit, Rural Development, and Research</name>
+        <name session="109">Conservation, Credit, Rural Development, and Research</name>
+        <name session="110">Conservation, Credit, Energy, and Research</name>
+        <name session="111">Conservation, Credit, Energy, and Research</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="22" displayname="Department Operations, Oversight, Nutrition, and Forestry">
+      <thomas-names>
+        <name session="106">Department Operations, Oversight, Nutrition, and Forestry</name>
+        <name session="107">Department Operations, Oversight, Nutrition, and Forestry</name>
+        <name session="108">Department Operations, Oversight, Nutrition, and Forestry</name>
+        <name session="109">Department Operations, Oversight, Dairy, Nutrition, and Forestry</name>
+        <name session="110">Department Operations, Oversight, Nutrition and Forestry</name>
+        <name session="111">Department Operations, Oversight, Nutrition and Forestry</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="16" displayname="General Farm Commodities and Risk Management">
+      <thomas-names>
+        <name session="107">General Farm Commodities and Risk Management</name>
+        <name session="108">General Farm Commodities and Risk Management</name>
+        <name session="109">General Farm Commodities and Risk Management</name>
+        <name session="110">General Farm Commodities and Risk Management</name>
+        <name session="111">General Farm Commodities and Risk Management</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="03" displayname="Horticulture and Organic Agriculture">
+      <thomas-names>
+        <name session="97">Livestock, Dairy and Poultry</name>
+        <name session="98">Livestock, Dairy and Poultry</name>
+        <name session="99">Livestock, Dairy and Poultry</name>
+        <name session="100">Livestock, Dairy and Poultry</name>
+        <name session="101">Livestock, Dairy and Poultry</name>
+        <name session="102">Livestock, Dairy and Poultry</name>
+        <name session="103">Livestock</name>
+        <name session="104">Livestock, Dairy and Poultry</name>
+        <name session="105">Livestock, Dairy and Poultry</name>
+        <name session="106">Livestock and Horticulture</name>
+        <name session="107">Livestock and Horticulture</name>
+        <name session="108">Livestock and Horticulture</name>
+        <name session="109">Livestock and Horticulture</name>
+        <name session="110">Horticulture and Organic Agriculture</name>
+        <name session="111">Horticulture and Organic Agriculture</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="29" displayname="Livestock, Dairy, and Poultry">
+      <thomas-names>
+        <name session="110">Livestock, Dairy, and Poultry</name>
+        <name session="111">Livestock, Dairy, and Poultry</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="14" displayname="Rural Development, Biotechnology, Speciality Crops, and Foreign Agriculture">
+      <thomas-names>
+        <name session="107">Specialty Crops and Foreign Agriculture Programs</name>
+        <name session="108">Specialty Crops and Foreign Agriculture Programs</name>
+        <name session="109">Specialty Crops and Foreign Agriculture Programs</name>
+        <name session="110">Specialty Crops, Rural Development, and Foreign Agriculture</name>
+        <name session="111">Rural Development, Biotechnology, Specialty Crops, and Foreign Agriculture</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSAP" displayname="House Committee on Appropriations" url="http://appropriations.house.gov/" abbrev="Approps">
+    <thomas-names>
+      <name session="93">House Appropriations</name>
+      <name session="94">House Appropriations</name>
+      <name session="95">House Appropriations</name>
+      <name session="96">House Appropriations</name>
+      <name session="97">House Appropriations</name>
+      <name session="98">House Appropriations</name>
+      <name session="99">House Appropriations</name>
+      <name session="100">House Appropriations</name>
+      <name session="101">House Appropriations</name>
+      <name session="102">House Appropriations</name>
+      <name session="103">House Appropriations</name>
+      <name session="104">House Appropriations</name>
+      <name session="105">House Appropriations</name>
+      <name session="106">House Appropriations</name>
+      <name session="107">House Appropriations</name>
+      <name session="108">House Appropriations</name>
+      <name session="109">House Appropriations</name>
+      <name session="110">House Appropriations</name>
+      <name session="111">House Appropriations</name>
+	 <name session="112">House Appropriations</name>
+    </thomas-names>
+    <subcommittee code="01" displayname="Agriculture, Rural Development, Food and Drug Administration, and Related Agencies">
+      <thomas-names>
+        <name session="97">Agriculture, Rural Development and Related Agencies</name>
+        <name session="98">Agriculture, Rural Development and Related Agencies</name>
+        <name session="99">Agriculture, Rural Development and Related Agencies</name>
+        <name session="100">Rural Development, Agriculture and Related Agencies</name>
+        <name session="102">Rural Development, Agriculture and Related Agencies</name>
+        <name session="103">Agriculture, Rural Development, Food and Drug Administration, and Related Agencies</name>
+        <name session="104">Agriculture, Rural Development, Food and Drug Administration, and Related Agencies</name>
+        <name session="105">Agriculture, Rural Development, Food and Drug Administration, and Related Agencies</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="19" displayname="Commerce, Justice, Science, and Related Agencies"/>
+    <subcommittee code="02" displayname="Defense">
+      <thomas-names>
+        <name session="97">Defense</name>
+        <name session="98">Defense</name>
+        <name session="99">Defense</name>
+        <name session="100">Defense</name>
+        <name session="102">Defense</name>
+        <name session="103">Defense</name>
+        <name session="104">National Security</name>
+        <name session="105">National Security</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="10" displayname="Energy and Water Development, and Related Agencies">
+      <thomas-names>
+        <name session="97">Energy and Water</name>
+        <name session="98">Energy and Water Development</name>
+        <name session="99">Energy and Water Development</name>
+        <name session="100">Energy and Water Development</name>
+        <name session="102">Energy and Water Development</name>
+        <name session="103">Energy and Water Development</name>
+        <name session="104">Energy and Water Development</name>
+        <name session="105">Energy and Water Development</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="23" displayname="Financial Services and General Government"/>
+    <subcommittee code="15" displayname="Homeland Security"/>
+    <subcommittee code="06" displayname="Interior, Environment, and Related Agencies">
+      <thomas-names>
+        <name session="97">Interior</name>
+        <name session="98">Interior</name>
+        <name session="99">Interior</name>
+        <name session="100">Interior and Related Agencies</name>
+        <name session="102">Interior</name>
+        <name session="103">Interior</name>
+        <name session="104">Interior</name>
+        <name session="105">Interior</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="07" displayname="Labor, Health and Human Services, Education, and Related Agencies">
+      <thomas-names>
+        <name session="97">Labor-Health and Human Services</name>
+        <name session="98">Labor-Health and Human Services-Education</name>
+        <name session="99">Labor-Health and Human Services-Education</name>
+        <name session="100">Labor, Health and Human Services, Education, and Related Agencies</name>
+        <name session="102">Labor, Health and Human Services, and Education</name>
+        <name session="103">Labor, Health and Human Services, and Education</name>
+        <name session="104">Labor, Health and Human Services, and Education</name>
+        <name session="105">Labor, Health and Human Services, and Education</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="24" displayname="Legislative Branch"/>
+    <subcommittee code="18" displayname="Military Construction, Veterans Affairs, and Related Agencies"/>
+    <subcommittee code="04" displayname="State, Foreign Operations, and Related Programs">
+      <thomas-names>
+        <name session="97">Foreign Operations</name>
+        <name session="98">Foreign Operations</name>
+        <name session="99">Foreign Operations</name>
+        <name session="100">Foreign Operations</name>
+        <name session="102">Foreign Operations, Export Financing, and Related Programs</name>
+        <name session="103">Foreign Operations, Export Financing, and Related Programs</name>
+        <name session="104">Foreign Operations, Export Financing, and Related Programs</name>
+        <name session="105">Foreign Operations, Export Financing, and Related Programs</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="20" displayname="Transportation, and Housing and Urban Development, and Related Agencies"/>
+  </committee>
+  <committee type="house" code="HSAS" displayname="House Committee on Armed Services" url="http://armedservices.house.gov/" abbrev="ArmServs">
+    <thomas-names>
+      <name session="93">House Armed Services</name>
+      <name session="94">House Armed Services</name>
+      <name session="95">House Armed Services</name>
+      <name session="96">House Armed Services</name>
+      <name session="97">House Armed Services</name>
+      <name session="98">House Armed Services</name>
+      <name session="99">House Armed Services</name>
+      <name session="100">House Armed Services</name>
+      <name session="101">House Armed Services</name>
+      <name session="102">House Armed Services</name>
+      <name session="103">House Armed Services</name>
+      <name session="104">House National Security</name>
+      <name session="105">House National Security</name>
+      <name session="106">House Armed Services</name>
+      <name session="107">House Armed Services</name>
+      <name session="108">House Armed Services</name>
+      <name session="109">House Armed Services</name>
+      <name session="110">House Armed Services</name>
+      <name session="111">House Armed Services</name>
+	 <name session="112">House Armed Services</name>
+    </thomas-names>
+    <subcommittee code="25" displayname="Air and Land Forces">
+      <thomas-names>
+        <name session="108">Tactical Air and Land Forces</name>
+        <name session="109">Tactical Air and Land Forces</name>
+        <name session="110">Air and Land Forces</name>
+        <name session="111">Air and Land Forces</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="02" displayname="Military Personnel">
+      <thomas-names>
+        <name session="97">Military Personnel and Compensation</name>
+        <name session="98">Military Personnel and Compensation</name>
+        <name session="99">Military Personnel and Compensation</name>
+        <name session="100">Military Personnel and Compensation</name>
+        <name session="101">Military Personnel and Compensation</name>
+        <name session="102">Military Personnel and Compensation</name>
+        <name session="103">Military Forces and Personnel</name>
+        <name session="104">Military Personnel</name>
+        <name session="105">Military Personnel</name>
+        <name session="106">Military Personnel</name>
+        <name session="107">Military Personnel</name>
+        <name session="109">Military Personnel</name>
+        <name session="110">Military Personnel</name>
+        <name session="111">Military Personnel</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="06" displayname="Oversight and Investigations">
+      <thomas-names>
+        <name session="97">Investigations</name>
+        <name session="98">Investigations</name>
+        <name session="99">Investigations</name>
+        <name session="100">Investigations</name>
+        <name session="101">Investigations</name>
+        <name session="102">Investigations</name>
+        <name session="103">Oversight and Investigations</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="03" displayname="Readiness">
+      <thomas-names>
+        <name session="97">Readiness</name>
+        <name session="98">Readiness</name>
+        <name session="99">Readiness</name>
+        <name session="100">Readiness</name>
+        <name session="101">Readiness</name>
+        <name session="102">Readiness</name>
+        <name session="103">Readiness</name>
+        <name session="104">Military Readiness</name>
+        <name session="105">Military Readiness</name>
+        <name session="106">Military Readiness</name>
+        <name session="107">Military Readiness</name>
+        <name session="108">Readiness</name>
+        <name session="109">Readiness</name>
+        <name session="110">Readiness</name>
+        <name session="111">Readiness</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="28" displayname="Seapower and Expeditionary Forces">
+      <thomas-names>
+        <name session="110">Seapower and Expeditionary Forces</name>
+        <name session="111">Seapower and Expeditionary Forces</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="29" displayname="Strategic Forces">
+      <thomas-names>
+        <name session="108">Strategic Forces</name>
+        <name session="109">Strategic Forces</name>
+        <name session="110">Strategic Forces</name>
+        <name session="111">Strategic Forces</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="26" displayname="Terrorism, Unconventional Threats and Capabilities">
+      <thomas-names>
+        <name session="108">Terrorism, Unconventional Threats and Capabilities</name>
+        <name session="109">Terrorism, Unconventional Threats and Capabilities</name>
+        <name session="110">Terrorism, Unconventional Threats and Capabilities</name>
+        <name session="111">Terrorism, Unconventional Threats and Capabilities</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSBU" displayname="House Committee on the Budget" url="http://budget.house.gov/" abbrev="Budget">
+    <thomas-names>
+      <name session="94">House Budget</name>
+      <name session="95">House Budget</name>
+      <name session="96">House Budget</name>
+      <name session="97">House Budget</name>
+      <name session="98">House Budget</name>
+      <name session="99">House Budget</name>
+      <name session="100">House Budget</name>
+      <name session="101">House Budget</name>
+      <name session="102">House Budget</name>
+      <name session="103">House Budget</name>
+      <name session="104">House Budget</name>
+      <name session="105">House Budget</name>
+      <name session="106">House Budget</name>
+      <name session="107">House Budget</name>
+      <name session="108">House Budget</name>
+      <name session="109">House Budget</name>
+      <name session="110">House Budget</name>
+      <name session="111">House Budget</name>
+	 <name session="112">House Budget</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HSED" displayname="House Committee on Education and the Workforce" url="http://edlabor.house.gov/" abbrev="Ed&amp;L">
+    <thomas-names>
+      <name session="93">House Education and Labor</name>
+      <name session="94">House Education and Labor</name>
+      <name session="95">House Education and Labor</name>
+      <name session="96">House Education and Labor</name>
+      <name session="97">House Education and Labor</name>
+      <name session="98">House Education and Labor</name>
+      <name session="99">House Education and Labor</name>
+      <name session="100">House Education and Labor</name>
+      <name session="101">House Education and Labor</name>
+      <name session="102">House Education and Labor</name>
+      <name session="103">House Education and Labor</name>
+      <name session="104">House Economic and Educational Opportunities</name>
+      <name session="105">House Education and the Workforce</name>
+      <name session="106">House Education and the Workforce</name>
+      <name session="107">House Education and the Workforce</name>
+      <name session="108">House Education and the Workforce</name>
+      <name session="109">House Education and the Workforce</name>
+      <name session="110">House Education and Labor</name>
+      <name session="111">House Education and Labor</name>
+	 <name session="112">House Education and the Workforce</name>
+    </thomas-names>
+    <subcommittee code="14" displayname="Early Childhood, Elementary and Secondary Education">
+      <thomas-names>
+        <name session="107">Education Reform</name>
+        <name session="108">Education Reform</name>
+        <name session="109">Education Reform</name>
+        <name session="110">Early Childhood, Elementary, and Secondary Education</name>
+        <name session="111">Early Childhood, Elementary, and Secondary Education</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="02" displayname="Health, Employment, Labor and Pensions">
+      <thomas-names>
+        <name session="97">Labor-Management Relations</name>
+        <name session="98">Labor-Management Relations</name>
+        <name session="99">Labor-Management Relations</name>
+        <name session="100">Labor-Management Relations</name>
+        <name session="101">Labor-Management Relations</name>
+        <name session="102">Labor-Management Relations</name>
+        <name session="103">Labor-Management Relations</name>
+        <name session="104">Employer-Employee Relations</name>
+        <name session="105">Employer-Employee Relations</name>
+        <name session="106">Employer-Employee Relations</name>
+        <name session="107">Employer-Employee Relations</name>
+        <name session="108">Employer-Employee Relations</name>
+        <name session="109">Employer-Employee Relations</name>
+        <name session="110">Health, Employment, Labor, and Pensions</name>
+        <name session="111">Health, Employment, Labor, and Pensions</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="04" displayname="Healthy Families and Communities">
+      <thomas-names>
+        <name session="97">Select Education</name>
+        <name session="98">Select Education</name>
+        <name session="99">Select Education</name>
+        <name session="100">Select Education</name>
+        <name session="101">Select Education</name>
+        <name session="102">Select Education</name>
+        <name session="103">Select Education and Civil Rights</name>
+        <name session="107">Select Education</name>
+        <name session="108">Select Education</name>
+        <name session="109">Select Education</name>
+        <name session="110">Healthy Families and Communities</name>
+        <name session="111">Healthy Families and Communities</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="13" displayname="Higher Education, Lifelong Learning and Competitiveness">
+      <thomas-names>
+        <name session="107">21st Century Competitiveness</name>
+        <name session="108">21st Century Competitiveness</name>
+        <name session="109">21st Century Competitiveness</name>
+        <name session="110">Higher Education, Lifelong Learning, and Competitiveness</name>
+        <name session="111">Higher Education, Lifelong Learning, and Competitiveness</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="10" displayname="Workforce Protections">
+      <thomas-names>
+        <name session="103">Labor Standards, Occupational Health and Safety</name>
+        <name session="104">Workforce Protections</name>
+        <name session="105">Workforce Protections</name>
+        <name session="106">Workforce Protections</name>
+        <name session="107">Workforce Protections</name>
+        <name session="108">Workforce Protections</name>
+        <name session="109">Workforce Protections</name>
+        <name session="110">Workforce Protections</name>
+        <name session="111">Workforce Protections</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSIF" displayname="House Committee on Energy and Commerce" url="http://energycommerce.house.gov/" abbrev="E&amp;C">
+    <thomas-names>
+      <name session="93">House Interstate and Foreign Commerce</name>
+      <name session="94">House Interstate and Foreign Commerce</name>
+      <name session="95">House Interstate and Foreign Commerce</name>
+      <name session="96">House Interstate and Foreign Commerce</name>
+      <name session="97">House Energy and Commerce</name>
+      <name session="98">House Energy and Commerce</name>
+      <name session="99">House Energy and Commerce</name>
+      <name session="100">House Energy and Commerce</name>
+      <name session="101">House Energy and Commerce</name>
+      <name session="102">House Energy and Commerce</name>
+      <name session="103">House Energy and Commerce</name>
+      <name session="104">House Commerce</name>
+      <name session="105">House Commerce</name>
+      <name session="106">House Commerce</name>
+      <name session="107">House Energy and Commerce</name>
+      <name session="108">House Energy and Commerce</name>
+      <name session="109">House Energy and Commerce</name>
+      <name session="110">House Energy and Commerce</name>
+      <name session="111">House Energy and Commerce</name>
+	 <name session="112">House Energy and Commerce</name>
+    </thomas-names>
+    <subcommittee code="17" displayname="Commerce, Trade, and Consumer Protection">
+      <thomas-names>
+        <name session="107">Commerce, Trade and Consumer Protection</name>
+        <name session="108">Commerce, Trade and Consumer Protection</name>
+        <name session="109">Commerce, Trade and Consumer Protection</name>
+        <name session="110">Commerce, Trade and Consumer Protection</name>
+        <name session="111">Commerce, Trade and Consumer Protection</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="16" displayname="Communications, Technology, and the Internet">
+      <thomas-names>
+        <name session="107">Telecommunications and the Internet</name>
+        <name session="108">Telecommunications and the Internet</name>
+        <name session="109">Telecommunications and the Internet</name>
+        <name session="110">Telecommunications and the Internet</name>
+        <name session="111">Communications, Technology, and the Internet</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="03" displayname="Energy and Environment">
+      <thomas-names>
+        <name session="97">Energy Conservation and Power</name>
+        <name session="98">Energy Conservation and Power</name>
+        <name session="99">Energy Conservation and Power</name>
+        <name session="100">Energy and Power</name>
+        <name session="101">Energy and Power</name>
+        <name session="102">Energy and Power</name>
+        <name session="103">Energy and Power</name>
+        <name session="104">Energy and Power</name>
+        <name session="105">Energy and Power</name>
+        <name session="106">Energy and Power</name>
+        <name session="107">Energy and Air Quality</name>
+        <name session="108">Energy and Air Quality</name>
+        <name session="109">Energy and Air Quality</name>
+        <name session="110">Energy and Air Quality</name>
+        <name session="111">Energy and Environment</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="14" displayname="Health">
+      <thomas-names>
+        <name session="107">Health</name>
+        <name session="108">Health</name>
+        <name session="109">Health</name>
+        <name session="110">Health</name>
+        <name session="111">Health</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="02" displayname="Oversight and Investigations">
+      <thomas-names>
+        <name session="97">Oversight and Investigations</name>
+        <name session="99">Oversight and Investigations</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSBA" displayname="House Committee on Financial Services" url="http://financialservices.house.gov/" abbrev="FinServs">
+    <thomas-names>
+      <name session="93">House Banking and Currency</name>
+      <name session="94">House Banking, Currency, and Housing</name>
+      <name session="95">House Banking, Finance, and Urban Affairs</name>
+      <name session="96">House Banking, Finance, and Urban Affairs</name>
+      <name session="97">House Banking, Finance, and Urban Affairs</name>
+      <name session="98">House Banking, Finance, and Urban Affairs</name>
+      <name session="99">House Banking, Finance, and Urban Affairs</name>
+      <name session="100">House Banking, Finance, and Urban Affairs</name>
+      <name session="101">House Banking, Finance, and Urban Affairs</name>
+      <name session="102">House Banking, Finance, and Urban Affairs</name>
+      <name session="103">House Banking, Finance, and Urban Affairs</name>
+      <name session="104">House Banking and Financial Services</name>
+      <name session="105">House Banking and Financial Services</name>
+      <name session="106">House Banking and Financial Services</name>
+      <name session="107">House Financial Services</name>
+      <name session="108">House Financial Services</name>
+      <name session="109">House Financial Services</name>
+      <name session="110">House Financial Services</name>
+      <name session="111">House Financial Services</name>
+	 <name session="112">House Financial Services</name>
+    </thomas-names>
+    <subcommittee code="16" displayname="Capital Markets, Insurance, and Government Sponsored Enterprises">
+      <thomas-names>
+        <name session="104">Capital Markets, Insurance and Government-Sponsored Enterprises</name>
+        <name session="105">Capital Markets, Securities and Government Sponsored Enterprises</name>
+        <name session="106">Capital Markets, Securities and Government Sponsored Enterprises</name>
+        <name session="107">Capital Markets, Insurance and Government Sponsored Enterprises</name>
+        <name session="108">Capital Markets, Insurance and Government Sponsored Enterprises</name>
+        <name session="109">Capital Markets, Insurance and Government Sponsored Enterprises</name>
+        <name session="110">Capital Markets, Insurance and Government Sponsored Enterprises</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="19" displayname="Domestic Monetary Policy and Technology">
+      <thomas-names>
+        <name session="108">Domestic and International Monetary Policy, Trade, and Technology</name>
+        <name session="109">Domestic and International Monetary Policy, Trade, and Technology</name>
+        <name session="110">Domestic and International Monetary Policy, Trade, and Technology</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="15" displayname="Financial Institutions and Consumer Credit">
+      <thomas-names>
+        <name session="104">Financial Institutions and Consumer Credit</name>
+        <name session="105">Financial Institutions and Consumer Credit</name>
+        <name session="106">Financial Institutions and Consumer Credit</name>
+        <name session="107">Financial Institutions and Consumer Credit</name>
+        <name session="108">Financial Institutions and Consumer Credit</name>
+        <name session="109">Financial Institutions and Consumer Credit</name>
+        <name session="110">Financial Institutions and Consumer Credit</name>
+        <name session="111">Financial Institutions and Consumer Credit</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="04" displayname="Housing and Community Opportunity">
+      <thomas-names>
+        <name session="97">Housing and Community Development</name>
+        <name session="98">Housing and Community Development</name>
+        <name session="99">Housing and Community Development</name>
+        <name session="100">Housing and Community Development</name>
+        <name session="101">Housing and Community Development</name>
+        <name session="102">Housing and Community Development</name>
+        <name session="103">Housing and Community Development</name>
+        <name session="104">Housing and Community Opportunity</name>
+        <name session="105">Housing and Community Opportunity</name>
+        <name session="106">Housing and Community Opportunity</name>
+        <name session="107">Housing and Community Opportunity</name>
+        <name session="108">Housing and Community Opportunity</name>
+        <name session="109">Housing and Community Opportunity</name>
+        <name session="110">Housing and Community Opportunity</name>
+        <name session="111">Housing and Community Opportunity</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="20" displayname="International Monetary Policy and Trade">
+      <thomas-names>
+        <name session="111">International Monetary Policy and Trade</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="09" displayname="Oversight and Investigations">
+      <thomas-names>
+        <name session="97">General Oversight and Renegotiation</name>
+        <name session="98">General Oversight and Renegotiation</name>
+        <name session="99">General Oversight and Investigations</name>
+        <name session="100">General Oversight and Investigations</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSFA" displayname="House Committee on Foreign Affairs" url="http://foreignaffairs.house.gov/" abbrev="ForAff">
+    <thomas-names>
+      <name session="93">House Foreign Affairs</name>
+      <name session="94">House International Relations</name>
+      <name session="95">House International Relations</name>
+      <name session="96">House Foreign Affairs</name>
+      <name session="97">House Foreign Affairs</name>
+      <name session="98">House Foreign Affairs</name>
+      <name session="99">House Foreign Affairs</name>
+      <name session="100">House Foreign Affairs</name>
+      <name session="101">House Foreign Affairs</name>
+      <name session="102">House Foreign Affairs</name>
+      <name session="103">House Foreign Affairs</name>
+      <name session="104">House International Relations</name>
+      <name session="105">House International Relations</name>
+      <name session="106">House International Relations</name>
+      <name session="107">House International Relations</name>
+      <name session="108">House International Relations</name>
+      <name session="109">House International Relations</name>
+      <name session="110">House Foreign Affairs</name>
+      <name session="111">House Foreign Affairs</name>
+	 <name session="112">House Foreign Affairs</name>
+    </thomas-names>
+    <subcommittee code="16" displayname="Africa and Global Health">
+      <thomas-names>
+        <name session="109">Africa, Global Human Rights and International Operations</name>
+        <name session="110">Africa and Global Health</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="05" displayname="Asia, the Pacific, and the Global Environment">
+      <thomas-names>
+        <name session="97">Asian and Pacific Affairs</name>
+        <name session="98">Asian and Pacific Affairs</name>
+        <name session="99">Asian and Pacific Affairs</name>
+        <name session="100">Asian and Pacific Affairs</name>
+        <name session="101">Asian and Pacific Affairs</name>
+        <name session="102">Asian and Pacific Affairs</name>
+        <name session="103">Asia and the Pacific</name>
+        <name session="104">Asia and the Pacific</name>
+        <name session="105">Asia and the Pacific</name>
+        <name session="106">Asia and the Pacific</name>
+        <name session="107">East Asia and the Pacific</name>
+        <name session="108">Asia and the Pacific</name>
+        <name session="109">Asia and the Pacific</name>
+        <name session="110">Asia, the Pacific, and the Global Environment</name>
+        <name session="111">Asia, the Pacific, and the Global Environment</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="14" displayname="Europe">
+      <thomas-names>
+        <name session="107">Europe</name>
+        <name session="108">Europe</name>
+        <name session="109">Europe and Emerging Threats</name>
+        <name session="110">Europe</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="17" displayname="International Organizations, Human Rights, and Oversight">
+      <thomas-names>
+        <name session="110">International Organizations, Human Rights, and Oversight</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="18" displayname="Terrorism, Nonproliferation, and Trade">
+      <thomas-names>
+        <name session="109">International Terrorism and Nonproliferation</name>
+        <name session="110">Terrorism, Nonproliferation, and Trade</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="13" displayname="The Middle East and South Asia">
+      <thomas-names>
+        <name session="107">Middle East and South Asia</name>
+        <name session="108">Middle East and Central Asia</name>
+        <name session="109">Middle East and Central Asia</name>
+        <name session="110">Middle East and South Asia</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="07" displayname="The Western Hemisphere">
+      <thomas-names>
+        <name session="97">Inter-American Affairs</name>
+        <name session="98">Western Hemisphere Affairs</name>
+        <name session="99">Western Hemisphere Affairs</name>
+        <name session="100">Western Hemisphere Affairs</name>
+        <name session="101">Western Hemisphere Affairs</name>
+        <name session="102">Western Hemisphere Affairs</name>
+        <name session="103">Western Hemisphere Affairs</name>
+        <name session="104">Western Hemisphere</name>
+        <name session="105">Western Hemisphere</name>
+        <name session="106">Western Hemisphere</name>
+        <name session="107">Western Hemisphere</name>
+        <name session="108">Western Hemisphere</name>
+        <name session="109">Western Hemisphere</name>
+        <name session="110">Western Hemisphere</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSHM" displayname="House Committee on Homeland Security" url="http://homeland.house.gov/" abbrev="HomelandSec">
+    <thomas-names>
+      <name session="107">House Homeland Security (Select)</name>
+      <name session="108">House Homeland Security (Select)</name>
+      <name session="109">House Homeland Security</name>
+      <name session="110">House Homeland Security</name>
+      <name session="111">House Homeland Security</name>
+	 <name session="112">House Homeland Security</name>
+    </thomas-names>
+    <subcommittee code="11" displayname="Border, Maritime, and Global Counterterrorism">
+      <thomas-names>
+        <name session="110">Border, Maritime, and Global Counterterrorism</name>
+        <name session="111">Border, Maritime, and Global Counterterrorism</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="12" displayname="Emergency Communications, Preparedness, and Response">
+      <thomas-names>
+        <name session="110">Emergency Communications, Preparedness, and Response</name>
+        <name session="111">Emergency Communications, Preparedness, and Response</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="08" displayname="Emerging Threats, Cybersecurity, and Science and Technology">
+      <thomas-names>
+        <name session="109">Emergency Preparedness, Science, and Technology</name>
+        <name session="110">Emerging Threats, Cybersecurity, and Science and Technology</name>
+        <name session="111">Emerging Threats, Cybersecurity, and Science and Technology</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="05" displayname="Intelligence, Information Sharing, and Terrorism Risk Assessment">
+      <thomas-names>
+        <name session="108">Intelligence and Counterterrorism</name>
+        <name session="109">Intelligence, Information Sharing, and Terrorism Risk Assessment</name>
+        <name session="110">Intelligence, Information Sharing, and Terrorism Risk Assessment</name>
+        <name session="111">Intelligence, Information Sharing, and Terrorism Risk Assessment</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="09" displayname="Management, Investigations, and Oversight">
+      <thomas-names>
+        <name session="109">Management, Integration, and Oversight</name>
+        <name session="110">Management, Investigations, and Oversight</name>
+        <name session="111">Management, Investigations, and Oversight</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="07" displayname="Transportation Security and Infrastructure Protection">
+      <thomas-names>
+        <name session="109">Economic Security, Infrastructure Protection, and Cybersecurity</name>
+        <name session="110">Transportation Security and Infrastructure Protection</name>
+        <name session="111">Transportation Security and Infrastructure Protection</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSHA" displayname="House Committee on House Administration" url="http://cha.house.gov/" abbrev="Admin">
+    <thomas-names>
+      <name session="93">House House Administration</name>
+      <name session="94">House House Administration</name>
+      <name session="95">House House Administration</name>
+      <name session="96">House House Administration</name>
+      <name session="97">House House Administration</name>
+      <name session="98">House House Administration</name>
+      <name session="98">House Administration</name>
+      <name session="99">House House Administration</name>
+      <name session="99">House Administration</name>
+      <name session="100">House House Administration</name>
+      <name session="100">House Administration</name>
+      <name session="101">House House Administration</name>
+      <name session="101">House Administration</name>
+      <name session="102">House House Administration</name>
+      <name session="102">House Administration</name>
+      <name session="103">House House Administration</name>
+      <name session="103">House Administration</name>
+      <name session="104">House Oversight</name>
+      <name session="105">House Oversight</name>
+      <name session="106">House House Administration</name>
+      <name session="106">House Administration</name>
+      <name session="107">House House Administration</name>
+      <name session="107">House Administration</name>
+      <name session="108">House House Administration</name>
+      <name session="108">House Administration</name>
+      <name session="109">House House Administration</name>
+      <name session="109">House Administration</name>
+      <name session="110">House House Administration</name>
+      <name session="110">House Administration</name>
+      <name session="111">House House Administration</name>
+      <name session="111">House Administration</name>
+	 <name session="112">House Administration</name>
+	 <name session="112">House House Administration</name>
+    </thomas-names>
+    <subcommittee code="04" displayname="Capitol Security"/>
+    <subcommittee code="08" displayname="Elections">
+      <thomas-names>
+        <name session="99">Elections</name>
+        <name session="100">Elections</name>
+        <name session="101">Elections</name>
+        <name session="102">Elections</name>
+        <name session="103">Elections</name>
+        <name session="110">Elections</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSJU" displayname="House Committee on the Judiciary" url="http://judiciary.house.gov/" abbrev="Judiciary">
+    <thomas-names>
+      <name session="93">House Judiciary</name>
+      <name session="94">House Judiciary</name>
+      <name session="95">House Judiciary</name>
+      <name session="96">House Judiciary</name>
+      <name session="97">House Judiciary</name>
+      <name session="98">House Judiciary</name>
+      <name session="99">House Judiciary</name>
+      <name session="100">House Judiciary</name>
+      <name session="101">House Judiciary</name>
+      <name session="102">House Judiciary</name>
+      <name session="103">House Judiciary</name>
+      <name session="104">House Judiciary</name>
+      <name session="105">House Judiciary</name>
+      <name session="106">House Judiciary</name>
+      <name session="107">House Judiciary</name>
+      <name session="108">House Judiciary</name>
+      <name session="109">House Judiciary</name>
+      <name session="110">House Judiciary</name>
+      <name session="111">House Judiciary</name>
+	 <name session="112">House Judiciary</name>
+    </thomas-names>
+    <subcommittee code="09" displayname="Commercial and Administrative Law">
+      <thomas-names>
+        <name session="104">Commercial and Administrative Law</name>
+        <name session="105">Commercial and Administrative Law</name>
+        <name session="106">Commercial and Administrative Law</name>
+        <name session="107">Commercial and Administrative Law</name>
+        <name session="108">Commercial and Administrative Law</name>
+        <name session="109">Commercial and Administrative Law</name>
+        <name session="110">Commercial and Administrative Law</name>
+        <name session="111">Commercial and Administrative Law</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="10" displayname="Constitution, Civil Rights, and Civil Liberties">
+      <thomas-names>
+        <name session="104">Constitution</name>
+        <name session="105">Constitution</name>
+        <name session="106">Constitution</name>
+        <name session="107">Constitution</name>
+        <name session="108">Constitution</name>
+        <name session="109">Constitution</name>
+        <name session="110">Constitution, Civil Rights, and Civil Liberties</name>
+        <name session="111">Constitution, Civil Rights, and Civil Liberties</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="03" displayname="Courts and Competition Policy">
+      <thomas-names>
+        <name session="97">Courts, Civil Liberties, and the Administration of Justice</name>
+        <name session="98">Courts, Civil Liberties, and the Administration of Justice</name>
+        <name session="99">Courts, Civil Liberties, and the Administration of Justice</name>
+        <name session="100">Courts, Civil Liberties, and the Administration of Justice</name>
+        <name session="101">Courts, Intellectual Property, and the Administration of Justice</name>
+        <name session="102">Intellectual Property and Judicial Administration</name>
+        <name session="103">Intellectual Property and Judicial Administration</name>
+        <name session="104">Courts and Intellectual Property</name>
+        <name session="105">Courts and Intellectual Property</name>
+        <name session="106">Courts and Intellectual Property</name>
+        <name session="107">Courts, the Internet, and Intellectual Property</name>
+        <name session="108">Courts, the Internet, and Intellectual Property</name>
+        <name session="109">Courts, the Internet, and Intellectual Property</name>
+        <name session="110">Courts, the Internet, and Intellectual Property</name>
+        <name session="111">Courts and Competition Policy</name>
+        <name session="111">Courts, the Internet, and Intellectual Property</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="08" displayname="Crime, Terrorism, and Homeland Security">
+      <thomas-names>
+        <name session="102">Crime and Criminal Justice</name>
+        <name session="103">Crime and Criminal Justice</name>
+        <name session="104">Crime</name>
+        <name session="105">Crime</name>
+        <name session="106">Crime</name>
+        <name session="107">Crime</name>
+        <name session="108">Crime, Terrorism, and Homeland Security</name>
+        <name session="109">Crime, Terrorism, and Homeland Security</name>
+        <name session="110">Crime, Terrorism, and Homeland Security</name>
+        <name session="111">Crime, Terrorism, and Homeland Security</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="01" displayname="Immigration, Citizenship, Refugees, Border Security, and International Law">
+      <thomas-names>
+        <name session="97">Immigration, Refugees, and International Law</name>
+        <name session="98">Immigration, Refugees, and International Law</name>
+        <name session="99">Immigration, Refugees, and International Law</name>
+        <name session="100">Immigration, Refugees, and International Law</name>
+        <name session="101">Immigration, Refugees, and International Law</name>
+        <name session="102">International Law, Immigration, and Refugees</name>
+        <name session="103">International Law, Immigration, and Refugees</name>
+        <name session="104">Immigration and Claims</name>
+        <name session="105">Immigration and Claims</name>
+        <name session="106">Immigration and Claims</name>
+        <name session="107">Immigration and Claims</name>
+        <name session="108">Immigration, Border Security, and Claims</name>
+        <name session="109">Immigration, Border Security, and Claims</name>
+        <name session="110">Immigration, Citizenship, Refugees, Border Security, and International Law</name>
+        <name session="111">Immigration, Citizenship, Refugees, Border Security, and International Law</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSII" displayname="House Committee on Natural Resources" url="http://resourcescommittee.house.gov/" abbrev="NatRes">
+    <thomas-names>
+      <name session="93">House Interior and Insular Affairs</name>
+      <name session="94">House Interior and Insular Affairs</name>
+      <name session="95">House Interior and Insular Affairs</name>
+      <name session="96">House Interior and Insular Affairs</name>
+      <name session="97">House Interior and Insular Affairs</name>
+      <name session="98">House Interior and Insular Affairs</name>
+      <name session="99">House Interior and Insular Affairs</name>
+      <name session="100">House Interior and Insular Affairs</name>
+      <name session="101">House Interior and Insular Affairs</name>
+      <name session="102">House Interior and Insular Affairs</name>
+      <name session="103">House Natural Resources</name>
+      <name session="104">House Resources</name>
+      <name session="105">House Resources</name>
+      <name session="106">House Resources</name>
+      <name session="107">House Resources</name>
+      <name session="108">House Resources</name>
+      <name session="109">House Resources</name>
+      <name session="110">House Natural Resources</name>
+      <name session="111">House Natural Resources</name>
+	 <name session="112">House Natural Resources</name>
+    </thomas-names>
+    <subcommittee code="06" displayname="Energy and Mineral Resources">
+      <thomas-names>
+        <name session="97">Energy and the Environment</name>
+        <name session="98">Energy and the Environment</name>
+        <name session="99">Energy and the Environment</name>
+        <name session="100">Energy and the Environment</name>
+        <name session="101">Energy and the Environment</name>
+        <name session="102">Energy and the Environment</name>
+        <name session="103">Energy and Mineral Resources</name>
+        <name session="104">Energy and Mineral Resources</name>
+        <name session="105">Energy and Mineral Resources</name>
+        <name session="106">Energy and Mineral Resources</name>
+        <name session="107">Energy and Mineral Resources</name>
+        <name session="108">Energy and Mineral Resources</name>
+        <name session="109">Energy and Mineral Resources</name>
+        <name session="110">Energy and Mineral Resources</name>
+        <name session="111">Energy and Mineral Resources</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="15" displayname="Insular Affairs, Oceans and Wildlife">
+      <thomas-names>
+        <name session="104">Fisheries, Wildlife and Oceans</name>
+        <name session="105">Fisheries Conservation, Wildlife, and Oceans</name>
+        <name session="106">Fisheries Conservation, Wildlife, and Oceans</name>
+        <name session="107">Fisheries Conservation, Wildlife, and Oceans</name>
+        <name session="108">Fisheries Conservation, Wildlife, and Oceans</name>
+        <name session="109">Fisheries Conservation, Wildlife, and Oceans</name>
+        <name session="110">Fisheries, Wildlife, and Oceans</name>
+        <name session="111">Insular Affairs, Oceans and Wildlife</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="10" displayname="National Parks, Forests and Public Lands">
+      <thomas-names>
+        <name session="101">National Parks and Public Lands</name>
+        <name session="102">National Parks and Public Lands</name>
+        <name session="103">National Parks, Forests, and Public Lands</name>
+        <name session="104">National Parks, Forests, and Lands</name>
+        <name session="105">National Parks and Public Lands</name>
+        <name session="106">National Parks and Public Lands</name>
+        <name session="107">National Parks, Recreation, and Public Lands</name>
+        <name session="108">National Parks, Recreation, and Public Lands</name>
+        <name session="109">National Parks, Recreation, and Public Lands</name>
+        <name session="110">National Parks, Forests and Public Lands</name>
+        <name session="111">National Parks, Forests and Public Lands</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="13" displayname="Water and Power">
+      <thomas-names>
+        <name session="104">Water and Power Resources</name>
+        <name session="105">Water and Power</name>
+        <name session="106">Water and Power</name>
+        <name session="107">Water and Power</name>
+        <name session="108">Water and Power</name>
+        <name session="109">Water and Power</name>
+        <name session="110">Water and Power</name>
+        <name session="111">Water and Power</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSGO" displayname="House Committee on Oversight and Government Reform" url="http://oversight.house.gov/" abbrev="O&amp;GR">
+    <thomas-names>
+      <name session="93">House Government Operations</name>
+      <name session="94">House Government Operations</name>
+      <name session="95">House Government Operations</name>
+      <name session="96">House Government Operations</name>
+      <name session="97">House Government Operations</name>
+      <name session="98">House Government Operations</name>
+      <name session="99">House Government Operations</name>
+      <name session="100">House Government Operations</name>
+      <name session="101">House Government Operations</name>
+      <name session="102">House Government Operations</name>
+      <name session="103">House Government Operations</name>
+      <name session="104">House Government Reform and Oversight</name>
+      <name session="105">House Government Reform and Oversight</name>
+      <name session="106">House Government Reform</name>
+      <name session="107">House Government Reform</name>
+      <name session="108">House Government Reform</name>
+      <name session="109">House Government Reform</name>
+      <name session="110">House Oversight and Government Reform</name>
+      <name session="111">House Oversight and Government Reform</name>
+	 <name session="112">House Oversight and Government Reform</name>
+    </thomas-names>
+    <subcommittee code="26" displayname="Domestic Policy"/>
+    <subcommittee code="25" displayname="Federal Workforce, Postal Service, and the District of Columbia">
+      <thomas-names>
+        <name session="109">Federal Workforce and Agency Organization</name>
+        <name session="110">Federal Workforce, Post Office, and the District of Columbia</name>
+        <name session="111">Federal Workforce, Post Office, and the District of Columbia</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="24" displayname="Government Management, Organization, and Procurement">
+      <thomas-names>
+        <name session="109">Government Management, Finance, and Accountability</name>
+        <name session="110">Government Management, Organization, and Procurement</name>
+        <name session="111">Government Management, Organization, and Procurement</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="23" displayname="Information Policy, Census, and National Archives">
+      <thomas-names>
+        <name session="109">Federalism and the Census</name>
+        <name session="110">Information Policy, Census, and National Archives</name>
+        <name session="111">Information Policy, Census, and National Archives</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="06" displayname="National Security and Foreign Affairs">
+      <thomas-names>
+        <name session="97">Legislation and National Security</name>
+        <name session="98">Legislation and National Security</name>
+        <name session="99">Legislation and National Security</name>
+        <name session="100">Legislation and National Security</name>
+        <name session="101">Legislation and National Security</name>
+        <name session="102">Legislation and National Security</name>
+        <name session="103">Legislation and National Security</name>
+        <name session="104">National Security, International Affairs and Criminal Justice</name>
+        <name session="105">National Security, International Affairs and Criminal Justice</name>
+        <name session="107">National Security, Veterans Affairs and International Relations</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSRU" displayname="House Committee on Rules" url="http://www.rules.house.gov/" abbrev="Rules">
+    <thomas-names>
+      <name session="93">House Rules</name>
+      <name session="94">House Rules</name>
+      <name session="95">House Rules</name>
+      <name session="96">House Rules</name>
+      <name session="97">House Rules</name>
+      <name session="98">House Rules</name>
+      <name session="99">House Rules</name>
+      <name session="100">House Rules</name>
+      <name session="101">House Rules</name>
+      <name session="102">House Rules</name>
+      <name session="103">House Rules</name>
+      <name session="104">House Rules</name>
+      <name session="105">House Rules</name>
+      <name session="106">House Rules</name>
+      <name session="107">House Rules</name>
+      <name session="108">House Rules</name>
+      <name session="109">House Rules</name>
+      <name session="110">House Rules</name>
+      <name session="111">House Rules</name>
+	 <name session="112">House Rules</name>
+    </thomas-names>
+    <subcommittee code="02" displayname="Legislative and Budget Process">
+      <thomas-names>
+        <name session="97">Legislative Process</name>
+        <name session="98">Legislative Process</name>
+        <name session="99">Legislative Process</name>
+        <name session="101">Legislative Process</name>
+        <name session="102">Legislative Process</name>
+        <name session="103">Legislative Process</name>
+        <name session="104">Legislative Process</name>
+        <name session="105">Legislative and Budget Process</name>
+        <name session="108">Legislative and Budget Process</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="04" displayname="Rules and Organization of the House">
+      <thomas-names>
+        <name session="111">Rules and Organization of the House</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSSY" displayname="House Committee on Science, Space, and Technology" url="http://science.house.gov/" abbrev="SciSpaceTech">
+    <thomas-names>
+      <name session="93">House Science and Astronautics</name>
+      <name session="94">House Science and Technology</name>
+      <name session="95">House Science and Technology</name>
+      <name session="96">House Science and Technology</name>
+      <name session="97">House Science and Technology</name>
+      <name session="98">House Science and Technology</name>
+      <name session="99">House Science and Technology</name>
+      <name session="100">House Science, Space and Technology</name>
+      <name session="101">House Science, Space and Technology</name>
+      <name session="102">House Science, Space and Technology</name>
+      <name session="103">House Science, Space and Technology</name>
+      <name session="104">House Science</name>
+      <name session="105">House Science</name>
+      <name session="106">House Science</name>
+      <name session="107">House Science</name>
+      <name session="108">House Science</name>
+      <name session="109">House Science</name>
+      <name session="110">House Science and Technology</name>
+      <name session="111">House Science and Technology</name>
+	 <name session="112">House Science, Space, and Technology</name>
+    </thomas-names>
+    <subcommittee code="20" displayname="Energy and Environment">
+      <thomas-names>
+        <name session="107">Energy</name>
+        <name session="108">Energy</name>
+        <name session="109">Energy</name>
+        <name session="110">Energy and Environment</name>
+        <name session="111">Energy and Environment</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="21" displayname="Investigations and Oversight">
+      <thomas-names>
+        <name session="110">Investigations and Oversight</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="14" displayname="Research and Science Education">
+      <thomas-names>
+        <name session="102">Science</name>
+        <name session="103">Science</name>
+        <name session="104">Basic Research</name>
+        <name session="105">Basic Research</name>
+        <name session="106">Basic Research</name>
+        <name session="107">Research</name>
+        <name session="108">Research</name>
+        <name session="109">Research</name>
+        <name session="110">Research and Science Education</name>
+        <name session="111">Research and Science Education</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="16" displayname="Space and Aeronautics">
+      <thomas-names>
+        <name session="104">Space and Aeronautics</name>
+        <name session="105">Space and Aeronautics</name>
+        <name session="106">Space and Aeronautics</name>
+        <name session="107">Space and Aeronautics</name>
+        <name session="108">Space and Aeronautics</name>
+        <name session="109">Space and Aeronautics</name>
+        <name session="110">Space and Aeronautics</name>
+        <name session="111">Space and Aeronautics</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="19" displayname="Technology and Innovation">
+      <thomas-names>
+        <name session="107">Environment, Technology, and Standards</name>
+        <name session="108">Environment, Technology, and Standards</name>
+        <name session="109">Environment, Technology, and Standards</name>
+        <name session="110">Technology and Innovation</name>
+        <name session="111">Technology and Innovation</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSSM" displayname="House Committee on Small Business" url="http://www.house.gov/smbiz/" abbrev="SmallBiz">
+    <thomas-names>
+      <name session="94">House Small Business</name>
+      <name session="95">House Small Business</name>
+      <name session="96">House Small Business</name>
+      <name session="97">House Small Business</name>
+      <name session="98">House Small Business</name>
+      <name session="99">House Small Business</name>
+      <name session="100">House Small Business</name>
+      <name session="101">House Small Business</name>
+      <name session="102">House Small Business</name>
+      <name session="103">House Small Business</name>
+      <name session="104">House Small Business</name>
+      <name session="105">House Small Business</name>
+      <name session="106">House Small Business</name>
+      <name session="107">House Small Business</name>
+      <name session="108">House Small Business</name>
+      <name session="109">House Small Business</name>
+      <name session="110">House Small Business</name>
+      <name session="111">House Small Business</name>
+	 <name session="112">House Small Business</name>
+    </thomas-names>
+    <subcommittee code="23" displayname="Contracting and Technology">
+      <thomas-names>
+        <name session="111">Contracting and Technology</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="19" displayname="Finance and Tax">
+      <thomas-names>
+        <name session="111">Finance and Tax</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="24" displayname="Investigations and Oversight"/>
+    <subcommittee code="17" displayname="Regulations and Healthcare">
+      <thomas-names>
+        <name session="111">Regulations and Healthcare</name>
+        <name session="111">Regulations, Health Care, and Trade</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="21" displayname="Rural Development, Entrepreneurship and Trade">
+      <thomas-names>
+        <name session="111">Rural Development, Entrepreneurship and Trade</name>
+        <name session="111">Rural and Urban Entrepreneurship</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSSO" displayname="House Committee on Standards of Official Conduct" abbrev="SofOC" obsolete="1">
+    <thomas-names>
+      <name session="93">House Standards of Official Conduct</name>
+      <name session="94">House Standards of Official Conduct</name>
+      <name session="95">House Standards of Official Conduct</name>
+      <name session="96">House Standards of Official Conduct</name>
+      <name session="98">House Standards of Official Conduct</name>
+      <name session="100">House Standards of Official Conduct</name>
+      <name session="101">House Standards of Official Conduct</name>
+      <name session="102">House Standards of Official Conduct</name>
+      <name session="103">House Standards of Official Conduct</name>
+      <name session="104">House Standards of Official Conduct</name>
+      <name session="105">House Standards of Official Conduct</name>
+      <name session="107">House Standards of Official Conduct</name>
+      <name session="108">House Standards of Official Conduct</name>
+      <name session="109">House Standards of Official Conduct</name>
+      <name session="110">House Standards of Official Conduct</name>
+      <name session="111">House Standards of Official Conduct</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HSPW" displayname="House Committee on Transportation and Infrastructure" url="http://transportation.house.gov/" abbrev="Trans&amp;Inf">
+    <thomas-names>
+      <name session="93">House Public Works</name>
+      <name session="94">House Public Works and Transportation</name>
+      <name session="95">House Public Works and Transportation</name>
+      <name session="96">House Public Works and Transportation</name>
+      <name session="97">House Public Works and Transportation</name>
+      <name session="98">House Public Works and Transportation</name>
+      <name session="99">House Public Works and Transportation</name>
+      <name session="100">House Public Works and Transportation</name>
+      <name session="101">House Public Works and Transportation</name>
+      <name session="102">House Public Works and Transportation</name>
+      <name session="103">House Public Works and Transportation</name>
+      <name session="104">House Transportation and Infrastructure</name>
+      <name session="105">House Transportation and Infrastructure</name>
+      <name session="106">House Transportation and Infrastructure</name>
+      <name session="107">House Transportation and Infrastructure</name>
+      <name session="108">House Transportation and Infrastructure</name>
+      <name session="109">House Transportation and Infrastructure</name>
+      <name session="110">House Transportation and Infrastructure</name>
+      <name session="111">House Transportation and Infrastructure</name>
+      <name session="112">House Transportation and Infrastructure</name>
+      <name session="112">House Transportation</name>
+    </thomas-names>
+    <subcommittee code="05" displayname="Aviation">
+      <thomas-names>
+        <name session="97">Aviation</name>
+        <name session="98">Aviation</name>
+        <name session="99">Aviation</name>
+        <name session="100">Aviation</name>
+        <name session="101">Aviation</name>
+        <name session="102">Aviation</name>
+        <name session="103">Aviation</name>
+        <name session="104">Aviation</name>
+        <name session="105">Aviation</name>
+        <name session="106">Aviation</name>
+        <name session="107">Aviation</name>
+        <name session="108">Aviation</name>
+        <name session="109">Aviation</name>
+        <name session="110">Aviation</name>
+        <name session="111">Aviation</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="07" displayname="Coast Guard and Maritime Transportation">
+      <thomas-names>
+        <name session="104">Coast Guard and Maritime Transportation</name>
+        <name session="105">Coast Guard and Maritime Transportation</name>
+        <name session="106">Coast Guard and Maritime Transportation</name>
+        <name session="107">Coast Guard and Maritime Transportation</name>
+        <name session="108">Coast Guard and Maritime Transportation</name>
+        <name session="109">Coast Guard and Maritime Transportation</name>
+        <name session="110">Coast Guard and Maritime Transportation</name>
+        <name session="111">Coast Guard and Maritime Transportation</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="13" displayname="Economic Development, Public Buildings and Emergency Management">
+      <thomas-names>
+        <name session="107">Economic Development, Public Buildings and Emergency Management</name>
+        <name session="108">Economic Development, Public Buildings and Emergency Management</name>
+        <name session="109">Economic Development, Public Buildings and Emergency Management</name>
+        <name session="110">Economic Development, Public Buildings and Emergency Management</name>
+        <name session="111">Economic Development, Public Buildings and Emergency Management</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="12" displayname="Highways and Transit">
+      <thomas-names>
+        <name session="107">Highways and Transit</name>
+        <name session="108">Highways, Transit and Pipelines</name>
+        <name session="109">Highways, Transit and Pipelines</name>
+        <name session="110">Highways and Transit</name>
+        <name session="111">Highways and Transit</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="14" displayname="Railroads, Pipelines, and Hazardous Materials">
+      <thomas-names>
+        <name session="107">Railroads</name>
+        <name session="108">Railroads</name>
+        <name session="109">Railroads</name>
+        <name session="110">Railroads, Pipelines, and Hazardous Materials</name>
+        <name session="111">Railroads, Pipelines, and Hazardous Materials</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="02" displayname="Water Resources and Environment">
+      <thomas-names>
+        <name session="97">Water Resources</name>
+        <name session="98">Water Resources</name>
+        <name session="99">Water Resources</name>
+        <name session="100">Water Resources</name>
+        <name session="101">Water Resources</name>
+        <name session="102">Water Resources</name>
+        <name session="103">Water Resources and Environment</name>
+        <name session="104">Water Resources and Environment</name>
+        <name session="105">Water Resources and Environment</name>
+        <name session="106">Water Resources and Environment</name>
+        <name session="107">Water Resources and Environment</name>
+        <name session="108">Water Resources and Environment</name>
+        <name session="109">Water Resources and Environment</name>
+        <name session="110">Water Resources and Environment</name>
+        <name session="111">Water Resources and Environment</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSVR" displayname="House Committee on Veterans' Affairs" url="http://veterans.house.gov/" abbrev="VA">
+    <thomas-names>
+      <name session="93">House Veterans' Affairs</name>
+      <name session="94">House Veterans' Affairs</name>
+      <name session="95">House Veterans' Affairs</name>
+      <name session="96">House Veterans' Affairs</name>
+      <name session="97">House Veterans' Affairs</name>
+      <name session="98">House Veterans' Affairs</name>
+      <name session="99">House Veterans' Affairs</name>
+      <name session="100">House Veterans' Affairs</name>
+      <name session="101">House Veterans' Affairs</name>
+      <name session="102">House Veterans' Affairs</name>
+      <name session="103">House Veterans' Affairs</name>
+      <name session="104">House Veterans' Affairs</name>
+      <name session="105">House Veterans' Affairs</name>
+      <name session="106">House Veterans' Affairs</name>
+      <name session="107">House Veterans' Affairs</name>
+      <name session="108">House Veterans' Affairs</name>
+      <name session="109">House Veterans' Affairs</name>
+      <name session="110">House Veterans' Affairs</name>
+      <name session="111">House Veterans' Affairs</name>
+	 <name session="112">House Veterans' Affairs</name>
+    </thomas-names>
+    <subcommittee code="09" displayname="Disability Assistance and Memorial Affairs">
+      <thomas-names>
+        <name session="109">Disability Assistance and Memorial Affairs</name>
+        <name session="110">Disability Assistance and Memorial Affairs</name>
+        <name session="111">Disability Assistance and Memorial Affairs</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="10" displayname="Economic Opportunity">
+      <thomas-names>
+        <name session="109">Economic Opportunity</name>
+        <name session="110">Economic Opportunity</name>
+        <name session="111">Economic Opportunity</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="03" displayname="Health">
+      <thomas-names>
+        <name session="97">Hospitals and Health Care</name>
+        <name session="98">Hospitals and Health Care</name>
+        <name session="99">Hospitals and Health Care</name>
+        <name session="100">Hospitals and Health Care</name>
+        <name session="101">Hospitals and Health Care</name>
+        <name session="102">Hospitals and Health Care</name>
+        <name session="103">Hospitals and Health Care</name>
+        <name session="104">Hospitals and Health Care</name>
+        <name session="105">Health</name>
+        <name session="106">Health</name>
+        <name session="107">Health</name>
+        <name session="108">Health</name>
+        <name session="109">Health</name>
+        <name session="110">Health</name>
+        <name session="111">Health</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="08" displayname="Oversight and Investigations">
+      <thomas-names>
+        <name session="109">Oversight and Investigations</name>
+        <name session="110">Oversight and Investigations</name>
+        <name session="111">Oversight and Investigations</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HSWM" displayname="House Committee on Ways and Means" url="http://waysandmeans.house.gov/" abbrev="W&amp;M">
+    <thomas-names>
+      <name session="93">House Ways and Means</name>
+      <name session="94">House Ways and Means</name>
+      <name session="95">House Ways and Means</name>
+      <name session="96">House Ways and Means</name>
+      <name session="97">House Ways and Means</name>
+      <name session="98">House Ways and Means</name>
+      <name session="99">House Ways and Means</name>
+      <name session="100">House Ways and Means</name>
+      <name session="101">House Ways and Means</name>
+      <name session="102">House Ways and Means</name>
+      <name session="103">House Ways and Means</name>
+      <name session="104">House Ways and Means</name>
+      <name session="105">House Ways and Means</name>
+      <name session="106">House Ways and Means</name>
+      <name session="107">House Ways and Means</name>
+      <name session="108">House Ways and Means</name>
+      <name session="109">House Ways and Means</name>
+      <name session="110">House Ways and Means</name>
+      <name session="111">House Ways and Means</name>
+	 <name session="112">House Ways and Means</name>
+    </thomas-names>
+    <subcommittee code="02" displayname="Health">
+      <thomas-names>
+        <name session="97">Health</name>
+        <name session="98">Health</name>
+        <name session="99">Health</name>
+        <name session="100">Health</name>
+        <name session="101">Health</name>
+        <name session="102">Health</name>
+        <name session="103">Health</name>
+        <name session="104">Health</name>
+        <name session="105">Health</name>
+        <name session="106">Health</name>
+        <name session="107">Health</name>
+        <name session="108">Health</name>
+        <name session="109">Health</name>
+        <name session="110">Health</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="03" displayname="Income Security and Family Support">
+      <thomas-names>
+        <name session="97">Public Assistance and Unemployment Compensation</name>
+        <name session="98">Public Assistance and Unemployment Compensation</name>
+        <name session="99">Public Assistance and Unemployment Compensation</name>
+        <name session="100">Public Assistance and Unemployment Compensation</name>
+        <name session="101">Human Resources</name>
+        <name session="102">Human Resources</name>
+        <name session="103">Human Resources</name>
+        <name session="104">Human Resources</name>
+        <name session="105">Human Resources</name>
+        <name session="106">Human Resources</name>
+        <name session="107">Human Resources</name>
+        <name session="108">Human Resources</name>
+        <name session="109">Human Resources</name>
+        <name session="110">Income Security and Family Support</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="06" displayname="Oversight">
+      <thomas-names>
+        <name session="105">Oversight</name>
+        <name session="106">Oversight</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="05" displayname="Select Revenue Measures">
+      <thomas-names>
+        <name session="97">Select Revenue Measures</name>
+        <name session="98">Select Revenue Measures</name>
+        <name session="99">Select Revenue Measures</name>
+        <name session="100">Select Revenue Measures</name>
+        <name session="101">Select Revenue Measures</name>
+        <name session="102">Select Revenue Measures</name>
+        <name session="103">Select Revenue Measures</name>
+        <name session="107">Select Revenue Measures</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="01" displayname="Social Security">
+      <thomas-names>
+        <name session="97">Social Security</name>
+        <name session="98">Social Security</name>
+        <name session="99">Social Security</name>
+        <name session="100">Social Security</name>
+        <name session="101">Social Security</name>
+        <name session="102">Social Security</name>
+        <name session="103">Social Security</name>
+        <name session="104">Social Security</name>
+        <name session="105">Social Security</name>
+        <name session="106">Social Security</name>
+        <name session="107">Social Security</name>
+        <name session="108">Social Security</name>
+        <name session="109">Social Security</name>
+        <name session="110">Social Security</name>
+      </thomas-names>
+    </subcommittee>
+    <subcommittee code="04" displayname="Trade">
+      <thomas-names>
+        <name session="97">Trade</name>
+        <name session="98">Trade</name>
+        <name session="99">Trade</name>
+        <name session="100">Trade</name>
+        <name session="101">Trade</name>
+        <name session="102">Trade</name>
+        <name session="103">Trade</name>
+        <name session="104">Trade</name>
+        <name session="105">Trade</name>
+        <name session="106">Trade</name>
+        <name session="107">Trade</name>
+        <name session="108">Trade</name>
+        <name session="109">Trade</name>
+        <name session="110">Trade</name>
+      </thomas-names>
+    </subcommittee>
+  </committee>
+  <committee type="house" code="HLIG" displayname="House Permanent Select Committee on Intelligence" abbrev="SCIntel">
+    <thomas-names>
+      <name session="95">House Intelligence (Permanent Select)</name>
+      <name session="96">House Intelligence (Permanent Select)</name>
+      <name session="97">House Intelligence (Permanent Select)</name>
+      <name session="98">House Intelligence (Permanent Select)</name>
+      <name session="99">House Intelligence (Permanent Select)</name>
+      <name session="100">House Intelligence (Permanent Select)</name>
+      <name session="101">House Intelligence (Permanent Select)</name>
+      <name session="102">House Intelligence (Permanent Select)</name>
+      <name session="103">House Intelligence (Permanent Select)</name>
+      <name session="104">House Intelligence (Permanent Select)</name>
+      <name session="105">House Intelligence (Permanent Select)</name>
+      <name session="106">House Intelligence (Permanent Select)</name>
+      <name session="107">House Intelligence (Permanent Select)</name>
+      <name session="108">House Intelligence (Permanent Select)</name>
+      <name session="109">House Intelligence (Permanent Select)</name>
+      <name session="110">House Intelligence (Permanent Select)</name>
+      <name session="111">House Intelligence (Permanent Select)</name>
+	 <name session="112">House Intelligence (Permanent Select)</name>
+    </thomas-names>
+    <subcommittee code="06" displayname="Intelligence Community Management"/>
+    <subcommittee code="09" displayname="Oversight and Investigations"/>
+    <subcommittee code="05" displayname="Technical and Tactical Intelligence"/>
+    <subcommittee code="08" displayname="Terrorism, Human Intelligence, Analysis and Counterintelligence"/>
+  </committee>
+  <committee type="house" code="HSGW" displayname="House Select Committee on Energy Independence and Global Warming" abbrev="E&amp;GW">
+  </committee>
+  <committee type="senate" code="SPIM" displayname="Senate Committee on Impeachment (Special) (Hastings)" obsolete="1">
+    <thomas-names>
+      <name session="101">Senate Impeachment (Special) (Hastings)</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HSPO" displayname="House Committee on Post Office and Civil Service" obsolete="1">
+    <thomas-names>
+      <name session="93">House Post Office and Civil Service</name>
+      <name session="94">House Post Office and Civil Service</name>
+      <name session="95">House Post Office and Civil Service</name>
+      <name session="96">House Post Office and Civil Service</name>
+      <name session="97">House Post Office and Civil Service</name>
+      <name session="98">House Post Office and Civil Service</name>
+      <name session="99">House Post Office and Civil Service</name>
+      <name session="100">House Post Office and Civil Service</name>
+      <name session="101">House Post Office and Civil Service</name>
+      <name session="102">House Post Office and Civil Service</name>
+      <name session="103">House Post Office and Civil Service</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SLPO" displayname="Senate Committee on POW/MIA Affairs" obsolete="1">
+    <thomas-names>
+      <name session="102">Senate POW/MIA Affairs</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HLCQ" displayname="House Committee on Committees (Select)" obsolete="1">
+    <thomas-names>
+      <name session="93">House Committees (Select)</name>
+      <name session="96">House Committees (Select)</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SSPO" displayname="Senate Committee on Post Office and Civil Service" obsolete="1">
+    <thomas-names>
+      <name session="93">Senate Post Office and Civil Service</name>
+      <name session="94">Senate Post Office and Civil Service</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SSAE" displayname="Senate Committee on Aeronautical and Space Sciences" obsolete="1">
+    <thomas-names>
+      <name session="93">Senate Aeronautical and Space Sciences</name>
+      <name session="94">Senate Aeronautical and Space Sciences</name>
+      <name session="95">Senate Aeronautical and Space Sciences</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HLET" displayname="House Committee on Ethics (Select)" obsolete="1">
+    <thomas-names>
+      <name session="95">House Ethics (Select)</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HSUA" displayname="House Committee on Internal Security" obsolete="1">
+    <thomas-names>
+      <name session="93">House Internal Security</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HSAT" displayname="House Committee on Joint Atomic Energy" obsolete="1">
+    <thomas-names>
+      <name session="93">House Joint Atomic Energy</name>
+      <name session="94">House Joint Atomic Energy</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HSMM" displayname="House Committee on Merchant Marine and Fisheries" obsolete="1">
+    <thomas-names>
+      <name session="93">House Merchant Marine and Fisheries</name>
+      <name session="94">House Merchant Marine and Fisheries</name>
+      <name session="95">House Merchant Marine and Fisheries</name>
+      <name session="96">House Merchant Marine and Fisheries</name>
+      <name session="97">House Merchant Marine and Fisheries</name>
+      <name session="98">House Merchant Marine and Fisheries</name>
+      <name session="99">House Merchant Marine and Fisheries</name>
+      <name session="100">House Merchant Marine and Fisheries</name>
+      <name session="101">House Merchant Marine and Fisheries</name>
+      <name session="102">House Merchant Marine and Fisheries</name>
+      <name session="103">House Merchant Marine and Fisheries</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HHAH" displayname="House Committee on Energy (Ad Hoc)" obsolete="1">
+    <thomas-names>
+      <name session="95">House Energy (Ad Hoc)</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SSDT" displayname="Senate Committee on District of Columbia" obsolete="1">
+    <thomas-names>
+      <name session="93">Senate District of Columbia</name>
+      <name session="94">Senate District of Columbia</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HSDT" displayname="House Committee on District of Columbia" obsolete="1">
+    <thomas-names>
+      <name session="93">House District of Columbia</name>
+      <name session="94">House District of Columbia</name>
+      <name session="95">House District of Columbia</name>
+      <name session="96">House District of Columbia</name>
+      <name session="97">House District of Columbia</name>
+      <name session="98">House District of Columbia</name>
+      <name session="99">House District of Columbia</name>
+      <name session="100">House District of Columbia</name>
+      <name session="101">House District of Columbia</name>
+      <name session="102">House District of Columbia</name>
+      <name session="103">House District of Columbia</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SPOC" displayname="Senate Committee on Official Conduct (Special)" obsolete="1">
+    <thomas-names>
+      <name session="95">Senate Official Conduct (Special)</name>
+    </thomas-names>
+  </committee>
+  <committee type="senate" code="SPWW" displayname="Senate Committee on Whitewater Dev Corp Investigation (Special)" obsolete="1">
+    <thomas-names>
+      <name session="104">Senate Whitewater Dev Corp Investigation (Special)</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HLOC" displayname="House Committee on Outer Continental Shelf (Select)" obsolete="1">
+    <thomas-names>
+      <name session="94">House Outer Continental Shelf (Select)</name>
+      <name session="95">House Outer Continental Shelf (Select)</name>
+    </thomas-names>
+  </committee>
+  <committee type="house" code="HTDE" displayname="House Committee on Temporary Joint Committee on Deficit Reduction" obsolete="1">
+    <thomas-names>
+      <name session="99">House Temporary Joint Committee on Deficit Reduction</name>
+    </thomas-names>
+  </committee>
+</committees>

@@ -246,8 +246,8 @@ def metrics_report_spreadsheet(request, sheet):
 			header.extend([str(i) + "_support", str(i) + "_oppose", str(i) + "_total", str(i) + "_sup_pct", str(i) + "_opp_pct"])
 		header.extend(["total" + "_support", "total" + "_oppose", "total" + "_total", "total" + "_sup_pct", "total" + "_opp_pct"])
 		qs = []
-		from features import supercommittee_bill_list
-		for b in supercommittee_bill_list:
+		from features import load_supercommittee_bill_list
+		for b in load_supercommittee_bill_list():
 			bill = b["bill"]
 			bill.title = b["title"]
 			

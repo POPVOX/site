@@ -4,8 +4,6 @@ from django.template import RequestContext, TemplateDoesNotExist
 
 from popvox.models import *
 
-from settings import FACEBOOK_APP_SECRET, FACEBOOK_TESTING_APP_SECRET
-
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 import hmac, hashlib
 import json, re
@@ -103,6 +101,8 @@ def facebook_verify_signed_request(f):
 
 		if fbargs["algorithm"].upper() != 'HMAC-SHA256':
 			return HttpResponseForbidden("signed_request algorithm was invalid")
+
+		from settings import FACEBOOK_APP_SECRET, FACEBOOK_TESTING_APP_SECRET
 
 		for secret in (FACEBOOK_APP_SECRET, FACEBOOK_TESTING_APP_SECRET):
 			expected_sig = hmac.new(secret, fields[1], hashlib.sha256).digest()

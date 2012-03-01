@@ -141,6 +141,7 @@ def staticpage(request, page):
 	if page == "":
 		page = "homepage"
 
+	if page == "homepage" and "LOCAL" not in os.environ:
 		import articles.models
 		news = []
 		has_bill_picks = False
@@ -153,13 +154,10 @@ def staticpage(request, page):
 	
 	page = page.replace("/", "_")
 	
-	from features import supercommittee_bill_list
-
 	try:
 		return render_to_response("static/%s.html" % page, {
 				"page": page,
 				"news": news,
-				"supercommittee_bill_list": supercommittee_bill_list,
 				"show_share_footer": True,
 			}, context_instance=RequestContext(request))
 	except TemplateDoesNotExist:

@@ -4,7 +4,8 @@ sys.path.insert(0, "libs")
 import os
 import os.path
 
-execfile("/mnt/persistent/config/tokens.py")
+if not "LOCAL" in os.environ:
+	execfile("/mnt/persistent/config/tokens.py")
 
 DEBUG = ("DEBUG" in os.environ) or os.path.exists(os.path.dirname(__file__) + "/debug")
 TEMPLATE_DEBUG = DEBUG
@@ -25,8 +26,6 @@ if os.path.exists("/home/www/slave"):
 # redirecting just anywhere.
 SITE_ROOT_URL = "http://www.popvox.com" # doubles as openid2 authentication realm, which means if we change it, then people's Google logins will invalidate
 SITE_SHORT_ROOT_URL = "http://pvox.co"
-DATADIR = os.path.dirname(__file__) + "/data/"
-SESSION_COOKIE_SECURE = True
 
 APP_NICE_SHORT_NAME = "POPVOX"
 EMAIL_SUBJECT_PREFIX = "[POPVOX] "
@@ -36,6 +35,11 @@ SERVER_EMAIL = "POPVOX <no.reply@popvox.com>"
 ADMINS = [ ('POPVOX Admin', 'josh@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 
+if not "LOCAL" in os.environ:
+	DATADIR = os.path.dirname(__file__) + "/data/"
+else:
+	DATADIR = os.path.dirname(__file__) + "/data_testing/"
+
 # Django generates a Message-ID on mail using the system's
 # reported FQDN, but hosted in the cloud we're resolving
 # to some EC2 private internal network name. So override
@@ -44,12 +48,11 @@ MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 import django.core.mail.message
 django.core.mail.message.DNS_NAME = 'popvox.com'
 
-if False:
-	# this is the default when DEBUG is true, but we'll be explicit.
+if "LOCAL" in os.environ:
+	# When running a local instance, print outbound emails to the console.
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 elif os.environ.get("EMAIL_BACKEND") in ("AWS-SES",):
-	# This is the default when DEBUG is not true.
-	#
 	# For AWS SES:
 	#  The SERVER_EMAIL and EMAILVERIFICATION_FROMADDR must be 
 	#  verified with ./ses-verify-email-address.pl.
@@ -60,6 +63,7 @@ elif os.environ.get("EMAIL_BACKEND") in ("AWS-SES",):
 	#   plus with django_ses.urls mapped to /admin/ses for the dash.
 	#  We should really be monitoring the statistics.
 	EMAIL_BACKEND = 'django_ses.SESBackend'
+
 elif os.environ.get("EMAIL_BACKEND") == "SENDGRID" or True:
 	# be sure to set SPF record: v=spf1 a mx include:sendgrid.net ~all
 	EMAIL_HOST = "smtp.sendgrid.net"
@@ -68,17 +72,13 @@ elif os.environ.get("EMAIL_BACKEND") == "SENDGRID" or True:
 	EMAIL_PORT = 587
 	EMAIL_USE_TLS = True
 else:
-	EMAIL_HOST = "occams.info" # don't send from EC2 because our IP might be blacklisted
-	EMAIL_HOST_USER = "popvox"
-	EMAIL_HOST_PASSWORD = "qsg;5TtC"
-	EMAIL_PORT = 587
-	EMAIL_USE_TLS = True
+	raise Exception("No email backend configured.")
 
 
 SEND_BROKEN_LINK_EMAILS = False
 CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
 
-if True:
+if not "LOCAL" in os.environ:
 	mysqlhost = "localhost" # unix domain
 	mysqluser = "root"
 	if "REMOTEDB" in os.environ and os.environ["REMOTEDB"] == "1":
@@ -200,6 +200,8 @@ TEMPLATE_DIRS = (
 
 if not DEBUG:
 	SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+if not "LOCAL" in os.environ: # if running with Django's test server, it's over http:
+	SESSION_COOKIE_SECURE = True
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -213,7 +215,6 @@ INSTALLED_APPS = (
     'tinymce',
     'feedback',
     'picklefield',
-    'django_ses',
     'articles',
     #'django_dowser',
     'jquery',
@@ -225,6 +226,10 @@ INSTALLED_APPS = (
     'popvox',
     'adserver',
 )
+
+if "LOCAL" in os.environ:
+	INSTALLED_APPS = list(INSTALLED_APPS)
+	INSTALLED_APPS.remove("articles") # dependency is not available locally because repo is on /mnt/persistent, see urls.py
 
 TINYMCE_JS_URL = '/media/tiny_mce/tiny_mce.js'
 TINYMCE_DEFAULT_CONFIG = {

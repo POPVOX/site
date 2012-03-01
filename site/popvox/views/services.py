@@ -22,7 +22,7 @@ from emailverification.utils import send_email_verification
 
 from jquery.ajax import json_response, validation_error_message, ajax_fieldupdate_request
 
-from settings import DEBUG, SITE_ROOT_URL, MIXPANEL_TOKEN, MIXPANEL_API_KEY, SECRET_KEY
+from settings import DEBUG, SITE_ROOT_URL, SECRET_KEY
 
 import urlparse
 import json
@@ -35,6 +35,8 @@ import hashlib, hmac
 @csrf_protect_if_logged_in
 def widget_config(request):
 	# Collect all of the ServiceAccounts that the user has access to.
+	
+	import MIXPANEL_TOKEN, MIXPANEL_API_KEY
 	
 	return render_to_response('popvox/services_widget_config.html', {
 		'accounts': request.user.userprofile.service_accounts(create=True) if request.user.is_authenticated() else [],
@@ -228,6 +230,8 @@ def widget_render_writecongress(request, account, permissions):
 
 @strong_cache
 def widget_render_writecongress_page(request, account, permissions):
+		import MIXPANEL_TOKEN, MIXPANEL_API_KEY
+	
 		# Get bill, position, org, orgcampaignposition, and reason.
 		campaign = None # indicates where to save user response data for the org to get
 		org = None
@@ -979,6 +983,8 @@ def download_supporters(request, campaignid, dataformat):
 @csrf_protect
 @login_required
 def analytics(request):
+	import MIXPANEL_TOKEN, MIXPANEL_API_KEY
+	
 	accts = request.user.userprofile.service_accounts()
 	if request.user.has_perm("popvox.can_snoop_service_analytics") and "org" in request.GET:
 		accts = ServiceAccount.objects.filter(org__slug=request.GET["org"])
