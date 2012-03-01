@@ -2,9 +2,9 @@
 
 # indentation indicates dependencies
 
-git clone http://github.com/shrubberysoft/django-picklefield.git
-git clone http://github.com/simplegeo/python-oauth2.git
-git clone http://github.com/openid/python-openid.git
+git clone https://github.com/shrubberysoft/django-picklefield.git
+git clone https://github.com/simplegeo/python-oauth2.git
+git clone https://github.com/openid/python-openid.git
 git clone https://github.com/boto/boto.git
 hg clone http://bitbucket.org/david/django-storages
 hg clone https://jfm@bitbucket.org/jfm/django-stockphoto/
