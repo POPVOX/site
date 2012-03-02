@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from django.http import HttpResponse, Http404, HttpResponseForbidden, HttpResponseBadRequest
+from django.http import HttpResponse, Http404, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseRedirect
 from django.contrib.auth import get_user
 from django.contrib.auth.models import User, AnonymousUser
 from django.shortcuts import render_to_response, get_object_or_404
@@ -412,8 +412,8 @@ class DocumentHandler(BaseHandler):
 	def formats(item, request, acct):
 		has_text = item.pages.filter(text__isnull=False).exists()
 		has_html = item.pages.filter(html__isnull=False).exists()
-		has_png = item.pages.filter(png__isnull=False).exists()
-		has_pdf = item.pages.filter(pdf__isnull=False).exists()
+		has_png = item.pages.exclude(png_file="").exclude(png_file=None).exists() # uninitialized documents have NULL in the database, but in other cases an un-set FileField is the empty string (?) 
+		has_pdf = item.pages.exclude(pdf_file="").exclude(pdf_file=None).exists()
 		return { "text": has_text, "pdf": has_pdf, "png": has_png }
 
 @api_handler
@@ -499,13 +499,19 @@ def document_page(request, docid, pagenum, format):
 		doc = PositionDocument.objects.get(id=docid)
 		page = doc.pages.only("id").get(page=pagenum) # defer fields
 		if format == "png":
-			return HttpResponse(base64.decodestring(page.png if page.png else ""), "image/png")
+			if page.png_file:
+				return HttpResponseRedirect(page.png_file.url)
+			else:
+				raise Http404("PNG not available for this page.")
 		elif format == "html":
 			return HttpResponse(page.html, "text/html")
 		elif format == "txt":
 			return HttpResponse(page.text, "text/plain")
 		elif format == "pdf":
-			return HttpResponse(base64.decodestring(page.pdf if page.pdf else ""), "application/pdf")
+			if page.pdf_file:
+				return HttpResponseRedirect(page.pdf_file.url)
+			else:
+				raise Http404("PDF not available for this page.")
 		else:
 			raise Http404("Invalid page format.")
 	except PositionDocument.DoesNotExist:

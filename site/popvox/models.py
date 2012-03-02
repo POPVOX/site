@@ -827,12 +827,15 @@ class PositionDocument(models.Model):
 class DocumentPage(models.Model):
 	document = models.ForeignKey(PositionDocument, related_name="pages", on_delete=models.CASCADE)
 	page = models.IntegerField()
-	png = models.TextField(blank=True, null=True) # base64 encoded
 	text = models.TextField(blank=True, null=True) # base64 encoded utf-8
 	html = models.TextField(blank=True, null=True) # base64 encoded utf-8
-	pdf = models.TextField(blank=True, null=True) # base64 encoded
+	
+	png_file = models.FileField(upload_to="submitted/documentpage/binary", blank=True, null=True)
+	pdf_file = models.FileField(upload_to="submitted/documentpage/binary", blank=True, null=True)
+	
 	class Meta:
 		unique_together = (('document', 'page'),)
+		
 		
 # USER PROFILES AND COMMENTS #
 

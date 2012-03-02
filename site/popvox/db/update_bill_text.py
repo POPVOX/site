@@ -138,7 +138,7 @@ def pull_bill_text(congressnumber, billtype, billnumber, billstatus, pdf_url, th
 		return
 		
 	# check if we have this document already and have pages loaded
-	if PositionDocument.objects.filter(bill=bill, doctype=100, key=billstatus, txt__isnull=False, pdf_url__isnull=False, updated__gt="2011-11-23 13:30").exists() and DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, png__isnull=False, text__isnull=False).exists():
+	if PositionDocument.objects.filter(bill=bill, doctype=100, key=billstatus, txt__isnull=False, pdf_url__isnull=False, updated__gt="2011-11-23 13:30").exists() and DocumentPage.objects.filter(document__bill=bill, document__doctype=100, document__key=billstatus, text__isnull=False).exclude(png_file="").exclude(png_file=None).exists():
 		if not "ALL" in os.environ:
 			return
 		
@@ -457,6 +457,7 @@ def break_pages(document, thread_index=None, force=None):
 	
 	import base64, tempfile, subprocess, shutil, glob
 	import diff_match_patch
+	from django.core.files.base import ContentFile
 
 	path = tempfile.mkdtemp()
 	try:
@@ -526,14 +527,15 @@ def break_pages(document, thread_index=None, force=None):
 					png = pngfile.read()
 					pngfile.close()
 				
-					dp.png = base64.encodestring(png)
+					dp.png_file.save("%d.png" % dp.id, ContentFile(png))
+					
 					
 				if needs_pdf:
 					ppdffile = open(path + "/pg_%04d.pdf" % pagenum)
 					ppdf = ppdffile.read()
 					ppdffile.close()
 	
-					dp.pdf = base64.encodestring(ppdf)
+					dp.pdf_file.save("%d.pdf" % dp.id, ContentFile(ppdf))
 				
 				dp.save()
 				
@@ -609,7 +611,7 @@ def break_pages(document, thread_index=None, force=None):
 				'chapter': 'Chapter',
 				'division': 'Division',
 				'part': 'Part',
-				'subchapter': 'Subchater',
+				'subchapter': 'Subchapter',
 				'subdivision': 'Subdivision',
 				'subpart': 'Subpart',
 				'subtitle': 'Subtitle',
@@ -948,7 +950,7 @@ def compare_documents(d1, d2):
 			dp, isnew = DocumentPage.objects.get_or_create(document=doc, page=output_page)
 			buf = StringIO()
 			imcombined.save(buf, "png")
-			dp.png = base64.encodestring(buf.getvalue())
+			dp.png_file.save("%d.png" % dp.id, ContentFile(buf.getvalue()))
 			dp.save()
 			output_pagination.append( tuple(char_index) ) # clone the variable
 
@@ -1137,6 +1139,7 @@ if __name__ == "__main__":
 				p = Process(target=pull_text, args=[CURRENT_CONGRESS],
 					kwargs={"thread_index": i, "thread_count": threads})
 				p.start()
+				procs.append(p)
 			for p in procs:
 				p.join()
 	
