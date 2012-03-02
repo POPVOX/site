@@ -92,7 +92,7 @@ function clear_default_fields(form) {
 // time is optimized to guess when the user is done typing.
 var jQuery_fn_keyup_delayed_callback_wrapper;
 jQuery.fn.keyup_delayed = function(callback, delay) {
-  if (!delay) delay = 450;
+  if (!delay) delay = 650;
   return this.each(function(){
 	var hit_n = 0;
 	var hit_times = [];
@@ -117,7 +117,7 @@ jQuery.fn.keyup_delayed = function(callback, delay) {
 		var median_delay = hit_delays[Math.floor(hit_delays.length/2)];
 		
 		// Schedule it a little after the predicted next keystroke.
-		median_delay *= 2;
+		median_delay *= 3;
 		
 		// Set a delay on the next queued function. Use the median key
 		// press delay if it is shorter than the default delay, othewise
