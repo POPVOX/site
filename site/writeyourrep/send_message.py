@@ -196,6 +196,7 @@ common_fieldnames = {
 	"deliveryagentcontact": "delivery_agent_contact",
 
 	# other aliases
+	"contact[salutation]": "prefix",
 	"salutation": "prefix",
 	"prefixlist": "prefix",
 	"title": "prefix",
