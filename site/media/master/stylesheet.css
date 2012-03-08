@@ -1,5 +1,7 @@
 /* @override https://william.popvox.com/media/master/stylesheet.css */
 
+/* @override https://william.popvox.com/media/master/stylesheet.css */
+
 /*
 
 
@@ -1121,6 +1123,10 @@ h3#reportsubtitle {
     height: 120px;
     }
 
+div.block.leg_agenda .no_pie {
+	height: 90px;
+	}
+
     .no_pie a {
         font-weight: bold;
         text-transform: uppercase;
@@ -1613,7 +1619,7 @@ div.neutral {
 .b_edit {
     background: url(b_edit_sm.png) left top no-repeat;
     display: block;
-    height: 16px;
+    height: 12px;
     padding: 0 0 0 20px;
     }
 
@@ -3987,6 +3993,12 @@ ul.bullets.org_action { padding-bottom: 10px    }
     padding: 2px 0 4px 25px;
     }
 
+.bullets li a.gear,
+.leg_agenda a.gear {
+    background: url(bg_gear.png) -2px top no-repeat;
+    padding: 2px 0 4px 25px;
+    }
+		    
 .bullets li a.upload_doc {
     background: url(bg_upload_doc.png) left top no-repeat;
     padding: 2px 0 4px 25px;
@@ -5076,3 +5088,47 @@ ul.issue_list li a.active{
 #share_footer a.icon.tumblr 	{ background: url(/media/icons/sm/i_tumblr.png) left top no-repeat; }
 #share_footer a.icon.email 		{ background: url(/media/icons/sm/i_email.png) left top no-repeat; }
 #share_footer li.facebook_like  { margin-left: 50px; margin-top: -2px; } 
+
+
+
+
+/* testimonials */
+.content.testimonials {
+	}
+	
+	.test_block {
+		background: #fff url(testimonial_btm.png) left bottom no-repeat;
+		padding: 20px 20px;
+		}
+		
+	.test_block p {
+		}
+		
+	.test_block p span {
+		background: url(test_quotes.png) left bottom no-repeat;
+		width: 20px;
+		height: 13px;
+		text-indent: -9999em;
+		display: block;
+		float: left;
+		}
+		
+	.test_block p strong {
+		color: #CC6A11;
+		}
+		
+	.test_block p.cite {
+		color: #7d7d7d;
+		padding: 25px 0 14px 130px;
+		margin: 0;
+		font: bold 14px/18px helvetica, san-serif;
+		}
+
+
+
+
+
+
+
+
+

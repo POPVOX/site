@@ -36,6 +36,7 @@
 			{% for doc in position.documents %}
 				{% if forloop.first %}<ul class="bullets doc">{% endif %}
 				<li><a href="{{doc.url}}">{{doc.get_doctype_display}}: {{doc.title}}</a></li>
+				<li><a href="#" class="b_gear">Get a Take Action widget for your site</a></li>
 				{% if forloop.last %}</ul>{% endif %}
 			{% endfor %}
 		{% endif %}
