@@ -311,8 +311,10 @@
 	<div id="page"> 
 		{% block body %} {% comment %} the articles app uses 'content' for the article content, so we surround it here with 'body' so we kill "content" if a "body" is given {% endcomment %}
 		{% block content %}
-		{% endblock %}
-		{% endblock %}
+		{% endblock content %}
+		{% block sidebar %}
+		{% endblock sidebar %}
+		{% endblock body %}
 		
 		<div class="clear"> </div> 
 	</div><!-- e: page --> 
