@@ -1828,6 +1828,8 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 					referrer = unicode(referrer)
 				except OrgCampaign.DoesNotExist:
 					referrer = "[Campaign Deleted]"
+				except ServiceAccount.DoesNotExist:
+					referrer = "[Service Account Deleted]"
 				referrer += " (" + method_name + ")"
 			
 			by_source[referrer] = rec["count"]
