@@ -1957,7 +1957,28 @@ class BillRecommendation(models.Model):
 
 	def __unicode__(self):
 		return "BillRecommendation(" + str(self.created) + " " + self.name + ")"
-
+		
+class CensusData(models.Model):
+    id = models.CharField(max_length=6, primary_key=True)
+    population = models.PositiveIntegerField()
+    male = models.DecimalField(max_digits=3,decimal_places=2)
+    female = models.DecimalField(max_digits=3,decimal_places=2)
+    age = models.DecimalField(verbose_name="Median age",max_digits=3,decimal_places=2)
+    latino = models.DecimalField(max_digits=3,decimal_places=2)
+    white = models.DecimalField(max_digits=3,decimal_places=2)
+    black = models.DecimalField(max_digits=3,decimal_places=2)
+    ai = models.DecimalField(verbose_name="American Indian",max_digits=3,decimal_places=2)
+    asian = models.DecimalField(max_digits=3,decimal_places=2)
+    hpi = models.DecimalField(verbose_name="Hawaiian / Pacific Islander",max_digits=3,decimal_places=2)
+    other = models.DecimalField(verbose_name="Other races",max_digits=3,decimal_places=2)
+    biracial = models.DecimalField(max_digits=3,decimal_places=2)
+    hs = models.DecimalField(verbose_name="Highschool graduate",max_digits=3,decimal_places=2)
+    bachelor = models.DecimalField(verbose_name="Bachelor's degree",max_digits=3,decimal_places=2)
+    veteran = models.DecimalField(max_digits=3,decimal_places=2)
+    income = models.PositiveIntegerField(verbose_name="Median household income")
+    urban = models.DecimalField(max_digits=3,decimal_places=2)
+    rural = models.DecimalField(max_digits=3,decimal_places=2)
+    		
 if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave"):
 	# Make sure that we have MoC and CC records for all people
 	# and committees that exist in Congress. Accessing these
@@ -1965,5 +1986,5 @@ if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave")
 	# that reference these models from working and yields a
 	# "Can't resolve keyword ... into field" error on querying
 	# the M2M field.
-	MemberOfCongress.init_members()
+	#MemberOfCongress.init_members()
 	CongressionalCommittee.init_committees()

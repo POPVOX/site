@@ -1,0 +1,83 @@
+{% extends "master.html" %}
+{% block title %}POPVOX - Delete Account{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}Permanently delete a POPVOX user account.{% endblock %}
+{% block content %}
+
+<div class="content">
+
+<div class="col_9 col_top col_last">
+<h1 class="rule_btm">District Info / {{state}}-{{district}}</h1>
+
+	<h2>{{state}}-{{district}} Facts &amp; Figures</h2>
+	{% for member in members %}
+		<div>
+			<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
+			{{member.name}}
+		</div>
+	{% empty %}
+		<h2>No members :( </h2>
+	{% endfor %}
+
+    {% if census_data %}
+        Population: {{census_data.population}}
+        Male: {{census_data.male}}%
+        Female: {{census_data.female}}%
+        Median Age: {{census_data.age}} years
+        Hispanic or Latino: {{census_data.latino}}%
+        White: {{census_data.white}}%
+        Black: {{census_data.black}}%
+        American Indian: {{census_data.ai}}%
+        Asian: {{census_data.asian}}%
+        Hawaiian/Pacific Islander: {{census_data.hpi}}%
+        Other Races: {{census_data.other}}%
+        Biracial: {{census_data.biracial}}%
+        Highschool graduate: {{census_data.hs}}%
+        Bachelor's degree: {{census_data.bachelor}}%
+        Veteran: {{census_data.veteran}}%
+        Median household income: ${{census_data.income}}
+        Urban: {{census_data.urban}}%
+        Rural: {{census_data.rural}}%
+    {% else %}
+        No district statistics available.
+    {% endif %}
+
+	<h2>{{state}}-{{district}} Trending Legislation</h2>
+	{% for billrec in trending_bills %}
+		<div class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}" {% if forloop.first %}style="background: url(/media/master/bg_bills.png) no-repeat scroll left -1px transparent;"{% endif %}>
+		{% comment %}{% ifchanged %}<p style="margin-top: -40px; text-align: right"><em>in the last {{billrec.bill.trending_time_period}}</em></p>{% endifchanged %}{% endcomment %}
+
+		{% with billrec.bill as bill %}
+
+			{% if billrec.pos == "" %}
+				<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
+			{% endif %}
+
+			<h5 {% if not bill.sponsor %}style="margin-bottom: 25px"{% endif %}><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
+
+		{% if billrec.bill.new_positions < 50 %}
+			<p style="margin-top: -10px;"><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
+		{% else %}
+			<p style="margin-top: -10px;"><strong>{{billrec.bill.new_positions}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
+		{% endif %}
+
+        {% endwith %}
+        </div>
+{% empty %}
+Nothing trending
+{% endfor %}
+
+
+    <h2>{{state}}-{{district}} Most Popular Legislation</h2>
+    {% for bill in popular_bills %}
+        <div class="bill">
+
+        {{forloop.counter}}: <a href="{{bill.url}}">{{bill.billtype}}{{bill.billnumber}} - {{bill.title}}<br> 
+        {% if bill.streetname %}(&quot;{{bill.streetname}}&quot;)<br>{% endif %}</a>
+        </div>
+{% empty %}
+Nothing trending
+{% endfor %}
+</div>
+
+{% endblock %}

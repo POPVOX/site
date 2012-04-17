@@ -1,0 +1,416 @@
+{% extends "master.html" %}
+{% block title %}POPVOX - Congress Match{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block head %}
+<style>
+
+/*.myhill {
+	background: url(http://sodiumhalogen.com/up/te mp_hill_4c3b.jpg) -130px -104px no-repeat;
+	display: block;
+	height: 900px;
+	}
+	*/
+	.myhill h1 {
+		margin-bottom: 0px;
+		height: 30px;
+		}
+
+.myhill h3 {
+	margin-top: 0;
+	padding-top: 20px;
+	font: bold 14px helvetica, san-serif; 
+	background: none;
+	}
+	
+	.user {
+		margin: 6px 0 0 240px;
+		width: 175px;
+		height: 90px;
+		background: #fff;
+		float: left;
+		}
+		
+		.user p {
+			color: #CC6A11;
+			text-transform: uppercase;
+			text-align: center;
+			font: bold 18px helvetica, san-serif;
+			padding: 35px 0 0;
+			}
+
+	.rep {
+		margin-top: 6px;
+		padding: 5px;
+		width: 165px;
+		height: 80px;
+		float: left;
+		}
+		
+		.rep img {
+			float: left;
+			}
+
+	.rep h3 {
+		color: #CC6A11;
+		margin-left: 10px;
+		padding: 0;
+		width: 75px;
+		text-transform: none;
+		font-size: 13px;
+		float: left;
+		}
+		
+		.rep h3 span {
+			display: block;
+			margin: 10px 0;
+			text-transform: uppercase;
+			}
+			
+	p.small {
+		margin-top: 20px;
+		font-size: 12px;
+		line-height: 130%;
+		color: #555;
+		}
+
+	#overview {
+		height: 107px;
+		background: url(/media/features/myhill/bg_overview.png) left center no-repeat;
+		}
+		
+	#overview h3 {
+		color: #fff;
+		text-transform: none;
+		font: normal 15px/20px helvetica, san-serif;
+		width: 225px;
+		margin: 0 20px 0 20px;
+		padding: 20px 0 0;
+		float: left;
+		}
+		
+		#overview h3 span {
+			font: bold 15px helvetica;
+			margin-left: 0;
+			}
+		
+		#overview ul {
+			width: 175px;
+			margin-top: 20px;
+			float: left;
+			}
+			
+			#overview ul.last {
+				width: 100px;
+				}
+			
+		#overview ul.rep_key {
+			float: left;
+			width: 220px;
+			}
+			
+			#overview ul li {
+				padding-left: 22px;
+				line-height: 18px;
+				color: #fff;
+				}
+				
+				#overview ul li.voted {
+					background: url(/media/features/myhill/hill_icon_bill_sm.png) left center no-repeat;
+					}
+
+				#overview ul li.agreed {
+					background: url(/media/features/myhill/hill_icon_smile_sm.png) left center no-repeat;
+					}
+
+				#overview ul li.disagreed {
+					background: url(/media/features/myhill/hill_icon_frown_sm.png) left center no-repeat;
+					}
+
+				#overview ul li.absent {
+					background: url(/media/features/myhill/hill_icon_boo_sm.png) left center no-repeat;
+					}
+
+				#overview ul li.abstained {
+					background: url(/media/features/myhill/hill_icon_shush_sm.png) left center no-repeat;
+					}
+
+		.myhill table {
+			border-collapse: collapse;
+			margin: 0;
+			padding: 0;
+			}
+			
+			.myhill table td {
+				border: 1px solid #d4d1ca;
+				border-width: 0 1px 1px 0;
+				width: 175px;
+				height: 50px;
+				vertical-align: top;
+				}
+				
+			.myhill table td.name {
+				width: 240px;
+				border-width: 0 1px 1px 0;
+				padding-right: 10px;
+				}
+				
+				.myhill table td.name h3 {
+					margin: 8px 0 5px;
+					text-transform: none;
+					}
+
+			.myhill table td.user_col {
+				background: #fff;
+				}	
+				
+				.myhill table td.user_col p {
+					font: bold 12px/15px helvetica, san-serif;
+					padding-left: 55px;
+					position: relative;
+					}
+					
+					.myhill table td.user_col p.comment {
+						text-transform: uppercase;
+						margin-top: 0px;
+						padding-top: 40px;
+						}
+						
+					.myhill table td.user_col p span {
+						background: url(/media/features/myhill/hill_quote.png) left 1px no-repeat;
+						display: block;
+						width: 13px;
+						height: 10px;
+						float: left;
+						}
+
+				
+			.myhill table td.agree {
+				background: #fff /*url(/media/features/myhill/hill_icon_smile_orange.png) 150px 10px no-repeat*/;
+				}	
+
+			.myhill table td p {
+				padding: 25px 10px 0 60px;
+				min-height: 35px;
+				font-size: 14px;
+				}
+				
+			.myhill table td p.heart {
+				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
+				}
+				
+			.myhill table td p.anti {
+				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
+				}
+				
+			.myhill table td p.yea {
+				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+
+			.myhill table td p.nay {
+				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+			.myhill table td p.absent {
+				background: url(/media/features/myhill/hill_icon_absent.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+			.myhill table td p.abstained {
+				background: url(/media/features/myhill/hill_icon_abstain.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+				
+				.myhill table td.name p {
+					background: url(/media/features/myhill/hill_icon_bill.png) 3px top no-repeat;
+					padding: 5px 0 0 40px;
+					margin: 0;
+					height: 0;
+					font: italic normal 12px georgia;
+					}
+						
+						.myhill table td.name p strong{
+							font: bold normal 12px helvetica;
+							}
+							
+			.myhill table td.novote {
+				text-align: center;
+				vertical-align: middle;
+				padding: 1em;
+				background-color: #dfdcd6;
+				}
+				.myhill table td.novote p {
+					padding: 0;
+					margin: 0;
+					min-height: 0;
+					font-style: italic;
+					font-size: 13px;
+				}
+
+			.myhill table h3 {
+				padding: 5px 0 0;
+				margin: 0;
+				}
+
+</style>
+{% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{% block content %}
+
+<div class="content myhill">
+
+	<div class="col_9 col_top col_last ">
+		<h1 class="rule_btm">Member of Congress / {{member.name}}</h1>
+		
+		<!--<h3>How Did Your Members of Congress Vote?</h3>
+		<p>Are your senators and representative voting the way you want them to? Here is a personalized grid that displays every bill on which you weighed in, along with how your legislators voted if a vote was held on the bill. That includes letting you know if your Member of Congress abstained or was absent.  </p> -->
+	</div>
+	<div class="clear"> </div>
+    <div>
+	Facebook: <a href="http://facebook.com/{{memdata.facebook_id}}">link</a><br/>
+	YouTube: <a href="{{memdata.youtube_url}}">link</a><br/>
+	Twitter: <a href="http://twitter.com/{{memdata.twitter_id}}">link</a><br/>
+	Congress office: {{memdata.congress_office}}<br/>
+	<iframe width="420" height="315" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+	<div class="col_12 col_top hill_table">
+		<div class="user">
+			{% if most_recent_address %}
+				<p>{{most_recent_address.firstname}} {{most_recent_address.lastname}}</p>
+			{% else %}
+				<p>You</p>
+			{% endif %}
+		</div>
+		<div class="rep">
+			<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
+			<h3>{{member.name}}</h3>
+			<!--<h3>Rep. Chaka Fattah <span>[D, PA-2]</span></h3>-->
+		</div>
+		<div class="clear"> </div>
+		
+		<div id="overview">
+			<h3>You weighed in on <span>{{ billvotes|length }} bill{{ billvotes|pluralize }}</span>.
+			    Here&rsquo;s an overview of how your Members of Congress voted on those bills:</h3>
+			<ul class="rep_key">
+				<!--<li class="voted">Voted On</li>-->
+				<li class="agreed">Agreed with You</li>
+				<li class="disagreed">Disagreed with You</li>
+				<li class="absent">Absent</li>
+				{% if had_abstain %}<li class="abstained">Abstained</li>{% endif %}
+			</ul>
+			{% for memstats in stats %}
+			<ul {% if forloop.last %}class="last"{% endif %}>
+				<!--<li class="voted">3</li>-->
+				<li class="agreed">{{memstats.agree}} ({{memstats.agree_percent}}%)</li>
+				<li class="disagreed">{{memstats.disagree}} ({{memstats.disagree_percent}}%)</li>
+				<li class="absent">
+					{{memstats.0}} ({{memstats.0_percent}}%)
+					{% if memstats.attendance %}
+						<span style="cursor: pointer" title="overall missed votes is {{memstats.attendance.0}}%, {{memstats.attendance.1}}">*</span>
+					{% endif %}
+				</li>
+				{% if had_abstain %}<li class="abstained">{{memstats.P}} ({{memstats.P_percent}}%)</li>{% endif %}
+			</ul>
+			{% empty %}
+				<ul>
+					<!--<li class="voted">3</li>-->
+					<li class="agreed">...</li>
+					<li class="disagreed">...</li>
+					<li class="absent">...</li>
+				</ul>
+				<ul>
+					<!--<li class="voted">3</li>-->
+					<li class="agreed">...</li>
+					<li class="disagreed">...</li>
+					<li class="absent">...</li>
+				</ul>
+				<ul class="last">
+					<!--<li class="voted">3</li>-->
+					<li class="agreed">...</li>
+					<li class="disagreed">...</li>
+					<li class="absent">...</li>
+				</ul>
+			{% endfor %}
+			<div class="clear"> </div>
+		</div>
+
+		<table>
+			{% for comment, votes in billvotes %}
+			<tr>
+				<td class="name">
+					<h3><a href="{{comment.bill.url}}">{{comment.bill.title|truncatewords:13}}</a></h3>
+					<p><strong>Status:</strong> {{comment.bill.status_advanced}}</p>
+				</td>
+				<td class="user_col">
+					<p class="{% if comment.position == "+" %}heart{% else %}anti{% endif %} {% if not comment.message %}comment{% endif %}">
+					{% if not comment.message %}
+						<a href="{{comment.bill.url}}/comment">Add Comment</a>
+					{% else %}
+						<span></span>
+						{{comment.message|truncatewords:7}} <a href="{{comment.url}}">more</a>
+					{% endif %}
+					</p>
+				</td>
+				{% if votes or not members %}
+					{% for vote, reference in votes %}
+					<td {% if vote == comment.position %}class="agree"{% endif %}>
+						{% if vote == "+" %}<p class="yea">Yea</p>{% endif %}
+						{% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
+						{% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
+						{% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
+						{% if vote == "NR" %}{% endif %}
+						<!--{{reference}}-->
+					</td>
+					{% endfor %}
+				{% else %}
+					<td colspan="{{members|length}}" class="novote">
+						<p>This {{comment.bill.proposition_type}} has not come up for a recorded vote.</p>
+					</td>
+				{% endif %}
+			</tr>
+			{% empty %}
+				<tr>
+					<td class="name">
+					</td>
+					<td class="user_col">
+						<p>You have not weighed in on any bills in Congress. Go <a href="/bills">find a bill</a> to get started.</p>
+					</td>
+					<td> </td>
+					<td> </td>
+					<td> </td>
+				</tr>
+			{% endfor %}
+		</table>
+			
+		<div class="clear"> </div>
+		
+		<p class="small">Not all bills come up for a vote in the House and Senate. Delegates and the Resident Comissioner from Puerto Rico are not elligible to vote on bills. Some bills are voted on multiple times as the House and Senate try to come to an agreement, in which case we show how your Members of Congress voted in the most recent vote on the bill.</p>
+	</div>
+<div>
+<h3>Sponsored bills:</h3>
+{% for bill in sponsored %}
+    {% if forloop.first %}<ul>{% endif %}
+<li> {{bill.nicename}}</li>
+    {% if forloop.last %}</ul>{% endif %}
+{% empty %}
+<p>This member has not sponsored any bills</p>
+{% endfor %}
+</div>
+<div>
+<h3>Co-Sponsored bills:</h3>
+{% for bill in cosponsored %}
+    {% if forloop.first %}<ul>{% endif %}
+<li> {{bill.nicename}}</li>
+    {% if forloop.last %}</ul>{% endif %}
+{% empty %}
+<p>This member has not co-sponsored any bills</p>
+{% endfor %}
+</div>
+	
+</div>
+{% endblock %}

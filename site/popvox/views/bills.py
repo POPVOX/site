@@ -56,7 +56,7 @@ def getissueareas():
 def issuearea_chooser_list(request):
 	return render_to_response('popvox/issueareachooser_list.html', {'issues': getissueareas()}, context_instance=RequestContext(request))	
 
-def get_popular_bills():
+def get_popular_bills(searchstate = None, searchdistrict = None):
 	global popular_bills_cache
 
 	if popular_bills_cache != None and (datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
@@ -83,7 +83,13 @@ def get_popular_bills():
 			# Collect counts grouped by bill and time period.
 			bill_data = { }
 			max_count = 0
-			for rec in UserComment.objects\
+			if (searchstate == None):
+				comments = UserComment.objects
+			elif (searchdistrict == None):
+				comments = UserComment.objects.filter(state=searchstate)
+			else:
+				comments = UserComment.objects.filter(state=searchstate,congressionaldistrict=searchdistrict)
+			for rec in comments\
 				.exclude(bill__in=seen_bills)\
 				.filter(created__gt=datetime.now() - 5*time_period)\
 				.extra(select={"half":"created>='%s'" % (datetime.now() - time_period).isoformat()})\
@@ -119,13 +125,13 @@ def get_popular_bills():
 	
 	return popular_bills
 
-def get_popular_bills2():
+def get_popular_bills2(searchstate = None, searchdistrict = None):
 	global popular_bills_cache_2
 
 	if popular_bills_cache_2 != None and (datetime.now() - popular_bills_cache_2[0] < timedelta(minutes=30)):
 		return popular_bills_cache_2[1]
 
-	popular_bills = get_popular_bills()
+	popular_bills = get_popular_bills(searchstate,searchdistrict)
 
 	# Get the campaigns that support or oppose any of the bills, in batch.
 	#cams = OrgCampaign.objects.filter(positions__bill__in = popular_bills, visible=True, org__visible=True).select_related() # note recursive SQL which goes from OrgCampaign to Org
