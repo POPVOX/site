@@ -1018,7 +1018,6 @@ def congress_match(request):
     return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
         context_instance=RequestContext(request))
 
-@login_required
 def member_page(request, membername=None):
     user = request.user
     memberid = None
@@ -1085,17 +1084,22 @@ def member_page(request, membername=None):
     
     
     #membermatch runs all the comparison logic between the user's comments and the member's votes.
-    membermatch = popvox.match.membermatch(memberids, user)
+    #uncomment when we're ready to add membermatch to the member page.
+    '''membermatch = popvox.match.membermatch(memberids, user)
     billvotes = membermatch[0]
     stats = membermatch[1]
-    had_abstain = membermatch[2]
+    had_abstain = membermatch[2]'''
     
     # Get sponsored and cosponsored bills
     sponsored_bills = popvox.models.Bill.objects.filter(sponsor=member.id)
     cosponsored_bills = popvox.models.Bill.objects.filter(cosponsors=member.id)
 
-    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'billvotes': billvotes, 'member': member, 'stats': stats, 'had_abstain': had_abstain, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
+    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
         context_instance=RequestContext(request))
+    
+    #This return has the membermatch variables; uncomment when we're ready for them
+    '''return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'billvotes': billvotes, 'member': member, 'stats': stats, 'had_abstain': had_abstain, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
+    context_instance=RequestContext(request))'''
 
 
 @login_required
