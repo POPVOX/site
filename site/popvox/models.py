@@ -117,7 +117,7 @@ class CongressionalCommittee(models.Model):
 		return govtrack.getCommittee(self.code)["abbrevname"]
 	def issubcommittee(self):
 		return "parent" in govtrack.getCommittee(self.code)
-		
+
 	# Make sure there is a record for every committee.
 	@classmethod
 	def init_committees(clz):
@@ -1978,6 +1978,11 @@ class CensusData(models.Model):
     income = models.PositiveIntegerField(verbose_name="Median household income")
     urban = models.DecimalField(max_digits=3,decimal_places=2)
     rural = models.DecimalField(max_digits=3,decimal_places=2)
+    
+class MemberBio(models.Model):
+    id = models.IntegerField(primary_key=True)
+    googleplus = models.URLField()
+    flickr_id = models.CharField(max_length=100)
     		
 if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave"):
 	# Make sure that we have MoC and CC records for all people

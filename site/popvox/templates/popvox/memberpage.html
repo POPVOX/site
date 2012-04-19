@@ -271,11 +271,17 @@
 	</div>
 	<div class="clear"> </div>
     <div>
-	Facebook: <a href="http://facebook.com/{{memdata.facebook_id}}">link</a><br/>
-	YouTube: <a href="{{memdata.youtube_url}}">link</a><br/>
-	Twitter: <a href="http://twitter.com/{{memdata.twitter_id}}">link</a><br/>
+	{% if memdata.facebook_id %}Facebook: <a href="http://facebook.com/{{memdata.facebook_id}}">link</a><br/>{% endif %}
+	{% if memdata.youtube_url %} YouTube: <a href="{{memdata.youtube_url}}">link</a><br/> {% endif %}
+	{% if memdata.twitter_id %}Twitter: <a href="http://twitter.com/{{memdata.twitter_id}}">link</a><br/>{% endif %}
+    {% if memdata.flickr_id %}Flickr: <a href="http://flickr.com/photos/{{memdata.flickr_id}}">link</a><br/>{% endif %}
+    {% if memdata.googleplus %}G Plus: <a href="{{memdata.googleplus}}">link</a><br/>{% endif %}
 	Congress office: {{memdata.congress_office}}<br/>
-	<iframe width="420" height="315" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>
+{% if memdata.last_vid %}
+	<iframe width="420" height="315" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
+    Age: {{ memdata.age }}<br/>
+Birth Date: {{ memdata.birthday|date:"m/d/Y" }}<br/>
+    {% if memdata.committees %}Committees: <ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}
     </div>
 
 	<div class="col_12 col_top hill_table">
@@ -395,7 +401,7 @@
 <h3>Sponsored bills:</h3>
 {% for bill in sponsored %}
     {% if forloop.first %}<ul>{% endif %}
-<li> {{bill.nicename}}</li>
+<li> {{bill.nicename}} {{bill.stats}}</li>
     {% if forloop.last %}</ul>{% endif %}
 {% empty %}
 <p>This member has not sponsored any bills</p>

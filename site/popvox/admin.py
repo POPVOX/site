@@ -90,6 +90,9 @@ class BillRecommendationAdmin(admin.ModelAdmin):
 	search_fields = ["name"]
 	list_display = ["created", "name", "because"]
 
+class MemberBioAdmin(admin.ModelAdmin):
+    list_display = ["id"]
+
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
 admin.site.register(Org, OrgAdmin)
@@ -109,6 +112,7 @@ admin.site.register(ServiceAccountPermission)
 admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)
 admin.site.register(ServiceAccountCampaignActionRecord, ServiceAccountCampaignActionRecordAdmin)
 admin.site.register(BillRecommendation, BillRecommendationAdmin)
+admin.site.register(MemberBio, MemberBioAdmin)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html', 'make_short_urls', 'report_short_urls']

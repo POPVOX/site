@@ -30,6 +30,8 @@ import urllib
 import urllib2
 from xml.dom.minidom import parse, parseString
 
+from datetime import datetime, date
+
 def annotate_track_status(profile, bills):
     tracked_bills = profile.tracked_bills.all()
     antitracked_bills = profile.antitracked_bills.all()
@@ -1037,6 +1039,7 @@ def member_page(request, membername=None):
     if member is None:
         raise Http404()
     
+    print member
     memberids = [member.id] #membermatch needs a list
     
     #Social media links and bio info from the sunlight API (and our own db, where necessary)
@@ -1045,13 +1048,41 @@ def member_page(request, membername=None):
     loaded_data = json.loads(json_data)
     mem_data = loaded_data['response']['legislator']
 
-    youtube_id = mem_data['youtube_url'].rsplit("/",1)[1]
-    url = "http://gdata.youtube.com/feeds/base/users/"+youtube_id+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
-    rss_data = "".join(urllib2.urlopen(url).readlines())
-    dom = parseString(rss_data)
-    first = dom.getElementsByTagName('item')[0]
-    guid = first.getElementsByTagName('guid')[0]
-    mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
+    if mem_data['youtube_url'] != "":
+        youtube_id = mem_data['youtube_url'].rsplit("/",1)[1]
+        url = "http://gdata.youtube.com/feeds/base/users/"+youtube_id+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
+        rss_data = "".join(urllib2.urlopen(url).readlines())
+        dom = parseString(rss_data)
+        first = dom.getElementsByTagName('item')[0]
+        guid = first.getElementsByTagName('guid')[0]
+        mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
+        
+    birthdate = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d").date()
+    today = date.today()
+    try: # raised when birth date is February 29 and the current year is not a leap year
+        birthday = birthdate.replace(year=today.year)
+    except ValueError:
+        birthday = birthdate.replace(year=today.year, day=born.day-1)
+    if birthday > today:
+        age = today.year - birthdate.year - 1
+    else:
+        age = today.year - birthdate.year
+    mem_data['age'] = age
+    mem_data['birthday'] = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d")
+    
+    bio = popvox.models.MemberBio.objects.get(id=member.id)
+    mem_data['flickr_id'] = bio.flickr_id
+    mem_data['googleplus'] = bio.googleplus
+        
+
+    govtrack_data = popvox.govtrack.getMemberOfCongress(member.id)
+    committees = []
+    if 'committees' in govtrack_data:
+        for committee in govtrack_data['committees']:
+            name = popvox.govtrack.getCommittee(committee)['name']
+            committees.append(name)
+    mem_data['committees'] = committees
+    
     
     #membermatch runs all the comparison logic between the user's comments and the member's votes.
     membermatch = popvox.match.membermatch(memberids, user)
