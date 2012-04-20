@@ -51,8 +51,8 @@
 	                           <div id="sponsoredbill_bar_{{forloop.counter}}">
 								   <script>bill_bar_chart("sponsoredbill_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
 								{% else %}
-								<p>Too few constituents have commented on {{bill.shortname}} to display statistics.</p>
-								<p>For comments left so far <a href="{{bill.url}}/report">view  the report.</a></p>
+								<p class="toofew">Too few constituents have commented on {{bill.shortname}} to display statistics.</p>
+								<p class="takeaction">For comments left so far <a href="{{bill.url}}/report">view  the report.</a></p>
 								{% endif %}
 	                              </li>
 	                    {% if forloop.last %}</ul>{% endif %}
@@ -89,24 +89,22 @@
 	<h2>Info</h2>
 	<div class="member-info-inner">
 	<h3>Web</h3>
-	<ul>
-		{% if memdata.website %}<li><a href="{{memdata.website}}">{{memdata.website}}</a></li>{% endif %}
-	</ul>
+		{% if memdata.website %}<a href="{{memdata.website}}">{{memdata.website}}</a>{% endif %}
 	<h3>Social</h3>
-	<ul>
-	{% if memdata.facebook_id %}<li><a href="http://facebook.com/{{memdata.facebook_id}}">Facebook</a></li>{% endif %}
-	{% if memdata.youtube_url %}<li><a href="{{memdata.youtube_url}}">YouTube</a></li>{% endif %}
-	{% if memdata.twitter_id %}<li><a href="http://twitter.com/{{memdata.twitter_id}}">Twitter</a></li>{% endif %}
-    {% if memdata.flickr_id %}<li><a href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}
-    {% if memdata.googleplus %}<li><a href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
+	<ul class="social-links">
+	{% if memdata.facebook_id %}<li><a class="facebook" href="http://facebook.com/{{memdata.facebook_id}}"></a></li>{% endif %}
+	{% if memdata.youtube_url %}<li><a class="youtube" href="{{memdata.youtube_url}}"></a></li>{% endif %}
+	{% if memdata.twitter_id %}<li><a class="twitter" href="http://twitter.com/{{memdata.twitter_id}}"></a></li>{% endif %}
+	{#comment {% if memdata.flickr_id %}<li><a class="flickr" href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}{ #}
+    {% if memdata.googleplus %}<li><a class="googleplus" href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
 </ul>
 {% if memdata.last_vid %}
 <iframe width="280" height="170" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
 
 	<h3>Address</h3>
-	Washington, DC:<br/>
+	<p>Washington, DC:<br/>
 {{memdata.congress_office}}<br/>
-			Washington, DC 20515
+Washington, DC 20515</p>
 	</div></div><!--end member-info -->
 
 {% endblock %}

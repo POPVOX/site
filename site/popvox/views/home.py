@@ -1091,8 +1091,8 @@ def member_page(request, membername=None):
     had_abstain = membermatch[2]'''
     
     # Get sponsored and cosponsored bills
-    sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id)
-    cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id)
+    sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
+    cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
     
     #function to get pro and con positions for bills, to pass in for pie charts:
     def GetSentiment(member, bills_list):
@@ -1129,8 +1129,8 @@ def member_page(request, membername=None):
 
     sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)
     cosponsored_bills = GetSentiment(govtrack_data, cosponsored_bills_list)
-    sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)
-    cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)
+    sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
+    cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
 
 
     return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},

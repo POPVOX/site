@@ -16,6 +16,7 @@
 
 .member-info-inner{
 	padding:10px;
+	padding-top:0;
 	background:#FFFFFF;
 }
 .stats,
@@ -129,6 +130,8 @@ div.legislation-tabs {
 	color:#c46708;
 }
 
+ .legislation-tabs a:hover { border: none; }
+
 .legislation-trending .subhead {
 	background: url(../master/icon_bill.png) no-repeat 0 0;
 	font-size: 16px;
@@ -216,3 +219,67 @@ div.legislation-tabs {
 	color:#75767b;
 }
 
+.member-info-inner ul.social-links {
+	display: block;
+	height: 50px;
+}
+.member-info-inner ul.social-links li a {
+	display: block;
+	float: left;
+	text-indent: -9999em;
+	width:  30px;
+	height: 32px;
+	margin-right: 10px
+}
+	
+	.member-info-inner ul.social-links li a:hover {
+		background-position: left -40px;
+		text-decoration: none;
+		border: none;
+	}
+
+.member-info-inner ul li a.facebook {
+	background: url(/media/master/moc_facebook.png) left top no-repeat;
+}
+
+.member-info-inner ul li a.twitter {
+	background: url(/media/master/moc_twitter.png) left top no-repeat;
+}
+
+.member-info-inner ul li a.youtube {
+	background: url(/media/master/moc_youtube.png) left top no-repeat;
+}
+
+.member-info-inner ul li a.flickr {
+	background: url(/media/master/moc_flickr.png) left top no-repeat;
+}
+.member-info-inner ul li a.googleplus {
+	background: url(/media/master/moc_googleplus.png) left top no-repeat;
+}
+.myhill h2 {
+	margin-bottom: 5px;
+}	
+
+.member-info-inner p {
+	color: #75757d;
+}	
+	
+.member-legislation div.sponsoredbills ul{
+	margin-bottom: 30px;
+}	
+
+.member-legislation li {
+	background: #FFFFFF;
+}
+
+.member-legislation div.sponsoredbills ul li.bill p.toofew {	
+	font: italic normal 14px/16px georgia, serif;
+	margin-top: 5px;
+	margin-bottom: 15px;
+}
+
+.member-legislation div.sponsoredbills ul li.bill p.takeaction {	
+	background: url("../master/b_bill.png") no-repeat scroll left;
+	padding-left: 30px;
+}	
+	
