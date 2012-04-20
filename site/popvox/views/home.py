@@ -1093,25 +1093,37 @@ def member_page(request, membername=None):
     # Get sponsored and cosponsored bills
     sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id)
     cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id)
+    
+    #function to get pro and con positions for bills, to pass in for pie charts:
+    def GetSentiment(member, bills_list):
+        bills_sentiment = []
+        for bill in bills_list:
+            scope = None
+            total = 0
+            if "district" in member:
+                scope = "district"
+                total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
+                pro = bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()
+                con = bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()
+            if total < 6 :
+                scope = "state"
+                total = bill.usercomments.get_query_set().filter(state=member['state']).count()
+                pro = bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()
+                con = bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()
+            if total < 6 :
+                scope = "nation"
+                total = bill.usercomments.get_query_set().count()
+                pro = bill.usercomments.get_query_set().filter(position="+").count()
+                con = bill.usercomments.get_query_set().filter(position="-").count()
+                
 
-    sponsored_bills = []
-    for bill in sponsored_bills_list:
-        total = 0
-        if district in member:
-            total = sponsored_bills_list[0].usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
-            pro = sponsored_bills_list[0].usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()
-            con = sponsored_bills_list[0].usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()
-        if total < 10 
+            foo = (bill, scope, pro, con)
+            bills_sentiment.append(foo)
+        return bills_sentiment
+    
 
-        foo = (bill,pro,con)
-        sponsored_bills.append(foo)
-
-    cosponsored_bills =[]
-    for bill in cosponsored_bills_list:
-        pro = cosponsored_bills_list[0].usercomments.get_query_set().filter(position="+").count()
-        con = cosponsored_bills_list[0].usercomments.get_query_set().filter(position="-").count()
-        foo = (bill,pro,con)
-        cosponsored_bills.append(foo)
+    sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)
+    cosponsored_bills = GetSentiment(govtrack_data, cosponsored_bills_list)
 
 
     return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
