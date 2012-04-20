@@ -132,11 +132,11 @@ else:
 
 #Reporting all the answers:
 if urgent == []:
-  print "Good Morning, Josh."
+  print "Good Morning, Angels."
   print
   print "There are no urgent updates at this time."
 else:
-  print "Rainy morning, Josh." # when Thunderbird alerts new mail I see the first few words so having the first few words indicate the presence of an urgent notice is helpful
+  print "Trouble this morning, Angels." # when Thunderbird alerts new mail I see the first few words so having the first few words indicate the presence of an urgent notice is helpful
   print
   print "URGENT"
   print

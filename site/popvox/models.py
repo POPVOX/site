@@ -117,7 +117,7 @@ class CongressionalCommittee(models.Model):
 		return govtrack.getCommittee(self.code)["abbrevname"]
 	def issubcommittee(self):
 		return "parent" in govtrack.getCommittee(self.code)
-		
+
 	# Make sure there is a record for every committee.
 	@classmethod
 	def init_committees(clz):
@@ -162,7 +162,7 @@ class Bill(models.Model):
 	reintroduced_as = models.ForeignKey('Bill', related_name='reintroduced_from', blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
 	migrate_to = models.ForeignKey('Bill', related_name='migrate_from', blank=True, null=True, on_delete=models.SET_NULL)
 	
-	street_name = models.CharField(max_length=64, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase. For non-bill actions, this is an alternate short name for the action.")
+	street_name = models.CharField(max_length=128, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....', so if it needs to start with 'the', include 'the' in lowercase. For non-bill actions, this is an alternate short name for the action.")
 	ask = models.CharField(max_length=100, blank=True, null=True, help_text="Use for Non-Bill Actions only. This field changes the 'how should your member of congress vote' text on the bill page.")
 	notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
 	hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
@@ -1957,7 +1957,33 @@ class BillRecommendation(models.Model):
 
 	def __unicode__(self):
 		return "BillRecommendation(" + str(self.created) + " " + self.name + ")"
-
+		
+class CensusData(models.Model):
+    id = models.CharField(max_length=6, primary_key=True)
+    population = models.PositiveIntegerField()
+    male = models.DecimalField(max_digits=3,decimal_places=2)
+    female = models.DecimalField(max_digits=3,decimal_places=2)
+    age = models.DecimalField(verbose_name="Median age",max_digits=3,decimal_places=2)
+    latino = models.DecimalField(max_digits=3,decimal_places=2)
+    white = models.DecimalField(max_digits=3,decimal_places=2)
+    black = models.DecimalField(max_digits=3,decimal_places=2)
+    ai = models.DecimalField(verbose_name="American Indian",max_digits=3,decimal_places=2)
+    asian = models.DecimalField(max_digits=3,decimal_places=2)
+    hpi = models.DecimalField(verbose_name="Hawaiian / Pacific Islander",max_digits=3,decimal_places=2)
+    other = models.DecimalField(verbose_name="Other races",max_digits=3,decimal_places=2)
+    biracial = models.DecimalField(max_digits=3,decimal_places=2)
+    hs = models.DecimalField(verbose_name="Highschool graduate",max_digits=3,decimal_places=2)
+    bachelor = models.DecimalField(verbose_name="Bachelor's degree",max_digits=3,decimal_places=2)
+    veteran = models.DecimalField(max_digits=3,decimal_places=2)
+    income = models.PositiveIntegerField(verbose_name="Median household income")
+    urban = models.DecimalField(max_digits=3,decimal_places=2)
+    rural = models.DecimalField(max_digits=3,decimal_places=2)
+    
+class MemberBio(models.Model):
+    id = models.IntegerField(primary_key=True)
+    googleplus = models.URLField()
+    flickr_id = models.CharField(max_length=100)
+    		
 if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave"):
 	# Make sure that we have MoC and CC records for all people
 	# and committees that exist in Congress. Accessing these
@@ -1965,5 +1991,5 @@ if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave")
 	# that reference these models from working and yields a
 	# "Can't resolve keyword ... into field" error on querying
 	# the M2M field.
-	MemberOfCongress.init_members()
+	#MemberOfCongress.init_members()
 	CongressionalCommittee.init_committees()

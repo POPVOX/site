@@ -16,7 +16,7 @@ urlpatterns = patterns('',
 	(r'ajax/master-state', 'popvox.views.main.master_state'),
 	(r'ajax/get-short-url', 'popvox.views.main.get_short_url'),
 	
-	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|advertising|faq|blog_template|features/opendataday2011)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
+	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|about/testimonials|advertising|faq|blog_template|features/opendataday2011)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	(r'^press$', 'popvox.views.main.press_page'),
 	(r'^legal$', 'popvox.views.main.legal_page'),
 
@@ -28,6 +28,9 @@ urlpatterns = patterns('',
 	(r'^home$', 'popvox.views.home.home'),
 	(r'^home/match$', 'popvox.views.home.congress_match'),
 	(r'^home/history$', 'popvox.views.home.history'),
+	#(r'^placeinfo/(?P<searchstate>[a-zA-Z]{2})/$', 'popvox.views.home.district_info'),
+	(r'^district/(?P<searchstate>[a-zA-Z]{2})/(?P<searchdistrict>\d+)/$', 'popvox.views.home.district_info'),
+	(r'^member/(?P<membername>[a-zA-Z\-]+)/$', 'popvox.views.home.member_page'),
 	(r'^docket$', 'popvox.views.home.docket'),
 	(r'^ajax/docket/bill_categories$', 'popvox.views.home.legstaff_bill_categories'),
 	(r'^ajax/docket/bill_category_panel$', 'popvox.views.home.legstaff_bill_category_panel'),

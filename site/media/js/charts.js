@@ -51,6 +51,81 @@ function bill_chart(container, pro_pct, con_pct, opts) {
    });
 }
 
+function bill_bar_chart(container, pro_pct, con_pct, opts) {
+$(function () {
+    new Highcharts.Chart({
+        chart: {
+            renderTo: container,
+            type: 'bar',
+			margin: [0,0,0,0],
+			spacingTop: 0,
+			spacingLeft: 0,
+			spacingRight: 0,
+			spacingBottom: 0,
+			height:100,
+        },
+        colors: ["#ed5a24","#71b32b"],
+        title: { text: null },
+		credits: { enabled: false },
+        legend: {
+            enabled:false
+        },
+        xAxis: {
+            labels: {
+                enabled: false
+            },
+            lineWidth:0,
+            gridLineWidth:0,
+        },
+        yAxis: {
+            labels: {
+                enabled: false,
+            },
+            title: {
+                text:"",
+            },
+            stackLabels: {
+                enabled: false,
+                
+            },
+            lineWidth:0,
+            gridLineWidth:0,
+        },
+        plotOptions: {
+            bar: {
+				animation: false,
+				stickyTracking: false,
+				borderWidth: 0,
+				shadow: false,
+                stacking: 'percent',
+                dataLabels:{
+                    enabled:true,
+                    color:"#FFFFFF",
+                    style: {
+                        fontWeight:'bold',
+                        align:"center"
+                    },
+					formatter: function() {
+						return this.y + "%";
+					},
+                },                    
+            }
+        },
+        tooltip: {
+			enabled: false,
+		},
+        series: [{
+            name: "Oppose",
+            data: [con_pct]
+        },{
+            name: "Support",
+            data: [pro_pct]
+        } ]
+
+    });
+});
+}
+
 function bill_timeseries(container, data, opts) {
 	$(function() {
       new Highcharts.Chart({
