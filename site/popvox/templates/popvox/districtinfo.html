@@ -66,7 +66,11 @@
 		{% with billrec.bill as bill %}
 
 		<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
+		{% if pro and con %}
 		        <div id="trending_bar_{{forloop.counter}}"><script>bill_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
+				{% else %}
+				<p>Too few constituents in this district have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+				{% endif %}
 
 		{% if billrec.bill.new_positions < 50 %}
 			<p class="trend">This {{ bill.type }} has been trending for the last {{billrec.bill.trending_time_period}}!</p>
@@ -91,7 +95,11 @@
 <ol>
         <li class="bill">
         <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
+		{% if pro and con %}
 		        <div id="popular_bar_{{forloop.counter}}"><script>bill_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
+				{% else %}
+				<p>Too few constituents in this district have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+				{% endif %}
 
         {% if bill.streetname %}<p>(&quot;{{bill.streetname}}&quot;)</p>{% endif %}
         </li>
