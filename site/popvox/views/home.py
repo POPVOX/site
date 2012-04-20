@@ -1050,11 +1050,15 @@ def member_page(request, membername=None):
     if mem_data['youtube_url'] != "":
         youtube_id = mem_data['youtube_url'].rsplit("/",1)[1]
         url = "http://gdata.youtube.com/feeds/base/users/"+youtube_id+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
-        rss_data = "".join(urllib2.urlopen(url).readlines())
-        dom = parseString(rss_data)
-        first = dom.getElementsByTagName('item')[0]
-        guid = first.getElementsByTagName('guid')[0]
-        mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
+        try:
+            rss_data = "".join(urllib2.urlopen(url).readlines())
+            mem_data['last_vid'] = None
+            dom = parseString(rss_data)
+            first = dom.getElementsByTagName('item')[0]
+            guid = first.getElementsByTagName('guid')[0]
+            mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
+        except urllib2.HTTPError:
+            pass
         
     birthdate = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d").date()
     today = date.today()
