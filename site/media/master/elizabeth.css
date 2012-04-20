@@ -90,10 +90,43 @@
 	font: 14px helvetica, arial, sans-serif;
 }
 .member .member-photo {
-	background: #CC6A11;
 	width: 220px;
-	height: 220px;
+	height: 250px;
 }
 .member .member-photo img {
 	margin: 0 auto;
+	width:200px;
 }
+.member-legislation h3 {
+	background: none;
+	color: #75747c;
+	font: 14px helvetica, arial, sans-serif;
+}
+
+.member-legislation .subhead {
+	background: url(../master/icon_bill.png) no-repeat 0 0;
+	font-size: 16px;
+	padding-left: 40px;
+}
+
+.member-legislation li {
+	background: #fff url(../master/b_bill.png) no-repeat 10px 90%;
+	margin-bottom: 10px;
+	padding: 10px;
+}
+
+.member-legislation li .number { 
+	float: right;
+	color: #75747c;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font-size: 30px;
+	margin: 5px;
+	}
+
+.member-legislation li h5 a {
+	font-weight: bold;
+}
+
+/* Member page */
+.myhill h3 {
+	background: none;
