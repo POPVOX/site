@@ -11,10 +11,11 @@
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 
-<div class="content myhill">
+<div class="content myhill memberpage">
+			<a name="sponsoredbills"></a>
 
 	<div class="col_12 col_top col_last ">
-		<h1 class="rule_btm">Member of Congress / <span>{{member.name}}</span></h1>
+		<h1 class="rule_btm">Member of Congress <span class="name">/ {{member.name}}</span></h1>
 		
 		<!--<h3>How Did Your Members of Congress Vote?</h3>
 		<p>Are your senators and representative voting the way you want them to? Here is a personalized grid that displays every bill on which you weighed in, along with how your legislators voted if a vote was held on the bill. That includes letting you know if your Member of Congress abstained or was absent.  </p> -->
@@ -25,27 +26,22 @@
 		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">[{{memdata.party}}, {{memdata.state}}{%if memdata.title == "Rep"  %}-{{memdata.district}}{% endif %}]</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
-		<dl>
-			<dt>Congress office</dt>
-			<dd>{{memdata.congress_office}}</dd>
-			{% if memdata.committees %}<dt>Committees</dt>
-			<dd><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}</dd>
-			<dt>Age</dt>
-			<dd>{{ memdata.age }}</dd>
-			<dt>Birth Date</dt>
-			<dd>{{ memdata.birthday|date:"m/d/Y" }}</dd>
-		</dl>
+		<table>
+			{% if memdata.committees %}<tr><th>Committees</th>
+				<td><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}</td></tr>
+			<tr><th>Age</th><td>{{ memdata.age }}</td></tr>
+			<tr><th>Birth Date</th>	<td>{{ memdata.birthday|date:"m/d/Y" }}</td></tr>
+		</table>
 	</div><!--end member-stats -->
 	</div><!--end member -->
 	
 	<div class="member-legislation">
 	       <h2>Legislation</h2>
 			   <div class="legislation-tabs">
-				   <h3 class="active"><a href="#sponsoredbills">Sponsored</a></h3>
-				   <h3 class="inactive"><a href="#cosponsoredbills">Co-Sponsored</a></h3>
+				   <h4 class="active"><a href="#sponsoredbills">Sponsored</a></h4>
+				   <h4 class="inactive"><a href="#cosponsoredbills">Co-Sponsored</a></h4>
 				</div>
 				   <div style="clear:both"></div>
-			<a name="sponsoredbills"></a>
 	       <div class="sponsoredbills">
 	               {% for bill,scope,pro,con in sponsored %}
 	                   {% if forloop.first %}<ul>{% endif %}
@@ -53,7 +49,7 @@
 								<h4><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h4>
 								{% if pro or con %}
 	                           <div id="sponsoredbill_bar_{{forloop.counter}}">
-	                                  <script>bill_bar_chart("sponsoredbill_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+								   <script>bill_bar_chart("sponsoredbill_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
 								{% else %}
 								<p>Too few constituents have commented on {{bill.shortname}} to display statistics.</p>
 								<p>For comments left so far <a href="{{bill.url}}/report">view  the report.</a></p>
@@ -65,15 +61,19 @@
 	                {% endfor %}
 	                </div><!--end sponsored -->
 			<a name="cosponsoredbills"></a>
+			   <div class="legislation-tabs">
+				   <h4 class="inactive"><a href="#sponsoredbills">Sponsored</a></h4>
+				   <h4 class="active"><a href="#cosponsoredbills">Co-Sponsored</a></h4>
+				</div>
+				   <div style="clear:both"></div>
 	       <div class="co-sponsored">
-				   <h3>Co-Sponsored Bills</h3>
 	       {% for bill,scope,pro,con in cosponsored %}
 	            {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">
 								<h4><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h4>
 								{% if pro or con %}
 	                <div id="cosponsored_bar_{{forloop.counter}}">
-	                 <script>bill_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+	                 <script>bill_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
 								{% else %}
 								<p>Too few constituents have commented on {{bill.shortname}} to display statistics.</p><p>For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 								{% endif %}
@@ -87,6 +87,11 @@
 
     <div class="member-info">
 	<h2>Info</h2>
+	<div class="member-info-inner">
+	<h3>Web</h3>
+	<ul>
+		{% if memdata.website %}<li><a href="{{memdata.website}}">{{memdata.website}}</a></li>{% endif %}
+	</ul>
 	<h3>Social</h3>
 	<ul>
 	{% if memdata.facebook_id %}<li><a href="http://facebook.com/{{memdata.facebook_id}}">Facebook</a></li>{% endif %}
@@ -96,7 +101,12 @@
     {% if memdata.googleplus %}<li><a href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
 </ul>
 {% if memdata.last_vid %}
-	<iframe width="280" height="364" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
-    </div><!--end member-info -->
+<iframe width="280" height="170" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
+
+	<h3>Address</h3>
+	Washington, DC:<br/>
+{{memdata.congress_office}}<br/>
+			Washington, DC 20515
+	</div></div><!--end member-info -->
 
 {% endblock %}

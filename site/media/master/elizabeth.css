@@ -14,6 +14,10 @@
 	padding-right: 20px;
 }
 
+.member-info-inner{
+	padding:10px;
+	background:#FFFFFF;
+}
 .stats,
 .member {
 	width: 220px;
@@ -21,12 +25,42 @@
 
 .legislation-tabs,
 .member-legislation {
-	width: 435px;
+	width: 360px;
+}
+
+.member .member_name{
+	color:#C86917;
+	font-weight:bold;
+}
+.member .member_partydata{
+	color:#C86917;
 }
 
 .member-info {
 	padding-right: 0;
-	width: 220px;
+	width: 300px;
+}
+
+.member .member-stats {
+	background:#D4D1CA;
+}
+.member .member-stats h3 {
+	margin:10px;
+}
+
+.member .member-stats table {
+	border-spacing:10px;
+	border-collapse:separate;
+}
+.member .member-stats table th {
+	text-align:right;
+}
+.member .member-stats table td {
+	font-weight:bold;
+	text-align:left;
+}
+.member .member-stats table td li{
+	margin-bottom:10px;
 }
 
 /*Typography */
@@ -56,11 +90,12 @@
 div.legislation-tabs {
 	border-radius:5px;
 	border:3px solid #D4D1CA;
-	width:100%;
+	width:99%;
 	margin:0 auto;
 	padding:0;
+	margin-bottom:20px;
 }
-.legislation-tabs h3{
+.legislation-tabs h4{
 	font: 14px helvetica, arial, sans-serif;
 	font-weight:bold;
 	width:50%;
@@ -68,9 +103,10 @@ div.legislation-tabs {
 	float:left;
 	clear:right;
 	margin-top:0;
+	line-height:30px;
 }
 
-.legislation-tabs h3.active {
+.legislation-tabs h4.active {
 	background-image: -ms-linear-gradient(top, #AC510B 0%, #CC7413 100%);
 	background-image: -moz-linear-gradient(top, #AC510B 0%, #CC7413 100%);
 	background-image: -o-linear-gradient(top, #AC510B 0%, #CC7413 100%);
@@ -78,11 +114,11 @@ div.legislation-tabs {
 	background-image: -webkit-linear-gradient(top, #AC510B 0%, #CC7413 100%);
 	background-image: linear-gradient(top, #AC510B 0%, #CC7413 100%);
 }
-.legislation-tabs h3.active a {
+.legislation-tabs h4.active a {
 	color:#FFFFFF;
 }
 
-.legislation-tabs h3.inactive {
+.legislation-tabs h4.inactive {
 	background-image: -ms-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
 	background-image: -moz-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
 	background-image: -o-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
@@ -145,7 +181,7 @@ div.legislation-tabs {
 
 .member-legislation li {
 	background: #fff url(../master/b_bill.png) no-repeat 10px 90%;
-	margin-bottom: 10px;
+	margin-bottom: 2px;
 	padding: 10px;
 }
 
@@ -164,3 +200,19 @@ div.legislation-tabs {
 /* Member page */
 .myhill h3 {
 	background: none;
+	font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+
+.myhill h2 {
+	margin: 15px 0 22px;
+	font: normal 40px/40px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	letter-spacing: .02em;
+	color:#75767b;
+}
+
+.myhill h1 .name {
+	color:#75767b;
+}
+
