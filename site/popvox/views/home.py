@@ -1091,8 +1091,28 @@ def member_page(request, membername=None):
     had_abstain = membermatch[2]'''
     
     # Get sponsored and cosponsored bills
-    sponsored_bills = popvox.models.Bill.objects.filter(sponsor=member.id)
-    cosponsored_bills = popvox.models.Bill.objects.filter(cosponsors=member.id)
+    sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id)
+    cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id)
+
+    sponsored_bills = []
+    for bill in sponsored_bills_list:
+        total = 0
+        if district in member:
+            total = sponsored_bills_list[0].usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
+            pro = sponsored_bills_list[0].usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()
+            con = sponsored_bills_list[0].usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()
+        if total < 10 
+
+        foo = (bill,pro,con)
+        sponsored_bills.append(foo)
+
+    cosponsored_bills =[]
+    for bill in cosponsored_bills_list:
+        pro = cosponsored_bills_list[0].usercomments.get_query_set().filter(position="+").count()
+        con = cosponsored_bills_list[0].usercomments.get_query_set().filter(position="-").count()
+        foo = (bill,pro,con)
+        cosponsored_bills.append(foo)
+
 
     return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
         context_instance=RequestContext(request))
