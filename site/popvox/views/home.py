@@ -1115,12 +1115,12 @@ def member_page(request, membername=None):
             if total < 6 :
                 scope = "nation"
                 total = bill.usercomments.get_query_set().count()
-                if total == 0:
-                    pro = 0
-                    con = 0
-                else:
+                if total != 0:
                     pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
                     con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total
+            if total < 10:
+                pro = None
+                con = None
 
             foo = (bill, scope, pro, con)
             bills_sentiment.append(foo)
@@ -1161,8 +1161,12 @@ def district_info(request, searchstate=None, searchdistrict=None):
     trending_bills = []
     for bill in trending:
         total = bill['bill'].usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
-        pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
-        con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        if total >6:
+            pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+            con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        else:
+            pro = None
+            con = None
         
         foo = (bill, pro, con)
         trending_bills.append(foo)
