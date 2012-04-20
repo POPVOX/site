@@ -8,6 +8,8 @@
 {% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
 
 <div class="content myhill">
 
@@ -19,14 +21,14 @@
 	</div>
 	<div class="clear"> </div>
 	<div class="member">
-		<div class="member-photo"><img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}"/></div>
+		<div class="member-photo"><img src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
 		<p>{{member.name}}</p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
 		<dl>
 			<dt>Congress office</dt>
 			<dd>{{memdata.congress_office}}</dd>
-			{% if memdata.committees %}<dt>Committees<: </dt>
+			{% if memdata.committees %}<dt>Committees</dt>
 			<dd><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}</dd>
 			<dt>Age</dt>
 			<dd>{{ memdata.age }}</dd>
@@ -37,16 +39,19 @@
 	</div><!--end member -->
 	
 	<div class="member-legislation">
-	               <script type="text/javascript" src="/media/js/highcharts.js"></script>
-	               <script type="text/javascript" src="/media/js/charts.js"></script>
 	       <h2>Legislation</h2>
 	       <div class="sponsored">
 	               <h3>Sponsored</h3>
 	               {% for bill,scope,pro,con in sponsored %}
 	                   {% if forloop.first %}<ul>{% endif %}
-	                            <li> {{bill.nicename}}
+	                            <li class="bill">
+								<h5><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h5>
+								{% if pro and con %}
 	                           <div id="sponsored_bar_{{forloop.counter}}">
 	                                  <script>bill_bar_chart("sponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+								{% else %}
+								<p>Too few constituents have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+								{% endif %}
 	                              </li>
 	                    {% if forloop.last %}</ul>{% endif %}
 	                {% empty %}
@@ -55,12 +60,17 @@
 	                </div><!--end sponsored -->
 	       <div class="co-sponsored">
 	       <h3>Co-Sponsored</h3>
-	       {% for bill in cosponsored %}
+	       {% for bill,scope,pro,con in cosponsored %}
 	            {% if forloop.first %}<ul>{% endif %}
-	        <li> {{bill.nicename}}
+	                            <li class="bill">
+								<h5><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h5>
+								{% if pro and con %}
 	                <div id="cosponsored_bar_{{forloop.counter}}">
 	                 <script>bill_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
-	             </li></li>
+								{% else %}
+								<p>Too few constituents have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+								{% endif %}
+	             </li>
 	            {% if forloop.last %}</ul>{% endif %}
 	        {% empty %}
 	        <p>This member has not co-sponsored any bills</p>
