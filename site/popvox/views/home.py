@@ -1118,17 +1118,25 @@ def member_page(request, membername=None):
                 if total != 0:
                     pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
                     con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total
-            if total < 10:
+            if total < 6:
                 pro = None
                 con = None
 
-            foo = (bill, scope, pro, con)
+            foo = (bill, scope, pro, con,total)
             bills_sentiment.append(foo)
         return bills_sentiment
     
 
     sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)
     cosponsored_bills = GetSentiment(govtrack_data, cosponsored_bills_list)
+    sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)
+    cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)
+    for bill in cosponsored_bills:
+        print bill[0]
+        print bill[1]
+        print bill[2]
+        print bill[3]
+        print bill[4]
 
 
     return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
