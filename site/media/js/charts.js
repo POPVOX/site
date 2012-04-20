@@ -62,7 +62,7 @@ $(function () {
 			spacingLeft: 0,
 			spacingRight: 0,
 			spacingBottom: 0,
-			height:100,
+			height:75,
         },
         colors: ["#ed5a24","#71b32b"],
         title: { text: null },
@@ -123,7 +123,27 @@ $(function () {
         } ]
 
     });
-});
+/* end chart */
+
+if (pro_pct == 0) {
+	var chart_container = document.getElementById(container);
+	var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
+	var support_label = data_labels[1];
+	var text_element = support_label.firstChild;
+	var tspan = text_element.firstChild;
+	text_element.removeChild(tspan);
+}
+else if (pro_pct < 15) {
+	var chart_container = document.getElementById(container);
+	var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
+	var oppose_label = data_labels[0];
+	var text_element = oppose_label.firstChild;
+	var tspan = text_element.firstChild;
+	tspan.setAttribute("x","50");
+}
+
+}
+);
 }
 
 function bill_timeseries(container, data, opts) {
