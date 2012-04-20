@@ -30,6 +30,8 @@ import urllib
 import urllib2
 from xml.dom.minidom import parse, parseString
 
+from datetime import datetime, date
+
 def annotate_track_status(profile, bills):
     tracked_bills = profile.tracked_bills.all()
     antitracked_bills = profile.antitracked_bills.all()
@@ -1016,7 +1018,6 @@ def congress_match(request):
     return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
         context_instance=RequestContext(request))
 
-@login_required
 def member_page(request, membername=None):
     user = request.user
     memberid = None
@@ -1037,6 +1038,7 @@ def member_page(request, membername=None):
     if member is None:
         raise Http404()
     
+    print member
     memberids = [member.id] #membermatch needs a list
     
     #Social media links and bio info from the sunlight API (and our own db, where necessary)
@@ -1045,26 +1047,91 @@ def member_page(request, membername=None):
     loaded_data = json.loads(json_data)
     mem_data = loaded_data['response']['legislator']
 
-    youtube_id = mem_data['youtube_url'].rsplit("/",1)[1]
-    url = "http://gdata.youtube.com/feeds/base/users/"+youtube_id+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
-    rss_data = "".join(urllib2.urlopen(url).readlines())
-    dom = parseString(rss_data)
-    first = dom.getElementsByTagName('item')[0]
-    guid = first.getElementsByTagName('guid')[0]
-    mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
+    if mem_data['youtube_url'] != "":
+        youtube_id = mem_data['youtube_url'].rsplit("/",1)[1]
+        url = "http://gdata.youtube.com/feeds/base/users/"+youtube_id+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
+        rss_data = "".join(urllib2.urlopen(url).readlines())
+        dom = parseString(rss_data)
+        first = dom.getElementsByTagName('item')[0]
+        guid = first.getElementsByTagName('guid')[0]
+        mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
+        
+    birthdate = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d").date()
+    today = date.today()
+    try: # raised when birth date is February 29 and the current year is not a leap year
+        birthday = birthdate.replace(year=today.year)
+    except ValueError:
+        birthday = birthdate.replace(year=today.year, day=born.day-1)
+    if birthday > today:
+        age = today.year - birthdate.year - 1
+    else:
+        age = today.year - birthdate.year
+    mem_data['age'] = age
+    mem_data['birthday'] = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d")
+    
+    bio = popvox.models.MemberBio.objects.get(id=member.id)
+    mem_data['flickr_id'] = bio.flickr_id
+    mem_data['googleplus'] = bio.googleplus
+        
+
+    govtrack_data = popvox.govtrack.getMemberOfCongress(member.id)
+    committees = []
+    if 'committees' in govtrack_data:
+        for committee in govtrack_data['committees']:
+            name = popvox.govtrack.getCommittee(committee)['name']
+            committees.append(name)
+    mem_data['committees'] = committees
+    
     
     #membermatch runs all the comparison logic between the user's comments and the member's votes.
-    membermatch = popvox.match.membermatch(memberids, user)
+    #uncomment when we're ready to add membermatch to the member page.
+    '''membermatch = popvox.match.membermatch(memberids, user)
     billvotes = membermatch[0]
     stats = membermatch[1]
-    had_abstain = membermatch[2]
+    had_abstain = membermatch[2]'''
     
     # Get sponsored and cosponsored bills
-    sponsored_bills = popvox.models.Bill.objects.filter(sponsor=member.id)
-    cosponsored_bills = popvox.models.Bill.objects.filter(cosponsors=member.id)
+    sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id)
+    cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id)
+    
+    #function to get pro and con positions for bills, to pass in for pie charts:
+    def GetSentiment(member, bills_list):
+        bills_sentiment = []
+        for bill in bills_list:
+            scope = None
+            total = 0
+            if "district" in member:
+                scope = "district"
+                total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
+                pro = bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()
+                con = bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()
+            if total < 6 :
+                scope = "state"
+                total = bill.usercomments.get_query_set().filter(state=member['state']).count()
+                pro = bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()
+                con = bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()
+            if total < 6 :
+                scope = "nation"
+                total = bill.usercomments.get_query_set().count()
+                pro = bill.usercomments.get_query_set().filter(position="+").count()
+                con = bill.usercomments.get_query_set().filter(position="-").count()
+                
 
-    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'billvotes': billvotes, 'member': member, 'stats': stats, 'had_abstain': had_abstain, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
+            foo = (bill, scope, pro, con)
+            bills_sentiment.append(foo)
+        return bills_sentiment
+    
+
+    sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)
+    cosponsored_bills = GetSentiment(govtrack_data, cosponsored_bills_list)
+
+
+    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
         context_instance=RequestContext(request))
+    
+    #This return has the membermatch variables; uncomment when we're ready for them
+    '''return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'billvotes': billvotes, 'member': member, 'stats': stats, 'had_abstain': had_abstain, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
+    context_instance=RequestContext(request))'''
 
 
 @login_required
