@@ -1115,7 +1115,6 @@ def member_page(request, membername=None):
                 total = bill.usercomments.get_query_set().count()
                 pro = bill.usercomments.get_query_set().filter(position="+").count()
                 con = bill.usercomments.get_query_set().filter(position="-").count()
-                
 
             foo = (bill, scope, pro, con)
             bills_sentiment.append(foo)
@@ -1151,7 +1150,16 @@ def delete_account(request):
     context_instance=RequestContext(request))
 
 def district_info(request, searchstate=None, searchdistrict=None):
-    trending_bills = get_popular_bills2(searchstate.upper(), searchdistrict) 
+    trending = get_popular_bills2(searchstate.upper(), searchdistrict) 
+    
+    trending_bills = []
+    for bill in trending:
+        pro = bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()
+        con = bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()
+        
+        foo = (bill, pro, con)
+        trending_bills.append(foo)
+    
     if int(searchdistrict) == 0:
         sd = searchstate.upper()+str(searchdistrict)
     else:
