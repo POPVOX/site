@@ -257,6 +257,8 @@
 				}
 
 </style>
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
 {% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
@@ -286,9 +288,12 @@ Birth Date: {{ memdata.birthday|date:"m/d/Y" }}<br/>
 
 <div>
 <h3>Sponsored bills:</h3>
-{% for bill in sponsored %}
+{% for bill,scope,pro,con in sponsored %}
     {% if forloop.first %}<ul>{% endif %}
-<li> {{bill.nicename}}</li>
+		<li> {{bill.nicename}}
+		<div id="member_bar_{{forloop.counter}}">
+			<script>bill_bar_chart("member_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}</li>
+		</li>
     {% if forloop.last %}</ul>{% endif %}
 {% empty %}
 <p>This member has not sponsored any bills</p>

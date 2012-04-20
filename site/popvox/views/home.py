@@ -1103,18 +1103,24 @@ def member_page(request, membername=None):
             if "district" in member:
                 scope = "district"
                 total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
-                pro = bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()
-                con = bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()
+                if total != 0:
+                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
             if total < 6 :
                 scope = "state"
                 total = bill.usercomments.get_query_set().filter(state=member['state']).count()
-                pro = bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()
-                con = bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()
+                if total != 0:
+                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
             if total < 6 :
                 scope = "nation"
                 total = bill.usercomments.get_query_set().count()
-                pro = bill.usercomments.get_query_set().filter(position="+").count()
-                con = bill.usercomments.get_query_set().filter(position="-").count()
+                if total == 0:
+                    pro = 0
+                    con = 0
+                else:
+                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total
 
             foo = (bill, scope, pro, con)
             bills_sentiment.append(foo)
@@ -1154,8 +1160,9 @@ def district_info(request, searchstate=None, searchdistrict=None):
     
     trending_bills = []
     for bill in trending:
-        pro = bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()
-        con = bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()
+        total = bill['bill'].usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
+        pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
         
         foo = (bill, pro, con)
         trending_bills.append(foo)
@@ -1174,11 +1181,20 @@ def district_info(request, searchstate=None, searchdistrict=None):
     filters = {}
     filters["state"] = searchstate
     filters["congressionaldistrict"] = searchdistrict
-    popular_bills = Bill.objects.filter(congressnumber = popvox.govtrack.CURRENT_CONGRESS)\
+    popular = Bill.objects.filter(congressnumber = popvox.govtrack.CURRENT_CONGRESS)\
         .filter(**dict( ("usercomments__"+k,v) for k,v in filters.items() ))\
         .annotate(count=Count('usercomments'))\
         .order_by('-count')\
         [0:10]
+
+    popular_bills = []
+    for bill in popular:
+        total = bill.usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
+        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        
+        foo = (bill, pro, con)
+        popular_bills.append(foo)
         
     return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata},
     context_instance=RequestContext(request))
