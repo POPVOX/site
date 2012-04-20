@@ -37,35 +37,35 @@
 	</div><!--end member -->
 	
 	<div class="member-legislation">
-		<script type="text/javascript" src="/media/js/highcharts.js"></script>
-		<script type="text/javascript" src="/media/js/charts.js"></script>
-	<h2>Legislation</h2>
-	<div class="sponsored">
-		<h3>Sponsored</h3>
-		{% for bill,scope,pro,con in sponsored %}
-		    {% if forloop.first %}<ul>{% endif %}
-		             <li> {{bill.nicename}}
-		            <div id="sponsored_bar_{{forloop.counter}}">
-		                   <script>bill_bar_chart("sponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
-		               </li>
-		     {% if forloop.last %}</ul>{% endif %}
-		 {% empty %}
-		 <p>This member has not sponsored any bills</p>
-		 {% endfor %}
-		 </div><!--end sponsored -->
-	<div class="co-sponsored">
-	<h3>Co-Sponsored</h3>
-	{% for bill in cosponsored %}
-	     {% if forloop.first %}<ul>{% endif %}
-	 <li> {{bill.nicename}}
-		 <div id="cosponsored_bar_{{forloop.counter}}">
-                <script>bill_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
-            </li></li>
-	     {% if forloop.last %}</ul>{% endif %}
-	 {% empty %}
-	 <p>This member has not co-sponsored any bills</p>
-	 {% endfor %}
-	 </div><!--end co-sponsored -->
+	               <script type="text/javascript" src="/media/js/highcharts.js"></script>
+	               <script type="text/javascript" src="/media/js/charts.js"></script>
+	       <h2>Legislation</h2>
+	       <div class="sponsored">
+	               <h3>Sponsored</h3>
+	               {% for bill,scope,pro,con in sponsored %}
+	                   {% if forloop.first %}<ul>{% endif %}
+	                            <li> {{bill.nicename}}
+	                           <div id="sponsored_bar_{{forloop.counter}}">
+	                                  <script>bill_bar_chart("sponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+	                              </li>
+	                    {% if forloop.last %}</ul>{% endif %}
+	                {% empty %}
+	                <p>This member has not sponsored any bills</p>
+	                {% endfor %}
+	                </div><!--end sponsored -->
+	       <div class="co-sponsored">
+	       <h3>Co-Sponsored</h3>
+	       {% for bill in cosponsored %}
+	            {% if forloop.first %}<ul>{% endif %}
+	        <li> {{bill.nicename}}
+	                <div id="cosponsored_bar_{{forloop.counter}}">
+	                 <script>bill_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+	             </li></li>
+	            {% if forloop.last %}</ul>{% endif %}
+	        {% empty %}
+	        <p>This member has not co-sponsored any bills</p>
+	        {% endfor %}
+	        </div><!--end co-sponsored -->
 	</div><!--end member-legislation -->
 
     <div class="member-info">
