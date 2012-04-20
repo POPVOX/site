@@ -56,7 +56,7 @@
 	<h2>Hot Legislation</h2>
 	<div class="legislation-trending">
 	<h3>Trending</h3>
-	<p class="subhead">Bills with the most activity in {{ state }}'s District {{ district }}</p>
+	<p class="subhead">Bills with recent activity in {{ state }}'s District {{ district }}</p>
 	<ul>
 	{% for billrec,pro,con in trending_bills %}
 			<li class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}">
@@ -66,7 +66,7 @@
 		{% with billrec.bill as bill %}
 
 		<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
-		{% if pro and con %}
+		{% if pro or con %}
 		        <div id="trending_bar_{{forloop.counter}}"><script>bill_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
 				{% else %}
 				<p>Too few constituents in this district have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
@@ -91,11 +91,12 @@
 </div><!---end trending legislation -->
 <div class="legislation-pop">
     <h3>Popular</h3>
+	<p class="subhead">Bills with the most activity in {{ state }}'s District {{ district }}</p>
     {% for bill,pro,con in popular_bills %}
 <ol>
         <li class="bill">
         <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
-		{% if pro and con %}
+		{% if pro or con %}
 		        <div id="popular_bar_{{forloop.counter}}"><script>bill_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
 				{% else %}
 				<p>Too few constituents in this district have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>

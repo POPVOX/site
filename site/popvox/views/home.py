@@ -1131,12 +1131,6 @@ def member_page(request, membername=None):
     cosponsored_bills = GetSentiment(govtrack_data, cosponsored_bills_list)
     sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)
     cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)
-    for bill in cosponsored_bills:
-        print bill[0]
-        print bill[1]
-        print bill[2]
-        print bill[3]
-        print bill[4]
 
 
     return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
@@ -1176,8 +1170,9 @@ def district_info(request, searchstate=None, searchdistrict=None):
             pro = None
             con = None
         
-        foo = (bill, pro, con)
+        foo = (bill, pro, con,total)
         trending_bills.append(foo)
+        trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
     
     if int(searchdistrict) == 0:
         sd = searchstate.upper()+str(searchdistrict)
@@ -1202,11 +1197,16 @@ def district_info(request, searchstate=None, searchdistrict=None):
     popular_bills = []
     for bill in popular:
         total = bill.usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
-        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
-        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        if total >6:
+            pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+            con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        else:
+            pro = None
+            con = None
         
-        foo = (bill, pro, con)
+        foo = (bill, pro, con,total)
         popular_bills.append(foo)
+    popular_bills = sorted(popular_bills, key=lambda bills: bills[3], reverse=True)
         
     return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata},
     context_instance=RequestContext(request))
