@@ -22,7 +22,7 @@
 	<div class="clear"> </div>
 	<div class="member">
 		<div class="member-photo"><img src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
-		<p>{{member.name}}</p>
+		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">[{{memdata.party}}, {{memdata.state}}{%if memdata.title == "Rep"  %}-{{memdata.district}}{% endif %}]</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
 		<dl>
@@ -47,8 +47,8 @@
 	                            <li class="bill">
 								<h5><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h5>
 								{% if pro or con %}
-	                           <div id="sponsored_bar_{{forloop.counter}}">
-	                                  <script>bill_bar_chart("sponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+	                           <div id="sponsoredbill_bar_{{forloop.counter}}">
+	                                  <script>bill_bar_chart("sponsoredbill_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
 								{% else %}
 								<p>Too few constituents have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 								{% endif %}
