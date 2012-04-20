@@ -1,83 +1,100 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Delete Account{% endblock %}
+{% block title %}POPVOX - District Info{% endblock %}
 {% block title2 %}{% endblock %}
-{% block description %}Permanently delete a POPVOX user account.{% endblock %}
+{% block description %}Information about individual congressional districts{% endblock %}
 {% block content %}
 
-<div class="content">
+<div class="content district-info">
 
 <div class="col_9 col_top col_last">
 <h1 class="rule_btm">District Info / {{state}}-{{district}}</h1>
-
-	<h2>{{state}}-{{district}} Facts &amp; Figures</h2>
+<div class="stats">
+	<h2>Facts &amp; Figures</h2>
 	{% for member in members %}
-		<div>
-			<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
-			{{member.name}}
+		<div class="rep media">
+			<div class="img">
+				<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
+			</div>
+			<div class="bd">
+			<p>{{member.name}}</p>
+			</div>
 		</div>
 	{% empty %}
-		<h2>No members :( </h2>
+		<h3>No members :( </h2>
 	{% endfor %}
-
+	
+	<div class="census">
     {% if census_data %}
-        Population: {{census_data.population}}
-        Male: {{census_data.male}}%
-        Female: {{census_data.female}}%
-        Median Age: {{census_data.age}} years
-        Hispanic or Latino: {{census_data.latino}}%
-        White: {{census_data.white}}%
-        Black: {{census_data.black}}%
-        American Indian: {{census_data.ai}}%
-        Asian: {{census_data.asian}}%
-        Hawaiian/Pacific Islander: {{census_data.hpi}}%
-        Other Races: {{census_data.other}}%
-        Biracial: {{census_data.biracial}}%
-        Highschool graduate: {{census_data.hs}}%
-        Bachelor's degree: {{census_data.bachelor}}%
-        Veteran: {{census_data.veteran}}%
-        Median household income: ${{census_data.income}}
-        Urban: {{census_data.urban}}%
-        Rural: {{census_data.rural}}%
+        <div><p>Population: {{census_data.population}}</p></div>
+        <div><p>Male: {{census_data.male}}%</p>
+        <p>Female: {{census_data.female}}%</p></div>
+        <div><p>Median Age: {{census_data.age}} years</p></div>
+        <div><p>Hispanic or Latino: {{census_data.latino}}%</p>
+        <p>White: {{census_data.white}}%</p>
+        <p>Black: {{census_data.black}}%</p>
+        <p>American Indian: {{census_data.ai}}%</p>
+        <p>Asian: {{census_data.asian}}%</p>
+        <p>Hawaiian/Pacific Islander: {{census_data.hpi}}%</p>
+        <p>Other Races: {{census_data.other}}%</p>
+        <p>Biracial: {{census_data.biracial}}%</p></div>
+        <div><p>Highschool graduate: {{census_data.hs}}%</p>
+        <p>Bachelor's degree: {{census_data.bachelor}}%</p></div>
+        <div><p>Veteran: {{census_data.veteran}}%</p></div>
+        <div><p>Median household income: ${{census_data.income}}</p></div>
+        <div><p>Urban: {{census_data.urban}}%</p>
+        <p>Rural: {{census_data.rural}}%</p></div>
     {% else %}
-        No district statistics available.
+        <h3>No district statistics available. :(</p>
     {% endif %}
+	</div><!-- end census info -->
+	</div><!--end stats -->
 
-	<h2>{{state}}-{{district}} Trending Legislation</h2>
+<div class="legislation-tabs">
+	<h2>Hot Legislation</h2>
+	<div class="legislation-trending">
+	<h3>Trending</h3>
+	<p class="subhead">Bills with the most activity in {{ state }}'s District {{ district }}</p>
+	<ul>
 	{% for billrec in trending_bills %}
-		<div class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}" {% if forloop.first %}style="background: url(/media/master/bg_bills.png) no-repeat scroll left -1px transparent;"{% endif %}>
-		{% comment %}{% ifchanged %}<p style="margin-top: -40px; text-align: right"><em>in the last {{billrec.bill.trending_time_period}}</em></p>{% endifchanged %}{% endcomment %}
+			<li class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}">
+				<p class="number">{{ forloop.counter }}</p>
+		{% comment %}{% ifchanged %}<p class="commented?">in the last {{billrec.bill.trending_time_period}}</p>{% endifchanged %}{% endcomment %}
 
 		{% with billrec.bill as bill %}
 
-			{% if billrec.pos == "" %}
-				<a class="action" href="{{bill.url}}" style="float: right; margin-left: 15px">Action</a>
-			{% endif %}
-
-			<h5 {% if not bill.sponsor %}style="margin-bottom: 25px"{% endif %}><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
+		<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
 
 		{% if billrec.bill.new_positions < 50 %}
-			<p style="margin-top: -10px;"><strong>trending in the last {{billrec.bill.trending_time_period}}!</strong></p>
+			<p class="trend">This {{ bill.type }} has been trending for the last {{billrec.bill.trending_time_period}}!</p>
 		{% else %}
-			<p style="margin-top: -10px;"><strong>{{billrec.bill.new_positions}}</strong> people wrote Congress about this {{billrec.bill.proposition_type}} in the last {{billrec.bill.trending_time_period}}!</p>
+			<p class="trend">{{billrec.bill.new_positions}} users</p>
+		{% endif %}
+		
+		{% if billrec.pos == "" %}
+			<a class="action" href="{{bill.url}}">add comment</a>
 		{% endif %}
 
         {% endwith %}
-        </div>
+        </li>
 {% empty %}
-Nothing trending
+<h3>Nothing trending :(</h3>
 {% endfor %}
-
-
-    <h2>{{state}}-{{district}} Most Popular Legislation</h2>
+</ul>
+</div><!---end trending legislation -->
+<div class="legislation-pop">
+    <h3>Popular</h3>
     {% for bill in popular_bills %}
-        <div class="bill">
-
-        {{forloop.counter}}: <a href="{{bill.url}}">{{bill.billtype}}{{bill.billnumber}} - {{bill.title}}<br> 
-        {% if bill.streetname %}(&quot;{{bill.streetname}}&quot;)<br>{% endif %}</a>
-        </div>
+<ol>
+        <li class="bill">
+        <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
+        {% if bill.streetname %}<p>(&quot;{{bill.streetname}}&quot;)</p>{% endif %}
+        </li>
+</ol>
 {% empty %}
-Nothing trending
+<h4>Nothing trending :(</h4>
 {% endfor %}
-</div>
+</div><!--end popular legislation -->
+</div><!-- end legislation tabs -->
+</div><!-- end col_9 col_top col_last -->
 
 {% endblock %}

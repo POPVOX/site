@@ -1,0 +1,74 @@
+/* media object from http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/ */
+
+.media, .bd {overflow:hidden; _overflow:visible; zoom:1;}
+.media .img {float:left; margin-right: 10px;}
+.media .img img{display:block;}
+
+/* Layout */
+.stats,
+.legislation-tabs {
+	float: left;
+	padding-right: 20px;
+}
+
+.stats {
+	width: 220px;
+}
+
+.legislation-tabs {
+	width: 435px;
+}
+
+/*Typography */
+
+.district-info h2 {
+	color: #75747c;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font-size: 30px;
+}
+
+/* Stats column */
+
+.stats .rep { 
+	margin-bottom: 10px;
+	}
+	
+.stats .rep p {
+	color: #CC6A11;
+	font-weight: bold;
+}
+.stats .census p {
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+}
+
+/* Legislation column */
+
+.legislation-tabs h3 {
+	background: none;
+	color: #75747c;
+	font: 14px helvetica, arial, sans-serif;
+}
+
+.legislation-trending .subhead {
+	background: url(../master/icon_bill.png) no-repeat 0 0;
+	font-size: 16px;
+	padding-left: 40px;
+}
+
+.legislation-tabs li {
+	background: #fff url(../master/b_bill.png) no-repeat 10px 90%;
+	margin-bottom: 10px;
+	padding: 10px;
+}
+
+.legislation-tabs li .number { 
+	float: right;
+	color: #75747c;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font-size: 30px;
+	margin: 5px;
+	}
+
+.legislation-tabs li h5 a {
+	font-weight: bold;
+}
