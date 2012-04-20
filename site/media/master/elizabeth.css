@@ -6,17 +6,27 @@
 
 /* Layout */
 .stats,
-.legislation-tabs {
+.legislation-tabs,
+.member,
+.member-legislation,
+.member-info {
 	float: left;
 	padding-right: 20px;
 }
 
-.stats {
+.stats,
+.member {
 	width: 220px;
 }
 
-.legislation-tabs {
+.legislation-tabs,
+.member-legislation {
 	width: 435px;
+}
+
+.member-info {
+	padding-right: 0;
+	width: 220px;
 }
 
 /*Typography */
@@ -71,4 +81,19 @@
 
 .legislation-tabs li h5 a {
 	font-weight: bold;
+}
+
+/* Member page */
+.myhill h3 {
+	background: none;
+	color: #75747c;
+	font: 14px helvetica, arial, sans-serif;
+}
+.member .member-photo {
+	background: #CC6A11;
+	width: 220px;
+	height: 220px;
+}
+.member .member-photo img {
+	margin: 0 auto;
 }

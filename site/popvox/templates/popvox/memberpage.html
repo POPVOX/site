@@ -1,314 +1,85 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Congress Match{% endblock %}
+{% block title %}POPVOX - Member of Congress{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
-<style>
 
-/*.myhill {
-	background: url(http://sodiumhalogen.com/up/te mp_hill_4c3b.jpg) -130px -104px no-repeat;
-	display: block;
-	height: 900px;
-	}
-	*/
-	.myhill h1 {
-		margin-bottom: 0px;
-		height: 30px;
-		}
-
-.myhill h3 {
-	margin-top: 0;
-	padding-top: 20px;
-	font: bold 14px helvetica, san-serif; 
-	background: none;
-	}
-	
-	.user {
-		margin: 6px 0 0 240px;
-		width: 175px;
-		height: 90px;
-		background: #fff;
-		float: left;
-		}
-		
-		.user p {
-			color: #CC6A11;
-			text-transform: uppercase;
-			text-align: center;
-			font: bold 18px helvetica, san-serif;
-			padding: 35px 0 0;
-			}
-
-	.rep {
-		margin-top: 6px;
-		padding: 5px;
-		width: 165px;
-		height: 80px;
-		float: left;
-		}
-		
-		.rep img {
-			float: left;
-			}
-
-	.rep h3 {
-		color: #CC6A11;
-		margin-left: 10px;
-		padding: 0;
-		width: 75px;
-		text-transform: none;
-		font-size: 13px;
-		float: left;
-		}
-		
-		.rep h3 span {
-			display: block;
-			margin: 10px 0;
-			text-transform: uppercase;
-			}
-			
-	p.small {
-		margin-top: 20px;
-		font-size: 12px;
-		line-height: 130%;
-		color: #555;
-		}
-
-	#overview {
-		height: 107px;
-		background: url(/media/features/myhill/bg_overview.png) left center no-repeat;
-		}
-		
-	#overview h3 {
-		color: #fff;
-		text-transform: none;
-		font: normal 15px/20px helvetica, san-serif;
-		width: 225px;
-		margin: 0 20px 0 20px;
-		padding: 20px 0 0;
-		float: left;
-		}
-		
-		#overview h3 span {
-			font: bold 15px helvetica;
-			margin-left: 0;
-			}
-		
-		#overview ul {
-			width: 175px;
-			margin-top: 20px;
-			float: left;
-			}
-			
-			#overview ul.last {
-				width: 100px;
-				}
-			
-		#overview ul.rep_key {
-			float: left;
-			width: 220px;
-			}
-			
-			#overview ul li {
-				padding-left: 22px;
-				line-height: 18px;
-				color: #fff;
-				}
-				
-				#overview ul li.voted {
-					background: url(/media/features/myhill/hill_icon_bill_sm.png) left center no-repeat;
-					}
-
-				#overview ul li.agreed {
-					background: url(/media/features/myhill/hill_icon_smile_sm.png) left center no-repeat;
-					}
-
-				#overview ul li.disagreed {
-					background: url(/media/features/myhill/hill_icon_frown_sm.png) left center no-repeat;
-					}
-
-				#overview ul li.absent {
-					background: url(/media/features/myhill/hill_icon_boo_sm.png) left center no-repeat;
-					}
-
-				#overview ul li.abstained {
-					background: url(/media/features/myhill/hill_icon_shush_sm.png) left center no-repeat;
-					}
-
-		.myhill table {
-			border-collapse: collapse;
-			margin: 0;
-			padding: 0;
-			}
-			
-			.myhill table td {
-				border: 1px solid #d4d1ca;
-				border-width: 0 1px 1px 0;
-				width: 175px;
-				height: 50px;
-				vertical-align: top;
-				}
-				
-			.myhill table td.name {
-				width: 240px;
-				border-width: 0 1px 1px 0;
-				padding-right: 10px;
-				}
-				
-				.myhill table td.name h3 {
-					margin: 8px 0 5px;
-					text-transform: none;
-					}
-
-			.myhill table td.user_col {
-				background: #fff;
-				}	
-				
-				.myhill table td.user_col p {
-					font: bold 12px/15px helvetica, san-serif;
-					padding-left: 55px;
-					position: relative;
-					}
-					
-					.myhill table td.user_col p.comment {
-						text-transform: uppercase;
-						margin-top: 0px;
-						padding-top: 40px;
-						}
-						
-					.myhill table td.user_col p span {
-						background: url(/media/features/myhill/hill_quote.png) left 1px no-repeat;
-						display: block;
-						width: 13px;
-						height: 10px;
-						float: left;
-						}
-
-				
-			.myhill table td.agree {
-				background: #fff /*url(/media/features/myhill/hill_icon_smile_orange.png) 150px 10px no-repeat*/;
-				}	
-
-			.myhill table td p {
-				padding: 25px 10px 0 60px;
-				min-height: 35px;
-				font-size: 14px;
-				}
-				
-			.myhill table td p.heart {
-				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
-				}
-				
-			.myhill table td p.anti {
-				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
-				}
-				
-			.myhill table td p.yea {
-				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
-				padding-top: 40px;
-				}
-
-			.myhill table td p.nay {
-				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
-				padding-top: 40px;
-				}
-				
-			.myhill table td p.absent {
-				background: url(/media/features/myhill/hill_icon_absent.png) 14px 32px no-repeat;
-				padding-top: 40px;
-				}
-				
-			.myhill table td p.abstained {
-				background: url(/media/features/myhill/hill_icon_abstain.png) 14px 32px no-repeat;
-				padding-top: 40px;
-				}
-				
-				
-				.myhill table td.name p {
-					background: url(/media/features/myhill/hill_icon_bill.png) 3px top no-repeat;
-					padding: 5px 0 0 40px;
-					margin: 0;
-					height: 0;
-					font: italic normal 12px georgia;
-					}
-						
-						.myhill table td.name p strong{
-							font: bold normal 12px helvetica;
-							}
-							
-			.myhill table td.novote {
-				text-align: center;
-				vertical-align: middle;
-				padding: 1em;
-				background-color: #dfdcd6;
-				}
-				.myhill table td.novote p {
-					padding: 0;
-					margin: 0;
-					min-height: 0;
-					font-style: italic;
-					font-size: 13px;
-				}
-
-			.myhill table h3 {
-				padding: 5px 0 0;
-				margin: 0;
-				}
-
-</style>
-<script type="text/javascript" src="/media/js/highcharts.js"></script>
-<script type="text/javascript" src="/media/js/charts.js"></script>
 {% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 
 <div class="content myhill">
 
-	<div class="col_9 col_top col_last ">
+	<div class="col_12 col_top col_last ">
 		<h1 class="rule_btm">Member of Congress / {{member.name}}</h1>
 		
 		<!--<h3>How Did Your Members of Congress Vote?</h3>
 		<p>Are your senators and representative voting the way you want them to? Here is a personalized grid that displays every bill on which you weighed in, along with how your legislators voted if a vote was held on the bill. That includes letting you know if your Member of Congress abstained or was absent.  </p> -->
 	</div>
 	<div class="clear"> </div>
-    <div>
-	{% if memdata.facebook_id %}Facebook: <a href="http://facebook.com/{{memdata.facebook_id}}">link</a><br/>{% endif %}
-	{% if memdata.youtube_url %} YouTube: <a href="{{memdata.youtube_url}}">link</a><br/> {% endif %}
-	{% if memdata.twitter_id %}Twitter: <a href="http://twitter.com/{{memdata.twitter_id}}">link</a><br/>{% endif %}
-    {% if memdata.flickr_id %}Flickr: <a href="http://flickr.com/photos/{{memdata.flickr_id}}">link</a><br/>{% endif %}
-    {% if memdata.googleplus %}G Plus: <a href="{{memdata.googleplus}}">link</a><br/>{% endif %}
-	Congress office: {{memdata.congress_office}}<br/>
-{% if memdata.last_vid %}
-	<iframe width="420" height="315" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
-    Age: {{ memdata.age }}<br/>
-Birth Date: {{ memdata.birthday|date:"m/d/Y" }}<br/>
-    {% if memdata.committees %}Committees: <ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}
-    </div>
-
-<div>
-<h3>Sponsored bills:</h3>
-{% for bill,scope,pro,con in sponsored %}
-    {% if forloop.first %}<ul>{% endif %}
-		<li> {{bill.nicename}}
-		<div id="member_bar_{{forloop.counter}}">
-			<script>bill_bar_chart("member_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}</li>
-		</li>
-    {% if forloop.last %}</ul>{% endif %}
-{% empty %}
-<p>This member has not sponsored any bills</p>
-{% endfor %}
-</div>
-<div>
-<h3>Co-Sponsored bills:</h3>
-{% for bill in cosponsored %}
-    {% if forloop.first %}<ul>{% endif %}
-<li> {{bill.nicename}}</li>
-    {% if forloop.last %}</ul>{% endif %}
-{% empty %}
-<p>This member has not co-sponsored any bills</p>
-{% endfor %}
-</div>
+	<div class="member">
+		<div class="member-photo"><img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}"/></div>
+		<p>{{member.name}}</p>
+	<div class="member-stats">
+		<h3>Member Stats</h3>
+		<dl>
+			<dt>Congress office</dt>
+			<dd>{{memdata.congress_office}}</dd>
+			{% if memdata.committees %}<dt>Committees<: </dt>
+			<dd><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}</dd>
+			<dt>Age</dt>
+			<dd>{{ memdata.age }}</dd>
+			<dt>Birth Date</dt>
+			<dd>{{ memdata.birthday|date:"m/d/Y" }}</dd>
+		</dl>
+	</div><!--end member-stats -->
+	</div><!--end member -->
 	
-</div>
+	<div class="member-legislation">
+		<script type="text/javascript" src="/media/js/highcharts.js"></script>
+		<script type="text/javascript" src="/media/js/charts.js"></script>
+	<h2>Legislation</h2>
+	<div class="sponsored">
+		<h3>Sponsored</h3>
+		{% for bill,scope,pro,con in sponsored %}
+		    {% if forloop.first %}<ul>{% endif %}
+		             <li> {{bill.nicename}}
+		            <div id="sponsored_bar_{{forloop.counter}}">
+		                   <script>bill_bar_chart("sponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+		               </li>
+		     {% if forloop.last %}</ul>{% endif %}
+		 {% empty %}
+		 <p>This member has not sponsored any bills</p>
+		 {% endfor %}
+		 </div><!--end sponsored -->
+	<div class="co-sponsored">
+	<h3>Co-Sponsored</h3>
+	{% for bill in cosponsored %}
+	     {% if forloop.first %}<ul>{% endif %}
+	 <li> {{bill.nicename}}
+		 <div id="cosponsored_bar_{{forloop.counter}}">
+                <script>bill_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+            </li></li>
+	     {% if forloop.last %}</ul>{% endif %}
+	 {% empty %}
+	 <p>This member has not co-sponsored any bills</p>
+	 {% endfor %}
+	 </div><!--end co-sponsored -->
+	</div><!--end member-legislation -->
+
+    <div class="member-info">
+	<h2>Info</h2>
+	<h3>Social</h3>
+	<ul>
+	{% if memdata.facebook_id %}<li><a href="http://facebook.com/{{memdata.facebook_id}}">Facebook</a></li>{% endif %}
+	{% if memdata.youtube_url %}<li><a href="{{memdata.youtube_url}}">YouTube</a></li>{% endif %}
+	{% if memdata.twitter_id %}<li><a href="http://twitter.com/{{memdata.twitter_id}}">Twitter</a></li>{% endif %}
+    {% if memdata.flickr_id %}<li><a href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}
+    {% if memdata.googleplus %}<li><a href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
+</ul>
+{% if memdata.last_vid %}
+	<iframe width="240" height="312" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
+    </div><!--end member-info -->
+
 {% endblock %}
