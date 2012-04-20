@@ -40,8 +40,13 @@
 	
 	<div class="member-legislation">
 	       <h2>Legislation</h2>
+			   <div class="legislation-tabs">
+				   <h3 class="active"><a href="#sponsoredbills">Sponsored</a></h3>
+				   <h3 class="inactive"><a href="#cosponsoredbills">Co-Sponsored</a></h3>
+				</div>
+				   <div style="clear:both"></div>
+			<a name="sponsoredbills"></a>
 	       <div class="sponsoredbills">
-	               <h3>Sponsored</h3>
 	               {% for bill,scope,pro,con in sponsored %}
 	                   {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">
@@ -58,8 +63,9 @@
 	                <p>This member has not sponsored any bills</p>
 	                {% endfor %}
 	                </div><!--end sponsored -->
+			<a name="cosponsoredbills"></a>
 	       <div class="co-sponsored">
-	       <h3>Co-Sponsored</h3>
+				   <h3>Co-Sponsored Bills</h3>
 	       {% for bill,scope,pro,con in cosponsored %}
 	            {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">
