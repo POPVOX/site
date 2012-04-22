@@ -1015,6 +1015,10 @@ def congress_match(request):
     for id in memberids:
         members.append(popvox.govtrack.getMemberOfCongress(id))
 
+    for member in members:
+        url = [k for k, v in memurls.items() if member['id'] == v][0]
+        member['pvurl'] = url
+
     return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
         context_instance=RequestContext(request))
 
@@ -1038,7 +1042,6 @@ def member_page(request, membername=None):
     if member is None:
         raise Http404()
     
-    print member
     memberids = [member.id] #membermatch needs a list
     
     #Social media links and bio info from the sunlight API (and our own db, where necessary)
@@ -1184,6 +1187,11 @@ def district_info(request, searchstate=None, searchdistrict=None):
         sd = searchstate.upper()+str(searchdistrict).lstrip('0')
 
     members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
+
+    for member in members:
+        url = [k for k, v in memurls.items() if member['id'] == v][0]
+        member['pvurl'] = url
+
     try:
         censusdata = popvox.models.CensusData.objects.get(id=sd)
     except:
