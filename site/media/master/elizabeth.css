@@ -6,7 +6,7 @@
 
 /* Layout */
 .stats,
-.legislation-tabs,
+.district-legislation,
 .member,
 .member-legislation,
 .member-info {
@@ -24,7 +24,7 @@
 	width: 220px;
 }
 
-.legislation-tabs,
+.district-legislation,
 .member-legislation {
 	width: 360px;
 }
@@ -72,6 +72,13 @@
 	font-size: 30px;
 }
 
+.subhead {
+	background: url(../master/m-bill.png) no-repeat 0 0;
+	font-size: 16px;
+	padding-left: 40px;
+	line-height: 40px;
+}
+
 /* Stats column */
 
 .stats .rep { 
@@ -82,20 +89,105 @@
 	color: #CC6A11;
 	font-weight: bold;
 }
-.stats .census p {
-	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+.stats .census {
+	background: #d4d1ca;
+	margin-top: 20px;
 }
+.stats .census > div {
+	border-bottom: 1px solid #e8e5df;
+	padding: 10px;
+}
+.stats .census dl {
+	margin: 0;
+}
+.stats .census dt {
+	color: #40405;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font-size: 24px;
+}
+.stats .census dd,
+.stats .census dd p {
+	color: #cc6a11;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	margin-left: 0;
+	padding-top: 20px;
+	padding-left: 70px;
+	background-repeat: no-repeat;
+	background-position: 0% 50%;
+}
+.stats .census dd .digits {
+	font-size: 36px;
+}
+.stats .census dd .units {
+	font-size: 18px;
+}
+.stats .census .pop dd {
+	background-image: url(../master/silhouette.png);
+}
+.stats .census .age dd {
+	background-image: url(../master/hourglass.png);
+}
+.stats .census .income dd {
+	background-image: url(../master/dollars.png);
+}
+.stats .census .edu dd {
+	background-image: url(../master/cap.png);
+}
+.stats .census .edu dd p {
+	padding-left: 0;
+}
+.stats .census .mil dd {
+	background-image: url(../master/medal.png);
+}
+.stats .census .residence .urban {
+	background: url(../master/skyscrapers.png);
+	padding-top: 30px;
+	padding-left: 0;
+}
+.stats .census .residence .rural {
+	background: url(../master/farm.png);
+	padding-top: 30px;
+	padding-left: 0;
+}
+.stats .census .sex {
+	clear: both;
+}
+.stats .census .sex dd {
+	padding-left: 0;
+}
+.stats .census .sex .male {
+	float: left;
+}
+.stats .census .sex .female {
+	float: right;
+}
+.stats .census .bar-fake-graph {
+	background: #75757d;
+	height: 30px;
+	width: 200px;
+	position: relative;
+	margin-bottom: 10px;
+}
+.stats .census .sex .bar-fake-graph .y-chromosome,
+.stats .census .sex .bar-fake-graph .urban {
+	background: #404045;
+	height: 30px;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
 
 /* Legislation column */
 
-div.legislation-tabs {
-	border-radius:5px;
-	border:3px solid #D4D1CA;
-	width:99%;
-	margin:0 auto;
-	padding:0;
-	margin-bottom:20px;
+.legislation-tabs {
+	border: 3px solid #d4d1ca;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	margin-bottom: 10px;
 }
+
 .legislation-tabs h4{
 	font: 14px helvetica, arial, sans-serif;
 	font-weight:bold;
@@ -132,19 +224,16 @@ div.legislation-tabs {
 
  .legislation-tabs a:hover { border: none; }
 
-.legislation-trending .subhead {
-	background: url(../master/icon_bill.png) no-repeat 0 0;
-	font-size: 16px;
-	padding-left: 40px;
-}
 
-.legislation-tabs li {
+.district-legislation li,
+.member-legislation li {
 	background: #fff url(../master/b_bill.png) no-repeat 10px 90%;
 	margin-bottom: 10px;
 	padding: 10px;
 }
 
-.legislation-tabs li .number { 
+.district-legislation li .number,
+.member-legislation li .number { 
 	float: right;
 	color: #75747c;
 	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
@@ -152,7 +241,8 @@ div.legislation-tabs {
 	margin: 5px;
 	}
 
-.legislation-tabs li h5 a {
+.district-legislation li h5 a,
+.member-legislation li h5 a {
 	font-weight: bold;
 }
 
@@ -174,30 +264,6 @@ div.legislation-tabs {
 	background: none;
 	color: #75747c;
 	font: 14px helvetica, arial, sans-serif;
-}
-
-.member-legislation .subhead {
-	background: url(../master/icon_bill.png) no-repeat 0 0;
-	font-size: 16px;
-	padding-left: 40px;
-}
-
-.member-legislation li {
-	background: #fff url(../master/b_bill.png) no-repeat 10px 90%;
-	margin-bottom: 2px;
-	padding: 10px;
-}
-
-.member-legislation li .number { 
-	float: right;
-	color: #75747c;
-	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
-	font-size: 30px;
-	margin: 5px;
-	}
-
-.member-legislation li h5 a {
-	font-weight: bold;
 }
 
 /* Member page */
