@@ -102,7 +102,7 @@ $(function () {
 				groupPadding:0,
 				pointPadding:0,
                 dataLabels:{
-                    enabled:true,
+                    enabled:true,
                     color:"#FFFFFF",
                     style: {
                         fontWeight:'bold',
@@ -150,6 +150,11 @@ else if (pro_pct < 15) {
 	var text_element = oppose_label.firstChild;
 	var tspan = text_element.firstChild;
 	text_element.removeChild(tspan);
+	var support_label = data_labels[1];
+	var text_element = support_label.firstChild;
+	var tspan = text_element.firstChild;
+	text_element.setAttribute("text-anchor","end");
+	tspan.setAttribute("x","335");
 } else if (pro_pct > 85) {
 	var chart_container = document.getElementById(container);
 	var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
