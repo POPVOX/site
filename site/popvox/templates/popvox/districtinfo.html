@@ -19,7 +19,7 @@
 				<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
 			</div>
 			<div class="bd">
-			<p>{{member.name}}</p>
+				<p><a href="/member/{{member.pvurl}}">{{member.name}}</a></p>
 			</div>
 		</div>
 	{% empty %}
@@ -35,7 +35,7 @@
 			</dl>
 		</div>
         <div class="residence section">
-			     <div id="urban_rural_graph" class="bar_graph"><script>two_part_bar_chart("urban_rural_graph", {{census_data.urban|floatformat}}, {{census_data.rural|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Urban", right_label: "Rural", colors: ["#7575d","#414046"] });</script></div>
+			     <div id="urban_rural_graph" class="bar_graph"><script>two_part_bar_chart("urban_rural_graph", {{census_data.urban|floatformat}}, {{census_data.rural|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Urban", right_label: "Rural", colors: ["#7575d","#414046"],labels:false });</script></div>
 			<div>
 			<dl class="urban">
 				<dt>Urban</dt>
@@ -49,7 +49,7 @@
 			<div style="clear:both;"></div>
 		</div>
 		<div class="sex">
-			     <div id="male_female_graph" class="bar_graph"><script>two_part_bar_chart("male_female_graph", {{census_data.male|floatformat}}, {{census_data.female|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Male", right_label: "Female", colors: ["#7575d","#414046"] });</script></div>
+			     <div id="male_female_graph" class="bar_graph"><script>two_part_bar_chart("male_female_graph", {{census_data.male|floatformat}}, {{census_data.female|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Male", right_label: "Female", colors: ["#7575d","#414046"], labels:false });</script></div>
 		<div>
 		<dl class="male">
 			<dt>Male</dt>
