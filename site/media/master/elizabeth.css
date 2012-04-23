@@ -24,9 +24,16 @@
 	width: 220px;
 }
 
-.district-legislation,
 .member-legislation {
 	width: 360px;
+}
+
+.district-legislation {
+    width: 460px;
+}
+
+.district-info .col_ad {
+    margin-top: 0;
 }
 
 .member .member_name{
@@ -104,6 +111,7 @@
 	color: #40405;
 	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
 	font-size: 24px;
+    font-weight: normal;
 }
 .stats .census dd,
 .stats .census dd p {
