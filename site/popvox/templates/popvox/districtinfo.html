@@ -34,7 +34,23 @@
 				<dd><span class="digits">{{census_data.population}}</span></dd>
 			</dl>
 		</div>
-        <div class="sex"><div class="bar-fake-graph"><div class="y-chromosome" style="width: {{census_data.male}}%"></div></div>
+        <div class="residence section">
+			     <div id="urban_rural_graph" class="bar_graph"><script>two_part_bar_chart("urban_rural_graph", {{census_data.urban|floatformat}}, {{census_data.rural|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Urban", right_label: "Rural", colors: ["#7575d","#414046"] });</script></div>
+			<div>
+			<dl class="urban">
+				<dt>Urban</dt>
+				<dd><span class="digits">{{census_data.urban}}%</span></dd>
+			</dl>
+	        <dl class="rural">
+				<dt>Rural</dt>
+				<dd><span class="digits">{{census_data.rural}}%</span></dd>
+			</dl>
+		    </div>
+			<div style="clear:both;"></div>
+		</div>
+		<div class="sex">
+			     <div id="male_female_graph" class="bar_graph"><script>two_part_bar_chart("male_female_graph", {{census_data.male|floatformat}}, {{census_data.female|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Male", right_label: "Female", colors: ["#7575d","#414046"] });</script></div>
+		<div>
 		<dl class="male">
 			<dt>Male</dt>
 			<dd><span class="digits">{{census_data.male}}%</span></dd>
@@ -43,6 +59,8 @@
 			<dt>Female</dt>
 			<dd><span class="digits">{{census_data.female}}%</span></dd>
 		</dl>
+	</div>
+	<div style="clear:both;"></div>
 		</div>
         <div class="age">
 			<dl>
@@ -50,14 +68,16 @@
 				<dd><span class="digits">{{census_data.age}}</span> <span class="units">years old</span></dd>
 			<dl>
 		</div>
-        <div class="race"><p>Hispanic or Latino: {{census_data.latino}}%</p>
-        <p>White: {{census_data.white}}%</p>
-        <p>Black: {{census_data.black}}%</p>
-        <p>American Indian: {{census_data.ai}}%</p>
-        <p>Asian: {{census_data.asian}}%</p>
-        <p>Hawaiian/Pacific Islander: {{census_data.hpi}}%</p>
-        <p>Other Races: {{census_data.other}}%</p>
-        <p>Biracial: {{census_data.biracial}}%</p></div>
+		<div class="race">
+		<div>
+			<dl>
+				<dt>Ethnicity</dt>
+			<dd>
+			<div id="ethnicity_graph">
+				<script>race_chart("ethnicity_graph",{{census_data.white}}, {{census_data.black}}, {{census_data.latino}}, {{census_data.asian}}, {{census_data.ai}}, {{census_data.hpi}}, {{census_data.biracial}}, {{census_data.other}}, {});</script></div>
+		</dd>
+		</div>
+	</div>
         <div class="edu">
 			<dl>
 				<dt>Education</dt>
@@ -75,17 +95,6 @@
 				<dd><span class="digits">${{census_data.income}}</span></dd>
 			</dl>
 		</div>
-        <div class="residence section">
-			<dl class="urban">
-				<div class="bar-fake-graph"><div class="urban" style="width: {{census_data.urban}}%"></div></div>
-				<dt>Urban</dt>
-				<dd><span class="digits">{{census_data.urban}}%</span></dd>
-			</dl>
-	        <dl class="rural">
-				<dt>Rural</dt>
-				<dd><span class="digits">{{census_data.rural}}%</span></dd>
-			</dl>
-		</div>
     {% else %}
         <h3>No district statistics available. :(</p>
     {% endif %}
@@ -96,6 +105,7 @@
 	<div class="legislation-tabs">
 	   <h4 class="active"><a href="#">Trending</a></h4>
 	   <h4 class="inactive"><a href="#popular">Popular</a></h4>
+	   <div style="clear:both"></div>
 	</div>
 	<div style="clear:both"></div><!-- end legislation-tabs -->
 	<div class="legislation-trending">
@@ -110,7 +120,7 @@
 
 			<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
-			        <div id="trending_bar_{{forloop.counter}}"><script>bill_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
+			        <div id="trending_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 					{% else %}
 					<p>Too few constituents in this district have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 					{% endif %}
@@ -132,6 +142,11 @@
 	{% endfor %}
 	</ul>
 	</div><!---end trending legislation -->
+	<div class="legislation-tabs">
+	   <h4 class="inactive"><a href="#">Trending</a></h4>
+	   <h4 class="active"><a href="#popular">Popular</a></h4>
+	   <div style="clear:both;"></div>
+	</div>
 	<div class="legislation-pop" id="popular">
 	    <h3>Popular</h3>
 		<p class="subhead">Bills with the most activity in {{ state }}'s District {{ district }}</p>
@@ -140,7 +155,7 @@
 	        <li class="bill">
 	        <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
-			        <div id="popular_bar_{{forloop.counter}}"><script>bill_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>
+			        <div id="popular_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 					{% else %}
 					<p>Too few constituents in this district have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 					{% endif %}
