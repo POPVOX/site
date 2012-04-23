@@ -115,7 +115,10 @@ $(function () {
             }
         },
         tooltip: {
-			enabled: false,
+    		enabled: (!opts || opts.tooltip == null) ? true : opts.tooltip,
+			formatter: function() {
+					return this.series.name;
+				},
 		},
         series: [{
 			name: opts.right_label,
@@ -240,6 +243,7 @@ $(function () {
 				borderWidth:0,
                 innerSize:100,
                 size:160,
+				shadow:false,
                 showInLegend:true,
                 dataLabels: {
                     enabled: false,
