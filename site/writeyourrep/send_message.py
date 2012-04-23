@@ -543,6 +543,7 @@ custom_overrides = {
 	"776_formfield1234567891_text":"0",
 	"776_formfield1234567892_text":"2",
 	"776_formfield1234567894_text": "",
+	"784_enews_radio": "",
 	"789_affl1_radio": "",
 	"791_typeofresponse_select": "email",
 	"805_issue_radio": "",
