@@ -39,11 +39,11 @@
 			<div>
 			<dl class="urban">
 				<dt>Urban</dt>
-				<dd><span class="digits">{{census_data.urban}}%</span></dd>
+				<dd><span class="digits">{{census_data.urban|floatformat}}%</span></dd>
 			</dl>
 	        <dl class="rural">
 				<dt>Rural</dt>
-				<dd><span class="digits">{{census_data.rural}}%</span></dd>
+				<dd><span class="digits">{{census_data.rural|floatformat}}%</span></dd>
 			</dl>
 		    </div>
 			<div style="clear:both;"></div>
@@ -53,11 +53,11 @@
 		<div>
 		<dl class="male">
 			<dt>Male</dt>
-			<dd><span class="digits">{{census_data.male}}%</span></dd>
+			<dd><span class="digits">{{census_data.male|floatformat}}%</span></dd>
 		</dl>
         <dl class="female">
 			<dt>Female</dt>
-			<dd><span class="digits">{{census_data.female}}%</span></dd>
+			<dd><span class="digits">{{census_data.female|floatformat}}%</span></dd>
 		</dl>
 	</div>
 	<div style="clear:both;"></div>
@@ -65,7 +65,7 @@
         <div class="age">
 			<dl>
 				<dt>Median Age</dt>
-				<dd><span class="digits">{{census_data.age}}</span> <span class="units">years old</span></dd>
+				<dd><span class="digits">{{census_data.age|floatformat}}</span> <span class="units">years old</span></dd>
 			<dl>
 		</div>
 		<div class="race">
@@ -81,12 +81,12 @@
         <div class="edu">
 			<dl>
 				<dt>Education</dt>
-				<dd><p><span class="digits">{{census_data.hs}}%</span> <span class="units">High School</span></p>
-			        <p><span class="digits">{{census_data.bachelor}}%</span> <span class="units">Bachelor's</span></p></div>
+				<dd><p><span class="digits">{{census_data.hs|floatformat}}%</span> <span class="units">High School</span></p>
+			        <p><span class="digits">{{census_data.bachelor|floatformat}}%</span> <span class="units">Bachelor's</span></p></div>
         <div class="mil">
 			<dl>
 				<dt>Veterans</dt>
-				<dd><span class="digits">{{census_data.veteran}}%</span></dd>
+				<dd><span class="digits">{{census_data.veteran|floatformat}}%</span></dd>
 			</dl>
 		</div>
         <div class="income">
