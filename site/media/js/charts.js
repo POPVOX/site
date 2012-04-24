@@ -167,6 +167,7 @@ else if (pro_pct < 15) {
 } else if (pro_pct > 85) {
 	var chart_container = document.getElementById(container);
 	if (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) {
+		var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
 		var oppose_label = data_labels[0];
 		var text_element = oppose_label.firstChild;
 		var tspan = text_element.firstChild;
