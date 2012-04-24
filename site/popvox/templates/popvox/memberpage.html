@@ -22,7 +22,7 @@
 	<div class="clear"> </div>
 	<div class="member">
 		<div class="member-photo"><img src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
-		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">[{{memdata.party}}, {{memdata.state}}{%if memdata.title == "Rep"  %}-{{memdata.district}}{% endif %}]</span></p>
+		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">{%if memdata.title == "Rep" %}<a href="/district/{{memdata.state}}/{{memdata.district}}">[{{memdata.party}}, {{memdata.state}}-{{memdata.district}}]</a>{% else %}[{{memdata.party}}, {{memdata.state}}]{% endif %}</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
 		<table>
