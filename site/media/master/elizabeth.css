@@ -221,6 +221,7 @@
 
 .legislation-tabs h4.active {
 	background-image: -ms-linear-gradient(top, #AC510B 0%, #CC7413 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#AC510B', endColorstr='#CC7413');
 	background-image: -moz-linear-gradient(top, #AC510B 0%, #CC7413 100%);
 	background-image: -o-linear-gradient(top, #AC510B 0%, #CC7413 100%);
 	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #AC510B), color-stop(1, #CC7413));
@@ -233,6 +234,7 @@
 
 .legislation-tabs h4.inactive {
 	background-image: -ms-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#F8F8FA', endColorstr='#E8E9EB');
 	background-image: -moz-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
 	background-image: -o-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
 	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #F8F8FA), color-stop(1, #E8E9EB));
