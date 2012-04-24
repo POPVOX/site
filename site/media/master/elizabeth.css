@@ -361,16 +361,21 @@
 	background: #FFFFFF;
 }
 
-.member-legislation div.sponsoredbills ul li.bill p.toofew {	
+.member-legislation ul li.bill p.toofew {	
 	font: italic normal 14px/16px georgia, serif;
 	margin-top: 5px;
 	margin-bottom: 15px;
 }
 
-.member-legislation div.sponsoredbills ul li.bill p.takeaction {	
+.member-legislation ul li.bill p.takeaction {	
 	background: url("../master/b_bill.png") no-repeat scroll left;
 	padding-left: 30px;
 }	
+li.bill p.usercount {	
+	margin-top: -20px;
+	font-size: x-small;
+	margin-bottom: 15px;
+}
 	
 .bar_graph {
 	margin:15px 0 25px 0;

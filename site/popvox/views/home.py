@@ -1113,7 +1113,7 @@ def member_page(request, membername=None):
                 if total != 0:
                     pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
                     con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
-            if total < 6 :
+            '''if total < 6 :
                 scope = "state"
                 total = bill.usercomments.get_query_set().filter(state=member['state']).count()
                 if total != 0:
@@ -1124,8 +1124,8 @@ def member_page(request, membername=None):
                 total = bill.usercomments.get_query_set().count()
                 if total != 0:
                     pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
-                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total
-            if total < 6:
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total'''
+            if total < 4:
                 pro = None
                 con = None
 
@@ -1170,7 +1170,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
     trending_bills = []
     for bill in trending:
         total = bill['bill'].usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
-        if total >6:
+        if total >=4:
             pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
             con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
         else:
@@ -1180,7 +1180,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
         foo = (bill, pro, con,total)
         trending_bills.append(foo)
         trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
-    
+        
     if int(searchdistrict) == 0:
         sd = searchstate.upper()+str(searchdistrict)
     else:
@@ -1209,7 +1209,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
     popular_bills = []
     for bill in popular:
         total = bill.usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
-        if total >6:
+        if total >=4:
             pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
             con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
         else:

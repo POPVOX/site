@@ -43,7 +43,7 @@
 				</div>
 				   <div style="clear:both"></div>
 	       <div class="sponsoredbills">
-	               {% for bill,scope,pro,con in sponsored %}
+	               {% for bill,scope,pro,con,total in sponsored %}
 	                   {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">
 								<h4><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h4>
@@ -51,8 +51,9 @@
 									<a href="{{bill.url}}/report">
 	                           			<div id="sponsoredtwo_part_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("sponsoredtwo_part_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 							   		</a>
+								<p class="usercount">sentiment of {{total}} users in {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s district</p>
 								{% else %}
-									<p class="toofew">Too few constituents have commented on {{bill.shortname}} to display statistics.</p>
+								<p class="toofew">Too few of {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
 									<p class="takeaction">For comments left so far <a href="{{bill.url}}/report">view  the report.</a></p>
 								{% endif %}
 	                              </li>
@@ -69,16 +70,17 @@
 				</div>
 				   <div style="clear:both"></div>
 	       <div class="co-sponsored">
-	       {% for bill,scope,pro,con in cosponsored %}
+	       {% for bill,scope,pro,con,total in cosponsored %}
 	            {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">
 								<h4><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h4>
 								{% if pro or con %}
 									<a href="{{bill.url}}/report">
-	                					<div id="cosponsored_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
-									</a>
+	                					<div id="cosponsored_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div></a>
+								<p class="usercount">sentiment of {{total}} users in {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s district</p>
 								{% else %}
-									<p>Too few constituents have commented on {{bill.shortname}} to display statistics.</p><p>For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+									<p class="toofew">Too few {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
+									<p class="takeaction">For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 								{% endif %}
 	             </li>
 	            {% if forloop.last %}</ul>{% endif %}
