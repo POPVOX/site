@@ -152,7 +152,7 @@
 	    {% for bill,pro,con,total in popular_bills %}
 	<ol>
 	        <li class="bill">
-					<p class="number">{{ forloop.counter }}</p>
+					<p class="number">#{{ forloop.counter }}</p>
 	        <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
 				<a href="{{bill.url}}/report">
