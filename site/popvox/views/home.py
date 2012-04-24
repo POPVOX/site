@@ -1107,19 +1107,25 @@ def member_page(request, membername=None):
         for bill in bills_list:
             scope = None
             total = 0
-            if "district" in member:
-                scope = "district"
-                total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
-                if total != 0:
-                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
-                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
+            try:
+                if member['district']:
+                    scope = "district"
+                    total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
+                    if total != 0:
+                        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
+                        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
+                elif member['state']:
+                    scope = "state"
+                    total = bill.usercomments.get_query_set().filter(state=member['state']).count()
+                    if total != 0:
+                        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
+                        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
+                else: #in case there's an error where a member is set to state and district both being none
+                    total = 0
+            except KeyError:
+                total = 0
+            
             '''if total < 6 :
-                scope = "state"
-                total = bill.usercomments.get_query_set().filter(state=member['state']).count()
-                if total != 0:
-                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
-                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
-            if total < 6 :
                 scope = "nation"
                 total = bill.usercomments.get_query_set().count()
                 if total != 0:
@@ -1139,14 +1145,12 @@ def member_page(request, membername=None):
     sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
     cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
 
-
     return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
         context_instance=RequestContext(request))
     
     #This return has the membermatch variables; uncomment when we're ready for them
     '''return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'billvotes': billvotes, 'member': member, 'stats': stats, 'had_abstain': had_abstain, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
     context_instance=RequestContext(request))'''
-
 
 @login_required
 def delete_account(request):
@@ -1163,6 +1167,7 @@ def delete_account(request):
         return render_to_response('popvox/delete_account.html', {},
         
     context_instance=RequestContext(request))
+  
 
 def district_info(request, searchstate=None, searchdistrict=None):
     trending = get_popular_bills2(searchstate.upper(), searchdistrict) 
@@ -1187,6 +1192,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
         sd = searchstate.upper()+str(searchdistrict).lstrip('0')
 
     members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
+    members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
 
     for member in members:
         url = [k for k, v in memurls.items() if member['id'] == v][0]
