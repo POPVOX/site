@@ -375,3 +375,7 @@
 .bar_graph {
 	margin:15px 0 25px 0;
 }
+
+p.trend {
+	font-style:italic;
+}
