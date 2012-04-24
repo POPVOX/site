@@ -192,7 +192,7 @@ h2 span {
 					
 					elem.find("h4 span.username").text(c.user)
 					if (c.location)
-						elem.find("h4 span.location").text("in " + c.location)
+					elem.find("h4 span.location").html("in <a href='/district/"+c.state+"/"+c.district+"/'>" + c.location + "</a>")
 					else
 						elem.find("h4 span.location").text("")
 					elem.find("h4 span.date nobr").text(c.date);
