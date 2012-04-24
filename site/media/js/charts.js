@@ -133,39 +133,46 @@ $(function () {
 
 if (pro_pct == 0) {
 	var chart_container = document.getElementById(container);
-	var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
-	var support_label = data_labels[1];
-	var text_element = support_label.firstChild;
-	var tspan = text_element.firstChild;
-	text_element.removeChild(tspan);
+	if (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Shape", "1.0")) {
+		var data_labels = chart_container.getElementsByClassName("highcharts-data-labels"); 
+		var support_label = data_labels[1];
+		var text_element = support_label.firstChild;
+		var tspan = text_element.firstChild;
+		text_element.removeChild(tspan);
+	}
 }
 else if (pro_pct < 15) {
 	var chart_container = document.getElementById(container);
-	var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
-	var oppose_label = data_labels[0];
-	var text_element = oppose_label.firstChild;
-	var tspan = text_element.firstChild;
-	tspan.setAttribute("x","50");
+	if (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Shape", "1.0")) {
+		var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
+		var oppose_label = data_labels[0];
+		var text_element = oppose_label.firstChild;
+		var tspan = text_element.firstChild;
+		tspan.setAttribute("x","50");
+	}
 } else if (pro_pct == 100) {
 	var chart_container = document.getElementById(container);
-	var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
-	var oppose_label = data_labels[0];
-	var text_element = oppose_label.firstChild;
-	var tspan = text_element.firstChild;
-	text_element.removeChild(tspan);
-	var support_label = data_labels[1];
-	var text_element = support_label.firstChild;
-	var tspan = text_element.firstChild;
-	text_element.setAttribute("text-anchor","end");
-	tspan.setAttribute("x","335");
+	if (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Shape", "1.0")) {
+		var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
+		var oppose_label = data_labels[0];
+		var text_element = oppose_label.firstChild;
+		var tspan = text_element.firstChild;
+		text_element.removeChild(tspan);
+		var support_label = data_labels[1];
+		var text_element = support_label.firstChild;
+		var tspan = text_element.firstChild;
+		text_element.setAttribute("text-anchor","end");
+		tspan.setAttribute("x","335");
+	}
 } else if (pro_pct > 85) {
 	var chart_container = document.getElementById(container);
-	var data_labels = chart_container.getElementsByClassName("highcharts-data-labels");
-	var oppose_label = data_labels[0];
-	var text_element = oppose_label.firstChild;
-	var tspan = text_element.firstChild;
-	text_element.setAttribute("text-anchor","end");
-	tspan.setAttribute("x","335");
+	if (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Shape", "1.0")) {
+		var oppose_label = data_labels[0];
+		var text_element = oppose_label.firstChild;
+		var tspan = text_element.firstChild;
+		text_element.setAttribute("text-anchor","end");
+		tspan.setAttribute("x","335");
+	}
 }
 
 }
