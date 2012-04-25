@@ -1271,6 +1271,15 @@ def delete_account_confirmed(request):
         
     context_instance=RequestContext(request))
     
+def gettoknow(request):
+  
+    stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
+
+    return render_to_response('popvox/gettoknow.html', {"stateabbrs": 
+                stateabbrs,},
+        
+    context_instance=RequestContext(request))
+    
 @json_response    
 def recommend_from_text(request):
     q = request.GET.get("q", "").strip()
