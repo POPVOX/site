@@ -1276,7 +1276,7 @@ def gettoknow(request):
     stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
     for state in stateabbrs:
       if state[0] in ['AS', 'GU', 'MP', 'VI']:
-        stateabbrs.remove[state]
+        stateabbrs.remove(state)
 
     return render_to_response('popvox/gettoknow.html', {"stateabbrs": 
                 stateabbrs,},
