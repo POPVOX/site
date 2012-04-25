@@ -495,7 +495,7 @@ def legstaff_bill_categories(request):
         "status": "success",
         "tabs": get_legstaff_suggested_bills(request.user, counts_only=True)
         }
-        
+
 @login_required
 def legstaff_bill_category_panel(request):
     return render_to_response('popvox/home_legstaff_panel.html',

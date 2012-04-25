@@ -14,6 +14,151 @@
 
 </style>
 <script>
+	var default_state;
+	var default_district;
+	var dist_report_state = "";
+	var dist_report_district = "";
+	var start = 0;
+	var count = 50;
+	var isloading = false;
+var statereps = {"WA": ["Sen. Maria Cantwell [D, WA]", "Sen. Patty Murray [D, WA]", "Rep. Jay Inslee [D, WA-1]", "Rep. Rick Larsen [D, WA-2]", "Rep. Jaime Herrera Beutler [R, WA-3]", "Rep. Doc Hastings [R, WA-4]", "Rep. Cathy McMorris Rodgers [R, WA-5]", "Rep. Norman Dicks [D, WA-6]", "Rep. James McDermott [D, WA-7]", "Rep. Dave Reichert [R, WA-8]", "Rep. Adam Smith [D, WA-9]"],
+ "VA": ["Sen. Mark Warner [D, VA]", "Sen. Jim Webb [D, VA]", "Rep. Rob Wittman [R, VA-1]", "Rep. Scott Rigell [R, VA-2]", "Rep. Robert Scott [D, VA-3]", "Rep. Randy Forbes [R, VA-4]", "Rep. Robert Hurt [R, VA-5]", "Rep. Robert Goodlatte [R, VA-6]", "Rep. Eric Cantor [R, VA-7]", "Rep. James Moran [D, VA-8]", "Rep. Morgan Griffith [R, VA-9]", "Rep. Frank Wolf [R, VA-10]", "Rep. Gerald Connolly [D, VA-11]"],
+ "DE": ["Sen. Thomas Carper [D, DE]", "Sen. Chris Coons [D, DE]"],
+ "DC": ["Del. Eleanor Norton [D, DC]"], 
+"WI": ["Sen. Ron Johnson [R, WI]", "Sen. Herbert Kohl [D, WI]", "Rep. Paul Ryan [R, WI-1]", "Rep. Tammy Baldwin [D, WI-2]", "Rep. Ronald Kind [D, WI-3]", "Rep. Gwen Moore [D, WI-4]", "Rep. James Sensenbrenner [R, WI-5]", "Rep. Thomas Petri [R, WI-6]", "Rep. Sean Duffy [R, WI-7]", "Rep. Reid Ribble [R, WI-8]"],
+ "WV": ["Sen. Joe Manchin [D, WV]", "Sen. John Rockefeller [D, WV]", "Rep. David McKinley [R, WV-1]", "Rep. Shelley Capito [R, WV-2]", "Rep. Nick Rahall [D, WV-3]"],
+ "HI": ["Sen. Daniel Akaka [D, HI]", "Sen. Daniel Inouye [D, HI]", "Rep. Colleen Hanabusa [D, HI-1]", "Rep. Mazie Hirono [D, HI-2]"],
+ "FL": ["Sen. Bill Nelson [D, FL]", "Sen. Marco Rubio [R, FL]", "Rep. Jeff Miller [R, FL-1]", "Rep. Steve Southerland [R, FL-2]", "Rep. Corrine Brown [D, FL-3]", "Rep. Ander Crenshaw [R, FL-4]", "Rep. Richard Nugent [R, FL-5]", "Rep. Clifford Stearns [R, FL-6]", "Rep. John Mica [R, FL-7]", "Rep. Daniel Webster [R, FL-8]", "Rep. Gus Bilirakis [R, FL-9]", "Rep. Bill Young [R, FL-10]", "Rep. Kathy Castor [D, FL-11]", "Rep. Dennis Ross [R, FL-12]", "Rep. Vern Buchanan [R, FL-13]", "Rep. Connie Mack [R, FL-14]", "Rep. Bill Posey [R, FL-15]", "Rep. Thomas Rooney [R, FL-16]", "Rep. Frederica Wilson [D, FL-17]", "Rep. Ileana Ros-Lehtinen [R, FL-18]", "Rep. Ted Deutch [D, FL-19]", "Rep. Debbie Wasserman Schultz [D, FL-20]", "Rep. Mario Diaz-Balart [R, FL-21]", "Rep. Allen West [R, FL-22]", "Rep. Alcee Hastings [D, FL-23]", "Rep. Sandy Adams [R, FL-24]", "Rep. David Rivera [R, FL-25]"],
+ "WY": ["Sen. John Barrasso [R, WY]", "Sen. Michael Enzi [R, WY]"],
+ "NH": ["Sen. Kelly Ayotte [R, NH]", "Sen. Jeanne Shaheen [D, NH]", "Rep. Frank Guinta [R, NH-1]", "Rep. Charles Bass [R, NH-2]"],
+ "NJ": ["Sen. Frank Lautenberg [D, NJ]", "Sen. Robert Menendez [D, NJ]", "Rep. Robert Andrews [D, NJ-1]", "Rep. Frank LoBiondo [R, NJ-2]", "Rep. Jon Runyan [R, NJ-3]", "Rep. Christopher Smith [R, NJ-4]", "Rep. Scott Garrett [R, NJ-5]", "Rep. Frank Pallone [D, NJ-6]", "Rep. Leonard Lance [R, NJ-7]", "Rep. William Pascrell [D, NJ-8]", "Rep. Steven Rothman [D, NJ-9]", "Rep. Donald Payne [D, NJ-10]", "Rep. Rodney Frelinghuysen [R, NJ-11]", "Rep. Rush Holt [D, NJ-12]", "Rep. Albio Sires [D, NJ-13]"],
+ "NM": ["Sen. Jeff Bingaman [D, NM]", "Sen. Tom Udall [D, NM]", "Rep. Martin Heinrich [D, NM-1]", "Rep. Steven Pearce [R, NM-2]", "Rep. Ben Luj&aacute;n [D, NM-3]"],
+ "TX": ["Sen. John Cornyn [R, TX]", "Sen. Kay Hutchison [R, TX]", "Rep. Louis Gohmert [R, TX-1]", "Rep. Ted Poe [R, TX-2]", "Rep. Samuel Johnson [R, TX-3]", "Rep. Ralph Hall [R, TX-4]", "Rep. Jeb Hensarling [R, TX-5]", "Rep. Joe Barton [R, TX-6]", "Rep. John Culberson [R, TX-7]", "Rep. Kevin Brady [R, TX-8]", "Rep. Al Green [D, TX-9]", "Rep. Michael McCaul [R, TX-10]", "Rep. Michael Conaway [R, TX-11]", "Rep. Kay Granger [R, TX-12]", "Rep. William Thornberry [R, TX-13]", "Rep. Ronald Paul [R, TX-14]", "Rep. Rub&eacute;n Hinojosa [D, TX-15]", "Rep. Silvestre Reyes [D, TX-16]", "Rep. Bill Flores [R, TX-17]", "Rep. Sheila Jackson-Lee [D, TX-18]", "Rep. Randy Neugebauer [R, TX-19]", "Rep. Charles Gonzalez [D, TX-20]", "Rep. Lamar Smith [R, TX-21]", "Rep. Pete Olson [R, TX-22]", "Rep. Francisco Canseco [R, TX-23]", "Rep. Kenny Marchant [R, TX-24]", "Rep. Lloyd Doggett [D, TX-25]", "Rep. Michael Burgess [R, TX-26]", "Rep. Blake Farenthold [R, TX-27]", "Rep. Henry Cuellar [D, TX-28]", "Rep. Raymond Green [D, TX-29]", "Rep. Eddie Johnson [D, TX-30]", "Rep. John Carter [R, TX-31]", "Rep. Peter Sessions [R, TX-32]"],
+ "LA": ["Sen. Mary Landrieu [D, LA]", "Sen. David Vitter [R, LA]", "Rep. Steve Scalise [R, LA-1]", "Rep. Cedric Richmond [D, LA-2]", "Rep. Jeff Landry [R, LA-3]", "Rep. John Fleming [R, LA-4]", "Rep. Rodney Alexander [R, LA-5]", "Rep. Bill Cassidy [R, LA-6]", "Rep. Charles Boustany [R, LA-7]"],
+ "NC": ["Sen. Richard Burr [R, NC]", "Sen. Kay Hagan [D, NC]", "Rep. George Butterfield [D, NC-1]", "Rep. Renee Ellmers [R, NC-2]", "Rep. Walter Jones [R, NC-3]", "Rep. David Price [D, NC-4]", "Rep. Virginia Foxx [R, NC-5]", "Rep. Howard Coble [R, NC-6]", "Rep. Mike McIntyre [D, NC-7]", "Rep. Larry Kissell [D, NC-8]", "Rep. Sue Myrick [R, NC-9]", "Rep. Patrick McHenry [R, NC-10]", "Rep. Heath Shuler [D, NC-11]", "Rep. Melvin Watt [D, NC-12]", "Rep. Bradley Miller [D, NC-13]"],
+ "ND": ["Sen. Kent Conrad [D, ND]", "Sen. John Hoeven [R, ND]"],
+ "NE": ["Sen. Mike Johanns [R, NE]", "Sen. Ben Nelson [D, NE]", "Rep. Jeffrey Fortenberry [R, NE-1]", "Rep. Lee Terry [R, NE-2]", "Rep. Adrian Smith [R, NE-3]"],
+ "TN": ["Sen. Lamar Alexander [R, TN]", "Sen. Bob Corker [R, TN]", "Rep. Phil Roe [R, TN-1]", "Rep. John Duncan [R, TN-2]", "Rep. Chuck Fleischmann [R, TN-3]", "Rep. Scott DesJarlais [R, TN-4]", "Rep. Jim Cooper [D, TN-5]", "Rep. Diane Black [R, TN-6]", "Rep. Marsha Blackburn [R, TN-7]", "Rep. Stephen Fincher [R, TN-8]", "Rep. Steve Cohen [D, TN-9]"],
+ "NY": ["Sen. Kirsten Gillibrand [D, NY]", "Sen. Charles Schumer [D, NY]", "Rep. Timothy Bishop [D, NY-1]", "Rep. Steve Israel [D, NY-2]", "Rep. Peter King [R, NY-3]", "Rep. Carolyn McCarthy [D, NY-4]", "Rep. Gary Ackerman [D, NY-5]", "Rep. Gregory Meeks [D, NY-6]", "Rep. Joseph Crowley [D, NY-7]", "Rep. Jerrold Nadler [D, NY-8]", "Rep. Robert Turner [R, NY-9]", "Rep. Edolphus Towns [D, NY-10]", "Rep. Yvette Clarke [D, NY-11]", "Rep. Nydia Vel&aacute;zquez [D, NY-12]", "Rep. Michael Grimm [R, NY-13]", "Rep. Carolyn Maloney [D, NY-14]", "Rep. Charles Rangel [D, NY-15]", "Rep. Jos&eacute; Serrano [D, NY-16]", "Rep. Eliot Engel [D, NY-17]", "Rep. Nita Lowey [D, NY-18]", "Rep. Nan Hayworth [R, NY-19]", "Rep. Chris Gibson [R, NY-20]", "Rep. Paul Tonko [D, NY-21]", "Rep. Maurice Hinchey [D, NY-22]", "Rep. William Owens [D, NY-23]", "Rep. Richard Hanna [R, NY-24]", "Rep. Ann Marie Buerkle [R, NY-25]", "Rep. Kathleen Hochul [D, NY-26]", "Rep. Brian Higgins [D, NY-27]", "Rep. Louise Slaughter [D, NY-28]", "Rep. Tom Reed [R, NY-29]"],
+ "PA": ["Sen. Robert Casey [D, PA]", "Sen. Patrick Toomey [R, PA]", "Rep. Robert Brady [D, PA-1]", "Rep. Chaka Fattah [D, PA-2]", "Rep. Mike Kelly [R, PA-3]", "Rep. Jason Altmire [D, PA-4]", "Rep. Glenn Thompson [R, PA-5]", "Rep. Jim Gerlach [R, PA-6]", "Rep. Patrick Meehan [R, PA-7]", "Rep. Michael Fitzpatrick [R, PA-8]", "Rep. William Shuster [R, PA-9]", "Rep. Thomas Marino [R, PA-10]", "Rep. Lou Barletta [R, PA-11]", "Rep. Mark Critz [D, PA-12]", "Rep. Allyson Schwartz [D, PA-13]", "Rep. Michael Doyle [D, PA-14]", "Rep. Charles Dent [R, PA-15]", "Rep. Joseph Pitts [R, PA-16]", "Rep. Tim Holden [D, PA-17]", "Rep. Tim Murphy [R, PA-18]", "Rep. Todd Platts [R, PA-19]"],
+ "CA": ["Sen. Barbara Boxer [D, CA]", "Sen. Dianne Feinstein [D, CA]", "Rep. Michael Thompson [D, CA-1]", "Rep. Walter Herger [R, CA-2]", "Rep. Daniel Lungren [R, CA-3]", "Rep. Tom McClintock [R, CA-4]", "Rep. Doris Matsui [D, CA-5]", "Rep. Lynn Woolsey [D, CA-6]", "Rep. George Miller [D, CA-7]", "Rep. Nancy Pelosi [D, CA-8]", "Rep. Barbara Lee [D, CA-9]", "Rep. John Garamendi [D, CA-10]", "Rep. Jerry McNerney [D, CA-11]", "Rep. Jackie Speier [D, CA-12]", "Rep. Fortney Stark [D, CA-13]", "Rep. Anna Eshoo [D, CA-14]", "Rep. Michael Honda [D, CA-15]", "Rep. Zoe Lofgren [D, CA-16]", "Rep. Sam Farr [D, CA-17]", "Rep. Dennis Cardoza [D, CA-18]", "Rep. Jeff Denham [R, CA-19]", "Rep. Jim Costa [D, CA-20]", "Rep. Devin Nunes [R, CA-21]", "Rep. Kevin McCarthy [R, CA-22]", "Rep. Lois Capps [D, CA-23]", "Rep. Elton Gallegly [R, CA-24]", "Rep. Howard McKeon [R, CA-25]", "Rep. David Dreier [R, CA-26]", "Rep. Brad Sherman [D, CA-27]", "Rep. Howard Berman [D, CA-28]", "Rep. Adam Schiff [D, CA-29]", "Rep. Henry Waxman [D, CA-30]", "Rep. Xavier Becerra [D, CA-31]", "Rep. Judy Chu [D, CA-32]", "Rep. Karen Bass [D, CA-33]", "Rep. Lucille Roybal-Allard [D, CA-34]", "Rep. Maxine Waters [D, CA-35]", "Rep. Janice Hahn [D, CA-36]", "Rep. Laura Richardson [D, CA-37]", "Rep. Grace Napolitano [D, CA-38]", "Rep. Linda S&aacute;nchez [D, CA-39]", "Rep. Edward Royce [R, CA-40]", "Rep. Jerry Lewis [R, CA-41]", "Rep. Gary Miller [R, CA-42]", "Rep. Joe Baca [D, CA-43]", "Rep. Ken Calvert [R, CA-44]", "Rep. Mary Bono Mack [R, CA-45]", "Rep. Dana Rohrabacher [R, CA-46]", "Rep. Loretta Sanchez [D, CA-47]", "Rep. John Campbell [R, CA-48]", "Rep. Darrell Issa [R, CA-49]", "Rep. Brian Bilbray [R, CA-50]", "Rep. Bob Filner [D, CA-51]", "Rep. Duncan Hunter [R, CA-52]", "Rep. Susan Davis [D, CA-53]"],
+ "NV": ["Sen. Dean Heller [R, NV]", "Sen. Harry Reid [D, NV]", "Rep. Shelley Berkley [D, NV-1]", "Rep. Mark Amodei [R, NV-2]", "Rep. Joe Heck [R, NV-3]"],
+ "PR": ["Res.Comm. Pedro Pierluisi [D, PR-0]"],
+ "CO": ["Sen. Michael Bennet [D, CO]", "Sen. Mark Udall [D, CO]", "Rep. Diana DeGette [D, CO-1]", "Rep. Jared Polis [D, CO-2]", "Rep. Scott Tipton [R, CO-3]", "Rep. Cory Gardner [R, CO-4]", "Rep. Doug Lamborn [R, CO-5]", "Rep. Mike Coffman [R, CO-6]", "Rep. Ed Perlmutter [D, CO-7]"],
+ "AK": ["Sen. Mark Begich [D, AK]", "Sen. Lisa Murkowski [R, AK]"],
+ "AL": ["Sen. Jefferson Sessions [R, AL]", "Sen. Richard Shelby [R, AL]", "Rep. Jo Bonner [R, AL-1]", "Rep. Martha Roby [R, AL-2]", "Rep. Michael Rogers [R, AL-3]", "Rep. Robert Aderholt [R, AL-4]", "Rep. Mo Brooks [R, AL-5]", "Rep. Spencer Bachus [R, AL-6]", "Rep. Terri Sewell [D, AL-7]"],
+ "AR": ["Sen. John Boozman [R, AR]", "Sen. Mark Pryor [D, AR]", "Rep. Rick Crawford [R, AR-1]", "Rep. Tim Griffin [R, AR-2]", "Rep. Steve Womack [R, AR-3]", "Rep. Mike Ross [D, AR-4]"],
+ "VT": ["Sen. Patrick Leahy [D, VT]", "Sen. Bernard Sanders [I, VT]"],
+ "IL": ["Sen. Richard Durbin [D, IL]", "Sen. Mark Kirk [R, IL]", "Rep. Bobby Rush [D, IL-1]", "Rep. Jesse Jackson [D, IL-2]", "Rep. Daniel Lipinski [D, IL-3]", "Rep. Luis Guti&eacute;rrez [D, IL-4]", "Rep. Mike Quigley [D, IL-5]", "Rep. Peter Roskam [R, IL-6]", "Rep. Danny Davis [D, IL-7]", "Rep. Joe Walsh [R, IL-8]", "Rep. Janice Schakowsky [D, IL-9]", "Rep. Bob Dold [R, IL-10]", "Rep. Adam Kinzinger [R, IL-11]", "Rep. Jerry Costello [D, IL-12]", "Rep. Judy Biggert [R, IL-13]", "Rep. Randy Hultgren [R, IL-14]", "Rep. Timothy Johnson [R, IL-15]", "Rep. Donald Manzullo [R, IL-16]", "Rep. Robert Schilling [R, IL-17]", "Rep. Aaron Schock [R, IL-18]", "Rep. John Shimkus [R, IL-19]"],
+ "GA": ["Sen. Saxby Chambliss [R, GA]", "Sen. John Isakson [R, GA]", "Rep. Jack Kingston [R, GA-1]", "Rep. Sanford Bishop [D, GA-2]", "Rep. Lynn Westmoreland [R, GA-3]", "Rep. Henry Johnson [D, GA-4]", "Rep. John Lewis [D, GA-5]", "Rep. Tom Price [R, GA-6]", "Rep. Rob Woodall [R, GA-7]", "Rep. Austin Scott [R, GA-8]", "Rep. Tom Graves [R, GA-9]", "Rep. Paul Broun [R, GA-10]", "Rep. John Gingrey [R, GA-11]", "Rep. John Barrow [D, GA-12]", "Rep. David Scott [D, GA-13]"],
+ "IN": ["Sen. Daniel Coats [R, IN]", "Sen. Richard Lugar [R, IN]", "Rep. Peter Visclosky [D, IN-1]", "Rep. Joe Donnelly [D, IN-2]", "Rep. Marlin Stutzman [R, IN-3]", "Rep. Todd Rokita [R, IN-4]", "Rep. Dan Burton [R, IN-5]", "Rep. Mike Pence [R, IN-6]", "Rep. Andr&eacute; Carson [D, IN-7]", "Rep. Larry Bucshon [R, IN-8]", "Rep. Todd Young [R, IN-9]"],
+ "IA": ["Sen. Charles Grassley [R, IA]", "Sen. Thomas Harkin [D, IA]", "Rep. Bruce Braley [D, IA-1]", "Rep. David Loebsack [D, IA-2]", "Rep. Leonard Boswell [D, IA-3]", "Rep. Thomas Latham [R, IA-4]", "Rep. Steve King [R, IA-5]"],
+ "OK": ["Sen. Thomas Coburn [R, OK]", "Sen. James Inhofe [R, OK]", "Rep. John Sullivan [R, OK-1]", "Rep. Dan Boren [D, OK-2]", "Rep. Frank Lucas [R, OK-3]", "Rep. Tom Cole [R, OK-4]", "Rep. James Lankford [R, OK-5]"],
+ "AZ": ["Sen. Jon Kyl [R, AZ]", "Sen. John McCain [R, AZ]", "Rep. Paul Gosar [R, AZ-1]", "Rep. Trent Franks [R, AZ-2]", "Rep. Ben Quayle [R, AZ-3]", "Rep. Edward Pastor [D, AZ-4]", "Rep. David Schweikert [R, AZ-5]", "Rep. Jeff Flake [R, AZ-6]", "Rep. Raul Grijalva [D, AZ-7]", "vacant"],
+ "ID": ["Sen. Michael Crapo [R, ID]", "Sen. James Risch [R, ID]", "Rep. Ra&uacute;al Labrador [R, ID-1]", "Rep. Michael Simpson [R, ID-2]"],
+ "CT": ["Sen. Richard Blumenthal [D, CT]", "Sen. Joseph Lieberman [I, CT]", "Rep. John Larson [D, CT-1]", "Rep. Joe Courtney [D, CT-2]", "Rep. Rosa DeLauro [D, CT-3]", "Rep. James Himes [D, CT-4]", "Rep. Christopher Murphy [D, CT-5]"],
+ "ME": ["Sen. Susan Collins [R, ME]", "Sen. Olympia Snowe [R, ME]", "Rep. Chellie Pingree [D, ME-1]", "Rep. Michael Michaud [D, ME-2]"],
+ "MD": ["Sen. Benjamin Cardin [D, MD]", "Sen. Barbara Mikulski [D, MD]", "Rep. Andy Harris [R, MD-1]", "Rep. Dutch Ruppersberger [D, MD-2]", "Rep. John Sarbanes [D, MD-3]", "Rep. Donna Edwards [D, MD-4]", "Rep. Steny Hoyer [D, MD-5]", "Rep. Roscoe Bartlett [R, MD-6]", "Rep. Elijah Cummings [D, MD-7]", "Rep. Christopher Van Hollen [D, MD-8]"],
+ "MA": ["Sen. Scott Brown [R, MA]", "Sen. John Kerry [D, MA]", "Rep. John Olver [D, MA-1]", "Rep. Richard Neal [D, MA-2]", "Rep. James McGovern [D, MA-3]", "Rep. Barney Frank [D, MA-4]", "Rep. Niki Tsongas [D, MA-5]", "Rep. John Tierney [D, MA-6]", "Rep. Edward Markey [D, MA-7]", "Rep. Michael Capuano [D, MA-8]", "Rep. Stephen Lynch [D, MA-9]", "Rep. William Keating [D, MA-10]"],
+ "OH": ["Sen. Sherrod Brown [D, OH]", "Sen. Robert Portman [R, OH]", "Rep. Steven Chabot [R, OH-1]", "Rep. Jean Schmidt [R, OH-2]", "Rep. Michael Turner [R, OH-3]", "Rep. Jim Jordan [R, OH-4]", "Rep. Robert Latta [R, OH-5]", "Rep. Bill Johnson [R, OH-6]", "Rep. Steve Austria [R, OH-7]", "Rep. John Boehner [R, OH-8]", "Rep. Marcy Kaptur [D, OH-9]", "Rep. Dennis Kucinich [D, OH-10]", "Rep. Marcia Fudge [D, OH-11]", "Rep. Patrick Tiberi [R, OH-12]", "Rep. Betty Sutton [D, OH-13]", "Rep. Steven LaTourette [R, OH-14]", "Rep. Steve Stivers [R, OH-15]", "Rep. Jim Renacci [R, OH-16]", "Rep. Timothy Ryan [D, OH-17]", "Rep. Bob Gibbs [R, OH-18]"],
+ "UT": ["Sen. Orrin Hatch [R, UT]", "Sen. Mike Lee [R, UT]", "Rep. Rob Bishop [R, UT-1]", "Rep. Jim Matheson [D, UT-2]", "Rep. Jason Chaffetz [R, UT-3]"],
+ "MO": ["Sen. Roy Blunt [R, MO]", "Sen. Claire McCaskill [D, MO]", "Rep. William Clay [D, MO-1]", "Rep. Todd Akin [R, MO-2]", "Rep. Russ Carnahan [D, MO-3]", "Rep. Vicky Hartzler [R, MO-4]", "Rep. Emanuel Cleaver [D, MO-5]", "Rep. Samuel Graves [R, MO-6]", "Rep. Billy Long [R, MO-7]", "Rep. Jo Ann Emerson [R, MO-8]", "Rep. Blaine Luetkemeyer [R, MO-9]"],
+ "MN": ["Sen. Al Franken [D, MN]", "Sen. Amy Klobuchar [D, MN]", "Rep. Timothy Walz [D, MN-1]", "Rep. John Kline [R, MN-2]", "Rep. Erik Paulsen [R, MN-3]", "Rep. Betty McCollum [D, MN-4]", "Rep. Keith Ellison [D, MN-5]", "Rep. Michele Bachmann [R, MN-6]", "Rep. Collin Peterson [D, MN-7]", "Rep. Chip Cravaack [R, MN-8]"],
+ "MI": ["Sen. Carl Levin [D, MI]", "Sen. Debbie Ann Stabenow [D, MI]", "Rep. Dan Benishek [R, MI-1]", "Rep. Bill Huizenga [R, MI-2]", "Rep. Justin Amash [R, MI-3]", "Rep. David Camp [R, MI-4]", "Rep. Dale Kildee [D, MI-5]", "Rep. Frederick Upton [R, MI-6]", "Rep. Timothy Walberg [R, MI-7]", "Rep. Michael Rogers [R, MI-8]", "Rep. Gary Peters [D, MI-9]", "Rep. Candice Miller [R, MI-10]", "Rep. Thaddeus McCotter [R, MI-11]", "Rep. Sander Levin [D, MI-12]", "Rep. Hansen Clarke [D, MI-13]", "Rep. John Conyers [D, MI-14]", "Rep. John Dingell [D, MI-15]"],
+ "RI": ["Sen. John Reed [D, RI]", "Sen. Sheldon Whitehouse [D, RI]", "Rep. David Cicilline [D, RI-1]", "Rep. James Langevin [D, RI-2]"],
+ "KS": ["Sen. Jerry Moran [R, KS]", "Sen. Pat Roberts [R, KS]", "Rep. Tim Huelskamp [R, KS-1]", "Rep. Lynn Jenkins [R, KS-2]", "Rep. Kevin Yoder [R, KS-3]", "Rep. Mike Pompeo [R, KS-4]"],
+ "MT": ["Sen. Max Baucus [D, MT]", "Sen. Jon Tester [D, MT]"],
+ "MS": ["Sen. Thad Cochran [R, MS]", "Sen. Roger Wicker [R, MS]", "Rep. Alan Nunnelee [R, MS-1]", "Rep. Bennie Thompson [D, MS-2]", "Rep. Gregg Harper [R, MS-3]", "Rep. Steven Palazzo [R, MS-4]"],
+ "SC": ["Sen. Jim DeMint [R, SC]", "Sen. Lindsey Graham [R, SC]", "Rep. Tim Scott [R, SC-1]", "Rep. Addison Wilson [R, SC-2]", "Rep. Jeff Duncan [R, SC-3]", "Rep. Trey Gowdy [R, SC-4]", "Rep. Mick Mulvaney [R, SC-5]", "Rep. James Clyburn [D, SC-6]"],
+ "KY": ["Sen. Mitch McConnell [R, KY]", "Sen. Rand Paul [R, KY]", "Rep. Edward Whitfield [R, KY-1]", "Rep. Brett Guthrie [R, KY-2]", "Rep. John Yarmuth [D, KY-3]", "Rep. Geoff Davis [R, KY-4]", "Rep. Harold Rogers [R, KY-5]", "Rep. Ben Chandler [D, KY-6]"],
+ "OR": ["Sen. Jeff Merkley [D, OR]", "Sen. Ron Wyden [D, OR]", "Rep. Suzanne Bonamici [D, OR-1]", "Rep. Greg Walden [R, OR-2]", "Rep. Earl Blumenauer [D, OR-3]", "Rep. Peter DeFazio [D, OR-4]", "Rep. Kurt Schrader [D, OR-5]"],
+ "SD": ["Sen. Tim Johnson [D, SD]", "Sen. John Thune [R, SD]"]};
+
+	function dist_update(hashchange) {
+		// Update district dropdown list options and make sure that
+		// report_district is a valid value for the current state.
+		$('#dist_options_district').html("");
+		if (dist_report_state == "") {
+			dist_report_district = 0;
+			$('#dist_options_district').hide();
+		} else if (statereps[dist_report_state].length <= 3) {
+			$('#dist_options_district').
+				append($("<option></option>").
+					attr("value", 0).
+					text("At Large"));
+			dist_report_district = 0;
+			hashchange= true;
+		} else {
+			$('#dist_options_district').show();
+			if (dist_report_district == 0)
+				dist_report_district = "";
+			if (dist_report_district > statereps[dist_report_state].length)
+				dist_report_district = 1;
+			if (statereps[dist_report_state].length <= 3) {
+				$('#dist_options_district').
+					append($("<option></option>").
+						attr("value", 0).
+						attr("selected", 0 == dist_report_district).
+						text(0)); 
+			}
+			for (var i = 1; i <= statereps[dist_report_state].length -2 ; i++) {
+				$('#dist_options_district').
+					append($("<option></option>").
+						attr("value", i).
+						attr("selected", i == dist_report_district).
+						text(i)); 
+			}
+			hashchange= true;
+		}
+		
+		selstate = $('#dist_options_state').val()
+		seldist = $('#dist_options_district').val()
+		$('#distgo').attr("href", "/district/" + selstate + "/" + seldist);
+	}
+
+	function mem_update(hashchange) {
+		// Update district dropdown list options and make sure that
+		// report_district is a valid value for the current state.
+		$('#mem_options_district').html("");
+		if (mem_report_state == "") {
+			mem_report_district = 0;
+			$('#mem_options_district').hide();
+		} else if (statereps[mem_report_state].length <= 3) {
+			$('#mem_options_district').
+				append($("<option></option>").
+					attr("value", 0).
+					text("At Large"));
+			mem_report_district = 0;
+			hashchange= true;
+		} else {
+			$('#mem_options_district').show();
+			if (mem_report_district == 0)
+				mem_report_district = "";
+			if (mem_report_district > statereps[mem_report_state].length)
+				mem_report_district = 1;
+			if (statereps[mem_report_state].length <= 3) {
+				$('#mem_options_district').
+					append($("<option></option>").
+						attr("value", 0).
+						attr("selected", 0 == mem_report_district).
+						text(0)); 
+			}
+			for (var i = 1; i <= statereps[mem_report_state].length -2 ; i++) {
+				$('#mem_options_district').
+					append($("<option></option>").
+						attr("value", i).
+						attr("selected", i == mem_report_district).
+						text(i)); 
+			}
+			hashchange= true;
+		}
+		
+		selstate = $('#mem_options_state').val()
+		seldist = $('#mem_options_district').val()
+		$('#memgo').attr("href", "/member/" + selstate + "/" + seldist);
+	}
+
+
 function zoompop(id) {
 	$.colorbox({
                 transition: "none",
@@ -46,12 +191,12 @@ function subscribe(validate) {
 				<h4>Choose:</h4>
 				<p class="gtk_selector">
 					State 
-					<select id="options_state" size="1" onchange="report_state = this.value; update()">
+					<select id="dist_options_state" size="1" onchange="dist_report_state = this.value; dist_update()">
 						<option value="">Choose a state</option>
 						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-					</select>
+					</select><br/>
 					District
-					<select id="options_district" size="1" onchange="report_district = this.value; update()">
+					<select id="dist_options_district" size="1" onchange="dist_report_district = this.value; dist_update()">
 					</select>
 					<span id="jump_to_default" style="display: none">
 						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
@@ -60,19 +205,21 @@ function subscribe(validate) {
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
 				
-				<p><a class="b_view_now btn" href="#">View Now</a></p>
+				<p><a id="distgo" class="b_view_now btn" href="#">View Now</a></p>
 			</div>
 			<div class="right_gtk">
 				<h2>A Member of Congress</h2>
 				<h4>Choose:</h4>
 				<p class="gtk_selector">
+				<b>Coming Soon!</b>
+				<!--
 					State 
-					<select id="options_state" size="1" onchange="report_state = this.value; update()">
+					<select id="mem_options_state" size="1" onchange="mem_report_state = this.value; mem_update()">
 						<option value="">Choose a state</option>
 						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
 					</select>
 					Member
-					<select id="options_district" size="1" onchange="report_district = this.value; update()">
+					<select id="mem_options_district" size="1" onchange="mem_report_district = this.value; mem_update()">
 					</select>
 					<span id="jump_to_default" style="display: none">
 						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
@@ -80,7 +227,7 @@ function subscribe(validate) {
 					</span>
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
-				<p><a class="b_view_now btn" href="#">View Now</a></p>
+				<p><a id="memgo" class="b_view_now btn" href="#">View Now</a></p> -->
 			</div>
 			<div class="clear"> </div>
 						
