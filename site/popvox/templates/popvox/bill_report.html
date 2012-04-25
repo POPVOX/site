@@ -438,7 +438,7 @@ h2 span {
 				{% if bill.sponsor %}
 				<div id="sponsor">
 					<h4>Sponsor:</h4>
-					<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
+					<a href="/member/{{bill.sponsor.pvurl}}" title="More information">{{ bill.sponsor.name }}</a>
 				</div>
 				{% endif %}
 				{% if bill.is_bill %}
@@ -607,7 +607,7 @@ h2 span {
 					{% endif %}
 					<div id="cosponsors{{coli}}{{forloop.counter0}}" {% if forloop.counter0 == 1 %}style="display: none"{% endif %}>
 					{% for cs in grp %}
-						<li><a href="http://www.govtrack.us/congress/person.xpd?id={{cs.id}}" class="blank" title="More information on www.GovTrack.us">{{ cs.name }}</a></li>
+					<li><a href="/member/{{cs.pvurl}}" title="More information">{{ cs.name }}</a></li>
 					{% endfor %}
 					</div>
 					{% if coli == 1 and forloop.counter0 == 1 %}

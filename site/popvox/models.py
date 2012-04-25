@@ -70,8 +70,9 @@ class MemberOfCongress(models.Model):
 	"""A Member of Congress or former member."""
 	
 	# The primary key is the GovTrack ID.
-	
+	pvurl = models.CharField(max_length=100,blank=True,null=True)
 	documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_memberofcongress")
+
 
 	def __unicode__(self):
 		return unicode(self.id) + u" " + self.name()
