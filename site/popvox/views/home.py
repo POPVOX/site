@@ -1060,7 +1060,7 @@ def member_page(request, membername=None):
             first = dom.getElementsByTagName('item')[0]
             guid = first.getElementsByTagName('guid')[0]
             mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
-        except urllib2.HTTPError:
+        except (IndexError, urllib2.HTTPError):
             pass
         
     birthdate = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d").date()
