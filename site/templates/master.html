@@ -161,12 +161,6 @@
 </head>
 <body {% block bodyattributes %}{% endblock %}>
 
-{% block feedback_button %}
-{% with "<p style='margin-bottom: 0'>Use this form to leave comments for <b>POPVOX staff</b> about the website. Do not leave comments about legislation here.</p>" as feedback_text %}
-	{% include "feedback/button.html" %}
-{% endwith %}
-{% endblock %}
-
 <div id="wrap"> 
 	<div id="head"> 
 		<a href="/" id="logo">POPVOX</a>
@@ -471,6 +465,12 @@ master_state(function (res) {
 {% endif %}
 
 {% block finalscript %}{% endblock %}
+
+{% block feedback_button %}
+{% with "<p style='margin-bottom: 0'>Use this form to leave comments for <b>POPVOX staff</b> about the website. Do not leave comments about legislation here.</p>" as feedback_text %}
+	{% include "feedback/button.html" %}
+{% endwith %}
+{% endblock %}
 
 </body> 
 </html>
