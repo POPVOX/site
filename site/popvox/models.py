@@ -1982,8 +1982,8 @@ class CensusData(models.Model):
     
 class MemberBio(models.Model):
     id = models.IntegerField(primary_key=True)
-    googleplus = models.URLField()
-    flickr_id = models.CharField(max_length=100)
+    googleplus = models.URLField(blank=True)
+    flickr_id = models.CharField(max_length=100, blank=True)
     		
 if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave"):
 	# Make sure that we have MoC and CC records for all people
