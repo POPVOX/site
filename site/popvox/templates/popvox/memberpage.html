@@ -9,6 +9,30 @@
 {% block content %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+$(document).ready(function($){$('#cosponsoredbills').hide();
+$('#cosponsoredtab').click(function show_cosponsored() {
+	$('#cosponsoredbills').show();
+	$('#sponsoredbills').hide();
+	$('#cosponsoredtab').addClass("active");
+	$('#cosponsoredtab').removeClass("inactive");
+	$('#sponsoredtab').addClass("inactive");
+	$('#sponsoredtab').removeClass("active");
+	$('.highcharts-container').width("100%")
+	return false;
+});
+$('#sponsoredtab').click(function show_sponsored() {
+	$('#cosponsoredbills').hide();
+	$('#sponsoredbills').show();
+	$('#cosponsoredtab').addClass("inactive");
+	$('#cosponsoredtab').removeClass("active");
+	$('#sponsoredtab').addClass("active");
+	$('#sponsoredtab').removeClass("inactive");
+	$('.highcharts-container').width("100%")
+	return false;
+});
+});
+</script>
 
 <div class="content myhill memberpage">
 
@@ -36,12 +60,12 @@
 	<div class="member-legislation">
 	       <h2>Legislation</h2>
 			   <div class="legislation-tabs">
-				   <h4 class="active"><a href="#">Sponsored</a></h4>
-				   <h4 class="inactive"><a href="#cosponsoredbills">Co-Sponsored</a></h4>
+				   <h4 class="active" id="sponsoredtab"><a href="void(0)" >Sponsored</a></h4>
+				   <h4 class="inactive" id="cosponsoredtab"><a href="void(0)" >Co-Sponsored</a></h4>
 				   <div style="clear:both;"></div>
 				</div>
 				   <div style="clear:both"></div>
-	       <div class="sponsoredbills">
+	       <div class="sponsoredbills" id="sponsoredbills">
 	               {% for bill,scope,pro,con,total in sponsored %}
 	                   {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">
@@ -61,14 +85,7 @@
 	                <p>This member has not sponsored any bills</p>
 	                {% endfor %}
 	                </div><!--end sponsored -->
-			<a name="cosponsoredbills"></a>
-			   <div class="legislation-tabs">
-				   <h4 class="inactive"><a href="#">Sponsored</a></h4>
-				   <h4 class="active"><a href="#cosponsoredbills">Co-Sponsored</a></h4>
-				   <div style="clear:both;"></div>
-				</div>
-				   <div style="clear:both"></div>
-	       <div class="co-sponsored">
+	       <div class="co-sponsored" id="cosponsoredbills">
 	       {% for bill,scope,pro,con,total in cosponsored %}
 	            {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">

@@ -6,6 +6,31 @@
 {% block content %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+$(document).ready(function($){$('#trending').hide();
+$('#populartab').click(function show_popular() {
+    $('#popular').show();
+    $('#trending').hide();
+    $('#populartab').addClass("active");
+    $('#populartab').removeClass("inactive");
+    $('#trendingtab').addClass("inactive");
+    $('#trendingtab').removeClass("active");
+    $('.highcharts-container').width("100%")
+    return false;
+});
+$('#trendingtab').click(function show_trending() {
+    $('#popular').hide();
+    $('#trending').show();
+    $('#populartab').addClass("inactive");
+    $('#populartab').removeClass("active");
+    $('#trendingtab').addClass("active");
+    $('#trendingtab').removeClass("inactive");
+    $('.highcharts-container').width("100%")
+    return false;
+});
+});
+</script>
+
 
 
 <div class="content district-info">
@@ -104,12 +129,12 @@
 
 <div class="district-legislation">
 	<div class="legislation-tabs">
-	   <h4 class="active"><a href="#">Trending</a></h4>
-	   <h4 class="inactive"><a href="#popular">Popular</a></h4>
+	   <h4 class="active" id="populartab"><a href="#">Popular</a></h4>
+	   <h4 class="inactive" id="trendingtab"><a href="#">Trending</a></h4>
 	   <div style="clear:both"></div>
 	</div>
 	<div style="clear:both"></div><!-- end legislation-tabs -->
-	<div class="legislation-trending">
+	<div class="legislation-trending" id="trending">
 		<p class="subhead">Bills with recent activity in {{ state }}'s District {{ district }}</p>
 		<ul>
 		{% for billrec,pro,con,total in trending_bills %}
@@ -141,13 +166,7 @@
 	{% endfor %}
 	</ul>
 	</div><!---end trending legislation -->
-	<div class="legislation-tabs">
-	   <h4 class="inactive"><a href="#">Trending</a></h4>
-	   <h4 class="active"><a href="#popular">Popular</a></h4>
-	   <div style="clear:both;"></div>
-	</div>
 	<div class="legislation-pop" id="popular">
-	    <h3>Popular</h3>
 		<p class="subhead">Bills with the most activity in {{ state }}'s District {{ district }}</p>
 	    {% for bill,pro,con,total in popular_bills %}
 	<ol>
