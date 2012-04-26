@@ -18,6 +18,8 @@
 	var default_district;
 	var dist_report_state = "";
 	var dist_report_district = "";
+	var mem_report_state = "";
+	var mem_report_member = "";
 	var start = 0;
 	var count = 50;
 	var isloading = false;
@@ -68,11 +70,11 @@ var memurls = {'WA': [['Sen. Maria Cantwell [D, WA]', 'sen-maria-cantwell-wa'], 
 'AZ': [['Sen. Jon Kyl [R, AZ]', 'sen-jon-kyl-az'], ['Sen. John McCain [R, AZ]', 'sen-john-mccain-az'], ['Rep. Jeff Flake [R, AZ-6]', 'rep-jeff-flake-az'], ['Rep. Trent Franks [R, AZ-2]', 'rep-trent-franks-az'], ['Rep. Raul Grijalva [D, AZ-7]', 'rep-raul-grijalva-az'], ['Rep. Edward Pastor [D, AZ-4]', 'rep-ed-pastor-az'], ['Rep. Paul Gosar [R, AZ-1]', 'rep-paul-gosar-az'], ['Rep. Ben Quayle [R, AZ-3]', 'rep-ben-quayle-az'], ['Rep. David Schweikert [R, AZ-5]', 'rep-david-schweikert-az']],
 'ID': [['Sen. Michael Crapo [R, ID]', 'sen-mike-crapo-id'], ['Rep. Michael Simpson [R, ID-2]', 'rep-mike-simpson-id'], ['Sen. James Risch [R, ID]', 'sen-jim-risch-id'], ['Rep. Ra&uacute;l Labrador [R, ID-1]', 'rep-raul-labrador-id']],
 'CT': [['Sen. Joseph Lieberman [I, CT]', 'sen-joseph-lieberman-ct'], ['Rep. Rosa DeLauro [D, CT-3]', 'rep-rosa-delauro-ct'], ['Rep. John Larson [D, CT-1]', 'rep-john-larson-ct'], ['Rep. Joe Courtney [D, CT-2]', 'rep-joe-courtney-ct'], ['Rep. Christopher Murphy [D, CT-5]', 'rep-chris-murphy-ct'], ['Rep. James Himes [D, CT-4]', 'rep-jim-himes-ct'], ['Sen. Richard Blumenthal [D, CT]', 'sen-richard-blumenthal-ct']],
-'ME': [['Sen. Susan Collins [R, ME]', 'sen-susan-collins-me'], ['Sen. Olympia Snowe [R, ME]', 'sen-olympia-snowe-me'], ['Rep. Michael Michaud [D, ME-2]', 'rep-mike-michaud-me'], ['Rep. Chellie Pingree [D, ME-1]', 'rep-chellie-pingree-me']],e;
+'ME': [['Sen. Susan Collins [R, ME]', 'sen-susan-collins-me'], ['Sen. Olympia Snowe [R, ME]', 'sen-olympia-snowe-me'], ['Rep. Michael Michaud [D, ME-2]', 'rep-mike-michaud-me'], ['Rep. Chellie Pingree [D, ME-1]', 'rep-chellie-pingree-me']],
 'MD': [['Sen. Barbara Mikulski [D, MD]', 'sen-barbara-mikulski-md'], ['Rep. Roscoe Bartlett [R, MD-6]', 'rep-roscoe-bartlett-md'], ['Sen. Benjamin Cardin [D, MD]', 'sen-ben-cardin-md'], ['Rep. Elijah Cummings [D, MD-7]', 'rep-elijah-cummings-md'], ['Rep. Steny Hoyer [D, MD-5]', 'rep-steny-hoyer-md'], ['Rep. Dutch Ruppersberger [D, MD-2]', 'rep-dutch-ruppersberger-md'], ['Rep. Christopher Van Hollen [D, MD-8]', 'rep-chris-van-hollen-md'], ['Rep. John Sarbanes [D, MD-3]', 'rep-john-sarbanes-md'], ['Rep. Donna Edwards [D, MD-4]', 'rep-donna-edwards-md'], ['Rep. Andy Harris [R, MD-1]', 'rep-andy-harris-md']],
 'OK': [['Sen. James Inhofe [R, OK]', 'sen-james-inhofe-ok'], ['Rep. Tom Cole [R, OK-4]', 'rep-tom-cole-ok'], ['Rep. Frank Lucas [R, OK-3]', 'rep-frank-lucas-ok'], ['Rep. John Sullivan [R, OK-1]', 'rep-john-sullivan-ok'], ['Sen. Thomas Coburn [R, OK]', 'sen-tom-coburn-ok'], ['Rep. Dan Boren [D, OK-2]', 'rep-dan-boren-ok'], ['Rep. James Lankford [R, OK-5]', 'rep-james-lankford-ok']],
-'OH': [['Rep. John Boehner [R, OH-8]', 'rep-john-boehner-oh'], ['Sen. Sherrod Brown [D, OH]', 'sen-sherrod-brown-oh'], ['Rep. Steven Chabot [R, OH-1]', 'rep-steve-chabot-oh'], ['Rep. Marcy Kaptur [D, OH-9]', 'rep-marcy-kaptur-oh'], ['Rep. Dennis Kucinich [D, OH-10]', 'rep-dennis-kucinich-oh'], ['Rep. Steven LaTourette [R, OH-14]', 'rep-steven-latourette-oh'], ['Sen. Robert Portman [R, OH]', 'sen-rob-portman-oh'], ['Rep. Timothy Ryan [D, OH-17]', 'rep-tim-ryan-oh'], ['Rep. Patrick Tiberi [R, OH-12]', 'rep-pat-tiberi-oh'], ['Rep. Michael Turner [R, OH-3]', 'rep-mike-turner-oh'], ['Rep. Jean Schmidt [R, OH-2]', 'rep-jean-schmidt-oh'], ['Rep. Jim Jordan [R, OH-4]', 'rep-jim-jordan-oh'], ['Rep. Betty Sutton [D, OH-13]', 'rep-betty-sutton-oh'], ['Rep. Robert Latta [R, OH-5]', 'rep-bob-latta-oh'], ['Rep. Steve Austria [R, OH-7]', 'rep-steve-austria-oh'], ['Rep. Marcia Fudge [D, OH-11]', 'rep-marcia-fudge-oh'], ['Rep. Bill Johnson [R, OH-6]', 'rep-bill-johnson-oh'], ['Rep. Steve Stivers [R, OH-15]', 'rep-steven-
-stivers-oh'], ['Rep. Jim Renacci [R, OH-16]', 'rep-jim-renacci-oh'], ['Rep. Bob Gibbs [R, OH-18]', 'rep-bob-gibbs-oh']],
+'OH': [['Rep. John Boehner [R, OH-8]', 'rep-john-boehner-oh'], ['Sen. Sherrod Brown [D, OH]', 'sen-sherrod-brown-oh'], ['Rep. Steven Chabot [R, OH-1]', 'rep-steve-chabot-oh'], ['Rep. Marcy Kaptur [D, OH-9]', 'rep-marcy-kaptur-oh'], ['Rep. Dennis Kucinich [D, OH-10]', 'rep-dennis-kucinich-oh'], ['Rep. Steven LaTourette [R, OH-14]', 'rep-steven-latourette-oh'], ['Sen. Robert Portman [R, OH]', 'sen-rob-portman-oh'], ['Rep. Timothy Ryan [D, OH-17]', 'rep-tim-ryan-oh'], ['Rep. Patrick Tiberi [R, OH-12]', 'rep-pat-tiberi-oh'], ['Rep. Michael Turner [R, OH-3]', 'rep-mike-turner-oh'], ['Rep. Jean Schmidt [R, OH-2]', 'rep-jean-schmidt-oh'], ['Rep. Jim Jordan [R, OH-4]', 'rep-jim-jordan-oh'], ['Rep. Betty Sutton [D, OH-13]', 'rep-betty-sutton-oh'], ['Rep. Robert Latta [R, OH-5]', 'rep-bob-latta-oh'], ['Rep. Steve Austria [R, OH-7]', 'rep-steve-austria-oh'], ['Rep. Marcia Fudge [D, OH-11]', 'rep-marcia-fudge-oh'], ['Rep. Bill Johnson [R, OH-6]', 'rep-bill-johnson-oh'], 
+['Rep. Steve Stivers [R, OH-15]', 'rep-steven-stivers-oh'], ['Rep. Jim Renacci [R, OH-16]', 'rep-jim-renacci-oh'], ['Rep. Bob Gibbs [R, OH-18]', 'rep-bob-gibbs-oh']],
 'UT': [['Sen. Orrin Hatch [R, UT]', 'sen-orrin-hatch-ut'], ['Rep. Rob Bishop [R, UT-1]', 'rep-rob-bishop-ut'], ['Rep. Jim Matheson [D, UT-2]', 'rep-jim-matheson-ut'], ['Rep. Jason Chaffetz [R, UT-3]', 'rep-jason-chaffetz-ut'], ['Sen. Mike Lee [R, UT]', 'sen-mike-lee-ut']],
 'MO': [['Rep. Todd Akin [R, MO-2]', 'rep-todd-akin-mo'], ['Sen. Roy Blunt [R, MO]', 'sen-roy-blunt-mo'], ['Rep. William Clay [D, MO-1]', 'rep-lacy-clay-mo'], ['Rep. Jo Ann Emerson [R, MO-8]', 'rep-jo-ann-emerson-mo'], ['Rep. Samuel Graves [R, MO-6]', 'rep-sam-graves-mo'], ['Rep. Russ Carnahan [D, MO-3]', 'rep-russ-carnahan-mo'], ['Rep. Emanuel Cleaver [D, MO-5]', 'rep-emanuel-cleaver-mo'], ['Sen. Claire McCaskill [D, MO]', 'sen-claire-mccaskill-mo'], ['Rep. Blaine Luetkemeyer [R, MO-9]', 'rep-blaine-luetkemeyer-mo'], ['Rep. Vicky Hartzler [R, MO-4]', 'rep-vicky-hartzler-mo'], ['Rep. Billy Long [R, MO-7]', 'rep-billy-long-mo']],
 'MN': [['Rep. John Kline [R, MN-2]', 'rep-john-kline-mn'], ['Rep. Betty McCollum [D, MN-4]', 'rep-betty-mccollum-mn'], ['Rep. Collin Peterson [D, MN-7]', 'rep-collin-peterson-mn'], ['Rep. Timothy Walz [D, MN-1]', 'rep-tim-walz-mn'], ['Rep. Keith Ellison [D, MN-5]', 'rep-keith-ellison-mn'], ['Rep. Michele Bachmann [R, MN-6]', 'rep-michele-bachmann-mn'], ['Sen. Amy Klobuchar [D, MN]', 'sen-amy-klobuchar-mn'], ['Rep. Erik Paulsen [R, MN-3]', 'rep-erik-paulsen-mn'], ['Sen. Al Franken [D, MN]', 'sen-al-franken-mn'], ['Rep. Chip Cravaack [R, MN-8]', 'rep-chip-cravaack-mn']],
@@ -85,7 +87,7 @@ stivers-oh'], ['Rep. Jim Renacci [R, OH-16]', 'rep-jim-renacci-oh'], ['Rep. Bob 
 'SC': [['Sen. Lindsey Graham [R, SC]', 'sen-lindsey-graham-sc'], ['Rep. James Clyburn [D, SC-6]', 'rep-james-clyburn-sc'], ['Sen. Jim DeMint [R, SC]', 'sen-jim-demint-sc'], ['Rep. Addison Wilson [R, SC-2]', 'rep-joe-wilson-sc'], ['Rep. Tim Scott [R, SC-1]', 'rep-tim-scott-sc'], ['Rep. Jeff Duncan [R, SC-3]', 'rep-jeff-duncan-sc'], ['Rep. Trey Gowdy [R, SC-4]', 'rep-trey-gowdy-sc'], ['Rep. Mick Mulvaney [R, SC-5]', 'rep-mick-mulvaney-sc']],
 'KY': [['Sen. Mitch McConnell [R, KY]', 'sen-mitch-mcconnell-ky'], ['Rep. Harold Rogers [R, KY-5]', 'rep-hal-rogers-ky'], ['Rep. Edward Whitfield [R, KY-1]', 'rep-ed-whitfield-ky'], ['Rep. Ben Chandler [D, KY-6]', 'rep-ben-chandler-ky'], ['Rep. Geoff Davis [R, KY-4]', 'rep-geoff-davis-ky'], ['Rep. John Yarmuth [D, KY-3]', 'rep-john-yarmuth-ky'], ['Rep. Brett Guthrie [R, KY-2]', 'rep-steven-guthrie-ky'], ['Sen. Rand Paul [R, KY]', 'sen-rand-paul-ky']],
 'OR': [['Sen. Ron Wyden [D, OR]', 'sen-ron-wyden-or'], ['Rep. Earl Blumenauer [D, OR-3]', 'rep-earl-blumenauer-or'], ['Rep. Peter DeFazio [D, OR-4]', 'rep-peter-defazio-or'], ['Rep. Greg Walden [R, OR-2]', 'rep-greg-walden-or'], ['Rep. Kurt Schrader [D, OR-5]', 'rep-kurt-schrader-or'], ['Sen. Jeff Merkley [D, OR]', 'sen-jeff-merkley-or'], ['Rep. Suzanne Bonamici [D, OR-1]', 'rep-suzanne-bonamici-or']],
-'SD': [['Sen. Tim Johnson [D, SD]', 'sen-tim-johnson-sd'], ['Sen. John Thune [R, SD]', 'sen-john-thune-sd'], ['Rep. Kristi Noem [R, SD-0]', 'rep-kristi-noem-sd']]}
+'SD': [['Sen. Tim Johnson [D, SD]', 'sen-tim-johnson-sd'], ['Sen. John Thune [R, SD]', 'sen-john-thune-sd'], ['Rep. Kristi Noem [R, SD-0]', 'rep-kristi-noem-sd']]};
 
 var statereps = {"WA": ["Sen. Maria Cantwell [D, WA]", "Sen. Patty Murray [D, WA]", "Rep. Jay Inslee [D, WA-1]", "Rep. Rick Larsen [D, WA-2]", "Rep. Jaime Herrera Beutler [R, WA-3]", "Rep. Doc Hastings [R, WA-4]", "Rep. Cathy McMorris Rodgers [R, WA-5]", "Rep. Norman Dicks [D, WA-6]", "Rep. James McDermott [D, WA-7]", "Rep. Dave Reichert [R, WA-8]", "Rep. Adam Smith [D, WA-9]"],
  "VA": ["Sen. Mark Warner [D, VA]", "Sen. Jim Webb [D, VA]", "Rep. Rob Wittman [R, VA-1]", "Rep. Scott Rigell [R, VA-2]", "Rep. Robert Scott [D, VA-3]", "Rep. Randy Forbes [R, VA-4]", "Rep. Robert Hurt [R, VA-5]", "Rep. Robert Goodlatte [R, VA-6]", "Rep. Eric Cantor [R, VA-7]", "Rep. James Moran [D, VA-8]", "Rep. Morgan Griffith [R, VA-9]", "Rep. Frank Wolf [R, VA-10]", "Rep. Gerald Connolly [D, VA-11]"],
@@ -156,10 +158,12 @@ var statereps = {"WA": ["Sen. Maria Cantwell [D, WA]", "Sen. Patty Murray [D, WA
 			hashchange= true;
 		} else {
 			$('#dist_options_district').show();
-			if (dist_report_district == 0)
+			if (dist_report_district == 0){
 				dist_report_district = "";
-			if (dist_report_district > statereps[dist_report_state].length)
+			}
+			if (dist_report_district > statereps[dist_report_state].length) {
 				dist_report_district = 1;
+			}
 			if (statereps[dist_report_state].length <= 3) {
 				$('#dist_options_district').
 					append($("<option></option>").
@@ -185,43 +189,33 @@ var statereps = {"WA": ["Sen. Maria Cantwell [D, WA]", "Sen. Patty Murray [D, WA
 	function mem_update(hashchange) {
 		// Update district dropdown list options and make sure that
 		// report_district is a valid value for the current state.
-		$('#mem_options_district').html("");
-		if (mem_report_state == "") {
-			mem_report_district = 0;
-			$('#mem_options_district').hide();
-		} else if (statereps[mem_report_state].length <= 3) {
-			$('#mem_options_district').
-				append($("<option></option>").
-					attr("value", 0).
-					text("At Large"));
-			mem_report_district = 0;
-			hashchange= true;
-		} else {
-			$('#mem_options_district').show();
-			if (mem_report_district == 0)
-				mem_report_district = "";
-			if (mem_report_district > statereps[mem_report_state].length)
-				mem_report_district = 1;
-			if (statereps[mem_report_state].length <= 3) {
-				$('#mem_options_district').
-					append($("<option></option>").
-						attr("value", 0).
-						attr("selected", 0 == mem_report_district).
-						text(0)); 
-			}
-			for (var i = 1; i <= statereps[mem_report_state].length -2 ; i++) {
-				$('#mem_options_district').
-					append($("<option></option>").
-						attr("value", i).
-						attr("selected", i == mem_report_district).
-						text(i)); 
-			}
-			hashchange= true;
+		$('#mem_options_member').html("");
+		var state = $('mem_options_state').val()
+		if (mem_report_member == 0){
+			mem_report_member = "";
 		}
-		
-		selstate = $('#mem_options_state').val()
-		seldist = $('#mem_options_district').val()
-		$('#memgo').attr("href", "/member/" + selstate + "/" + seldist);
+		if (mem_report_member > memurls[mem_report_state].length) {
+			mem_report_member = 1;
+		}
+		if (mem_report_state == "") {
+			mem_report_member = 0;
+			$('#dist_options_district').hide();
+		} else {
+			for (var i = 1; i <= memurls[mem_report_state].length ; i++) {
+				$('#mem_options_member').
+					append($("<option></option>").
+						attr("value", memurls[mem_report_state][i-1][1]).
+						attr("selected", memurls[mem_report_state][i-1][1] == mem_report_member).
+						text(memurls[mem_report_state][i-1][0])); 
+			}
+			//hashchange= true;
+	}
+
+		//$('#mem_options_member').attr("selected", i == mem_report_member);
+	
+		selstate = $('#mem_options_state').val();
+		selmem = $('#mem_options_member').val();
+		$('#memgo').attr("href", "/member/" + selmem);
 	}
 
 
@@ -264,10 +258,6 @@ function subscribe(validate) {
 					District
 					<select id="dist_options_district" size="1" onchange="dist_report_district = this.value; dist_update()">
 					</select>
-					<span id="jump_to_default" style="display: none">
-						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
-						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = default_state; update(false); report_district = default_district; showdata(); return false;">Show XXX</a>
-					</span>
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
 				
@@ -277,23 +267,17 @@ function subscribe(validate) {
 				<h2>A Member of Congress</h2>
 				<h4>Choose:</h4>
 				<p class="gtk_selector">
-				<b>Coming Soon!</b>
-				<!--
 					State 
 					<select id="mem_options_state" size="1" onchange="mem_report_state = this.value; mem_update()">
 						<option value="">Choose a state</option>
 						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-					</select>
+					</select><br/>
 					Member
-					<select id="mem_options_district" size="1" onchange="mem_report_district = this.value; mem_update()">
+					<select id="mem_options_member" size="1" onchange="mem_report_member = this.value; mem_update()">
 					</select>
-					<span id="jump_to_default" style="display: none">
-						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
-						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = default_state; update(false); report_district = default_district; showdata(); return false;">Show XXX</a>
-					</span>
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
-				<p><a id="memgo" class="b_view_now btn" href="#">View Now</a></p> -->
+				<p><a id="memgo" class="b_view_now btn" href="#">View Now</a></p> 
 			</div>
 			<div class="clear"> </div>
 						
