@@ -6,31 +6,6 @@
 {% block content %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
-<script>
-$(document).ready(function($){$('#trending').hide();
-$('#populartab').click(function show_popular() {
-    $('#popular').show();
-    $('#trending').hide();
-    $('#populartab').addClass("active");
-    $('#populartab').removeClass("inactive");
-    $('#trendingtab').addClass("inactive");
-    $('#trendingtab').removeClass("active");
-    $('.highcharts-container').width("100%")
-    return false;
-});
-$('#trendingtab').click(function show_trending() {
-    $('#popular').hide();
-    $('#trending').show();
-    $('#populartab').addClass("inactive");
-    $('#populartab').removeClass("active");
-    $('#trendingtab').addClass("active");
-    $('#trendingtab').removeClass("inactive");
-    $('.highcharts-container').width("100%")
-    return false;
-});
-});
-</script>
-
 
 
 <div class="content district-info">
@@ -193,5 +168,33 @@ $('#trendingtab').click(function show_trending() {
 </div><!-- end col_9 col_top col_last -->
 {% include "ads/rightbar.html" %}
 </div>
+<script>
+$(document).ready(function($){
+	$('.highcharts-container').each( function() {
+		$(this).width($(this).parent().parent().width());
+	});
+	$('#trending').hide();
+
+$('#populartab').click(function show_popular() {
+    $('#popular').show();
+    $('#trending').hide();
+    $('#populartab').addClass("active");
+    $('#populartab').removeClass("inactive");
+    $('#trendingtab').addClass("inactive");
+    $('#trendingtab').removeClass("active");
+    return false;
+});
+$('#trendingtab').click(function show_trending() {
+    $('#popular').hide();
+    $('#trending').show();
+    $('#populartab').addClass("inactive");
+    $('#populartab').removeClass("active");
+    $('#trendingtab').addClass("active");
+    $('#trendingtab').removeClass("inactive");
+    return false;
+});
+});
+</script>
+
 
 {% endblock %}

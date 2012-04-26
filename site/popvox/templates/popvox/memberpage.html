@@ -9,30 +9,6 @@
 {% block content %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
-<script>
-$(document).ready(function($){$('#cosponsoredbills').hide();
-$('#cosponsoredtab').click(function show_cosponsored() {
-	$('#cosponsoredbills').show();
-	$('#sponsoredbills').hide();
-	$('#cosponsoredtab').addClass("active");
-	$('#cosponsoredtab').removeClass("inactive");
-	$('#sponsoredtab').addClass("inactive");
-	$('#sponsoredtab').removeClass("active");
-	$('.highcharts-container').width("100%")
-	return false;
-});
-$('#sponsoredtab').click(function show_sponsored() {
-	$('#cosponsoredbills').hide();
-	$('#sponsoredbills').show();
-	$('#cosponsoredtab').addClass("inactive");
-	$('#cosponsoredtab').removeClass("active");
-	$('#sponsoredtab').addClass("active");
-	$('#sponsoredtab').removeClass("inactive");
-	$('.highcharts-container').width("100%")
-	return false;
-});
-});
-</script>
 
 <div class="content myhill memberpage">
 
@@ -128,4 +104,32 @@ $('#sponsoredtab').click(function show_sponsored() {
 Washington, DC 20515</p>
 	</div></div><!--end member-info -->
 
+<script>
+$(document).ready(function($){
+    $('.highcharts-container').each( function() {
+        $(this).width($(this).parent().parent().width());
+    });
+    $('#cosponsoredbills').hide();
+
+
+$('#cosponsoredtab').click(function show_cosponsored() {
+	$('#cosponsoredbills').show();
+	$('#sponsoredbills').hide();
+	$('#cosponsoredtab').addClass("active");
+	$('#cosponsoredtab').removeClass("inactive");
+	$('#sponsoredtab').addClass("inactive");
+	$('#sponsoredtab').removeClass("active");
+	return false;
+});
+$('#sponsoredtab').click(function show_sponsored() {
+	$('#cosponsoredbills').hide();
+	$('#sponsoredbills').show();
+	$('#cosponsoredtab').addClass("inactive");
+	$('#cosponsoredtab').removeClass("active");
+	$('#sponsoredtab').addClass("active");
+	$('#sponsoredtab').removeClass("inactive");
+	return false;
+});
+});
+</script>
 {% endblock %}

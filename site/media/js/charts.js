@@ -161,8 +161,10 @@ else if (pro_pct < 15) {
 		var support_label = data_labels[1];
 		var text_element = support_label.firstChild;
 		var tspan = text_element.firstChild;
+		var width = parseInt(chart_container.offsetWidth);
+		var newpoint = width - 5;
 		text_element.setAttribute("text-anchor","end");
-		tspan.setAttribute("x","335");
+		tspan.setAttribute("x",newpoint);
 	}
 } else if (pro_pct > 85) {
 	var chart_container = document.getElementById(container);
@@ -171,8 +173,10 @@ else if (pro_pct < 15) {
 		var oppose_label = data_labels[0];
 		var text_element = oppose_label.firstChild;
 		var tspan = text_element.firstChild;
+		var width = parseInt(chart_container.offsetWidth);
+		var newpoint = width - 5;
 		text_element.setAttribute("text-anchor","end");
-		tspan.setAttribute("x","335");
+		tspan.setAttribute("x",newpoint);
 	}
 }
 
