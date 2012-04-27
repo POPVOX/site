@@ -2,7 +2,6 @@
 {% block title %}POPVOX - Member of Congress{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
-{% block subnav %}<ul id="subnav"><li><a href="/gettoknow">Get to Know</a></li></ul>{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
 
@@ -10,6 +9,30 @@
 {% block content %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+$(document).ready(function($){$('#cosponsoredbills').hide();
+$('#cosponsoredtab').click(function show_cosponsored() {
+	$('#cosponsoredbills').show();
+	$('#sponsoredbills').hide();
+	$('#cosponsoredtab').addClass("active");
+	$('#cosponsoredtab').removeClass("inactive");
+	$('#sponsoredtab').addClass("inactive");
+	$('#sponsoredtab').removeClass("active");
+	$('.highcharts-container').width("100%")
+	return false;
+});
+$('#sponsoredtab').click(function show_sponsored() {
+	$('#cosponsoredbills').hide();
+	$('#sponsoredbills').show();
+	$('#cosponsoredtab').addClass("inactive");
+	$('#cosponsoredtab').removeClass("active");
+	$('#sponsoredtab').addClass("active");
+	$('#sponsoredtab').removeClass("inactive");
+	$('.highcharts-container').width("100%")
+	return false;
+});
+});
+</script>
 
 <div class="content myhill memberpage">
 
@@ -21,7 +44,14 @@
 	</div>
 	<div class="clear"> </div>
 	<div class="member">
-		<div class="member-photo"><img src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
+        {% if memdata.nophoto %}
+          <div class="member-photo"><img
+          src="/media/master/nophoto-{{memdata.gender}}.jpg" alt="{{member.name}}"/></div>
+		{% else %}
+          <div class="member-photo"><img
+          src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
+        {% endif %}
+		
 		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">{%if memdata.title == "Rep" %}<a href="/district/{{memdata.state}}/{{memdata.district}}">[{{memdata.party}}, {{memdata.state}}-{{memdata.district}}]</a>{% else %}[{{memdata.party}}, {{memdata.state}}]{% endif %}</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
@@ -136,32 +166,4 @@
 Washington, DC 20515</p>
 	</div></div><!--end member-info -->
 
-<script>
-$(document).ready(function($){
-    $('.highcharts-container').each( function() {
-        $(this).width($(this).parent().parent().width());
-    });
-    $('#cosponsoredbills').hide();
-
-
-$('#cosponsoredtab').click(function show_cosponsored() {
-	$('#cosponsoredbills').show();
-	$('#sponsoredbills').hide();
-	$('#cosponsoredtab').addClass("active");
-	$('#cosponsoredtab').removeClass("inactive");
-	$('#sponsoredtab').addClass("inactive");
-	$('#sponsoredtab').removeClass("active");
-	return false;
-});
-$('#sponsoredtab').click(function show_sponsored() {
-	$('#cosponsoredbills').hide();
-	$('#sponsoredbills').show();
-	$('#cosponsoredtab').addClass("inactive");
-	$('#cosponsoredtab').removeClass("active");
-	$('#sponsoredtab').addClass("active");
-	$('#sponsoredtab').removeClass("inactive");
-	return false;
-});
-});
-</script>
 {% endblock %}

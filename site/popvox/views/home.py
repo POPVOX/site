@@ -13,6 +13,7 @@ from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 import json
 
 import re
+import os
 from xml.dom import minidom
 from itertools import chain, izip, cycle
 
@@ -1028,7 +1029,7 @@ def member_page(request, membername=None):
     member = None
     
     try:
-        memberid = memurls[membername] #This dict is imported from mempageurls.py. The keys are title-fistname-lastname-state (for our standard url format) and the values are govtrack ids.
+        memberid = memurls[membername] #FIXME pull this from MemberofCongress.pvurl instead of the dict file
         member = MemberOfCongress.objects.get(id=memberid)
         
     except KeyError:
@@ -1088,6 +1089,11 @@ def member_page(request, membername=None):
             name = popvox.govtrack.getCommittee(committee)['name']
             committees.append(name)
     mem_data['committees'] = committees
+    
+    #checking if we have the member's picture:
+    mem_data["gender"] = mem_data["gender"].lower()
+    if not os.path.isfile("/home/www/sources/site/static/member_photos/"+str(member.id)+"-200px.jpeg"):
+        mem_data["nophoto"] = True
     
     
     #membermatch runs all the comparison logic between the user's comments and the member's votes.
