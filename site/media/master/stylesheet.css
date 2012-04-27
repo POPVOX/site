@@ -1,7 +1,3 @@
-/* @override https://william.popvox.com/media/master/stylesheet.css */
-
-/* @override https://william.popvox.com/media/master/stylesheet.css */
-
 /*
 
 
@@ -5201,6 +5197,79 @@ body.gettoknow h1 {
 
 
 
+
+
+
+/* get to know */
+
+
+body.gettoknow .hm_slide_mid  {
+	background: url(/media/master/bg_gtknow.jpg) left -70px no-repeat; 
+	height: 500px;
+}
+
+body.gettoknow h1 {
+	margin-top: 120px;
+	height: 50px;
+}
+
+.left_gtk {
+	display: block;
+	float: left;
+	width: 450px;
+	height: 400px;
+	margin: 120px 40px 0 0;
+	}
+
+.right_gtk {
+	display: block;
+	float: left;
+	width: 449px;
+	height: 400px;
+	margin-top: 120px;
+	}
+	
+	body.gettoknow .left_gtk h2, 
+	body.gettoknow .right_gtk h2 {
+		height: 200px;
+		text-indent: -9999em;
+	}
+	
+	body.gettoknow h4 {
+  		color: #75757d;
+  		font: normal 36px/40px 'BebasNeueRegular', helvetica, arial, sans-serif;
+  		text-align: center;
+	}
+
+	body.gettoknow p {
+		font-size: 14px;
+		line-height: 24px;
+	}
+	
+	p.gtk_selector {
+		color: #75757d;
+		background: #d4d1ca;
+		padding: 15px;
+		font: bold 14px/24px Helvetica, arial, san-serif;
+		text-transform: uppercase;
+	}
+	
+		p.gtk_selector select {
+			margin: 0 15px 0 5px;
+		}
+	
+		.b_view_now {
+		    width: 125px;
+		    height: 30px;
+		    background: url(/media/master/b_view_now.png) left top no-repeat;
+		    display: block;
+		    text-indent: -9999em;
+		    margin-left: 165px;
+		    }
+		    
+    		.b_view_now:hover {
+				background-position: left bottom;
+				}
 
 
 
