@@ -330,7 +330,7 @@ def segmentation_table(request):
 	
 	def get_user_row(uid):
 		user = User.objects.get(id=uid)
-		return (user.username, user.email)
+		return (user.id, user.username, user.email)
 	
 	return {
 		"iTotalRecords": total_count,

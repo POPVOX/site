@@ -2,55 +2,72 @@
 {% block title %}POPVOX - Member of Congress{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
-{%block nav_citzen_class_home%}active{%endblock%}
-{% block head %}
-
-{% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
 {% block content %}
+<div id="distsubnav" style="text-align:right">
+					State 
+					<select id="mem_options_state" size="1" onchange="mem_report_state = this.value; mem_update()">
+						<option value="">Choose a state</option>
+						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+					</select>
+					Member
+					<select id="mem_options_member" size="1" onchange="mem_report_member = this.value; mem_update()">
+				</select><a id="memgo" href="#">View Now</a></div>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 
-<div class="content myhill">
+<div class="content myhill memberpage">
 
 	<div class="col_12 col_top col_last ">
-		<h1 class="rule_btm">Member of Congress / {{member.name}}</h1>
+		<h1 class="rule_btm">Member of Congress <span class="name">/ {{member.name}}</span></h1>
 		
 		<!--<h3>How Did Your Members of Congress Vote?</h3>
 		<p>Are your senators and representative voting the way you want them to? Here is a personalized grid that displays every bill on which you weighed in, along with how your legislators voted if a vote was held on the bill. That includes letting you know if your Member of Congress abstained or was absent.  </p> -->
 	</div>
 	<div class="clear"> </div>
 	<div class="member">
-		<div class="member-photo"><img src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
-		<p>{{member.name}}</p>
+        {% if memdata.nophoto %}
+          <div class="member-photo"><img
+          src="/media/master/nophoto-{{memdata.gender}}.jpg" alt="{{member.name}}"/></div>
+		{% else %}
+          <div class="member-photo"><img
+          src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
+        {% endif %}
+		
+		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">{%if memdata.title == "Rep" %}<a href="/district/{{memdata.state}}/{{memdata.district}}">[{{memdata.party}}, {{memdata.state}}-{{memdata.district}}]</a>{% else %}[{{memdata.party}}, {{memdata.state}}]{% endif %}</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
-		<dl>
-			<dt>Congress office</dt>
-			<dd>{{memdata.congress_office}}</dd>
-			{% if memdata.committees %}<dt>Committees</dt>
-			<dd><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}</dd>
-			<dt>Age</dt>
-			<dd>{{ memdata.age }}</dd>
-			<dt>Birth Date</dt>
-			<dd>{{ memdata.birthday|date:"m/d/Y" }}</dd>
-		</dl>
+		<table>
+			{% if memdata.committees %}<tr><th>Committees</th>
+				<td><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}</td></tr>
+			<tr><th>Age</th><td>{{ memdata.age }}</td></tr>
+			<tr><th>Birth Date</th>	<td>{{ memdata.birthday|date:"m/d/Y" }}</td></tr>
+		</table>
 	</div><!--end member-stats -->
 	</div><!--end member -->
 	
 	<div class="member-legislation">
 	       <h2>Legislation</h2>
-	       <div class="sponsoredbills">
-	               <h3>Sponsored</h3>
-	               {% for bill,scope,pro,con in sponsored %}
+			   <div class="legislation-tabs">
+				   <h4 class="active" id="sponsoredtab"><a href="void(0)" >Sponsored</a></h4>
+				   <h4 class="inactive" id="cosponsoredtab"><a href="void(0)" >Co-Sponsored</a></h4>
+				   <div style="clear:both;"></div>
+				</div>
+				   <div style="clear:both"></div>
+	       <div class="sponsoredbills" id="sponsoredbills">
+	               {% for bill,scope,pro,con,total in sponsored %}
 	                   {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">
-								<h5><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h5>
+								<h4><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h4>
 								{% if pro or con %}
-	                           <div id="sponsored_bar_{{forloop.counter}}">
-	                                  <script>bill_bar_chart("sponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+									<a href="{{bill.url}}/report">
+	                           			<div id="sponsoredtwo_part_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("sponsoredtwo_part_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
+							   		</a>
+								<p class="usercount">sentiment of {{total}} users in {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s {{scope}}</p>
 								{% else %}
-								<p>Too few constituents have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+								<p class="toofew">Too few of {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
+									<p class="takeaction">For comments left so far <a href="{{bill.url}}/report">view  the report.</a></p>
 								{% endif %}
 	                              </li>
 	                    {% if forloop.last %}</ul>{% endif %}
@@ -58,17 +75,18 @@
 	                <p>This member has not sponsored any bills</p>
 	                {% endfor %}
 	                </div><!--end sponsored -->
-	       <div class="co-sponsored">
-	       <h3>Co-Sponsored</h3>
-	       {% for bill,scope,pro,con in cosponsored %}
+	       <div class="co-sponsored" id="cosponsoredbills">
+	       {% for bill,scope,pro,con,total in cosponsored %}
 	            {% if forloop.first %}<ul>{% endif %}
 	                            <li class="bill">
-								<h5><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h5>
+								<h4><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h4>
 								{% if pro or con %}
-	                <div id="cosponsored_bar_{{forloop.counter}}">
-	                 <script>bill_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true });</script></div>for the {{scope}}
+									<a href="{{bill.url}}/report">
+	                					<div id="cosponsored_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div></a>
+								<p class="usercount">sentiment of {{total}} users in {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s district</p>
 								{% else %}
-								<p>Too few constituents have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+									<p class="toofew">Too few {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
+									<p class="takeaction">For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 								{% endif %}
 	             </li>
 	            {% if forloop.last %}</ul>{% endif %}
@@ -80,16 +98,84 @@
 
     <div class="member-info">
 	<h2>Info</h2>
+	<div class="member-info-inner">
+	<h3>Web</h3>
+		{% if memdata.website %}<a href="{{memdata.website}}">{{memdata.website}}</a>{% endif %}
 	<h3>Social</h3>
-	<ul>
-	{% if memdata.facebook_id %}<li><a href="http://facebook.com/{{memdata.facebook_id}}">Facebook</a></li>{% endif %}
-	{% if memdata.youtube_url %}<li><a href="{{memdata.youtube_url}}">YouTube</a></li>{% endif %}
-	{% if memdata.twitter_id %}<li><a href="http://twitter.com/{{memdata.twitter_id}}">Twitter</a></li>{% endif %}
-    {% if memdata.flickr_id %}<li><a href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}
-    {% if memdata.googleplus %}<li><a href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
+	<ul class="social-links">
+	{% if memdata.facebook_id %}<li><a class="facebook" href="http://facebook.com/{{memdata.facebook_id}}"></a></li>{% endif %}
+	{% if memdata.youtube_url %}<li><a class="youtube" href="{{memdata.youtube_url}}"></a></li>{% endif %}
+	{% if memdata.twitter_id %}<li><a class="twitter" href="http://twitter.com/{{memdata.twitter_id}}"></a></li>{% endif %}
+	{#comment {% if memdata.flickr_id %}<li><a class="flickr" href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}{ #}
+    {% if memdata.googleplus %}<li><a class="googleplus" href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
 </ul>
 {% if memdata.last_vid %}
-	<iframe width="240" height="312" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
-    </div><!--end member-info -->
+<iframe width="280" height="170" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
+<hr>
+{% if memdata.twitter_id %}
+    <script charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
+    <script>
+    new TWTR.Widget({
+      version: 2,
+      type: 'profile',
+      rpp: 10,
+      interval: 30000,
+      width: 'auto',
+      height: 500,
+      theme: {
+        shell: {
+          background: '#404045',
+          color: '#ffffff'
+        },
+        tweets: {
+          background: '#ffffff',
+          color: '#000000',
+          links: '#cc6b11'
+        }
+      },
+      features: {
+        scrollbar: true,
+        loop: false,
+        live: true,
+        behavior: 'all'
+      }
+    }).render().setUser('{{memdata.twitter_id}}').start();
+    </script>
+{% endif %}
 
+	<h3>Address</h3>
+	<p>Washington, DC:<br/>
+{{memdata.congress_office}}<br/>
+Washington, DC 20515</p>
+	</div></div><!--end member-info -->
+
+<script>
+$(document).ready(function($){
+    $('.highcharts-container').each( function() {
+        $(this).width($(this).parent().parent().width());
+    });
+    $('#cosponsoredbills').hide();
+
+
+$('#cosponsoredtab').click(function show_cosponsored() {
+	$('#cosponsoredbills').show();
+	$('#sponsoredbills').hide();
+	$('#cosponsoredtab').addClass("active");
+	$('#cosponsoredtab').removeClass("inactive");
+	$('#sponsoredtab').addClass("inactive");
+	$('#sponsoredtab').removeClass("active");
+	return false;
+});
+$('#sponsoredtab').click(function show_sponsored() {
+	$('#cosponsoredbills').hide();
+	$('#sponsoredbills').show();
+	$('#cosponsoredtab').addClass("inactive");
+	$('#cosponsoredtab').removeClass("active");
+	$('#sponsoredtab').addClass("active");
+	$('#sponsoredtab').removeClass("inactive");
+	return false;
+});
+});
+</script>
+<script type="text/javascript" src="/media/js/gettoknow.js"></script>
 {% endblock %}

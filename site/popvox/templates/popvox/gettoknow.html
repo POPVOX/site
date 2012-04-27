@@ -2,7 +2,7 @@
 {% load registration_providers %}
 {% block title %}POPVOX - Get To Know - A District - A Member of Congress{% endblock %}
 {% block title2 %}{% endblock %}
-{% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
+{% block description %}POPVOX - Select Memberof Congress or Congressional District to see facts, stats, sponsored bills, constituent sentiment, and social media links{% endblock %}
 {% block bodyattributes %}class="land gettoknow"{% endblock %}
 {% block navattributes %}id="head_r"{% endblock %}
 {% block disable_login_redirect %}{% endblock %}
@@ -46,42 +46,33 @@ function subscribe(validate) {
 				<h4>Choose:</h4>
 				<p class="gtk_selector">
 					State 
-						{% if stateabbrs %}yes i haz abbrs {% else %} no i haz no abbrs {% endif %}
-					<select id="options_state" size="1" onchange="report_state = this.value; update()">
+					<select id="dist_options_state" size="1" onchange="dist_report_state = this.value; dist_update()">
 						<option value="">Choose a state</option>
-						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-					</select>
+						{% for stateabbr, statename in diststateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+					</select><br/>
 					District
-					<select id="options_district" size="1" onchange="report_district = this.value; update()">
+					<select id="dist_options_district" size="1" onchange="dist_report_district = this.value; dist_update()">
 					</select>
-					<span id="jump_to_default" style="display: none">
-						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
-						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = default_state; update(false); report_district = default_district; showdata(); return false;">Show XXX</a>
-					</span>
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
 				
-				<p><a class="b_view_now btn" href="#">View Now</a></p>
+				<p><a id="distgo" class="b_view_now btn" href="#">View Now</a></p>
 			</div>
 			<div class="right_gtk">
 				<h2>A Member of Congress</h2>
 				<h4>Choose:</h4>
 				<p class="gtk_selector">
 					State 
-					<select id="options_state" size="1" onchange="report_state = this.value; update()">
+					<select id="mem_options_state" size="1" onchange="mem_report_state = this.value; mem_update()">
 						<option value="">Choose a state</option>
 						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-					</select>
+					</select><br/>
 					Member
-					<select id="options_district" size="1" onchange="report_district = this.value; update()">
+					<select id="mem_options_member" size="1" onchange="mem_report_member = this.value; mem_update()">
 					</select>
-					<span id="jump_to_default" style="display: none">
-						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
-						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = default_state; update(false); report_district = default_district; showdata(); return false;">Show XXX</a>
-					</span>
 					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
 				</p>
-				<p><a class="b_view_now btn" href="#">View Now</a></p>
+				<p><a id="memgo" class="b_view_now btn" href="#">View Now</a></p> 
 			</div>
 			<div class="clear"> </div>
 						
@@ -152,4 +143,5 @@ function subscribe(validate) {
 	<div class="clear"> </div>
 </div>
 
+<script type="text/javascript" src="/media/js/gettoknow.js"></script>
 {% endblock %}

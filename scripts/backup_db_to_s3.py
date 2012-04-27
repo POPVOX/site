@@ -28,7 +28,7 @@
 #
 # One down-side to this script is that you need read access to the MySQL database
 # table files, which are typically accessible only to the mysql user. We've made
-# them world-readable.
+# them world-readable, but ALTER TABLE seems to reset permissions.
 
 from datetime import datetime
 from glob import glob
@@ -42,7 +42,6 @@ from boto.s3.key import Key
 
 from settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
-skip_tables = ["popvox_documentpage"] # we don't have disk space to copy
 encrypt_tables = ["auth_user", "popvox_postaladdress", "popvox_serviceaccountcampaignactionrecord", "writeyourrep_deliveryrecord"] # activate S3's server side encrpytion
 
 # In order to interfere with the live site minimally, we backup each table
@@ -62,8 +61,6 @@ tables = [t[0] for t in cur.fetchall()]
 
 # for each table...
 for table in tables:
-	if table in skip_tables: continue
-
 	print table, "..."
 
 	tmp = tempfile.mkdtemp()

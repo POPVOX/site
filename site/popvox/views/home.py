@@ -13,6 +13,7 @@ from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 import json
 
 import re
+import os
 from xml.dom import minidom
 from itertools import chain, izip, cycle
 
@@ -495,7 +496,7 @@ def legstaff_bill_categories(request):
         "status": "success",
         "tabs": get_legstaff_suggested_bills(request.user, counts_only=True)
         }
-        
+
 @login_required
 def legstaff_bill_category_panel(request):
     return render_to_response('popvox/home_legstaff_panel.html',
@@ -1015,6 +1016,10 @@ def congress_match(request):
     for id in memberids:
         members.append(popvox.govtrack.getMemberOfCongress(id))
 
+    for member in members:
+        url = [k for k, v in memurls.items() if member['id'] == v][0]
+        member['pvurl'] = url
+
     return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
         context_instance=RequestContext(request))
 
@@ -1024,7 +1029,7 @@ def member_page(request, membername=None):
     member = None
     
     try:
-        memberid = memurls[membername] #This dict is imported from mempageurls.py. The keys are title-fistname-lastname-state (for our standard url format) and the values are govtrack ids.
+        memberid = memurls[membername] #FIXME pull this from MemberofCongress.pvurl instead of the dict file
         member = MemberOfCongress.objects.get(id=memberid)
         
     except KeyError:
@@ -1038,7 +1043,6 @@ def member_page(request, membername=None):
     if member is None:
         raise Http404()
     
-    print member
     memberids = [member.id] #membermatch needs a list
     
     #Social media links and bio info from the sunlight API (and our own db, where necessary)
@@ -1050,11 +1054,15 @@ def member_page(request, membername=None):
     if mem_data['youtube_url'] != "":
         youtube_id = mem_data['youtube_url'].rsplit("/",1)[1]
         url = "http://gdata.youtube.com/feeds/base/users/"+youtube_id+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
-        rss_data = "".join(urllib2.urlopen(url).readlines())
-        dom = parseString(rss_data)
-        first = dom.getElementsByTagName('item')[0]
-        guid = first.getElementsByTagName('guid')[0]
-        mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
+        try:
+            rss_data = "".join(urllib2.urlopen(url).readlines())
+            mem_data['last_vid'] = None
+            dom = parseString(rss_data)
+            first = dom.getElementsByTagName('item')[0]
+            guid = first.getElementsByTagName('guid')[0]
+            mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
+        except (IndexError, urllib2.HTTPError):
+            pass
         
     birthdate = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d").date()
     today = date.today()
@@ -1082,6 +1090,11 @@ def member_page(request, membername=None):
             committees.append(name)
     mem_data['committees'] = committees
     
+    #checking if we have the member's picture:
+    mem_data["gender"] = mem_data["gender"].lower()
+    if not os.path.isfile("/home/www/sources/site/static/member_photos/"+str(member.id)+"-200px.jpeg"):
+        mem_data["nophoto"] = True
+    
     
     #membermatch runs all the comparison logic between the user's comments and the member's votes.
     #uncomment when we're ready to add membermatch to the member page.
@@ -1091,8 +1104,8 @@ def member_page(request, membername=None):
     had_abstain = membermatch[2]'''
     
     # Get sponsored and cosponsored bills
-    sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id)
-    cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id)
+    sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
+    cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
     
     #function to get pro and con positions for bills, to pass in for pie charts:
     def GetSentiment(member, bills_list):
@@ -1100,25 +1113,31 @@ def member_page(request, membername=None):
         for bill in bills_list:
             scope = None
             total = 0
-            if "district" in member:
-                scope = "district"
-                total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
-                if total != 0:
-                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
-                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
-            if total < 6 :
-                scope = "state"
-                total = bill.usercomments.get_query_set().filter(state=member['state']).count()
-                if total != 0:
-                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
-                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
-            if total < 6 :
+            try:
+                if member['district']:
+                    scope = "district"
+                    total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
+                    if total != 0:
+                        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
+                        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
+                elif member['state']:
+                    scope = "state"
+                    total = bill.usercomments.get_query_set().filter(state=member['state']).count()
+                    if total != 0:
+                        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
+                        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
+                else: #in case there's an error where a member is set to state and district both being none
+                    total = 0
+            except KeyError:
+                total = 0
+            
+            '''if total < 6 :
                 scope = "nation"
                 total = bill.usercomments.get_query_set().count()
                 if total != 0:
                     pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
-                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total
-            if total < 6:
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total'''
+            if total < 4:
                 pro = None
                 con = None
 
@@ -1129,17 +1148,17 @@ def member_page(request, membername=None):
 
     sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)
     cosponsored_bills = GetSentiment(govtrack_data, cosponsored_bills_list)
-    sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)
-    cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)
+    sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
+    cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
 
+    stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
 
-    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
+    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills, "stateabbrs": stateabbrs},
         context_instance=RequestContext(request))
     
     #This return has the membermatch variables; uncomment when we're ready for them
     '''return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'billvotes': billvotes, 'member': member, 'stats': stats, 'had_abstain': had_abstain, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
     context_instance=RequestContext(request))'''
-
 
 @login_required
 def delete_account(request):
@@ -1156,6 +1175,7 @@ def delete_account(request):
         return render_to_response('popvox/delete_account.html', {},
         
     context_instance=RequestContext(request))
+  
 
 def district_info(request, searchstate=None, searchdistrict=None):
     trending = get_popular_bills2(searchstate.upper(), searchdistrict) 
@@ -1163,7 +1183,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
     trending_bills = []
     for bill in trending:
         total = bill['bill'].usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
-        if total >6:
+        if total >=4:
             pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
             con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
         else:
@@ -1173,13 +1193,19 @@ def district_info(request, searchstate=None, searchdistrict=None):
         foo = (bill, pro, con,total)
         trending_bills.append(foo)
         trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
-    
+        
     if int(searchdistrict) == 0:
         sd = searchstate.upper()+str(searchdistrict)
     else:
         sd = searchstate.upper()+str(searchdistrict).lstrip('0')
 
     members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
+    members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
+
+    for member in members:
+        url = [k for k, v in memurls.items() if member['id'] == v][0]
+        member['pvurl'] = url
+
     try:
         censusdata = popvox.models.CensusData.objects.get(id=sd)
     except:
@@ -1197,7 +1223,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
     popular_bills = []
     for bill in popular:
         total = bill.usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
-        if total >6:
+        if total >=4:
             pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
             con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
         else:
@@ -1207,8 +1233,13 @@ def district_info(request, searchstate=None, searchdistrict=None):
         foo = (bill, pro, con,total)
         popular_bills.append(foo)
     popular_bills = sorted(popular_bills, key=lambda bills: bills[3], reverse=True)
+
+    diststateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
+    for state in diststateabbrs:
+      if state[0] in ['AS', 'GU', 'MP', 'VI']:
+        diststateabbrs.remove(state)
         
-    return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata},
+    return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata, "diststateabbrs": diststateabbrs},
     context_instance=RequestContext(request))
     
 def unsubscribe_me_makehash(email):
@@ -1250,6 +1281,20 @@ def delete_account_confirmed(request):
     
     else:
         return render_to_response('popvox/delete_account_confirmed.html', {},
+        
+    context_instance=RequestContext(request))
+    
+def gettoknow(request):
+  
+    stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
+    diststateabbrs = stateabbrs[:]
+    for state in diststateabbrs:
+      if state[0] in ['AS', 'GU', 'MP', 'VI']:
+        diststateabbrs.remove(state)
+
+    return render_to_response('popvox/gettoknow.html', {"stateabbrs": 
+                stateabbrs, "diststateabbrs": 
+                diststateabbrs,},
         
     context_instance=RequestContext(request))
     
