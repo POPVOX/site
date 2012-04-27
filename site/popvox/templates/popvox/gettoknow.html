@@ -200,7 +200,7 @@ function subscribe(validate) {
 					State 
 					<select id="dist_options_state" size="1" onchange="dist_report_state = this.value; dist_update()">
 						<option value="">Choose a state</option>
-						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+						{% for stateabbr, statename in diststateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
 					</select><br/>
 					District
 					<select id="dist_options_district" size="1" onchange="dist_report_district = this.value; dist_update()">

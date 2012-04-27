@@ -1274,7 +1274,7 @@ def delete_account_confirmed(request):
 def gettoknow(request):
   
     stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
-    diststateabbrs = stateabbrs
+    diststateabbrs = stateabbrs[:]
     for state in diststateabbrs:
       if state[0] in ['AS', 'GU', 'MP', 'VI']:
         diststateabbrs.remove(state)
