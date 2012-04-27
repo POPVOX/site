@@ -1,4 +1,4 @@
-MAILTO=josh@popvox.com,annalee@popvox.com
+MAILTO=mackenzie@popvox.com,annalee@popvox.com
  10 4   * * * nice /home/www/sources/scripts/nightly.sh
  10 11  * * * nice /home/www/sources/scripts/morningly.sh
  20 *   * * * nice /home/www/sources/scripts/hourly.sh
