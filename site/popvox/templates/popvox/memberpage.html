@@ -2,37 +2,20 @@
 {% block title %}POPVOX - Member of Congress{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
-{% block head %}
-
-{% endblock %}
 {% block content %}
+<div id="distsubnav" style="text-align:right">
+					State 
+					<select id="mem_options_state" size="1" onchange="mem_report_state = this.value; mem_update()">
+						<option value="">Choose a state</option>
+						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+					</select>
+					Member
+					<select id="mem_options_member" size="1" onchange="mem_report_member = this.value; mem_update()">
+				</select><a id="memgo" href="#">View Now</a></div>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
-<script>
-$(document).ready(function($){$('#cosponsoredbills').hide();
-$('#cosponsoredtab').click(function show_cosponsored() {
-	$('#cosponsoredbills').show();
-	$('#sponsoredbills').hide();
-	$('#cosponsoredtab').addClass("active");
-	$('#cosponsoredtab').removeClass("inactive");
-	$('#sponsoredtab').addClass("inactive");
-	$('#sponsoredtab').removeClass("active");
-	$('.highcharts-container').width("100%")
-	return false;
-});
-$('#sponsoredtab').click(function show_sponsored() {
-	$('#cosponsoredbills').hide();
-	$('#sponsoredbills').show();
-	$('#cosponsoredtab').addClass("inactive");
-	$('#cosponsoredtab').removeClass("active");
-	$('#sponsoredtab').addClass("active");
-	$('#sponsoredtab').removeClass("inactive");
-	$('.highcharts-container').width("100%")
-	return false;
-});
-});
-</script>
 
 <div class="content myhill memberpage">
 
@@ -166,4 +149,33 @@ $('#sponsoredtab').click(function show_sponsored() {
 Washington, DC 20515</p>
 	</div></div><!--end member-info -->
 
+<script>
+$(document).ready(function($){
+    $('.highcharts-container').each( function() {
+        $(this).width($(this).parent().parent().width());
+    });
+    $('#cosponsoredbills').hide();
+
+
+$('#cosponsoredtab').click(function show_cosponsored() {
+	$('#cosponsoredbills').show();
+	$('#sponsoredbills').hide();
+	$('#cosponsoredtab').addClass("active");
+	$('#cosponsoredtab').removeClass("inactive");
+	$('#sponsoredtab').addClass("inactive");
+	$('#sponsoredtab').removeClass("active");
+	return false;
+});
+$('#sponsoredtab').click(function show_sponsored() {
+	$('#cosponsoredbills').hide();
+	$('#sponsoredbills').show();
+	$('#cosponsoredtab').addClass("inactive");
+	$('#cosponsoredtab').removeClass("active");
+	$('#sponsoredtab').addClass("active");
+	$('#sponsoredtab').removeClass("inactive");
+	return false;
+});
+});
+</script>
+<script type="text/javascript" src="/media/js/gettoknow.js"></script>
 {% endblock %}
