@@ -3,13 +3,23 @@
 {% block title %}POPVOX - District Info{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}Information about individual congressional districts{% endblock %}
-{% block subnav %}<ul id="subnav"><li><a href="/gettoknow">Get to Know</a></li></ul>{% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
 {% block content %}
+<div class="content district-info">
+<div id="distsubnav" style="text-align:right">
+					State 
+					<select id="dist_options_state" size="1" onchange="dist_report_state = this.value; dist_update()">
+						<option value="">Choose a state</option>
+						{% for stateabbr, statename in diststateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+					</select>
+					District
+					<select id="dist_options_district" size="1" onchange="dist_report_district = this.value; dist_update()">
+				</select><a id="distgo" href="#">View Now</a></div>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 
 
-<div class="content district-info">
 
 <div class="col_12 col_top col_last">
 <h1 class="rule_btm">District Info / {{state}}-{{district}}</h1>
@@ -198,4 +208,5 @@ $('#trendingtab').click(function show_trending() {
 </script>
 
 
+<script type="text/javascript" src="/media/js/gettoknow.js"></script>
 {% endblock %}

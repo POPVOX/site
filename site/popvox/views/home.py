@@ -1151,7 +1151,9 @@ def member_page(request, membername=None):
     sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
     cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
 
-    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills},
+    stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
+
+    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills, "stateabbrs": stateabbrs},
         context_instance=RequestContext(request))
     
     #This return has the membermatch variables; uncomment when we're ready for them
@@ -1231,8 +1233,13 @@ def district_info(request, searchstate=None, searchdistrict=None):
         foo = (bill, pro, con,total)
         popular_bills.append(foo)
     popular_bills = sorted(popular_bills, key=lambda bills: bills[3], reverse=True)
+
+    diststateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
+    for state in diststateabbrs:
+      if state[0] in ['AS', 'GU', 'MP', 'VI']:
+        diststateabbrs.remove(state)
         
-    return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata},
+    return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata, "diststateabbrs": diststateabbrs},
     context_instance=RequestContext(request))
     
 def unsubscribe_me_makehash(email):
