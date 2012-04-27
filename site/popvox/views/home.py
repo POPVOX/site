@@ -1274,12 +1274,14 @@ def delete_account_confirmed(request):
 def gettoknow(request):
   
     stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
-    for state in stateabbrs:
+    diststateabbrs = stateabbrs
+    for state in diststateabbrs:
       if state[0] in ['AS', 'GU', 'MP', 'VI']:
-        stateabbrs.remove(state)
+        diststateabbrs.remove(state)
 
     return render_to_response('popvox/gettoknow.html', {"stateabbrs": 
-                stateabbrs,},
+                stateabbrs, "diststateabbrs": 
+                diststateabbrs,},
         
     context_instance=RequestContext(request))
     
