@@ -60,6 +60,7 @@ bill_status_names = {
 "rfh": "Received from Senate-Referred to House Committee",
 "rfs": "Received from House-Referred to Senate Committee",
 "rh": "Reported by House Committee",
+"rhuc": "Returned to House by Unanimous Consent",
 "rih": "Referred to House Committee with Instructions",
 "ris": "Referred to Senate Committee with Instructions",
 "rs": "Reported by Senate Committee",
