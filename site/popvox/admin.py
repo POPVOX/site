@@ -97,8 +97,6 @@ class MemberBioAdmin(admin.ModelAdmin):
         return member.name()
 
     list_display = ('id','name')
-    search_files = ["id__name"]
-    #fields = ('id','name','googleplus','flickr_id')
 
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
