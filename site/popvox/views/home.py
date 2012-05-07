@@ -1181,39 +1181,60 @@ def district_info(request, searchstate=None, searchdistrict=None):
     trending = get_popular_bills2(searchstate.upper(), searchdistrict) 
     
     trending_bills = []
-    for bill in trending:
-        total = bill['bill'].usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
-        if total >=4:
-            pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
-            con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
-        else:
-            pro = None
-            con = None
-        
-        foo = (bill, pro, con,total)
-        trending_bills.append(foo)
-        trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
-        
-    if int(searchdistrict) == 0:
-        sd = searchstate.upper()+str(searchdistrict)
+    
+    if searchdistrict:
+        for bill in trending:
+            total = bill['bill'].usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
+            if total >=4:
+                pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+                con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+            else:
+                pro = None
+                con = None
+            foo = (bill, pro, con,total)
+            trending_bills.append(foo)
     else:
-        sd = searchstate.upper()+str(searchdistrict).lstrip('0')
+        for bill in trending:
+            total = bill['bill'].usercomments.get_query_set().filter(state=searchstate).count()
+            if total >=4:
+                pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate).count()/total
+                con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate).count()/total
+            else:
+                pro = None
+                con = None
+            foo = (bill, pro, con,total)
+            trending_bills.append(foo)
 
-    members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
-    members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
+    trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
+    if searchdistrict:
+        if int(searchdistrict) == 0:
+            sd = searchstate.upper()+str(searchdistrict)
+        else:
+            sd = searchstate.upper()+str(searchdistrict).lstrip('0')
+
+        members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
+        members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
+        try:
+            censusdata = popvox.models.CensusData.objects.get(id=sd)
+        except:
+            raise Http404()
+    else:
+        members = popvox.govtrack.getMembersOfCongressForState(searchstate.upper())
+        members = sorted(members, key=lambda member: member['type'],reverse=True) #sorting so reps come before senators on the district page
+        try:
+            censusdata = popvox.models.CensusData.objects.get(id=searchstate)
+        except:
+            raise Http404()
+    
 
     for member in members:
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
 
-    try:
-        censusdata = popvox.models.CensusData.objects.get(id=sd)
-    except:
-        raise Http404()
-
     filters = {}
     filters["state"] = searchstate
-    filters["congressionaldistrict"] = searchdistrict
+    if searchdistrict:
+        filters["congressionaldistrict"] = searchdistrict
     popular = Bill.objects.filter(congressnumber = popvox.govtrack.CURRENT_CONGRESS)\
         .filter(**dict( ("usercomments__"+k,v) for k,v in filters.items() ))\
         .annotate(count=Count('usercomments'))\
@@ -1221,25 +1242,41 @@ def district_info(request, searchstate=None, searchdistrict=None):
         [0:10]
 
     popular_bills = []
-    for bill in popular:
-        total = bill.usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
-        if total >=4:
-            pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
-            con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
-        else:
-            pro = None
-            con = None
-        
-        foo = (bill, pro, con,total)
-        popular_bills.append(foo)
+    if searchdistrict:
+        for bill in popular:
+            total = bill.usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
+            if total >=4:
+                pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+                con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+            else:
+                pro = None
+                con = None
+            
+            foo = (bill, pro, con,total)
+            popular_bills.append(foo)
+    else:
+        for bill in popular:
+            total = bill.usercomments.get_query_set().filter(state=searchstate).count()
+            if total >=4:
+                pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate).count()/total
+                con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate).count()/total
+            else:
+                pro = None
+                con = None
+            
+            foo = (bill, pro, con,total)
+            popular_bills.append(foo)
     popular_bills = sorted(popular_bills, key=lambda bills: bills[3], reverse=True)
-
+    
+    statename = govtrack.statenames[searchstate.upper()]
     diststateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
+    
+    
     for state in diststateabbrs:
       if state[0] in ['AS', 'GU', 'MP', 'VI']:
-        diststateabbrs.remove(state)
+          diststateabbrs.remove(state)
         
-    return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata, "diststateabbrs": diststateabbrs},
+    return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata, "diststateabbrs": diststateabbrs, "statename": statename},
     context_instance=RequestContext(request))
     
 def unsubscribe_me_makehash(email):

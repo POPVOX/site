@@ -153,6 +153,16 @@ def getMemberOfCongress(id):
     if not id in people:
         return { "id": id, "name": "Unknown", "lastname": "Unknown", "sortkey": "", "current": False }
     return people[id]
+    
+def getMembersOfCongressForState(state, moctype="all"):
+    loadpeople()
+    ret = []
+    if moctype in ("all", "sen", "rep") and state in senators:
+        ret.extend( [people[s] for s in senators[state[0:2]]] )
+    if moctype in ("all", "rep") and state in congresspeople:
+        ret.append( people[congresspeople[state]] )
+    print ret
+    return ret
 
 def getMembersOfCongressForDistrict(district, moctype="all"):
     # district is specified as e.g. NY2 or DC0

@@ -22,7 +22,11 @@
 
 
 <div class="col_12 col_top col_last">
-<h1 class="rule_btm">District Info / {{state}}-{{district}}</h1>
+{% if district != "None" %}
+<h1 class="rule_btm">District Info / {{statename}}-{{district}}</h1>
+{% else %}
+<h1 class="rule_btm">State Info / {{statename}}</h1>
+{% endif %}
 <div class="stats">
 	<h2>Facts &amp; Figures</h2>
 	{% for member in members %}
@@ -35,7 +39,7 @@
 			</div>
 		</div>
 	{% empty %}
-		<h3>No members :( </h2>
+		<h3>No members :-( </h3>
 	{% endfor %}
 	
 	<div class="census">
@@ -108,7 +112,11 @@
 			</dl>
 		</div>
     {% else %}
-        <h3>No district statistics available. :(</p>
+        {% if district != "None" %}
+        <p>No district statistics available. :(</p>
+        {% else %}
+        <p>No state statistics available. :(</p>
+        {% endif %}
     {% endif %}
 	</div><!-- end census info -->
 	</div><!--end stats -->
@@ -121,7 +129,11 @@
 	</div>
 	<div style="clear:both"></div><!-- end legislation-tabs -->
 	<div class="legislation-trending" id="trending">
-		<p class="subhead">Bills with recent activity in {{ state }}'s District {{ district }}</p>
+        {% if district != "None" %}
+		<p class="subhead">Bills with recent activity in {{ statename }}'s District {{ district }}</p>
+        {% else %}
+        <p class="subhead">Bills with recent activity in {{ statename }}</p>
+        {% endif %}
 		<ul>
 		{% for billrec,pro,con,total in trending_bills %}
 				<li class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}">
@@ -134,9 +146,9 @@
 					<a href="{{bill.url}}/report">
 			        	<div id="trending_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 				</a>
-			<p class="usercount">sentiment of {{total}} users in the district</p>
+			<p class="usercount">sentiment of {{total}} users in {{statename}}{% if district != "None" %}-{{district}}{% endif %}</p>
 			{% else %}
-					<p>Too few constituents in this district have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+					<p>Too few constituents in this {% if district != "None" %}district{% else %}state{% endif %} have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 			{% endif %}
 
 			<p class="trend">This {{ bill.type }} has been trending for the last {{billrec.bill.trending_time_period}}!</p>
@@ -153,7 +165,11 @@
 	</ul>
 	</div><!---end trending legislation -->
 	<div class="legislation-pop" id="popular">
-		<p class="subhead">Bills with the most activity in {{ state }}'s District {{ district }}</p>
+        {% if district != "None" %}
+		<p class="subhead">Bills with the most activity in {{ statename }}'s District {{ district }}</p>
+        {% else %}
+        <p class="subhead">Bills with the most activity in {{ statename }}</p>
+        {% endif %}
 	    {% for bill,pro,con,total in popular_bills %}
 	<ol>
 	        <li class="bill">
@@ -163,9 +179,9 @@
 				<a href="{{bill.url}}/report">
 					<div id="popular_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 				</a>
-			<p class="usercount">sentiment of {{total}} users in the district</p>
+			<p class="usercount">sentiment of {{total}} users in {{statename}}{% if district != "None" %}-{{district}}{% endif %}</p>
 			{% else %}
-				<p>Too few constituents in this district have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+				<p>Too few constituents in this {% if district != "None" %}district{% else %}state{% endif %} have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 			{% endif %}
 
 	        {% if bill.streetname %}<p>(&quot;{{bill.streetname}}&quot;)</p>{% endif %}
