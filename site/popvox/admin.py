@@ -91,7 +91,12 @@ class BillRecommendationAdmin(admin.ModelAdmin):
 	list_display = ["created", "name", "because"]
 
 class MemberBioAdmin(admin.ModelAdmin):
-    list_display = ["id"]
+    def name (self,obj):
+        member = MemberOfCongress.objects.get(id=obj.id)
+        print member
+        return member.name()
+
+    list_display = ('id','name')
 
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)

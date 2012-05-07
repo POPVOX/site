@@ -399,7 +399,7 @@ function getshorturl() {
 			{% if bill.sponsor %}
 			<div id="sponsor">
 				<h4>Sponsor</h4>
-				<a href="http://www.govtrack.us/congress/person.xpd?id={{bill.sponsor.id}}" class="blank" title="More information on www.GovTrack.us">{{ bill.sponsor.name }}</a>
+					<a href="/member/{{bill.sponsor.pvurl}}" title="More information">{{ bill.sponsor.name }}</a>
 			</div>
 			{% endif %}
 			<div id="status">
