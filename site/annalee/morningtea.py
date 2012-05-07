@@ -74,7 +74,7 @@ else:
 #How many updates are available for Ubuntu?
 ubuntupdates = subprocess.check_output(['/usr/lib/update-notifier/apt-check', '--human-readable'])
 security = re.search(r'\d+(?= updates)', ubuntupdates)
-packages = re.search(r'\d+(?= packages)', ubuntupdates)
+packages = re.search(r'\d+(?= package)', ubuntupdates)
 if security and packages:
   ubuntupdates = ("%s packages, %s are security" % (security.group(), packages.group()))
   if int(security.group()) > 0:
