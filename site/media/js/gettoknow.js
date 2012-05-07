@@ -131,7 +131,7 @@ var memurls = {'WA': [['Sen. Maria Cantwell [D, WA]', 'sen-maria-cantwell-wa'], 
 			$('#dist_options_district').
 				append($("<option></option>").
 					attr("value", 0).
-					text("At Large"));
+					text("All"));
 			dist_report_district = 0;
 			hashchange= true;
 		} else {
@@ -142,13 +142,11 @@ var memurls = {'WA': [['Sen. Maria Cantwell [D, WA]', 'sen-maria-cantwell-wa'], 
 			if (dist_report_district > memurls[dist_report_state].length) {
 				dist_report_district = 1;
 			}
-			if (memurls[dist_report_state].length <= 3) {
 				$('#dist_options_district').
 					append($("<option></option>").
 						attr("value", 0).
 						attr("selected", 0 == dist_report_district).
-						text(0)); 
-			}
+						text("All")); 
 			for (var i = 1; i <= memurls[dist_report_state].length -2 ; i++) {
 				$('#dist_options_district').
 					append($("<option></option>").
@@ -161,7 +159,15 @@ var memurls = {'WA': [['Sen. Maria Cantwell [D, WA]', 'sen-maria-cantwell-wa'], 
 		
 		selstate = $('#dist_options_state').val()
 		seldist = $('#dist_options_district').val()
-		$('#distgo').attr("href", "/district/" + selstate + "/" + seldist);
+		if ( seldist == 0) {
+			if (selstate == "DC" || selstate == "PR") {
+				$('#distgo').attr("href", "/district/" + selstate);
+			} else {
+				$('#distgo').attr("href", "/state/" + selstate);
+			}
+		} else {
+			$('#distgo').attr("href", "/district/" + selstate + "/" + seldist);
+		}
 	}
 
 	function mem_update(hashchange) {
