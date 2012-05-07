@@ -24,8 +24,11 @@
 <div class="col_12 col_top col_last">
 {% if district != "None" %}
 <h1 class="rule_btm">District Info / {{statename}}-{{district}}</h1>
+{% else %}{% if state == "DC" or state == "PR" %}
+<h1 class="rule_btm">District Info / {{statename}}</h1>
 {% else %}
 <h1 class="rule_btm">State Info / {{statename}}</h1>
+{% endif %}
 {% endif %}
 <div class="stats">
 	<h2>Facts &amp; Figures</h2>
