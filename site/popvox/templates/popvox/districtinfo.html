@@ -1,6 +1,7 @@
 {% extends "master.html" %}
 {% load humanize %}
-{% block title %}POPVOX - District Info{% endblock %}
+
+{% block title %}POPVOX - {% if district != "None" %}District{%else%}{% if state == "DC" or state == "PR" %}District{% else %}State{% endif %}{%endif%} Info{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}Information about individual congressional districts{% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
