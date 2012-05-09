@@ -682,9 +682,13 @@ Notes:
 			
 					<div id="panel_login" class="widget_panel">
 						{% if position %}
-						<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
+							<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
 						{% else %}
-						<h1>Tell Congress What You Think About {{bill.shortname}}</h1>
+							{% if franking %}
+								<h1>Share your views on {{bill.shortname}}</h1>
+							{% else %}
+								<h1>Tell Congress What You Think About {{bill.shortname}}</h1>
+							{% endif %}
 						{% endif %}
 
 						{% if bill.is_bill %}
@@ -852,9 +856,10 @@ Notes:
 							<div class="clear"> </div>
 						</form>
 						<div id="tips">
+							{% if not franking %}
 							<h3>A message is optional</h3>
 							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. To skip this step, just click Preview.</p>
-							
+							{% endif %}
 							<h3>Tips</h3>
 							<p id="messagetip"></p>
 							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
@@ -910,7 +915,11 @@ Notes:
 						<h4 class="congrats">More information on what happened!</h4>
 		
 						<div id="social_share">
+							{% if franking %}
+							<h3>Share on social media</h3>
+							{% else %}
 							<h3>Tell your friends to <span class="position_verb"> </span> this bill</h3>
+							{% endif %}
 							<ul class="social_share_btns">
 								<li><a class="btn social_facebook" href="#" onclick="return do_share('facebook')" title="Facebook">facebook</a></li>
 								<li><a class="btn social_twitter" href="#" target="_blank" onclick="return do_share('twitter')" title="Twitter">twitter</a></li>
