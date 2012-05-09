@@ -1276,7 +1276,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
       if state[0] in ['AS', 'GU', 'MP', 'VI']:
           diststateabbrs.remove(state)
         
-    return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata, "diststateabbrs": diststateabbrs, "statename": statename},
+    return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata, "diststateabbrs": diststateabbrs, "statename": statename, "show_share_footer":True},
     context_instance=RequestContext(request))
     
 def unsubscribe_me_makehash(email):
