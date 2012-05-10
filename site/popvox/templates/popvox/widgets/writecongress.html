@@ -657,8 +657,14 @@ Notes:
 			if (method == "email") f = email_share;
 			if (method == "link") f = link_share;
 			
+			{% if franking != "true" %}
 			if (position == "+") verb = "Support"; else verb = "Oppose";
 			f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
+			{% else %}
+			if (position == "+") verb = "I just supported"; else verb = "I just opposed";
+			f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
+			{% endif %}
+
 			return false;
 		}
 		
@@ -842,7 +848,12 @@ Notes:
 						{% endif %}
 										
 						<h3>Write a Personal Message</h3>
+						{% if franking != "true" %}
 						<h4>I <span class="position_verb"> </span> {{bill.shortname}} because...</h4>
+						{% else %}
+						<h4>Here are my views on {{bill.shortname}}.</h4>
+						{% endif %}
+
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
 		
