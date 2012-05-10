@@ -684,7 +684,7 @@ Notes:
 						{% if position %}
 							<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
 						{% else %}
-							{% if franking %}
+							{% if franking == "true" %}
 								<h1>Share your views on {{bill.shortname}}</h1>
 							{% else %}
 								<h1>Tell Congress What You Think About {{bill.shortname}}</h1>
@@ -856,7 +856,7 @@ Notes:
 							<div class="clear"> </div>
 						</form>
 						<div id="tips">
-							{% if not franking %}
+							{% if franking != "true" %}
 							<h3>A message is optional</h3>
 							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. To skip this step, just click Preview.</p>
 							{% endif %}
@@ -915,7 +915,7 @@ Notes:
 						<h4 class="congrats">More information on what happened!</h4>
 		
 						<div id="social_share">
-							{% if franking %}
+							{% if franking == "true" %}
 							<h3>Share on social media</h3>
 							{% else %}
 							<h3>Tell your friends to <span class="position_verb"> </span> this bill</h3>

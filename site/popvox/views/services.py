@@ -239,7 +239,8 @@ def widget_render_writecongress_page(request, account, permissions):
 
 		franking = None
 		if "franking" in request.GET:
-			franking = request.GET["franking"];
+			franking = lower(request.GET["franking"])
+			print franking
 		
 		if "ocp" not in request.GET:
 			if not "bill" in request.GET:
