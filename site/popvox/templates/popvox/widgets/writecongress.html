@@ -337,8 +337,9 @@ Notes:
 			position = chosen_position;
 			$('.position_verb').text(position == "+" ? "support" : "oppose");
 			$('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
+			{% if franking != "true" %}
 			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
-			
+			{% endif %}
 			if ($("#panel_login .next").hasClass("disabled")) return false;
 			
 			var data;
@@ -831,6 +832,7 @@ Notes:
 							
 					<div id="panel_write" class="widget_panel" style="display: none">
 						{% if reason %}
+						{% if franking != "true" %}
 						<div id="panel_write_why_reason">
 						<div class="why">
 							<h3>Why should I <span class="position_verb"> </span> {{bill.shortname}}?</h3>
@@ -845,6 +847,7 @@ Notes:
 								function() { $('#panel_write .reason').slideDown(); },
 								function() { $('#panel_write .reason').slideUp(); } );
 						</script>
+						{% endif %}
 						{% endif %}
 										
 						<h3>Write a Personal Message</h3>
