@@ -946,7 +946,11 @@ Notes:
 						
 						{% for class, text, list in suggestions %}
 							{% if list|length > 0 %}
+								{% if franking != "true" %}
 								<h3 class="{{class}} no_rule">{{text}}</h3>
+								{% else %}
+								<h3 class="{{class}} no_rule">You may be interested in weighing in on these bills</h3>
+								{% endif %}
 								
 								{% for bill in list %}
 									{% bill_statistics bill as stats %}
