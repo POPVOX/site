@@ -552,6 +552,7 @@ custom_overrides = {
 	"805_issue_radio": "",
 	"808_enewssign_radio": "<AFFL_DEL>Subscribe</AFFL_DEL>",
 	"830_contactform:cd:rblformat_radio": "html",
+	"830_email_radio": "",
 	"838_state_select": "KYKentucky",
 	"839_field_5fef6d8e-3cf0-4915-aaec-a017cfbf311c_radio": "voice",
 	"867_message-type_radio":"legislative",
