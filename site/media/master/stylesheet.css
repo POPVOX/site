@@ -33,12 +33,16 @@ body {
     text-align: center;
     color: #404045;
     font-family: Helvetica, Arial, sans-serif;
-    background: #e8e5df url(http://www.sodiumhalogen.com/up_s/blog_85ac.jpg) -63px -1px repeat-x;
-	background: url("bg_pg2.gif") repeat-x scroll left top #E8E5DF;
+	background: url("bg_pg2.gif") repeat-x scroll left 72px #E8E5DF;
     }
 
 body.grid { background: #e8e5df url("http://www.sodiumhalogen.com/_images/grid.png") repeat-y scroll center top     }
 
+a img:hover {
+	border: none;
+	text-decoration: none;
+	}
+	
 #wrap {
     position: relative;
     width: 980px;
@@ -2851,37 +2855,64 @@ ul#issuearealist { margin-top: 10px     }
     margin-bottom: 10px;
     }
 
-.col_4_5 .team_img,
 .col_4 .team_img {
     float: left;
-    margin: 10px 20px 10px 0;
+    margin: 10px 50px 30px 0;
     }
 
-.col_4_5 .team_img.team_sm { margin-right: 0    }
+.col_4_5 .team_sm { margin: 0    }
 
 .team .col_4_5 {
-    margin-right: 20px;
+    margin-right: 30px;
     width: 330px;
     }
+.team .col_4_5.col_last,
+.team .col_4.col_last,
+.team .col_3.col_last {
+	margin: 0;
+	}    
+	
+.team .col_4 {
+	width: 290px;
+	margin-right: 30px;
+}
 
+.team .col_3 {
+    margin-right: 30px;
+    width: 210px;
+    }
+
+.team h3.no_rule {
+    color: #75757d;
+    font-size: 36px;
+    }
+    
     .team .col_4_5 h3,
-    .team_2 .col_4 h3 {
-        font: normal 26px/26px 'BebasNeueRegular', helvetica, arial, sans-serif;
+    .team .col_4 h3,
+    .team .col_3 h3 {
+        font: normal 30px/26px 'BebasNeueRegular', helvetica, arial, sans-serif;
         letter-spacing: .02em;
         background: none;
-        margin: 15px 0 0;
+        margin: 30px 0 0;
         padding: 0;
         }
 
     .team .col_4_5 h4,
-    .team_2 .col_4 h4 {
-        font: normal 16px/28px helvetica, arial, sans-serif;
+    .team .col_4 h4,
+    .team .col_3 h4 {
+        font: bold 16px/28px helvetica, arial, sans-serif;
         margin: 0 0 10px;
+        color: #75757d;
         }
+        
+	.team .section p,
+	.team .col_4 p {
+		font-size: 14px;
+		line-height: 22px;
+		}
 
-.team_2 .col_4.rule { padding-top: 20px     }
+.team .col_4.rule { padding-top: 20px     }
 
-.section.team_2 p {     }
 
 .section_btm {
     border-top: 3px solid #757575;
@@ -4459,7 +4490,10 @@ small {
 .team_img img { margin: 0 0 15px 2px    }
 
 .team_img img.first { margin-left: 0    }
-
+.team_img.team_sm img.team_img.first {margin-right: 10px}
+.team_img a:hover {
+	border: none;
+	}
 /* ----orgs---- */
 
 ul.org_all {
@@ -4883,6 +4917,57 @@ p#issueareachooser_listnone {
 #feedback_button {
 	z-index: 1000;
 	}
+	
+#signup {
+	width: 100%;
+	height: 45px;
+	background: #C76825;
+	padding-top: 27px;
+	text-align: right;
+	}
+	
+#signup div {
+	width: 980px;
+	margin: 0 auto;
+	}
+	
+#signup p {
+	font: bold 18px/24px helvetica, arial, sans-serif;
+	color: #fff;
+	}	
+
+	#signup span.signup_txt {
+		padding-right: 15px;
+		}
+		
+	#signup p.close_x {
+		width: 34px;
+		height: 41px;
+		margin-top: -15px;
+		display: block;
+		float: right;
+		background: url(b_close_x.png) left top no-repeat;
+		text-align: left;
+		text-indent: -9999em;
+		}
+		
+		#signup p a.b_signup_updates {
+			width: 240px;
+			height: 41px;
+			margin-top: -15px;
+			display: block;
+			float: right;
+			background: url(b_signup_for_updates.png) left top no-repeat;
+			text-align: left;
+			text-indent: -9999em;
+			}
+			
+			#signup p.close_x:hover,
+			#signup p a.b_signup_updates:hover {
+				background-position: left bottom;
+				cursor: pointer;
+				}
+		
 
 
 
