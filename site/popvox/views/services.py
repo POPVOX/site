@@ -236,6 +236,10 @@ def widget_render_writecongress_page(request, account, permissions):
 		campaign = None # indicates where to save user response data for the org to get
 		org = None
 		reason = None
+
+		franking = None
+		if "franking" in request.GET:
+			franking = request.GET["franking"]
 		
 		if "ocp" not in request.GET:
 			if not "bill" in request.GET:
@@ -322,6 +326,8 @@ def widget_render_writecongress_page(request, account, permissions):
 			
 			"useraddress_prefixes": PostalAddress.PREFIXES,
 			"useraddress_suffixes": PostalAddress.SUFFIXES,
+
+            "franking": franking,
 			
 			"MIXPANEL_TOKEN": MIXPANEL_TOKEN,
 			}, context_instance=RequestContext(request))

@@ -337,8 +337,9 @@ Notes:
 			position = chosen_position;
 			$('.position_verb').text(position == "+" ? "support" : "oppose");
 			$('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
+			{% if franking != "true" %}
 			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
-			
+			{% endif %}
 			if ($("#panel_login .next").hasClass("disabled")) return false;
 			
 			var data;
@@ -657,8 +658,14 @@ Notes:
 			if (method == "email") f = email_share;
 			if (method == "link") f = link_share;
 			
+			{% if franking != "true" %}
 			if (position == "+") verb = "Support"; else verb = "Oppose";
 			f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
+			{% else %}
+			if (position == "+") verb = "I just supported"; else verb = "I just opposed";
+			f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
+			{% endif %}
+
 			return false;
 		}
 		
@@ -682,9 +689,13 @@ Notes:
 			
 					<div id="panel_login" class="widget_panel">
 						{% if position %}
-						<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
+							<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
 						{% else %}
-						<h1>Tell Congress What You Think About {{bill.shortname}}</h1>
+							{% if franking == "true" %}
+								<h1>Share your views on {{bill.shortname}}</h1>
+							{% else %}
+								<h1>Tell Congress What You Think About {{bill.shortname}}</h1>
+							{% endif %}
 						{% endif %}
 
 						{% if bill.is_bill %}
@@ -821,6 +832,7 @@ Notes:
 							
 					<div id="panel_write" class="widget_panel" style="display: none">
 						{% if reason %}
+						{% if franking != "true" %}
 						<div id="panel_write_why_reason">
 						<div class="why">
 							<h3>Why should I <span class="position_verb"> </span> {{bill.shortname}}?</h3>
@@ -836,9 +848,15 @@ Notes:
 								function() { $('#panel_write .reason').slideUp(); } );
 						</script>
 						{% endif %}
+						{% endif %}
 										
 						<h3>Write a Personal Message</h3>
+						{% if franking != "true" %}
 						<h4>I <span class="position_verb"> </span> {{bill.shortname}} because...</h4>
+						{% else %}
+						<h4>Here are my views on {{bill.shortname}}.</h4>
+						{% endif %}
+
 		
 						<form id="msg" class="form" action="#" onsubmit="return false;">
 		
@@ -852,9 +870,10 @@ Notes:
 							<div class="clear"> </div>
 						</form>
 						<div id="tips">
+							{% if franking != "true" %}
 							<h3>A message is optional</h3>
 							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. To skip this step, just click Preview.</p>
-							
+							{% endif %}
 							<h3>Tips</h3>
 							<p id="messagetip"></p>
 							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
@@ -910,7 +929,11 @@ Notes:
 						<h4 class="congrats">More information on what happened!</h4>
 		
 						<div id="social_share">
+							{% if franking == "true" %}
+							<h3>Share on social media</h3>
+							{% else %}
 							<h3>Tell your friends to <span class="position_verb"> </span> this bill</h3>
+							{% endif %}
 							<ul class="social_share_btns">
 								<li><a class="btn social_facebook" href="#" onclick="return do_share('facebook')" title="Facebook">facebook</a></li>
 								<li><a class="btn social_twitter" href="#" target="_blank" onclick="return do_share('twitter')" title="Twitter">twitter</a></li>
@@ -921,6 +944,7 @@ Notes:
 							<p class="link" style="display: none"></p>
 						</div>	
 						
+								{% if franking != "true" %}
 						{% for class, text, list in suggestions %}
 							{% if list|length > 0 %}
 								<h3 class="{{class}} no_rule">{{text}}</h3>
@@ -943,6 +967,9 @@ Notes:
 								{% endfor %}
 							{% endif %}
 						{% endfor %}
+								{% else %}
+								<h3 class="{{class}} no_rule">You may also be interested in these bills</h3>
+								{% endif %}
 						
 						{% if not campaign %}
 						<div class="search">
