@@ -371,7 +371,7 @@ ul#nav_2 {
 /* ----Landing Pages---- */
 
 body.land {
-    background: #e8e5df url("bg_pg.jpg") repeat-x center top;
+    background: #e8e5df url("bg_pg.jpg") repeat-x center 72px;
     /*    background: #e8e5df url("nav.gif") no-repeat center top;;
     background: url(hm_bg.gif) center top no-repeat;*/
     }
