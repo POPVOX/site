@@ -5207,90 +5207,15 @@ ul.issue_list li a.active{
 		
 		
 		
-/* get to know */
-
-
-body.gettoknow .hm_slide_mid  {
-    background: url(/media/master/bg_gtknow.jpg) left -70px no-repeat; 
-    height: 500px;
-}
-
-body.gettoknow h1 {
-    margin-top: 120px;
-    height: 50px;
-}
-
-.left_gtk {
-    display: block;
-    float: left;
-    width: 450px;
-    height: 400px;
-    margin: 120px 40px 0 0;
-    }
-
-.right_gtk {
-    display: block;
-    float: left;
-    width: 449px;
-    height: 400px;
-    margin-top: 120px;
-    }
-    
-    body.gettoknow .left_gtk h2, 
-    body.gettoknow .right_gtk h2 {
-        height: 200px;
-        text-indent: -9999em;
-    }
-    
-    body.gettoknow h4 {
-        color: #75757d;
-        font: normal 36px/40px 'BebasNeueRegular', helvetica, arial, sans-serif;
-        text-align: center;
-    }
-
-    body.gettoknow p {
-        font-size: 14px;
-        line-height: 24px;
-    }
-    
-    p.gtk_selector {
-        color: #75757d;
-        background: #d4d1ca;
-        padding: 15px;
-        font: bold 14px/24px Helvetica, arial, san-serif;
-        text-transform: uppercase;
-    }
-    
-        p.gtk_selector select {
-            margin: 0 15px 0 5px;
-        }
-    
-        .b_view_now {
-            width: 125px;
-            height: 30px;
-            background: url(/media/master/b_view_now.png) left top no-repeat;
-            display: block;
-            text-indent: -9999em;
-            margin-left: 165px;
-            }
-            
-            .b_view_now:hover {
-                background-position: left bottom;
-                }
-
-
-
-
-
-
-
 
 /* get to know */
 
 
 body.gettoknow .hm_slide_mid  {
-	background: url(/media/master/bg_gtknow.jpg) left -70px no-repeat; 
-	height: 500px;
+	background: url(/media/master/bg_gtk.png) center top no-repeat; 
+/*	background: url(/media/master/_junk_gtk.jpg) center top no-repeat; */
+	height: 1000px;
+	width: 960px;
 }
 
 body.gettoknow h1 {
@@ -5316,7 +5241,7 @@ body.gettoknow h1 {
 	
 	body.gettoknow .left_gtk h2, 
 	body.gettoknow .right_gtk h2 {
-		height: 200px;
+		height: 230px;
 		text-indent: -9999em;
 	}
 	
@@ -5330,7 +5255,81 @@ body.gettoknow h1 {
 		font-size: 14px;
 		line-height: 24px;
 	}
+
+	body.gettoknow .search_live {
+		height: 50px;
+		background: none;
+		text-align: center;
+	}
 	
+		body.gettoknow .search_live input {
+			margin: 4px 0 0 20px;
+			padding: 0 30px 0 10px ;
+			border: 1px solid #96969d;
+			width: 270px;
+			height: 28px;
+			-webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 15px;
+			color: #96969d;
+			font-size: 14px;
+			background: #fff url(bg_search_gtk.png) 280px 5px no-repeat;
+		}
+		
+	body.gettoknow table {
+		margin: 5px 0 0 10px;
+		width: 100%;
+		background: #dddad3;
+	}	
+	
+		body.gettoknow table a {
+		color: #404045;
+		font-weight: bold;
+		padding-left: 20px;
+		}
+		
+			body.gettoknow table a:hover {
+				color: #CC6A11;
+				background: #fff url(i_eye_gtk.png) left 3px no-repeat;
+				text-decoration: underline;
+				border: none;
+			}
+			
+		body.gettoknow table thead th {
+			font-weight: bold;
+			font-size: 12px;
+			text-transform: uppercase;
+			color: #b7b7be;
+			padding: 8px 10px 8px 30px;
+			margin-bottom: 10px;
+			background: url(bg_table_gtk.gif) left top repeat-x;
+		}
+		
+		body.gettoknow table thead th.state {
+			width: 90px;
+			padding-left: 40px;
+		}
+
+		body.gettoknow table thead th.moc {
+			width: 175px;
+		}
+		
+		body.gettoknow table tr:hover td {
+			background: #fff;
+		}	
+
+		body.gettoknow table tr:hover td a {
+			color: #CC6A11;
+		}
+		
+		body.gettoknow table td {
+			padding: 7px;
+			border-bottom: 1px solid #c4c2bb;
+		}	
+
+		body.gettoknow table td.td_st {
+			font-weight: normal;
+			padding-left: 20px;
+		}
+				
 	p.gtk_selector {
 		color: #75757d;
 		background: #d4d1ca;
@@ -5355,6 +5354,7 @@ body.gettoknow h1 {
     		.b_view_now:hover {
 				background-position: left bottom;
 				}
+
 
 
 

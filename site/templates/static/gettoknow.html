@@ -38,50 +38,157 @@ function subscribe(validate) {
 <h1>Get to know a congressional district or a Member of Congress.</h1>
 {% endblock %}
 {% block content %}
-<div class="hm_slide">
+<div class="hm_slide gtk">
 	<div class="hm_slide_mid">
 		<div class="hm_slide_div">
 			<div class="left_gtk">
-				<h2>A District</h2>
-				<h4>Choose:</h4>
-				<p class="gtk_selector">
-					State 
-						{% if stateabbrs %}yes i haz abbrs {% else %} no i haz no abbrs {% endif %}
-					<select id="options_state" size="1" onchange="report_state = this.value; update()">
-						<option value="">Choose a state</option>
-						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-					</select>
-					District
-					<select id="options_district" size="1" onchange="report_district = this.value; update()">
-					</select>
-					<span id="jump_to_default" style="display: none">
-						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
-						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = default_state; update(false); report_district = default_district; showdata(); return false;">Show XXX</a>
-					</span>
-					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
-				</p>
-				
-				<p><a class="b_view_now btn" href="#">View Now</a></p>
+				<h2>A State or District</h2>
+				<div class="search_live">
+					<input type="text" value="live search" />
+				</div>
+				<table class="district_table">
+				    <thead>
+					    <tr>
+					        <th class="state">State</th>
+					        <th class="district">District</th>
+					    </tr>
+				    </thead>
+				    <tbody>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+					    <td><a href="#">1st</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+					    <td><a href="#">2nd</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+					    <td><a href="#">3rd</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+					    <td><a href="#">4th</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+					    <td><a href="#">5th</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+					    <td><a href="#">6th</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+					    <td><a href="#">7th</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alaska</a></td>
+					    <td><a href="#">At-large</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Arizona</a></td>
+					    <td><a href="#">1st</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Arizona</a></td>
+					    <td><a href="#">2nd</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Arizona</a></td>
+					    <td><a href="#">3rd</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Arizona</a></td>
+					    <td><a href="#">4th</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Arizona</a></td>
+					    <td><a href="#">5th</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Arizona</a></td>
+					    <td><a href="#">6th</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Arizona</a></td>
+					    <td><a href="#">7th</a></td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Arizona</a></td>
+					    <td><a href="#">8th</a></td>
+				    </tr>
+				    </tbody>
+				</table>
 			</div>
+
 			<div class="right_gtk">
 				<h2>A Member of Congress</h2>
-				<h4>Choose:</h4>
-				<p class="gtk_selector">
-					State 
-					<select id="options_state" size="1" onchange="report_state = this.value; update()">
-						<option value="">Choose a state</option>
-						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-					</select>
-					Member
-					<select id="options_district" size="1" onchange="report_district = this.value; update()">
-					</select>
-					<span id="jump_to_default" style="display: none">
-						<a id="options_jump_nation" style="margin-left: 1em" href="#" onclick="report_state = ''; showdata(); return false;">Show POPVOX Nation</a>
-						<a id="options_jump_local" style="margin-left: 1em" href="#" onclick="report_state = default_state; update(false); report_district = default_district; showdata(); return false;">Show XXX</a>
-					</span>
-					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
-				</p>
-				<p><a class="b_view_now btn" href="#">View Now</a></p>
+				<div class="search_live">
+					<input type="text" value="live search" />
+				</div>
+				
+				<table class="congress_member_table">
+				    <thead>
+					    <tr>
+					        <th class="state">State</th>
+					        <th class="moc">Congress Person</th>
+					        <th>&nbsp;</th>
+					    </tr>
+				    </thead>
+				    <tbody>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Sen Richard Shelby</a></td>
+						<td class="td_rd">(R, AL)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Sen Jeff Sessions</a></td>
+						<td class="td_rd">(R, AL)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Rep Jo Bonner</a></td>
+						<td class="td_rd">(R, AL-1)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Rep Martha Roby	</a></td>
+						<td class="td_rd">(R, AL-2)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Rep Mike Rogers	</a></td>
+						<td class="td_rd">(R, AL-3)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Rep Robert B. Aderholt</a></td>
+						<td class="td_rd">(R, AL-4)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Rep Mo Brooks</a></td>
+						<td class="td_rd">(R, AL-5)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Rep Spencer Bachus</a></td>
+						<td class="td_rd">(R, AL-6)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alabama</a></td>
+						<td class="td_moc"><a href="#">Rep Terri A. Sewell</a></td>
+						<td class="td_rd">(D, AL-7)</td>
+				    </tr>
+				    <tr>
+					    <td class="td_st"><a href="#">Alaska</a></td>
+						<td class="td_moc"><a href="#">Sen Lisa Murkowski</a></td>
+						<td class="td_rd">(R, AK)</td>
+				    </tr>
+				    </tbody>
+				</table>
 			</div>
 			<div class="clear"> </div>
 						
