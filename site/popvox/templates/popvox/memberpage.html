@@ -35,7 +35,7 @@
           src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
         {% endif %}
 		
-		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">{%if memdata.title == "Rep" %}<a href="/district/{{memdata.state}}/{{memdata.district}}">[{{memdata.party}}, {{memdata.state}}-{{memdata.district}}]</a>{% else %}[{{memdata.party}}, {{memdata.state}}]{% endif %}</span></p>
+		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">[{%if memdata.chamber == "house" %}{%if memdata.state == "DC" or memdata.state == "PR" %}<a href="/district/{{memdata.state}}">{{memdata.party}}, {{memdata.state}}</a>{% else %}<a href="/district/{{memdata.state}}/{{memdata.district}}">{{memdata.party}}, {{memdata.state}}-{{memdata.district}}</a>{% endif %}{% else %}<a href="/state/{{memdata.state}}">{{memdata.party}}, {{memdata.state}}</a>{% endif %}]</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
 		<table>
