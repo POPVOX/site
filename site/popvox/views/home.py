@@ -1329,9 +1329,18 @@ def gettoknow(request):
       if state[0] in ['AS', 'GU', 'MP', 'VI']:
         diststateabbrs.remove(state)
 
+    all_members = govtrack.getMembersOfCongress()
+    members = []
+    for member in all_members:
+        if member['current'] == True:
+            mem = popvox.models.MemberOfCongress.objects.get(id=member['id'])
+            member['pvurl'] = mem.pvurl
+            members.append(member)
+
     return render_to_response('popvox/gettoknow.html', {"stateabbrs": 
                 stateabbrs, "diststateabbrs": 
-                diststateabbrs,},
+                diststateabbrs,
+                "members": members},
         
     context_instance=RequestContext(request))
     
