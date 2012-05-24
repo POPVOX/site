@@ -286,6 +286,7 @@ common_fieldnames = {
 	"valid-email": "email",
 	"email2": "email",
 	"fromemail": "email",
+	"verify-email": "email",
 	
 	"messagebody": "message",
 	"comment": "message",
@@ -419,6 +420,7 @@ custom_mapping = {
 	"2_field_420f4180-d327-4c63-aac5-efd047b1b463_text": "zip5",
 	"23_field_db3de26e-1334-48c8-ac2a-d173968c6236_radio": "response_requested",
 	"24_i02": "message",
+	"25_field_71436f5b-bd9c-4d93-b4ea-279d62bf4ab7_radio":"response_requested",
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
 	"37_affl3": "enews_subscribe",
 	"37_field_302e8a41-000d-419e-991e-40c7cb96f97c_radio": "topicarea",
@@ -477,6 +479,8 @@ custom_mapping = {
 	"839_field_ad57e3b4-5705-489d-be8a-ee887514258c_select": "topicarea",
 	"839_field_88cf096a-902e-4abd-9832-f24dcc3b9ee2_textarea": "message",
 	"842_J01": "subjectline",
+	"842_field_f6958bc0-eb9a-41ae-ad61-57221e74199f_text": "topicarea",
+	"842_field_e9e2e61c-2fa8-40c3-8e90-374a97fd3322_radio": "response_requested",
 	"864_phone_prefix_text" : "phone_areacode",
 	"864_phone_first_text" : "phone_prefix",
 	"864_phone_second_text" : "phone_line",
@@ -520,6 +524,7 @@ custom_overrides = {
 	"583_affl1_select": "no action",
 	"584_msub_select": "Other",
 	"585_enews_select": "no",
+	"585_affl1_select": "no",
 	"590_response_select": "newsNo",
 	"593_main-search_text": "",
 	"611_aff1req_text": "fill",
@@ -1125,7 +1130,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# Thess guys have some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input.
-	if di.id in (13, 37, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 244, 280, 316, 319, 332, 324, 341, 386, 426, 458, 528, 556, 570, 577, 585, 588, 598, 599, 600, 604, 605, 606, 607, 608, 611, 613, 621, 639, 641, 646, 649, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 713, 717, 718, 730, 734, 736, 746, 749, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878):
+	if di.id in (13, 37, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 235, 244, 280, 316, 319, 332, 324, 341, 386, 410, 426, 458, 528, 556, 570, 577, 585, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats

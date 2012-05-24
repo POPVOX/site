@@ -332,6 +332,7 @@ elif len(sys.argv) == 2 and sys.argv[1] == "status":
 	
 	out = writer(sys.stdout)
 	out.writerow(["count", "govtrackid", "endpointid", "member"])
+	total = 0
 
 	for rec in UserCommentOfflineDeliveryRecord.objects.values("target").annotate(count=Count("target")).order_by("count").values("target", "count"):
 		try:
@@ -339,6 +340,8 @@ elif len(sys.argv) == 2 and sys.argv[1] == "status":
 		except:
 			endpoint = ""
 		out.writerow([ rec["count"], rec["target"], endpoint, getMemberOfCongress(rec["target"])["name"].encode("utf8") ])
+		total += rec["count"]
+	out.writerow(["total", total])
 
 elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
 	clean_ucodrs()
