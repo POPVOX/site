@@ -212,6 +212,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.messages',
     'django.contrib.markup',
+    'django.contrib.sitemaps',
     'tinymce',
     'feedback',
     'picklefield',

@@ -3,6 +3,8 @@ import os, os.path
 from django.conf.urls.defaults import *
 from django.views.generic import list_detail
 
+from sitemaps import BillSitemap, BillReportSitemap
+
 from django.contrib import admin
 admin.autodiscover()
 
@@ -10,8 +12,15 @@ import settings
 
 import popvox.views.api
 
+sitemaps = {
+    'bills':BillSitemap,
+    'billreports':BillReportSitemap
+}
+
 urlpatterns = patterns('',
 	(r'site-down', 'popvox.views.main.sitedown'),
+	
+	(r'sitemap\.xml', 'django.contrib.sitemaps.views.sitemap', {'sitemaps':sitemaps}),
 	
 	(r'ajax/master-state', 'popvox.views.main.master_state'),
 	(r'ajax/get-short-url', 'popvox.views.main.get_short_url'),
