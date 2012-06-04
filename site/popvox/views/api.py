@@ -415,8 +415,7 @@ class org_positions(BaseHandler):
     print example
     url_pattern_args = [("000","TIMESTAMP")]
     url_example_args = (example,)
-    qs_args = (('position', 'Optional. Restricts positions to supporting (+), opposing (-), and neutral comments (0).', '+'),('since', 'Optional. Provide a date and time (YYYY-MM-DD-HH:MM-:S) to restrict results to positions left since then.'))
-    description = "Returns all organization positions, with optional arguments to restrict by time (so you can just get the positions since your last query), by position (endorsing, opposing, neutral), or by whether the comment is supporting, opposing, or neutral."
+    description = "Returns all organization positions, with an optional argument to restrict by time (so you can just get the positions since your last query)."
     response_summary = " Returns a paginated list of organization positions. It is possible for an organization to be listed more than once, although it is uncommon."
     response_fields = (
         ('id', 'a numeric identifier for the position record'),
