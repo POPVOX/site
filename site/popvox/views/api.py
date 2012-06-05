@@ -412,7 +412,6 @@ class org_positions(BaseHandler):
     orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created', 'updated']
     org_fields = ["id", "name", "link"]
     example = (datetime.today() - timedelta(days=7)).strftime("%Y-%m-%d-%H:%M:%S") #for example purposes, org statements from the past seven days 
-    print example
     url_pattern_args = [("000","TIMESTAMP")]
     url_example_args = (example,)
     description = "Returns all organization positions, with an optional argument to restrict by time (so you can just get the positions since your last query)."
@@ -436,7 +435,6 @@ class org_positions(BaseHandler):
         account, permissions = validate_widget_request(request, request.GET["api_key"],False)
         print request.GET["api_key"]
         #permissions = ['api_congress']
-        print permissions
         if not 'api_congress' in permissions:
             return HttpResponseBadRequest("This API key is not authorized for access to this API.")
         if inputdate:   
