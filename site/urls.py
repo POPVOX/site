@@ -124,12 +124,14 @@ urlpatterns = patterns('',
 	(r'^ajax/accounts/profile/updatefield$', 'popvox.views.profile.account_profile_update2'),
 	(r'^ajax/accounts/profile/trackbill$', 'popvox.views.profile.trackbill'),
 	
+	#widgets
 	(r'^widgets/js/bill.html$', 'popvox.views.widgets.bill_iframe'),
 	(r'^widgets/js/bill.js$', 'popvox.views.widgets.bill_js'),
 	(r'^widgets/bill-comment-map$', "popvox.views.widgets.commentmapus"),
 	(r'^widgets/top-bills$', "popvox.views.widgets.top_bills"),
 	(r'^widgets/bill-text.js$', "popvox.views.widgets.bill_text_js"),
 	(r'^widgets/bill-text$', "popvox.views.widgets.bill_text"),
+	(r'^widgets/bill-inline$', "popvox.views.widgets.bill_inline"),
 		
 	(r'^services/widgets$', "popvox.views.services.widget_config"),
 	(r'^services/analytics$', 'popvox.views.services.analytics'),
