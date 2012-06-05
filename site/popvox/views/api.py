@@ -408,8 +408,9 @@ class bill_positions(BaseHandler):
         return SITE_ROOT_URL + obj.url()
         
 @api_handler
-class org_positions(BaseHandler):
-    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created', 'updated']
+class org_positions(BillHandler):
+    orgcampaignposition_fields = ['id', 'bill', 'organization', 'position', 'comment', 'created', 'updated'] 
+    bill_fields = ['id', 'congressnumber','billtype', 'billnumber']
     org_fields = ["id", "name", "link"]
     example = (datetime.today() - timedelta(days=7)).strftime("%Y-%m-%d-%H:%M:%S") #for example purposes, org statements from the past seven days 
     url_pattern_args = [("000","TIMESTAMP")]
@@ -418,6 +419,10 @@ class org_positions(BaseHandler):
     response_summary = " Returns a paginated list of organization positions. It is possible for an organization to be listed more than once, although it is uncommon."
     response_fields = (
         ('id', 'a numeric identifier for the position record'),
+        ('bill/id', 'the popvox id of the bill the position refers to'),
+        ('bill/congressnumber', 'the "Congress" in which the bill was introduced, identifying a two-year Congressional session (currently %d)' % CURRENT_CONGRESS),
+        ('bill/billtype', 'a short identifier for the type of bill, one of: ' + ", ".join([x[1] for x in Bill.BILL_TYPE_SLUGS])),
+        ('bill/billnumber', 'the number of the bill, normally unique to a congressnumber and billtype, but non-unique in cases of "vehicles"'),
         ('organization', 'the organization leaving the position'),
         ('organization/id', 'a numeric identifier for the organization'),
         ('organization/name', 'the display name for the organization'),
@@ -433,7 +438,6 @@ class org_positions(BaseHandler):
     @paginate
     def read(self, request, acct, inputdate=None):
         account, permissions = validate_widget_request(request, request.GET["api_key"],False)
-        print request.GET["api_key"]
         #permissions = ['api_congress']
         if not 'api_congress' in permissions:
             return HttpResponseBadRequest("This API key is not authorized for access to this API.")
