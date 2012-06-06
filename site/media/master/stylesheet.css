@@ -785,7 +785,7 @@ table.form_fields td {
 
 #bill_endorse_oppose_holder_user {
     float: left;
-    margin: 10px 24px 30px 0;
+    margin: 10px 0px 30px 0;
     padding: 10px 20px 20px;
     width: 414px;
     border: 1px solid #D4D1CA;
@@ -1077,6 +1077,27 @@ ul.tabs {
 	color: #fff;
 	height: 200px;*/
 	}
+	
+/* ----bill summary page---- */
+h1.bill_summary {
+	margin-bottom: 0;
+	margin-top: 20px;
+}
+
+.bill_summary h2 {
+	margin-bottom: 5px;
+}
+	
+.bill_summary p {
+	font-size: 14px;
+	line-height: 1.5em;
+}   
+
+.bill_summary small {
+	font-size: 14px;
+	line-height: 1.5em;
+}   
+
 
 /* ----second bills list page iteration---- 
 .bills_list {
@@ -5356,6 +5377,55 @@ body.gettoknow h1 {
 				}
 
 
+
+
+/* ----inline mini  widget---- */
+.widget_mini {
+	display: block;
+	float: left;
+	height: 25px;
+	margin-right: 10px;
+	}
+	.widget_mini p {
+		height: 21px;
+		line-height: 21px;
+		font: italic normal 11px/22px helvetica, arial, sans-serif;
+		}	
+	.widget_mini p strong {
+		color: #fff;
+		background: url(../widget/widget_mini_bg_lft.png) left top no-repeat;
+		padding: 0 0 0 12px;
+		display: block;
+		float: left;
+		font-style: normal;
+		}
+	.widget_mini p span.w_stats {
+		background: url(../widget/widget_mini_bg_line.png) left top no-repeat;
+		padding: 0 0px 0 23px;
+		display: block;
+		float: left;
+		}
+	.widget_mini p span.w_stats em.supporting {
+		background: url(../widget/widget_small_heart.png) left top no-repeat;
+		padding: 0 8px 0 18px;
+		font: normal 12px/22px helvetica, arial, sans-serif;
+		}
+	.widget_mini p span.w_stats em.opposing {
+		background: url(../widget/widget_small_anti.png) left top no-repeat;
+		padding: 0 8px 0 18px;
+		font: normal 12px/22px helvetica, arial, sans-serif;
+		}
+	.widget_mini p span.w_stats a {
+		padding-right: 12px;
+		font: normal 11px/22px helvetica, arial, sans-serif;
+		}
+	.widget_mini .w_end {
+		background: url(../widget/widget_mini_bg_rt.png) left top no-repeat;
+		height: 21px;
+		width: 10px;
+		display: block;
+		float: left;
+		}
 
 
 
