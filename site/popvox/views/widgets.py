@@ -61,7 +61,9 @@ def bill_inline(request):
     pro = (100.0) * bill.usercomments.get_query_set().filter(position='+').count()/total
     con = (100.0) * bill.usercomments.get_query_set().filter(position='-').count()/total
     
-    return HttpResponse("""<html><body><div class="widget_mini"><p><strong>%s</strong><span class="w_stats"><em class="supporting">%d&#37;</em><em class="opposing">%d&#37;</em> by <a href="#">POPVOX</a></span><span class="w_end"></span></p></div> </body></html>""" % (
+    return HttpResponse("""<html><head> <link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
+    <link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
+    <link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> </head><body><div class="widget_mini"><p><strong width="4em">%s</strong><span class="w_stats"><em class="supporting">%d&#37;</em><em class="opposing">%d&#37;</em> by <a href="#">POPVOX</a></span><span class="w_end"></span></p></div> </body></html>""" % (
     billnum,
     int(pro),
     int(con)))
