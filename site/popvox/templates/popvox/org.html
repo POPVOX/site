@@ -189,6 +189,10 @@ We would like to join your coalition.</textarea>
 		<p class="fb"><a href="{{org.facebookurl}}">Our Facebook Page</a> {% if org.facebook_fan_count %}<span>({{ org.facebook_fan_count|intcomma }} fans)</span>{% endif %}</p>
 		{% endif %} 
 		
+		{% if org.gplusurl %}
+		<p class="gplus"><a href="{{org.gplusurl}}">Our Google Plus Page</a></p>
+		{% endif %} 
+		
 		{% if org.twittername %}
 		<p class="twitter"><a href="http://www.twitter.com/{{org.twittername}}">@{{org.twittername}}</a> {% if org.twitter_follower_count %}<span>({{ org.twitter_follower_count|intcomma }} followers)</span>{% endif %}</p>
 		{% endif %} 

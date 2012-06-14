@@ -461,6 +461,7 @@ class Org(models.Model):
 	homestate = models.CharField(choices=govtrack.statelist, max_length=2, blank=True, null=True, db_index=True)
 	twittername = models.TextField(blank=True, null=True)
 	facebookurl = models.URLField(blank=True, null=True)
+	gplusurl = models.URLField(blank=True, null=True)
 	issues = models.ManyToManyField(IssueArea, blank=True)
 	logo = models.ImageField(upload_to="submitted/org/profilelogo", blank=True, null=True)
 	created = models.DateTimeField(auto_now_add=True)
@@ -1524,7 +1525,7 @@ class ServiceAccount(models.Model):
 	
 	permissions = models.ManyToManyField(ServiceAccountPermission, blank=True)
 	notes = models.TextField(blank=True)
-	hosts = models.TextField(blank=True, help_text="Restrict the widget to appearing on sites at these domain names. Put domain names each on a separate line. You do not need to include the www. If this is blank, than by default we white-list the org's website's domain (for org accounts). However, if you put stuff here, you MUST include the org's website's domain if you want to include it.")
+	hosts = models.TextField(blank=True, help_text="Restrict the widget to appearing on sites at these domain names. Put domain names each on a separate line. You do not need to include the www. If this is blank, then by default we white-list the org's website's domain (for org accounts). However, if you put stuff here, you MUST include the org's website's domain if you want to include it.")
 	fb_page_id = models.CharField(max_length=24, blank=True, null=True, db_index=True, help_text="The numeric ID of the Facebook Page that widgets may appear on for this account.") # ought to be unique but since it can be null it can't be set unique
 	
 	# this is a public key used in the URLs of widgets to identify this service account,
