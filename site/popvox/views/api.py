@@ -7,6 +7,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.utils.importlib import import_module
 from django.views.decorators.cache import cache_page
+from django.db.models import Q
 
 from popvox.models import *
 from popvox import govtrack
@@ -406,6 +407,54 @@ class bill_positions(BaseHandler):
     def link(obj, request, acct):
         return SITE_ROOT_URL + obj.url()
         
+@api_handler
+class org_positions(BillHandler):
+    orgcampaignposition_fields = ['id', 'bill', 'organization', 'position', 'comment', 'created', 'updated'] 
+    bill_fields = ['id', 'congressnumber','billtype', 'billnumber']
+    org_fields = ["id", "name", "link"]
+    example = (datetime.today() - timedelta(days=7)).strftime("%Y-%m-%d-%H:%M:%S") #for example purposes, org statements from the past seven days 
+    url_pattern_args = [("000","TIMESTAMP")]
+    url_example_args = (example,)
+    description = "Returns all organization positions, with an optional argument to restrict by time (so you can just get the positions since your last query)."
+    response_summary = " Returns a paginated list of organization positions. It is possible for an organization to be listed more than once, although it is uncommon."
+    response_fields = (
+        ('id', 'a numeric identifier for the position record'),
+        ('bill/id', 'the popvox id of the bill the position refers to'),
+        ('bill/congressnumber', 'the "Congress" in which the bill was introduced, identifying a two-year Congressional session (currently %d)' % CURRENT_CONGRESS),
+        ('bill/billtype', 'a short identifier for the type of bill, one of: ' + ", ".join([x[1] for x in Bill.BILL_TYPE_SLUGS])),
+        ('bill/billnumber', 'the number of the bill, normally unique to a congressnumber and billtype, but non-unique in cases of "vehicles"'),
+        ('organization', 'the organization leaving the position'),
+        ('organization/id', 'a numeric identifier for the organization'),
+        ('organization/name', 'the display name for the organization'),
+        ('organization/link', 'a link to the primary page on POPVOX for the organization'),
+        ('position', 'the position of the organization on the bill, one of + for endorse, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
+        ('comment', 'a comment on the bill from the organization; plain text format; optional'),
+        ('created', 'the date and time when the position record was entered into POPVOX'),
+        ('updated', 'the date and time when the position record was last modified on POPVOX'),
+        )
+    allow_public_api_key = False
+
+    
+    @paginate
+    def read(self, request, acct, inputdate=None):
+        account, permissions = validate_widget_request(request, request.GET["api_key"],False)
+        #permissions = ['api_congress']
+        if not 'api_congress' in permissions:
+            return HttpResponseBadRequest("This API key is not authorized for access to this API.")
+        if inputdate:   
+            dt = datetime.strptime(inputdate, "%Y-%m-%d-%H:%M:%S")
+            return OrgCampaignPosition.objects.filter(Q(created__gte=dt) | Q(updated__gte=dt))
+        else:
+            return OrgCampaignPosition.objects.all()
+
+    @staticmethod
+    def organization(obj, request, account):
+        return obj.campaign.org
+
+    @staticmethod
+    def link(obj, request, acct):
+        return SITE_ROOT_URL + obj.url()
+        
 class DocumentHandler(BaseHandler):
     @staticmethod
     def pages(item, request, acct):
@@ -748,7 +797,9 @@ class user_get_info(BaseHandler):
         
 @api_handler
 class org_get_info(BaseHandler):
-    description = "Gets information about an organization. Restricted to those with the api_congress permission set in their service account."
+    description = "Returns contact and social media information about an organization on POPVOX. Because this call includes private information, sich as contact information for the organization's legislative relations contact, it is restricted to congressional staff. If you're a congressional staffer seeking to use this API call, please contact info@popvox.com."
+    url_pattern_args = [("000", "ORG_ID")]
+    url_example_args = (1434,)
     response_fields = (
         ('address', 'the organization\'s mailing address'),
         #('contact', 'the organization\'s legislative relations contact'), It doesn't look like we have this yet.
