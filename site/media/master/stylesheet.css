@@ -1,3 +1,4 @@
+
 /* @override https://william.popvox.com/media/master/stylesheet.css */
 
 /*
@@ -4268,11 +4269,6 @@ h3 span {
 
     .profile_block p.fb {
         background: url("b_fb.png") no-repeat left top;
-        padding: 0 0 0 25px;
-        }
-
-    .profile_block p.gplus {
-        background: url("b_gplus.png") no-repeat left top;
         padding: 0 0 0 25px;
         }
 
