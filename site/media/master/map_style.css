@@ -38,6 +38,12 @@ body {
 		height: 405px;
 	}	
 	
+    body.width_274 #mapdots {
+        background: url(/media/gis/map_background_cds_274.png) no-repeat;
+        width: 274px;
+        height: 199px;
+    }
+	
 /*  for oppose, mostly oppose, mixed, mostly support, support */
 
 .colormode_1 .dots { background-image: url("bg_dots.png");  }
@@ -137,17 +143,22 @@ body {
 	body.width_558  #legend_sz, body.width_558  #legend_clr, body.width_558  #legend_text {
 		left: 280px;
 	}
+    body.width_274  #legend_sz, body.width_274  #legend_clr, body.width_274  #legend_text {
+        left: 137px;
+    }
 	
 #legend_clr {
 	top: 493px;
 	color: #666;
 	}
 	body.width_558  #legend_clr { top: 380px; }
+	body.width_274  #legend_clr { top: 187px; }
 #legend_sz {
 	top: 515px;
 	color: #666;
 	}
 	body.width_558  #legend_sz { top: 402px; }
+    body.width_274  #legend_sz { top: 196px; }
 #legend_text {
 	font-weight: normal;
 	top: 455px;
@@ -157,6 +168,7 @@ body {
 	color: #666;
 	}
 	body.width_558  #legend_text { margin-left: 20px; top: 355px; }
+	body.width_274  #legend_text { margin-left: 10px; top: 174px; width: 125px;}
 	
 #legend_sz div, #legend_clr div {
 	float: left;
@@ -188,6 +200,10 @@ body {
 		left: 365px;
 		top: 430px;
 	}
+    body.width_274 #colormode {
+        left: 179px;
+        top: 211px;
+    }
 #colormode:hover {
 	background-position: left bottom;
 	}
@@ -259,3 +275,6 @@ body {
 	body.width_558 #brought_to_you {
 		top: 280px;
 	}
+    body.width_274 #brought_to_you {
+        top: 137px;
+    }

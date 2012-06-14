@@ -38,3 +38,19 @@ class BillReportSitemap(Sitemap):
         
     def location(self, obj):
         return '/bills/us/'+str(obj.congressnumber)+'/'+str(obj.billtype)+str(obj.billnumber)+'/report'
+        
+        
+class OrgSitemap(Sitemap):
+    priority = 0.5
+
+    def changefreq(self, obj):
+        return 'weekly'
+
+    def items(self):
+        return Org.objects.all()
+        
+    def lastmod (self, obj):
+        return obj.updated
+        
+    def location(self, obj):
+        return '/orgs/'+str(obj.slug)
