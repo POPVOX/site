@@ -518,6 +518,7 @@ custom_overrides = {
 	"426_aff1_radio": "<AFFL>Subscribe</AFFL>",
 	"503_phonetype_radio": "voice",
 	"550_issue_type_radio": "issue",
+	#"566_field_502cc83d-39f8-415e-8205-061f1b2f23fa_select": "AGR", #Rubio's form is choking on issue areas, which is generating unexpected responses instead of SRs. Fix what can be fixed, then uncomment to get the rest of them in.
 	"568_subject_radio": "CRNR", # no response
 	"568_idresident_radio": "yes",
 	"576_group1_radio": "N",
