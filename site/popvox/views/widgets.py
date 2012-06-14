@@ -56,7 +56,8 @@ def bill_iframe(request):
 @do_not_track_compliance
 def bill_inline(request):
     bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
-    billnum = bill.billtype.upper()+str(bill.billnumber)
+    billtype = bill.billtypeslug().upper()
+    billnum = billtype+' '+str(bill.billnumber)
     total = bill.usercomments.get_query_set().count()
     pro = (100.0) * bill.usercomments.get_query_set().filter(position='+').count()/total
     con = (100.0) * bill.usercomments.get_query_set().filter(position='-').count()/total
@@ -261,6 +262,43 @@ def top_bills(request):
     bills.sort(key = lambda b : b[3], reverse=True)
         
     return render_to_response('popvox/widgets/top_bills.html', {
+        "bills": bills,
+        "max": max_count,
+        "max_sup": max_sup,
+        "max_opp": max_opp,
+    }, context_instance=RequestContext(request))
+    
+@strong_cache
+@do_not_track_compliance
+def minimap(request):
+    congressnumber = CURRENT_CONGRESS
+    count = 8
+    
+    # Select bills with the most number of recent comments.
+    bills = []
+    max_count = 0
+    max_sup = 0
+    max_opp = 0
+    for b in Bill.objects.filter(congressnumber = CURRENT_CONGRESS) \
+        .annotate(Count('usercomments')).order_by('-usercomments__count') \
+        [0:count]:
+        
+        if b.usercomments__count == 0:
+            break
+            
+        sup = b.usercomments.filter(position="+").count()
+        opp = b.usercomments.filter(position="-").count()
+        
+        bills.append( (b, sup, opp, float(sup)/float(sup+opp), b.url()) )
+        
+        max_count = max(max_count, sup+opp)
+        max_sup = max(max_sup, sup)
+        max_opp = max(max_opp, opp)
+        
+    # sort by %support
+    bills.sort(key = lambda b : b[3], reverse=True)
+        
+    return render_to_response('popvox/widgets/minimap.html', {
         "bills": bills,
         "max": max_count,
         "max_sup": max_sup,

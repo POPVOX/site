@@ -15,7 +15,6 @@ import json
 import re, functools
 from xml.dom import minidom
 from datetime import datetime, timedelta
-
 from popvox.models import *
 import shorturl
 
