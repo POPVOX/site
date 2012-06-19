@@ -13,28 +13,203 @@
                 background-color: #E8E5DF;
             }
         </style> 
-        <link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
+        <link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
         <link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> 
         <script type="text/javascript" src="/media/js/jquery.js"></script>
         <script type="text/javascript" src="/media/js/highcharts.js"></script>
+		<script type="text/javascript" src="/media/js/charts.js"></script>
+
+</head>
+    <script>
+    var default_state;
+    var default_district;
+    var report_state = "";
+    var report_district = "";
+    var start = 0;
+    var count = 50;
+
+    function showdata(is_first_load, is_more) {
+		alert ("show data!");
+        
+        isloading = true;
+
+        $.ajax({
+            type:"GET",
+            url: "/ajax{{bill.url}}/report/getinfo",
+            data: {
+                state: report_state,
+                district: report_district,
+                start: (!is_more ? 0 : start),
+                count: count
+            },
+            complete: function(res, status) {
+				alert ("ajax ran");
+                isloading = false;
+                
+                $('#loadingstatus').text("");
+                $('#options_state, #options_district').prop('disabled', false);
+                
+                if (status != "success") {
+                    $('#shortmessages').text("Error loading report.");
+                    return;
+                }
+                
+                if (report_state == default_state && report_district == default_district) {
+                    $('#options_jump_nation').show();
+                } else {
+                    $('#options_jump_local').show();
+                }
+                
+                res = eval('(' + res.responseText + ')');
+                
+                if (res.debug_info)
+                    $('#debug_info').text(res.debug_info);
+                
+                $('#reporttitle').text(res.reporttitle);
+                if (res.reportsubtitle == "") {
+                    $('#reportsubtitle').fadeOut();
+                } else {
+                    $('#reportsubtitle').fadeIn();
+                    $('#reportsubtitle').text(res.reportsubtitle);
+                }
+
+                function buildchart(stats, islast) {
+                    $('#chart').show(); // must come before chart load so dimensions get set right
+                
+                    if (!islast) $('#chart').addClass("chart_notlast");
+                    else $('#chart').removeClass("chart_notlast");
+
+                    if (stats.total == 0) {
+                        $('#chart').addClass("no_pie");
+                        $('#chart' + " .past_stats").hide();
+                        $('#chart' + ' .pro_reintro').show();
+                        $('#chart' + ' .pro_reintro').text(stats.pro_reintro + " individuals in " + stats.longdescription + " support reintroduction of the bill.");
+                        return;
+                    } else {
+                        $('#chart').removeClass("no_pie");
+                        $('#chart' + " .past_stats").show();
+                    }
+                    
+                    $('#chart' + " .chart_title").text(stats.longdescription);
+                    $('#chart' + " .users").text("(" + stats.total + " people)");
+                    $('#chart' + " .bg_support").text(stats.pro_pct + "% Support");
+                    $('#chart' + " .bg_oppose").text(stats.con_pct + "% Oppose");
+                   
+                    if (stats.pro_reintro == 0) {
+                        $('#chart' + ' .pro_reintro').hide();
+                    } else {
+                        $('#chart' + ' .pro_reintro').show();
+                        $('#chart' + ' .pro_reintro').text(stats.pro_reintro + " people support reintroduction of the bill.");
+                    }
+                    
+                    bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true });
+                    bill_timeseries('chart_time', stats.timeseries);
+                }
+
+                $('#stats_overall_info').text("");
+                if (!res.stats) {
+                } else if (res.stats.overall) {
+                    buildchart(res.stats.overall, 0, true);
+                    $('#chart1').hide();
+                    $('#chart2').hide();
+                } else {
+                    $('#stats_overall_info').text("Not enough individuals have commented on this {{bill.proposition_type}} to display a chart.");
+                }
+
+                if ((is_first_load || !report_state || res.comments.length == 0) && res.stats.overall) {
+                    $('#map').show();
+                    $('#showmap').hide();
+                } else {
+                    $('#map').hide();
+                    if (res.stats.overall) $('#showmap').show();
+                }
+			}
+		});
+	}
+                
+
+    $(function() {
+        $(window).bind("hashchange", function() {
+            //$(window).scrollTop(320);
+            var hashargs = $.deparam.fragment();
+            if (hashargs.state) report_state = hashargs.state;
+            if (hashargs.district) report_district = hashargs.district;
+            showdata();
+        });
+    
+        /*master_state(function(res) {
+            // get default context from logged in state
+            default_state = res.page.default_state;
+            default_district = res.page.default_district
+            if (default_state) {
+                report_state = default_state;
+                if (default_district) report_district = default_district;
+                $('#jump_to_default').show();
+                $('#options_jump_local').text("Show " + default_state + (default_district ? ("-" + default_district) : ""));
+            }
+    
+            // override default context with fragment args
+            if (window.location.hash == "#nation") {
+                report_state = "";
+                report_district = "";
+            } else {
+                var hashargs = $.deparam.fragment();
+                if (hashargs.state) report_state = hashargs.state;
+                if (hashargs.district) report_district = hashargs.district;
+            }
+            
+            // pull data: must be in the ready state function
+            showdata(true);
+        }); */
+    });
+
+$(document).ready(showdata(true));
+
+</script>
 
 <div class="content">
     <div class="col_4_5 col_top col_last">
         <div class="mini-map">
-            <h3>HR3 No Tax Payer Funding For Abortion</h3>
-            <div class="map"></div>
-            <div class="chart">
+			<h3>{{bill.title}}</h3>
+			<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
+`
+                <div id="chart" class="clear" style="display: none;">
+                    <div class="col_1 past_stats">
+                        <div id="chart_pie" style="height: 90px; width: 90px"></div>
+                    </div>
+                     <div class="col_2 past_stats" style="padding-right: 1em; width: 110px">
+                        <p class="chart_stats">
+                            <span class="chart_title">XXX:</span> <br />
+                            <span class="bg_support">YYY% Support</span><br />
+                            <span class="bg_oppose">ZZZ% Oppose </span><br />
+                            <span class="users">(WWW users)</span>
+                        </p>
+                    </div>
+                    <div class="col_3 col_last past_stats">
+                        <div id="chart_time" style="height: 100px"></div>
+                        <!--<div style="font-size: 8pt; color: #999">Cumulative Number of Individuals Over Time</div>-->
+                    </div>
+
+<!--            <div class="chart">
                 <p class="chart_stats">
+					<div id="chart_pie_1" style="height: 90px; width: 90px"></div>
                     <span class="pie"></span><br />
-                    <span class="bg_support">62% Support <!-- 8 --></span><br />
-                    <span class="bg_oppose">38% Oppose <!-- 5 --></span><br />
+                        <p class="chart_stats">
+                            <span class="chart_title">XXX:</span> <br />
+                            <span class="bg_support">YYY% Support</span><br />
+                            <span class="bg_oppose">ZZZ% Oppose </span><br />
+                            <span class="users">(WWW users)</span>
+                        </p>-->
+
+                    <!--<span class="bg_support">62% Support </span><br />
+                    <span class="bg_oppose">38% Oppose </span><br />
                     <span class="users">(1790 total users)</span>
                 </p>
             </div>
             <div id="chart_time_0">
                 <p>put chart here</p>
-            </div>
+            </div> -->
             <p class="foot_text">Real-time sentiment registered on <a href="http://www.popvox.com">www.popvox.com</a></p>	
                 
         </div> 
