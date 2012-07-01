@@ -254,6 +254,15 @@
 	-khtml-border-radius: 2px;
 	border-radius: 2px;
 	}
+#code2 {
+    padding: 10px;
+    border: 1px solid #c2bfb6;
+    color: #404045;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -khtml-border-radius: 2px;
+    border-radius: 2px;
+}
 
 .bill_name {
 	padding: 0 0 20px 0;

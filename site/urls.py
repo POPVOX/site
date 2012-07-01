@@ -15,7 +15,8 @@ import popvox.views.api
 sitemaps = {
     'bills':BillSitemap,
     'billreports':BillReportSitemap,
-    'orgs':OrgSitemap
+    'orgs':OrgSitemap,
+    'memberpages':MemberpageSitemap
 }
 
 urlpatterns = patterns('',

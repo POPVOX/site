@@ -64,7 +64,7 @@ def bill_inline(request):
     
     return HttpResponse("""<html><head> <link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
     <link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
-    <link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> </head><body><div class="widget_mini"><p><strong width="4em">%s</strong><span class="w_stats"><em class="supporting">%d&#37;</em><em class="opposing">%d&#37;</em> by <a href="#">POPVOX</a></span><span class="w_end"></span></p></div> </body></html>""" % (
+    <link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> </head><body style="background:transparent"><div class="widget_mini"><p><strong width="4em">%s</strong><span class="w_stats"><em class="supporting">%d&#37;</em><em class="opposing">%d&#37;</em> by <a href="#">POPVOX</a></span><span class="w_end"></span></p></div> </body></html>""" % (
     billnum,
     int(pro),
     int(con)))

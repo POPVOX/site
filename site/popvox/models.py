@@ -754,6 +754,7 @@ class OrgCampaignPosition(models.Model):
 	bill = models.ForeignKey(Bill, on_delete=models.PROTECT)
 	position = models.CharField(max_length=1, choices=POSITION_CHOICES)
 	comment = models.TextField(blank=True, null=True)
+	pdfurl = models.URLField(blank=True, null=True)
 	action_headline = models.CharField(max_length=128, blank=True, null=True)
 	action_body = tinymce_models.HTMLField(blank=True, null=True) #models.TextField()
 	created = models.DateTimeField(auto_now_add=True)

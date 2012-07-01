@@ -395,6 +395,7 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"ratings[how_am_i_doing_as_your_representative?]",
 	"ratings[is_the_112th_congress_addressing_the_issues_that_concern_you?]",
 	"aff1req",
+	"field_113f8513-8ef5-4595-938c-0576c6ee6112",
 	"phcell")
 
 radio_choices = {
@@ -418,6 +419,7 @@ radio_choices = {
 
 custom_mapping = {
 	"2_field_420f4180-d327-4c63-aac5-efd047b1b463_text": "zip5",
+	"18_field_1f16bf7a-1773-4479-bc8f-995d37e73f17_radio": "response_requested",
 	"23_field_db3de26e-1334-48c8-ac2a-d173968c6236_radio": "response_requested",
 	"24_i02": "message",
 	"25_field_71436f5b-bd9c-4d93-b4ea-279d62bf4ab7_radio":"response_requested",
@@ -529,6 +531,7 @@ custom_overrides = {
 	"590_response_select": "newsNo",
 	"593_main-search_text": "",
 	"611_aff1req_text": "fill",
+	"637_radiogroup1_radio": "n",
 	"639_aff1req_text": "fill",
 	"644_subcategory_select": "",
 	"645_yes_radio": "NRN",
@@ -1131,7 +1134,7 @@ def send_message_webform(di, msg, deliveryrec):
 		
 	# Thess guys have some weird restrictions on the text input to prevent the user from submitting
 	# SQL... rather than just escaping the input.
-	if di.id in (13, 37, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 235, 244, 280, 316, 319, 332, 324, 341, 386, 410, 426, 458, 528, 556, 570, 577, 585, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882):
+	if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882):
 		re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
 		for k in postdata:
 			postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
