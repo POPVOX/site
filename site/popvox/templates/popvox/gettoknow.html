@@ -38,47 +38,60 @@ function subscribe(validate) {
 <h1>Get to know a congressional district or a Member of Congress.</h1>
 {% endblock %}
 {% block content %}
-<div class="hm_slide">
+<div class="hm_slide gtk">
 	<div class="hm_slide_mid">
 		<div class="hm_slide_div">
 			<div class="left_gtk">
-				<h2>A District</h2>
-				<h4>Choose:</h4>
-				<p class="gtk_selector">
-					State 
-					<select id="dist_options_state" size="1" onchange="dist_report_state = this.value; dist_update()">
-						<option value="">Choose a state</option>
-						{% for stateabbr, statename in diststateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-					</select><br/>
-					District
-					<select id="dist_options_district" size="1" onchange="dist_report_district = this.value; dist_update()">
-					</select>
-					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
-				</p>
-				
-				<p><a id="distgo" class="b_view_now btn" href="#">View Now</a></p>
-			</div>
+                <h2>A State or District</h2>
+                <div class="search_live">
+                        <input type="text" value="live search" />
+				</div> <!-- /search_live -->
+                <table id="district_table">
+                    <thead>
+                            <tr>
+                                <th class="state">State</th>
+                                <th class="district">District</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+					{% for member in members %}
+                    <tr>
+				  
+					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div> <!-- /left_gtk -->
 			<div class="right_gtk">
 				<h2>A Member of Congress</h2>
-				<h4>Choose:</h4>
-				<p class="gtk_selector">
-					State 
-					<select id="mem_options_state" size="1" onchange="mem_report_state = this.value; mem_update()">
-						<option value="">Choose a state</option>
-						{% for stateabbr, statename in stateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
-					</select><br/>
-					Member
-					<select id="mem_options_member" size="1" onchange="mem_report_member = this.value; mem_update()">
-					</select>
-					<span id="loadingstatus" style="color: red; padding-left: 1em"></span>
-				</p>
-				<p><a id="memgo" class="b_view_now btn" href="#">View Now</a></p> 
-			</div>
+				<div class="search_live">
+					<input type="text" value="live search" />
+				</div> <!-- /right_gtk -->
+
+				<table id="congress_member_table">
+					<thead>
+						<tr>
+							<th class="state">State</th>
+							<th class="moc">Congress Person</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for member in members %}
+						<tr>
+							<td class="td_st"><a href="#">{{member.state}}</a></td>
+							<td class="td_moc"><a href="{{member.pvurl}}">{{member.plain_name}}</a></td>
+							<td class="td_rd">{{member.party_state}}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div> <!-- /right_gtk -->
 			<div class="clear"> </div>
 						
-		</div>
-	</div>
-</div>
+		</div> <!-- /hm_slide_div -->
+	</div> <!-- /hm_slide_mid -->
+</div> <!-- /hm_slide gtk -->
 <div class="clear"> </div>
 
 
@@ -142,6 +155,13 @@ function subscribe(validate) {
 	</div><!-- e: col_3 -->
 	<div class="clear"> </div>
 </div>
+
+<script type="text/javascript" src="/media/js/jquery.dataTables.js"></script>
+<script>
+	$(document).ready(function() {
+			$('#congress_member_table').dataTable();
+		} );
+</script>
 
 <script type="text/javascript" src="/media/js/gettoknow.js"></script>
 {% endblock %}

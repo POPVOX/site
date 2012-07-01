@@ -1335,7 +1335,19 @@ def gettoknow(request):
         if member['current'] == True:
             mem = popvox.models.MemberOfCongress.objects.get(id=member['id'])
             member['pvurl'] = mem.pvurl
+
+            url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member['id'])
+            json_data = "".join(urllib2.urlopen(url).readlines())
+            loaded_data = json.loads(json_data)
+            mem_data = loaded_data['response']['legislator']
+
+            member['plain_name'] = mem_data['title']+" "+mem_data['firstname']+" "+mem_data['lastname']
+            if mem_data['chamber'] == "house":
+                member['party_state'] = "("+mem_data['party']+", "+mem_data['state']+"-"+mem_data['district']+")"
+            else:
+                member['party_state'] = "("+mem_data['party']+", "+mem_data['state']+")"
             members.append(member)
+
 
     return render_to_response('popvox/gettoknow.html', {"stateabbrs": 
                 stateabbrs, "diststateabbrs": 

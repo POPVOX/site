@@ -54,6 +54,15 @@
 				</a></nobr>
 			</td>
 			<td style="padding-right: 1em";>
+				{% if bill.street_name %}
+				<div style="width: {% if is_leg_staff %}190{% else %}430{% endif %}px; overflow: hidden; " title="{{bill.street_name}}">
+					<div style="width: 1000px; height: 1.2em;">
+						<a href="{{bill.url}}{% if is_leg_staff %}/report{% endif %}">
+							{{bill.street_name|capfirst}}
+						</a>
+					</div>
+				</div>
+				{% else %}
 				<div style="width: {% if is_leg_staff %}190{% else %}430{% endif %}px; overflow: hidden; " title="{{bill.title}}">
 					<div style="width: 1000px; height: 1.2em;">
 						<a href="{{bill.url}}{% if is_leg_staff %}/report{% endif %}">
@@ -61,6 +70,7 @@
 						</a>
 					</div>
 				</div>
+				{% endif %}
 			</td>
 			<td style="padding-right: 1em;">
 				<div style="width: 95px; overflow: hidden;" title="{{bill.sponsor.name}}">

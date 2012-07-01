@@ -82,6 +82,7 @@
 					"homestate": "#homestate",
 					"website": "#website",
 					"facebookurl": "#facebookurl",
+					"gplusurl": "#gplusurl",
 					"twittername": "#twittername"
 				},
 				{
@@ -201,6 +202,11 @@
 			<div id="errorlabel_facebookurl" class="error"></div>
 			<small>Paste the web address of your Facebook Page or Group. {% if not org.logo %}We&rsquo;ll also grab your profile picture from Facebook if you have one.{% endif%}</small>
 			
+			<label for="gplusurl">Google Plus Page</label>
+			<input type="text" id="gplusurl" class="c4" value="{% if org.gplusurl %}{{org.gplusurl}}{% endif %}"/>
+			<div id="errorlabel_gplusurl" class="error"></div>
+			<small>Paste the web address of your Google Plus Page.</small>
+			
 			<a name="editurl"></a> {% comment %} higher up so that eye goes back to same place {% endcomment %}
 				
 			<label for="twittername">Twitter Name</label>
@@ -210,10 +216,10 @@
 			<input type="button" class="submit" id="submitbutton" value="Save Your Changes" onclick="updateprofile(false)" disabled="1"/>
 			<p id="errorlabel" class="error"/>
 			<script>
-			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername,').textchange(function() { $('#submitbutton').prop("disabled", false); });
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #gplusurl, #twittername,').textchange(function() { $('#submitbutton').prop("disabled", false); });
 			$('#homestate').change(function() { $('#submitbutton').prop("disabled", false); });
-			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').keyup_delayed(function() { updateprofile(true) });
-			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #twittername').input_default();
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #gplusurl, #twittername').keyup_delayed(function() { updateprofile(true) });
+			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #gplusurl, #twittername').input_default();
 			</script>
 			{% comment %}<div class="clear"><label></label> <a class="edit" href="{{org.url}}">View Profile</a></div>{% endcomment %}
 			<div class="clear stroke"> </div>
