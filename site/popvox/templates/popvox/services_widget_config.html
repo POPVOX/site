@@ -352,7 +352,11 @@ function change_widget(tabname, is_initial) {
     }
 
     if (widgettype == "writecongress") {
-        $('#widget_description').html("The free “Write Congress” widget embeds the powerful POPVOX advocacy tool onto your own website. Your visitors weigh in on the bill you feature, POPVOX takes care of the rest!");
+        {% if franking == "true" %}
+            $('#widget_description').html("The free “Write Congress” widget embeds the powerful POPVOX advocacy tool onto your own website. Your visitors weigh in on the bill you feature, POPVOX takes care of the rest!");
+        {% else %}
+            $('#widget_description').html("The free “Write Congress” widget embeds the powerful POPVOX advocacy tool onto your own website. Your visitors weigh in on the bill you feature, POPVOX takes care of the rest!<br/><br/><em>Congressional Staff:</em> <a href='/accounts/register/legstaff'>sign up for a staff account</a> for a writecongress widget designed with franking in mind.");
+        {% endif %}
         $('#code').css({width: "450px"});
         $('.config_pane').css({width: '400px'});
         $('.preview_pane').css({width: '460px'});
@@ -609,8 +613,10 @@ function update_preview(is_initial) {
     if (widgettype == "bill_button") {
         $('#code2').show()
         $('#code2').val(make_code2("https://www.popvox.com", width, 21, false));
+        $('#preview2').show();
     } else {
         $('#code2').hide()
+        $('#preview2').hide();
     }
 
     fb_code = make_code("https://www.popvox.com", "520", height, false);

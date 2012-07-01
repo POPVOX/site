@@ -3030,7 +3030,7 @@ body.land.hm_congress #wrap #head {
 	padding-left: 20px;
 }
 .hm_congress .congress_mid {
-	height: 564px;
+	height: 634px;
 	display: block;
 	background: url(cong_mid_bg.png) left top repeat;
 	padding-top: 2px;
@@ -3052,7 +3052,7 @@ body.land.hm_congress #wrap #head {
 }
 .hm_congress .congress_mid #boxes {
 	width: 890px;
-	height: 306px;
+	height: 376px;
 	background: url(boxes.png) left top no-repeat;
 	margin: 20px 0 0 30px;
 }

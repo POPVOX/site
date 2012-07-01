@@ -1,6 +1,6 @@
 {% extends "master.html" %}
 {% load registration_providers %}
-{% block title %}POPVOX - Your Voice. Verified. Quantified. Amplified.{% endblock %}
+{% block title %}POPVOX for Congress{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
 {% block bodyattributes %}class="land hm_congress"{% endblock %}
@@ -53,20 +53,20 @@ function subscribe(validate) {
 </div>
 <div class="clear"> </div>
 <div class="congress_mid">
-	<span><h3><a href="#">Let&rsquo;s get started</a></h3></span>
-	<div id="boxes"></div>
+	<span><h3><a href="/home">Let&rsquo;s get started</a></h3></span>
+	<div id="boxes"><center><div style="width:465px" id="__ss_12607898"><iframe src="http://www.slideshare.net/slideshow/embed_code/12607898?rel=0" width="425" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-top:10px" allowfullscreen></iframe></center></div>
 	<div id="lists">
 		<ul class="first">
-			<li><a href="#">Create Widgets</a></li>
-			<li><a href="#">Get our iPad App</a></li>
+			<li><a href="/services/widgets">Create Widgets</a></li>
+			<li><a href="/ipad">Get our iPad App</a></li>
 		</ul>
 		<ul class="second">
-			<li><a href="#">View the Org Directory</a></li>
-			<li><a href="#">Use our API</a></li>
+			<li><a href="/orgs">View the Org Directory</a></li>
+			<li><a href="/api/docs">Use our API</a></li>
 		</ul>
 		<ul class="third">
-			<li><a href="#">Search for Bills</a></li>
-			<li><a href="#">Something else</a></li>
+			<li><a href="/bills">Browse Bills</a></li>
+			<li><a href="/gettoknow">Get To Know a District</a></li>
 		</ul>
 	</div>
 	
@@ -102,21 +102,7 @@ function subscribe(validate) {
 	
 	<div class="col_3 rule">
 		<div class="block signup">
-			<h2>Email Signup</h2>
-			<p>Want updates on what is new with POPVOX?</p>
-			<form id="signup_form" action="#" method="post" name="signup"><br />
-			
-				<input id="subscribe_email" class="signup_input" name="email" size="25" maxlength="60" type="text"><br />
-				
-				<p id="subscribe_status" class="error"></p>
-				
-				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button">
-				<script>
-				$('.subscribe_email').input_default("email");
-				$('.signup_input').textchange(function() { subscribe(true); return true; });
-				$('.signup_input').keydown_enter(function() { return subscribe(false); });
-				</script>
-			</form>
+
 		</div>		
 	</div><!-- e: col_3 -->
 	
