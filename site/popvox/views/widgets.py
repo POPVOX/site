@@ -59,8 +59,12 @@ def bill_inline(request):
     billtype = bill.billtypeslug().upper()
     billnum = billtype+' '+str(bill.billnumber)
     total = bill.usercomments.get_query_set().count()
-    pro = (100.0) * bill.usercomments.get_query_set().filter(position='+').count()/total
-    con = (100.0) * bill.usercomments.get_query_set().filter(position='-').count()/total
+    if total == 0:
+        pro = 0
+        con = 0
+    else:
+        pro = (100.0) * bill.usercomments.get_query_set().filter(position='+').count()/total
+        con = (100.0) * bill.usercomments.get_query_set().filter(position='-').count()/total
     
     return HttpResponse("""<html><head> <link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
     <link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
