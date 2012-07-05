@@ -2967,12 +2967,18 @@ body.land.hm_congress #wrap #head {
 	}
 	
 .hm_congress .hm_slide_mid {
+    width: 990px;
     height: 607px;
-    margin: 0 0 0 0;
+    margin: 0 0 0 -10px;
     overflow: hidden;
     background: url(bg_congress_head.png) center top no-repeat;
     padding-left: 10px;
     }
+    
+    .hm_congress .hm_slide_mid .hm_slide_div {
+    	padding-left: 20px;
+    	width: 950px;
+    	}
 
 .hm_congress .hm_slide_mid h1,
 .hm_congress .hm_slide_mid h2 {
@@ -3007,6 +3013,10 @@ body.land.hm_congress #wrap #head {
 	width: 210px;
 	float: left;
 	}
+	.hm_congress .hm_slide_mid .hex.hex_2 {
+		width: 225px;
+		}
+	
 .hm_congress .hm_slide_mid .hex h2 {
 	font: normal 36px/36px 'BebasNeueRegular', helvetica, arial, sans-serif;
 	color: #fff;
@@ -3019,18 +3029,15 @@ body.land.hm_congress #wrap #head {
 	text-transform: none;
 	display: block;
 	padding-top: 20px;
+	padding-left: 20px;
 	text-shadow: none;
 	}
 
 .hm_congress .hm_slide_mid .hex_1 {
-	margin: 70px 525px 310px -5px;
-	margin-right: 525px;
-}
-.hm_congress .hm_slide_mid .hex_2 span {
-	padding-left: 20px;
+	margin: 70px 520px 310px -5px;
 }
 .hm_congress .congress_mid {
-	height: 634px;
+	height: 635px;
 	display: block;
 	background: url(cong_mid_bg.png) left top repeat;
 	padding-top: 2px;
@@ -3052,14 +3059,14 @@ body.land.hm_congress #wrap #head {
 }
 .hm_congress .congress_mid #boxes {
 	width: 890px;
-	height: 376px;
+	height: 386px;
 	background: url(boxes.png) left top no-repeat;
 	margin: 20px 0 0 30px;
 }
 .hm_congress .congress_mid #lists {
-	height: 60px;
+	height: 55px;
 	width: 100%;
-	margin-top: 20px;
+	margin-top: 15px;
 }
 .hm_congress .congress_mid ul {
 	font-size: 18px;
@@ -3068,31 +3075,43 @@ body.land.hm_congress #wrap #head {
 .hm_congress .congress_mid ul li {
 	list-style-type: disc;
 	color: #fff;
+	line-height: 1.25em;
+	font-size: 14px;
+	width: 230px;
 }
 .hm_congress .congress_mid ul a {
 	color: #fff;
 }
+	.hm_congress .congress_mid ul a:hover {
+		color: orange;
+		text-decoration: none;
+		border: none;
+		}
 .hm_congress .congress_mid ul.first {
-	margin-left: 75px;
+	margin-left: 120px;
 }
 .hm_congress .congress_mid ul.second {
-	margin-left: 175px;
+	margin-left: 45px;
 }
 .hm_congress .congress_mid ul.third {
-	margin-left: 150px;
+	margin-left: 45px;
 }
 
-.hm_congress .b_get_started_l {
-    width: 225px;
+.hm_congress .b_create_account {
+    width: 250px;
     height: 47px;
-    background: url(b_lets_get_started.png) left top no-repeat;
+    background: url(b_create_an_account.png) left top no-repeat;
     display: block;
     text-indent: -9999em;
-    margin-left: 37px;
     border: none;
-    margin-left: 360px;
+    margin-left: 346px;
+    margin-top: 3px;
     }
+    .hm_congress .b_create_account:hover {
+    	background-position: left bottom;
+    	}
 
+    
 .hm_congress .hm_btm_cols { background: url(bg_congress_btm.jpg) left top no-repeat     }
 
 .hm_congress .hm_col {
