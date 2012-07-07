@@ -158,7 +158,7 @@ def org_update_fields(request, field, value, validate_only):
             org.save()
         return { "status": "success", "value": value }
     elif field == "description":
-        value = forms.CharField(min_length=5, max_length=200, error_messages = {'min_length': "You must provide a concise description of your organization."}).clean(value) # raises ValidationException
+        value = forms.CharField(min_length=5, max_length=2000, error_messages = {'min_length': "You must provide a concise description of your organization."}).clean(value) # raises ValidationException
         if not validate_only and value != org.description:
             org.description = value
             org.save()
