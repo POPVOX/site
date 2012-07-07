@@ -1,6 +1,6 @@
 {% extends "master.html" %}
 {% load registration_providers %}
-{% block title %}POPVOX - Your Voice. Verified. Quantified. Amplified.{% endblock %}
+{% block title %}POPVOX for Congress{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive.{% endblock %}
 {% block bodyattributes %}class="land hm_congress"{% endblock %}
@@ -38,71 +38,45 @@ function subscribe(validate) {
 <div class="hm_slide">
 	<div class="hm_slide_mid">
 		<div class="hm_slide_div">
-			<h1>Information you need to do your job better</h1>
-			<ul>
-				<li class="one">Track bills</li>
-				<li class="two">Monitor advocacy</li>
-				<li class="three">Guage public opinion</li>
-			</ul>
-			
-			{% if user.is_anonymous %}
-				<p><a class="b_get_started_l btn" href="/accounts/register/legstaff">Get Started</a></p>
-			{% else %}
-				<p><a class="b_get_started_l btn" href="/home">Get Started</a></p>
-			{% endif %}
-
+			<h2>Hey Congress...</h2>
+			<h1><span>Let&rsquo;s get some work done</span><br /> 
+				Information you need to do your job better</h1>
+			<div class="hex hex_1">
+				<h2>Research<br /> <span>bills, issues, districts, states,<br /> orgs, members…</span></h2>
+			</div>
+			<div class="hex hex_2">
+				<h2>Listen<br /> <span>Get the pulse of the<br /> nation on the bills you care about.</span></h2>
+			</div>
+			<div class="clear"> </div>
 		</div>
 	</div>
 </div>
 <div class="clear"> </div>
-
-<div class="hm_btm_cols">
-	<div class="hm_col hm_col_1">
-		<div class="hm_col_wrap">
-			<h3>Track Bills &amp; Organize<br />Your Docket</h3>
-			<a href="#" class="zoom zoom_screen_docket" onclick="return zoompop('trackandorganize')"><span>zoom</span></a>
-			<div style="display: none;">
-			<div id="trackandorganize" class="colorbox">
-				<h1>Track Bills Relevant to Your Work</h1>
-				<div class="zoom zoom_screen_docket"> </div>
-				<p>Customize your bill-tracking docket and stay on top of your legislative portfolio.</p>
-				<p>POPVOX helps bring order to the myriad issues and bills you need to follow on a daily basis. We pre- populate bill tracking lists for you based on your unique profile, including bills your boss has sponsored, “Hot in the District” (for personal staff) and bills referred to your Committee (for Committee staff).</p>
-			</div>
-			</div>
-		</div>
+<div class="congress_mid">
+	<span><h3><a href="/home">Let&rsquo;s get started</a></h3></span>
+	<div id="boxes"><center><div style="width:465px" id="__ss_12607898"><iframe src="http://www.slideshare.net/slideshow/embed_code/12607898?rel=0" width="425" height="365" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-top:10px" allowfullscreen></iframe></center></div>
+	<div id="lists">
+		<ul class="first">
+			<li><a href="/congress/letters">How We Deliver Messages</a></li>
+			<li><a href="/services/widgets">Create Widgets</a></li>
+			<li><a href="/ipad">Get our iPad App</a></li>
+		</ul>
+		<ul class="second">
+			<li><a href="/orgs">View the Org Directory</a></li>
+			<li><a href="/api/docs">Use our API</a></li>
+		</ul>
+		<ul class="third">
+			<li><a href="/bills">Browse Bills</a></li>
+			<li><a href="/gettoknow">Get To Know a District</a></li>
+		</ul>
 	</div>
 	
-	<div class="hm_col hm_col_2">
-		<div class="hm_col_wrap">
-			<h3>Build Support &amp;<br />Monitor Advocacy</h3>
-			<a href="#" class="zoom zoom_screen_support" onclick="return zoompop('buildsupport')"><span>zoom</span></a>
-			<div style="display: none;">
-			<div id="buildsupport" class="colorbox">
-				<h1>The Organization Directory</h1>
-				<div class="zoom zoom_screen_support"> </div>
-				<p>Build support for your boss’s issue priorities and be informed of what advocacy groups are saying about pending bills.</p>
-				<p>Whether youʼre looking for an issue expert, a quote from an issue leader or to request that an organization endorse your bossʼs bill, POPVOXʼs Organization Directory allows you to search for organizations by issue or name. From there, the site lists an organizationʼs points of contact and their contact information (which is available to Hill staff only).</p>
-			</div>
-			</div>
-		</div>
-	</div>
-	
-	<div class="hm_col hm_col_3">
-		<div class="hm_col_wrap">
-			<h3>See What They Are<br />Saying Back Home</h3>
-			<a href="#" class="zoom zoom_screen_report" onclick="return zoompop('whattheyaresaying')"><span>zoom</span></a>
-			<div style="display: none;">
-			<div id="whattheyaresaying" class="colorbox">
-				<h1>Reports on Constituent Sentiment</h1>
-				<div class="zoom zoom_screen_report"> </div>
-				<p>Get a quick read on public sentiment—of your own constituents and others.</p>
-				<p>POPVOX provides a public, nonpartisan platform for individuals to weigh in on pending bills and register their support or opposition. Our verification process ensures that each individualʼs comments are assigned to the appropriate Congressional district and restricts them to one comment per bill. You can be confident that comments on POPVOX are from constituents and not astroturf.</p>
-			</div>
-			</div>
-		</div>
-	</div>
-
-</div>
+	{% if user.is_anonymous %}
+		<p><a class="b_create_account btn" href="/accounts/register/legstaff">Create an Account</a></p>
+	{% else %}
+		<p><a class="b_create_account btn" href="/home">Create an Account</a></p>
+	{% endif %}
+</div><!-- e: congress_mid -->
 
 <div class="content">
 	<div class="col_6 rule">
@@ -129,21 +103,7 @@ function subscribe(validate) {
 	
 	<div class="col_3 rule">
 		<div class="block signup">
-			<h2>Email Signup</h2>
-			<p>Want updates on what is new with POPVOX?</p>
-			<form id="signup_form" action="#" method="post" name="signup"><br />
-			
-				<input id="subscribe_email" class="signup_input" name="email" size="25" maxlength="60" type="text"><br />
-				
-				<p id="subscribe_status" class="error"></p>
-				
-				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button">
-				<script>
-				$('.subscribe_email').input_default("email");
-				$('.signup_input').textchange(function() { subscribe(true); return true; });
-				$('.signup_input').keydown_enter(function() { return subscribe(false); });
-				</script>
-			</form>
+
 		</div>		
 	</div><!-- e: col_3 -->
 	

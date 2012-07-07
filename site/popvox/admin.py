@@ -65,7 +65,7 @@ class OrgAdmin(admin.ModelAdmin):
 	search_fields = ["name"]
 	#inlines = [OrgCampaignInline]
 	filter_horizontal = ("issues", )
-	readonly_fields = ('logo', 'issues', 'documents')
+	readonly_fields = ('logo', 'documents')
 	raw_id_fields = ('coalitionmembers',)
 
 class ServiceAccountAdmin(admin.ModelAdmin):

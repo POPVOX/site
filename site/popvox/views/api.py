@@ -127,6 +127,8 @@ class BaseHandler(object):
             
             # Get the field mapping for the model class, which is a list of fields to serialize for the model.
             fieldlist = getattr(self, obj_class.__name__.lower() + "_fields", None)
+            #print obj_class.__name__.lower()
+            #print fieldlist
             
             # Hide the "hidden" fields if no fields are requested specifically.
             if not callable(fieldlist) and not "fields" in request.REQUEST:
@@ -409,7 +411,8 @@ class bill_positions(BaseHandler):
         
 @api_handler
 class org_positions(BillHandler):
-    orgcampaignposition_fields = ['id', 'bill', 'organization', 'position', 'comment', 'created', 'updated'] 
+    orgcampaignposition_fields = ['id', 'bill', 'organization', 'position', 'comment', 'created', 'documents', 'updated']
+    positiondocument_deferred_text_fields = ['id', 'title', 'created', 'pdf_url']
     bill_fields = ['id', 'congressnumber','billtype', 'billnumber']
     org_fields = ["id", "name", "link"]
     example = (datetime.today() - timedelta(days=7)).strftime("%Y-%m-%d-%H:%M:%S") #for example purposes, org statements from the past seven days 
@@ -428,6 +431,7 @@ class org_positions(BillHandler):
         ('organization/name', 'the display name for the organization'),
         ('organization/link', 'a link to the primary page on POPVOX for the organization'),
         ('position', 'the position of the organization on the bill, one of + for endorse, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
+        ('documents', 'foo'),
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
         ('updated', 'the date and time when the position record was last modified on POPVOX'),

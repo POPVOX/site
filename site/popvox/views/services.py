@@ -33,13 +33,21 @@ from base64 import urlsafe_b64decode
 import hashlib, hmac
 
 @csrf_protect_if_logged_in
+@login_required
 def widget_config(request):
     # Collect all of the ServiceAccounts that the user has access to.
     
     from settings import MIXPANEL_TOKEN, MIXPANEL_API_KEY
     
+    user = request.user
+    prof = user.get_profile()
+    franking = "false"
+    if prof.is_leg_staff():
+        franking = "true"
+    
     return render_to_response('popvox/services_widget_config.html', {
         'accounts': request.user.userprofile.service_accounts(create=True) if request.user.is_authenticated() else [],
+        'franking': franking,
         
         'issueareas': IssueArea.objects.filter(parent__isnull=True),
         "states": statelist,
@@ -132,6 +140,7 @@ def validate_widget_request(request, api_key, is_widget=True):
 def widget_render(request, widgettype, api_key=None):
     # requires HTTP_REFERER field.
     account_permissions = validate_widget_request(request, api_key)
+    
 
     if type(account_permissions) == str:
         return HttpResponseForbidden(account_permissions)

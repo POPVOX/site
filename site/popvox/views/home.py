@@ -687,6 +687,13 @@ def get_calendar_agenda2(chamber, agenda=None, prefix=None):
     return agenda
 
 @user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
+def testing(request):
+    try:
+        return render_to_response("testing.html", context_instance=RequestContext(request))
+    except TemplateDoesNotExist:
+        raise Http404()
+
+@user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
 def waiting_for_reintroduction(request):
     bills = { }
     
@@ -764,8 +771,6 @@ def get_legstaff_undelivered_messages(user):
     # district that have not been successfully delivered to the office (and are
     # not in an offline batch).
     
-    return None # TOO DAMN SLOW
-        
     role = user.legstaffrole
     if not role.verified or role.member == None:
         return None

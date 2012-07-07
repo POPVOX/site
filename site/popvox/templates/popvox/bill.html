@@ -508,11 +508,14 @@ function getshorturl() {
 			
 			<table cols="2" style="margin-bottom: 30px">
 			<tr valign="top">
-			<td width="50%" style="padding-right: 1.5em">
-				<script src="/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&stats=0"> </script>
-				<textarea wrap="virtual" style="width: 100%; height: 4.5em; font-size: 10px">&lt;script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&stats=0"&gt; &lt;/script&gt;</textarea>
+			<td width="100%" style="padding-right: 1.5em" valign="top">
+                <iframe src="/widgets/bill-inline?bill={{bill.url|cut:"/bills/us/"}}" height="21" scrolling="no" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe>
+                <textarea wrap="virtual" style="width: 100%; height: 4.5em; font-size: 10px">&lt;iframe src="https://www.popvox.com/widgets/bill-inline?bill={{bill.url|cut:"/bills/us/"}}" height="21"  scrolling="no" border="0" marginheight="0" marginwidth="0" frameborder="0"&gt; &lt;/iframe&gt;</textarea>
 			</td>
-			<td width="50%">
+            </tr>
+            <tr valign="top">
+			<td width="100%">
+                <br>
 				<script src="/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&title=1"> </script>
 				<textarea wrap="virtual" style="width: 100%; height: 4.5em; font-size: 10px">&lt;script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&amp;title=1"&gt; &lt;/script&gt;</textarea>
 			</td>

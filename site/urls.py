@@ -15,7 +15,8 @@ import popvox.views.api
 sitemaps = {
     'bills':BillSitemap,
     'billreports':BillReportSitemap,
-    'orgs':OrgSitemap
+    'orgs':OrgSitemap,
+    'memberpages':MemberpageSitemap
 }
 
 urlpatterns = patterns('',
@@ -26,9 +27,10 @@ urlpatterns = patterns('',
 	(r'ajax/master-state', 'popvox.views.main.master_state'),
 	(r'ajax/get-short-url', 'popvox.views.main.get_short_url'),
 	
-	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|about/testimonials|testing|advertising|faq|blog_template|features/opendataday2011)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
+	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|about/testimonials|advertising|faq|blog_template|features/opendataday2011)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	(r'^press$', 'popvox.views.main.press_page'),
 	(r'^legal$', 'popvox.views.main.legal_page'),
+	(r'^testing$', 'popvox.views.home.testing'),
 
 	(r'^post/home/subscribe$', 'popvox.views.main.subscribe_to_mail_list'),
 	
