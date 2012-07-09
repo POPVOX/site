@@ -118,65 +118,69 @@
 		</script>
 	</head>
 	<body class="colormode_1 width_{{width}}">
-		<div id="mapdots">
-		{% for district, count in data %}
-			<a href="{{bill.url}}/report#{{count.href}}" target="_top"
-				pv_district="{{district}}" pv_label="{{count.label}}"
-				{% if bill or request.GET.point == "allcount" %}pv_support="{{count.sentiment}}" pv_count="{{count.count}}"{% endif %}
-				pv_left="{{count.coord.left}}" pv_top="{{count.coord.top}}">
-				<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"></div>
-			</a>
-		{% endfor %}
-		<div id="infobox" style="display: none;">
-			<div id="district"> </div>
-			{% if bill or request.GET.point == "allcount" %}<p><span id="support"></span> <span id="oppose"> </span> <span id="activity"> </span></p>{% endif %}
-		</div>
-		</div>
+		<div class="mini-map">
+			<div id="mapdots">
+			{% for district, count in data %}
+				<a href="{{bill.url}}/report#{{count.href}}" target="_top"
+					pv_district="{{district}}" pv_label="{{count.label}}"
+					{% if bill or request.GET.point == "allcount" %}pv_support="{{count.sentiment}}" pv_count="{{count.count}}"{% endif %}
+					pv_left="{{count.coord.left}}" pv_top="{{count.coord.top}}">
+					<div style="position: absolute; left: {{count.coord.left}}px; top: {{count.coord.top}}px;" class="dots {{count.class}}"></div>
+				</a>
+			{% endfor %}
+			<div id="infobox" style="display: none;">
+				<div id="district"> </div>
+				{% if bill or request.GET.point == "allcount" %}<p><span id="support"></span> <span id="oppose"> </span> <span id="activity"> </span></p>{% endif %}
+			</div>
+			</div>
+			
+			<script>
+			{% if request.GET.hover != "0" %}
+				$('#mapdots a').hover(show, hide);
+				{% if request.GET.sac %}$('#mapdots a').click(function(event) { event.preventDefault(); });{% endif %}
+			{% else %}
+				$('#mapdots a').click(show);
+				$('#mapdots a').click(function(event) { event.preventDefault(); event.stopPropagation(); });
+				$('#mapdots').click(hide);
+			{% endif %}
+			</script>
+			
+	<!-- 		<div id="colormode" title="Switch Colors" onclick="togglecolors()">Alternate Colors</div> -->
 		
-		<script>
-		{% if request.GET.hover != "0" %}
-			$('#mapdots a').hover(show, hide);
-			{% if request.GET.sac %}$('#mapdots a').click(function(event) { event.preventDefault(); });{% endif %}
-		{% else %}
-			$('#mapdots a').click(show);
-			$('#mapdots a').click(function(event) { event.preventDefault(); event.stopPropagation(); });
-			$('#mapdots').click(hide);
-		{% endif %}
-		</script>
-		
-		<div id="colormode" title="Switch Colors" onclick="togglecolors()">Alternate Colors</div>
+			{% if bill or request.GET.point == "allcount" %}
+			<div id="legend_clr">
+				<div class="label first">{% if bill %}Support{% else %}D{% endif %}</div>
+				<div class="dotholder">
+				<div class="dots dot_sz_3 dot_clr_5"> </div>
+				<div class="dots dot_sz_3 dot_clr_4"> </div>
+				<div class="dots dot_sz_3 dot_clr_3"> </div>
+				<div class="dots dot_sz_3 dot_clr_2"> </div>
+				<div class="dots dot_sz_3 dot_clr_1"> </div>
+				</div>
+				<div class="label last">{% if bill %}Oppose{% else %}R{% endif %}</div>
+			</div>
+			{% if max_sz_num != min_sz_num %}
+			<div id="legend_sz">
+				<div class="label first">{{max_sz_num}} {% if bill %}User{% else %}Pos'n{% endif %}{{max_sz_num|pluralize}}</div>
+				<div class="dotholder">
+				<div class="dots dot_sz_5 dot_clr_3"> </div>
+				<div class="dots dot_sz_4 dot_clr_3"> </div>
+				<div class="dots dot_sz_3 dot_clr_3"> </div>
+				<div class="dots dot_sz_2 dot_clr_3"> </div>
+				<div class="dots dot_sz_1 dot_clr_3"> </div>
+				</div>
+				<div class="label last">{{min_sz_num}} {% if bill %}User{% else %}Pos'n{% endif %}{{min_sz_num|pluralize}}</div>
+			</div>
+			{% endif %}
+			{% endif %}
+	<!--
+			<div id="legend_text">
+				Circles are Congressional Districts.
+			</div>
 	
-		{% if bill or request.GET.point == "allcount" %}
-		<div id="legend_clr">
-			<div class="label first">{% if bill %}Support{% else %}D{% endif %}</div>
-			<div class="dotholder">
-			<div class="dots dot_sz_3 dot_clr_5"> </div>
-			<div class="dots dot_sz_3 dot_clr_4"> </div>
-			<div class="dots dot_sz_3 dot_clr_3"> </div>
-			<div class="dots dot_sz_3 dot_clr_2"> </div>
-			<div class="dots dot_sz_3 dot_clr_1"> </div>
-			</div>
-			<div class="label last">{% if bill %}Oppose{% else %}R{% endif %}</div>
-		</div>
-		{% if max_sz_num != min_sz_num %}
-		<div id="legend_sz">
-			<div class="label first">{{max_sz_num}} {% if bill %}User{% else %}Pos'n{% endif %}{{max_sz_num|pluralize}}</div>
-			<div class="dotholder">
-			<div class="dots dot_sz_5 dot_clr_3"> </div>
-			<div class="dots dot_sz_4 dot_clr_3"> </div>
-			<div class="dots dot_sz_3 dot_clr_3"> </div>
-			<div class="dots dot_sz_2 dot_clr_3"> </div>
-			<div class="dots dot_sz_1 dot_clr_3"> </div>
-			</div>
-			<div class="label last">{{min_sz_num}} {% if bill %}User{% else %}Pos'n{% endif %}{{min_sz_num|pluralize}}</div>
-		</div>
-		{% endif %}
-		{% endif %}
-		<div id="legend_text">
-			Circles are Congressional Districts.
-		</div>
-		
-		<div id="brought_to_you"> </div>
+	 		<div id="brought_to_you"> </div> 
+	-->
+		</div><!-- e:mini-map  -->
 	</body>
 </html>
 
