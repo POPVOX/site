@@ -33,6 +33,7 @@ from base64 import urlsafe_b64decode
 import hashlib, hmac
 
 @csrf_protect_if_logged_in
+@login_required
 def widget_config(request):
     # Collect all of the ServiceAccounts that the user has access to.
     
