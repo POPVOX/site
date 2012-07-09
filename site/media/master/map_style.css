@@ -145,7 +145,6 @@ body.width_274 {
 	}
     body.width_274  #legend_sz, body.width_274  #legend_clr, body.width_274  #legend_text {
         left: 137px;
-        display: none;
     }
 	
 #legend_clr {
@@ -267,6 +266,7 @@ body.width_274 {
 	left: 5px;
 	top: 365px;
 	
+	
 	/* for IE */
     filter:alpha(opacity=70);
     /* CSS3 standard */
@@ -280,4 +280,11 @@ body.width_274 {
         top: 137px;
     }
 
+body.width_274 #brought_to_you,
+body.width_274 .colormode,
+body.width_274  #legend_sz, 
+body.width_274  #legend_clr, 
+body.width_274  #legend_text {
+		display: none;
+	}
 
