@@ -30,7 +30,6 @@
     var count = 50;
 
     function showdata(is_first_load, is_more) {
-		alert ("show data!");
         
         isloading = true;
 
@@ -44,7 +43,6 @@
                 count: count
             },
             complete: function(res, status) {
-				alert ("ajax ran");
                 isloading = false;
                 
                 $('#loadingstatus').text("");
@@ -100,12 +98,12 @@
                         $('#chart' + ' .pro_reintro').hide();
                     } else {
                         $('#chart' + ' .pro_reintro').show();
-                        $('#chart' + ' .pro_reintro').text(stats.pro_reintro + " people support reintroduction of the bill.");
+                        $('#chart' + ' .pro_reintro').text(stats.pro_reintro + " people support reintroduction of the bill."); 
                     }
                     
-                    bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true });
-                    bill_timeseries('chart_time', stats.timeseries);
-                }
+                    bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff" });
+					bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 270 });
+                };
 
                 $('#stats_overall_info').text("");
                 if (!res.stats) {
@@ -172,47 +170,35 @@ $(document).ready(showdata(true));
     <div class="col_4_5 col_top col_last">
         <div class="mini-map">
 			<h3>{{bill.title}}</h3>
-			<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
-`
+			<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274&hover=0" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
+
+<!-- <h3 id="reporttitle" class="no_rule" style="padding: 0">Loading Legislative Report...</h3>
+<h3 id="reportsubtitle" class="no_rule" style="padding: 0"></h3>
+<h3 class="no_rule">Constituents Say</h3> -->
+				<div id="stats_overall_info" class="" style="font-size: 12px"></div>
+
                 <div id="chart" class="clear" style="display: none;">
                     <div class="col_1 past_stats">
-                        <div id="chart_pie" style="height: 90px; width: 90px"></div>
-                    </div>
-                     <div class="col_2 past_stats" style="padding-right: 1em; width: 110px">
+                        <div id="chart_pie" style="height: 110px; width: 110px"></div>
+					</div> <!-- /col_1 past_stats -->
+                     <div class="col_2 past_stats" style="padding-right: 1em; width: 280px">
                         <p class="chart_stats">
                             <span class="chart_title">XXX:</span> <br />
                             <span class="bg_support">YYY% Support</span><br />
                             <span class="bg_oppose">ZZZ% Oppose </span><br />
                             <span class="users">(WWW users)</span>
                         </p>
-                    </div>
+					</div> <!-- /col_2 past_stats -->
                     <div class="col_3 col_last past_stats">
-                        <div id="chart_time" style="height: 100px"></div>
+                        <div id="chart_time" style="width: 280px; height: 150px"></div>
                         <!--<div style="font-size: 8pt; color: #999">Cumulative Number of Individuals Over Time</div>-->
-                    </div>
-
-<!--            <div class="chart">
-                <p class="chart_stats">
-					<div id="chart_pie_1" style="height: 90px; width: 90px"></div>
-                    <span class="pie"></span><br />
-                        <p class="chart_stats">
-                            <span class="chart_title">XXX:</span> <br />
-                            <span class="bg_support">YYY% Support</span><br />
-                            <span class="bg_oppose">ZZZ% Oppose </span><br />
-                            <span class="users">(WWW users)</span>
-                        </p>-->
-
-                    <!--<span class="bg_support">62% Support </span><br />
-                    <span class="bg_oppose">38% Oppose </span><br />
-                    <span class="users">(1790 total users)</span>
-                </p>
-            </div>
-            <div id="chart_time_0">
-                <p>put chart here</p>
-            </div> -->
-            <p class="foot_text">Real-time sentiment registered on <a href="http://www.popvox.com">www.popvox.com</a></p>	
-                
-        </div> 
-    </div>
-</div>
+					</div> <!-- /col_3 col_last past_stats -->
+				</div> <!-- /chart -->
+				<div id="footer">
+					<p class="foot_text">Real-time sentiment registered on <br/><a href="http://www.popvox.com">www.popvox.com</a></p>	
+					<p id="shortmessages"></p>
+				</div><!-- /footer -->
+			</div> <!-- /mini-map -->
+	</div> <!-- /col_4_5 col_top col_last -->
+</div> <!-- /content -->
 {% endblock %}

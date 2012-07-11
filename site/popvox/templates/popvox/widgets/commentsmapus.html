@@ -144,7 +144,9 @@
         {% endif %}
         </script>
         
+		{% if request.GET.width != "274" %}
         <div id="colormode" title="Switch Colors" onclick="togglecolors()">Alternate Colors</div>
+		{% endif %}
     
         {% if bill or request.GET.point == "allcount" %}
         <div id="legend_clr">
@@ -164,7 +166,6 @@
             <div class="dotholder">
             <div class="dots dot_sz_5 dot_clr_3"> </div>
             <div class="dots dot_sz_4 dot_clr_3"> </div>
-            <div class="dots dot_sz_3 dot_clr_3"> </div>
             <div class="dots dot_sz_2 dot_clr_3"> </div>
             <div class="dots dot_sz_1 dot_clr_3"> </div>
             </div>

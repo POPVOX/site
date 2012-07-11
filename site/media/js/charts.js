@@ -192,7 +192,7 @@ function bill_timeseries(container, data, opts) {
 	    renderTo: container,
 	    margin: [10,0,(!opts || !opts.xlabels) ? 10 : 65, 70],
 	    defaultSeriesType: 'line',
-	    width: (!opts || !opts.xlabels) ? 220 : opts.width
+	    width: (!opts || !opts.width) ? 220 : opts.width
 	 },
     tooltip: {
     	enabled: (!opts || opts.tooltip == null) ? true : opts.tooltip,
