@@ -2566,7 +2566,6 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
 .mini-map .chart_title {
 	display: none;
 }
-
 .img_chart {
     float: left;
     width: 75px;
@@ -5576,9 +5575,20 @@ body.gettoknow h1 {
 	background: #fff;
 	background: #fff;
 	width: 280px;
-	height: 675px;
+	/*height: 675px;*/
 	display: block;
 	}
+
+.mini-map #footer {
+	position:absolute;
+	bottom:0px;
+	margin:0;
+	padding:0;
+}
+
+.mini-map #footer a {
+	float:none;
+}
 
 .mini-map .map { /* remove me */
 	border: 1px solid #cc6a11;
@@ -5676,6 +5686,9 @@ body.gettoknow h1 {
 		height: 38px;
 		padding-top: 8px;
 	    background: #cc6a11;
+		margin-bottom:0;
+		text-align:center;
+		width:280px;
 		}
 		
 		
