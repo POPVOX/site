@@ -397,6 +397,7 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"aff1req",
 	"field_113f8513-8ef5-4595-938c-0576c6ee6112",
     "captcha_a989233d-1b27-4ab7-a270-e7767f58cb9e",
+    "military_branch",
 	"phcell")
 
 radio_choices = {
