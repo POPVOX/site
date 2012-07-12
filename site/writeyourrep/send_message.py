@@ -396,6 +396,8 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"ratings[is_the_112th_congress_addressing_the_issues_that_concern_you?]",
 	"aff1req",
 	"field_113f8513-8ef5-4595-938c-0576c6ee6112",
+    "captcha_a989233d-1b27-4ab7-a270-e7767f58cb9e",
+    "military_branch",
 	"phcell")
 
 radio_choices = {
@@ -421,6 +423,7 @@ custom_mapping = {
 	"2_field_420f4180-d327-4c63-aac5-efd047b1b463_text": "zip5",
 	"18_field_1f16bf7a-1773-4479-bc8f-995d37e73f17_radio": "response_requested",
 	"23_field_db3de26e-1334-48c8-ac2a-d173968c6236_radio": "response_requested",
+    "23_field_d401e225-88e5-407f-8efa-da1a2e2b979e_radio" : "response_requested",
 	"24_i02": "message",
 	"25_field_71436f5b-bd9c-4d93-b4ea-279d62bf4ab7_radio":"response_requested",
 	"33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
@@ -856,7 +859,7 @@ def parse_webform(webformurl, webform, webformid, id, dr):
 			continue
 			
 		elif re.match(r"captcha[0-9a-f\-_]*", ax) \
-			and ax not in ("captcha_code", "captcha_0ad40428-0789-4ce6-91ca-b7b15180caca",):
+			and ax not in ("captcha_code", "captcha_0ad40428-0789-4ce6-91ca-b7b15180caca","captcha_a989233d-1b27-4ab7-a270-e7767f58cb9e",):
 		#elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
 			m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
 			if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
