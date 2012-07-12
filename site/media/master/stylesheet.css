@@ -1,3 +1,5 @@
+/* @override https://william.popvox.com/media/master/stylesheet.css */
+
 /*
 
 
@@ -4763,6 +4765,91 @@ ul.org_all {
         margin-bottom: .33em;
         }
 
+/* org landing page */
+.olp #page {
+	background: url(bg_olp.png) 17px 32px no-repeat;
+/*	background: url(http://www.acreativeconcern.com/files/fileshuttle/org-landing_d065.jpg) -110px -105px no-repeat;*/
+	}
+	
+	.olp h1#landing {
+		background: url(what_can.png) -96px 20px no-repeat;
+		height: 0;
+		margin-top: 0;
+		}
+	
+	.olp .hm_slide_mid {
+		background: none;
+		margin-top: 20px;
+		height: 470px;
+		}
+		
+		#ask_r {
+			float: right;
+			}
+			
+			#ask_r a {
+				display: block;
+				width: 122px;
+				height: 49px;
+				background: url(b_got_questions.png) left top no-repeat;
+				display: block;
+				}
+				
+			#ask_r a:hover {
+				background-position: left bottom;
+				border: 0;
+				}
+		
+		.olp .hm_slide_mid h1 {
+			height: 100px;
+			}
+			
+		.olp .hm_slide_mid ul {
+			height: 208px;
+			}
+		
+	.left_olp {
+		display: block;
+		float: left;
+		width: 469px;
+		height: 400px;
+		}
+
+	.right_olp {
+		display: block;
+		float: left;
+		width: 4689x;
+		height: 400px;
+		}
+		
+		.b_create_profile_now {
+		    width: 225px;
+		    height: 76px;
+		    background: url(b_create_profile_now.png) left top no-repeat;
+		    display: block;
+		    text-indent: -9999em;
+		    margin-left: 30px;
+		    border: none;
+		    }
+
+		.b_get_robust_tools {
+		    width: 225px;
+		    height: 76px;
+		    background: url(b_get_robust_tools.png) left top no-repeat;
+		    display: block;
+		    text-indent: -9999em;
+		    margin-left: 65px;
+		    border: none;
+		    }
+
+
+
+
+
+
+
+
+
 li.ol_1 { background: url(bg_ol_1.png) left top no-repeat   }
 
 li.ol_2 { background: url(bg_ol_2.png) left top no-repeat   }
@@ -5575,8 +5662,9 @@ body.gettoknow h1 {
 	background: #fff;
 	background: #fff;
 	width: 280px;
-	/*height: 675px;*/
+	height: 740px;
 	display: block;
+	position: relative;
 	}
 
 .mini-map #footer {
@@ -5584,56 +5672,45 @@ body.gettoknow h1 {
 	bottom:0px;
 	margin:0;
 	padding:0;
+	height: 45px;
 }
 
 .mini-map #footer a {
 	float:none;
 }
 
-.mini-map .map { /* remove me */
-	border: 1px solid #cc6a11;
-	border-width: 0 3px;
-	background: #fff url(../widget/_temp_mini-map.jpg) left top no-repeat;
-	width: 274px;
-	height: 255px;
-	display: block;
-	}
-	
-.colormode_1.width274 .mini-map {
-	background: #333 url(../widget/bg_mini-map.gif) left top no-repeat;
-	border: 1px solid green;
-	width: 274px;
-	height: 100px;
-	display: block;
-	}
-/*.content.about_pg remove this line*/
 .mini-map h3 {
 	color: #fff;
     font: normal 22px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
     letter-spacing: .02em;
     text-align: left;
-    padding: 20px 10px 10px 90px;
+    padding: 20px 10px 0px 90px;
+    border-bottom: 15px solid #CC6A11;
     margin: 0;
 	background: #cc6a11 url(../widget/widget_logo.png) left top no-repeat;
+	height: 4.2ex;
+	overflow: hidden;
 	}
 	
 .mini-map p.chart_stats {
 	/*border: 1px solid #cc6a11;*/
 	/*border-width: 0 3px;*/
-	width: 174px;
+	width: 180px;
 	height: 125px;
 	display: block;
-	margin: 0;
-	background: url(../widget/widget_map_hr.png) left bottom no-repeat;
+	margin: 0 0 5px 0;
+	padding: 0;
 	}
 	
-	.mini-map p.chart_stats .pie {
-		width: 86px;
-		height: 87px;
-		margin: 16px 17px;
+	.mini-map #chart_pie {
+		width: 110px;
+		height: 110px;
 		display: block;
 		float: left;
-		background: #cc6a11 url(../widget/_temp_pie.jpg) left top no-repeat;
+		}
+		
+	.mini-map #chart-time {
+		margin-bottom: 10px;
 		}
 		
 	.mini-map p.chart_stats span.bg_support {
@@ -5678,7 +5755,12 @@ body.gettoknow h1 {
 	margin: 0;
 	text-indent: -9999em;
 	}
-		
+	
+.mini-map #stats_overall_info {
+	font-size: 12px;
+	line-height: 20px;
+	vertical-align: middle;
+	}		
 		
 	.mini-map p.foot_text {
 		text-align: center;
@@ -5690,7 +5772,12 @@ body.gettoknow h1 {
 		text-align:center;
 		width:280px;
 		}
-		
+.mini-map .col_3.col_last.past_stats {
+	width: 280px;
+	height: 200px;
+	background: url(../widget/widget_map_hr.png) left top no-repeat;
+	padding-top: 10px;
+}		
 		
 	.mini-map p.foot_text,
 	.mini-map p.foot_text a {
