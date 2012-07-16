@@ -5729,7 +5729,9 @@ body.gettoknow h1 {
 	.mini-map p.chart_stats span.bg_oppose {
     	font: normal 22px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
     	background: url(../widget/i_wdgt_oppose.png) left top no-repeat;
-    	color: #ED5A24;
+<<<<<<< HEAD
+    	color: #ed5a24;
+>>>>>>> 4af574923c4e1df54d3b167c86541d48c8031735
 		width: 105px;
     	height: 24px;
     	margin-top: 0px;
