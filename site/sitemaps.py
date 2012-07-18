@@ -22,7 +22,7 @@ class BillSitemap(Sitemap):
         if obj.congressnumber == CURRENT_CONGRESS:
             return 0.8
         else:
-            return 0.5
+            return 0.4
 
     def changefreq(self, obj):
         if obj.congressnumber != CURRENT_CONGRESS:
