@@ -169,9 +169,9 @@ $(document).ready(showdata(true));
 <div class="content">
         <div class="mini-map">
             {% if bill.street_name %}
-                <h3><a href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}">{{bill.billtypeslug}}{{bill.billnumber}}: {{bill.street_name}}</a></h3>
+                <h3><a href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.billtypeslug}}{{bill.billnumber}}: {{bill.street_name|truncatewords:6}}</a></h3>
             {% else %}
-                <h3>{{bill.title|truncatewords:12}}</h3>
+                <h3><a href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.title|truncatewords:6}}</a></h3>
             {% endif %}
 			<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274&hover=0" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
 
@@ -198,7 +198,7 @@ $(document).ready(showdata(true));
 					</div> <!-- /col_3 col_last past_stats -->
 				</div> <!-- /chart -->
 				<div id="footer">
-					<p class="foot_text">Real-time sentiment registered on <br/><a href="http://www.popvox.com">www.popvox.com</a></p>	
+					<p class="foot_text">Real-time sentiment registered on <br/><a href="http://www.popvox.com">www.popvox.com</a> - <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>	
 					<p id="shortmessages"></p>
 				</div><!-- /footer -->
 			</div> <!-- /mini-map -->
