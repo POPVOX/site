@@ -138,9 +138,11 @@
             $('#mapdots a').hover(show, hide);
             {% if request.GET.sac %}$('#mapdots a').click(function(event) { event.preventDefault(); });{% endif %}
         {% else %}
-            $('#mapdots a').click(show);
-            $('#mapdots a').click(function(event) { event.preventDefault(); event.stopPropagation(); });
-            $('#mapdots').click(hide);
+			{% if request.GET.width != "274" %}
+				$('#mapdots a').click(show);
+				$('#mapdots a').click(function(event) { event.preventDefault(); event.stopPropagation(); });
+				$('#mapdots').click(hide);
+			{% endif %}
         {% endif %}
         </script>
         

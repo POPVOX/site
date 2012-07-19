@@ -168,7 +168,11 @@ $(document).ready(showdata(true));
 
 <div class="content">
         <div class="mini-map">
-			<h3>{{bill.street_name}}</h3>
+            {% if bill.street_name %}
+                <h3><a href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.billtypeslug}}{{bill.billnumber}}: {{bill.street_name|truncatewords:6}}</a></h3>
+            {% else %}
+                <h3><a href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.title|truncatewords:6}}</a></h3>
+            {% endif %}
 			<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274&hover=0" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
 
 <!-- <h3 id="reporttitle" class="no_rule" style="padding: 0">Loading Legislative Report...</h3>
@@ -194,7 +198,7 @@ $(document).ready(showdata(true));
 					</div> <!-- /col_3 col_last past_stats -->
 				</div> <!-- /chart -->
 				<div id="footer">
-					<p class="foot_text">Real-time sentiment registered on <br/><a href="http://www.popvox.com">www.popvox.com</a></p>	
+					<p class="foot_text">Real-time sentiment registered on <br/><a href="http://www.popvox.com" target="_blank">www.popvox.com</a> - <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>	
 					<p id="shortmessages"></p>
 				</div><!-- /footer -->
 			</div> <!-- /mini-map -->

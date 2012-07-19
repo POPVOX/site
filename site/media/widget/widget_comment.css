@@ -140,6 +140,7 @@
 		background: url(bg_opposed_bubl.png) left top no-repeat;
 		}
 		
+
 /* widget foot */		
 	
 	#widget_foot {
@@ -162,6 +163,8 @@
 			background: url(logo_horz.png) right center no-repeat;
 			padding: 5px 0 0 0;
 			height: 22px;
+
+            padding-right:65px;
 			}
 			
 		#comment_widget #widget_foot p a {
@@ -169,10 +172,15 @@
 			text-decoration: none;
 			font-weight: bold;
 			background: none !important;
-			padding-right: 65px;
 			}
+        
+        #comment_widget #widget_foot p a:first-child {
+            font-weight:normal;
+        }
 		
-
+#comment_widget #widget_foot p {
+    color: #fff;
+}
 
 /* testing */
 

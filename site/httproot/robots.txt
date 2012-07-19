@@ -5,3 +5,5 @@ Disallow: /accounts
 Disallow: /registration
 Disallow: /shorturl
 Disallow: /feedback
+
+Sitemap: https://www.popvox.com/sitemap.xml

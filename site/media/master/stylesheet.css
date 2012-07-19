@@ -5688,9 +5688,13 @@ body.gettoknow h1 {
     border-bottom: 15px solid #CC6A11;
     margin: 0;
 	background: #cc6a11 url(../widget/widget_logo.png) left top no-repeat;
-	height: 4.2ex;
+	height: 4.3ex;
 	overflow: hidden;
 	}
+	
+.mini-map h3 a {
+    color: #fff;
+}
 	
 .mini-map p.chart_stats {
 	/*border: 1px solid #cc6a11;*/
@@ -5729,9 +5733,7 @@ body.gettoknow h1 {
 	.mini-map p.chart_stats span.bg_oppose {
     	font: normal 22px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
     	background: url(../widget/i_wdgt_oppose.png) left top no-repeat;
-<<<<<<< HEAD
     	color: #ed5a24;
->>>>>>> 4af574923c4e1df54d3b167c86541d48c8031735
 		width: 105px;
     	height: 24px;
     	margin-top: 0px;

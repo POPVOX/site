@@ -397,7 +397,8 @@ skippable_fields = ("prefixother", "middle", "middlename",
 	"aff1req",
 	"field_113f8513-8ef5-4595-938c-0576c6ee6112",
     "captcha_a989233d-1b27-4ab7-a270-e7767f58cb9e",
-    "military_branch",
+    "military_branch", "military_retired",
+    "ecclesiastical_title", "ecclesiastical_toggle", "military_toggle",
 	"phcell")
 
 radio_choices = {
@@ -533,6 +534,8 @@ custom_overrides = {
 	"585_affl1_select": "no",
 	"590_response_select": "newsNo",
 	"593_main-search_text": "",
+    "610_ecclesiastical_toggle_select":"",
+    "610_ecclesiastical_title_select":"",
 	"611_aff1req_text": "fill",
 	"637_radiogroup1_radio": "n",
 	"639_aff1req_text": "fill",
@@ -1233,6 +1236,7 @@ def send_message_webform(di, msg, deliveryrec):
 	
 	for s in ("Invalid CAPTCHA value", "incorrect validation code", "Captcha failure", "Your secret code was not entered correctly", "Captcha Code does not match"):
 		if s in ret:
+			import deathbycaptcha, StringIO
 			if hasattr(deliveryrec, "dbc_captcha_id"):
 				dbc = deathbycaptcha.SocketClient(settings.DEATHBYCAPTCHA_USERNAME, settings.DEATHBYCAPTCHA_PASSWORD)
 				print 'Calling DeathByCaptcha to report incorrect value.'
