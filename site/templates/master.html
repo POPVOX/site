@@ -230,16 +230,16 @@
 							</div>
 						</div>					
 					</li>
-					<li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/services/analytics">Analytics</a></li>
-					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Find Orgs</a></li>
-					<li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Find Bills</a></li>
-					<li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
+                    <li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Bills</a></li>
+					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
+                    <li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/services/widgets">Services</a></li>
+                    <li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
 				</div>
 				<div class="individual_role">
 					<li class="homelink {%block nav_citzen_class_home%}{%endblock%}"><a href="/">Home</a></li>
 					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
-					<li class="analyticslink {%block nav_user_class_reports%}{%endblock%}" style="display: none"><a href="/services/analytics">Analytics</a></li>
+                    <li class="{%block nav_citzen_class_reports%}{%endblock%}"><a href="/services/widgets">Services</a></li>
 				</div>
 				<div id="search_head">
 					<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
