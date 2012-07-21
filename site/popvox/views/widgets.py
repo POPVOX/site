@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.views.decorators.cache import cache_page
@@ -55,7 +55,14 @@ def bill_iframe(request):
 
 @do_not_track_compliance
 def bill_inline(request):
-    bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
+
+    if "bill" in request.GET:
+        try:
+            bill = bill_from_url("/bills/us/" + request.GET["bill"])
+        except:
+                return HttpResponseBadRequest("<small>(No bill with that number exists)</small>.")
+    else:
+        return HttpResponseBadRequest("Invalid URL.")
     billtype = bill.billtypeslug().upper()
     billnum = billtype+' '+str(bill.billnumber)
     total = bill.usercomments.get_query_set().count()
@@ -278,7 +285,14 @@ def minimap(request):
     congressnumber = CURRENT_CONGRESS
     count = 8
     
-    bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
+    if "bill" in request.GET:
+        try:
+            bill = bill_from_url("/bills/us/" + request.GET["bill"])
+        except:
+                return HttpResponseBadRequest("It looks like something is wrong--this bill doesn't exist. Contact the owner of this site and let them know. Or you can search for bills at <a href='https://www.popvox.com' target=_blank>POPVOX.com</a>")
+    else:
+        return HttpResponseBadRequest("Invalid URL.")
+        
     billtype = bill.billtypeslug().upper()
     billnum = billtype+' '+str(bill.billnumber)
     total = bill.usercomments.get_query_set().count()
