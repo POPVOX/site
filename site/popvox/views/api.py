@@ -474,7 +474,7 @@ class DocumentHandler(BaseHandler):
 
 @api_handler
 class bill_documents(DocumentHandler):
-    positiondocument_fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats', 'pdf_url']
+    positiondocument_fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats', 'pdf_url', 'link']
     url_pattern_args = [("000", "BILL_ID")]
     url_example_args = (16412,)
     qs_args = (('type', 'The document type. See the document metadata API method for type numbers.', '100'),)
@@ -493,7 +493,7 @@ class bill_documents(DocumentHandler):
 @api_handler
 class document_metadata(DocumentHandler):
     bill_fields = ["id", "title", "link"]
-    positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pdf_url', 'pages', 'formats', 'toc']
+    positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pdf_url', 'link', 'pages', 'formats', 'toc']
     url_pattern_args = [("000", "DOCUMENT_ID")]
     url_example_args = (248,)
     description = "Returns metadata about a document."
@@ -504,6 +504,7 @@ class document_metadata(DocumentHandler):
         ('created', 'for position documents, this is the date the document was uploaded. for bill text, this is the date the bill text was published.'),
         ('doctype', 'the type of the document: ' + ", ".join(str(kv[0]) + ": " + kv[1] for kv in PositionDocument.DOCTYPES)),
         ('pdf_url', 'the URL from which a PDF file can be downloaded of the whole document, probably not residing on popvox.com; may be null'),
+        ('link', 'a link to the document\'s page on popvox.com; bill text documents link to the bill'),
         ('pages', 'the number of pages in the document, zero if the page content is not available'),
         ('formats', 'the formats available for page content'),
         ('toc', 'an auto-generated table of contents for the document, available for bill text documents only and this field is only returned in the document metadata API method. a flat list of TOC entries.'),

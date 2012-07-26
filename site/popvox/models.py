@@ -801,7 +801,7 @@ class PositionDocument(models.Model):
 	doctype = models.IntegerField(choices=DOCTYPES)
 	title = models.CharField(max_length=128)
 	text = tinymce_models.HTMLField(blank=True) #models.TextField() # HTML document body
-	link = models.URLField(blank=True, null=True)
+	link = models.URLField(blank=True, null=True, help_text="Use this for an external link to an org position (not pdf). This does not affect the API")
 	pdf_url = models.CharField(max_length=128, blank=True, null=True)
 	created = models.DateTimeField()
 	updated = models.DateTimeField(auto_now=True, db_index=True)
