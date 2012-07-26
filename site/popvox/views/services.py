@@ -33,17 +33,20 @@ from base64 import urlsafe_b64decode
 import hashlib, hmac
 
 @csrf_protect_if_logged_in
-@login_required
+#@login_required
 def widget_config(request):
     # Collect all of the ServiceAccounts that the user has access to.
     
     from settings import MIXPANEL_TOKEN, MIXPANEL_API_KEY
     
     user = request.user
-    prof = user.get_profile()
-    franking = "false"
-    if prof.is_leg_staff():
-        franking = "true"
+    try:
+        prof = user.get_profile()
+        franking = "false"
+        if prof.is_leg_staff():
+            franking = "true"
+    except:
+        franking = "false"
     
     return render_to_response('popvox/services_widget_config.html', {
         'accounts': request.user.userprofile.service_accounts(create=True) if request.user.is_authenticated() else [],
