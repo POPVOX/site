@@ -431,7 +431,7 @@ class org_positions(BillHandler):
         ('organization/name', 'the display name for the organization'),
         ('organization/link', 'a link to the primary page on POPVOX for the organization'),
         ('position', 'the position of the organization on the bill, one of + for endorse, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
-        ('documents', 'foo'),
+        ('documents', 'a list of documents that the organization has uploaded to accompany their position on the bill, plain text format; optional'),
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
         ('updated', 'the date and time when the position record was last modified on POPVOX'),
