@@ -378,7 +378,8 @@ class bill_metadata(BillHandler):
 
 @api_handler
 class bill_positions(BaseHandler):
-    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created']
+    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created', 'documents', 'updated']
+    positiondocument_deferred_text_fields = ['id', 'title', 'created', 'pdf_url']
     org_fields = ["id", "name", "link"]
     url_pattern_args = [("000", "BILL_ID")]
     url_example_args = (14113,)
@@ -394,6 +395,8 @@ class bill_positions(BaseHandler):
         ('position', 'the position of the organization on the bill, one of + for endorse, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
+        ('documents', 'a list of organization documents uploaded to accompany their position on the bill, plain text format; optional'),
+        ('updated', 'the date and time when the position record was last modified on POPVOX'),
         )
     allow_public_api_key = True
     
