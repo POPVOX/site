@@ -98,6 +98,10 @@ class MemberBioAdmin(admin.ModelAdmin):
 
     list_display = ('id','name')
 
+class UserTagAdmin(admin.ModelAdmin):
+    list_display = ("org","label","value")
+    search_fields = ["org","label","value"]
+
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
 admin.site.register(Org, OrgAdmin)
@@ -118,6 +122,7 @@ admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)
 admin.site.register(ServiceAccountCampaignActionRecord, ServiceAccountCampaignActionRecordAdmin)
 admin.site.register(BillRecommendation, BillRecommendationAdmin)
 admin.site.register(MemberBio, MemberBioAdmin)
+admin.site.register(UserTag, UserTagAdmin)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html', 'make_short_urls', 'report_short_urls']

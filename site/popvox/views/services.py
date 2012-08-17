@@ -316,6 +316,7 @@ def widget_render_writecongress_page(request, account, permissions):
             "+": ["support", "These bills also need your support", []],
             "-": ["oppose", "These bills also need your opposition", []],
             "0": ["neutral", "You may be interested in weighing in on these bills", []] }
+
         if org == None:
             # compute by bill similarity
             other_bills = [bs for bs in
@@ -330,6 +331,17 @@ def widget_render_writecongress_page(request, account, permissions):
                     suggestions[p.position][2].append(p.bill)
             if len(suggestions["+"][2]) + len(suggestions["-"][2]) >= 2:
                 suggestions["0"] = []
+
+            # Check to see whether the org has any extra questions
+            usertags = UserTag.objects.filter(org=org).exclude(value="None").exclude(value="Other").order_by("value")
+            tagvals = None
+            taglabel = None
+            if usertags:
+                # Put "None" at the beginning and "Other" at the end
+                tagvals = [o.value for o in usertags]
+                tagvals.insert(0,'None')
+                tagvals.append('Other')
+                taglabel = usertags[0].label
         
         # Render.
         response = render_to_response('popvox/widgets/writecongress.html', {
@@ -347,6 +359,8 @@ def widget_render_writecongress_page(request, account, permissions):
             "useraddress_suffixes": PostalAddress.SUFFIXES,
 
             "franking": franking,
+            "taglabel": taglabel,
+            "tagvals": tagvals,
             
             "MIXPANEL_TOKEN": MIXPANEL_TOKEN,
             }, context_instance=RequestContext(request))
