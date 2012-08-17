@@ -317,6 +317,8 @@ def widget_render_writecongress_page(request, account, permissions):
             "-": ["oppose", "These bills also need your opposition", []],
             "0": ["neutral", "You may be interested in weighing in on these bills", []] }
 
+        tagvals = None
+        taglabel = None
         if org == None:
             # compute by bill similarity
             other_bills = [bs for bs in
@@ -334,8 +336,6 @@ def widget_render_writecongress_page(request, account, permissions):
 
             # Check to see whether the org has any extra questions
             usertags = UserTag.objects.filter(org=org).exclude(value="None").exclude(value="Other").order_by("value")
-            tagvals = None
-            taglabel = None
             if usertags:
                 # Put "None" at the beginning and "Other" at the end
                 tagvals = [o.value for o in usertags]
