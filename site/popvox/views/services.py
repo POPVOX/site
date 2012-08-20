@@ -567,14 +567,21 @@ def widget_render_writecongress_action(request, account, permissions):
                 zipcode = request.POST["useraddress_zipcode"],
                 completed_stage = "address",
                 request_dump = meta_log(request.META) )
-            usertags = UserTag.objects.filter(org=org).exclude(value="None").exclude(value="Other").order_by("value")
-            if usertags:
-                rec = ServiceAccountCampaignActionRecord.objects.get(campaign=request.POST["campaign"],
-                    firstname=request.POST["useraddress_firstname"],
-                    lastname = request.POST["useraddress_lastname"],
-                    zipcode = request.POST["useraddress_zipcode"])
-                usertag = UserTag.objects.get(value=request.POST["useraddress_tag"])
-                rec.usertags.add(usertag)
+            campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
+            saccount = campaign.account
+            try:
+                myorg = Org.objects.get(id=saccount.org_id)
+                usertags = UserTag.objects.filter(org=myorg).exclude(value="None").exclude(value="Other").order_by("value")
+                if usertags:
+                    rec = ServiceAccountCampaignActionRecord.objects.get(campaign=request.POST["campaign"],
+                        firstname=request.POST["useraddress_firstname"],
+                        lastname = request.POST["useraddress_lastname"],
+                        zipcode = request.POST["useraddress_zipcode"])
+                    usertag = UserTag.objects.get(value=request.POST["useraddress_tag"])
+                    rec.usertags.add(usertag)
+            except:
+                pass
+                
 
         user = User()
         user.email = request.POST["email"]
