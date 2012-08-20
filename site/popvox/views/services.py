@@ -567,12 +567,14 @@ def widget_render_writecongress_action(request, account, permissions):
                 zipcode = request.POST["useraddress_zipcode"],
                 completed_stage = "address",
                 request_dump = meta_log(request.META) )
-            rec = ServiceAccountCampaignActionRecord.objects.get(campaign=request.POST["campaign"],
-                firstname=request.POST["useraddress_firstname"],
-                lastname = request.POST["useraddress_lastname"],
-                zipcode = request.POST["useraddress_zipcode"])
-            usertag = UserTag.objects.get(value=request.POST["useraddress_tag"])
-            rec.usertags.add(usertag)
+            usertags = UserTag.objects.filter(org=org).exclude(value="None").exclude(value="Other").order_by("value")
+            if usertags:
+                rec = ServiceAccountCampaignActionRecord.objects.get(campaign=request.POST["campaign"],
+                    firstname=request.POST["useraddress_firstname"],
+                    lastname = request.POST["useraddress_lastname"],
+                    zipcode = request.POST["useraddress_zipcode"])
+                usertag = UserTag.objects.get(value=request.POST["useraddress_tag"])
+                rec.usertags.add(usertag)
 
         user = User()
         user.email = request.POST["email"]
@@ -982,8 +984,8 @@ def download_supporters(request, campaignid, dataformat):
     else:
         campaign = get_object_or_404(ServiceAccountCampaign, id=campaignid)
     
-    column_names = ['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode']
-    column_keys = ['id', 'created', 'email', 'firstname', 'lastname', 'zipcode']
+    column_names = ['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode', 'optional']
+    column_keys = ['id', 'created', 'email', 'firstname', 'lastname', 'zipcode', 'usertags']
     
     import csv, json
     
