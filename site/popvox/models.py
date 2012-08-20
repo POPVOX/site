@@ -1716,6 +1716,7 @@ class ServiceAccountCampaignActionRecord(models.Model):
     lastname = models.CharField(max_length=64, blank=True, db_index=True)
     zipcode = models.CharField(max_length=16, blank=True, db_index=True)
     email = models.EmailField(db_index=True)
+    usertags = models.ManyToManyField(UserTag,blank=True,null=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
     completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord", on_delete=models.SET_NULL)

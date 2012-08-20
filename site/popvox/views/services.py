@@ -567,6 +567,12 @@ def widget_render_writecongress_action(request, account, permissions):
                 zipcode = request.POST["useraddress_zipcode"],
                 completed_stage = "address",
                 request_dump = meta_log(request.META) )
+            rec = ServiceAccountCampaignActionRecord.objects.get(campaign=request.POST["campaign"],
+                firstname=request.POST["useraddress_firstname"],
+                lastname = request.POST["useraddress_lastname"],
+                zipcode = request.POST["useraddress_zipcode"])
+            usertag = UserTag.objects.get(value=request.POST["useraddress_tag"])
+            rec.usertags.add(usertag)
 
         user = User()
         user.email = request.POST["email"]

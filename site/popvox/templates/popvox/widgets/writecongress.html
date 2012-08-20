@@ -482,7 +482,8 @@ Notes:
 						useraddress_city: $("#useraddress_city").val(),
 						useraddress_state: identity.state,
 						useraddress_zipcode: identity.zipcode,
-						useraddress_phonenumber: $("#useraddress_phonenumber").val()
+						useraddress_phonenumber: $("#useraddress_phonenumber").val(),
+						useraddress_tag: $("#useraddress_tag").val()
 					},
 					type: "POST",
 					dataType: "json",
@@ -573,6 +574,7 @@ Notes:
 						useraddress_state: identity.state,
 						useraddress_zipcode: identity.zipcode,
 						useraddress_phonenumber: $("#useraddress_phonenumber").val(),
+						useraddress_tag: $("#useraddress_tag").val(),
 						message: !$('#message').hasClass("default") ? $('#message').val() : "",
 						cdyne_response: cdyne_response
 					},
