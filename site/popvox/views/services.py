@@ -992,7 +992,7 @@ def download_supporters(request, campaignid, dataformat):
         campaign = get_object_or_404(ServiceAccountCampaign, id=campaignid)
     
     column_names = ['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode', 'optional']
-    column_keys = ['id', 'created', 'email', 'firstname', 'lastname', 'zipcode', 'usertags']
+    column_keys = ['id', 'created', 'email', 'firstname', 'lastname', 'zipcode']
     
     import csv, json
     
@@ -1017,8 +1017,19 @@ def download_supporters(request, campaignid, dataformat):
         writer = csv.writer(response)
         writer.writerow(column_names)
     
+    acc = campaign.account
+    myorg = acc.org
+    has_usertags = UserTag.objects.filter(org=myorg).exclude(value="None").exclude(value="Other").order_by("value")
     for rec in recs:
         row = [unicode(getattr(rec, k)).encode("utf-8") for k in column_keys]
+        if has_usertags:
+            rec_has_usertags = rec.usertags.all()
+            if rec_has_usertags:
+                row.append(rec.usertags.all()[0].value)
+            else:
+                row.append("")
+        else:
+            row.append("")
         if dataformat == "csv":
             writer.writerow(row)
         if dataformat == "json":
