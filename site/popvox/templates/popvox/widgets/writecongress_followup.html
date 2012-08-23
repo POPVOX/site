@@ -17,10 +17,10 @@
 			<input type="text" class="c3" id="email" name="email" value="{{user.email}}" disabled="1"/>
 			<small>Your email address will not be shown publicly or shared with third parties.</small>
 			
-			<label for="password">password</label>
+			<label for="password">create a password</label>
 			<input type="password" class="c3" id="password"/><br />
 
-			<label for="password2">password again</label>
+			<label for="password2">retype your new password</label>
 			<input type="password" class="c3" id="password2"/><br />
 			<div id="errorlabel_password" class="error"> </div>
 
@@ -28,6 +28,9 @@
 			<input type="text" size="20" id="username" class="username" name="username" value="{{user.username}}"/>
 			<small class="pad_btm_20">Other POPVOX users will know you by your screen name.</small>
 			<div id="errorlabel_username" class="error"> </div>
+
+            <label class="updates" for="allow_mass_mails">Send me updates on legislation in Congress</label>
+            <input type="checkbox" name="allow_mass_mails" value="1"/>
 			
 			<p id="errorlabel" class="error" style="display: block">{{error}}</p>
 			

@@ -8,6 +8,7 @@ from django.db import transaction, connection
 from django.db.models import Count, Max
 from django.db.models.query import QuerySet
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from popvox.views.main import strong_cache
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 import json
@@ -1326,6 +1327,7 @@ def delete_account_confirmed(request):
         
     context_instance=RequestContext(request))
     
+@strong_cache
 def gettoknow(request):
   
     stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
