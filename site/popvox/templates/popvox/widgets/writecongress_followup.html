@@ -30,7 +30,7 @@
 			<div id="errorlabel_username" class="error"> </div>
 
             <label class="updates" for="allow_mass_mails"></label>
-            <input type="checkbox" name="allow_mass_mails" value="1" checked="checked"/> Send me updates on legislation in Congress
+            <input id="allow_mass_mails" type="checkbox" name="allow_mass_mails" value="1" checked="checked"/> Send me updates on legislation in Congress
 			
 			<p id="errorlabel" class="error" style="display: block">{{error}}</p>
 			
@@ -56,6 +56,7 @@ function do_submit_screename_password(validate) {
 		{
 			"username": "#username",
 			"password": "#password",
+            "allow_mass_mails": "#allow_mass_mails",
 		},
 		{
 			statusfield: "errorlabel",
