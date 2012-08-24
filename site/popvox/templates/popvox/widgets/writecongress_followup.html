@@ -58,7 +58,9 @@ ajaxform("/ajax/accounts/profile/updatefields",
         }
         );
 
-    return false;   
+    return false; 
+}
+  
 
 function do_submit_screename_password(validate) {
 	if ($('#password').val() != $('#password2').val() && (!validate || $('#password2').val() != "")) {
