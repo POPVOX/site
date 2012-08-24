@@ -513,7 +513,6 @@ def account_profile_update(request, field, value, validate_only):
         return { "status": "success", "value": request.user.email, "msg": "We have sent a verification email to " + value + " to confirm the address. If you do not receive a message within the next minute or two, please check your junk mail folder." }
     
     elif field == "allow_mass_mails":
-        print "value: "+str(value)
         if not validate_only:
             prof = request.user.get_profile()
             prof.allow_mass_mails = (value == "1")
