@@ -175,6 +175,7 @@ class RegisterUserAction:
     # individuals
     state = None
     district = None
+    allow_mass_mails = True
     
     # leg and org staff
     fullname = None
@@ -241,6 +242,10 @@ class RegisterUserAction:
         profile.state = self.state
         profile.district = self.district
         profile.fullname = self.fullname
+        if hasattr(self, 'allow_mass_mails'):
+            profile.allow_mass_mails = self.allow_mass_mails
+        else:
+            profile.allow_mass_mails = True
         profile.save()
         
         if self.mode == "legstaff" and not is_repeat_click:
@@ -397,6 +402,10 @@ def register_validation(request):
     axn.email = email
     axn.username = username
     axn.password = password
+    if request.POST['allow_mass_mails'] == 1:
+        axn.allow_mass_mails = True
+    else:
+        axn.allow_mass_mails = False
     
     if "next" in request.POST:
         axn.next = request.POST["next"]
