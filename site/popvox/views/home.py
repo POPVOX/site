@@ -1028,6 +1028,78 @@ def congress_match(request):
 
     return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
         context_instance=RequestContext(request))
+        
+#function to get pro and con positions for bills, to pass in for pie charts:
+def GetSentiment(member, bills_list):
+    bills_sentiment = []
+    for bill in bills_list:
+        scope = None
+        total = 0
+        try:
+            if member['district']:
+                scope = "district"
+                total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
+                if total != 0:
+                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
+            elif member['state']:
+                scope = "state"
+                total = bill.usercomments.get_query_set().filter(state=member['state']).count()
+                if total != 0:
+                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
+            else: #in case there's an error where a member is set to state and district both being none
+                total = 0
+        except KeyError:
+            total = 0
+        
+        '''if total < 6 :
+            scope = "nation"
+            total = bill.usercomments.get_query_set().count()
+            if total != 0:
+                pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
+                con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total'''
+        if total < 4:
+            pro = None
+            con = None
+
+        foo = (bill, scope, pro, con,total)
+        bills_sentiment.append(foo)
+    return bills_sentiment
+
+@json_response
+def getsponsoredbills(request):
+    
+    memberid = request.POST["memberid"]
+    
+    start = int(request.REQUEST.get("start", "0"))
+    limit = int(request.REQUEST.get("count", "50"))
+
+    # Get sponsored bills
+    sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=memberid,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
+    
+    sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)
+    sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)
+    
+    limited = False
+    if sponsored_bills.count() > limit:
+        sponsored_bills = sponsored_bills[start:limit]
+        limited = True
+    else:
+        sponsored_bills = sponsored_bills[start:]
+
+    
+    return sponsored_bills
+    
+@json_response
+def getcosponsoredbills(request):
+    
+    # Get cosponsored bills
+    cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
+
+    cosponsored_bills = GetSentiment(govtrack_data, cosponsored_bills_list)
+    cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
+    return none
 
 def member_page(request, membername=None):
     user = request.user
@@ -1112,44 +1184,6 @@ def member_page(request, membername=None):
     # Get sponsored and cosponsored bills
     sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
     cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
-    
-    #function to get pro and con positions for bills, to pass in for pie charts:
-    def GetSentiment(member, bills_list):
-        bills_sentiment = []
-        for bill in bills_list:
-            scope = None
-            total = 0
-            try:
-                if member['district']:
-                    scope = "district"
-                    total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
-                    if total != 0:
-                        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
-                        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
-                elif member['state']:
-                    scope = "state"
-                    total = bill.usercomments.get_query_set().filter(state=member['state']).count()
-                    if total != 0:
-                        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
-                        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
-                else: #in case there's an error where a member is set to state and district both being none
-                    total = 0
-            except KeyError:
-                total = 0
-            
-            '''if total < 6 :
-                scope = "nation"
-                total = bill.usercomments.get_query_set().count()
-                if total != 0:
-                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
-                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total'''
-            if total < 4:
-                pro = None
-                con = None
-
-            foo = (bill, scope, pro, con,total)
-            bills_sentiment.append(foo)
-        return bills_sentiment
     
 
     sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)

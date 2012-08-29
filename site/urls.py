@@ -92,6 +92,9 @@ urlpatterns = patterns('',
 	(r'^ajax/bills/search$', "popvox.views.bills.billsearch_ajax"),
 	(r'^ajax/bills/recommend_from_text$', "popvox.views.home.recommend_from_text"),
 	
+	(r'^ajax/bills/by-sponsor$', "popvox.views.home.getsponsoredbills"),
+	(r'^ajax/bills/by-cosponsor$', "popvox.views.home.getcosponsoredbills"),
+	
 	(r'^ajax/issues/chooser_list$', "popvox.views.bills.issuearea_chooser_list"),
 	
 	(r'^orgs/([\w\-]+)$', "popvox.views.org.org"),
