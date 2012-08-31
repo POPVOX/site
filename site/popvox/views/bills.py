@@ -29,6 +29,7 @@ from emailverification.utils import send_email_verification
 from utils import formatDateTime, cache_page_postkeyed, csrf_protect_if_logged_in
 
 from settings import DEBUG, SERVER_EMAIL, SITE_ROOT_URL
+import operator
 
 popular_bills_cache = None
 popular_bills_cache_2 = None
@@ -1792,6 +1793,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
         .values("comment_id", "num_diggs")
     for c in q:
         num_appreciations[c["comment_id"]] = c["num_diggs"]
+
         
     # Legislative staff?
     show_private_info = False
@@ -1850,6 +1852,24 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     if DEBUG:
         from django.db import connection
         debug_info = "".join(["%s: %s\n" % (q["time"], q["sql"]) for q in connection.queries])
+        
+    comments_data_basic = [ {
+                "id": c.id,
+                "user": c.user.username,
+                "msg": msg(c.message),
+                "location": location(c),
+                "date": formatDateTime(c.created),
+                "pos": c.position,
+                "share": bill_url + "/comment/" + str(c.id), #c.url(),
+                "verb": verb(c), #c.verb(tense="past"),
+                "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
+                "appreciates": num_appreciations[c.id] if c.id in num_appreciations else 0,
+                "appreciated": c.id in user_appreciated,
+                "state": c.state,
+                "district": c.congressionaldistrict
+                } for c in comments ]
+                
+    comments_data = sorted(comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)
 
     return {
         "reporttitle": reporttitle,
@@ -1864,22 +1884,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
         
         "approved_for_private_info": show_private_info,
     
-        "comments":
-            [ {
-                "id": c.id,
-                "user": c.user.username,
-                "msg": msg(c.message),
-                "location": location(c),
-                "date": formatDateTime(c.created),
-                "pos": c.position,
-                "share": bill_url + "/comment/" + str(c.id), #c.url(),
-                "verb": verb(c), #c.verb(tense="past"),
-                "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
-                "appreciates": num_appreciations[c.id] if c.id in num_appreciations else 0,
-                "appreciated": c.id in user_appreciated,
-                "state": c.state,
-                "district": c.congressionaldistrict
-                } for c in comments ],
+        "comments": comments_data,
         "stats": {
             "overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True, want_totalcomments=True, force_data=True),
             "state": bill_statistics(bill,

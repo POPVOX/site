@@ -24,6 +24,7 @@ function submit_registration() {
 		   "password": "#password",
 		   "password2": "#password2",
 		   "email": "#email",
+           "allow_mass_mails": "#allow_mass_mails",
 		   {% endif %}
 		   {% if mode == "legstaff" %}
 		   "fullname": "#fullname",
@@ -120,7 +121,8 @@ function submit_registration() {
 			<label for="password2">password again</label>
 			<input type="password" class="c3" id="password2"/><br />
 			<div id="errorlabel_password" class="error"> </div>
-			
+
+            <input id="allow_mass_mails" type="checkbox" name="allow_mass_mails" value="1" checked="checked"/> Send me updates on legislation in Congress
 			{% endif %}
 			
 			{% if mode == "orgstaff" and request.user.is_authenticated and request.user.orgroles.all.exists %}
@@ -229,6 +231,7 @@ function submit_registration() {
 			<div id="errorlabel_title" class="error"> </div>
 		</div>
 		{% endif %}
+
 		
 		<div class="clear"> </div>
 	</div>
