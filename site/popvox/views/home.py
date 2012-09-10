@@ -32,7 +32,53 @@ import urllib
 import urllib2
 from xml.dom.minidom import parse, parseString
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+
+# working on this...
+def new_bills(request, NumDays):
+	
+	
+	LookupDays = int(NumDays)
+	
+	NewBills = []
+	# Get all bills from past 7 days
+	bills = Bill.objects.filter(introduced_date__gt=datetime.now()-timedelta(days=LookupDays))
+	
+	
+	#House Bills
+	HR = bills.filter(billtype='h')
+	#Senate Bills
+	S = bills.filter(billtype='s')
+	#House Resolutions
+	HRes = bills.filter(billtype='hr')
+	#Senate Resolutions
+	SRes = bills.filter(billtype='sr')
+	#House Concurrent Resolutions
+	HCRes = bills.filter(billtype='hc')
+	#Senate Concurrent Resolutions
+	SCRes = bills.filter(billtype='sc')
+	#House Joint Resolutions
+	HJRes = bills.filter(billtype='hj')
+	#Senate Joint Resolutions
+	SJRes = bills.filter(billtype='sj')
+	
+	for b in bills:
+		NewBills.append(b)
+	
+	return render_to_response('popvox/bill_list_NewBills.html',
+            {
+                "HR": HR,
+				"S": S,
+				"HRes": HRes,
+				"SRes": SRes,
+				"HCRes": HCRes,
+				"SCRes": SCRes,
+				"HJRes": HJRes,
+				"SJRes": SJRes,
+				"NumDays":NumDays
+            },
+            context_instance=RequestContext(request))
+# ******************
 
 def annotate_track_status(profile, bills):
     tracked_bills = profile.tracked_bills.all()

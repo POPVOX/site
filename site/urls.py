@@ -55,6 +55,10 @@ urlpatterns = patterns('',
 	
 	(r'^activity$', 'popvox.views.home.activity'),
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),
+	(r'^newbills$', 'popvox.views.home.new_bills',{'NumDays':7}),
+	(r'^newbills/$', 'popvox.views.home.new_bills',{'NumDays':7}),
+	(r'^newbills/(?P<NumDays>[1-9]|1[0-9]|2[0-9]|30)$', 'popvox.views.home.new_bills'),
+	
 	
 	# internal pages
 	(r'^waiting-for-reintroduction$', 'popvox.views.home.waiting_for_reintroduction'),
