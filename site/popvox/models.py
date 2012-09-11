@@ -1992,6 +1992,12 @@ class MemberBio(models.Model):
     id = models.IntegerField(primary_key=True)
     googleplus = models.URLField(blank=True)
     flickr_id = models.CharField(max_length=100, blank=True)
+    
+class Slate(models.Model):
+    name = models.CharField(max_length=140, blank=True)
+    description = models.TextField()
+    bills = models.ManyToManyField(Bill, blank=True, related_name="slates")
+    org = models.ForeignKey(Org, related_name="slates")
 
             
 if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave"):
