@@ -307,5 +307,5 @@ table.display tr.odd.row_selected td {
 
 
 
-    .dataTables_length { margin-top:10px; margin-left:10px; }
+    .dataTables_length { margin-top:10px; margin-left:10px; display:none}
     .dataTables_info {margin-left:10px; }
