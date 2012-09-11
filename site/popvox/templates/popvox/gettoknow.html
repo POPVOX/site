@@ -7,10 +7,10 @@
 {% block navattributes %}id="head_r"{% endblock %}
 {% block disable_login_redirect %}{% endblock %}
 {% block head %}
+<link rel="stylesheet" href="/media/css/datatables/popvox_table.css" type="text/css"/>
 <style>
 	.colorbox { width: 500px; height: 500px; }
-	#whoami { display: none; }
-	
+	#whoami { display: none; }*/
 
 </style>
 <script>
@@ -44,35 +44,22 @@ function subscribe(validate) {
 			<div class="left_gtk">
                 <h2>A State or District</h2>
                 <div class="search_live">
-                        <input type="text" value="live search" />
+                        <input type="text" value="live search"  id="dist_search"/>
 				</div> <!-- /search_live -->
-                <table id="district_table">
-                    <thead>
-                            <tr>
-                                <th class="state">State</th>
-                                <th class="district">District</th>
-                            </tr>
-                    </thead>
-                    <tbody>
-					{% for member in members %}
-                    <tr>
-				  
-					</tr>
-					{% endfor %}
-					</tbody>
-				</table>
+                <table id="district_table"></table>
 			</div> <!-- /left_gtk -->
+
 			<div class="right_gtk">
 				<h2>A Member of Congress</h2>
 				<div class="search_live">
-					<input type="text" value="live search" />
+					<input type="text" value="live search"  id="mem_search"/>
 				</div> <!-- /right_gtk -->
 
 				<table id="congress_member_table">
 					<thead>
 						<tr>
 							<th class="state">State</th>
-							<th class="moc">Congress Person</th>
+							<th class="moc">Member of Congress</th>
 							<th>&nbsp;</th>
 						</tr>
 					</thead>
@@ -80,7 +67,7 @@ function subscribe(validate) {
 						{% for member in members %}
 						<tr>
 							<td class="td_st"><a href="#">{{member.state}}</a></td>
-							<td class="td_moc"><a href="{{member.pvurl}}">{{member.plain_name}}</a></td>
+							<td class="td_moc"><a href="member/{{member.pvurl}}">{{member.plain_name}}</a></td>
 							<td class="td_rd">{{member.party_state}}</td>
 						</tr>
 						{% endfor %}
@@ -159,7 +146,76 @@ function subscribe(validate) {
 <script type="text/javascript" src="/media/js/jquery.dataTables.js"></script>
 <script>
 	$(document).ready(function() {
-			$('#congress_member_table').dataTable();
+			memTable = $('#congress_member_table').dataTable();
+            $('#mem_search').keypress(function(){
+                memTable.fnFilter( $(this).val() );
+            });
+            $('#mem_search').focus(function(){
+                $(this).val('');
+            });
+            $('#mem_search').blur(function(){
+                $(this).val('live search');
+            });
+            $('#congress_member_table_filter').hide();
+
+            var $stateabbrs = new Array();
+            {% for abbr,statename in diststateabbrs %}
+                $stateabbrs["{{abbr}}"] ="{{statename}}";
+            {% endfor %}
+
+            $.each($stateabbrs, function(abbr,name) {
+                alert(abbr+": "+name);
+            });
+
+            var distData = new Array();
+            $.each(memurls, function(abbr, array) {
+                if (abbr != "GU" && abbr != "VI" && abbr != "MP" && abbr != "AS") {
+
+                    var numdists = array.length -2;
+                    if (abbr == "DC" || abbr == "PR") {
+                        var $tmp = new Array(
+                            '<a href="/district/'+abbr+'/">'+abbr+'</a>', 
+                            '<a href="/district/'+abbr+'/">'+$stateabbrs[abbr]+'</a>',
+                            '<a href="/district/'+abbr+'/">All</a>');
+                    } else {
+                        var $tmp = new Array(
+                            '<a href="/state/'+abbr+'/">'+abbr+'</a>', 
+                            '<a href="/state/'+abbr+'/">'+$stateabbrs[abbr]+'</a>',
+                            '<a href="/state/'+abbr+'/">All</a>');
+                    }
+                    distData.push($tmp);
+
+                    if (numdists > 1) {
+                    
+                        for (i=1;i<=numdists;i++) {
+                            var $tmp = new Array(
+                                '<a href="/district/'+abbr+'/'+i+'/">'+abbr+'</a>', 
+                                '<a href="/district/'+abbr+'/'+i+'/">'+$stateabbrs[abbr]+'</a>',
+                                '<a href="/district/'+abbr+'/'+i+'/">'+i+'</a>');
+                            distData.push($tmp);
+                        }
+                    }
+                }
+            });
+
+            distTable = $('#district_table').dataTable( {
+                "aaData": distData,
+                "aoColumns": [
+                    {"sTitle": "Abbr"},
+                    {"sTitle": "State"},
+                    {"sTitle": "District"}
+                ]
+            } );
+            $('#dist_search').keypress(function(){
+                distTable.fnFilter( $(this).val() );
+            });
+            $('#dist_search').focus(function(){
+                $(this).val('');
+            });
+            $('#dist_search').blur(function(){
+                $(this).val('live search');
+            });
+            $('#district_table_filter').hide();
 		} );
 </script>
 
