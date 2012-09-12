@@ -32,7 +32,7 @@ EMAIL_SUBJECT_PREFIX = "[POPVOX] "
 
 EMAILVERIFICATION_FROMADDR = "POPVOX <info@popvox.com>"
 SERVER_EMAIL = "POPVOX <no.reply@popvox.com>"
-ADMINS = [ ('Mackenzie', 'maco@popvox.com'), ('Annalee', 'annalee@popvox.com') ]
+ADMINS = [ ('Mackenzie', 'mackenzie@popvox.com'), ('Annalee', 'annalee@popvox.com') ]
 MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
 
 if not "LOCAL" in os.environ:
