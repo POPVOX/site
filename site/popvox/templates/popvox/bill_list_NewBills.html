@@ -1,0 +1,222 @@
+{% extends "master.html" %}
+{% load cache %}
+{% load popvox_utils %}
+{% block title %}New Bills in Congress{% endblock%}
+{% block description %}View all new bills in Congress.{% endblock %}
+{%block nav_legstaff_class_bills%}active{%endblock%}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<style>
+	
+	.h1 {
+		display: block;
+		height: 30px;
+		margin-bottom: 20px;
+		margin-top: 20pz;
+		padding-bottom: 0px;
+		line-height: 30px;
+	}
+	
+	.BillList {
+		display: block;
+		width: 700px;
+	}
+	.BillList h2 {
+		margin-top: 30px;
+		margin-bottom: 10px;
+	}
+	.BillList h2 a {
+		font-size: 14px;
+	}
+	.BillList ul li {
+		margin-left: 0;
+		margin-bottom: 10px;
+		padding-left: 100px;
+		padding-top: 4px;
+		background: url(/media/press/bg_arrow.png) left 5px no-repeat;
+		width: 580px;
+		border: none;
+		min-height: 30px;
+	}
+	.BillList ul li span {
+		margin-left: -100px;
+		color: #fff;
+		padding: 5px 0px 2px 10px;
+		width: 80px;
+		float: left;
+	}
+	.BillList ul li span a {
+		color: #fff;
+	}
+	.BillList ul li span:hover a {
+		color: #E8E5DF;
+		border: none;
+		cursor: pointer;
+	}
+	.NewBills_MsgBox {
+		display: inline-block;
+		width: 680px;
+		background-color: #dcd9d2;
+		padding: 10px;
+		margin-bottom: 10px;
+	}
+	.NewBills_MsgBox ul li{
+		clear: left;
+		margin-left: 0;
+		padding-left: 20px;
+		border: none;
+		line-height: 20px;
+	}
+	.NewBills_MsgBox .BillCount{
+		display: block;
+		float: left;
+		width: 40px;
+		height: 22px;
+	}
+	.NewBills_MsgBox ul li a{
+		float: left;
+		line-height: 20px;
+		text-decoration: none;
+	}
+	.NewBills_MsgBox ul li a:hover{
+		text-decoration: none;
+	}
+	.SelectTimeFrame{
+		display: inline-block
+		float: left;
+		clear:both;
+		margin-top: 5px;
+		margin-bottom: 5px;
+		margin-right: 5px;
+		padding: 5px;
+		background-color: #cc6a11;
+		color: #ffffff;
+		text-decoration: none;
+	}
+</style>
+{% endblock %}
+{% block content %}
+
+
+<a name="NewBillsTop"></a>
+<h1>New Bills</h1>
+
+<span style="display:inline-block;clear:both;margin-bottom:10px;"><a href="/newbills/7" class="SelectTimeFrame">Past Week</a><a href="/newbills/14" class="SelectTimeFrame">Past Two Weeks</a><a href="/newbills/21" class="SelectTimeFrame">Past Three Weeks</a><a href="/newbills/28" class="SelectTimeFrame">Past Four Weeks</a></span>
+
+<div class="NewBills_MsgBox">
+	<span style="display:inline-block;clear:both;margin-bottom:10px;font-size:16px;font-style:italic;font-weight:bold;color:#404045;">Currently Viewing Past {{ NumDays }} Days</span>
+	<p>Here is a list of bills introduced in the past <b>{{ NumDays }} days</b> -- one of the most popular requests among POPVOX users. We hope you'll weigh in on these bills and share the list with your friends and networks.</p>
+	<ul>
+		<li><b class="BillCount">{{ HR|length }}</b>{% if HR|length > 0 %}<a href="#HR">{% endif %}House Bills{% if HR|length > 0 %}</a>{% endif %}</li>
+		<li><b class="BillCount">{{ S|length }}</b>{% if S|length > 0 %}<a href="#S">{% endif %}Senate Bills{% if S|length > 0 %}</a>{% endif %}</li>
+		<li><b class="BillCount">{{ HRes|length }}</b>{% if HRes|length > 0 %}<a href="#HRes">{% endif %}House Resolutions{% if HRes|length > 0 %}</a>{% endif %}</li>
+		<li><b class="BillCount">{{ SRes|length }}</b>{% if SRes|length > 0 %}<a href="#SRes">{% endif %}Senate Resolutions{% if SRes|length > 0 %}</a>{% endif %}</li>
+		<li><b class="BillCount">{{ HCRes|length }}</b>{% if HCRes|length > 0 %}<a href="#HCRes">{% endif %}House Concurrent Resolutions{% if HCRes|length > 0 %}</a>{% endif %}</li>
+		<li><b class="BillCount">{{ SCRes|length }}</b>{% if SCRes|length > 0 %}<a href="#SCRes">{% endif %}Senate Concurrent Resolutions{% if SCRes|length > 0 %}</a>{% endif %}</li>
+		<li><b class="BillCount">{{ HJRes|length }}</b>{% if HJRes|length > 0 %}<a href="#HJRes">{% endif %}House Joint Resolutions{% if HJRes|length > 0 %}</a>{% endif %}</li>
+		<li><b class="BillCount">{{ SJRes|length }}</b>{% if SJRes|length > 0 %}<a href="#SJRes">{% endif %}Senate Joint Resolutions{% if SJRes|length > 0 %}</a>{% endif %}</li>
+	<ul>
+</div>
+
+	<div class="BillList">
+	{% if HR|length > 0 %}
+		<a name="HR"></a>
+		
+		<h2>House Bills<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<div class="NewBills_MsgBox">Proposed legislation which would become law if it passes the House and then the Senate, and is signed by the President.</div>
+		<ul>
+		{% 	for b in HR %}
+			<li><span><a href="../../../../bills/us/{{ b.congressnumber }}/hr{{ b.billnumber }}">HR {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}</li>
+		{% 	endfor %}
+		</ul>
+	{% endif %}
+	
+	{% if S|length > 0 %}
+		<a name="S"></a>
+		
+		<h2>Senate Bills<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<div class="NewBills_MsgBox">Proposed legislation which would become law if it passes the Senate and then the House, and is signed by the President.</div>
+		<ul>
+		{% for b in S %}
+			<li><span><a href="../../../../bills/us/{{ b.congressnumber }}/s{{ b.billnumber }}">S {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if HRes|length > 0 %}
+		<a name="HRes"></a>
+		<h2>House Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<div class="NewBills_MsgBox">Used to take action on behalf of only the House, give its non-binding opinion or propose internal rules. Resolutions do not become law.</div>
+		<ul>
+		{% for b in HRes %}
+			<li><span><a href="../../../../bills/us/{{ b.congressnumber }}/hres{{ b.billnumber }}">HRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if SRes|length > 0 %}
+		<a name="SRes"></a>
+		<h2>Senate Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<div class="NewBills_MsgBox">Used to take action on behalf of only the Senate, give its non-binding opinion or propose internal rules. Resolutions do not become law.</div>
+		<ul>
+		{% for b in SRes %}
+			<li><span><a href="../../../../bills/us/{{ b.congressnumber }}/sres{{ b.billnumber }}">SRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if HCRes|length > 0 %}
+		<a name="HCRes"></a>
+		<h2>House Concurrent Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<div class="NewBills_MsgBox">Used to take action or express opinion on behalf of both the House and Senate. It does not make law.</div>
+		<ul>
+		{% for b in HCRes %}
+			<li><span><a href="../../../../bills/us/{{ b.congressnumber }}/hconres{{ b.billnumber }}">HCRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if SCRes|length > 0 %}
+		<a name="SCRes"></a>
+		<h2>Senate Concurrent Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<div class="NewBills_MsgBox">Used to take action or express opinion on behalf of both the Senate and House. It does not make law.</div>
+		<ul>
+		{% for b in SCRes %}
+			<li><span><a href="../../../../bills/us/{{ b.congressnumber }}/sconres{{ b.billnumber }}">SCRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+		
+	{% if HJRes|length > 0 %}
+		<a name="HJRes"></a>
+		<h2>House Joint Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<div class="NewBills_MsgBox">Used to pose constitutional amendments, fix technical errors or appropriate funds. Joint resolutions, like bills, become public law if adopted by both the House and Senate. Constitutional amendments must also be approved by 3/4 of the states.</div>
+		<ul>
+		{% for b in HJRes %}
+			<li><span><a href="../../../../bills/us/{{ b.congressnumber }}/hjres{{ b.billnumber }}">HJRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+	
+	{% if SJRes|length > 0 %}
+		<a name="SJRes"></a>
+		<h2>Senate Joint Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<div class="NewBills_MsgBox">Used to pose constitutional amendments, fix technical errors or appropriate funds. Joint resolutions, like bills, become public law if adopted by both the House and Senate. Constitutional amendments must also be approved by 3/4 of the states.</div>
+		<ul>
+		{% for b in SJRes %}
+			<li><span><a href="../../../../bills/us/{{ b.congressnumber }}/sjres{{ b.billnumber }}">SJRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+	
+	
+	</div>
+	
+	
+	
+	
+{% endblock %}
+
