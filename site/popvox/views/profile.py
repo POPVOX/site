@@ -402,10 +402,13 @@ def register_validation(request):
     axn.email = email
     axn.username = username
     axn.password = password
-    if request.POST['allow_mass_mails'] == 1:
-        axn.allow_mass_mails = True
+    if 'allow_mass_mails' in request.POST:
+        if request.POST['allow_mass_mails'] == 1:
+            axn.allow_mass_mails = True
+        else:
+            axn.allow_mass_mails = False
     else:
-        axn.allow_mass_mails = False
+        axn.allow_mass_mails = True
     
     if "next" in request.POST:
         axn.next = request.POST["next"]
