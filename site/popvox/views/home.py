@@ -1069,7 +1069,11 @@ def congress_match(request):
         members.append(popvox.govtrack.getMemberOfCongress(id))
 
     for member in members:
-        url = [k for k, v in memurls.items() if member['id'] == v][0]
+        url_list = [k for k, v in memurls.items() if member['id'] == v]
+        if len(url_list) >0:
+            url = url_list[0]
+        else:
+            url = None
         member['pvurl'] = url
 
     return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},

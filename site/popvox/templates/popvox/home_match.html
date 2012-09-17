@@ -283,7 +283,11 @@
 		{% for member in members %}
 		<div class="rep">
 			<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
+            {% if member.pvurl %}
 			<h3><a href="/member/{{member.pvurl}}">{{member.name}}</a></h3>
+            {% else %}
+            <h3>{{member.name}}</h3>
+            {% endif %}
 			<!--<h3>Rep. Chaka Fattah <span>[D, PA-2]</span></h3>-->
 		</div>
 		{% empty %}
