@@ -363,7 +363,7 @@ def legstaffemailcheck(value):
         return False
     return True
 
-@csrf_protect
+#@csrf_protect
 @json_response
 def register_validation(request):
     if request.method != 'POST': raise Http404()

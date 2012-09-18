@@ -1,5 +1,7 @@
 from models import *
 from django.contrib import admin
+from django.db.models import Count
+from django.forms import ModelForm
 
 class BillAdmin(admin.ModelAdmin):
 	list_display = ("congressnumber", "billtype", "billnumber", "title", "street_name")
@@ -85,6 +87,24 @@ class ServiceAccountCampaignActionRecordAdmin(admin.ModelAdmin):
 
 	def info(self, obj):
 		return obj.campaign.bill.displaynumber()
+		
+class SlateBillForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(SlateBillForm,self).__init__(*args, **kwargs)
+        bills = Bill.objects.annotate(roll_count=Count('rolls')).filter(roll_count__gt=0,congressnumber=112)
+        widget = self.fields['bills'].widget
+        choices = []
+        for bill in bills:
+            choices.append((bill.id, bill.title))
+        widget.choices = choices
+
+class SlateAdmin(admin.ModelAdmin):
+    raw_id_fields = ["org"]
+    list_display = ("name", "org")
+    search_fields = ["name", "org"]
+    fields = ("name", "org", "description","bills")
+    filter_horizontal = ("bills",)
+    form = SlateBillForm
 
 class BillRecommendationAdmin(admin.ModelAdmin):
 	search_fields = ["name"]
@@ -109,6 +129,7 @@ admin.site.register(OrgCampaign)
 admin.site.register(OrgCampaignPosition)
 admin.site.register(OrgContact)
 admin.site.register(Bill, BillAdmin)
+admin.site.register(Slate, SlateAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)
 admin.site.register(UserCommentDigg, UserCommentDiggAdmin)

@@ -1998,6 +1998,10 @@ class Slate(models.Model):
     description = models.TextField()
     bills = models.ManyToManyField(Bill, blank=True, related_name="slates")
     org = models.ForeignKey(Org, related_name="slates")
+    
+class Roll(models.Model):
+    number = models.CharField(max_length=20, primary_key=True)
+    bill = models.ForeignKey(Bill, related_name="rolls")
 
             
 if not "LOADING_FIXTURE" in os.environ and not os.path.exists("/home/www/slave"):
