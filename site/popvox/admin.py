@@ -92,18 +92,20 @@ class SlateBillForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(SlateBillForm,self).__init__(*args, **kwargs)
         bills = Bill.objects.annotate(roll_count=Count('rolls')).filter(roll_count__gt=0,congressnumber=112)
-        widget = self.fields['bills'].widget
+        widget_support = self.fields['bills_support'].widget
+        widget_oppose = self.fields['bills_oppose'].widget
         choices = []
         for bill in bills:
             choices.append((bill.id, bill.title))
-        widget.choices = choices
+        widget_support.choices = choices
+        widget_oppose.choices = choices
 
 class SlateAdmin(admin.ModelAdmin):
     raw_id_fields = ["org"]
     list_display = ("name", "org")
     search_fields = ["name", "org"]
-    fields = ("name", "org", "description","bills")
-    filter_horizontal = ("bills",)
+    fields = ("name", "org", "description","bills_support", "bills_oppose")
+    filter_horizontal = ("bills_support", "bills_oppose",)
     form = SlateBillForm
 
 class BillRecommendationAdmin(admin.ModelAdmin):
