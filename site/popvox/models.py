@@ -1995,10 +1995,10 @@ class MemberBio(models.Model):
     
 class Slate(models.Model):
     name = models.CharField(max_length=140, blank=True)
-    description = models.TextField()
+    description   = models.TextField()
     bills_support = models.ManyToManyField(Bill, blank=True, related_name="slates_support")
-    bills_oppose = models.ManyToManyField(Bill, blank=True, related_name="slates_oppose")
-    org = models.ForeignKey(Org, related_name="slates")
+    bills_oppose  = models.ManyToManyField(Bill, blank=True, related_name="slates_oppose")
+    org           = models.ForeignKey(Org, related_name="slates")
     
 class Roll(models.Model):
     number = models.CharField(max_length=20, primary_key=True)
