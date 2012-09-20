@@ -8,6 +8,7 @@ from django.db import transaction, connection
 from django.db.models import Count, Max
 from django.db.models.query import QuerySet
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from popvox.views.main import strong_cache
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 import json
@@ -35,42 +36,46 @@ from datetime import datetime, date, timedelta
 
 # working on this...
 def new_bills(request, NumDays):
-	
-	LookupDays = int(NumDays)
-	
-	# Get all bills from past 7 days
-	bills = Bill.objects.filter(introduced_date__gt=datetime.now()-timedelta(days=LookupDays)).select_related("sponsor")
-	
-	
-	
-	#House Bills
-	HR = bills.filter(billtype='h')
-	#Senate Bills
-	S = bills.filter(billtype='s')
-	#House Resolutions
-	HRes = bills.filter(billtype='hr')
-	#Senate Resolutions
-	SRes = bills.filter(billtype='sr')
-	#House Concurrent Resolutions
-	HCRes = bills.filter(billtype='hc')
-	#Senate Concurrent Resolutions
-	SCRes = bills.filter(billtype='sc')
-	#House Joint Resolutions
-	HJRes = bills.filter(billtype='hj')
-	#Senate Joint Resolutions
-	SJRes = bills.filter(billtype='sj')
-	
-	return render_to_response('popvox/bill_list_NewBills.html',
+    
+    
+    LookupDays = int(NumDays)
+    
+    NewBills = []
+    # Get all bills from past 7 days
+    bills = Bill.objects.filter(introduced_date__gt=datetime.now()-timedelta(days=LookupDays))
+    
+    
+    #House Bills
+    HR = bills.filter(billtype='h')
+    #Senate Bills
+    S = bills.filter(billtype='s')
+    #House Resolutions
+    HRes = bills.filter(billtype='hr')
+    #Senate Resolutions
+    SRes = bills.filter(billtype='sr')
+    #House Concurrent Resolutions
+    HCRes = bills.filter(billtype='hc')
+    #Senate Concurrent Resolutions
+    SCRes = bills.filter(billtype='sc')
+    #House Joint Resolutions
+    HJRes = bills.filter(billtype='hj')
+    #Senate Joint Resolutions
+    SJRes = bills.filter(billtype='sj')
+    
+    for b in bills:
+        NewBills.append(b)
+    
+    return render_to_response('popvox/bill_list_NewBills.html',
             {
                 "HR": HR,
-				"S": S,
-				"HRes": HRes,
-				"SRes": SRes,
-				"HCRes": HCRes,
-				"SCRes": SCRes,
-				"HJRes": HJRes,
-				"SJRes": SJRes,
-				"NumDays":NumDays
+                "S": S,
+                "HRes": HRes,
+                "SRes": SRes,
+                "HCRes": HCRes,
+                "SCRes": SCRes,
+                "HJRes": HJRes,
+                "SJRes": SJRes,
+                "NumDays":NumDays
             },
             context_instance=RequestContext(request))
 # ******************
@@ -729,6 +734,13 @@ def get_calendar_agenda2(chamber, agenda=None, prefix=None):
     return agenda
 
 @user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
+def testing(request):
+    try:
+        return render_to_response("testing.html", context_instance=RequestContext(request))
+    except TemplateDoesNotExist:
+        raise Http404()
+
+@user_passes_test(lambda u : u.is_authenticated() and (u.is_staff | u.is_superuser))
 def waiting_for_reintroduction(request):
     bills = { }
     
@@ -806,8 +818,6 @@ def get_legstaff_undelivered_messages(user):
     # district that have not been successfully delivered to the office (and are
     # not in an offline batch).
     
-    return None # TOO DAMN SLOW
-        
     role = user.legstaffrole
     if not role.verified or role.member == None:
         return None
@@ -1059,15 +1069,83 @@ def congress_match(request):
         members.append(popvox.govtrack.getMemberOfCongress(id))
 
     for member in members:
-        url_list = [k for k, v in memurls.items() if member['id'] == v]
-        if len(url_list) >0:
-            url = url_list[0]
-        else:
-            url = None
+        url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
 
     return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
         context_instance=RequestContext(request))
+        
+#function to get pro and con positions for bills, to pass in for pie charts:
+def GetSentiment(member, bills_list):
+    bills_sentiment = []
+    for bill in bills_list:
+        scope = None
+        total = 0
+        try:
+            if member['district']:
+                scope = "district"
+                total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
+                if total != 0:
+                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
+            elif member['state']:
+                scope = "state"
+                total = bill.usercomments.get_query_set().filter(state=member['state']).count()
+                if total != 0:
+                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
+                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
+            else: #in case there's an error where a member is set to state and district both being none
+                total = 0
+        except KeyError:
+            total = 0
+        
+        '''if total < 6 :
+            scope = "nation"
+            total = bill.usercomments.get_query_set().count()
+            if total != 0:
+                pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
+                con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total'''
+        if total < 4:
+            pro = None
+            con = None
+
+        foo = (bill, scope, pro, con,total)
+        bills_sentiment.append(foo)
+    return bills_sentiment
+
+@json_response
+def getsponsoredbills(request):
+    
+    memberid = request.POST["memberid"]
+    
+    start = int(request.REQUEST.get("start", "0"))
+    limit = int(request.REQUEST.get("count", "50"))
+
+    # Get sponsored bills
+    sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=memberid,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
+    
+    sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)
+    sponsored_bills = sorted(sponsored_bills, key=lambda bills: bills[4], reverse=True)
+    
+    limited = False
+    if sponsored_bills.count() > limit:
+        sponsored_bills = sponsored_bills[start:limit]
+        limited = True
+    else:
+        sponsored_bills = sponsored_bills[start:]
+
+    
+    return sponsored_bills
+    
+@json_response
+def getcosponsoredbills(request):
+    
+    # Get cosponsored bills
+    cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
+
+    cosponsored_bills = GetSentiment(govtrack_data, cosponsored_bills_list)
+    cosponsored_bills = sorted(cosponsored_bills, key=lambda bills: bills[4], reverse=True)[0:20]
+    return none
 
 def member_page(request, membername=None):
     user = request.user
@@ -1152,44 +1230,6 @@ def member_page(request, membername=None):
     # Get sponsored and cosponsored bills
     sponsored_bills_list = popvox.models.Bill.objects.filter(sponsor=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
     cosponsored_bills_list = popvox.models.Bill.objects.filter(cosponsors=member.id,congressnumber = popvox.govtrack.CURRENT_CONGRESS)
-    
-    #function to get pro and con positions for bills, to pass in for pie charts:
-    def GetSentiment(member, bills_list):
-        bills_sentiment = []
-        for bill in bills_list:
-            scope = None
-            total = 0
-            try:
-                if member['district']:
-                    scope = "district"
-                    total = bill.usercomments.get_query_set().filter(state=member['state'],congressionaldistrict=member['district']).count()
-                    if total != 0:
-                        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state'],congressionaldistrict=member['district']).count()/total
-                        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state'],congressionaldistrict=member['district']).count()/total
-                elif member['state']:
-                    scope = "state"
-                    total = bill.usercomments.get_query_set().filter(state=member['state']).count()
-                    if total != 0:
-                        pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=member['state']).count()/total
-                        con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=member['state']).count()/total
-                else: #in case there's an error where a member is set to state and district both being none
-                    total = 0
-            except KeyError:
-                total = 0
-            
-            '''if total < 6 :
-                scope = "nation"
-                total = bill.usercomments.get_query_set().count()
-                if total != 0:
-                    pro = (100.0) * bill.usercomments.get_query_set().filter(position="+").count()/total
-                    con = (100.0) * bill.usercomments.get_query_set().filter(position="-").count()/total'''
-            if total < 4:
-                pro = None
-                con = None
-
-            foo = (bill, scope, pro, con,total)
-            bills_sentiment.append(foo)
-        return bills_sentiment
     
 
     sponsored_bills = GetSentiment(govtrack_data, sponsored_bills_list)
@@ -1367,6 +1407,7 @@ def delete_account_confirmed(request):
         
     context_instance=RequestContext(request))
     
+@strong_cache
 def gettoknow(request):
   
     stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
