@@ -1,5 +1,7 @@
 from models import *
 from django.contrib import admin
+from django.db.models import Count
+from django.forms import ModelForm
 
 class BillAdmin(admin.ModelAdmin):
 	list_display = ("congressnumber", "billtype", "billnumber", "title", "street_name")
@@ -18,7 +20,7 @@ class BillAdmin(admin.ModelAdmin):
 
 class UserProfileAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user",)
-	readonly_fields = ("user","tracked_bills","antitracked_bills")
+	readonly_fields = ("user","tracked_bills","antitracked_bills", "usertags")
 	search_fields = ["user__username", "user__email", "fullname"]
 	list_display = ["user", "fullname", "staff_info"]
 
@@ -85,6 +87,26 @@ class ServiceAccountCampaignActionRecordAdmin(admin.ModelAdmin):
 
 	def info(self, obj):
 		return obj.campaign.bill.displaynumber()
+		
+class SlateBillForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(SlateBillForm,self).__init__(*args, **kwargs)
+        bills = Bill.objects.annotate(roll_count=Count('rolls')).filter(roll_count__gt=0,congressnumber=112)
+        widget_support = self.fields['bills_support'].widget
+        widget_oppose = self.fields['bills_oppose'].widget
+        choices = []
+        for bill in bills:
+            choices.append((bill.id, bill.title))
+        widget_support.choices = choices
+        widget_oppose.choices = choices
+
+class SlateAdmin(admin.ModelAdmin):
+    raw_id_fields = ["org"]
+    list_display = ("name", "org")
+    search_fields = ["name", "org"]
+    fields = ("name", "org", "description","bills_support", "bills_oppose")
+    filter_horizontal = ("bills_support", "bills_oppose",)
+    form = SlateBillForm
 
 class BillRecommendationAdmin(admin.ModelAdmin):
 	search_fields = ["name"]
@@ -98,6 +120,10 @@ class MemberBioAdmin(admin.ModelAdmin):
 
     list_display = ('id','name')
 
+class UserTagAdmin(admin.ModelAdmin):
+    list_display = ("org","label","value")
+    search_fields = ["org","label","value"]
+
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
 admin.site.register(Org, OrgAdmin)
@@ -105,6 +131,7 @@ admin.site.register(OrgCampaign)
 admin.site.register(OrgCampaignPosition)
 admin.site.register(OrgContact)
 admin.site.register(Bill, BillAdmin)
+admin.site.register(Slate, SlateAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)
 admin.site.register(UserCommentDigg, UserCommentDiggAdmin)
@@ -118,6 +145,7 @@ admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)
 admin.site.register(ServiceAccountCampaignActionRecord, ServiceAccountCampaignActionRecordAdmin)
 admin.site.register(BillRecommendation, BillRecommendationAdmin)
 admin.site.register(MemberBio, MemberBioAdmin)
+admin.site.register(UserTag, UserTagAdmin)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html', 'make_short_urls', 'report_short_urls']

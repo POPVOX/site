@@ -377,6 +377,13 @@ function change_widget(tabname, is_initial) {
         $('.preview_pane').css({width: '280'});
     }
 
+    if (widgettype == "minimap") {
+        $('#widget_description').html("Show your readers nationwide sentiment on a bill on POPVOX with this widget.");
+        $('#code').css({width: "280px"});
+        $('.config_pane').css({width: '580px'});
+        $('.preview_pane').css({width: '300'});
+    }
+
     window.setTimeout("update_preview(" + (is_initial ? 'true' : 'false') + ")", 600);
     
     return false;
@@ -526,7 +533,9 @@ function update_preview(is_initial) {
         } else {
             opts += "&ocp=" + $('#writecongress_bill_position').val();
         }
+		{% if franking %}
         opts += "&franking=" + {{franking}};
+		{% endif %}
         
         default_width = 460;
         default_height = 700;
@@ -562,6 +571,28 @@ function update_preview(is_initial) {
         can_change_height = false;
     }
 
+    if (widgettype == "minimap") {
+        $('#minimap_bill_error').hide();
+        var bill_re = /^(HR|S|HRES|SRES|HJRES|SJRES|HCONRES|SCONRES|X)(\d+)(\/(\d+))?$/i;
+        var match = bill_re.exec($('#minimap_bill').val().replace(/\s/g, "").replace(/\./g, ""));
+        if (!match) {
+            $('#minimap_bill_error').text("Example bill numbers are H.R. 1, S. 2, H.Res. 3, etc.");
+            $('#minimap_bill_error').show();
+            return;
+        }
+        
+        var billtype = match[1].replace(/\s/g, "").replace(/\./g, "").toLowerCase();
+        var billnumber = match[2];
+        var congressnumber = match[4]; // possibly undefined, GovTrack style prev congress search
+        if (!congressnumber) congressnumber = {{current_congress}};
+            
+        bill = congressnumber + "/" + billtype + billnumber;
+        opts += "&bill=" + bill + "&stats=1&title=1";
+        
+        default_width = 280;
+        default_height = 100;
+        can_change_height = false;
+    }
     if (widgettype == "integration" || widgettype == "splash") {
         return;
     }
@@ -579,6 +610,8 @@ function update_preview(is_initial) {
             opts += "&" + clrs[e] + "=" + $('#color_' + clrs[e]).val().replace("#", "");
     }
     account = current_account.api_key
+    {% else %}
+    account = 'RI5CMP00800KPKEV';
     {% endif %}
         
     function make_code(host, width, height, demo) {
@@ -590,6 +623,8 @@ function update_preview(is_initial) {
             }
         } else if (widgettype == "popvox_button") {
             return '<a href="https://www.popvox.com/bills" style="text-decoration: none; border: none;"><img src="https://www.popvox.com/media/buttons/popvox_bills_widget.gif" alt="write congress at POPVOX" width="158" height="100" border="0"/></a>';
+        } else if (widgettype == "minimap") {
+		return '<div style="width:280px"><iframe src="https://www.popvox.com/widgets/minimap?'+ opts +'" scrolling="no" border="0" marginheight="0" marginwidth="0" frameborder="0" width="280" height="740" style="border:1px solid #cc6a11"> </iframe><br><center><small>powered by <a href="https://www.popvox.com">popvox.com</a></small></center></div>';
         } else {
             return '<iframe src="' + host + '/services/widgets/w/' + (account ? "account/" + account + "/" : "") + widgettype + '?iframe=1' + opts + (demo ? "&demo=1{% if user.is_staff or user.username == "demo_org_staffer"%}&debug=1{% endif %}" : "") + '" width="' + width + '" height="' + height + '" border="0" frameBorder="0" > </iframe>';
         }
@@ -608,16 +643,42 @@ function update_preview(is_initial) {
         if (last_preview_html2 != prv) $('#preview2').html(prv);
         last_preview_html2 = prv;        
     }
+    {% if accounts|length > 0 %} /* logged in */
+        $('#code').val(make_code("https://www.popvox.com", width, height, false));
+        if (widgettype == "bill_button") {
+            $('#code2').show()
+            $('#code2').val(make_code2("https://www.popvox.com", width, 21, false));
+            $('#preview2').show();
+        } else {
+            $('#code2').hide()
+            $('#preview2').hide();
+        }
+    {% else %} /* not logged in */
+        if (widgettype == "bill_button") {
+            $('#codetext').html('Copy and paste the following HTML code into your website:');
+            $('#code').show()
+            $('#code').val(make_code("https://www.popvox.com", width, height, false));
+            $('#code2').show()
+            $('#code2').val(make_code2("https://www.popvox.com", width, 21, false));
+            $('#preview2').show();
+            $('#must_login_to_customize').hide();
+        } else {
+            $('#code2').hide()
+            $('#preview2').hide();
+            if (widgettype == "minimap" || widgettype == "popvox_button") { /* no API key needed */
+                $('#code').show();
+                $('#codetext').html('Copy and paste the following HTML code into your website:');
+                $('#code').val(make_code("https://www.popvox.com", width, height, false));
+                $('#must_login_to_customize').hide();
+            } else { /* API key needed */
+                $('#codetext').html('Please <a href="https://www.popvox.com/accounts/login?next=/services/widgets">login</a> or <a href="https://www.popvox.com/accounts/register?next=/services/widgets">register</a> to embed this on your site.');
+                $('#code').hide();
+                $('#must_login_to_customize').show();
 
-    $('#code').val(make_code("https://www.popvox.com", width, height, false));
-    if (widgettype == "bill_button") {
-        $('#code2').show()
-        $('#code2').val(make_code2("https://www.popvox.com", width, 21, false));
-        $('#preview2').show();
-    } else {
-        $('#code2').hide()
-        $('#preview2').hide();
-    }
+            }
+        }
+    {% endif %}
+
 
     fb_code = make_code("https://www.popvox.com", "520", height, false);
     
@@ -703,6 +764,9 @@ var minicolors_opts = {
 };
 </script>
 {% endblock %}
+{% block subnav %}
+    {% include "popvox/services_subnav.html" %}
+{% endblock %}
 {% block content %}
 <div class="content widgetizer">
 
@@ -727,6 +791,7 @@ var minicolors_opts = {
         <li><a href="#commentstream"><span>Comment Stream</span></a></li>
         <li><a href="#bill_button"><span>Link to a Bill</span></a></li>
         <li><a href="#popvox_button"><span>Link to POPVOX</span></a></li>
+        <li><a href="#minimap"><span>Opinion Map</span></a></li>
         
         <li><a href="#integration"><span>Facebook</span></a></li>
     </ul>
@@ -809,14 +874,14 @@ var minicolors_opts = {
         </div>
     </div><!-- e:splash -->
 
-    <div class="tab_writecongress tab_commentstream tab_bill_button tab_popvox_button">
+    <div class="tab_writecongress tab_commentstream tab_bill_button tab_popvox_button tab_minimap">
     <div class="config_pane">
         <p id="widget_description"></p>
     
         {% comment %}when the user isn't logged in with a service account, then don't show
         the form because the user will lose his customization when he logs in, but keep the
         form elements because they are needed to generate the preview iframe URL{% endcomment %}
-        <form class="form" {% if accounts|length == 0 %}style="display: none"{% endif %}>
+        <form class="form" >
         
             <div class="block2 widget_opts commentstream_opts">
             
@@ -856,11 +921,13 @@ var minicolors_opts = {
             </div><!-- e: block -->    
             
             <div class="block2 widget_opts writecongress_opts">
+                {% if accounts|length > 0 %}
                 <div class="vert" id="writecongress_bill_1">
                     <label>Choose your position and bill</label>
                     <select id="writecongress_bill_position" size="1" style="width: 400px"></select>
                     <small>You may choose from the bills endorsed or opposed in your legislative agenda which are pending Congressional action<!-- or await reintroduction-->.</small>
                 </div>
+                {% endif %}
                 
                 <div class="vert" id="writecongress_bill_2">
                     <label for="writecongress_bill">Choose your position and bill</label>
@@ -883,6 +950,16 @@ var minicolors_opts = {
                 <div class="clear"> </div>
                                         
                 <div id="billbutton_bill_error" class="error"> </div>
+            </div><!-- e: block -->
+            
+            <div class="block2 widget_opts minimap_opts">
+                <div class="vert">
+                    <label for="minimap_bill">Choose a bill</label>
+                    <input id="minimap_bill" type="text" value="S. 724" style="width: 8em"/>
+                </div>
+                <div class="clear"> </div>
+                                        
+                <div id="minimap_bill_error" class="error"> </div>
             </div><!-- e: block -->
             
             <div class="block3 widget_opts commentstream_opts writecongress_opts">
@@ -912,7 +989,7 @@ var minicolors_opts = {
             </div><!-- e: block2 -->
             
             <div class="widget_opts writecongress_opts commentstream_opts">
-            <div class="plus">
+            <div class="plus" {% if accounts|length == 0 %}style="display: none"{% endif %}>
                 <h4>Pro Options</h4>
                 <div class="clear"> </div>
                 
@@ -1035,6 +1112,7 @@ var minicolors_opts = {
         
             </div>
             </div>
+
         </form><!-- e: form -->
         
         {% if accounts|length == 0 %}
@@ -1076,18 +1154,17 @@ var minicolors_opts = {
         <!--<a class="b_copy_code btn" href="#">Copy Code</a>-->
         <h3 class="no_rule">Sample</h3>
 
-        {% if accounts|length > 0 %}
+
         <div>
-            <p>Copy and paste the following HTML code into your website:</p>
+            <p id="codetext">Copy and paste the following HTML code into your website:</p>
             <textarea id="code" rows="4" style="width: 230px; margin-bottom: 15px; padding: 5px;"> </textarea>
 
         </div>
-        
+        {% if accounts|length > 0 %}
         <div id="fb_page">
             <p><b>Facebook Page:</b> <a href="#" onclick="return set_fb_page_code()">Publish</a> <span style="display: none">Saving...</span></p>
         </div>
         {% endif %}
-        
 
         <div id="preview">
         </div>

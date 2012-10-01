@@ -1,5 +1,9 @@
-import popvox.objects as pv
+#!runscript
+
+import popvox.models as pv
 import unicodedata
+
+users = pv.UserProfile.objects.all()
 with open("/tmp/userdata.csv",'w') as f:
     for userobj in users:
         datastr = unicodedata.normalize('NFKD',userobj.user.username).encode('ascii','ignore')+", "+ str(userobj.user.email)+", "+str(userobj.user.date_joined)
@@ -16,5 +20,6 @@ with open("/tmp/userdata.csv",'w') as f:
                 billnumber = bill.billnumber
                 billnum = billtype+"-"+str(billnumber)
                 commentdate = comment.created
-                datastr += ", "+billnum+", "+str(commentdate)
+                position = comment.position
+                datastr += ", "+billnum+", "+str(position)+", "+str(commentdate)
         f.write(datastr+"\n")

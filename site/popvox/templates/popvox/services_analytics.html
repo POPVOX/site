@@ -335,6 +335,10 @@ background: url(/media/widget/next.png) no-repeat;
 cursor: pointer;
 }
 
+#supporters_grid_processing {
+height:30px;
+}
+
 
 #supporters_grid_previous.paginate_disabled_previous {
 background: none;
@@ -403,6 +407,9 @@ function draw_timeseries(container, data, small) {
 
 }
 </script>
+{% endblock %}
+{% block subnav %}
+    {% include "popvox/services_subnav.html" %}
 {% endblock %}
 {% block content %}
 <div class="content">
@@ -728,6 +735,7 @@ function draw_timeseries(container, data, small) {
 			<th>First Name</th>
 			<th>Last Name</th>
 			<th>ZIP Code</th>
+            <th>Optional</th>
 		</thead>
 		<tbody>
 		</tbody>
@@ -809,11 +817,12 @@ function draw_timeseries(container, data, small) {
 			"sScrollX": "100%",
 			"aoColumns": [
 				{ "sWidth": "50px" },
-				{ "sWidth": "130px", "fnRender": function (cell) { return cell.aData[1].substr(0, 16); } },
-				{ "sWidth": "200px" },
+				{ "sWidth": "100px", "fnRender": function (cell) { return cell.aData[1].substr(0, 16); } },
+				{ "sWidth": "120px" },
 				{ "sWidth": "110px" },
 				{ "sWidth": "130px" },
-				{ "sWidth": "100px" }
+				{ "sWidth": "100px" },
+                { "sWidth": "100px" }
 				]
 		} );
 		

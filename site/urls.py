@@ -22,12 +22,13 @@ sitemaps = {
 urlpatterns = patterns('',
 	(r'site-down', 'popvox.views.main.sitedown'),
 	
-	(r'sitemap\.xml', 'django.contrib.sitemaps.views.sitemap', {'sitemaps':sitemaps}),
+	(r'sitemap\.xml', 'django.contrib.sitemaps.views.index', {'sitemaps':sitemaps}),
+	(r'^sitemap-(?P<section>.+)\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
 	
 	(r'ajax/master-state', 'popvox.views.main.master_state'),
 	(r'ajax/get-short-url', 'popvox.views.main.get_short_url'),
 	
-	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|about/testimonials|advertising|faq|blog_template|features/opendataday2011)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
+	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|about/testimonials|advertising|faq|blog_template|features/opendataday2011|testing)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	(r'^press$', 'popvox.views.main.press_page'),
 	(r'^legal$', 'popvox.views.main.legal_page'),
 	(r'^testing$', 'popvox.views.home.testing'),
@@ -54,6 +55,10 @@ urlpatterns = patterns('',
 	
 	(r'^activity$', 'popvox.views.home.activity'),
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),
+	(r'^newbills$', 'popvox.views.home.new_bills',{'NumDays':7}),
+	(r'^newbills/$', 'popvox.views.home.new_bills',{'NumDays':7}),
+	(r'^newbills/(?P<NumDays>[1-9]|1[0-9]|2[0-9]|30)$', 'popvox.views.home.new_bills'),
+	
 	
 	# internal pages
 	(r'^waiting-for-reintroduction$', 'popvox.views.home.waiting_for_reintroduction'),
@@ -90,6 +95,9 @@ urlpatterns = patterns('',
 	(r'^bills/search$', "popvox.views.bills.billsearch"),
 	(r'^ajax/bills/search$', "popvox.views.bills.billsearch_ajax"),
 	(r'^ajax/bills/recommend_from_text$', "popvox.views.home.recommend_from_text"),
+	
+	(r'^ajax/bills/by-sponsor$', "popvox.views.home.getsponsoredbills"),
+	(r'^ajax/bills/by-cosponsor$', "popvox.views.home.getcosponsoredbills"),
 	
 	(r'^ajax/issues/chooser_list$', "popvox.views.bills.issuearea_chooser_list"),
 	

@@ -482,7 +482,10 @@ Notes:
 						useraddress_city: $("#useraddress_city").val(),
 						useraddress_state: identity.state,
 						useraddress_zipcode: identity.zipcode,
-						useraddress_phonenumber: $("#useraddress_phonenumber").val()
+                        {% if tagvals %}
+						useraddress_tag: $("#useraddress_tag").val(),
+                        {% endif %}
+                        useraddress_phonenumber: $("#useraddress_phonenumber").val()
 					},
 					type: "POST",
 					dataType: "json",
@@ -573,6 +576,9 @@ Notes:
 						useraddress_state: identity.state,
 						useraddress_zipcode: identity.zipcode,
 						useraddress_phonenumber: $("#useraddress_phonenumber").val(),
+                        {% if tagvals %}
+						useraddress_tag: $("#useraddress_tag").val(),
+                        {% endif %}
 						message: !$('#message').hasClass("default") ? $('#message').val() : "",
 						cdyne_response: cdyne_response
 					},
@@ -822,13 +828,23 @@ Notes:
 								<label for="useraddress_phonenumber">Phone Number</label>
 								<input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/><br />
 								<small class="mrg_top_0">We only use your phone number when required on a Congressional message submission form.</small>
+								{% if tagvals %}
+								<label for="useraddress_tag">{{ taglabel }}</label>
+								<select class="c2" id="useraddress_tag" type="text" value="" maxlength="18">
+									{% for tagval in tagvals %}
+									<option value="{{tagval}}">{{tagval}}</option>
+									{% endfor %}
+									{% endif %}
+								</select>
 								
 								<p class="clear error"> </p>
 						</form>
 						
 						<input value="next" class="btn next" onclick="return do_address();" type="button">
 						
+						{% if not tagvals %}
 						<p class="clear optional">We ask for only as much information as Congressional offices have told us they require.</p>
+						{% endif %}
 					</div>
 							
 					<div id="panel_write" class="widget_panel" style="display: none">

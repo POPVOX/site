@@ -28,12 +28,12 @@ SITE_ROOT_URL = "http://www.popvox.com" # doubles as openid2 authentication real
 SITE_SHORT_ROOT_URL = "http://pvox.co"
 
 APP_NICE_SHORT_NAME = "POPVOX"
-EMAIL_SUBJECT_PREFIX = "[POPVOX] "
+EMAIL_SUBJECT_PREFIX = ""
 
 EMAILVERIFICATION_FROMADDR = "POPVOX <info@popvox.com>"
 SERVER_EMAIL = "POPVOX <no.reply@popvox.com>"
-ADMINS = [ ('Josh', 'josh@popvox.com'), ('Annalee', 'annalee@popvox.com') ]
-MANAGERS = [ ('POPVOX Team', 'info@popvox.com') ]
+ADMINS = [ ('Mackenzie', 'mackenzie@popvox.com'), ('Annalee', 'annalee@popvox.com') ]
+MANAGERS = [ ('POPVOX Team', 'feedback@popvox.com') ]
 
 if not "LOCAL" in os.environ:
 	DATADIR = os.path.dirname(__file__) + "/data/"

@@ -378,7 +378,8 @@ class bill_metadata(BillHandler):
 
 @api_handler
 class bill_positions(BaseHandler):
-    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created']
+    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created', 'documents', 'updated']
+    positiondocument_deferred_text_fields = ['id', 'title', 'created', 'pdf_url']
     org_fields = ["id", "name", "link"]
     url_pattern_args = [("000", "BILL_ID")]
     url_example_args = (14113,)
@@ -394,6 +395,8 @@ class bill_positions(BaseHandler):
         ('position', 'the position of the organization on the bill, one of + for endorse, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
+        ('documents', 'a list of organization documents uploaded to accompany their position on the bill, plain text format; optional'),
+        ('updated', 'the date and time when the position record was last modified on POPVOX'),
         )
     allow_public_api_key = True
     
@@ -431,7 +434,7 @@ class org_positions(BillHandler):
         ('organization/name', 'the display name for the organization'),
         ('organization/link', 'a link to the primary page on POPVOX for the organization'),
         ('position', 'the position of the organization on the bill, one of + for endorse, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
-        ('documents', 'foo'),
+        ('documents', 'a list of documents that the organization has uploaded to accompany their position on the bill, plain text format; optional'),
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
         ('updated', 'the date and time when the position record was last modified on POPVOX'),
@@ -474,7 +477,7 @@ class DocumentHandler(BaseHandler):
 
 @api_handler
 class bill_documents(DocumentHandler):
-    positiondocument_fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats', 'pdf_url']
+    positiondocument_fields = ['id', 'title', 'created', 'doctype', 'pages', 'formats', 'pdf_url', 'link']
     url_pattern_args = [("000", "BILL_ID")]
     url_example_args = (16412,)
     qs_args = (('type', 'The document type. See the document metadata API method for type numbers.', '100'),)
@@ -493,7 +496,7 @@ class bill_documents(DocumentHandler):
 @api_handler
 class document_metadata(DocumentHandler):
     bill_fields = ["id", "title", "link"]
-    positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pdf_url', 'pages', 'formats', 'toc']
+    positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pdf_url', 'link', 'pages', 'formats', 'toc']
     url_pattern_args = [("000", "DOCUMENT_ID")]
     url_example_args = (248,)
     description = "Returns metadata about a document."
@@ -504,6 +507,7 @@ class document_metadata(DocumentHandler):
         ('created', 'for position documents, this is the date the document was uploaded. for bill text, this is the date the bill text was published.'),
         ('doctype', 'the type of the document: ' + ", ".join(str(kv[0]) + ": " + kv[1] for kv in PositionDocument.DOCTYPES)),
         ('pdf_url', 'the URL from which a PDF file can be downloaded of the whole document, probably not residing on popvox.com; may be null'),
+        ('link', 'a link to the document\'s page on popvox.com; bill text documents link to the bill'),
         ('pages', 'the number of pages in the document, zero if the page content is not available'),
         ('formats', 'the formats available for page content'),
         ('toc', 'an auto-generated table of contents for the document, available for bill text documents only and this field is only returned in the document metadata API method. a flat list of TOC entries.'),

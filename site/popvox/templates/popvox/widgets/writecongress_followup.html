@@ -17,10 +17,10 @@
 			<input type="text" class="c3" id="email" name="email" value="{{user.email}}" disabled="1"/>
 			<small>Your email address will not be shown publicly or shared with third parties.</small>
 			
-			<label for="password">password</label>
+			<label for="password">create a password</label>
 			<input type="password" class="c3" id="password"/><br />
 
-			<label for="password2">password again</label>
+			<label for="password2">retype your new password</label>
 			<input type="password" class="c3" id="password2"/><br />
 			<div id="errorlabel_password" class="error"> </div>
 
@@ -28,10 +28,13 @@
 			<input type="text" size="20" id="username" class="username" name="username" value="{{user.username}}"/>
 			<small class="pad_btm_20">Other POPVOX users will know you by your screen name.</small>
 			<div id="errorlabel_username" class="error"> </div>
+
+            <label class="updates" for="allow_mass_mails"></label>
+            <input id="allow_mass_mails" type="checkbox" name="allow_mass_mails" value="1" checked="checked"/> Send me updates on legislation in Congress
 			
 			<p id="errorlabel" class="error" style="display: block">{{error}}</p>
 			
-			<input class="submit b_do_later" type="button" value="I'll do this later" onclick="$.colorbox.close();"/>
+			<input class="submit b_do_later" type="button" value="I'll do this later" onclick="return do_submit_mass_mails();"/>
 			<input class="submit b_continue" id="submitbutton" type="submit" value="Continue"/>
 			
 		</form>
@@ -40,6 +43,24 @@
 		
 <script>
 $('#username, #password, #password2').keyup_delayed(function() { do_submit(true) });
+
+function do_submit_mass_mails(validate) {
+ajaxform("/ajax/accounts/profile/updatefields",
+        { "validate": false },
+        {
+            "allow_mass_mails": "#allow_mass_mails",
+        },
+        {
+            success: function(res) {
+                if (!validate)
+                    $.colorbox.close();
+            }
+        }
+        );
+
+    return false; 
+}
+  
 
 function do_submit_screename_password(validate) {
 	if ($('#password').val() != $('#password2').val() && (!validate || $('#password2').val() != "")) {
@@ -53,6 +74,7 @@ function do_submit_screename_password(validate) {
 		{
 			"username": "#username",
 			"password": "#password",
+            "allow_mass_mails": "#allow_mass_mails",
 		},
 		{
 			statusfield: "errorlabel",

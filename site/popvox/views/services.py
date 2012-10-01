@@ -33,17 +33,20 @@ from base64 import urlsafe_b64decode
 import hashlib, hmac
 
 @csrf_protect_if_logged_in
-@login_required
+#@login_required
 def widget_config(request):
     # Collect all of the ServiceAccounts that the user has access to.
     
     from settings import MIXPANEL_TOKEN, MIXPANEL_API_KEY
     
     user = request.user
-    prof = user.get_profile()
-    franking = "false"
-    if prof.is_leg_staff():
-        franking = "true"
+    try:
+        prof = user.get_profile()
+        franking = "false"
+        if prof.is_leg_staff():
+            franking = "true"
+    except:
+        franking = "false"
     
     return render_to_response('popvox/services_widget_config.html', {
         'accounts': request.user.userprofile.service_accounts(create=True) if request.user.is_authenticated() else [],
@@ -313,6 +316,9 @@ def widget_render_writecongress_page(request, account, permissions):
             "+": ["support", "These bills also need your support", []],
             "-": ["oppose", "These bills also need your opposition", []],
             "0": ["neutral", "You may be interested in weighing in on these bills", []] }
+
+        tagvals = None
+        taglabel = None
         if org == None:
             # compute by bill similarity
             other_bills = [bs for bs in
@@ -327,6 +333,15 @@ def widget_render_writecongress_page(request, account, permissions):
                     suggestions[p.position][2].append(p.bill)
             if len(suggestions["+"][2]) + len(suggestions["-"][2]) >= 2:
                 suggestions["0"] = []
+
+            # Check to see whether the org has any extra questions
+            usertags = UserTag.objects.filter(org=org).exclude(value="None").exclude(value="Other").order_by("value")
+            if usertags:
+                # Put "None" at the beginning and "Other" at the end
+                tagvals = [o.value for o in usertags]
+                tagvals.insert(0,'None')
+                tagvals.append('Other')
+                taglabel = usertags[0].label
         
         # Render.
         response = render_to_response('popvox/widgets/writecongress.html', {
@@ -344,6 +359,8 @@ def widget_render_writecongress_page(request, account, permissions):
             "useraddress_suffixes": PostalAddress.SUFFIXES,
 
             "franking": franking,
+            "taglabel": taglabel,
+            "tagvals": tagvals,
             
             "MIXPANEL_TOKEN": MIXPANEL_TOKEN,
             }, context_instance=RequestContext(request))
@@ -550,6 +567,21 @@ def widget_render_writecongress_action(request, account, permissions):
                 zipcode = request.POST["useraddress_zipcode"],
                 completed_stage = "address",
                 request_dump = meta_log(request.META) )
+            campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
+            saccount = campaign.account
+            try:
+                myorg = Org.objects.get(id=saccount.org_id)
+                usertags = UserTag.objects.filter(org=myorg).exclude(value="None").exclude(value="Other").order_by("value")
+                if usertags:
+                    rec = ServiceAccountCampaignActionRecord.objects.get(campaign=request.POST["campaign"],
+                        firstname=request.POST["useraddress_firstname"],
+                        lastname = request.POST["useraddress_lastname"],
+                        zipcode = request.POST["useraddress_zipcode"])
+                    usertag = UserTag.objects.get(value=request.POST["useraddress_tag"])
+                    rec.usertags.add(usertag)
+            except:
+                pass
+                
 
         user = User()
         user.email = request.POST["email"]
@@ -959,7 +991,7 @@ def download_supporters(request, campaignid, dataformat):
     else:
         campaign = get_object_or_404(ServiceAccountCampaign, id=campaignid)
     
-    column_names = ['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode']
+    column_names = ['trackingid', 'date', 'email', 'firstname', 'lastname', 'zipcode', 'optional']
     column_keys = ['id', 'created', 'email', 'firstname', 'lastname', 'zipcode']
     
     import csv, json
@@ -985,8 +1017,19 @@ def download_supporters(request, campaignid, dataformat):
         writer = csv.writer(response)
         writer.writerow(column_names)
     
+    acc = campaign.account
+    myorg = acc.org
+    has_usertags = UserTag.objects.filter(org=myorg).exclude(value="None").exclude(value="Other").order_by("value")
     for rec in recs:
         row = [unicode(getattr(rec, k)).encode("utf-8") for k in column_keys]
+        if has_usertags:
+            rec_has_usertags = rec.usertags.all()
+            if rec_has_usertags:
+                row.append(rec.usertags.all()[0].value)
+            else:
+                row.append("")
+        else:
+            row.append("")
         if dataformat == "csv":
             writer.writerow(row)
         if dataformat == "json":

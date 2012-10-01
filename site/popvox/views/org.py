@@ -219,7 +219,6 @@ def org_update_fields(request, field, value, validate_only):
                 raise ValueError("That is not a Twitter name.")
     elif field == "gplusurl":
         if value == "":
-            print "value is blank"
             if not validate_only and org.gplusurl != None:
                 org.gplusurl = None
                 org.save()
@@ -229,16 +228,13 @@ def org_update_fields(request, field, value, validate_only):
                     pass
             return { "status": "success", "value": value }
         else:
-            print "value is not blank"
             from urllib2 import urlopen
             try:
                 urlopen(value)
                 org.gplusurl = value
                 org.save()
-                print "saved shit"
                 return { "status": "success", "value": value }
             except urllib2.HTTPError:
-                print "got an exception"
                 raise ValueError("That is not a valid Google+ account.")
 
     elif field == "facebookurl":
