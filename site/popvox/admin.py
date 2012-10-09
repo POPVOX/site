@@ -104,9 +104,14 @@ class SlateAdmin(admin.ModelAdmin):
     raw_id_fields = ["org"]
     list_display = ("name", "org")
     search_fields = ["name", "org"]
-    fields = ("name", "org", "description","bills_support", "bills_oppose")
+    fields = ("name", "org", "description","bills_support", "bills_oppose", "slug")
     filter_horizontal = ("bills_support", "bills_oppose",)
     form = SlateBillForm
+    
+class SlateCommentAdmin(admin.ModelAdmin):
+    raw_id_fields = ["slate"]
+    list_display = ("slate", "bill")
+    fields = ("slate", "bill", "comment", "slug")
 
 class BillRecommendationAdmin(admin.ModelAdmin):
 	search_fields = ["name"]
@@ -146,6 +151,7 @@ admin.site.register(ServiceAccountCampaignActionRecord, ServiceAccountCampaignAc
 admin.site.register(BillRecommendation, BillRecommendationAdmin)
 admin.site.register(MemberBio, MemberBioAdmin)
 admin.site.register(UserTag, UserTagAdmin)
+admin.site.register(SlateComment, SlateCommentAdmin)
 
 class RawTextAdmin(admin.ModelAdmin):
 	actions = ['view_html', 'make_short_urls', 'report_short_urls']
