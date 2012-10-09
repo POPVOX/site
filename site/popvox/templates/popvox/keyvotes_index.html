@@ -1,0 +1,36 @@
+{% extends "master.html" %}
+{% block title %}POPVOX - Key Votes{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}Choose an Organization's Key Votes to see how your Members of Congress line up with Organizations you trust.{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block head %}
+<link rel="stylesheet" href="/media/css/datatables/popvox_table.css" type="text/css"/>
+{% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{% block content %}
+
+<div class="content myhill">
+
+    <div class="col_9 col_top col_last ">
+        <h1>Key Votes</h1>
+        <table id="slate_table">
+        <thead>
+            <tr><th>Organization</th><th>Key Vote Slate</th></tr>
+        </thead>
+        <tbody>
+        {% for slate in slates %}
+            <tr> <td><a href="/orgs/{{slate.org.slug}}">{{ slate.org }}</a></td>  <td><a href="/keyvotes/{{slate.org.slug}}/{{slate.slug}}">{{slate.name }}</a></td> </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+    
+</div>
+<script type="text/javascript" src="/media/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready(function() {
+          $slate_table = $('#slate_table').dataTable();
+    });
+</script>
+{% endblock %}
+
