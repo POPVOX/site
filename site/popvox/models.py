@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.template.defaultfilters import truncatewords
+from django.template.defaultfilters import slugify
 
 import sys
 import os, os.path
@@ -1999,6 +2000,36 @@ class Slate(models.Model):
     bills_support = models.ManyToManyField(Bill, blank=True, related_name="slates_support")
     bills_oppose  = models.ManyToManyField(Bill, blank=True, related_name="slates_oppose")
     org           = models.ForeignKey(Org, related_name="slates")
+    slug          = models.SlugField()
+    
+    def set_default_slug(self):
+        import string
+        
+        self.slug = slugify(self.name)
+        if self.slug != "" and not Slate.objects.filter(slug=self.slug).exists():
+            return
+        else:
+            suffix = ""
+            while True:
+                slates = Slate.objects.filter(slug = self.slug + str(suffix))
+                if len(slates) == 0:
+                    self.slug = self.slug + str(suffix)
+                    break # found a good one
+                if suffix == "":
+                    suffix = 0
+                suffix += 1
+    
+    def __str__(self):
+        return self.name
+
+class SlateComment(models.Model):
+    slate   = models.ForeignKey(Slate, related_name="comments")
+    bill    = models.ForeignKey(Bill, blank=True, related_name="slate_comments")
+    comment = models.TextField(blank=True, null=True)
+    slug    = models.SlugField(primary_key=True)
+    
+    def set_default_slug(self):
+        self.slug = slate.id+'-'+bill.id
     
 class Roll(models.Model):
     number = models.CharField(max_length=20, primary_key=True)
