@@ -110,13 +110,13 @@ def congress_match(request):
     for member in members:
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
-
-    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
+        
+    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain, 'type':"match"},
         context_instance=RequestContext(request))
 
 
 def key_votes(request, orgslug=None, slateslug=None):
-    
+
     leadership = False
     #if user is logged out, leg staff, org staff, or has no address, set  memberids to current leadership.
     if request.user:
@@ -176,7 +176,7 @@ def key_votes(request, orgslug=None, slateslug=None):
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
 
-    return render_to_response('popvox/keyvotes.html', {'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership},
+    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes"},
         context_instance=RequestContext(request))
         
 def keyvotes_index(request):
@@ -241,7 +241,7 @@ class SlateLimitForm(SlateForm):
         widget_oppose.choices = bill_choices
         
 
-       
+@login_required       
 def keyvotes_create(request):
     user = request.user
     prof = user.get_profile()
@@ -249,15 +249,13 @@ def keyvotes_create(request):
         raise Http404
         
     if request.method == 'POST':
-        print "post"
         form = SlateForm(request.POST)
         if form.is_valid():
-            print "valid"
             myslate = form.save(commit=False)
             myslate.set_default_slug()
             myslate.save() 
             form.save_m2m()
-            #return redirect("http://google.com")
+            return redirect("/keyvotes/"+myslate.org.slug+"/"+myslate.slug)
     else:
         kwargs = {}
         kwargs['request'] = request
