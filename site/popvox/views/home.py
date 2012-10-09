@@ -9,6 +9,7 @@ from django.db.models import Count, Max
 from django.db.models.query import QuerySet
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from popvox.views.main import strong_cache
+from django.template.defaultfilters import slugify
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html
 import json
@@ -1001,79 +1002,6 @@ UA: %s
         "new_messages": len(msgs),
         "delivered_message_dates": delivered_message_dates,
         }, context_instance=RequestContext(request))
-
-@login_required
-def who_members(request): #this page doesn't exist, but we could do some cool stuff with it.
-    user = request.user
-    prof = user.get_profile()
-        
-    if prof.is_leg_staff():
-        raise Http404()
-        
-    elif prof.is_org_admin():
-        raise Http404()
-    
-    else:
-      address = PostalAddress.objects.get(user=request.user.id)
-      userstate = address.state
-      userdist  = address.congressionaldistrict
-      usersd    = userstate+str(userdist)
-
-      #find the govtrack ids corresponding to the user's members (note: can't assume number of reps):
-      members = popvox.govtrack.getMembersOfCongressForDistrict(usersd)
-      membernames = []
-
-      for member in members:
-        membernames.append(member['name'])
-      return render_to_response('popvox/who_members.html', {'membernames': membernames},
-        
-    context_instance=RequestContext(request))
-        
-_congress_match_attendance_data = None
-@login_required
-def congress_match(request):
-    user = request.user
-    
-    def getmemberids(address):
-        #select the user's state and district:
-        userstate = address.state
-        userdist  = address.congressionaldistrict
-        usersd    = userstate+str(userdist)
-        
-        #find the govtrack ids corresponding to the user's members (note: can't assume number of reps):
-        members = popvox.govtrack.getMembersOfCongressForDistrict(usersd)
-        memberids = []
-        
-        for member in members:
-            memberids.append(member['id'])
-        return memberids
-    
-    try:
-        most_recent_address = PostalAddress.objects.filter(user=user).order_by('-created')[0]
-    except IndexError:
-        # user has no address! therefore no comments either!
-        return render_to_response('popvox/home_match.html', {'billvotes': [], 'members': []},
-            context_instance=RequestContext(request))
-            
-    memberids = getmemberids(most_recent_address)
-    
-    membermatch = popvox.match.membermatch(memberids, user)
-    
-    billvotes = membermatch[0]
-    stats = membermatch[1]
-    had_abstain = membermatch[2]
-    
-    # get member info for column header
-    members = []
-    for id in memberids:
-        members.append(popvox.govtrack.getMemberOfCongress(id))
-
-    for member in members:
-        url = [k for k, v in memurls.items() if member['id'] == v][0]
-        member['pvurl'] = url
-
-    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain},
-        context_instance=RequestContext(request))
         
 #function to get pro and con positions for bills, to pass in for pie charts:
 def GetSentiment(member, bills_list):
