@@ -26,10 +26,8 @@
 	
 	.user {
 		margin: 6px 0 0 240px;
-		width: 175px;
 		height: 90px;
 		background: #fff;
-		float: left;
 		}
 		
 		.user p {
@@ -43,9 +41,8 @@
 	.rep {
 		margin-top: 6px;
 		padding: 5px;
-		width: 165px;
 		height: 80px;
-		float: left;
+        vertical-align:top;
 		}
 		
 		.rep img {
@@ -67,7 +64,40 @@
 			margin: 10px 0;
 			text-transform: uppercase;
 			}
-			
+tr.memstats th {
+    background-color:#CC6A11;
+    color:#FFF;
+    vertical-align:middle;
+    height:107px;
+}
+
+tr.memstats th:first-child {
+    border-top-left-radius: 5px;
+    padding:10px;
+}
+tr.memstats th:last-child {
+    border-top-right-radius: 5px;
+}			
+tr.memstats h3 {
+    color: #fff;
+    text-transform: none;
+    font: normal 15px/20px helvetica, san-serif;
+    margin: 0 20px 0 20px;
+    padding: 20px 0 0;
+    float: left;
+}
+tr.memstats h3 span {
+    font: bold 15px helvetica;
+    margin-left: 0;
+}
+th.stathead {
+    background:url('/media/features/myhill/match_divider.png') left center no-repeat;
+
+}
+th.stathead ul {
+    margin-left:40px;
+}
+
 	p.small {
 		margin-top: 20px;
 		font-size: 12px;
@@ -80,65 +110,36 @@
 		background: url(/media/features/myhill/bg_overview.png) left center no-repeat;
 		}
 		
-	#overview h3 {
-		color: #fff;
-		text-transform: none;
-		font: normal 15px/20px helvetica, san-serif;
-		width: 225px;
-		margin: 0 20px 0 20px;
-		padding: 20px 0 0;
-		float: left;
-		}
-		
-		#overview h3 span {
-			font: bold 15px helvetica;
-			margin-left: 0;
-			}
-		
-		#overview ul {
-			width: 175px;
-			margin-top: 20px;
-			float: left;
-			}
 			
-			#overview ul.last {
-				width: 100px;
-				}
-			
-		#overview ul.rep_key {
-			float: left;
-			width: 220px;
-			}
-			
-			#overview ul li {
+			tr.memstats ul li {
 				padding-left: 22px;
 				line-height: 18px;
 				color: #fff;
 				}
 				
-				#overview ul li.voted {
+				tr.memstats ul li.voted {
 					background: url(/media/features/myhill/hill_icon_bill_sm.png) left center no-repeat;
 					}
 
-				#overview ul li.agreed {
+				tr.memstats ul li.agreed {
 					background: url(/media/features/myhill/hill_icon_smile_sm.png) left center no-repeat;
 					}
 
-				#overview ul li.disagreed {
+				tr.memstats ul li.disagreed {
 					background: url(/media/features/myhill/hill_icon_frown_sm.png) left center no-repeat;
 					}
 
-				#overview ul li.absent {
+				tr.memstats ul li.absent {
 					background: url(/media/features/myhill/hill_icon_boo_sm.png) left center no-repeat;
 					}
 
-				#overview ul li.abstained {
+				tr.memstats ul li.abstained {
 					background: url(/media/features/myhill/hill_icon_shush_sm.png) left center no-repeat;
 					}
 
 		.myhill table {
 			border-collapse: collapse;
-			margin: 0;
+			margin: 50px 0 0 0;
 			padding: 0;
 			}
 			
@@ -162,20 +163,35 @@
 					}
 
 			.myhill table td.user_col {
+                padding:10px;
 				background: #fff;
 				}	
+            .myhill table td.user_col img {
+                float:left;
+                margin-right: 5px;
+            }
+            .myhill table td.user_col.expandy {
+                height:150px;
+                overflow:auto;
+            }
+
 				
 				.myhill table td.user_col p {
 					font: bold 12px/15px helvetica, san-serif;
 					padding-left: 55px;
 					position: relative;
 					}
-					
+
 					.myhill table td.user_col p.comment {
 						text-transform: uppercase;
 						margin-top: 0px;
 						padding-top: 40px;
 						}
+                .myhill table td.user_col.expandy p.comment {
+                        text-transform: none;
+                        font-weight: normal;
+                       /* height:150px;*/
+                    }
 						
 					.myhill table td.user_col p span {
 						background: url(/media/features/myhill/hill_quote.png) left 1px no-repeat;
@@ -264,137 +280,187 @@
 <div class="content myhill">
 
 	<div class="col_9 col_top col_last ">
+        {% if type == "match" %}
 		<h1 class="rule_btm">Congress Match</h1>
-		
+        {% else %} {% comment %} type is keyvotes {% endcomment %}
+        <h1 class="rule_btm">{{org.name}} - {{slate.name}}</h1>
+        {% endif %}
+
+        {% if type == "match" %}
 		<h3>How Did Your Members of Congress Vote?</h3>
 		<p>Are your senators and representative voting the way you want them to? Here is a personalized grid that displays every bill on which you weighed in, along with how your legislators voted if a vote was held on the bill. That includes letting you know if your Member of Congress abstained or was absent.  </p>
+        {% else %} {% comment %} type is keyvotes {% endcomment %}
+        {{slate.description}}
+        {% endif %}
 	</div>
 	<div class="clear"> </div>
 
+    <table>
+        <thead>
+            <tr>
+                <th/>
+                <th class="user">
+                    {% if type == "match" %}
+                        {% if most_recent_address %}
+                            <p>{{most_recent_address.firstname}} {{most_recent_address.lastname}}</p>
+                        {% else %}
+                            <p>You</p>
+                        {% endif %}
+                    {% else %} {% comment %} type is keyvotes {% endcomment %}
+                        <p>{{org.name}}</p>
+                    {% endif %}
+                </th>
+                {% for member in members %}
+                    <th class="rep">
+                        <img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
+                        {% if member.pvurl %}
+                        <h3><a href="/member/{{member.pvurl}}">{{member.name}}</a></h3>
+                        {% else %}
+                        <h3>{{member.name}}</h3>
+                        {% endif %}
+                        <!--<h3>Rep. Chaka Fattah <span>[D, PA-2]</span></h3>-->
+                    </th>
+                {% empty %}
+                    <th class="rep">
+                        <h3>Your Representative</h3>
+                    </th>
+                    <th class="rep">
+                        <h3>Your Senator</h3>
+                    </th>
+                    <th class="rep">
+                        <h3>Your Senator</h3>
+                    </th>
+                {% endfor %}
+            </tr>
 
-	<div class="col_12 col_top hill_table">
-		<div class="user">
-			{% if most_recent_address %}
-				<p>{{most_recent_address.firstname}} {{most_recent_address.lastname}}</p>
-			{% else %}
-				<p>You</p>
-			{% endif %}
-		</div>
-		{% for member in members %}
-		<div class="rep">
-			<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
-            {% if member.pvurl %}
-			<h3><a href="/member/{{member.pvurl}}">{{member.name}}</a></h3>
-            {% else %}
-            <h3>{{member.name}}</h3>
-            {% endif %}
-			<!--<h3>Rep. Chaka Fattah <span>[D, PA-2]</span></h3>-->
-		</div>
-		{% empty %}
-			<div class="rep">
-				<h3>Your Representative</h3>
-			</div>
-			<div class="rep">
-				<h3>Your Senator</h3>
-			</div>
-			<div class="rep">
-				<h3>Your Senator</h3>
-			</div>
-		{% endfor %}
-		<div class="clear"> </div>
-		
-		<div id="overview">
-			<h3>You weighed in on <span>{{ billvotes|length }} bill{{ billvotes|pluralize }}</span>.
-			    Here&rsquo;s an overview of how your Members of Congress voted on those bills:</h3>
-			<ul class="rep_key">
-				<!--<li class="voted">Voted On</li>-->
-				<li class="agreed">Agreed with You</li>
-				<li class="disagreed">Disagreed with You</li>
-				<li class="absent">Absent</li>
-				{% if had_abstain %}<li class="abstained">Abstained</li>{% endif %}
-			</ul>
-			{% for memstats in stats %}
-			<ul {% if forloop.last %}class="last"{% endif %}>
-				<!--<li class="voted">3</li>-->
-				<li class="agreed">{{memstats.agree}} ({{memstats.agree_percent}}%)</li>
-				<li class="disagreed">{{memstats.disagree}} ({{memstats.disagree_percent}}%)</li>
-				<li class="absent">
-					{{memstats.0}} ({{memstats.0_percent}}%)
-					{% if memstats.attendance %}
-						<span style="cursor: pointer" title="overall missed votes is {{memstats.attendance.0}}%, {{memstats.attendance.1}}">*</span>
-					{% endif %}
-				</li>
-				{% if had_abstain %}<li class="abstained">{{memstats.P}} ({{memstats.P_percent}}%)</li>{% endif %}
-			</ul>
-			{% empty %}
-				<ul>
-					<!--<li class="voted">3</li>-->
-					<li class="agreed">...</li>
-					<li class="disagreed">...</li>
-					<li class="absent">...</li>
-				</ul>
-				<ul>
-					<!--<li class="voted">3</li>-->
-					<li class="agreed">...</li>
-					<li class="disagreed">...</li>
-					<li class="absent">...</li>
-				</ul>
-				<ul class="last">
-					<!--<li class="voted">3</li>-->
-					<li class="agreed">...</li>
-					<li class="disagreed">...</li>
-					<li class="absent">...</li>
-				</ul>
-			{% endfor %}
-			<div class="clear"> </div>
-		</div>
+            <tr class="memstats">
+                <th>
+                    {% if type == "match" %}
+                    <h3>You weighed in on <span>{{ billvotes|length }} bill{{ billvotes|pluralize }}</span>.
+                        Here&rsquo;s an overview of how your Members of Congress voted on those bills:</h3>
+                    {% else %} {% comment %} type is keyvotes {% endcomment %}
+                    <h3>{{org.name}} weighed in on <spam>{{ billvotes|length }}</span> bills.</h3>
+                    {% endif %}
+                </th>
+                <th>
+                    <ul class="rep_key">
+                        <!--<li class="voted">Voted On</li>-->
+                        <li class="agreed">Agreed with You</li>
+                        <li class="disagreed">Disagreed with You</li>
+                        <li class="absent">Absent</li>
+                        {% if had_abstain %}<li class="abstained">Abstained</li>{% endif %}
+                    </ul>
+                </th>
+                
+                {% for memstats in stats %}
+                <th class="stathead">
+                    <ul>
+                        <!--<li class="voted">3</li>-->
+                        <li class="agreed">{{memstats.agree}} ({{memstats.agree_percent}}%)</li>
+                        <li class="disagreed">{{memstats.disagree}} ({{memstats.disagree_percent}}%)</li>
+                        <li class="absent">
+                            {{memstats.0}} ({{memstats.0_percent}}%)
+                            {% if memstats.attendance %}
+                                {% if leadership and forloop.first %}
+                                <span style="cursor: pointer" title="Under House rules, the Speaker of the House is not required to vote except to break a tie">*</span><!-- http://www.rules.house.gov/singlepages.aspx?NewsID=160&rsbd=165 Discretion to vote
 
-		<table>
-			{% for comment, votes in billvotes %}
-			<tr>
-				<td class="name">
-					<h3><a href="{{comment.bill.url}}">{{comment.bill.title|truncatewords:13}}</a></h3>
-					<p><strong>Status:</strong> {{comment.bill.status_advanced}}</p>
-				</td>
-				<td class="user_col">
-					<p class="{% if comment.position == "+" %}heart{% else %}anti{% endif %} {% if not comment.message %}comment{% endif %}">
-					{% if not comment.message %}
-						<a href="{{comment.bill.url}}/comment">Add Comment</a>
-					{% else %}
-						<span></span>
-						{{comment.message|truncatewords:7}} <a href="{{comment.url}}">more</a>
-					{% endif %}
-					</p>
-				</td>
-				{% if votes or not members %}
-					{% for vote, reference in votes %}
-					<td {% if vote == comment.position %}class="agree"{% endif %}>
-						{% if vote == "+" %}<p class="yea">Yea</p>{% endif %}
-						{% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
-						{% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
-						{% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
-						{% if vote == "NR" %}{% endif %}
-						<!--{{reference}}-->
-					</td>
-					{% endfor %}
-				{% else %}
-					<td colspan="{{members|length}}" class="novote">
-						<p>This {{comment.bill.proposition_type}} has not come up for a recorded vote.</p>
-					</td>
-				{% endif %}
-			</tr>
-			{% empty %}
-				<tr>
-					<td class="name">
-					</td>
-					<td class="user_col">
-						<p>You have not weighed in on any bills in Congress. Go <a href="/bills">find a bill</a> to get started.</p>
-					</td>
-					<td> </td>
-					<td> </td>
-					<td> </td>
-				</tr>
-			{% endfor %}
+7. The Speaker is not required to vote in ordinary legislative proceedings, except when such vote would be decisive or when the House is engaged in voting by ballot. -->
+                                {% else %}
+                                <span style="cursor: pointer" title="overall missed votes is {{memstats.attendance.0}}%, {{memstats.attendance.1}}">*</span>
+                                {% endif %}
+
+                            {% endif %}
+                        </li>
+                        {% if had_abstain %}<li class="abstained">{{memstats.P}} ({{memstats.P_percent}}%)</li>{% endif %}
+                    </ul>
+                </th>
+                {% empty %}
+                <th class="stathead">
+                    <ul>
+                        <!--<li class="voted">3</li>-->
+                        <li class="agreed">...</li>
+                        <li class="disagreed">...</li>
+                        <li class="absent">...</li>
+                    </ul>
+                </th>
+                <th class="stathead">
+                    <ul>
+                        <!--<li class="voted">3</li>-->
+                        <li class="agreed">...</li>
+                        <li class="disagreed">...</li>
+                        <li class="absent">...</li>
+                    </ul>
+                </th>
+                <th class="stathead">
+                    <ul class="last">
+                        <!--<li class="voted">3</li>-->
+                        <li class="agreed">...</li>
+                        <li class="disagreed">...</li>
+                        <li class="absent">...</li>
+                    </ul>
+                {% endfor %}
+                </th>
+            <tr>
+        </thead>
+            {% for comment, votes in billvotes %}
+
+                <tr>
+                    <td class="name">
+                        {% if type == "match" %}
+                        <h3><a href="{{comment.bill.url}}">{{comment.bill.title|truncatewords:13}}</a></h3>
+                        <p><strong>Status:</strong> {{comment.bill.status_advanced}}</p>
+                        {% else %} {% comment %} type is keyvotes {% endcomment %}
+                        <h3><a href="{{comment.0.url}}">{{comment.0.title|truncatewords:13}}</a></h3>
+                        <p><strong>Status:</strong> {{comment.0.status_advanced}}</p>
+                        {% endif %}
+                    </td>
+                    <td class="user_col {% if type == "keyvotes" %}expandy{% endif %}">
+                        <img src="/media/features/myhill/hill_icon_{% if comment.position == "+" %}heart{% else %}anti{% endif %}.png"/>
+                        {% if type == "match" %}
+                            {% if not comment.message %}
+                                <a href="{{comment.bill.url}}/comment">Add Comment</a>
+                            {% else %}
+                                <span></span>
+                                {{comment.message|truncatewords:7}} <a href="{{comment.url}}">more</a>
+                            {% endif %}
+                        {% else %} {% comment %} type is keyvotes {% endcomment %}
+                                {{comment.2.comment}}
+                        {% endif %}
+                        
+                    </td>
+                    {% if votes or not members %}
+                        {% for vote, reference in votes %}
+                        {% if type == "match" %}
+                            <td {% if vote == comment.position %}class="agree"{% endif %}>
+                        {% else %} {% comment %} type is keyvotes {% endcomment %}
+                            <td {% if vote == comment.1 %}class="agree"{% endif %}>
+                        {% endif %}
+                            {% if vote == "+" %}<p class="yea">Yea</p>{% endif %}
+                            {% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
+                            {% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
+                            {% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
+                            {% if vote == "NR" %}{% endif %}
+                            <!--{{reference}}-->
+                        </td>
+                        {% endfor %}
+                    {% else %}
+                        <td colspan="{{members|length}}" class="novote">
+                            <p>This {{comment.bill.proposition_type}} has not come up for a recorded vote.</p>
+                        </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                    <tr>
+                        <td class="name">
+                        </td>
+                        <td class="user_col">
+                            <p>You have not weighed in on any bills in Congress. Go <a href="/bills">find a bill</a> to get started.</p>
+                        </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                    </tr>
+                {% endfor %}
 		</table>
 			
 		<div class="clear"> </div>
@@ -403,4 +469,16 @@
 	</div>
 	
 </div>
+<script type="text/javascript">
+$('.expandy').hover(function() {
+  /*  var wrapper = $('<div></div>').appendTo('body').css('display', 'block').css('position', 'absolute').css('top', -10000).css('left', -10000).width($(this).width()).height($(this).height());
+    var clone = $(this).clone().appendTo(wrapper);    
+    document.getElementById("info").innerHTML = clone.height(); */
+},
+function() {
+    $('this').height(150);
+});
+
+</script>
+
 {% endblock %}
