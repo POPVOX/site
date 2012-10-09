@@ -48,10 +48,12 @@ def org(request, orgslug):
         cams = org.campaigns()
         
     set_last_campaign_viewed(request, org)
+    slates = org.slates.all()
     
     return render_to_response('popvox/org.html', {
         'org': org,
         'admin': org.is_admin(request.user),
+        'slates': slates,
         "cams": cams,
         
         # list of orgs user admins that can join this org

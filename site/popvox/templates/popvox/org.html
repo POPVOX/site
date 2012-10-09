@@ -211,6 +211,15 @@ We would like to join your coalition.</textarea>
 		{% if org.type %}
 		<p><small>{{org.get_type_display}}</small></p>
 		{% endif %}
+
+        {% if slates %}
+        <h3 class="info">Key Vote Slates</h3>
+            <ul>
+            {% for slate in slates %}
+                <li><a href="/keyvotes/{{org.slug}}/{{slate.slug}}">{{slate.name}}</a></li>
+            {% endfor %}
+            </ul>
+        {% endif %}
 		
 		{% comment %}
 		<div class="col_top">
