@@ -2,6 +2,9 @@
 
 CURRENT_CONGRESS = 112
 
+#govtrack ids of the current congressional leadership. Used for example members for slates, and might come in handy for other purposes later. Currently it's Boehner, Pelosi, Reid, and McConnell, in that order.
+CURRENT_LEADERSHIP = [400036, 400314, 300082, 300072]
+
 from django.core.cache import cache
 from django.core.cache.backends.filebased import CacheClass as FileBasedCache
 
