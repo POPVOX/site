@@ -39,7 +39,8 @@ urlpatterns = patterns('',
 	(r'^delete_account_confirmed.html$', 'popvox.views.home.delete_account_confirmed'),
 	
 	(r'^home$', 'popvox.views.home.home'),
-	(r'^home/match$', 'popvox.views.home.congress_match'),
+	(r'^home/match$', 'popvox.views.slate.congress_match'),
+	
 	(r'^home/history$', 'popvox.views.home.history'),
 	(r'^gettoknow$', 'popvox.views.home.gettoknow'),
 	(r'^state/(?P<searchstate>[a-zA-Z]{2})/$', 'popvox.views.home.district_info'),
