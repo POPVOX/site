@@ -14,7 +14,6 @@
 	*/
 	.myhill h1 {
 		margin-bottom: 0px;
-		height: 30px;
 		}
 
 .myhill h3 {
@@ -283,7 +282,7 @@ th.stathead ul {
         {% if type == "match" %}
 		<h1 class="rule_btm">Congress Match</h1>
         {% else %} {% comment %} type is keyvotes {% endcomment %}
-        <h1 class="rule_btm">{{org.name}} - {{slate.name}}</h1>
+        <h1 class="rule_btm"> {{org.name}} - {{slate.name}}  {% if admin %} | <a href="/keyvotes/{{org.slug}}/{{slate.slug}}/edit">edit</a> {% endif %}</h1>
         {% endif %}
 
         {% if type == "match" %}
@@ -415,7 +414,11 @@ th.stathead ul {
                         {% endif %}
                     </td>
                     <td class="user_col {% if type == "keyvotes" %}expandy{% endif %}">
+                        {% if type == "match" %}
                         <img src="/media/features/myhill/hill_icon_{% if comment.position == "+" %}heart{% else %}anti{% endif %}.png"/>
+                        {% else %} {% comment %} type is keyvotes {% endcomment %}
+                        <img src="/media/features/myhill/hill_icon_{% if comment.1 == "+" %}heart{% else %}anti{% endif %}.png"/>
+                        {% endif %}
                         {% if type == "match" %}
                             {% if not comment.message %}
                                 <a href="{{comment.bill.url}}/comment">Add Comment</a>
