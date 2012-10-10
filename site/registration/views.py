@@ -498,10 +498,14 @@ All the best,
 def resetpassword(request):
     status = ""
     if "email" in request.POST:
-        print "email time"
+        
+        email = None
         try:
-            validate_email( request.POST['email'] )
+            email = forms.EmailField().clean(request.POST["email"])
+        except forms.ValidationError, e:
+            status = "That's not a valid email address."
 
+        if status == "":
             try:
                 validate_captcha(request)
                 
@@ -518,9 +522,7 @@ def resetpassword(request):
                 status = "The reCAPTCHA validation words you typed weren't right. Please try again"
             except User.DoesNotExist:
                 status = "That's not the email address of a registered user on the site. Check the spelling and try again, please."
-        
-        except ValidationError:
-            status = "Please enter a valid email address."
+
     return render_to_response('registration/reset_password.html', {
         "status": status,
         "captcha": captcha_html(),
