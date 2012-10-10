@@ -1,9 +1,9 @@
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext, TemplateDoesNotExist
 from django.views.generic.simple import direct_to_template
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.forms import ModelForm
+from django.forms import ModelForm, Form, BooleanField
 from django.forms.util import ErrorList
 from django.db import transaction, connection
 from django.db.models import Count, Max
@@ -66,6 +66,16 @@ def who_members(request): #this page doesn't exist, but we could do some cool st
         
     context_instance=RequestContext(request))
     
+#Checks if a user's an admin of a given org
+def orgpermission(org, user):
+    if user.is_superuser:
+        return True
+    try:
+        haspermission = user.orgroles.get(org=org)
+        return True
+    except:
+        return False
+    
     
 def getmemberids(address):
     #select the user's state and district:
@@ -116,7 +126,9 @@ def congress_match(request):
 
 
 def key_votes(request, orgslug=None, slateslug=None):
-
+    org = Org.objects.get(slug=orgslug)
+    slate = Slate.objects.get(org=org,slug=slateslug)
+    admin = False
     leadership = False
     #if user is logged out, leg staff, org staff, or has no address, set  memberids to current leadership.
     if request.user:
@@ -126,10 +138,15 @@ def key_votes(request, orgslug=None, slateslug=None):
             
             if prof.is_leg_staff(): # or prof.is_org_admin():
                 leadership = True
+                
             else:
+                #check if the user is an admin for the org that owns the slate
+                admin = orgpermission(org, user)
+                
                 try:
                     most_recent_address = PostalAddress.objects.filter(user=user).order_by('-created')[0]
                     memberids = getmemberids(most_recent_address)
+                    
                 except IndexError:
                     # user has no address.
                     leadership = True
@@ -141,9 +158,6 @@ def key_votes(request, orgslug=None, slateslug=None):
         
     if leadership:
         memberids = popvox.govtrack.CURRENT_LEADERSHIP
-
-    org = Org.objects.get(slug=orgslug)
-    slate = Slate.objects.get(org=org,slug=slateslug)
     
     myslate = []
     for bill in slate.bills_support.all():
@@ -176,7 +190,7 @@ def key_votes(request, orgslug=None, slateslug=None):
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
 
-    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes"},
+    return render_to_response('popvox/home_match.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes"},
         context_instance=RequestContext(request))
         
 def keyvotes_index(request):
@@ -212,10 +226,10 @@ class SlateLimitForm(SlateForm):
             request = kwargs.pop("request")
             user = request.user
             prof = user.get_profile()
-            if prof.is_org_admin():
-                orgs = Org.objects.filter(admins__user = user)
-            else:
+            if user.is_superuser:
                 orgs = Org.objects.all()
+            else:
+                orgs = Org.objects.filter(admins__user = user)
 
 
         super(SlateLimitForm, self).__init__(*args, **kwargs)
@@ -242,24 +256,77 @@ class SlateLimitForm(SlateForm):
         
 
 @login_required       
-def keyvotes_create(request):
+def keyvotes_create(request, orgslug=None, slateslug=None):
+    
     user = request.user
     prof = user.get_profile()
+    
     if not prof.is_org_admin():
         raise Http404
         
     if request.method == 'POST':
-        form = SlateForm(request.POST)
-        if form.is_valid():
-            myslate = form.save(commit=False)
-            myslate.set_default_slug()
-            myslate.save() 
-            form.save_m2m()
+            if orgslug:
+                org = Org.objects.get(slug=orgslug)
+                editslate = Slate.objects.get(org=org, slug=slateslug)
+                form = SlateForm(request.POST, instance = editslate)
+                if form.is_valid():
+                    myslate = form.save()
+            else:
+                form = SlateForm(request.POST)
+                if form.is_valid():
+                    myslate = form.save(commit=False)
+                    myslate.set_default_slug()
+                    myslate.save() 
+                    form.save_m2m()
             return redirect("/keyvotes/"+myslate.org.slug+"/"+myslate.slug)
     else:
         kwargs = {}
         kwargs['request'] = request
+        
+        #orgslug will only be True on edit
+        if orgslug:
+            org = Org.objects.get(slug=orgslug)
+            
+            #make sure they're authorized to edit that slate:
+            permission = orgpermission(org, user)
+            if permission:
+                kwargs['instance'] = Slate.objects.get(org=org, slug=slateslug)
+                #set the action word for the title
+                actionword = "edit"
+            else:
+                raise Http404
+        else:
+            actionword = "create"
         form = SlateLimitForm(**kwargs)
-    return render_to_response('popvox/keyvotes_create.html', {'form':form}, context_instance=RequestContext(request))
+    return render_to_response('popvox/keyvotes_create.html', {'form':form, 'actionword': actionword}, context_instance=RequestContext(request))
+ 
+class SlateDeleteForm(Form):
+    delete = BooleanField(required=True, error_messages={'required':'You must check the box to delete this key vote slate'})
+    
+@login_required       
+def keyvotes_delete(request, orgslug=None, slateslug=None):
+    
+    user = request.user
+    prof = user.get_profile()
+    org = Org.objects.get(slug=orgslug)
+    slate = Slate.objects.get(org=org, slug=slateslug)
+    
+    #make sure they're authorized to edit that slate:
+    permission = orgpermission(org, user)
+    if not permission:
+        raise Http404
+        
+    form = SlateDeleteForm(request.POST or None)
+    
+    if form.is_valid():
+        slatecomments = SlateComment.objects.filter(slate=slate).delete()
+        slate.delete()
+        return redirect('popvox/keyvotes_delete_done.html')
+    if request.method == 'POST':
+        status = "You must check the box to delete this key vote slate"
+    else:
+        status = ""
+        
+    return render_to_response('popvox/keyvotes_delete.html', {'org':org, 'slate':slate, 'form':form, 'status':status}, context_instance=RequestContext(request))
         
         

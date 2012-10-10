@@ -1,0 +1,21 @@
+{% extends "master.html" %}
+{% block title %}POPVOX - Delete a Key Votes Slate{% endblock%}
+{% block description %}{% endblock%}
+{% block disable_login_redirect %}{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{% block content %}
+    <div class="section">
+
+    <h1>Delete Key Vote Slate</h1>
+    <p>Are you sure you want to delete <strong>{{org.name}} - {{slate.name}}</strong>?</p>
+    <form name="delete" method="post">{% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        <input type="submit" value="Submit" />
+{% if status %} <strong>{{status}}</strong> {% endif %}
+    </form>
+    </div>
+{% endblock %}
+

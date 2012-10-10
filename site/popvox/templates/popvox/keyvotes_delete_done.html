@@ -1,0 +1,14 @@
+{% extends "master.html" %}
+{% block title %}POPVOX - Delete a Key Votes Slate{% endblock%}
+{% block description %}{% endblock%}
+{% block disable_login_redirect %}{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{% block content %}
+    <div class="section">
+
+    <h1>Done!</h1>
+    <p>Your key vote slate has been deleted! <a href="/keyvotes/create">Create a new one</a> or go <a href="/home">home</a>.</p>
+    </div>
+{% endblock %}
+

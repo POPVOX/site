@@ -1,7 +1,7 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Congress Match{% endblock %}
+{% block title %}POPVOX - {{actionword}} a Key Votes Slate{% endblock %}
 {% block title2 %}{% endblock %}
-{% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
+{% block description %}{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
 <link href="/media/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
@@ -14,12 +14,14 @@ th { vertical-align:top }
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 
-<form name=""keyvotes" action="/keyvotes/create/" method="post">{% csrf_token %}
+<h1>{{actionword}} a Key Votes Slate</h1>
+<form name="keyvotes" method="post">{% csrf_token %}
 <table>
 {{ form.as_table }}
 </table>
 <input type="submit" value="Submit" />
 </form>
+{% if actionword == "edit" %}<hr/><a href="/keyvotes/{{org.slug}}/{{slate.slug}}/delete">Delete This Slate</a>{% endif %}
 <script src="/media/js/jquery.multi-select.js" type="text/javascript"></script>
 <script>
 $('#id_bills_support').multiSelect()
