@@ -6,9 +6,16 @@
 {% block head %}
 <link href="/media/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
+.ms-container { background: none; }
 .ms-container ul.ms-list { width:400px }
 .helptext {display:none}
 th { vertical-align:top }
+
+label { display:block; }
+
+#keyvotes_meta_left { width:400px; margin-right:40px; float:left;}
+#id_org { width: 100%; }
+#keyvotes_meta_right { width:49%; float:left;}
 </style>
 {% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
@@ -17,7 +24,27 @@ th { vertical-align:top }
 <h1>{{actionword}} a Key Votes Slate</h1>
 <form name="keyvotes" method="post">{% csrf_token %}
 <table>
-{{ form.as_table }}
+	{% comment %}{{ form.as_table }}{% endcomment%}
+	{{ form.non_field_errors }}
+	<div id="keyvotes_meta">
+		<div id="keyvotes_meta_left">
+			<label for="id_name">Slate Name</label>
+			{{form.name}}
+			<label for="id_org">Organization</label>
+			{{form.org}}
+			<label for="id_visible">Publicly Visible?</label>
+			{{form.visible}}
+
+		</div>
+		<div id="keyvotes_meta_right">
+			<label for="id_description">Slate Description</label>
+			{{form.description}}
+		</div>
+
+			{{form.bills_support}}
+			{{form.bills_oppose}}
+			{{form.bills_neutral}}
+	</div>
 </table>
 <input type="submit" value="Submit" />
 </form>
@@ -27,5 +54,15 @@ th { vertical-align:top }
 $('#id_bills_support').multiSelect()
 $('#id_bills_oppose').multiSelect()
 $('#id_bills_neutral').multiSelect()
+
+$('#ms-id_bills_support').children('.ms-selectable').prepend("<h4>Bill List</h4>");
+$('#ms-id_bills_oppose').children('.ms-selectable').prepend("<h4>Bill List</h4>");
+$('#ms-id_bills_neutral').children('.ms-selectable').prepend("<h4>Bill List</h4>");
+
+$('#ms-id_bills_support').children('.ms-selection').prepend("<h4>Bill Supporting</h4>");
+$('#ms-id_bills_oppose').children('.ms-selection').prepend("<h4>Bill Opposing</h4>");
+$('#ms-id_bills_neutral').children('.ms-selection').prepend("<h4>Bill Neutral</h4>");
+
+$('#id_description').prop("rows",7);
 </script>
 {% endblock %}
