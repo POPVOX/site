@@ -1999,8 +1999,10 @@ class Slate(models.Model):
     description   = models.TextField()
     bills_support = models.ManyToManyField(Bill, blank=True, related_name="slates_support")
     bills_oppose  = models.ManyToManyField(Bill, blank=True, related_name="slates_oppose")
+    bills_neutral = models.ManyToManyField(Bill, blank=True, related_name="slates_neutral")
     org           = models.ForeignKey(Org, related_name="slates")
     slug          = models.SlugField()
+    visible = models.BooleanField(default=False)
     
     def set_default_slug(self):
         import string

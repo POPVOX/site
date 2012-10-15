@@ -94,18 +94,20 @@ class SlateBillForm(ModelForm):
         bills = Bill.objects.annotate(roll_count=Count('rolls')).filter(roll_count__gt=0,congressnumber=112)
         widget_support = self.fields['bills_support'].widget
         widget_oppose = self.fields['bills_oppose'].widget
+        widget_neutral = self.fields['bills_neutral'].widget
         choices = []
         for bill in bills:
             choices.append((bill.id, bill.title))
         widget_support.choices = choices
         widget_oppose.choices = choices
+        widget_neutral.choices = choices
 
 class SlateAdmin(admin.ModelAdmin):
     raw_id_fields = ["org"]
     list_display = ("name", "org")
     search_fields = ["name", "org"]
-    fields = ("name", "org", "description","bills_support", "bills_oppose", "slug")
-    filter_horizontal = ("bills_support", "bills_oppose",)
+    fields = ("name", "org", "visible", "description","bills_support", "bills_oppose", "bills_neutral", "slug")
+    filter_horizontal = ("bills_support", "bills_oppose", "bills_neutral")
     form = SlateBillForm
     
 class SlateCommentAdmin(admin.ModelAdmin):

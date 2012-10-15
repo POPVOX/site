@@ -21,6 +21,7 @@ from datetime import datetime
 from popvox.models import *
 from popvox.views.bills import getissueareas
 from popvox.views.main import strong_cache
+from popvox.views.slate import orgpermission
 from popvox import govtrack
 from utils import csrf_protect_if_logged_in
 
@@ -42,13 +43,15 @@ def org(request, orgslug):
     org = get_object_or_404(Org, slug=orgslug)
     if org.is_admin(request.user):
         cams = org.orgcampaign_set.all().order_by("-default", "name")
+        slates = org.slates.all()
     elif not org.visible:
         raise Http404()
     else:
         cams = org.campaigns()
+        slates = org.slates.filter(visible= True)
         
     set_last_campaign_viewed(request, org)
-    slates = org.slates.all()
+    
     
     return render_to_response('popvox/org.html', {
         'org': org,

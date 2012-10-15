@@ -130,6 +130,7 @@ def key_votes(request, orgslug=None, slateslug=None):
     slate = Slate.objects.get(org=org,slug=slateslug)
     admin = False
     leadership = False
+
     #if user is logged out, leg staff, org staff, or has no address, set  memberids to current leadership.
     if request.user:
         user = request.user
@@ -155,6 +156,11 @@ def key_votes(request, orgslug=None, slateslug=None):
             leadership = True
     else:
         leadership = True
+    
+    #if the slate's not published, hide it from everyone but the admins.
+    visible = slate.visible
+    if not visible and not admin:
+        raise Http404
         
     if leadership:
         memberids = popvox.govtrack.CURRENT_LEADERSHIP
@@ -172,6 +178,12 @@ def key_votes(request, orgslug=None, slateslug=None):
         except:
             slatecomment = ''
         myslate.append((bill, '-', slatecomment))
+    for bill in slate.bills_neutral.all():
+        try:
+            slatecomment = SlateComment.objects.get(bill=bill,slate=slate)
+        except:
+            slatecomment = ''
+        myslate.append((bill, 'N', slatecomment))
     
     membermatch = popvox.match.membermatch(memberids, user, myslate)
     
@@ -190,12 +202,12 @@ def key_votes(request, orgslug=None, slateslug=None):
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
 
-    return render_to_response('popvox/home_match.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes"},
+    return render_to_response('popvox/home_match.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes", 'visible': visible},
         context_instance=RequestContext(request))
         
 def keyvotes_index(request):
     
-    slates = Slate.objects.all()
+    slates = Slate.objects.filter(visible = True)
     
     return render_to_response('popvox/keyvotes_index.html', {'slates': slates}, context_instance=RequestContext(request))
         
@@ -244,6 +256,7 @@ class SlateLimitForm(SlateForm):
         bills = Bill.objects.annotate(roll_count=Count('rolls')).filter(roll_count__gt=0,congressnumber=112)
         widget_support = self.fields['bills_support'].widget
         widget_oppose = self.fields['bills_oppose'].widget
+        widget_neutral = self.fields['bills_neutral'].widget
         bill_choices = []
         for bill in bills:
             if bill.street_name != None:
@@ -252,7 +265,8 @@ class SlateLimitForm(SlateForm):
                 title = (bill.title[:100] + '..') if len(bill.title) > 100 else bill.title
             bill_choices.append((bill.id, title))
         widget_support.choices = bill_choices
-        widget_oppose.choices = bill_choices
+        widget_oppose.choices  = bill_choices
+        widget_neutral.choices = bill_choices
         
 
 @login_required       
