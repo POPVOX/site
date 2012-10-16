@@ -202,7 +202,7 @@ def key_votes(request, orgslug=None, slateslug=None):
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
 
-    return render_to_response('popvox/home_match.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes", 'visible': visible},
+    return render_to_response('popvox/home_match.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes", 'visible': visible, 'is_admin': admin},
         context_instance=RequestContext(request))
         
 def keyvotes_index(request):
@@ -230,7 +230,7 @@ class SlateErrorList(ErrorList):
 class SlateForm(ModelForm):
     class Meta:
         model = Slate
-        exclude = ('slug',)
+        exclude = ('slug','bills_neutral')
 
 class SlateLimitForm(SlateForm):
     def __init__(self, *args, **kwargs):
@@ -256,7 +256,7 @@ class SlateLimitForm(SlateForm):
         bills = Bill.objects.annotate(roll_count=Count('rolls')).filter(roll_count__gt=0,congressnumber=112)
         widget_support = self.fields['bills_support'].widget
         widget_oppose = self.fields['bills_oppose'].widget
-        widget_neutral = self.fields['bills_neutral'].widget
+        #widget_neutral = self.fields['bills_neutral'].widget
         bill_choices = []
         for bill in bills:
             if bill.street_name != None:
@@ -266,7 +266,7 @@ class SlateLimitForm(SlateForm):
             bill_choices.append((bill.id, title))
         widget_support.choices = bill_choices
         widget_oppose.choices  = bill_choices
-        widget_neutral.choices = bill_choices
+        #widget_neutral.choices = bill_choices
         
 
 @login_required       
