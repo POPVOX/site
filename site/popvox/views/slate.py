@@ -275,7 +275,7 @@ def keyvotes_create(request, orgslug=None, slateslug=None):
     user = request.user
     prof = user.get_profile()
     
-    if not prof.is_org_admin():
+    if not user.is_superuser or prof.is_org_admin():
         raise Http404
         
     if request.method == 'POST':
