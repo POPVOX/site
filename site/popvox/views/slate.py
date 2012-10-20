@@ -202,7 +202,7 @@ def key_votes(request, orgslug=None, slateslug=None):
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
 
-    return render_to_response('popvox/home_match.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes", 'visible': visible, 'is_admin': admin},
+    return render_to_response('popvox/keyvotes.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes", 'visible': visible, 'is_admin': admin},
         context_instance=RequestContext(request))
         
 def keyvotes_index(request):
