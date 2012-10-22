@@ -7,33 +7,33 @@
 <link href="/media/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
 .ms-container { background: none; }
-.ms-container ul.ms-list { width:400px }
+
 .helptext {display:none}
 th { vertical-align:top }
 
-label { display:block; }
-
-#keyvotes_meta_left { width:400px; margin-right:40px; float:left;}
-#id_org { width: 100%; }
-#keyvotes_meta_right { width:400px; float:left;}
-#id_description { width: 100%; }
+/*
+body {
+	background: url(http://sodiumhalogen.com/up/89309e99.jpg) center top no-repeat;
+}
+*/
+	
 </style>
 {% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 
-<h1>{{actionword}} a Key Votes Slate</h1>
+<h1>{{actionword}} your Key Votes Slate</h1>
 <form name="keyvotes" method="post">{% csrf_token %}
 <table>
 	{% comment %}{{ form.as_table }}{% endcomment%}
 	{{ form.non_field_errors }}
 	<div id="keyvotes_meta">
 		<div id="keyvotes_meta_left">
-			<label for="id_name">Slate Name</label>
+			<label id="id_name" for="id_name">Slate Name</label>
 			{{form.name}}
-			<label for="id_org">Organization</label>
+			<label id="id_org for="id_org">Organization</label>
 			{{form.org}}
-			<label for="id_visible">Publicly Visible?</label>
+			<label id="id_visible" for="id_visible">Publicly Visible?</label>
 			{{form.visible}}
 
 		</div>
@@ -41,15 +41,16 @@ label { display:block; }
 			<label for="id_description">Slate Description</label>
 			{{form.description}}
 		</div>
+		<div class="clear"> </div>
 
 			{{form.bills_support}}
 			{{form.bills_oppose}}
 			{{form.bills_neutral}}
 	</div>
 </table>
-<input type="submit" value="Submit" />
+<input id="b_save" type="submit" value="Save Slate" />
 </form>
-{% if actionword == "edit" %}<hr/><a href="/keyvotes/{{org.slug}}/{{slate.slug}}/delete">Delete This Slate</a>{% endif %}
+{% if actionword == "sedit" %}<hr/><a href="/keyvotes/{{org.slug}}/{{slate.slug}}/delete">Delete This Slate</a>{% endif %}
 <script src="/media/js/jquery.multi-select.js" type="text/javascript"></script>
 <script>
 $('#id_bills_support').multiSelect()
@@ -67,3 +68,5 @@ $('#ms-id_bills_neutral').children('.ms-selection').prepend("<label>Bill Neutral
 $('#id_description').prop("rows",7);
 </script>
 {% endblock %}
+
+

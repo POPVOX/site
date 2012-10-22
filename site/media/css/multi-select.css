@@ -6,14 +6,19 @@
   content: "."; display: block; height: 0; line-height: 0; font-size: 0; clear: both; min-height: 0; visibility: hidden;
 }
 
-.ms-container .ms-selectable, .ms-container .ms-selection{
-
-  background: #fff;
+.ms-container .ms-selectable, 
+.ms-container .ms-selection {
   color: #555555;
   float: left;
+  margin-bottom: 15px;
+  width: 455px;
 }
 
+.ms-container .ms-selection {
+	margin-left: 25px;
+}
 .ms-container .ms-list{
+  width: 400px;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -26,14 +31,12 @@
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
-}
+  background: #fff;
 
+}
 
 .ms-selected{
   display:none;
-}
-.ms-container .ms-selectable{
-  margin-right: 40px;
 }
 
 .ms-container .ms-list.ms-focus{
@@ -48,10 +51,11 @@
 .ms-container ul{
   margin: 0;
   list-style-type: none;
+  display: block;
 }
 
 .ms-container ul.ms-list{
-  width: 160px;
+  width: 450px;
   height: 200px;
   padding: 0px 0px;
   overflow-y: auto;
@@ -60,10 +64,10 @@
 .ms-container .ms-selectable li.ms-elem-selectable,
 .ms-container .ms-selection li.ms-elem-selected{
   border-bottom: 1px #eee solid;
-  padding: 2px 10px;
+  padding: 5px 30px 5px 10px;
   color: #555;
-  font-size: 14px;
-}
+  font: normal 13px/18px helvetica;
+     }
 
 .ms-container .ms-selectable li.disabled,
 .ms-container .ms-selection li.disabled{
@@ -82,5 +86,37 @@
   cursor: pointer;
   color: #ffffff;
   text-decoration: none;
-  background-color: #0088cc;
+  background: #CC6A11;
+
 }
+
+.ms-container li.ms-elem-selectable:not(.disabled).ms-hover {
+  background: #CC6A11 url(../master/i_add.png) right center no-repeat;
+}
+
+.ms-container .ms-selection li:not(.disabled).ms-hover {
+  background: #CC6A11 url(../master/i_remove.png) right center no-repeat;
+}
+
+#b_save {
+  background: #CC6A11;
+  border: 1px solid #814509;
+  color: #fff;
+  width: 150px;
+  font: bold 18px/40px helvetica;
+  -moz-border-radius: 25px;
+  -webkit-border-radius: 25px;
+  -khtml-border-radius: 25px;
+  border-radius: 25px;
+  margin: 0 0 0 395px;
+  text-shadow: 0px -1px 1px #8c4607;
+}
+
+
+
+
+
+
+
+
+

@@ -4,285 +4,23 @@
 {% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
-<style>
 
-/*.myhill {
-	background: url(http://sodiumhalogen.com/up/te mp_hill_4c3b.jpg) -130px -104px no-repeat;
-	display: block;
-	height: 900px;
-	}
-	*/
-	.myhill h1 {
-		margin-bottom: 0px;
-		}
-
-.myhill h3 {
-	margin-top: 0;
-	padding-top: 20px;
-	font: bold 14px helvetica, san-serif; 
-	background: none;
-	}
-	
-	.user {
-		margin: 6px 0 0 240px;
-		height: 90px;
-		background: #fff;
-		}
-		
-		.user p {
-			color: #CC6A11;
-			text-transform: uppercase;
-			text-align: center;
-			font: bold 18px helvetica, san-serif;
-			padding: 35px 0 0;
-			}
-
-	.rep {
-		margin-top: 6px;
-		padding: 5px;
-		height: 80px;
-        vertical-align:top;
-		}
-		
-		.rep img {
-			float: left;
-			}
-
-	.rep h3 {
-		color: #CC6A11;
-		margin-left: 10px;
-		padding: 0;
-		width: 75px;
-		text-transform: none;
-		font-size: 13px;
-		float: left;
-		}
-		
-		.rep h3 span {
-			display: block;
-			margin: 10px 0;
-			text-transform: uppercase;
-			}
-tr.memstats th {
-    background-color:#CC6A11;
-    color:#FFF;
-    vertical-align:middle;
-    height:107px;
-}
-
-tr.memstats th:first-child {
-    border-top-left-radius: 5px;
-    padding:10px;
-}
-tr.memstats th:last-child {
-    border-top-right-radius: 5px;
-}			
-tr.memstats h3 {
-    color: #fff;
-    text-transform: none;
-    font: normal 15px/20px helvetica, san-serif;
-    margin: 0 20px 0 20px;
-    padding: 20px 0 0;
-    float: left;
-}
-tr.memstats h3 span {
-    font: bold 15px helvetica;
-    margin-left: 0;
-}
-th.stathead {
-    background:url('/media/features/myhill/match_divider.png') left center no-repeat;
-
-}
-th.stathead ul {
-    margin-left:40px;
-}
-
-	p.small {
-		margin-top: 20px;
-		font-size: 12px;
-		line-height: 130%;
-		color: #555;
-		}
-
-	#overview {
-		height: 107px;
-		background: url(/media/features/myhill/bg_overview.png) left center no-repeat;
-		}
-		
-			
-			tr.memstats ul li {
-				padding-left: 22px;
-				line-height: 18px;
-				color: #fff;
-				}
-				
-				tr.memstats ul li.voted {
-					background: url(/media/features/myhill/hill_icon_bill_sm.png) left center no-repeat;
-					}
-
-				tr.memstats ul li.agreed {
-					background: url(/media/features/myhill/hill_icon_smile_sm.png) left center no-repeat;
-					}
-
-				tr.memstats ul li.disagreed {
-					background: url(/media/features/myhill/hill_icon_frown_sm.png) left center no-repeat;
-					}
-
-				tr.memstats ul li.absent {
-					background: url(/media/features/myhill/hill_icon_boo_sm.png) left center no-repeat;
-					}
-
-				tr.memstats ul li.abstained {
-					background: url(/media/features/myhill/hill_icon_shush_sm.png) left center no-repeat;
-					}
-
-		.myhill table {
-			border-collapse: collapse;
-			margin: 50px 0 0 0;
-			padding: 0;
-			}
-			
-			.myhill table td {
-				border: 1px solid #d4d1ca;
-				border-width: 0 1px 1px 0;
-				width: 175px;
-				height: 50px;
-				vertical-align: top;
-				}
-				
-			.myhill table td.name {
-				width: 240px;
-				border-width: 0 1px 1px 0;
-				padding-right: 10px;
-				}
-				
-				.myhill table td.name h3 {
-					margin: 8px 0 5px;
-					text-transform: none;
-					}
-
-			.myhill table td.user_col {
-                padding:10px;
-				background: #fff;
-				}	
-            .myhill table td.user_col img {
-                float:left;
-                margin-right: 5px;
-            }
-            .myhill table td.user_col.expandy {
-                height:150px;
-                overflow:auto;
-            }
-
-				
-				.myhill table td.user_col p {
-					font: bold 12px/15px helvetica, san-serif;
-					padding-left: 55px;
-					position: relative;
-					}
-
-					.myhill table td.user_col p.comment {
-						text-transform: uppercase;
-						margin-top: 0px;
-						padding-top: 40px;
-						}
-                .myhill table td.user_col.expandy p.comment {
-                        text-transform: none;
-                        font-weight: normal;
-                       /* height:150px;*/
-                    }
-						
-					.myhill table td.user_col p span {
-						background: url(/media/features/myhill/hill_quote.png) left 1px no-repeat;
-						display: block;
-						width: 13px;
-						height: 10px;
-						float: left;
-						}
-
-				
-			.myhill table td.agree {
-				background: #fff /*url(/media/features/myhill/hill_icon_smile_orange.png) 150px 10px no-repeat*/;
-				}	
-
-			.myhill table td p {
-				padding: 25px 10px 0 60px;
-				min-height: 35px;
-				font-size: 14px;
-				}
-				
-			.myhill table td p.heart {
-				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
-				}
-				
-			.myhill table td p.anti {
-				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
-				}
-				
-			.myhill table td p.yea {
-				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
-				padding-top: 40px;
-				}
-
-			.myhill table td p.nay {
-				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
-				padding-top: 40px;
-				}
-				
-			.myhill table td p.absent {
-				background: url(/media/features/myhill/hill_icon_absent.png) 14px 32px no-repeat;
-				padding-top: 40px;
-				}
-				
-			.myhill table td p.abstained {
-				background: url(/media/features/myhill/hill_icon_abstain.png) 14px 32px no-repeat;
-				padding-top: 40px;
-				}
-				
-				
-				.myhill table td.name p {
-					background: url(/media/features/myhill/hill_icon_bill.png) 3px top no-repeat;
-					padding: 5px 0 0 40px;
-					margin: 0;
-					height: 0;
-					font: italic normal 12px georgia;
-					}
-						
-						.myhill table td.name p strong{
-							font: bold normal 12px helvetica;
-							}
-							
-			.myhill table td.novote {
-				text-align: center;
-				vertical-align: middle;
-				padding: 1em;
-				background-color: #dfdcd6;
-				}
-				.myhill table td.novote p {
-					padding: 0;
-					margin: 0;
-					min-height: 0;
-					font-style: italic;
-					font-size: 13px;
-				}
-
-			.myhill table h3 {
-				padding: 5px 0 0;
-				margin: 0;
-				}
-
-</style>
 {% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 
-<div class="content myhill">
+<div class="content myhill slate">
 
 	<div class="col_9 col_top col_last ">
         {% if type == "match" %}
 		<h1 class="rule_btm">Congress Match</h1>
         {% else %} {% comment %} type is keyvotes {% endcomment %}
         <h1 class="rule_btm"> {{org.name}} - {{slate.name}}  {% if admin %} | <a href="/keyvotes/{{org.slug}}/{{slate.slug}}/edit">edit</a> {% endif %}</h1>
+        <h3>Christian Coalition</h3>
+		<a href="#" class="b_orange">Build Your Own</a>
+		<p>Organizations that watch Congress frequently identify "key votes" - - bills they identify as especially important ftp then. This is the slate of Key Votes chosen by [organization].</p>
+        <a href="#" class="float_right">View more Organizations ></a>
+        <p>How do your Members match up with <strong>[organization]</strong>?</p>
         {% endif %}
 
         {% if type == "match" %}
@@ -297,7 +35,14 @@ th.stathead ul {
     <table>
         <thead>
             <tr>
-                <th/>
+                <th id="key">
+                	<h3>KEY:</h3>
+                	<ul>
+                		<li class="agreed">agreed</li>
+                		<li class="disagreed">disagreed</li>
+                		<li class="ab">absent or abstained</li>                		
+                	</ul>
+                </th>
                 <th class="user">
                     {% if type == "match" %}
                         {% if most_recent_address %}
@@ -306,12 +51,13 @@ th.stathead ul {
                             <p>You</p>
                         {% endif %}
                     {% else %} {% comment %} type is keyvotes {% endcomment %}
-                        <p>{{org.name}}</p>
+                        <img src="http://sodiumhalogen.com/up/b63796de.jpg" alt="{{member.name}}" width="66" />
                     {% endif %}
                 </th>
                 {% for member in members %}
                     <th class="rep">
                         <img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
+                        <h4>12%</h4>
                         {% if member.pvurl %}
                         <h3><a href="/member/{{member.pvurl}}">{{member.name}}</a></h3>
                         {% else %}
@@ -332,74 +78,7 @@ th.stathead ul {
                 {% endfor %}
             </tr>
 
-            <tr class="memstats">
-                <th>
-                    {% if type == "match" %}
-                    <h3>You weighed in on <span>{{ billvotes|length }} bill{{ billvotes|pluralize }}</span>.
-                        Here&rsquo;s an overview of how your Members of Congress voted on those bills:</h3>
-                    {% else %} {% comment %} type is keyvotes {% endcomment %}
-                    <h3>{{org.name}} weighed in on <spam>{{ billvotes|length }}</span> bills.</h3>
-                    {% endif %}
-                </th>
-                <th>
-                    <ul class="rep_key">
-                        <!--<li class="voted">Voted On</li>-->
-                        <li class="agreed">Agreed with You</li>
-                        <li class="disagreed">Disagreed with You</li>
-                        <li class="absent">Absent</li>
-                        {% if had_abstain %}<li class="abstained">Abstained</li>{% endif %}
-                    </ul>
-                </th>
-                
-                {% for memstats in stats %}
-                <th class="stathead">
-                    <ul>
-                        <!--<li class="voted">3</li>-->
-                        <li class="agreed">{{memstats.agree}} ({{memstats.agree_percent}}%)</li>
-                        <li class="disagreed">{{memstats.disagree}} ({{memstats.disagree_percent}}%)</li>
-                        <li class="absent">
-                            {{memstats.0}} ({{memstats.0_percent}}%)
-                            {% if memstats.attendance %}
-                                {% if leadership and forloop.first %}
-                                <span style="cursor: pointer" title="Under House rules, the Speaker of the House is not required to vote except to break a tie">*</span><!-- http://www.rules.house.gov/singlepages.aspx?NewsID=160&rsbd=165 Discretion to vote
-
-7. The Speaker is not required to vote in ordinary legislative proceedings, except when such vote would be decisive or when the House is engaged in voting by ballot. -->
-                                {% else %}
-                                <span style="cursor: pointer" title="overall missed votes is {{memstats.attendance.0}}%, {{memstats.attendance.1}}">*</span>
-                                {% endif %}
-
-                            {% endif %}
-                        </li>
-                        {% if had_abstain %}<li class="abstained">{{memstats.P}} ({{memstats.P_percent}}%)</li>{% endif %}
-                    </ul>
-                </th>
-                {% empty %}
-                <th class="stathead">
-                    <ul>
-                        <!--<li class="voted">3</li>-->
-                        <li class="agreed">...</li>
-                        <li class="disagreed">...</li>
-                        <li class="absent">...</li>
-                    </ul>
-                </th>
-                <th class="stathead">
-                    <ul>
-                        <!--<li class="voted">3</li>-->
-                        <li class="agreed">...</li>
-                        <li class="disagreed">...</li>
-                        <li class="absent">...</li>
-                    </ul>
-                </th>
-                <th class="stathead">
-                    <ul class="last">
-                        <!--<li class="voted">3</li>-->
-                        <li class="agreed">...</li>
-                        <li class="disagreed">...</li>
-                        <li class="absent">...</li>
-                    </ul>
-                {% endfor %}
-                </th>
-            <tr>
+            
         </thead>
             {% for comment, votes in billvotes %}
 
@@ -445,10 +124,10 @@ th.stathead ul {
                         {% else %} {% comment %} type is keyvotes {% endcomment %}
                             <td {% if vote == comment.1 %}class="agree"{% endif %}>
                         {% endif %}
-                            {% if vote == "+" %}<p class="yea">Yea</p>{% endif %}
-                            {% if vote == "-" %}<p class="nay">Nay</p>{% endif %}
-                            {% if vote == "0" %}<p class="absent">Absent</p>{% endif %}
-                            {% if vote == "P" %}<p class="abstained">Abstain</p>{% endif %}
+                            {% if vote == "+" %}<p class="yea"></p>{% endif %}
+                            {% if vote == "-" %}<p class="nay"></p>{% endif %}
+                            {% if vote == "0" %}<p class="ab"></p>{% endif %}
+                            {% if vote == "P" %}<p class="ab"></p>{% endif %}
                             {% if vote == "NR" %}{% endif %}
                             <!--{{reference}}-->
                         </td>
@@ -475,7 +154,7 @@ th.stathead ul {
 			
 		<div class="clear"> </div>
 		
-		<p class="small">Not all bills come up for a vote in the House and Senate. Delegates and the Resident Comissioner from Puerto Rico are not elligible to vote on bills. Some bills are voted on multiple times as the House and Senate try to come to an agreement, in which case we show how your Members of Congress voted in the most recent vote on the bill.</p>
+		<small>Not all bills come up for a vote in the House and Senate. Delegates and the Resident Comissioner from Puerto Rico are not elligible to vote on bills. Some bills are voted on multiple times as the House and Senate try to come to an agreement, in which case we show how your Members of Congress voted in the most recent vote on the bill.</small>
 	</div>
 	
 </div>

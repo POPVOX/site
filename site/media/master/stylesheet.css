@@ -5810,3 +5810,492 @@ body.gettoknow h1 {
 		#pv_widget_foot a span {
 			display: none;
 			}
+
+
+
+/*  congress match */			
+			
+/*.myhill {
+	background: url(http://sodiumhalogen.com/up/te mp_hill_4c3b.jpg) -130px -104px no-repeat;
+	display: block;
+	height: 900px;
+	}
+	*/
+	.myhill h1 {
+		margin-bottom: 0px;
+		}
+
+.myhill h3 {
+	margin-top: 0;
+	padding-top: 20px;
+	font: bold 14px helvetica, san-serif; 
+	background: none;
+	}
+	
+	.user {
+		margin: 6px 0 0 240px;
+		height: 90px;
+		background: #fff;
+		}
+		
+		.user p {
+			color: #CC6A11;
+			text-transform: uppercase;
+			text-align: center;
+			font: bold 18px helvetica, san-serif;
+			padding: 35px 0 0;
+			}
+
+	.rep {
+		margin-top: 6px;
+		padding: 5px;
+		height: 70px;
+        vertical-align:top;
+		}
+		
+		.rep img {
+			float: left;
+			}
+
+	.rep h3 {
+		color: #CC6A11;
+		margin-left: 10px;
+		padding: 0;
+		width: 75px;
+		text-transform: none;
+		font-size: 13px;
+		float: left;
+		}
+		
+		.rep h3 span {
+			display: block;
+			margin: 10px 0;
+			text-transform: uppercase;
+			}
+tr.memstats th {
+    background-color:#CC6A11;
+    color:#FFF;
+    vertical-align:middle;
+    height:107px;
+}
+
+tr.memstats th:first-child {
+    border-top-left-radius: 5px;
+    padding:10px;
+}
+tr.memstats th:last-child {
+    border-top-right-radius: 5px;
+}			
+tr.memstats h3 {
+    color: #fff;
+    text-transform: none;
+    font: normal 15px/20px helvetica, san-serif;
+    margin: 0 20px 0 20px;
+    padding: 20px 0 0;
+    float: left;
+}
+tr.memstats h3 span {
+    font: bold 15px helvetica;
+    margin-left: 0;
+}
+th.stathead {
+    background:url('/media/features/myhill/match_divider.png') left center no-repeat;
+
+}
+th.stathead ul {
+    margin-left:40px;
+}
+
+	p.small {
+		margin-top: 20px;
+		font-size: 12px;
+		line-height: 130%;
+		color: #555;
+		}
+
+	#overview {
+		height: 107px;
+		background: url(/media/features/myhill/bg_overview.png) left center no-repeat;
+		}
+		
+			
+			tr.memstats ul li {
+				padding-left: 22px;
+				line-height: 18px;
+				color: #fff;
+				}
+				
+				tr.memstats ul li.voted {
+					background: url(/media/features/myhill/hill_icon_bill_sm.png) left center no-repeat;
+					}
+
+				tr.memstats ul li.agreed {
+					background: url(/media/features/myhill/hill_icon_smile_sm.png) left center no-repeat;
+					}
+
+				tr.memstats ul li.disagreed {
+					background: url(/media/features/myhill/hill_icon_frown_sm.png) left center no-repeat;
+					}
+
+				tr.memstats ul li.absent {
+					background: url(/media/features/myhill/hill_icon_boo_sm.png) left center no-repeat;
+					}
+
+				tr.memstats ul li.abstained {
+					background: url(/media/features/myhill/hill_icon_shush_sm.png) left center no-repeat;
+					}
+
+		.myhill table {
+			border-collapse: collapse;
+			margin: 50px 0 0 0;
+			padding: 0;
+			}
+
+			.myhill thead {
+				border-bottom: 3px solid #CC6A11;
+			}
+						
+			.myhill table td {
+				border: 1px solid #d4d1ca;
+				border-width: 0 1px 1px 0;
+				width: 175px;
+				height: 50px;
+				vertical-align: top;
+				}
+				
+			.myhill table td.name {
+				width: 240px;
+				border-width: 0 1px 1px 0;
+				padding-right: 10px;
+				}
+				
+				.myhill table td.name h3 {
+					margin: 8px 0 5px;
+					text-transform: none;
+					}
+
+			.myhill table td.user_col {
+                padding:10px;
+				background: #fff;
+				}	
+            .myhill table td.user_col img {
+                float:left;
+                margin-right: 5px;
+            }
+            .myhill table td.user_col.expandy {
+                height:150px;
+                overflow:auto;
+            }
+
+				
+				.myhill table td.user_col p {
+					font: bold 12px/15px helvetica, san-serif;
+					padding-left: 55px;
+					position: relative;
+					}
+
+					.myhill table td.user_col p.comment {
+						text-transform: uppercase;
+						margin-top: 0px;
+						padding-top: 40px;
+						}
+                .myhill table td.user_col.expandy p.comment {
+                        text-transform: none;
+                        font-weight: normal;
+                       /* height:150px;*/
+                    }
+						
+					.myhill table td.user_col p span {
+						background: url(/media/features/myhill/hill_quote.png) left 1px no-repeat;
+						display: block;
+						width: 13px;
+						height: 10px;
+						float: left;
+						}
+
+				
+			.myhill table td.agree {
+				background: #fff /*url(/media/features/myhill/hill_icon_smile_orange.png) 150px 10px no-repeat*/;
+				}	
+
+			.myhill table td p {
+				padding: 25px 10px 0 60px;
+				min-height: 35px;
+				font-size: 14px;
+				}
+				
+			.myhill table td p.heart {
+				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
+				}
+				
+			.myhill table td p.anti {
+				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
+				}
+				
+			.myhill table td p.yea {
+				background: url(/media/features/myhill/hill_icon_heart.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+
+			.myhill table td p.nay {
+				background: url(/media/features/myhill/hill_icon_anti.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+			.myhill table td p.absent {
+				background: url(/media/features/myhill/hill_icon_absent.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+			.myhill table td p.abstained {
+				background: url(/media/features/myhill/hill_icon_abstain.png) 14px 32px no-repeat;
+				padding-top: 40px;
+				}
+				
+				
+				.myhill table td.name p {
+					background: url(/media/features/myhill/hill_icon_bill.png) 3px top no-repeat;
+					padding: 5px 0 0 40px;
+					margin: 0;
+					height: 0;
+					font: italic normal 12px georgia;
+					}
+						
+						.myhill table td.name p strong{
+							font: bold normal 12px helvetica;
+							}
+							
+			.myhill table td.novote {
+				text-align: center;
+				vertical-align: middle;
+				padding: 1em;
+				background-color: #dfdcd6;
+				}
+				.myhill table td.novote p {
+					padding: 0;
+					margin: 0;
+					min-height: 0;
+					font-style: italic;
+					font-size: 13px;
+				}
+
+			.myhill table h3 {
+				padding: 5px 0 0;
+				margin: 0;
+				}
+
+/* slate */
+.slate {
+	background: url(http://sodiumhalogen.com/ up/bd721ce0.jpg) center -78px no-repeat;
+}
+
+	.slate h1 {
+		padding-bottom: 8px;
+	}
+	
+	
+#key {
+	padding: 12px 0 0 15px;
+	vertical-align: top;
+	height: 120px;
+}
+
+	#key h3 {
+		font: bold 16px/22px helvetica;
+		color: #404045;
+		padding: 0;
+		width: 225px;
+	}
+
+	#key li {
+		padding-left: 35px;
+		height: 30px;
+		line-height: 22px;
+	}
+	
+	#key .agreed {
+		background: url(i_agree_sm.png) left top no-repeat;
+	}
+	#key .disagreed {
+		background: url(i_disagree_sm.png) left top no-repeat;
+	}
+	#key .ab {
+		background: url(i_ab_sm.png) left top no-repeat;
+	}
+
+.slate table {
+	margin-top: 40px;
+	width: 940px;
+	border-bottom: 5px solid #CC6A11;
+}
+	
+	.slate thead {
+		background: #d4d1ca;
+	}
+	
+	.slate th.user {
+		padding: 0;
+		text-align: center;
+		vertical-align: bottom;
+		padding-bottom: 10px;
+		height: 0px;
+	}
+	
+	.slate table td {
+		height: 20px;
+		text-align: center;
+		border-width: 0 1px 1px 0;
+	}
+	.slate table td.name {
+		width: 220px;
+		border-width: 0 0 1px 0;
+		text-align: left;
+		padding: 0;
+	}
+	.slate table td.name h3 {
+		font: bold 14px/16px helvetica;
+		height: 32px;
+		overflow: hidden;
+	}
+
+.slate th.rep {
+	width: 50px;
+}
+	.slate th.rep img {
+		margin-bottom: 0px;
+	}
+	.slate th.rep h3 {
+		font: bold 12px/12px helvetica;
+		text-transform: none;
+		float: none;
+		width: 120px;
+		margin-top: 5px;
+	}
+	
+	.slate th.rep h4 {
+	    font: normal 40px/40px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	    color: #699450;
+	    padding: 26px 0 0  ;
+	    height: 52px;
+	}
+	
+.slate table td.user_col.expandy {
+	width: 10px;
+	height: 100px;
+	vertical-align: middle;
+	text-align: center;
+	padding: 0 22px;
+}
+	.slate table td.user_col.expandy img {
+		margin: 0;
+		padding: 0;
+	}
+	
+.slate table td p.yea {
+	background: url(i_agree.png) center 26px no-repeat;
+	height: 42px;
+	}
+
+.slate table td p.nay {
+	background: url(i_disagree.png) center 26px no-repeat;
+	height: 42px;
+	}
+	
+.slate table td p.absent,
+.slate table td p.abstained {
+	background: url(i_ab.png) center 26px no-repeat;
+	height: 42px;
+}
+
+.slate small {
+	margin: 20px 0;
+	display: block;
+	line-height: 18px;
+}
+				
+
+
+/*slate edits*/
+.slate p {
+	font: 14px/24px helvetica;
+}
+
+.slate a {
+	font-weight: bold;
+}
+.b_orange {
+	background: #CC6A11;
+	border:  1px solid #7f4109;
+	color: #fff;
+	font-size: 18px;
+	padding: 12px;
+	-moz-border-radius: 15px;
+	-webkit-border-radius: 15px;
+	-khtml-border-radius: 15px;
+	border-radius: 22px;
+	float: right;
+	margin-left: 20px;
+	width: 200px;
+	text-align: center;
+	text-shadow:#8C4607 0 -1px 1px;
+}
+
+#keyvotes_meta label {
+	display: block;
+	text-transform: uppercase;
+	font-weight: bold;
+	line-height: 20px;
+	background: none;
+	margin-bottom: 2px;
+}			
+#keyvotes_meta input#id_name,
+#keyvotes_meta select#id_org {
+	margin: 0 0 15px;
+	display: block;
+	width: 425px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+#keyvotes_meta select#id_org {
+	width: 445px;
+}
+#keyvotes_meta label#id_visible {
+	float: left;
+	margin-right: 15px;
+	margin-bottom: 15px;
+}
+#keyvotes_meta input#id_visible {
+	width: 20px;
+}
+#keyvotes_meta select#id_visible {
+	margin-bottom: 0;
+} 			
+#keyvotes_meta_left {
+	width: 455px; 
+	margin-right: 25px; 
+	float: left;
+	}
+#id_org {
+	width: 100%;
+	}
+#keyvotes_meta_right {
+	width: 450px;
+	float: left;
+	}
+#keyvotes_meta input,
+#keyvotes_meta textarea {
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	border: 1px solid #c3c0bb;
+	width: 435px;
+	padding: 5px 10px;
+	}			
+
+#keyvotes_meta textarea {
+	padding: 10px;
+	color: #404045;
+}			
+
+
