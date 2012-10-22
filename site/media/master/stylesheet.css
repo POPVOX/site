@@ -1,4 +1,3 @@
-/* @override https://william.popvox.com/media/master/stylesheet.css */
 
 /*
 
@@ -6094,6 +6093,7 @@ th.stathead ul {
 	}
 	
 	
+	
 #key {
 	padding: 12px 0 0 15px;
 	vertical-align: top;
@@ -6191,28 +6191,84 @@ th.stathead ul {
 		padding: 0;
 	}
 	
-.slate table td p.yea {
-	background: url(i_agree.png) center 26px no-repeat;
-	height: 42px;
-	}
+			.slate table td p.yea {
+				background: url(i_agree.png) center 26px no-repeat;
+				height: 42px;
+				}
 
-.slate table td p.nay {
-	background: url(i_disagree.png) center 26px no-repeat;
-	height: 42px;
-	}
-	
-.slate table td p.absent,
-.slate table td p.abstained {
-	background: url(i_ab.png) center 26px no-repeat;
-	height: 42px;
-}
-
+			.slate table td p.nay {
+				background: url(i_disagree.png) center 26px no-repeat;
+				height: 42px;
+				}
+				
+			.slate table td p.absent,
+			.slate table td p.abstained {
+				background: url(i_ab.png) center 26px no-repeat;
+				height: 42px;
+			}
+				
 .slate small {
 	margin: 20px 0;
 	display: block;
 	line-height: 18px;
 }
-				
+
+
+
+
+/*slate_index*/
+.slate.slate_list h1 {
+	margin-bottom: 10px;
+}
+.slate.slate_list p {
+	width: 450px;
+	margin-bottom: 0;
+}
+.slate.slate_list #slate_table {
+	border-bottom: none;
+	margin-bottom: 10px;
+}
+.slate.slate_list #slate_table thead th {
+	padding: 5px 10px;
+	font-size: 14px;
+	font-weight: normal;
+	text-transform: uppercase;
+	background: #424246;
+	color: #fff;
+}
+.slate.slate_list #slate_table td {
+	text-align: left;
+	padding: 10px;
+	border: 1px solid #d4d1ca;
+	border-width: 0 0 1px 0;
+}
+
+.slate.slate_list #slate_table td.sorting_1 {
+	width: 450px;
+}
+
+.slate.slate_list #slate_table_info.dataTables_info {
+	font: normal italic 14px/14px georgia, serif;
+}
+
+.slate.slate_list #slate_table_filter {
+	margin-top: -35px;
+}
+
+.slate.slate_list #slate_table_filter input {
+	-moz-border-radius: 14px;
+	-webkit-border-radius: 14px;
+	-khtml-border-radius: 14px;
+	border-radius: 14px;
+	height: 26px;
+	margin-bottom: 10px;
+	width: 300px;
+	border:  1px solid #a3a3a3;
+	padding: 0 10px;
+	font-size: 12px;
+}
+
+
 
 
 /*slate edits*/
@@ -6237,7 +6293,6 @@ th.stathead ul {
 	margin-left: 20px;
 	width: 200px;
 	text-align: center;
-	text-shadow:#8C4607 0 -1px 1px;
 }
 
 #keyvotes_meta label {

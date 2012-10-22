@@ -9,19 +9,23 @@
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 
-<div class="content myhill">
+<div class="content slate slate_list">
 
-    <div class="col_9 col_top col_last ">
+    <div class="col_12 col_top col_last ">
         <h1>Key Votes</h1>
+        <p>Organizations that watch Congress frequently identify "key votes" - - bills they identify as especially important to them.<br /> View a slate of key votes chosen by each organization below.</p>
         <table id="slate_table">
-        <thead>
-            <tr><th>Organization</th><th>Key Vote Slate</th></tr>
-        </thead>
-        <tbody>
-        {% for slate in slates %}
-            <tr> <td><a href="/orgs/{{slate.org.slug}}">{{ slate.org }}</a></td>  <td><a href="/keyvotes/{{slate.org.slug}}/{{slate.slug}}">{{slate.name }}</a></td> </tr>
-        {% endfor %}
-        </tbody>
+	        <thead>
+	            <tr><th>Organization Name</th><th>Slate Name</th></tr>
+	        </thead>
+	        <tbody>
+	        {% for slate in slates %}
+	            <tr>
+	            	<td>{{ slate.org }} / <a href="/orgs/{{slate.org.slug}}">profile</a></td>
+	            	<td><a href="/keyvotes/{{slate.org.slug}}/{{slate.slug}}">{{slate.name }}</a></td>
+	            </tr>
+	        {% endfor %}
+	        </tbody>
         </table>
     </div>
     
