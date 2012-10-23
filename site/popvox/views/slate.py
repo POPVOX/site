@@ -130,6 +130,7 @@ def key_votes(request, orgslug=None, slateslug=None):
     slate = Slate.objects.get(org=org,slug=slateslug)
     admin = False
     leadership = False
+    orgstaff = False
 
     #if user is logged out, leg staff, org staff, or has no address, set  memberids to current leadership.
     if request.user:
@@ -145,7 +146,6 @@ def key_votes(request, orgslug=None, slateslug=None):
                 admin = orgpermission(org, user)
                 
                 #check if user is an admin at all
-                orgstaff = False
                 if prof.is_org_admin():
                     orgstaff = True
                 
