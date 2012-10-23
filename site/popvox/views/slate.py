@@ -302,33 +302,36 @@ def keyvotes_create(request, orgslug=None, slateslug=None):
     user = request.user
     prof = user.get_profile()
     
-    if not user.is_superuser or not prof.is_org_admin():
-        raise Http404
+    if not user.is_superuser:
+        if not prof.is_org_admin():
+            raise Http404
+    
         
     if request.method == 'POST':
-            if orgslug:
-                org = Org.objects.get(slug=orgslug)
-                editslate = Slate.objects.get(org=org, slug=slateslug)
-                form = SlateForm(request.POST, instance = editslate)
-                if form.is_valid():
-                    myslate = form.save(commit=False)
-                    myslate.set_name()
-                    myslate.save()
-                    form.save_m2m()
-            else:
-                form = SlateForm(request.POST)
-                if form.is_valid():
-                    myslate = form.save(commit=False)
-                    myslate.set_default_slug()
-                    myslate.save() 
-                    form.save_m2m()
-            return redirect("/keyvotes/"+myslate.org.slug+"/"+myslate.slug)
+        if orgslug:
+            org = Org.objects.get(slug=orgslug)
+            editslate = Slate.objects.get(org=org, slug=slateslug)
+            form = SlateForm(request.POST, instance = editslate)
+            if form.is_valid():
+                myslate = form.save(commit=False)
+                myslate.set_name()
+                myslate.save()
+                form.save_m2m()
+        else:
+            form = SlateForm(request.POST)
+            if form.is_valid():
+                myslate = form.save(commit=False)
+                myslate.set_default_slug()
+                myslate.save() 
+                form.save_m2m()
+        return redirect("/keyvotes/"+myslate.org.slug+"/"+myslate.slug)
     else:
         kwargs = {}
         kwargs['request'] = request
         
         #orgslug will only be True on edit
-        if orgslug:
+        print orgslug
+        if orgslug != None:
             org = Org.objects.get(slug=orgslug)
             
             #make sure they're authorized to edit that slate:
