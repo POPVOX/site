@@ -144,6 +144,11 @@ def key_votes(request, orgslug=None, slateslug=None):
                 #check if the user is an admin for the org that owns the slate
                 admin = orgpermission(org, user)
                 
+                #check if user is an admin at all
+                orgstaff = False
+                if prof.is_org_admin():
+                    orgstaff = True
+                
                 try:
                     most_recent_address = PostalAddress.objects.filter(user=user).order_by('-created')[0]
                     memberids = getmemberids(most_recent_address)
@@ -201,15 +206,34 @@ def key_votes(request, orgslug=None, slateslug=None):
     for member in members:
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
+        
+    #merging stats into member info
+    x = 0
+    for member in members:
+        member['stats'] = stats[x]
+        x += 1
 
-    return render_to_response('popvox/keyvotes.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes", 'visible': visible, 'is_admin': admin},
+
+    return render_to_response('popvox/keyvotes.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'orgstaff': orgstaff, 'type': "keyvotes", 'visible': visible, 'is_admin': admin},
         context_instance=RequestContext(request))
         
 def keyvotes_index(request):
+
+    #check for orgstaff to display 'build your own' button
+    orgstaff = False
+    if request.user:
+        user = request.user
+        try:
+            prof = user.get_profile()
+            if prof.is_org_admin():
+                orgstaff = True
+        except:
+            pass
+
     
     slates = Slate.objects.filter(visible = True)
     
-    return render_to_response('popvox/keyvotes_index.html', {'slates': slates}, context_instance=RequestContext(request))
+    return render_to_response('popvox/keyvotes_index.html', {'slates': slates, 'orgstaff': orgstaff}, context_instance=RequestContext(request))
         
         
 class SlateErrorList(ErrorList):
@@ -259,8 +283,11 @@ class SlateLimitForm(SlateForm):
         #widget_neutral = self.fields['bills_neutral'].widget
         bill_choices = []
         for bill in bills:
+            billtype = [x[1] for x in bill.BILL_TYPE_CHOICES if x[0] == bill.billtype][0]
+            #HAHAHA TAKE THAT, Bill model! List comprehension! In your face!
+            slug = str(billtype) + ' ' + str(bill.billnumber)
             if bill.street_name != None:
-                title = (bill.street_name[:100] + '..') if len(bill.street_name) > 100 else bill.street_name
+                title = (slug + ': ' + bill.street_name[:100] + '..') if len(bill.street_name) > 100 else slug + ': ' + bill.street_name
             else:
                 title = (bill.title[:100] + '..') if len(bill.title) > 100 else bill.title
             bill_choices.append((bill.id, title))
@@ -284,7 +311,10 @@ def keyvotes_create(request, orgslug=None, slateslug=None):
                 editslate = Slate.objects.get(org=org, slug=slateslug)
                 form = SlateForm(request.POST, instance = editslate)
                 if form.is_valid():
-                    myslate = form.save()
+                    myslate = form.save(commit=False)
+                    myslate.set_name()
+                    myslate.save()
+                    form.save_m2m()
             else:
                 form = SlateForm(request.POST)
                 if form.is_valid():

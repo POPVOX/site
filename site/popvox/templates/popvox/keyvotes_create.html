@@ -29,16 +29,16 @@ body {
 	{{ form.non_field_errors }}
 	<div id="keyvotes_meta">
 		<div id="keyvotes_meta_left">
-			<label id="id_name" for="id_name">Slate Name</label>
+			<label id="id_name_label" for="id_name">Slate Name</label>
 			{{form.name}}
-			<label id="id_org for="id_org">Organization</label>
+			<label id="id_org_label" for="id_org">Organization</label>
 			{{form.org}}
-			<label id="id_visible" for="id_visible">Publicly Visible?</label>
+			<label id="id_visible_label" for="id_visible">Publicly Visible?</label>
 			{{form.visible}}
 
 		</div>
 		<div id="keyvotes_meta_right">
-			<label for="id_description">Slate Description</label>
+			<label for="id_description_label">Slate Description</label>
 			{{form.description}}
 		</div>
 		<div class="clear"> </div>
@@ -66,6 +66,10 @@ $('#ms-id_bills_oppose').children('.ms-selection').prepend("<label>Bill Opposing
 $('#ms-id_bills_neutral').children('.ms-selection').prepend("<label>Bill Neutral</label>");
 
 $('#id_description').prop("rows",7);
+
+if ($('input#id_name').val() === "") {
+    $('input#id_name').val("Key Votes");
+}
 </script>
 {% endblock %}
 

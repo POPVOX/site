@@ -6088,11 +6088,22 @@ th.stathead ul {
 	background: url(http://sodiumhalogen.com/ up/bd721ce0.jpg) center -78px no-repeat;
 }
 
-	.slate h1 {
-		padding-bottom: 8px;
-	}
+.slate h1 {
+    padding-bottom: 8px;
+}
+
+.slate h1 a {
+font-weight: normal;
+}
 	
-	
+.myhill.slate h3 {
+    letter-spacing: 0;
+    }
+    
+.more_org {
+        position: absolute;
+        right: 30px;
+    }
 	
 #key {
 	padding: 12px 0 0 15px;
@@ -6127,7 +6138,7 @@ th.stathead ul {
 	margin-top: 40px;
 	width: 940px;
 	border-bottom: 5px solid #CC6A11;
-}
+    }
 	
 	.slate thead {
 		background: #d4d1ca;
@@ -6160,9 +6171,12 @@ th.stathead ul {
 
 .slate th.rep {
 	width: 50px;
+    margin-right: 5px;
+    margin-bottom: 0;
 }
 	.slate th.rep img {
 		margin-bottom: 0px;
+        margin: 0 5px 0 0;
 	}
 	.slate th.rep h3 {
 		font: bold 12px/12px helvetica;
@@ -6191,21 +6205,20 @@ th.stathead ul {
 		padding: 0;
 	}
 	
-			.slate table td p.yea {
-				background: url(i_agree.png) center 26px no-repeat;
-				height: 42px;
-				}
-
-			.slate table td p.nay {
-				background: url(i_disagree.png) center 26px no-repeat;
-				height: 42px;
-				}
-				
-			.slate table td p.absent,
-			.slate table td p.abstained {
-				background: url(i_ab.png) center 26px no-repeat;
-				height: 42px;
-			}
+    .slate table td.agree {
+        background: url("i_agree.png") no-repeat scroll center 26px #FFFFFF;
+        height: 42px;
+        }
+        
+    .slate table td.disagree {
+        background: url(i_disagree.png) center 26px no-repeat;
+        height: 42px;
+        }
+        
+    .slate table td.ab {
+        background: url(i_ab.png) center 26px no-repeat;
+        height: 42px;
+    }
 				
 .slate small {
 	margin: 20px 0;
@@ -6276,6 +6289,10 @@ th.stathead ul {
 	font: 14px/24px helvetica;
 }
 
+.slate_desc {
+    width: 440px;
+}
+
 .slate a {
 	font-weight: bold;
 }
@@ -6293,6 +6310,11 @@ th.stathead ul {
 	margin-left: 20px;
 	width: 200px;
 	text-align: center;
+}
+
+.b_orange:hover {
+    background: #75747c;
+    border: 1px solid #404045;
 }
 
 #keyvotes_meta label {
