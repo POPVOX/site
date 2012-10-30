@@ -1996,7 +1996,7 @@ class MemberBio(models.Model):
     
 class Slate(models.Model):
     name = models.CharField(max_length=140, blank=True)
-    description   = models.TextField()
+    description   = models.TextField(null=True, blank=True)
     bills_support = models.ManyToManyField(Bill, blank=True, related_name="slates_support")
     bills_oppose  = models.ManyToManyField(Bill, blank=True, related_name="slates_oppose")
     bills_neutral = models.ManyToManyField(Bill, blank=True, related_name="slates_neutral")
@@ -2004,8 +2004,14 @@ class Slate(models.Model):
     slug          = models.SlugField()
     visible = models.BooleanField(default=False)
     
+    def set_name(self):
+        if self.name == "":
+            self.name = "Key Votes "+str(govtrack.CURRENT_CONGRESS)
+    
     def set_default_slug(self):
         import string
+        
+        self.set_name()
         
         self.slug = slugify(self.name)
         if self.slug != "" and not Slate.objects.filter(slug=self.slug).exists():

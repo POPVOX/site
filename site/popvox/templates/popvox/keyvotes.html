@@ -1,7 +1,7 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Congress Match{% endblock %}
+{% block title %}POPVOX - Key Votes - {{org.name}} - {{slate.name}}{% endblock %}
 {% block title2 %}{% endblock %}
-{% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
+{% block description %}See how your representative and senators voted on bills {{org.name}} has highlighted.{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
 
@@ -12,27 +12,18 @@
 <div class="content myhill slate">
 
 	<div class="col_9 col_top col_last ">
-        {% if type == "match" %}
-		<h1 class="rule_btm">Congress Match</h1>
-        {% else %} {% comment %} type is keyvotes {% endcomment %}
         <h1 class="rule_btm"> {{org.name}} - {{slate.name}}  {% if admin %} | <a href="/keyvotes/{{org.slug}}/{{slate.slug}}/edit">edit</a> {% endif %}</h1>
-        <h3>Christian Coalition</h3>
 		<!-- <a href="#" class="b_orange">Build Your Own</a> -->
 		<div id="log">
 			<h2>How did your Member vote?</h2>
 			<a href="#" class="b_orange">Log In to See</a>
 		</div>
-		<p>Organizations that watch Congress frequently identify "key votes" - - bills they identify as especially important ftp then. This is the slate of Key Votes chosen by [organization].</p>
-        <a href="#" class="float_right more_org">View more Organizations ></a>
-        <p>How do your Members match up with <strong>[organization]</strong>?</p>
-        {% endif %}
+        <h3>{% if slate.description %}{{org.name}}'s Description{% else %} About Key Votes {% endif %}:</h3>
+        {% if orgstaff %}<a href="/keyvotes/create" class="b_orange">Build Your Own</a>{% endif %}
+        <p class="slate_desc">{% if slate.description %}{{slate.description}}{% else %}Organizations that watch Congress frequently identify "key votes" - - bills they identify as especially important. This is the slate of Key Votes chosen by {{org.name}}.{% endif %}</p>
+        <p>How do your Members match up with <strong><a href="/orgs/{{org.slug}}">{{org.name}}</a></strong>?</p>
+        <a href="/keyvotes" class="float_right more_org">View More Key Votes ></a>
 
-        {% if type == "match" %}
-		<h3>How Did Your Members of Congress Vote?</h3>
-		<p>Are your senators and representative voting the way you want them to? Here is a personalized grid that displays every bill on which you weighed in, along with how your legislators voted if a vote was held on the bill. That includes letting you know if your Member of Congress abstained or was absent.  </p>
-        {% else %} {% comment %} type is keyvotes {% endcomment %}
-        {{slate.description}}
-        {% endif %}
 	</div>
 	<div class="clear"> </div>
 
@@ -55,13 +46,13 @@
                             <p>You</p>
                         {% endif %}
                     {% else %} {% comment %} type is keyvotes {% endcomment %}
-                        <img src="http://sodiumhalogen.com/up/b63796de.jpg" alt="{{member.name}}" width="66" />
+                        {% if org.logo %}<img src="{{org.logo.url}}" alt="{org.name}}" width="66" />{%else%}{{org.name}}{%endif%}
                     {% endif %}
                 </th>
                 {% for member in members %}
                     <th class="rep">
                         <img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
-                        <h4>12%</h4>
+                        <h4>{{member.stats.agree_percent}}%</h4>
                         {% if member.pvurl %}
                         <h3><a href="/member/{{member.pvurl}}">{{member.name}}</a></h3>
                         {% else %}
@@ -111,13 +102,7 @@
                             {% endif %}
                         {% else %} {% comment %} type is keyvotes {% endcomment %}
                                 {{comment.2.comment}}
-                                {% if is_admin %}
-                                    <br/><span class="editbutton">Edit</span>
-                                    <form method="post" class="editform" action="/ajax/keyvotes/{{slate.id}}/editcomment/{{comment.0.id}}>
-                                        <textarea class="comment" id="{{slateid}}-{{comment.0.id}}">{{comment.2.comment}}</textarea>
-                                        <input type="button" class="submit" id="submitbutton" value="Save" onclick="updatecomment(true, {{slate.id}}, {{comment.0.id}})" style="margin-top: 25px ; margin-bottom: 25px;"/>
-                                    </form>
-                                {% endif %}
+                                
                         {% endif %}
                         
                     </td>
@@ -126,13 +111,8 @@
                         {% if type == "match" %}
                             <td {% if vote == comment.position %}class="agree"{% endif %}>
                         {% else %} {% comment %} type is keyvotes {% endcomment %}
-                            <td {% if vote == comment.1 %}class="agree"{% endif %}>
+                            <td class="{% if vote == comment.1 %}agree{% else %}{% if vote == "0" or vote == "P" %}ab{%else%}{%if vote == "NR" %}{%else%}disagree{%endif%}{%endif%}{% endif %}">
                         {% endif %}
-                            {% if vote == "+" %}<p class="yea"></p>{% endif %}
-                            {% if vote == "-" %}<p class="nay"></p>{% endif %}
-                            {% if vote == "0" %}<p class="ab"></p>{% endif %}
-                            {% if vote == "P" %}<p class="ab"></p>{% endif %}
-                            {% if vote == "NR" %}{% endif %}
                             <!--{{reference}}-->
                         </td>
                         {% endfor %}
@@ -158,35 +138,10 @@
 			
 		<div class="clear"> </div>
 		
-		<small>Not all bills come up for a vote in the House and Senate. Delegates and the Resident Comissioner from Puerto Rico are not elligible to vote on bills. Some bills are voted on multiple times as the House and Senate try to come to an agreement, in which case we show how your Members of Congress voted in the most recent vote on the bill.</small>
+		<small>Not all bills come up for a vote in the House and Senate. Delegates and the Resident Comissioner from Puerto Rico are not eligible to vote on bills. Some bills are voted on multiple times as the House and Senate try to come to an agreement, in which case POPVOX shows how your Members of Congress voted in the most recent vote on the bill.</small>
 	</div>
 	
-</div>
-<script type="text/javascript">
-$('.expandy').hover(function() {
-  /*  var wrapper = $('<div></div>').appendTo('body').css('display', 'block').css('position', 'absolute').css('top', -10000).css('left', -10000).width($(this).width()).height($(this).height());
-    var clone = $(this).clone().appendTo(wrapper);    
-    document.getElementById("info").innerHTML = clone.height(); */
-},
-function() {
-    $('this').height(150);
-});
 
-$('.editform').hide();
-
-$('.editbutton').click(function() {
-    $myform = $(this).siblings('form');
-    $myform.show();
-
-});
-
-function updatecomment(validate, slateid, billid) {
-    ajaxform(function() {
-        
-    });
-}
-
-
-</script>
+{% comment %} don't close the outermost div. It's closed in the footer; closing it before then messes things up.{% endcomment %}
 
 {% endblock %}

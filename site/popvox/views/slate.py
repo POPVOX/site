@@ -130,6 +130,7 @@ def key_votes(request, orgslug=None, slateslug=None):
     slate = Slate.objects.get(org=org,slug=slateslug)
     admin = False
     leadership = False
+    orgstaff = False
 
     #if user is logged out, leg staff, org staff, or has no address, set  memberids to current leadership.
     if request.user:
@@ -143,6 +144,10 @@ def key_votes(request, orgslug=None, slateslug=None):
             else:
                 #check if the user is an admin for the org that owns the slate
                 admin = orgpermission(org, user)
+                
+                #check if user is an admin at all
+                if prof.is_org_admin():
+                    orgstaff = True
                 
                 try:
                     most_recent_address = PostalAddress.objects.filter(user=user).order_by('-created')[0]
@@ -201,15 +206,34 @@ def key_votes(request, orgslug=None, slateslug=None):
     for member in members:
         url = [k for k, v in memurls.items() if member['id'] == v][0]
         member['pvurl'] = url
+        
+    #merging stats into member info
+    x = 0
+    for member in members:
+        member['stats'] = stats[x]
+        x += 1
 
-    return render_to_response('popvox/keyvotes.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'type': "keyvotes", 'visible': visible, 'is_admin': admin},
+
+    return render_to_response('popvox/keyvotes.html', {'admin': admin,'billvotes': billvotes, 'members': members, 'slate': slate, 'stats': stats, 'had_abstain': had_abstain, 'leadership': leadership, 'org': org, 'orgstaff': orgstaff, 'type': "keyvotes", 'visible': visible, 'is_admin': admin},
         context_instance=RequestContext(request))
         
 def keyvotes_index(request):
+
+    #check for orgstaff to display 'build your own' button
+    orgstaff = False
+    if request.user:
+        user = request.user
+        try:
+            prof = user.get_profile()
+            if prof.is_org_admin():
+                orgstaff = True
+        except:
+            pass
+
     
     slates = Slate.objects.filter(visible = True)
     
-    return render_to_response('popvox/keyvotes_index.html', {'slates': slates}, context_instance=RequestContext(request))
+    return render_to_response('popvox/keyvotes_index.html', {'slates': slates, 'orgstaff': orgstaff}, context_instance=RequestContext(request))
         
         
 class SlateErrorList(ErrorList):
@@ -259,8 +283,11 @@ class SlateLimitForm(SlateForm):
         #widget_neutral = self.fields['bills_neutral'].widget
         bill_choices = []
         for bill in bills:
+            billtype = [x[1] for x in bill.BILL_TYPE_CHOICES if x[0] == bill.billtype][0]
+            #HAHAHA TAKE THAT, Bill model! List comprehension! In your face!
+            slug = str(billtype) + ' ' + str(bill.billnumber)
             if bill.street_name != None:
-                title = (bill.street_name[:100] + '..') if len(bill.street_name) > 100 else bill.street_name
+                title = (slug + ': ' + bill.street_name[:100] + '..') if len(bill.street_name) > 100 else slug + ': ' + bill.street_name
             else:
                 title = (bill.title[:100] + '..') if len(bill.title) > 100 else bill.title
             bill_choices.append((bill.id, title))
@@ -275,30 +302,36 @@ def keyvotes_create(request, orgslug=None, slateslug=None):
     user = request.user
     prof = user.get_profile()
     
-    if not user.is_superuser or not prof.is_org_admin():
-        raise Http404
+    if not user.is_superuser:
+        if not prof.is_org_admin():
+            raise Http404
+    
         
     if request.method == 'POST':
-            if orgslug:
-                org = Org.objects.get(slug=orgslug)
-                editslate = Slate.objects.get(org=org, slug=slateslug)
-                form = SlateForm(request.POST, instance = editslate)
-                if form.is_valid():
-                    myslate = form.save()
-            else:
-                form = SlateForm(request.POST)
-                if form.is_valid():
-                    myslate = form.save(commit=False)
-                    myslate.set_default_slug()
-                    myslate.save() 
-                    form.save_m2m()
-            return redirect("/keyvotes/"+myslate.org.slug+"/"+myslate.slug)
+        if orgslug:
+            org = Org.objects.get(slug=orgslug)
+            editslate = Slate.objects.get(org=org, slug=slateslug)
+            form = SlateForm(request.POST, instance = editslate)
+            if form.is_valid():
+                myslate = form.save(commit=False)
+                myslate.set_name()
+                myslate.save()
+                form.save_m2m()
+        else:
+            form = SlateForm(request.POST)
+            if form.is_valid():
+                myslate = form.save(commit=False)
+                myslate.set_default_slug()
+                myslate.save() 
+                form.save_m2m()
+        return redirect("/keyvotes/"+myslate.org.slug+"/"+myslate.slug)
     else:
         kwargs = {}
         kwargs['request'] = request
         
         #orgslug will only be True on edit
-        if orgslug:
+        print orgslug
+        if orgslug != None:
             org = Org.objects.get(slug=orgslug)
             
             #make sure they're authorized to edit that slate:
