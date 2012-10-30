@@ -17,7 +17,11 @@
         {% else %} {% comment %} type is keyvotes {% endcomment %}
         <h1 class="rule_btm"> {{org.name}} - {{slate.name}}  {% if admin %} | <a href="/keyvotes/{{org.slug}}/{{slate.slug}}/edit">edit</a> {% endif %}</h1>
         <h3>Christian Coalition</h3>
-		<a href="#" class="b_orange">Build Your Own</a>
+		<!-- <a href="#" class="b_orange">Build Your Own</a> -->
+		<div id="log">
+			<h2>How did your Member vote?</h2>
+			<a href="#" class="b_orange">Log In to See</a>
+		</div>
 		<p>Organizations that watch Congress frequently identify "key votes" - - bills they identify as especially important ftp then. This is the slate of Key Votes chosen by [organization].</p>
         <a href="#" class="float_right more_org">View more Organizations ></a>
         <p>How do your Members match up with <strong>[organization]</strong>?</p>

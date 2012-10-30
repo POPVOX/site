@@ -6279,6 +6279,27 @@ th.stathead ul {
 .slate a {
 	font-weight: bold;
 }
+
+#log {
+	display: block;
+	width: 260px;
+	height: 100px;
+	margin-left: 20px;
+	background: #fff;
+	float: right;
+	text-align: center;
+}
+	
+	#log h2 {
+		font: bold 16px/22px helvetica, san-serif;
+		color: #CC6A11;
+		}
+		
+	#log .b_orange {
+		margin: 0 15px;
+	}
+
+
 .b_orange {
 	background: #CC6A11;
 	border:  1px solid #7f4109;
@@ -6293,7 +6314,14 @@ th.stathead ul {
 	margin-left: 20px;
 	width: 200px;
 	text-align: center;
+	text-shadow: 0px -1px 1px #8c4607;
 }
+
+	.b_orange:hover {
+		background: #75747c;
+		border: 1px solid #5a5a61;
+		text-shadow: 0px -1px 1px #5a5a61;
+	}
 
 #keyvotes_meta label {
 	display: block;
