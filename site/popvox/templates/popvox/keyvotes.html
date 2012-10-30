@@ -14,12 +14,13 @@
 	<div class="col_9 col_top col_last ">
         <h1 class="rule_btm"> {{org.name}} - {{slate.name}}  {% if admin %} | <a href="/keyvotes/{{org.slug}}/{{slate.slug}}/edit">edit</a> {% endif %}</h1>
 		<!-- <a href="#" class="b_orange">Build Your Own</a> -->
-		<div id="log">
-			<h2>How did your Member vote?</h2>
-			<a href="#" class="b_orange">Log In to See</a>
-		</div>
         <h3>{% if slate.description %}{{org.name}}'s Description{% else %} About Key Votes {% endif %}:</h3>
         {% if orgstaff %}<a href="/keyvotes/create" class="b_orange">Build Your Own</a>{% endif %}
+        {% if not user.is_authenticated %}
+        <div id="log">
+            <h2>How did your Member vote?</h2>
+            <a href="/accounts/login?next=/keyvotes/{{org.slug}}/{{slate.slug}}" class="b_orange">Log In to See</a>
+        </div>{% endif %}
         <p class="slate_desc">{% if slate.description %}{{slate.description}}{% else %}Organizations that watch Congress frequently identify "key votes" - - bills they identify as especially important. This is the slate of Key Votes chosen by {{org.name}}.{% endif %}</p>
         <p>How do your Members match up with <strong><a href="/orgs/{{org.slug}}">{{org.name}}</a></strong>?</p>
         <a href="/keyvotes" class="float_right more_org">View More Key Votes ></a>

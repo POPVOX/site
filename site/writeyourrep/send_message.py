@@ -474,6 +474,7 @@ custom_mapping = {
     "761_phone1_text": "phone_areacode",
     "761_phone2_text": "phone_prefix",
     "761_phone3_text": "phone_line",
+    "765_zipCode_text": "zip5",
     "789_phone8_text": "phone",
     "817_areacode_text" : "phone_areacode",
     "817_phone3_text" : "phone_prefix",
