@@ -222,9 +222,19 @@ ul.pagination-pages li a{
         </li>
     {% if forloop.last %}</ul>{% endif %}
     {% endfor %}
-    
-    <div>
-    	<a href="{% url articles_feed 'latest' %}">RSS</a>
-    </div>
+
+</div>
+{% endblock %}
+
+{% block rss %}
+<div id="article-rss" class="sub">
+<h2>Follow</h2>
+    <ul class="sub_side">
+        <li><a href="https://twitter.com/popvox">Twitter</a></li>
+        <li><a href="https://www.facebook.com/POPVOXnation">Facebook</a></li>
+        <li><a href="https://plus.google.com/115845584660035325057/posts">Google+</a></li>
+        <li><a href="{% url articles_feed 'latest' %}">RSS</a></li>
+        <div class="clear">&nbsp;</div>
+    </ul>
 </div>
 {% endblock %}
