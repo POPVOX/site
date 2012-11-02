@@ -64,7 +64,7 @@ class BillReportSitemap(Sitemap):
         
         
 class OrgSitemap(Sitemap):
-    priority = 0.5
+    priority = 0.8
 
     def changefreq(self, obj):
         return 'weekly'
@@ -77,3 +77,15 @@ class OrgSitemap(Sitemap):
         
     def location(self, obj):
         return '/orgs/'+str(obj.slug)
+        
+class KeyvoteSitemap(Sitemap):
+    priority = 0.7
+
+    def changefreq(self, obj):
+        return 'weekly'
+
+    def items(self):
+        return Slate.objects.filter(visible = True)
+        
+    def location(self, obj):
+        return '/keyvotes/'+str(obj.org.slug)+'/'+str(obj.slug)
