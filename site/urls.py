@@ -43,7 +43,7 @@ urlpatterns = patterns('',
 	(r'^home/match$', 'popvox.views.slate.congress_match'),
 	(r'^keyvotes/$', 'popvox.views.slate.keyvotes_index'),
     (r'^keyvotes/create/$', 'popvox.views.slate.keyvotes_create'),
-    (r'^keyvotes/(?P<orgslug>[\w\-]+)/(?P<slateslug>[\w\-]+)/edit', 'popvox.views.slate.keyvotes_create'),.
+    (r'^keyvotes/(?P<orgslug>[\w\-]+)/(?P<slateslug>[\w\-]+)/edit', 'popvox.views.slate.keyvotes_create'),
     (r'^keyvotes/(?P<orgslug>[\w\-]+)/(?P<slateslug>[\w\-]+)/delete', 'popvox.views.slate.keyvotes_delete'),
     (r'^keyvotes/(?P<orgslug>[\w\-]+)/(?P<slateslug>[\w\-]+)', 'popvox.views.slate.key_votes'),
 	(r'^home/history$', 'popvox.views.home.history'),
