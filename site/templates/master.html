@@ -222,16 +222,9 @@
 					<li class="last {%block nav_legstaff_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
 				</div>
 				<div class="orgadmin_role" style="display: none;">
-					<li class="{%block nav_orgadmin_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>
-					<li id="master_profile_orglist_li" class="{%block nav_orgadmin_class_profile%}{%endblock%}">
-						<a href="#">Profile</a>
-						<div id="master_profile_orglist" style="display: none">
-							<div style="height: 19px;"> </div> 
-							<div class="orglist_li">
-							</div>
-						</div>					
-					</li>
+					<li class="{%block nav_orgadmin_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>				
                     <li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Bills</a></li>
+                    <li class="{%block nav_orgadmin_class_congress%}{%endblock%}"><a href="/gettoknow">Congress</a></li>
 					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
                     <li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/services/widgets">Services</a></li>
                     <li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
@@ -239,6 +232,7 @@
 				<div class="individual_role">
 					<li class="homelink {%block nav_citzen_class_home%}{%endblock%}"><a href="/">Home</a></li>
 					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
+                    <li class="{%block nav_citzen_class_congress%}{%endblock%}"><a href="/gettoknow">Congress</a></li>
 					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
                     <li class="{%block nav_citzen_class_reports%}{%endblock%}"><a href="/services/widgets">Services</a></li>
 				</div>
@@ -275,6 +269,7 @@
 		if (!res.user) {
 			$('#nav .loginlink').show();
 			$('#nav_2 .individual_role').show();
+            $('#master_profile_orglist_li').remove();
 		} else {
 			$('#nav .profilelink, #nav .logoutlink').show();
 			if (res.user.admin)
@@ -284,6 +279,7 @@
 				$('#nav_2 .legstaff_role').show();
 				$('#nav_2 .individual_role').hide();
 				$('#nav .profilelink a').text(res.user.fullname);
+                $('#master_profile_orglist_li').remove();
 			} else if (res.user.orgs.length > 0) {
 				$('#nav_2 .individual_role').hide();
 				$('#nav_2 .orgadmin_role').show();
@@ -309,6 +305,7 @@
 				if (res.user.serviceaccounts.length > 0)
 					$('#nav_2 .individual_role .analyticslink').show();
 				$('#nav .profilelink a').text(res.user.screenname);
+                $('#master_profile_orglist_li').remove();
 			}
 		}
 	});

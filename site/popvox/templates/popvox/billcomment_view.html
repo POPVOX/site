@@ -3,6 +3,10 @@
 {% load registration_providers %}
 {% load humanize %}
 {% block title %}{{comment.user.username}}&rsquo;s Comment on {{ bill.title|truncatewords:10 }}{% endblock%}
+{%block nav_legstaff_class_bills%}active{%endblock%}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
 {% block description %}{{comment.message|truncatewords:40}}{% endblock %}
 {% block finalscript %}
 {% if comment.user == request.user %}

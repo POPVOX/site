@@ -3,6 +3,9 @@
 {% block title2 %}{% endblock %}
 {% block description %}See how your representative and senators voted on bills you have weighed in on.{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
+{%block subnav%}{% include "popvox/subnav_congress.html" %}{%endblock%}
+{%block nav_citzen_class_congress%}active{%endblock%}
+{%block nav_orgadmin_class_congress%}active{%endblock%}
 {% block head %}
 <style>
 
@@ -273,7 +276,6 @@ th.stathead ul {
 
 </style>
 {% endblock %}
-{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
 
 <div class="content myhill">

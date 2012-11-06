@@ -3,8 +3,12 @@
 {% block title %}POPVOX - Get To Know - A District - A Member of Congress{% endblock %}
 {% block title2 %}{% endblock %}
 {% block description %}POPVOX - Select Memberof Congress or Congressional District to see facts, stats, sponsored bills, constituent sentiment, and social media links{% endblock %}
-{% block bodyattributes %}class="land gettoknow"{% endblock %}
-{% block navattributes %}id="head_r"{% endblock %}
+{% block bodyattributes %}class="gettoknow"{% endblock %}
+
+{%block subnav%}{% include "popvox/subnav_congress.html" %}{%endblock%}
+{%block nav_citzen_class_congress%}active{%endblock%}
+{%block nav_orgadmin_class_congress%}active{%endblock%}
+
 {% block disable_login_redirect %}{% endblock %}
 {% block head %}
 <link rel="stylesheet" href="/media/css/datatables/popvox_table.css" type="text/css"/>
@@ -34,9 +38,7 @@ function subscribe(validate) {
 }
 </script>
 {% endblock %}
-{% block head_r_content %}
-<h1>Get to know a congressional district or a Member of Congress.</h1>
-{% endblock %}
+
 {% block content %}
 <div class="hm_slide gtk">
 	<div class="hm_slide_mid">
