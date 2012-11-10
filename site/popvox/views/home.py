@@ -1364,10 +1364,7 @@ def gettoknow(request):
             members.append(member)
 
 
-    return render_to_response('popvox/gettoknow.html', {"stateabbrs": 
-                stateabbrs, "diststateabbrs": 
-                diststateabbrs,
-                "members": members},
+    return render_to_response('popvox/gettoknow.html', {"stateabbrs": stateabbrs, "diststateabbrs": diststateabbrs, "members": members},
         
     context_instance=RequestContext(request))
     

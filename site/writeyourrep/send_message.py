@@ -1253,13 +1253,15 @@ def send_message_webform(di, msg, deliveryrec):
     common_responses = [ "Thank you for contacting me",
     "Your form has been submitted",
     "Thank you for your e-mail submission",
+    "Thank you for your email",
     "Thank you for contacting my office",
     "Thank you for your message",
     "Thank you for submitting your information",
     "The following information was sent to us",
     "Thank you for sending me your email",
     "Thank you for your correspondence",
-    "The following information has been submitted" ]
+    "The following information has been submitted",
+    "Thank you, your message has been submitted"]
     
     for x in common_responses:
         if x in ret:
