@@ -4,7 +4,7 @@
 {% block description %}POPVOX - {{position.action_headline}} - {{position.campaign.org.name}}{% endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
-<script>
+<script type="text/javascript">
 {% if admin %}
 function update_headline() {
 	ajax(
@@ -60,7 +60,7 @@ function validate(form) {
 		<div class="col_12">
 			{% if admin %}<div class="b_edit b_edit_h1" id="action_headline_editbtn" onclick="$('#action_headline').click()"></div>{% endif %}
 			<h1 class="rule_btm"><span id="action_headline">{{position.action_headline}}</span> <span class="info">A message from {{position.campaign.org.name}}</span></h1>
-			{% if admin %}<script>$('#action_headline').inline_edit(update_headline, 'input');</script>{% endif %}
+			{% if admin %}<script type="text/javascript">$('#action_headline').inline_edit(update_headline, 'input');</script>{% endif %}
 		</div>
 		
 		<div class="col_6">
@@ -73,7 +73,7 @@ function validate(form) {
 				<div id="action_body">
 					{{ position.action_body|safe }}
 				</div>
-				{% if admin %}<script>$('#action_body').inline_edit(update_body, 'tinymce');</script>{% endif %}
+				{% if admin %}<script type="text/javascript">$('#action_body').inline_edit(update_body, 'tinymce');</script>{% endif %}
 				
 			</div>
 			
@@ -132,7 +132,7 @@ function validate(form) {
 			        <input id="share_with_org" type="checkbox" name="share_with_org" checked="1" value="1"/>
 			        <p><label for="share_with_org">Share my info with {{position.campaign.org.name}}?</label></p>
 				</div>
-				<script>
+				<script type="text/javascript">
 					$('#name_first').input_default("first name");
 					$('#name_last').input_default("last name");
 					$('#email').input_default("email address");

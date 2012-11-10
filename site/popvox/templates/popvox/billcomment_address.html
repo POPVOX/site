@@ -2,7 +2,7 @@
 {% load popvox_utils %}
 {% block title %}Finish Comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block finalscript %}<script>mpmetrics.track('comment address', { 'bill': '{{bill.displaynumber|escapejs}}', 'personalized': {% if message %}'yes'{% else %}'no'{% endif %}, 'had_error': {% if error_is_validation %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
+{% block finalscript %}<script type="text/javascript">mpmetrics.track('comment address', { 'bill': '{{bill.displaynumber|escapejs}}', 'personalized': {% if message %}'yes'{% else %}'no'{% endif %}, 'had_error': {% if error_is_validation %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
 {% block description %}Finish your comment on {{ bill.title }}{% endblock%}
 {% block content %}
 <div class="content">
@@ -79,7 +79,7 @@
 		</div>
 	</form>
 	
-	<script>
+	<script type="text/javascript">
 	function submitform(mode) {
 		$('#submitmode').val(mode);
 		$('#commentform').submit();

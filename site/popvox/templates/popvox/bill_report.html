@@ -50,12 +50,12 @@ h2 span {
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
-<script>
+<script type="text/javascript">
 {% include "popvox/track.js" %}
 </script>
 {% endblock %}
 {% block content %}
-	<script>
+	<script type="text/javascript">
 	var default_state;
 	var default_district;
 	var report_state = "";
@@ -424,7 +424,7 @@ h2 span {
 					{% include "popvox/track.html" %}
 					{% endwith %}
 				</div>
-				<script>master_state(function(res) {
+				<script type="text/javascript">master_state(function(res) {
 					if (res.user) {
 						$('#bookmarkbutton').show();
 						track_setstate({{bill.id}}, "+", res.page.tracked);

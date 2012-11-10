@@ -5,7 +5,7 @@
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block content %}
-<script>
+<script type="text/javascript">
 	function showdata(is_first_load, is_more) {
 		$('#options_state').val(report_state);
 		$('#options_district').val(report_district);
@@ -300,7 +300,7 @@
 								<h4><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h4>
 								{% if pro or con %}
 									<a href="{{bill.url}}/report">
-	                           			<div id="sponsoredtwo_part_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("sponsoredtwo_part_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
+	                           			<div id="sponsoredtwo_part_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("sponsoredtwo_part_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 							   		</a>
 								<p class="usercount">sentiment of {{total}} users in {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s {{scope}}</p>
 								{% else %}
@@ -320,7 +320,7 @@
 								<h4><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h4>
 								{% if pro or con %}
 									<a href="{{bill.url}}/report">
-	                					<div id="cosponsored_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div></a>
+	                					<div id="cosponsored_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div></a>
 								<p class="usercount">sentiment of {{total}} users in {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s district</p>
 								{% else %}
 									<p class="toofew">Too few {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
@@ -351,8 +351,8 @@
 <iframe width="280" height="170" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
 <hr>
 {% if memdata.twitter_id %}
-    <script charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
-    <script>
+    <script type="text/javascript" charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
+    <script type="text/javascript">
     new TWTR.Widget({
       version: 2,
       type: 'profile',
@@ -387,7 +387,7 @@
 Washington, DC 20515</p>
 	</div></div><!--end member-info -->
 
-<script>
+<script type="text/javascript">
 $(document).ready(function($){
     $('.highcharts-container').each( function() {
         $(this).width($(this).parent().parent().width());

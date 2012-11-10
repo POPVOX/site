@@ -5,7 +5,7 @@
 {%block nav_legstaff_class_dashboard%}active{%endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
-<script>
+<script type="text/javascript">
 	var curtab = null;
 	function showtab(tab) {
 		if (curtab == "LOADING") return false;
@@ -111,7 +111,7 @@
 				{{typename}}
 			</a></li>
 			{% if forloop.first %}
-				<script>$(function() {
+				<script type="text/javascript">$(function() {
 					if (window.location.hash.length <= 1)
 						showtab({{typeid}});
 					else

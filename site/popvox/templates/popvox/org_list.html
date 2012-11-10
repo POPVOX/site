@@ -6,7 +6,7 @@
 {%block nav_citzen_class_orgs%}active{%endblock%}
 {% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
-<script>
+<script type="text/javascript">
 var current_cat = "issue";
 function showlist(elem, issueslug) {
 	$('#activity').hide();
@@ -100,7 +100,7 @@ function toggle_categories() {
 						<input id="orgsearchbox" type="text" class="search" value="search for an organization"  onfocus="if (this.value=='search for an organization') this.value='';"/>
 						<span>Start typing the name of an organization</span>	
 					</div>
-				    <script>
+				    <script type="text/javascript">
 				    $(document).ready(function(){
 						  $("#orgsearchbox").autocomplete({
 						  	source: "/ajax/orgs/search",

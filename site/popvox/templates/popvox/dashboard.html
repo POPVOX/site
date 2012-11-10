@@ -9,7 +9,7 @@
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 
-<script>
+<script type="text/javascript">
 var is_sug_hide_animating = 0;
 
 function click_prompt(billid, billindex, link, sugtype, href) {
@@ -160,7 +160,7 @@ p.feedback a { color: #CC7722; }
 							<div class="pie">
 								{% if item.action_type == "comment" or item.action_type == "bill_now" or item.action_type == "bill_current_status" or item.action_type == "bill_upcoming_event" %}
 									<div class="pie" id="act_pie_{{forloop.counter0}}"> </div>
-									<script>bill_chart("act_pie_{{forloop.counter0}}", {{item.bill.stats.0}}, {{item.bill.stats.1}}, { bg: "#D4D1CA", nopad: true });</script>
+									<script type="text/javascript">bill_chart("act_pie_{{forloop.counter0}}", {{item.bill.stats.0}}, {{item.bill.stats.1}}, { bg: "#D4D1CA", nopad: true });</script>
 								{% endif %}
 								
 								{% if item.action_type == "org_position" and 0 %}
@@ -306,7 +306,7 @@ p.feedback a { color: #CC7722; }
 			<ul id="suggestions" class="suggest_bills">
 			{% for sug in suggestions %}
 				{% if forloop.counter0 == 0 %}
-					<script>
+					<script type="text/javascript">
 					$(function() {
 						mpmetrics.track('dashboard_suggestion_hit', { bill: {{sug.bill.id}}, position: {{forloop.counter0}}, type: '{{sug.type|escapejs}}' });
 					});
@@ -316,7 +316,7 @@ p.feedback a { color: #CC7722; }
 					<div class="btn_r">
 						<a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');">hide</a>
 						<div class="pie" id="sug_pie_{{sug.bill.id}}"> </div>
-						<script>bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}}, { nopad: true });</script>
+						<script type="text/javascript">bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}}, { nopad: true });</script>
 					</div>
 					<h3><a href="{{sug.bill.url}}" onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'main', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');" title="{{sug.bill.nicename|truncate:250}}">{{sug.bill.nicename|truncate:55}}</a></h3>
 					<div class="weigh">

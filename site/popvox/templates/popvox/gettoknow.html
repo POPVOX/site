@@ -17,7 +17,7 @@
 	#whoami { display: none; }*/
 
 </style>
-<script>
+<script type="text/javascript">
 function zoompop(id) {
 	$.colorbox({
                 transition: "none",
@@ -119,7 +119,7 @@ function subscribe(validate) {
 				<p id="subscribe_status" class="error"></p>
 				
 				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button">
-				<script>
+				<script type="text/javascript">
 				$('.subscribe_email').input_default("email");
 				$('.signup_input').textchange(function() { subscribe(true); return true; });
 				$('.signup_input').keydown_enter(function() { return subscribe(false); });
@@ -146,7 +146,7 @@ function subscribe(validate) {
 </div>
 
 <script type="text/javascript" src="/media/js/jquery.dataTables.js"></script>
-<script>
+<script type="text/javascript">
 	$(document).ready(function() {
 			memTable = $('#congress_member_table').dataTable();
             $('#mem_search').keypress(function(){

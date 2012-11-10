@@ -237,11 +237,11 @@ width: 70px;
 			<p>Want updates on what is new with POPVOX?</p>
 			<form id="signup_form" action="#" method="post" name="signup"><br />
 				<fieldset>	
-				<input id="subscribe_email" class="signup_input" name="email" size="25" maxlength="60" type="text"><br />
+				<input id="subscribe_email" class="signup_input" name="email" size="25" maxlength="60" type="text" /><br />
 				
 				<p id="subscribe_status" class="error"></p>
 				
-				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button">
+				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button"/>
 				<script type="text/javascript">
 				$('.subscribe_email').input_default("email");
 				$('.signup_input').textchange(function() { subscribe(true); return true; });

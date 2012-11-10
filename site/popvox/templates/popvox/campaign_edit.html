@@ -9,7 +9,7 @@
 		{% include "popvox/org_common_scripts.html" %}
 	{% endwith %}
 	
-		<script>
+		<script type="text/javascript">
 		function updateslug(validate) {
 			ajaxform("/ajax/orgs/cam/updatefields",
 				{ "org": "{{cam.org.slug|escapejs}}", "cam": "{{cam.slug|escapejs}}", "validate": (validate ? "validate" : "") },
@@ -101,7 +101,7 @@
 			<label for="description">Summary</label>
 			<textarea id="description">{{cam.description}}</textarea>
 			<div id="errorlabel_description" class="error"></div>
-			<script>$('#description').input_autosize();</script>
+			<script type="text/javascript">$('#description').input_autosize();</script>
 			
 			<label for="website">Campaign Website</label>
 			<input id="website" type="text" value="{% if cam.website %}{{cam.website}}{% endif %}"/>
@@ -110,7 +110,7 @@
 				
 			<label for="message">Detailed Description</label>
 			<textarea id="message" name="message">{{cam.message}}</textarea>
-			<script>
+			<script type="text/javascript">
 			tinyMCE.execCommand("mceAddControl", false, "message");
 			function message_on_save() { updatecampaign(); }
 			</script>
@@ -121,7 +121,7 @@
 			
 			<input type="button" class="submit" id="submitbutton" value="Save Your Changes" onclick="updatecampaign(false)"/>
 			<p id="errorlabel" class="error"/>
-			<script>
+			<script type="text/javascript">
 			$('#name, #description, #website').keyup_delayed(function() { updatecampaign(true) });
 			$('#name, #description, #website').input_default();
 			</script>
@@ -131,7 +131,7 @@
 		
 		<div id="slugedit" class="form" {% if cam.visible %}style="display: none"{% endif %}>
 			<div id="slugwhathappened" style="display: none" class="error">The page was reloaded to reflect the change in this campaign&rsquo;s POPVOX address.</div>
-			<script>if (window.location.hash == "#editurl") $('#slugwhathappened').show();</script>
+			<script type="text/javascript">if (window.location.hash == "#editurl") $('#slugwhathappened').show();</script>
 		
 			<label for="slug">Custom URL:</label>
 			<div class="field">http://www.popvox.com/orgs/{{cam.org.slug}}/<input type="text" id="slug" value="{{cam.slug}}"/></div>
@@ -139,7 +139,7 @@
 			<small>Enter a short, lowercase abbreviation for your campaign. It can contain only letters, numbers, underscores and hyphens. Note that if you change the URL, existing links outside of POPVOX to your landing page on POPVOX for this campaign will break, so it is not advised that you change your URL once you publish your campaign.</small>
 			<input type="button" class="submit" id="slugsubmitbutton" value="Change URL" onclick="updateslug(false)"/>
 			<div id="slugerrorlabel" class="error"></div>
-			<script>
+			<script type="text/javascript">
 			$('#slug').keyup_delayed(function() { updateslug(true) });
 			$('#slug').input_default();
 			</script>
@@ -158,7 +158,7 @@
 			{% endfor %}
 			</div>
 	
-			<script>$("#agendaitems_{{cam.id}}").sortable({
+			<script type="text/javascript">$("#agendaitems_{{cam.id}}").sortable({
 				items: ".orgcampaignposition",
 				axis: "y",
 				containment: ".block", // containing to the list prevents moving any item to the bottom
@@ -178,7 +178,7 @@
 
 		<h3>Publish This Campaign</h3>
 		<div class="form">
-		<script>
+		<script type="text/javascript">
 		var currently_visible = {% if cam.visible %}true{% else %}false{% endif %};
 		function updatevisibility_setcaptions() {
 			if (!currently_visible) {
@@ -209,7 +209,7 @@
 		<p id="visiblestatus"></p>
 		<input type="button" class="submit stackbutton" id="viewprofilebutton" value="View Campaign" onclick="window.location = '{{cam.url|escapejs}}'; return false;"/>
 		<input type="button" class="submit stackbutton" id="publishbutton" value="Publish" onclick="updatevisibility()"/>
-		<script>$(updatevisibility_setcaptions);</script>
+		<script type="text/javascript">$(updatevisibility_setcaptions);</script>
 		</div>
 		
 	</div> <!-- e: col_9 -->	

@@ -6,7 +6,7 @@
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
-{% block finalscript %}<script>master_state(function(res) { mpmetrics.track('bill page', { 'bill': '{{bill.displaynumber|escapejs}}', 'can_comment': res.page.canvote ? 'yes' : 'no' }); });</script>{% endblock %}
+{% block finalscript %}<script type="text/javascript">master_state(function(res) { mpmetrics.track('bill page', { 'bill': '{{bill.displaynumber|escapejs}}', 'can_comment': res.page.canvote ? 'yes' : 'no' }); });</script>{% endblock %}
 {% block head %}
 <style>
 	h1.streetname { margin-bottom: 0; }
@@ -14,7 +14,7 @@
 </style>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
-<script>
+<script type="text/javascript">
 var loaded_bill_text = false;
 function showtab(tab) {
 	$('.tab_tab li').removeClass('active');
@@ -70,7 +70,7 @@ function getshorturl() {
 					<div id="reintro_login">
 						<p><input type="button" class="b_login btn" onclick="window.location='/accounts/login?next={{bill.url}}'" value="Join or Login"/></p>
 					</div>
-					<script>master_state(function(res) { if (res.user) { $('#reintro_track').show(); $('#reintro_login').hide(); } });</script>
+					<script type="text/javascript">master_state(function(res) { if (res.user) { $('#reintro_track').show(); $('#reintro_login').hide(); } });</script>
 					<div class="clear"> </div>
 
 					<ul style="margin-top: 30px">
@@ -93,7 +93,7 @@ function getshorturl() {
 			</div>
 		{% endif %}
 	</div>
-	<script>master_state(function(res) { if (!res.page.canvote) $('#deadbox').hide(); });</script>
+	<script type="text/javascript">master_state(function(res) { if (!res.page.canvote) $('#deadbox').hide(); });</script>
 	{% endif %}
 
 	<div class="col_9 col_top">
@@ -115,7 +115,7 @@ function getshorturl() {
 				{% include "popvox/track.html" %}
 				{% endwith %}
 			</div>
-			<script>master_state(function(res) {
+			<script type="text/javascript">master_state(function(res) {
 				if (res.user) {
 					$('#track_me').show();
 					track_setstate({{bill.id}}, "+", res.page.tracked);
@@ -165,7 +165,7 @@ function getshorturl() {
 			<div class="hr"> </div>
 			<h3 class="no_rule">What is your organization&rsquo;s position?</h3>
 	
-			<script>
+			<script type="text/javascript">
 			var user_org;
 			var user_org_pos;
 			function endorse_oppose_1(position) {
@@ -263,7 +263,7 @@ function getshorturl() {
 		
 		</div> <!-- col_9 -->
 	</div>
-	<script>master_state(function(res) {
+	<script type="text/javascript">master_state(function(res) {
 		if (res.user && res.user.orgs.length > 0) {
 			$('#org_bar').show();
 			
@@ -341,7 +341,7 @@ function getshorturl() {
 					{% if nextchamber == "h" %}How should your representative vote?{% endif %}
 					{% if nextchamber != "s" and nextchamber != "h" %}How should your Members of Congress vote?{% endif %}
 					</span>
-					<script>master_state(function(res) { if (res.page.mocs) $('#howshouldtheyvote').text("How should " + res.page.mocs + " vote?"); });</script>
+					<script type="text/javascript">master_state(function(res) { if (res.page.mocs) $('#howshouldtheyvote').text("How should " + res.page.mocs + " vote?"); });</script>
 				{% endif %}
 			</p>
 			
@@ -351,7 +351,7 @@ function getshorturl() {
 			{% include "popvox/bill_uservote.html" %}
 		</div>
 	</div>
-	<script>master_state(function(res) {
+	<script type="text/javascript">master_state(function(res) {
 		if (res.user && (res.user.orgs.length > 0 || res.user.legstaffrole)) $('#user_bar').hide();
 		if (res.page.user_position) $('#user_bar').show();
 	});</script>
@@ -367,27 +367,27 @@ function getshorturl() {
 	
 	<div class="clear"> </div>
 	
-	<script>var initial_tab;</script>
+	<script type="text/javascript">var initial_tab;</script>
 	<div class="col_3">
 		<ul class="tab_tab">
 			{% for position, orgset in orgs %}
 			{% if position == "support" or position == "oppose" or orgset|length > 0 %}
 			<li id="orgs{{position}}_tab" {% if forloop.counter == 1 %}class="active"{% endif %}><a href="#" onclick="return showtab('orgs{{position}}')">{% if position == "support" %}Organizations Endorsing{% endif %}{% if position == "oppose" %}Organizations Opposing{% endif %}{% if position == "neutral" %}Other Statements{% endif %}{% if position == "administration" %}The Administration{% endif %}</a></li>
-			<script>if (!initial_tab && {{orgset|length}}) initial_tab = "orgs{{position}}";</script>
+			<script type="text/javascript">if (!initial_tab && {{orgset|length}}) initial_tab = "orgs{{position}}";</script>
 			{% endif %}
 			{% endfor %}
 
 			{% if bill.is_bill %}
 			<li id="billstatus_tab"><a href="#" onclick="return showtab('billstatus')">Bill Status</a></li>
-			<script>if (!initial_tab) initial_tab = "billstatus";</script>
+			<script type="text/javascript">if (!initial_tab) initial_tab = "billstatus";</script>
 				{% if bill.current_text %}
 					<li id="billtext_tab"><a href="#" onclick="return showtab('billtext')">Bill Text</a></li>
-					<script>if (!initial_tab) initial_tab = "billtext";</script>
+					<script type="text/javascript">if (!initial_tab) initial_tab = "billtext";</script>
 				{% endif %}
 			{% endif %}
 
 			<li id="widgetpane_tab"><a href="#" onclick="return showtab('widgetpane')">Add POPVOX to your site</a></li>
-			<script>if (!initial_tab) initial_tab = "widgetpane";</script>
+			<script type="text/javascript">if (!initial_tab) initial_tab = "widgetpane";</script>
 			
 			<li id="admin_tracking_tab" style="display: none;"><a href="#" onclick="return showtab('admin_tracking')">ADMIN &gt; Users Tracking</a></li>
 		</ul>
@@ -457,7 +457,7 @@ function getshorturl() {
 	
 			</div>
 		{% endfor %}
-		<script>master_state(function(res) {
+		<script type="text/javascript">master_state(function(res) {
 			if (res.page.matched_campaigns)
 			for (var i = 0; i < res.page.matched_campaigns.length; i++) {
 				var vs = res.page.matched_campaigns[i].visible_state;
@@ -481,7 +481,7 @@ function getshorturl() {
 			<p>Sorted by the date of the user weighing in.</p>
 			<div id="admin_tracking_weighedin"> </div>
 		</div>
-		<script>master_state(function(res) {
+		<script type="text/javascript">master_state(function(res) {
 				if (res.page.admin && (res.page.admin.tracking.length > 0 || res.page.admin.commented.length > 0)) {
 					$('#admin_tracking_tab').show();
 					$('#admin_tracking_tracking_count').text(res.page.admin.tracking.length);
@@ -517,7 +517,7 @@ function getshorturl() {
             <tr valign="top">
 			<td width="100%">
                 <br>
-				<script src="/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&title=1"> </script>
+				<script type="text/javascript"  src="/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&title=1"> </script>
 				<textarea wrap="virtual" style="width: 100%; height: 4.5em; font-size: 10px">&lt;script src="https://www.popvox.com/widgets/js/bill.js?bill={{bill.url|cut:"/bills/us/"}}&amp;title=1"&gt; &lt;/script&gt;</textarea>
 			</td>
 			</tr>
@@ -532,7 +532,7 @@ function getshorturl() {
 			</ul>
 		</div>
 		
-		<script>showtab(initial_tab)</script>
+		<script type="text/javascript">showtab(initial_tab)</script>
 		
 	</div>
 </div>

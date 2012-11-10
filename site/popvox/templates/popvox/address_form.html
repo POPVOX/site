@@ -1,4 +1,4 @@
-<script src="/media/js/jquery.tools.min.js"></script>
+<script type="text/javascript" src="/media/js/jquery.tools.min.js"></script>
 
 <label for="useraddress_prefix">Prefix</label>
 <select class="c2" name="useraddress_prefix">
@@ -49,7 +49,7 @@
 <label for="useraddress_phonenumber">Phone Number</label>
 <input class="c2" id="useraddress_phonenumber" name="useraddress_phonenumber" type="text" value="{{useraddress.phonenumber}}" title="We ask for your phone number because Congressional offices require that we include it with your letter."/><br />
 
-<script>$('#useraddress_firstname,#useraddress_address1,#useraddress_phonenumber').tooltip({ position: "center right", layout: "<div><span class='tip_point'></span></div>", offset: [0, 5], effect: "fade" });</script>
+<script type="text/javascript">$('#useraddress_firstname,#useraddress_address1,#useraddress_phonenumber').tooltip({ position: "center right", layout: "<div><span class='tip_point'></span></div>", offset: [0, 5], effect: "fade" });</script>
 {% if error_is_validation %}
-<script>$('#useraddress_address1').data('tooltip').show();</script>
+<script type="text/javascript">$('#useraddress_address1').data('tooltip').show();</script>
 {% endif %}

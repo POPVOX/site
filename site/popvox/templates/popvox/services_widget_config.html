@@ -293,7 +293,7 @@ ul#wSelect {
 
 <link rel="stylesheet" href="/media/widget/widget.css" type="text/css" media="screen" />
 
-<script>
+<script type="text/javascript">
 function splash_tab(tab) {
     $('#wSelect>li').removeClass("active");
     $(tab.parentNode).addClass("active");
@@ -1003,7 +1003,7 @@ var minicolors_opts = {
                         </div>
                         <div style="padding: 2px; font-size: 12px"><a href="#" onclick="$('#color_theme_picker').hide(); $('#color_pickers').show(); return false;">Customize colors...</a></div>
                     </div>
-                    <script>
+                    <script type="text/javascript">
                         var color_themes = {
                             "Standard":     { sbg: "b36015", sbg2: "e7e4dd", sfg: "ffffff", lnk: "cc6a11", bg: "fafafa", fg: "404045", fg2: "555555" },
                             "Bald Eagle":                { sbg: "073F6D", sbg2: "54B3E1", sfg: "ffffff", lnk: "073F6D", bg: "F1F1F1", fg: "404045", fg2: "555555" },
@@ -1046,43 +1046,43 @@ var minicolors_opts = {
                     <div class="vert">
                         <input id="color_bg" type="text" value="#fafafa" class="colorpicker"/>
                         <label for="color_bg">main background</label>
-                        <script>$('#color_bg').miniColors(minicolors_opts);</script>
+                        <script type="text/javascript">$('#color_bg').miniColors(minicolors_opts);</script>
                     </div>
                     
                     <div class="vert">
                         <input id="color_fg" type="text" value="#404045" class="colorpicker"/>
                         <label for="color_fg">main text</label>
-                        <script>$('#color_fg').miniColors(minicolors_opts);</script>
+                        <script type="text/javascript">$('#color_fg').miniColors(minicolors_opts);</script>
                     </div>
                 
                     <div class="vert">
                         <input id="color_lnk" type="text" value="#cc6A11" class="colorpicker"/>
                         <label for="color_lnk">link</label>
-                        <script>$('#color_lnk').miniColors(minicolors_opts);</script>
+                        <script type="text/javascript">$('#color_lnk').miniColors(minicolors_opts);</script>
                     </div>
                     
                     <div class="vert">
                         <input id="color_sbg" type="text" value="#b36015" class="colorpicker"/>
                         <label for="color_sbg">shell background</label>
-                        <script>$('#color_sbg').miniColors(minicolors_opts);</script>
+                        <script type="text/javascript">$('#color_sbg').miniColors(minicolors_opts);</script>
                     </div>
                     
                     <div class="vert widget_opts writecongress_opts">
                         <input id="color_sbg2" type="text" value="#e7e4dd" class="colorpicker"/>
                         <label for="color_sbg2">shell light background</label>
-                        <script>$('#color_sbg2').miniColors(minicolors_opts);</script>
+                        <script type="text/javascript">$('#color_sbg2').miniColors(minicolors_opts);</script>
                     </div>
                     
                     <div class="vert">
                         <input id="color_sfg" type="text" value="#ffffff" class="colorpicker"/>
                         <label for="color_sfg">shell text</label>
-                        <script>$('#color_sfg').miniColors(minicolors_opts);</script>
+                        <script type="text/javascript">$('#color_sfg').miniColors(minicolors_opts);</script>
                     </div>
 
                     <div class="vert widget_opts writecongress_opts">
                         <input id="color_fg2" type="text" value="#555555" class="colorpicker"/>
                         <label for="color_fg2">light text</label>
-                        <script>$('#color_fg2').miniColors(minicolors_opts);</script>
+                        <script type="text/javascript">$('#color_fg2').miniColors(minicolors_opts);</script>
                     </div>
                     
                     <div class="vert">
@@ -1197,7 +1197,7 @@ var minicolors_opts = {
     </div>    
     
     
-    <script>$('.tabs').pvtabs(change_widget);</script> <!-- execute early to get visibiity set -->
+    <script type="text/javascript">$('.tabs').pvtabs(change_widget);</script> <!-- execute early to get visibiity set -->
 </div><!-- e: content -->
 
 {% endblock %}

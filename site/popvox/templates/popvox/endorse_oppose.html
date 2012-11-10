@@ -1,4 +1,4 @@
-<script>
+<script type="text/javascript">
 var selected_bill;
 function billsearch_q_submit() {
 	$('#billsearch_error').hide();
@@ -108,7 +108,7 @@ function billsearch_endorse_oppose(pos) {
 		</div>
 		<div id="billsearch_error" class="error"></div>
     </form>
-    <script>$('#billsearch_q').input_default("search by bill number or keywords");</script>
+    <script type="text/javascript">$('#billsearch_q').input_default("search by bill number or keywords");</script>
 
     <div style="display: none;">
     <div id="billsearch_endorse_oppose" class="colorbox">
@@ -124,7 +124,7 @@ function billsearch_endorse_oppose(pos) {
 			</div>
 		</div>
 		<textarea id="bill_endorse_oppose_comment" style="margin-top: 1em; height: 80px; width: 100%"></textarea>
-		<script>$('#bill_endorse_oppose_comment').input_default("Provide a short explanation of your position. (Optional except when leaving a neutral statement.)");</script>
+		<script type="text/javascript">$('#bill_endorse_oppose_comment').input_default("Provide a short explanation of your position. (Optional except when leaving a neutral statement.)");</script>
 
 		<div id="billsearch_endorse_oppose_campaign" {% if cam %}style="display: none"{% endif %}>
 			<p>Campaigns are issue silos in which your organization may endorse or oppose one or more bills.</p>

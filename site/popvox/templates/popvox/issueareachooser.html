@@ -1,4 +1,4 @@
- <script>
+ <script type="text/javascript">
  var issuearea_count;
  var issuearea_chooser_change_made;
  var issuearea_chooser_finished_callback;
@@ -127,8 +127,8 @@
 		<div class="col_3 issues_cat_ad">
 			<h2>Add More Issues</h2>
 			<input id="issueareachooser_search" type="text" class="issue_search" />
-			<script>$('#issueareachooser_search').input_default('search for an issue by name');</script>
-			<script>$('#issueareachooser_search').textchange(issueareachooser_search);</script>
+			<script type="text/javascript">$('#issueareachooser_search').input_default('search for an issue by name');</script>
+			<script type="text/javascript">$('#issueareachooser_search').textchange(issueareachooser_search);</script>
 			<h3 class="no_rule">Issue Categories</h3>
 			{% if request.ua.os_family == "iPhone OS" %}
 				<p><strong>iPhone/iPad: Use two fingers to scroll this list!</strong></p>
