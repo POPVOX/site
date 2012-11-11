@@ -106,6 +106,13 @@ class MemberOfCongress(models.Model):
                 if new:
                     sys.stderr.write("Initializing new Member of Congress: " + str(obj) + "\n")
 
+class MemberBio(models.Model):
+    id = models.IntegerField(primary_key=True)
+    googleplus = models.URLField(blank=True)
+    flickr_id = models.CharField(max_length=100, blank=True)
+    pvurl = models.CharField(max_length=100,blank=True,null=True)
+    documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_memberbio")
+                    
 class CongressionalCommittee(models.Model):
     """A congressional committee or subcommittee."""
     code = models.CharField(max_length=8, unique=True, db_index=True)
@@ -1988,11 +1995,6 @@ class CensusData(models.Model):
     income = models.PositiveIntegerField(verbose_name="Median household income")
     urban = models.DecimalField(max_digits=5,decimal_places=2)
     rural = models.DecimalField(max_digits=5,decimal_places=2)
-    
-class MemberBio(models.Model):
-    id = models.IntegerField(primary_key=True)
-    googleplus = models.URLField(blank=True)
-    flickr_id = models.CharField(max_length=100, blank=True)
     
 class Slate(models.Model):
     name = models.CharField(max_length=140, blank=True)

@@ -1081,7 +1081,7 @@ def member_page(request, membername=None):
     member = None
     
     try:
-        memberid = memurls[membername] #FIXME pull this from MemberofCongress.pvurl instead of the dict file
+        memberid = MemberBio.objects.get(pvurl=membername).id
         member = MemberOfCongress.objects.get(id=memberid)
         
     except KeyError:
@@ -1242,8 +1242,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
     
 
     for member in members:
-        url = [k for k, v in memurls.items() if member['id'] == v][0]
-        member['pvurl'] = url
+        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
 
     filters = {}
     filters["state"] = searchstate
@@ -1349,7 +1348,7 @@ def gettoknow(request):
     for member in all_members:
         if member['current'] == True:
             mem = popvox.models.MemberOfCongress.objects.get(id=member['id'])
-            member['pvurl'] = mem.pvurl
+            member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
 
             url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member['id'])
             json_data = "".join(urllib2.urlopen(url).readlines())
