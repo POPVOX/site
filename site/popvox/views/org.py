@@ -134,7 +134,7 @@ def org_update_fields(request, field, value, validate_only):
     if not org.is_admin(request.user) :
         return HttpResponseForbidden("You do not have permission to view this page.")
     
-    org.updated = datetime.now() # update on save
+    org.updated = datetime.datetime.now() # update on save
     
     if field == "slug":
         value = forms.SlugField().clean(value) # raises ValidationException
@@ -322,7 +322,7 @@ def org_update_field(request, field, value, validate_only):
     if not org.is_admin(request.user) :
         return HttpResponseForbidden("You do not have permission to view this page.")
         
-    org.updated = datetime.now() # update on save
+    org.updated = datetime.datetime.now() # update on save
         
     if field == "visible":
         if not org.approved:
@@ -766,7 +766,7 @@ def action(request, orgslug, billposid):
     # create a Comment instance to get the appropriate verb to display
     # to the user
     cx = UserComment()
-    cx.created = datetime.now()
+    cx.created = datetime.datetime.now()
     cx.bill = billpos.bill
     cx.position = billpos.position
     
