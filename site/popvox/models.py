@@ -869,7 +869,7 @@ class PositionDocument(models.Model):
     def get_absolute_url(self):
         if self.owner_org.all().exists():
             return self.bill.url() + "/docs/" + self.owner_org.all()[0].slug + "/" + str(self.doctype)
-        if self.owner_memberofcongress.all().exists():
+        if self.owner_memberbio.all().exists():
             return self.bill.url() + "/docs/" + self.owner_memberofcongress.all()[0].id + "/" + str(self.doctype)
         return self.bill.url() # !!
 
