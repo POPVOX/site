@@ -60,14 +60,14 @@ def issuearea_chooser_list(request):
 def get_popular_bills(searchstate = None, searchdistrict = None):
     global popular_bills_cache
 
-    if popular_bills_cache != None and (datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
+    if popular_bills_cache != None and (datetime.datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
         return popular_bills_cache[1]
         
     popular_bills = []
 
     if False:
         # Select bills with the most number of comments in the last week.
-        for b in Bill.objects.filter(usercomments__created__gt=datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]:
+        for b in Bill.objects.filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]:
             if b.usercomments__count == 0:
                 break
             if not b in popular_bills:
@@ -92,8 +92,8 @@ def get_popular_bills(searchstate = None, searchdistrict = None):
                 comments = UserComment.objects.filter(state=searchstate,congressionaldistrict=searchdistrict)
             for rec in comments\
                 .exclude(bill__in=seen_bills)\
-                .filter(created__gt=datetime.now() - 5*time_period)\
-                .extra(select={"half":"created>='%s'" % (datetime.now() - time_period).isoformat()})\
+                .filter(created__gt=datetime.datetime.now() - 5*time_period)\
+                .extra(select={"half":"created>='%s'" % (datetime.datetime.now() - time_period).isoformat()})\
                 .values("half", "bill")\
                 .annotate(count=Count('id')).order_by('-count')\
                 [0:50]:
@@ -122,14 +122,14 @@ def get_popular_bills(searchstate = None, searchdistrict = None):
                 popular_bills.append(bill)
                 seen_bills.add(bill.id)
         
-    popular_bills_cache = (datetime.now(), popular_bills)
+    popular_bills_cache = (datetime.datetime.now(), popular_bills)
     
     return popular_bills
 
 def get_popular_bills2(searchstate = None, searchdistrict = None):
     global popular_bills_cache_2
 
-    if popular_bills_cache_2 != None and (datetime.now() - popular_bills_cache_2[0] < timedelta(minutes=30)):
+    if popular_bills_cache_2 != None and (datetime.datetime.now() - popular_bills_cache_2[0] < timedelta(minutes=30)):
         return popular_bills_cache_2[1]
 
     popular_bills = get_popular_bills(searchstate,searchdistrict)
@@ -146,7 +146,7 @@ def get_popular_bills2(searchstate = None, searchdistrict = None):
         b["bill"] = bill
         bmap[bill.id] = b
 
-    popular_bills_cache_2 = (datetime.now(), popular_bills2)
+    popular_bills_cache_2 = (datetime.datetime.now(), popular_bills2)
     
     return popular_bills2
 
@@ -199,7 +199,7 @@ def bills_issues_bills(request):
     # does that really work and not create dupes?
     bills = bills.filter(congressnumber=CURRENT_CONGRESS, migrate_to=None)
     bills = bills.\
-        filter(usercomments__created__gt=datetime.now()-timedelta(days=21))\
+        filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=21))\
         .annotate(Count('usercomments')).order_by('-usercomments__count') \
         | bills
     
@@ -247,7 +247,7 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
     # Pull in the bill objects for the search result matches.
 
     # Update sort order for those bills with comments in the last three weeks.
-    for b in Bill.objects.filter(id__in=bill_weights.keys()).filter(usercomments__created__gt=datetime.now()-timedelta(days=21)).annotate(count=Count('usercomments')).values("id", "count") :
+    for b in Bill.objects.filter(id__in=bill_weights.keys()).filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=21)).annotate(count=Count('usercomments')).values("id", "count") :
          bill_weights[b["id"]] = (-b["count"], bill_weights[b["id"]][1], bill_weights[b["id"]][2])
     
     # Update sort order for those bills with comments ever.
@@ -1061,7 +1061,7 @@ def user_may_change_address(existing_comment, address_record, user):
     # the user may create a new address record, or otherwise a string message telling
     # the user when he may next update his address.
     
-    now = datetime.now()
+    now = datetime.datetime.now()
 
     # Logical consistency?
     if existing_comment and existing_comment.delivery_attempts.filter(success=True).exists():
@@ -1162,11 +1162,11 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
         
         address_record.user = user
         if getattr(address_record, "created", None) == None: # I think because of pickling in the write congress
-            address_record.created = datetime.now()                 # widget this gets set as null which causes exception
+            address_record.created = datetime.datetime.now()                 # widget this gets set as null which causes exception
         address_record.save()
         
     comment.address = address_record
-    comment.updated = datetime.now()
+    comment.updated = datetime.datetime.now()
     comment.state = address_record.state
     comment.congressionaldistrict = address_record.congressionaldistrict
 
@@ -1486,7 +1486,7 @@ def billcomment_moderate(request, commentid, action):
     if comment.moderation_log == None:
         comment.moderation_log = ""
     comment.moderation_log = \
-        unicode(datetime.now()) + " " + request.user.username \
+        unicode(datetime.datetime.now()) + " " + request.user.username \
         + " set status to " +action + "\n" \
         + request.GET.get("log", "") + "\n\n" \
         + (comment.message if comment.message != None else "[no message]") \
@@ -1967,7 +1967,7 @@ def uploaddoc1(request):
     elif prof.is_leg_staff() and request.user.legstaffrole.member != None:
         types = ((0, "Press Release"), (1, "Introductory Statement"), (2, "Dear Colleague"), (99, "Other Document"))
         whose = request.user.legstaffrole.bossname
-        docs = request.user.legstaffrole.member.documents
+        docs = request.user.legstaffrole.memberbio().documents
     elif "org" in request.GET:
         org = Org.objects.get(slug=request.GET["org"])
         if not org.is_admin(request.user):
@@ -2045,7 +2045,7 @@ def uploaddoc2(request):
         doc, is_new = docs.get_or_create(
             bill = bill,
             doctype = doctype,
-            defaults = { "created": datetime.now() })
+            defaults = { "created": datetime.datetime.now() })
         doc.title = title
         doc.text = text
         doc.link = link

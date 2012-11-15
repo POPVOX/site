@@ -129,7 +129,7 @@ def get_legstaff_suggested_bills(user, counts_only=False, id=None, include_extra
             "id": "sponsor",
             "type": "sponsor",
             "name": "Sponsored by " + bossname,
-            "shortname": boss.lastname(),
+            "shortname": boss.lastname,
             "bills": select_bills(sponsor = boss)
             })
         

@@ -16,6 +16,7 @@ from urllib import urlopen
 from xml.dom import minidom
 import re
 import hashlib
+import datetime
 
 from tinymce import models as tinymce_models
 from picklefield import PickledObjectField
@@ -71,8 +72,28 @@ class MemberOfCongress(models.Model):
     """A Member of Congress or former member."""
     
     # The primary key is the GovTrack ID.
-    pvurl = models.CharField(max_length=100,blank=True,null=True)
-    documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_memberofcongress")
+    id = models.IntegerField(primary_key=True)
+    firstname = models.CharField(max_length=255,null=False)
+    middlename = models.CharField(max_length=255)
+    nickname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255,null=False)
+    namemod = models.CharField(max_length=255)
+    lastnameenc = models.CharField(max_length=255,null=False)
+    lastnamealt = models.CharField(max_length=255)
+    birthday = models.DateField(default=datetime.date.min)
+    gender = models.CharField(max_length=1, null=False, default='')
+    religion = models.CharField(max_length=255)
+    osid = models.CharField(max_length=50, default=None)
+    bioguideid = models.CharField(max_length=7, default=None)
+    pvsid = models.IntegerField(default=None)
+    fecid = models.CharField(max_length=9, default=None)
+    metavidid = models.CharField(max_length=255)
+    youtubeid = models.CharField(max_length=36, default=None)
+    twitterid = models.CharField(max_length=255)
+    lismemberid = models.CharField(max_length=6, default=None)
+    icpsrid = models.IntegerField(default=None)
+    fbid = models.IntegerField(default=None)
+    thomasid = models.IntegerField(default=None)
 
 
     def __unicode__(self):
@@ -93,6 +114,10 @@ class MemberOfCongress(models.Model):
             
     def info(self):
         return govtrack.getMemberOfCongress(self.id)
+        
+    def pvurl(self):
+        bio = MemberBio.objects.get(id=self.id)
+        return bio.pvurl
     
     # Make sure there is a record for every Member of Congress.
     @classmethod
@@ -106,6 +131,22 @@ class MemberOfCongress(models.Model):
                 if new:
                     sys.stderr.write("Initializing new Member of Congress: " + str(obj) + "\n")
 
+                    
+class MemberOfCongressRole(models.Model):
+    TITLE_CHOICES = [ ('REP', 'Rep.'), ('DEL', 'Del.'), ('SEN','Sen.')]
+    personeroleid = models.AutoField(primary_key=True,null=False)
+    personid = models.IntegerField(null=False, default=0)
+    type = models.CharField(max_length=8, null=False, default='')
+    startdate = models.DateField(default=datetime.date.min)
+    enddate = models.DateField(default=datetime.date.min)
+    party = models.CharField(max_length=255)
+    state = models.CharField(max_length=5, default=None)
+    district = models.IntegerField(default=None)
+    senateclass = models.IntegerField(default=None)
+    url = models.CharField(max_length=100, default=None)
+    title = models.CharField(max_length=3,choices=TITLE_CHOICES, null=False, default='REP')
+    address = models.TextField()
+                    
 class MemberBio(models.Model):
     id = models.IntegerField(primary_key=True)
     googleplus = models.URLField(blank=True)
@@ -1027,6 +1068,8 @@ class UserLegStaffRole(models.Model):
             if self.committee.code[0] in ("H", "S"): # but not J
                 return self.committee.code[0]
         return None
+    def memberbio(self):
+        return MemberBio.objects.get(id=self.member.id)
         
 class PostalAddress(models.Model):
     """A postal address."""
@@ -1049,6 +1092,9 @@ class PostalAddress(models.Model):
     zipcode = models.CharField(max_length=10)
     phonenumber = models.CharField(max_length=18, blank=True)
     congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
+    #these two are for transitioning when new congressional districts get drawn.
+    congressionaldistrict2003 = models.IntegerField()
+    congressionaldistrict2013 = models.IntegerField()
     state_legis_upper = models.TextField(blank=True, null=True)
     state_legis_lower = models.TextField(blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
