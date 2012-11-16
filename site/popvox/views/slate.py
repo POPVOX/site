@@ -125,8 +125,15 @@ def congress_match(request):
 
 
 def key_votes(request, orgslug=None, slateslug=None):
-    org = Org.objects.get(slug=orgslug)
-    slate = Slate.objects.get(org=org,slug=slateslug)
+    try:
+        org = Org.objects.get(slug=orgslug)
+    except Org.DoesNotExist:
+        raise Http404
+    try:
+        slate = Slate.objects.get(org=org,slug=slateslug)
+    except Slate.DoesNotExist:
+        raise Http404
+    
     admin = False
     leadership = False
     orgstaff = False
