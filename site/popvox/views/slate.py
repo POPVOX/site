@@ -104,6 +104,15 @@ def congress_match(request):
         return render_to_response('popvox/home_match.html', {'billvotes': [], 'members': []},
             context_instance=RequestContext(request))
             
+    changeddistrict = False
+    print most_recent_address.congressionaldistrict
+    print most_recent_address.congressionaldistrict2013
+    print changeddistrict
+    if most_recent_address.congressionaldistrict != most_recent_address.congressionaldistrict2013:
+        changeddistrict = True
+        print changeddistrict
+        #user's district number has changed.
+            
     memberids = getmemberids(most_recent_address)
     
     membermatch = popvox.match.membermatch(memberids, user)
@@ -120,7 +129,7 @@ def congress_match(request):
     for member in members:
         member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
         
-    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain, 'type':"match"},
+    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'changeddistrict': changeddistrict, 'stats': stats, 'had_abstain': had_abstain, 'type':"match"},
         context_instance=RequestContext(request))
 
 
