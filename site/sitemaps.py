@@ -3,7 +3,11 @@ from popvox.models import *
 from datetime import datetime
 from popvox.govtrack import CURRENT_CONGRESS
 
-class MemberpageSitemap(Sitemap):
+#TODO: Fix whatever the hell is wrong with the memberbio model that is preventing it from loading in admin, so that I can then change Menendez's pvurl so that it doesn't contain unicode, so that the member page site map will fucking load.
+
+#once this fucking rabbit hole has finally been filled in, uncomment the memberpage sitemap in urls.py.
+
+'''class MemberpageSitemap(Sitemap):
 
     priority = 0.8
 
@@ -11,10 +15,17 @@ class MemberpageSitemap(Sitemap):
         return 'daily'
 
     def items(self):
-        return MemberOfCongress.objects.filter(pvurl__contains="-") #excluding past members who don't have member pages anymore.
+        today = datetime.today()
+        currentmems = MemberOfCongressRole.objects.filter(enddate__gt=today)
+        memlist = []
+        for mem in currentmems:
+            personid = mem.personid
+            member = MemberOfCongress.objects.get(id=personid)
+            memlist.append(member)
+        return memlist #excluding past members who don't have member pages anymore.
         
     def location(self, obj):
-        return '/member/'+str(obj.pvurl)+"/"
+        return '/member/'+str(obj.pvurl)+"/"'''
     
 
 class BillSitemap(Sitemap):
