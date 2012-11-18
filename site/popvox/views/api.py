@@ -832,7 +832,10 @@ class org_get_info(BaseHandler):
         print permissions
         if not 'api_congress' in permissions:
             return HttpResponseBadRequest("This API key is not authorized for access to this API.")
-        org = Org.objects.get(id=orgid)
+        try:
+            org = Org.objects.get(id=orgid)
+        except Org.DoesNotExist:
+            raise Http404;
             
         ret = {
             "address": org.postaladdress,
