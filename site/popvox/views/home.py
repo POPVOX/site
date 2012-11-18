@@ -1084,7 +1084,7 @@ def member_page(request, membername=None):
         memberid = MemberBio.objects.get(pvurl=membername).id
         member = MemberOfCongress.objects.get(id=memberid)
         
-    except KeyError:
+    except MemberBio.DoesNotExist, KeyError:
         membername = membername.replace("-"," ")
         list = MemberOfCongress.objects.all()
         for mem in list:
