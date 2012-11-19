@@ -346,7 +346,10 @@ def keyvotes_create(request, orgslug=None, slateslug=None):
         #orgslug will only be True on edit
         print orgslug
         if orgslug != None:
-            org = Org.objects.get(slug=orgslug)
+            try:  
+                org = Org.objects.get(slug=orgslug)
+            except Org.DoesNotExist:
+                raise Http404
             
             #make sure they're authorized to edit that slate:
             permission = orgpermission(org, user)

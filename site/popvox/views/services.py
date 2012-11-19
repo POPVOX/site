@@ -218,7 +218,10 @@ def widget_render_commentstream(request, account, permissions):
             url = SITE_ROOT_URL + bx[0].url()
 
     if "issue" in request.GET:
-        ix = IssueArea.objects.get(id=request.GET["issue"])
+        try:
+            ix = IssueArea.objects.get(id=request.GET["issue"])
+        except IssueArea.DoesNotExist:
+	    raise Http404;
         cx.append(comments.filter(bill__topterm=ix))
         title1 = "Comments sent to Congress"
         title2 = ix.name
