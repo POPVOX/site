@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+#from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, TemplateDoesNotExist
 from django.views.generic.simple import direct_to_template
@@ -1290,6 +1290,60 @@ def district_info(request, searchstate=None, searchdistrict=None):
           diststateabbrs.remove(state)
         
     return render_to_response('popvox/districtinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata, "diststateabbrs": diststateabbrs, "statename": statename, "show_share_footer":True},
+    context_instance=RequestContext(request))
+    
+def new_district_info(request, searchstate=None, searchdistrict=None):
+    newdist = True
+    trending = get_popular_bills2(searchstate.upper(), searchdistrict, newdist) 
+    
+    trending_bills = []
+    
+    for bill in trending:
+        total = bill['bill'].usercomments.get_query_set().filter(state=searchstate,address__congressionaldistrict2013=searchdistrict).count()
+        if total >=4:
+            pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,address__congressionaldistrict2013=searchdistrict).count()/total
+            con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,address__congressionaldistrict2013=searchdistrict).count()/total
+        else:
+            pro = None
+            con = None
+        foo = (bill, pro, con,total)
+        trending_bills.append(foo)
+
+    trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
+
+    filters = {}
+    filters["state"] = searchstate
+    filters["congressionaldistrict"] = searchdistrict
+    popular = Bill.objects.filter(congressnumber = popvox.govtrack.CURRENT_CONGRESS)\
+    .filter(**dict( ("usercomments__"+k,v) for k,v in filters.items() ))\
+    .annotate(count=Count('usercomments'))\
+    .order_by('-count')\
+    [0:10]
+
+    popular_bills = []
+    for bill in popular:
+        total = bill.usercomments.get_query_set().filter(state=searchstate,address__congressionaldistrict2013=searchdistrict).count()
+        if total >=4:
+            pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,address__congressionaldistrict2013=searchdistrict).count()/total
+            con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,address__congressionaldistrict2013=searchdistrict).count()/total
+        else:
+            pro = None
+            con = None
+        
+        foo = (bill, pro, con,total)
+        popular_bills.append(foo)
+
+    popular_bills = sorted(popular_bills, key=lambda bills: bills[3], reverse=True)
+    
+    statename = govtrack.statenames[searchstate.upper()]
+    diststateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
+    
+    
+    for state in diststateabbrs:
+      if state[0] in ['AS', 'GU', 'MP', 'VI']:
+          diststateabbrs.remove(state)
+        
+    return render_to_response('popvox/newdistrictinfo.html', {"state":searchstate.upper(),"district":str(searchdistrict),"trending_bills": trending_bills, "popular_bills": popular_bills, "diststateabbrs": diststateabbrs, "statename": statename, "show_share_footer":True},
     context_instance=RequestContext(request))
     
 def unsubscribe_me_makehash(email):

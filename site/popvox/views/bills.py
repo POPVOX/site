@@ -57,7 +57,7 @@ def getissueareas():
 def issuearea_chooser_list(request):
     return render_to_response('popvox/issueareachooser_list.html', {'issues': getissueareas()}, context_instance=RequestContext(request))    
 
-def get_popular_bills(searchstate = None, searchdistrict = None):
+def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False):
     global popular_bills_cache
 
     if popular_bills_cache != None and (datetime.datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
@@ -67,7 +67,8 @@ def get_popular_bills(searchstate = None, searchdistrict = None):
 
     if False:
         # Select bills with the most number of comments in the last week.
-        for b in Bill.objects.filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]:
+        pop = Bill.objects.filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]
+        for b in pop:
             if b.usercomments__count == 0:
                 break
             if not b in popular_bills:
@@ -88,18 +89,21 @@ def get_popular_bills(searchstate = None, searchdistrict = None):
                 comments = UserComment.objects
             elif (searchdistrict == None):
                 comments = UserComment.objects.filter(state=searchstate)
+            elif (newdist == True):
+                comments = UserComment.objects.filter(state=searchstate,address__congressionaldistrict2013=searchdistrict)
             else:
                 comments = UserComment.objects.filter(state=searchstate,congressionaldistrict=searchdistrict)
-            for rec in comments\
-                .exclude(bill__in=seen_bills)\
-                .filter(created__gt=datetime.datetime.now() - 5*time_period)\
-                .extra(select={"half":"created>='%s'" % (datetime.datetime.now() - time_period).isoformat()})\
-                .values("half", "bill")\
-                .annotate(count=Count('id')).order_by('-count')\
-                [0:50]:
-                if not rec["bill"] in bill_data: bill_data[rec["bill"]] = [None, None]
-                bill_data[rec["bill"]][rec["half"]] = rec["count"]
-                max_count = max(max_count, rec["count"])
+            if not newdist:
+                for rec in comments\
+                    .exclude(bill__in=seen_bills)\
+                    .filter(created__gt=datetime.datetime.now() - 5*time_period)\
+                    .extra(select={"half":"created>='%s'" % (datetime.datetime.now() - time_period).isoformat()})\
+                    .values("half", "bill")\
+                    .annotate(count=Count('id')).order_by('-count')\
+                    [0:50]:
+                    if not rec["bill"] in bill_data: bill_data[rec["bill"]] = [None, None]
+                    bill_data[rec["bill"]][rec["half"]] = rec["count"]
+                    max_count = max(max_count, rec["count"])
                 
             if max_count < 5: continue
                 
@@ -126,13 +130,13 @@ def get_popular_bills(searchstate = None, searchdistrict = None):
     
     return popular_bills
 
-def get_popular_bills2(searchstate = None, searchdistrict = None):
+def get_popular_bills2(searchstate = None, searchdistrict = None, newdist = False):
     global popular_bills_cache_2
 
     if popular_bills_cache_2 != None and (datetime.datetime.now() - popular_bills_cache_2[0] < timedelta(minutes=30)):
         return popular_bills_cache_2[1]
 
-    popular_bills = get_popular_bills(searchstate,searchdistrict)
+    popular_bills = get_popular_bills(searchstate,searchdistrict,newdist)
 
     # Get the campaigns that support or oppose any of the bills, in batch.
     #cams = OrgCampaign.objects.filter(positions__bill__in = popular_bills, visible=True, org__visible=True).select_related() # note recursive SQL which goes from OrgCampaign to Org
