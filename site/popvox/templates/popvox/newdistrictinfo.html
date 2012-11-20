@@ -1,0 +1,133 @@
+{% extends "master.html" %}
+{% load humanize %}
+
+{% block title %}POPVOX - {% if district != "None" %}District{%else%}{% if state == "DC" or state == "PR" %}District{% else %}State{% endif %}{%endif%} Info{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}Information about individual congressional districts{% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block content %}
+<div class="content district-info">
+<div id="distsubnav" style="text-align:right">
+					State 
+					<select id="dist_options_state" size="1" onchange="dist_report_state = this.value; dist_update()">
+						<option value="">Choose a state</option>
+						{% for stateabbr, statename in diststateabbrs %}<option value="{{stateabbr}}">{{stateabbr}} - {{statename}}</option>{% endfor %}
+					</select>
+					District
+					<select id="dist_options_district" size="1" onchange="dist_report_district = this.value; dist_update()">
+				</select><a id="distgo" href="#">View Now</a></div>
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+
+
+
+<div class="col_12 col_top col_last">
+<h1 class="rule_btm">What do POPVOX users in the new {{statename}}-{{district}} think?</h1>
+<p>Congressional Districts all over the United States have been re-drawn. The Representatives who've been elected to serve these new districts will take office in January, when the 113th Congress begins.</p>
+<p>Check out the top and trending bills among POPVOX users in the new {{statename}}-{{district}}. We'll have more information on this new district as it becomes available.</p>
+<div class="district-legislation">
+	<div class="legislation-tabs">
+	   <h4 class="active" id="populartab"><a href="#">Popular</a></h4>
+	   <h4 class="inactive" id="trendingtab"><a href="#">Trending</a></h4>
+	   <div style="clear:both"></div>
+	</div>
+	<div style="clear:both"></div><!-- end legislation-tabs -->
+	<div class="legislation-trending" id="trending">
+        {% if district != "None" %}
+		<p class="subhead">Bills with recent activity in {{ statename }}'s District {{ district }}</p>
+        {% else %}
+        <p class="subhead">Bills with recent activity in {{ statename }}</p>
+        {% endif %}
+		<ul>
+		{% for billrec,pro,con,total in trending_bills %}
+				<li class="bill {% if billrec.pos == "+" %}endorsed{% endif %} {% if billrec.pos == "-" %}opposed{% endif %}">
+			{% comment %}{% ifchanged %}<p class="commented?">in the last {{billrec.bill.trending_time_period}}</p>{% endifchanged %}{% endcomment %}
+
+			{% with billrec.bill as bill %}
+
+			<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
+			{% if pro or con %}
+					<a href="{{bill.url}}/report">
+			        	<div id="trending_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
+				</a>
+			<p class="usercount">sentiment of {{total}} users in {{statename}}{% if district != "None" %}-{{district}}{% endif %}</p>
+			{% else %}
+					<p>Too few constituents in this {% if district != "None" %}district{% else %}state{% endif %} have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+			{% endif %}
+
+			<p class="trend">This {{ bill.type }} has been trending for the last {{billrec.bill.trending_time_period}}!</p>
+	
+			{% if billrec.pos == "" %}
+				<a class="action" href="{{bill.url}}">add comment</a>
+			{% endif %}
+
+	        {% endwith %}
+	        </li>
+	{% empty %}
+	<h3>Nothing trending :(</h3>
+	{% endfor %}
+	</ul>
+	</div><!---end trending legislation -->
+	<div class="legislation-pop" id="popular">
+        {% if district != "None" %}
+		<p class="subhead">Bills with the most activity in {{ statename }}'s District {{ district }}</p>
+        {% else %}
+        <p class="subhead">Bills with the most activity in {{ statename }}</p>
+        {% endif %}
+	    {% for bill,pro,con,total in popular_bills %}
+	<ol>
+	        <li class="bill">
+					<p class="number">#{{ forloop.counter }}</p>
+	        <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
+			{% if pro or con %}
+				<a href="{{bill.url}}/report">
+					<div id="popular_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
+				</a>
+			<p class="usercount">sentiment of {{total}} users in {{statename}}{% if district != "None" %}-{{district}}{% endif %}</p>
+			{% else %}
+				<p>Too few constituents in this {% if district != "None" %}district{% else %}state{% endif %} have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+			{% endif %}
+
+	        {% if bill.streetname %}<p>(&quot;{{bill.streetname}}&quot;)</p>{% endif %}
+	        </li>
+	</ol>
+	{% empty %}
+	<h4>Nothing trending :(</h4>
+	{% endfor %}
+	</div><!--end popular legislation -->
+	</div><!-- end district-legislation -->
+</div><!-- end col_9 col_top col_last -->
+{% include "ads/rightbar.html" %}
+</div>
+<script>
+$(document).ready(function($){
+	$('.highcharts-container').each( function() {
+		$(this).width($(this).parent().parent().width());
+	});
+	$('#trending').hide();
+
+$('#populartab').click(function show_popular() {
+    $('#popular').show();
+    $('#trending').hide();
+    $('#populartab').addClass("active");
+    $('#populartab').removeClass("inactive");
+    $('#trendingtab').addClass("inactive");
+    $('#trendingtab').removeClass("active");
+    return false;
+});
+$('#trendingtab').click(function show_trending() {
+    $('#popular').hide();
+    $('#trending').show();
+    $('#populartab').addClass("inactive");
+    $('#populartab').removeClass("active");
+    $('#trendingtab').addClass("active");
+    $('#trendingtab').removeClass("inactive");
+    return false;
+});
+});
+</script>
+
+
+<script type="text/javascript" src="/media/js/gettoknow.js"></script>
+{% endblock %}
