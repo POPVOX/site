@@ -126,6 +126,8 @@ class MemberBioAdmin(admin.ModelAdmin):
         return member.name()
 
     list_display = ('id','name')
+    exclude = ('documents',)
+	
 
 class UserTagAdmin(admin.ModelAdmin):
     list_display = ("org","label","value")
@@ -137,6 +139,7 @@ admin.site.register(Org, OrgAdmin)
 admin.site.register(OrgCampaign)
 admin.site.register(OrgCampaignPosition)
 admin.site.register(OrgContact)
+admin.site.register(MemberOfCongress)
 admin.site.register(Bill, BillAdmin)
 admin.site.register(Slate, SlateAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
