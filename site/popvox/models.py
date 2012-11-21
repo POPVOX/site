@@ -861,16 +861,18 @@ class PositionDocument(models.Model):
     toc = models.TextField(blank=True, null=True) # json encoded
     def __unicode__(self):
         owner = ""
-        if self.owner_memberofcongress.all().exists():
-            owner = unicode(self.owner_memberofcongress.all()[0]) + ": "
+        if self.owner_memberbio.all().exists():
+            owner = unicode(MemberOfCongress.objects.get(id=self.owner_memberbio.all()[0].id)) + ": "
         if self.owner_org.all().exists():
             owner = unicode(self.owner_org.all()[0]) + ": "
         return owner + self.bill.title + " [" + self.get_doctype_display() + "]"
     def get_absolute_url(self):
+	print "made it to get_absolute_url"
         if self.owner_org.all().exists():
             return self.bill.url() + "/docs/" + self.owner_org.all()[0].slug + "/" + str(self.doctype)
         if self.owner_memberbio.all().exists():
-            return self.bill.url() + "/docs/" + self.owner_memberofcongress.all()[0].id + "/" + str(self.doctype)
+            return ''
+            return self.bill.url() + "/docs/" + self.owner_memberbio.all()[0].personid + "/" + str(self.doctype)
         return self.bill.url() # !!
 
     def url(self):

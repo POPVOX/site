@@ -7,7 +7,7 @@ from popvox.govtrack import CURRENT_CONGRESS
 
 #once this fucking rabbit hole has finally been filled in, uncomment the memberpage sitemap in urls.py.
 
-'''class MemberpageSitemap(Sitemap):
+class MemberpageSitemap(Sitemap):
 
     priority = 0.8
 
@@ -25,7 +25,10 @@ from popvox.govtrack import CURRENT_CONGRESS
         return memlist #excluding past members who don't have member pages anymore.
         
     def location(self, obj):
-        return '/member/'+str(obj.pvurl)+"/"'''
+        try:
+            return '/member/'+str(obj.pvurl())+"/"
+        except MemberBio.DoesNotExist:
+            return
     
 
 class BillSitemap(Sitemap):

@@ -16,7 +16,7 @@ sitemaps = {
     'bills':BillSitemap,
     'billreports':BillReportSitemap,
     'orgs':OrgSitemap,
-    #'memberpages':MemberpageSitemap,
+    'memberpages':MemberpageSitemap,
     'keyvotes': KeyvoteSitemap
 }
 
