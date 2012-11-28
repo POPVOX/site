@@ -1085,6 +1085,8 @@ def member_page(request, membername=None):
         member = MemberOfCongress.objects.get(id=memberid)
         
     except MemberBio.DoesNotExist, KeyError:
+        raise Http404()
+        #Now that we have all the members ever, supporting url-hacking is too hard.
         membername = membername.replace("-"," ")
         list = MemberOfCongress.objects.all()
         for mem in list:
@@ -1350,6 +1352,85 @@ def new_district_info(request, searchstate=None, searchdistrict=None, csv=False)
         context_instance=RequestContext(request))
         r['Content-Disposition'] = 'attachment; filename="'+searchstate.upper()+searchdistrict+'.csv"'
         return r
+        
+def district_archive(request, searchstate=None, searchdistrict=None, archive=None):
+    if archive == str(2012):
+        congress = 112
+        archived = True
+    else:
+        raise Http404()
+    
+    #TODO: when we transfer the new districts into the congressionaldistrict column, we'll need to change the congressionaldistrict queries below to congressionaldistrict2003
+    trending = get_popular_bills2(searchstate.upper(), searchdistrict) 
+    
+    trending_bills = []
+    
+    for bill in trending:
+        total = bill['bill'].usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
+        if total >=4:
+            pro = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+            con = (100.0) * bill['bill'].usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        else:
+            pro = None
+            con = None
+        foo = (bill, pro, con,total)
+        trending_bills.append(foo)
+
+    trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
+
+    if int(searchdistrict) == 0:
+        sd = searchstate.upper()+str(searchdistrict)
+    else:
+        sd = searchstate.upper()+str(searchdistrict).lstrip('0')
+    
+    #TODO: we need to change this query to pull *historic* members of congress (for the archive year).
+    members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
+    members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
+    try:
+        censusdata = popvox.models.CensusData.objects.get(id=sd)
+        #TODO: we need to store old and new census data, so we'll probably need to change the primary key on the census table.
+    except:
+        raise Http404()
+
+    for member in members:
+        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
+
+    filters = {}
+    filters["state"] = searchstate
+    filters["congressionaldistrict"] = searchdistrict
+
+    
+    popular = Bill.objects.filter(congressnumber = 112)\
+        .filter(**dict( ("usercomments__"+k,v) for k,v in filters.items() ))\
+        .annotate(count=Count('usercomments'))\
+        .order_by('-count')\
+        [0:10]
+
+    popular_bills = []
+    for bill in popular:
+        total = bill.usercomments.get_query_set().filter(state=searchstate,congressionaldistrict=searchdistrict).count()
+        if total >=4:
+            pro = (100.0) * bill.usercomments.get_query_set().filter(position="+",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+            con = (100.0) * bill.usercomments.get_query_set().filter(position="-",state=searchstate,congressionaldistrict=searchdistrict).count()/total
+        else:
+            pro = None
+            con = None
+        
+        foo = (bill, pro, con,total)
+        popular_bills.append(foo)
+
+    popular_bills = sorted(popular_bills, key=lambda bills: bills[3], reverse=True)
+    
+    statename = govtrack.statenames[searchstate.upper()]
+    diststateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
+    
+    
+    for state in diststateabbrs:
+      if state[0] in ['AS', 'GU', 'MP', 'VI']:
+          diststateabbrs.remove(state)
+        
+    return render_to_response('popvox/districtinfo.html', {"archive":archive,"archived":archived,"state":searchstate.upper(),"district":str(searchdistrict),"members":members,"trending_bills": trending_bills, "popular_bills": popular_bills, "census_data": censusdata, "diststateabbrs": diststateabbrs, "statename": statename, "show_share_footer":True},
+    context_instance=RequestContext(request))
     
 def unsubscribe_me_makehash(email):
     from settings import SECRET_KEY, SITE_ROOT_URL
