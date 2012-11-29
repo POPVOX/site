@@ -1475,6 +1475,19 @@ def delete_account_confirmed(request):
     context_instance=RequestContext(request))
     
 @strong_cache
+def spotlight(request, year, month, day, slug):
+    #TODO:
+    #add a slug field to the BillList model. And while we're messing with it, an optional organization (for slates).
+    try:
+        spotlight = BillList.objects.get(slug=slug, date__year=year, date__month=month, date__day=day)
+    except:
+        raise Http404()
+
+    return render_to_response('popvox/spotlight.html', {"spotlight": spotlight},
+        
+    context_instance=RequestContext(request))
+    
+@strong_cache
 def gettoknow(request):
   
     stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]

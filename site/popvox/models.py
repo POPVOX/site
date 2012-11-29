@@ -461,6 +461,68 @@ def bill_from_url(url):
     else:
         return bill[0]
         
+class BillList(models.Model):
+    EVENT_TYPES = [
+        ('news', 'In The News'),
+        ('reintroduction', 'Reintroduction'),
+        ('slate', 'Slate'),
+        ('spotlight', 'Issue Spotlight'),
+        ]
+    
+    title = models.CharField(max_length=90)
+    type = models.CharField(choices=EVENT_TYPES, max_length=max([len(x[0]) for x in EVENT_TYPES]))
+    description = description = models.TextField(blank=True, null=True)
+    date = models.DateTimeField()
+    visible = models.BooleanField(default=False)
+    slug = models.SlugField(blank=True)
+    
+    def set_default_slug(self):
+        import string
+        
+        self.slug = slugify(self.title)
+        if self.slug != "" and not BillList.objects.filter(slug=self.slug).exists():
+            return
+        else:
+            suffix = ""
+            while True:
+                slates = BillList.objects.filter(slug = self.slug + str(suffix))
+                if len(slates) == 0:
+                    self.slug = self.slug + str(suffix)
+                    break # found a good one
+                if suffix == "":
+                    suffix = 0
+                suffix += 1
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.type, self.title)
+        
+class BillEvent(models.Model):
+    EVENT_TYPES = [
+        ('news', 'In The News'),
+        ('reintroduction', 'Reintroduction'),
+        ('slate', 'Slate'),
+        ('spotlight', 'Issue Spotlight'),
+        ]
+    POSITION_CHOICES = [
+        ('+', 'Support'),
+        ('-', 'Oppose'),
+        ('0', 'Neutral')
+        ]
+    
+    bill = models.ForeignKey(Bill, related_name="events")
+    date = models.DateTimeField()
+    type = models.CharField(choices=EVENT_TYPES, max_length=max([len(x[0]) for x in EVENT_TYPES]))
+    title = models.CharField(max_length=90, blank=True, null=True)
+    description = models.TextField(max_length=300, blank=True, null=True)
+    list = models.ForeignKey(BillList, related_name="events", blank=True, null=True)
+    position = models.CharField(choices=POSITION_CHOICES, max_length=max([len(x[0]) for x in EVENT_TYPES]), blank=True, null=True, default=None)
+    
+    def shortname(self):
+        return self.bill.shortname
+        
+    def listname(self):
+        return self.list.type+' '+self.list.title
+        
 # ORGANIZATIONS #
 
 class Org(models.Model):
@@ -775,6 +837,8 @@ class OrgCampaign(models.Model):
         if not self.org.visible: return "org-not-published"
         if not self.visible: return "campaign-not-published"
         return "visible"
+    def org_name(self):
+        return self.org.name
 
 class OrgExternalMemberCount(models.Model):
     """An external count of a size of an organization, e.g. as reported by the org or from Facebook or Twitter."""
@@ -815,6 +879,10 @@ class OrgCampaignPosition(models.Model):
         unique_together = (("campaign", "bill"),)
     def __unicode__(self):
         return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position
+    def campaign_name(self):
+        return self.campaign.org.name
+    def bill_shortname(self):
+        return self.bill.shortname
     def get_absolute_url(self):
         return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
     def documents(self):

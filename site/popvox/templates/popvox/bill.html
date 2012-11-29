@@ -386,6 +386,9 @@ function getshorturl() {
 				{% endif %}
 			{% endif %}
 
+            <li id="billevents_tab"><a href="#" onclick="return showtab('billevents')">Latest News</a></li>
+            <script>if (!initial_tab) initial_tab = "billevents";</script>
+
 			<li id="widgetpane_tab"><a href="#" onclick="return showtab('widgetpane')">Add POPVOX to your site</a></li>
 			<script>if (!initial_tab) initial_tab = "widgetpane";</script>
 			
@@ -498,6 +501,14 @@ function getshorturl() {
 			<iframe width="675" height="750" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe>
 
 		</div>
+
+        <div id="billevents" style="display: none" class="tab_panel">
+            <h4>Latest News</h4>
+            {% for event in bill.events.all %}
+                <li>{% if event.type == 'spotlight' %}{{bill.shortname}} was featured in Issue Spotlight: {{event.list.title}} on {{event.date}}{% endif %}
+                {% if event.type == 'news' %}{{bill.shortname}} was In The News on {{event.date}}{% endif %}</li>
+            {% endfor %}
+        </div>
 		
 		<div id="widgetpane" style="display: none" class="tab_panel">
 		
