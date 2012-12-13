@@ -687,6 +687,14 @@ def load_fiscal_cliff_bill_list():
 			"source": u"Lieberman-Coburn Health Proposal",
 			"source_url": "http://lieberman.senate.gov/index.cfm/issues-legislation/health-and-social-policy/saving-medicare-the-liebermancoburn-plan",
 		},
+		{
+			"bill": Bill.objects.get(id=24017), # The Sequester Replacement Reconciliation Act
+			"savings": 242,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"Sponsor: Rep. Paul Ryan",
+			"source_url": "https://www.popvox.com/member/rep-paul-ryan-wi/",
+		},
 	]
 	for bill in fiscal_cliff_bill_list:
 		if not "title" in bill:
