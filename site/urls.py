@@ -160,7 +160,9 @@ urlpatterns = patterns('',
 	(r'^services/widgets/img/([\w/\-]+)$', "popvox.views.services.image"),
 	(r'^ajax/services/setopt$', "popvox.views.services.service_account_set_option"),
 	(r'^services/api/campaign/(\d+)/supporters/(csv|json)$', "popvox.views.services.download_supporters"),
-	
+        
+	(r'^fiscalcliff$', 'popvox.views.features.fiscal_cliff'),
+		
 	(r'^supercommittee$', 'popvox.views.features.supercommittee'),
 	#(r'^grading-congress$', 'popvox.views.features.grade_reps'),
 

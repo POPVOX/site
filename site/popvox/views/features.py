@@ -28,7 +28,7 @@ def load_supercommittee_bill_list():
 			"bill": Bill.objects.get(id=19773), # millionaries
 			"savings": 453,
 			"category_name": "Tax",
-			"category_icon": "i_tax",
+			"category_icon": "i_health",
 			"source": "House Ways & Means Minority",
 			"source_url": "http://www.democraticleader.gov/pdf/WaysMeans101311.pdf",
 		},
@@ -398,7 +398,7 @@ def grade_reps(request):
 	return render_to_response("popvox/features/grade_reps.html",
 	{ 'scores': [('Representatives', house), ('Senators', senate)] },
 	context_instance=RequestContext(request))
-      
+
 
 @json_response
 @user_passes_test(lambda u : u.is_authenticated() and u.userprofile.is_leg_staff())
@@ -513,7 +513,223 @@ def legstaff_facebook_report_getinfo(request):
 							if like["constituent"][0]:
 								entry["constituent_likes"] += 1
 								info["num_constituent_postlikes"][0] += 1
-				
+	
 	return info
 	
+	
+fiscal_cliff_bill_list = None
+fiscal_cliff_bill_list_ids = None								
+								
+def load_fiscal_cliff_bill_list():
+	global fiscal_cliff_bill_list
+	global fiscal_cliff_bill_list_ids
+	
+	if fiscal_cliff_bill_list != None: return fiscal_cliff_bill_list
+
+	fiscal_cliff_bill_list = [
+		{
+			"bill": Bill.objects.get(id=19774), # Estate Tax
+			"savings": 106,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=19775), # Limit Itemized Deductions
+			"savings": 410,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=19875), # Tax Carried Interest as Ordinary Income
+			"savings": 13,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=26001), # Extend Debt Limit
+			"savings": "-",
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"Sponsor: Sen. Harry Reid",
+			"source_url": "https://www.popvox.com/member/sen-harry-reid-nv/",
+		},
+		{
+			"bill": Bill.objects.get(id=25039), # Middle Class Tax Cut Act
+			"savings": 250,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"Sponsor: Sen. Harry Reid",
+			"source_url": "https://www.popvox.com/member/sen-harry-reid-nv/",
+		},
+		{
+			"bill": Bill.objects.get(id=26020), # Reform International Tax System
+			"savings": 148,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=26021), # Repeal LIFO Accounting for Inventories
+			"savings": 52,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=26022), # Allow Tax Cuts to Expire for Households Making More Than $250,000/year
+			"savings": 849,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President's Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=26045), # A bill to provide a comprehensive deficit reduction plan, and for other purposes.
+			"savings": "-",
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"Sponsor: Sen. Bob Corker",
+			"source_url": "http://www.corker.senate.gov/public/_cache/files/5eb76323-b7c2-4405-822b-e68890ca3593/Fiscal_Reform_Act_of_2012_Summary.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=26023), # Impose a Financial Crisis Responsibility Fee
+			"savings": 19,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=26025), # Cap Federal Deductions at $50,000
+			"savings": 750,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"Sen. Bob Corker",
+			"source_url": "http://www.corker.senate.gov/public/_cache/files/5eb76323-b7c2-4405-822b-e68890ca3593/Fiscal_Reform_Act_of_2012_Summary.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=25078), # H.R. 8: Job Protection and Recession Prevention Act 
+			"savings": 403,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"Sponsor: Rep. David Camp",
+			"source_url": "https://www.popvox.com/member/rep-dave-camp-mi/",
+		},
+		{
+			"bill": Bill.objects.get(id=25449), # S 3521: The Family and Business Tax Cut Certainty Act 
+			"savings": 205,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"Sponsor: Sen. Max Baucus",
+			"source_url": "https://www.popvox.com/member/sen-max-baucus-mt/",
+		},
+		{
+			"bill": Bill.objects.get(id=19876), # End Oil and Gas Tax Preferences
+			"savings": 42,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=26026), # Increasing Medicare Premiums for High-Income Beneficiaries
+			"savings": 28,
+			"category_name": "Health",
+			"category_icon": "i_health",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=26024), # Align Medicare Part D Drug Payment Policies With Medicaid Policies
+			"savings": 156,
+			"category_name": "Health",
+			"category_icon": "i_health",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=19878), # Chained CPI
+			"savings": 299,
+			"category_name": "Government Reform",
+			"category_icon": "i_govreform",
+			"source": "Bowles-Simpson recommendations",
+			"source_url": "http://www.momentoftruthproject.org/sites/default/files/MeasuringUp5_11_2011.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=20063), # Reinstate Superfund Tax
+			"savings": 18,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2012/assets/jointcommitteereport.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=20067), # Reducing Post-Acute Care Payments
+			"savings": 42,
+			"category_name": "Health",
+			"category_icon": "i_health",
+			"source": u"The President\u2019s Budget for FY 2013",
+			"source_url": "http://www.whitehouse.gov/sites/default/files/omb/budget/fy2013/assets/receipts.pdf",
+		},
+		{
+			"bill": Bill.objects.get(id=20068), # Raise Medicare Eligibility Age
+			"savings": 124,
+			"category_name": "Health",
+			"category_icon": "i_health",
+			"source": u"Lieberman-Coburn Health Proposal",
+			"source_url": "http://lieberman.senate.gov/index.cfm/issues-legislation/health-and-social-policy/saving-medicare-the-liebermancoburn-plan",
+		},
+	]
+	for bill in fiscal_cliff_bill_list:
+		if not "title" in bill:
+			bill["title"] = bill["bill"].nicename.replace(" (Proposal for Fiscal Cliff)", "")
+		if not "description" in bill:
+			bill["description"] = bill["bill"].description
+	
+	fiscal_cliff_bill_list_ids = [bill["bill"].id for bill in fiscal_cliff_bill_list]
+	
+	return fiscal_cliff_bill_list
+
+@strong_cache
+def fiscal_cliff(request):
+	load_fiscal_cliff_bill_list()
+	
+	bill_list = list(fiscal_cliff_bill_list) # clone
+	for i in xrange(len(bill_list)):
+		bill_list[i] = dict(bill_list[i]) # clone
+		bill = bill_list[i]
+		bill["sentiment"] = bill_statistics(bill["bill"], "POPVOX Nation", "POPVOX Nation")
+		if bill["sentiment"]:
+			bill["sentiment"]["scaled_pro"] = 142 * bill["sentiment"]["pro_pct"] / 100
+			bill["sentiment"]["scaled_con"] = 142 - bill["sentiment"]["scaled_pro"]
+	
+	return render(request, "popvox/features/fiscal_cliff.html",
+		{
+			"bills": bill_list,
+			"show_share_footer": True,
+		})
+
+def fiscal_cliff_userstate(request):
+	load_fiscal_cliff_bill_list()
+	resp = []
+	if request.user.is_authenticated():
+		for entry in fiscal_cliff_bill_list:
+			bill = entry["bill"]
+			try:
+				c = UserComment.objects.get(user=request.user, bill=bill)
+				resp.append( (bill.id, c.position) )
+			except UserComment.DoesNotExist:
+				pass
+	return { "positions": resp }
+fiscal_cliff.user_state = fiscal_cliff_userstate								
+				
+
 
