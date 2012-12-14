@@ -440,6 +440,9 @@
 			float: left;
 			text-indent: -9999em;
 			}
+            .sc_pg .support.chosen {
+                background: url(/media/features/supercommittee/i_action_chosen.png) left top no-repeat;
+            }
 			
 			.sc_pg .support.lg {
 				background: url(/media/features/supercommittee/b_support_sc.png) left top no-repeat;
@@ -450,6 +453,9 @@
 				float: left;
 				text-indent: -9999em;
 				}
+                .sc_pg .support.lg.chosen {
+                    background: url(/media/features/supercommittee/b_support_sc_chosen.png) left top no-repeat;
+                }
 
 			.sc_pg .support:hover, .sc_pg .support.inactive:hover {
 				background-position: left -60px;
@@ -473,6 +479,9 @@
 			float: left;
 			text-indent: -9999em;
 			}
+            .sc_pg .oppose.chosen {
+                background: url(/media/features/supercommittee/i_action_chosen.png) -41px top no-repeat;
+            }
 			
 			.sc_pg .oppose.lg {
 				background: url(/media/features/supercommittee/b_oppose_sc.png) left top no-repeat;
@@ -483,6 +492,9 @@
 				float: left;
 				text-indent: -9999em;
 				}
+                .sc_pg .oppose.lg.chosen {
+                    background: url(/media/features/supercommittee/b_oppose_sc_chosen.png) left top no-repeat;
+                }
 
 			.sc_pg .oppose:hover, .sc_pg .oppose.inactive:hover {
 				background-position: -41px -60px;
@@ -637,10 +649,15 @@ $(function() {
 		if (res.page && res.page.positions) {
 			for (var i = 0; i < res.page.positions.length; i++) {
 				var n = $('.proposal.body[bill_id="' + res.page.positions[i][0] + '"]');
-				if (res.page.positions[i][1] == "+")
+				if (res.page.positions[i][1] == "+") {
 					n.find('.action_buttons .oppose').addClass("inactive");
-				else
+                    n.find('.action_buttons .support').addClass("chosen");
+                    n.find('.action_buttons .support').attr("title", "You chose this");
+				} else {
 					n.find('.action_buttons .support').addClass("inactive");
+                    n.find('.action_buttons .oppose').addClass("chosen");
+                    n.find('.action_buttons .oppose').attr("title", "You chose this");
+                }
 			}
 		}
 	});
