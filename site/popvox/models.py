@@ -990,6 +990,8 @@ class UserProfile(models.Model):
     usertags = models.ManyToManyField(UserTag, blank=True, null=True)
     
     options = PickledObjectField(default={})
+    tagline = models.CharField(max_length=140,blank=True,null=True)
+    bio = models.TextField(blank=True,null=True)
     
     def __unicode__(self):
         ret = self.user.username
@@ -1008,10 +1010,19 @@ class UserProfile(models.Model):
         super(UserProfile, self).delete(*args, **kwargs)
         self.user.delete()
         
+    def most_recent_address(self):
+        
+        address = PostalAddress.objects.filter(user=self.user.id).order_by("-created")[0]
+        return address
+            
+        
     def most_recent_comment_district(self):
-        for c in self.user.comments.order_by("-created").select_related("address"):
+        comments = self.user.comments.order_by("-created").select_related("address")
+        try:
+            c = comments[0]
             return c.address.state + str(c.address.congressionaldistrict)
-        return None
+        except IndexError:
+            return None
 
     _is_org_admin = None # cache because of the frequency we call from templates; but dangerous?
     def is_org_admin(self):
