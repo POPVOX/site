@@ -41,6 +41,7 @@ urlpatterns = patterns('',
 	
 	(r'^home$', 'popvox.views.home.home'),
 	(r'^home/match$', 'popvox.views.slate.congress_match'),
+	(r'^user/(?P<userid>\d+)$', 'popvox.views.profile.user_profile'),
 	(r'^keyvotes/$', 'popvox.views.slate.keyvotes_index'),
     (r'^keyvotes/create/$', 'popvox.views.slate.keyvotes_create'),
     (r'^keyvotes/(?P<orgslug>[\w\-]+)/(?P<slateslug>[\w\-]+)/edit', 'popvox.views.slate.keyvotes_create'),
@@ -66,9 +67,9 @@ urlpatterns = patterns('',
 	
 	(r'^activity$', 'popvox.views.home.activity'),
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),
-	(r'^newbills$', 'popvox.views.home.new_bills',{'NumDays':7}),
-	(r'^newbills/$', 'popvox.views.home.new_bills',{'NumDays':7}),
-	(r'^newbills/(?P<NumDays>[1-9]|1[0-9]|2[0-9]|30)$', 'popvox.views.home.new_bills'),
+	(r'^newbills$', 'popvox.views.bills.new_bills',{'NumDays':7}),
+	(r'^newbills/$', 'popvox.views.bills.new_bills',{'NumDays':7}),
+	(r'^newbills/(?P<NumDays>[1-9]|1[0-9]|2[0-9]|30)$', 'popvox.views.bills.new_bills'),
 	
 	
 	# internal pages
