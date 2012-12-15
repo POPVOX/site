@@ -1100,12 +1100,16 @@ def member_page(request, membername=None):
     memberids = [member.id] #membermatch needs a list
     
     #Social media links and bio info from the sunlight API (and our own db, where necessary)
-    url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member.id)
-    json_data = "".join(urllib2.urlopen(url).readlines())
-    loaded_data = json.loads(json_data)
-    mem_data = loaded_data['response']['legislator']
+    mem_data = {}
+    try:
+        url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member.id)
+        json_data = "".join(urllib2.urlopen(url).readlines())
+        loaded_data = json.loads(json_data)
+        mem_data = loaded_data['response']['legislator']
+    except urllib2.HTTPError:
+        pass
 
-    if mem_data['youtube_url'] != "":
+    if 'youtube_url' in mem_data and mem_data['youtube_url'] != "":
         youtube_id = mem_data['youtube_url'].rsplit("/",1)[1]
         url = "http://gdata.youtube.com/feeds/base/users/"+youtube_id+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
         try:
@@ -1118,18 +1122,20 @@ def member_page(request, membername=None):
         except (IndexError, urllib2.HTTPError):
             pass
         
-    birthdate = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d").date()
-    today = date.today()
-    try: # raised when birth date is February 29 and the current year is not a leap year
-        birthday = birthdate.replace(year=today.year)
-    except ValueError:
-        birthday = birthdate.replace(year=today.year, day=born.day-1)
-    if birthday > today:
-        age = today.year - birthdate.year - 1
-    else:
-        age = today.year - birthdate.year
-    mem_data['age'] = age
-    mem_data['birthday'] = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d")
+    if 'birthdate' in mem_data:
+        birthdate = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d").date()
+        today = date.today()
+        try: # raised when birth date is February 29 and the current year is not a leap year
+            birthday = birthdate.replace(year=today.year)
+        except ValueError:
+            birthday = birthdate.replace(year=today.year, day=born.day-1)
+        if birthday > today:
+            age = today.year - birthdate.year - 1
+        else:
+            age = today.year - birthdate.year
+        mem_data['birthday'] = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d")
+    if 'age' in mem_data:
+        mem_data['age'] = age
     
     bio = popvox.models.MemberBio.objects.get(id=member.id)
     mem_data['flickr_id'] = bio.flickr_id
@@ -1145,7 +1151,8 @@ def member_page(request, membername=None):
     mem_data['committees'] = committees
     
     #checking if we have the member's picture:
-    mem_data["gender"] = mem_data["gender"].lower()
+    if 'gender' in mem_data:
+        mem_data["gender"] = mem_data["gender"].lower()
     if not os.path.isfile("/home/www/sources/site/static/member_photos/"+str(member.id)+"-200px.jpeg"):
         mem_data["nophoto"] = True
     
