@@ -9,6 +9,7 @@ class BillAdmin(admin.ModelAdmin):
     search_fields = ("title", "street_name")
     #readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "num_cosponsors", "latest_action")
     raw_id_fields = ('vehicle_for','sponsor','reintroduced_as', 'migrate_to')
+    filter_horizontal = ("cosponsors", 'committees', 'issues')
     exclude = ('srcfilehash',)
     fieldsets = (
         ("Primary Key", { "fields": ('congressnumber', 'billtype', 'billnumber', 'vehicle_for')}),
