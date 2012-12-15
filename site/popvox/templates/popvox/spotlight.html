@@ -1,0 +1,15 @@
+{% extends "master.html" %}
+{% load humanize %}
+{% load popvox_utils %}
+{% block title %}Issue Spotlight: {{spotlight.title}}{% endblock%}
+{% block description %}Bills before congress relating to {{spotlight.title}}.{% endblock %}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
+{% block content %}
+    <h1>Issue Spotlight: {{spotlight.title}}</h1>
+    <p>{{spotlight.description|safe}}</p>
+    {% for event in spotlight.events.all %}
+    <h4>{{ event.bill.displaynumber }} {{event.title}}</h4> <p>{{event.description|safe}}</p>
+    {% endfor %}
+{%endblock%}

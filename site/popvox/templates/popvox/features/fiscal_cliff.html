@@ -1,0 +1,879 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}Fiscal Cliff{% endblock%}
+{% block description %}Tell your representatives{% endblock%}
+{% block head %}
+<script src="/media/js/jquery.tools.min.js"></script>
+
+<style>
+/* Super Committee */
+.sc_pg {
+	/*background: url(/media/features/supercommittee/superco mmittee.jpg) -130px -118px no-repeat;*/
+	}
+	
+	h1#sc_h1 {
+		font-size: 34px;
+		}
+		
+	#contain {
+		height: 300px;
+		background: #d4d1ca;
+		}
+		
+	h2.sc_explain {
+	/*	background: #75747c; */
+		color: #404045;
+		margin: 10px 0;
+		padding: 12px 25px;
+/**/	padding-bottom: 10px;		
+		font: normal 15px/24px helvetica, arial, sans-serif;
+		width: 460px;
+		}
+		
+		h2.sc_explain span {
+			font-size: 17px;
+			font-weight: bold;
+			}
+
+.sc_pc .col_12 {
+	margin-top: 10px;
+	padding-top: 10px;
+	display: block;
+	}
+	
+.col_12 h3#what_is_it {
+	background: url(/media/features/supercommittee/i_question.png) 5px top no-repeat;
+	margin: 20px 0 0 0;
+	padding: 5px 0 5px 40px;
+	font: bold 18px helvetica, arial, sans-serif;
+	text-transform: none;
+	float: right;
+	}
+
+	#social {
+		float: right;
+		width: 132px;
+		height: 60px;
+		margin-top: 5px; 
+		}
+		
+		#social p {
+			font-size: 14px;
+			margin: 10px 0 5px;
+			width: 109px;
+			text-align: right;
+			}
+	
+		#social ul {
+			margin-left: 15px;
+			}
+						
+		#social li {
+			display: inline;
+		    float: left;
+		    margin-top: 0px;
+			}
+			
+			#social li a {
+			    border: none;
+			    display: block;
+			    width: 20px;
+			    height: 18px;
+			    margin-right: 5px;
+			    text-indent: -9999em;
+				}
+				
+				
+				#social li a.twitter {
+					background: url(/media/features/supercommittee/i_twitter.png) left 1px no-repeat;
+					}
+
+				#social li a.facebook {
+					background: url(/media/features/supercommittee/i_facebook.png) left 1px no-repeat;
+					}
+
+				#social li a.favorite {
+					background: url(/media/features/supercommittee/i_star.png) left 1px no-repeat;
+					}
+					
+				#social li a.email {
+					background: url(/media/features/supercommittee/i_share.png) left 1px no-repeat;
+					}
+
+				#social li a:hover {
+					background-position: bottom;
+					}
+					
+
+.proposal { 
+	background-color: none;
+	margin-left: -10px; 
+	padding-left: 10px;
+	height: 50px;
+	width: 950px;
+	overflow: hidden;
+	}
+
+	.proposal .cell {
+/*		height: 38px;*/
+		}
+
+
+	#proposal_list {
+		background: url(/media/features/supercommittee/bg_proposals.jpg) -10px 22px repeat-y;
+		display: block;
+		}
+		
+	.proposal.heading {
+		background: url(/media/features/supercommittee/bg_header.jpg) left top no-repeat;
+		padding-top: 42px;
+		height: 29px;
+		}
+	
+	.proposal.heading .cell {
+		margin-bottom: 2px;
+		height: 25px;
+		text-indent: none;
+		color: #fff;
+		text-transform: uppercase;
+		font-size: 12px;
+		}
+		
+		.proposal.heading .sorter {
+			background: url(/media/features/supercommittee/b_triangle.png) left top no-repeat;
+			display: block;
+			margin: 2px 5px 0 0;
+			width: 12px;
+			height: 12px;
+			float: right;
+			text-indent: -9999em;
+			cursor: pointer;
+			}
+			
+			.proposal.heading .sorter.active {
+				background-position: left bottom;
+				}
+			
+			.proposal.heading .description {
+				padding-left: 9px;
+				}
+			.proposal.heading .score {
+				padding-left: 11px;
+				}
+			.proposal.heading .sentiment {
+				padding-left: 40px;
+				width: 155px;
+				}
+	
+	.proposal.active .cell {
+		/* what to do? */
+		}
+			
+	.cell.description {
+		display: block;
+		width: 50px;
+		height: 50px;
+		}
+	
+		.i_tax {
+			background: url(/media/features/supercommittee/i_proposal.png) 5px 3px no-repeat;
+			}
+
+		.i_health {
+			background: url(/media/features/supercommittee/i_proposal.png) -156px 3px no-repeat;
+			}
+
+		.i_financial {
+			background: url(/media/features/supercommittee/i_proposal.png) -239px 3px no-repeat;
+			}
+
+		.i_aviation {
+			background: url(/media/features/supercommittee/i_proposal.png) -76px -55px no-repeat;
+			}
+			
+		.i_defense {
+			background: url(/media/features/supercommittee/i_proposal.png) -157px -55px no-repeat;
+			}
+			
+		.i_wireless {
+			background: url(/media/features/supercommittee/i_proposal.png) -242px -55px no-repeat;
+			}
+
+		.i_govreform {
+			background: url(/media/features/supercommittee/i_proposal.png) -319px -52px no-repeat;
+			}
+
+			
+		.i_farm {
+			background: url(/media/features/supercommittee/i_proposal.png) -320px 3px no-repeat;
+			}
+
+		.i_edu {
+					background: url(/media/features/supercommittee/i_proposal.png) 1px -52px no-repeat;
+					}
+                        
+		.i_eye {
+			float: right;
+			width: 24px;
+			height: 38px;
+			display: block;
+			text-indent: -9999em;
+			background: url(/media/features/supercommittee/i_eye.png) 2px 10px no-repeat;
+			}
+			
+			.i_eye:hover {
+				background-position: 2px -21px;
+				text-decoration: none;
+				border: 0;	
+				cursor: pointer;
+				}
+		
+	h3.proposals {
+			background: url(/media/features/supercommittee/i_proposals.png) 15px 6px no-repeat;
+/**/		margin-bottom: 7px;
+			padding-left: 50px;
+			font-size: 36px;
+			}
+			
+	.proposal > .cell { 
+		display: block;
+		float: left;
+		padding: 5px;
+		}
+
+	.proposal .category { 
+		width: 38px; 
+		height: 38px; 
+		text-indent: -9999em;
+		}
+		
+	.proposal .description { 
+		width: 495px; 
+		}
+
+		.proposal .description .small { 
+			margin: 3px 0 0 5px;
+			}
+			
+			.proposal .description .small .title a:hover {
+				border: none;
+				}
+			
+			.proposal .description .hashtag, .proposal .description .how_should_they_vote { 
+				font-size: 12px;
+				padding-top: 2px;
+				}
+
+		.proposal .description .large {
+			position: absolute;
+			display: none;
+			background-color: white;
+			margin: -6px;
+			padding: 12px 5px 12px 9px;
+			width: 490px;
+			border: 1px solid #CC6A11;
+			-moz-box-shadow: 0 0 36px rgba(0,0,0,.3);
+			-webkit-box-shadow: 0 0 36px rgba(0,0,0,.3);
+			box-shadow: 0 0 36px rgba(0,0,0,.3);
+			filter:progid:DXImageTransform.Microsoft.Shadow(color='#aaaaaa',direction='120',strength='10');
+			}
+			
+			.proposal .description .large p {
+				margin: 10px 0 10px 0;
+				font-size: 12px;
+				}
+					
+		.proposal .score {
+			width: 73px;
+			}
+		
+		.proposal.body .score {
+		    letter-spacing: .02em;
+		    padding: 12px 11px 0 15px;
+			font: normal 28px 'BebasNeueRegular', helvetica, arial, sans-serif;
+			}
+			
+		.proposal .sentiment {
+			width: 194px;
+			}
+			.proposal.body .sentiment {
+				padding: 0;
+				z-index: 1;
+				}
+			
+			.proposal .sentiment span.nodata a {
+				padding-top: 12px;
+				padding-left: 8px;
+				display: block;
+				font: normal 16px/30px 'BebasNeueRegular', helvetica, arial, sans-serif;
+				}
+				
+				.proposal .sentiment span.nodata a:hover {
+					border: none;
+					color: #404045;
+					}
+					
+		.proposal .sentiment .tooltip_sent {
+			display: none;
+			background: url("/media/features/supercommittee/bg_tooltip_sentiment.png") left center;
+			width: 163px;
+			height: 69px;
+			position: absolute;
+			margin-top: -40px;
+			margin-left: -10px;
+			z-index: 100;
+			}
+			
+			.tooltip_sent p {
+				display: block;
+				color: #fff;
+				height: 13px;
+				font-size: 12px;
+				}
+				
+				.tooltip_sent p span.heart {
+					float: left;
+					margin: 13px 0 0 35px;
+					}
+
+				.tooltip_sent p span.anti {
+					float: right;
+					margin: 13px 33px 0 0;
+					}
+					
+				.tooltip_sent p.total {
+					text-align: center;
+					text-transform: uppercase;
+					}
+
+
+		.bar_pro {
+			display: block;
+			float: left;
+			background: #fb9919 url(/media/features/supercommittee/bg_percent_heart.png) 5px 5px no-repeat;
+			height: 44px;
+			margin: 2px 0;
+			}
+			
+		.bar_con {
+			display: block;
+			float: left;
+			background: #fdcc32 url(/media/features/supercommittee/bg_percent_anti.png) right 5px no-repeat;
+			height: 44px;
+			margin: 2px 5px 0 0;
+			}
+			
+			
+		.proposal .sentiment .maplink {
+			background: url(/media/features/supercommittee/i_map.png) 5px 15px no-repeat;
+			width: 46px;
+			height: 44px;
+			display: block;
+			float: left;
+			text-indent: -9999em;
+			}
+
+		.proposal .sentiment .maplink:hover {
+			background-position: 5px -27px;
+			cursor: pointer;
+			}
+			
+		.proposal > .action_buttons {
+			width: 80px;
+			padding-left: 10px;
+			}
+			.proposal .action_buttons a:hover {
+				border: none;
+				}
+
+				
+		#map_colorbox h1 {
+			text-align: center;
+			}
+
+		#map_colorbox h2 {
+			margin: 0 0 2px 10px;
+			font: normal 24px/28px 'BebasNeueRegular', helvetica, arial, sans-serif;
+			}
+			
+		#map_iframe_container {
+			width: 580px;
+			float: left;
+			margin: 10px 10px 0;
+			}
+			
+			#map_colorbox .b_view_report {
+				margin: 0 0 30px;
+				}
+			
+		#map_proposal_list {
+			width: 260px;
+			float: left;
+			margin: 10px 0 0 10px;
+			padding: 0 10px 0 0;
+			height: 460px;
+			overflow: auto;
+			}
+			
+		#map_proposal_list > div {
+			background-color: #F0F0F2;
+			color: #75747c;
+			padding: 8px 5px 5px 10px;
+			font-weight: normal;
+			margin-bottom: 4px;
+			cursor: pointer;
+			}
+			#map_proposal_list > div:hover {
+				color: black;
+				}
+			#map_proposal_list > div.active {
+				background-color: #CC6A11;
+				color: white;
+				}
+			
+		.sc_pg .support {
+			background: url(/media/features/supercommittee/i_action.png) left top no-repeat;
+			display: block;
+			margin: 2px 9px 0 0;
+			width: 34px;
+			height: 34px;
+			float: left;
+			text-indent: -9999em;
+			}
+            .sc_pg .support.chosen {
+                background: url(/media/features/supercommittee/i_action_chosen.png) left top no-repeat;
+            }
+			
+			.sc_pg .support.lg {
+				background: url(/media/features/supercommittee/b_support_sc.png) left top no-repeat;
+				display: block;
+				margin: 2px 9px 0 0;
+				width: 115px;
+				height: 34px;
+				float: left;
+				text-indent: -9999em;
+				}
+                .sc_pg .support.lg.chosen {
+                    background: url(/media/features/supercommittee/b_support_sc_chosen.png) left top no-repeat;
+                }
+
+			.sc_pg .support:hover, .sc_pg .support.inactive:hover {
+				background-position: left -60px;
+				cursor: pointer;
+				}
+				
+			.sc_pg .support.inactive {
+				background-position: left -134px;
+				}
+				
+			
+
+				
+		.sc_pg .oppose {
+			background: url(/media/features/supercommittee/i_action.png) -41px top no-repeat;
+			display: block;
+			margin: 2px 0px 0 0;
+			padding: 0;
+			width: 34px;
+			height: 34px;
+			float: left;
+			text-indent: -9999em;
+			}
+            .sc_pg .oppose.chosen {
+                background: url(/media/features/supercommittee/i_action_chosen.png) -41px top no-repeat;
+            }
+			
+			.sc_pg .oppose.lg {
+				background: url(/media/features/supercommittee/b_oppose_sc.png) left top no-repeat;
+				display: block;
+				margin: 2px 9px 0 0;
+				width: 115px;
+				height: 34px;
+				float: left;
+				text-indent: -9999em;
+				}
+                .sc_pg .oppose.lg.chosen {
+                    background: url(/media/features/supercommittee/b_oppose_sc_chosen.png) left top no-repeat;
+                }
+
+			.sc_pg .oppose:hover, .sc_pg .oppose.inactive:hover {
+				background-position: -41px -60px;
+				cursor: pointer;
+				}
+				
+				.sc_pg .oppose.lg:hover {
+					background-position: left -60px;
+					}
+				
+			.sc_pg .oppose.inactive {
+				background-position: -41px -134px;
+				}
+			
+	#proposal_btm {
+		display: block;
+		background: url(/media/features/supercommittee/bg_proposal_btm.png) -10px bottom no-repeat;
+		height: 20px;
+		}
+</style>
+
+<script>
+jQuery.fx.off = false; // we will be careful not to animate any fonts that Firefox screws up when opacity is set
+
+function show_what_is_it() {
+	$.colorbox({
+		transition: "none",
+		inline: true,
+		href:'#what_is_it_colorbox',
+		opacity: .5,
+		onComplete: function() { }
+	});
+	return false;
+}
+
+$(function() {
+	// line up the timeline elements
+	var timeline_top = $('#timeline').position().top;
+	var timeline_left = $('#timeline').position().left;
+	var timeline_width = $('#timeline').width();
+	var timeline_elems = $('#timeline>div');
+	var min_date = new Date($('#timeline').attr("start")).getTime();
+	var max_date = new Date($('#timeline').attr("end")).getTime();
+	var found_first = false;
+	var ctr = 0;
+	for (var i = 0; i < timeline_elems.length; i++) {
+		var date = timeline_elems[i].getAttribute("date");
+		var elem = $(timeline_elems[i]);
+		var has_tooltip = false;
+		if (date == "today") {
+			date = new Date();
+		} else {
+			date = new Date(date);
+			if (timeline_elems[i].getAttribute("class") == "event") {
+				has_tooltip = true;
+				elem.tooltip({position: "bottom " + "center", offset: [0, 5], effect: "fade", layout: "<div><span class=''></span></div>"});
+			}
+		}
+		
+		var x = (date.getTime()-min_date)/(max_date-min_date);
+		x = Math.log(x*9 + 1) / Math.log(1*9 + 1);
+		elem.css({"top": timeline_top, "left": timeline_left + x*timeline_width})
+		
+		if (has_tooltip)
+			elem.delay(Math.sqrt((ctr++)*10000)).fadeIn();
+		else
+			elem.show();
+		if (date.getTime() >= new Date().getTime()-60*60*24*1000 && has_tooltip && !found_first) {
+			elem.show();
+			elem.data("tooltip").show();
+			found_first = true;
+		}
+	}
+		
+	var last_pro = null;
+	$('.proposal .description').mouseenter(function() {
+		if (last_pro) {
+			last_pro.parents(".proposal").removeClass("active");
+			last_pro.hide();
+		}
+		var n = $(this).find('.large');
+		n.css({ "left": $(this).find('.small').position().left });
+		n.css({ "top": $(this).find('.small').position().top });
+		n.show();
+		last_pro = n;
+		n.parents(".proposal").addClass("active");
+	});
+	$('.proposal .description .large').mouseleave(function() {
+		if (!last_pro) return;
+		last_pro.parents(".proposal").removeClass("active");
+		last_pro.hide();
+		last_pro = null;
+	});
+	
+	$('.proposal .sentiment').hover(
+		function() {
+			var n = $(this).find('.tooltip_sent');
+			n.css({ "left": $(this).position().left });
+			n.css({ "top": $(this).position().top });
+			n.show();
+		},
+		function() { $(this).find('.tooltip_sent').hide() });
+	
+	function show_map(bill_id, bill_title, bill_url) {
+		$('#map_colorbox h1').text(bill_title);
+		$('#map_colorbox .b_view_report').attr('href', bill_url + "/report");
+		$('#map_iframe_container').html('<iframe src="/widgets/bill-comment-map?bill=' + bill_id + '&background=white&width=558" width="558" height="500" border="0" marginheight="0" marginwidth="0" frameborder="0" style="height: 500px"></iframe>');
+		$('#map_proposal_list>div').removeClass("active");
+		$('#map_proposal_list>div[bill_id="' + bill_id + '"]').addClass("active");
+	}
+	$('.maplink').click(function() {
+		var prop = $(this).parents('.proposal');
+		show_map(prop.attr('bill_id'), prop.attr("description"), prop.attr('bill_url'));
+		$.colorbox({
+			transition: "none",
+			inline: true,
+			href:'#map_colorbox',
+			opacity: .5,
+			onComplete: function() { }
+		});
+	});
+	$('#map_proposal_list > div').click(function() {
+		show_map($(this).attr('bill_id'), $(this).text(), $(this).attr('bill_url'));
+	});
+	
+	var cur_sort_col = 'score';
+	var cur_sort_order = -1;
+	$('.sorter').click(function() {
+		var f = $(this).attr("field");
+		if (f == cur_sort_col) {
+			cur_sort_order *= -1;
+		} else {
+			cur_sort_col = f;
+			cur_sort_order = 1;
+		}
+		
+		var elems = $('#proposal_list  .proposal:not(.heading)');
+		
+		var compare_transf = function(v) {
+			if (cur_sort_col == "score" || cur_sort_col == "sentiment")
+				return parseInt(v);
+			return v;
+		};
+		elems.sortElements(function(a,b) { return compare_transf($(a).attr(cur_sort_col)) > compare_transf($(b).attr(cur_sort_col)) ? cur_sort_order : -cur_sort_order });
+		
+		elems.css({opacity: 0});
+		for (var i = 0; i < elems.length; i++)
+			$(elems[i]).delay(i*100).animate({opacity: 1}, 600);
+	});
+	
+	master_state(function(res) {
+		if (res.page && res.page.positions) {
+			for (var i = 0; i < res.page.positions.length; i++) {
+				var n = $('.proposal.body[bill_id="' + res.page.positions[i][0] + '"]');
+				if (res.page.positions[i][1] == "+") {
+					n.find('.action_buttons .oppose').addClass("inactive");
+                    n.find('.action_buttons .support').addClass("chosen");
+                    n.find('.action_buttons .support').attr("title", "You chose this");
+				} else {
+					n.find('.action_buttons .support').addClass("inactive");
+                    n.find('.action_buttons .oppose').addClass("chosen");
+                    n.find('.action_buttons .oppose').attr("title", "You chose this");
+                }
+			}
+		}
+	});
+});
+
+// generic share code
+function share_simple_open(url1, url2) {
+	a = function() {
+		if (!window.open(url1,"sharer","toolbar=0,status=0,resizable=1,width=626,height=436"))
+			document.location.href=url2;
+	}
+	if (/Firefox/.test(navigator.userAgent))
+		setTimeout(a,0);
+	else
+		a();
+	return false;
+}
+function facebook_share_simple() {
+	// based on share bookmarklet: http://www.facebook.com/share_options.php
+	var f="http://www.facebook.com/share";
+	var p=".php?src=bm&v=4&i=1299162093&u=" + encodeURIComponent(document.location.href) + "&t=" + encodeURIComponent(document.title);
+	share_simple_open(f+"r"+p, f+p);
+	return false;
+}
+
+function twitter_share_simple(text, hashtag) {
+	var p1 = "http://twitter.com/intent/tweet?related=popvox&hashtags=" + encodeURIComponent(hashtag ? hashtag.replace("#", "") : "") + "&url=" + encodeURIComponent(document.location.href) + "&text=" + encodeURIComponent(text ? text : "");
+	var p2 = "http://twitter.com/home?status=" + encodeURIComponent(text + " " + hashtag + " " + document.location.href);
+	share_simple_open(p1, p2);
+	return false;
+}
+</script>
+
+</script>
+{% endblock %}
+{% block content %}
+
+{% comment %}
+Tell Your Representatives How You Would Solve the Fiscal Cliff
+{% endcomment %}
+
+
+<div class="content sc_pg">
+	
+	<div class="col_9 col_top">
+	
+		<h1 class="mar_no_btm" id="sc_h1">Weigh in on Proposals to Address the &ldquo;Fiscal Cliff&rdquo;</h1>
+		
+		<div id="contain">
+			<div id="social">
+				<p>share this page</p>
+				<ul>
+					<li><a class="twitter" href="#" onclick="return twitter_share_simple();">twitter</a></li>
+					<li><a class="facebook" href="#" onclick="return facebook_share_simple();">facebook</a></li>
+					{% comment %}
+					<li><a class="favorite" href="#">favorite</a></li>
+					<li><a class="email" href="#">email</a></li>
+					{% endcomment %}
+				</ul>
+			</div>
+			<h2 class="sc_explain">The &ldquo;Fiscal Cliff&rdquo; refers to the combined effect a number of policies would have on our economy beginning in January 2013. Lowering the national debt over time improves long-term economic growth, but there's an increased risk of recession if the deficit is reduced suddenly, according to the Congressional Budget Office. Most Members of Congress and President Obama agree that something needs to be done -- and are negotiating on what spending to cut and how deeply to cut it. The list below shows the proposals reportedly under consideration in these talks. </h2>
+		</div><!-- e: contain -->
+	</div><!-- e: col_9 -->	
+	
+	{% include "ads/rightbar_single.html" %}
+	
+	<div class="clear"> </div>
+
+	<div class="col_12 col_top">
+		<h3 id="what_is_it"><a href="#" onclick="return show_what_is_it();">What is the &ldquo;Fiscal Cliff&rdquo;?</a></h3>
+		
+		<h3 class="timeline" style="display:none">Timeline</h3>
+		
+		<div id="timeline" style="display:none" start="August 15, 2011" end="October 1, 2013">
+			<div date="today" class="today">Today</div>
+			<div date="September 1, 2011" class="month"> </div>
+			<div date="October 1, 2011" class="month"> </div>
+			<div date="November 1, 2011" class="month"> </div>
+			<div date="December 1, 2011" class="month"> </div>
+			<div date="January 1, 2012" class="year"> </div>
+			<div date="February 1, 2012" class="month"> </div>
+			<div date="March 1, 2012" class="month"> </div>
+			<div date="April 1, 2012" class="month"> </div>
+			<div date="May 1, 2012" class="month"> </div>
+			<div date="June 1, 2012" class="month"> </div>
+			<div date="July 1, 2012" class="month"> </div>
+			<div date="August 1, 2012" class="month"> </div>
+			<div date="September 1, 2012" class="month"> </div>
+			<div date="October 1, 2012" class="month"> </div>
+			<div date="November 1, 2012" class="month"> </div>
+			<div date="December 1, 2012" class="month"> </div>
+			<div date="January 1, 2013" class="year"> </div>
+			<div date="February 1, 2013" class="month"> </div>
+			<div date="March 1, 2013" class="month"> </div>
+			<div date="April 1, 2013" class="month"> </div>
+			<div date="May 1, 2013" class="month"> </div>
+			<div date="June 1, 2013" class="month"> </div>
+			<div date="July 1, 2013" class="month"> </div>
+			<div date="August 1, 2013" class="month"> </div>
+			<div date="September 1, 2013" class="month"> </div>
+			<div date="October 1, 2013" class="month"> </div>
+			
+		</div>
+		
+		<h3 class="proposals">Proposals</h3>
+		<div class="clear"> </div>
+		
+		<div id="proposal_list">
+		<div class="proposal heading">
+			<div class="cell category"><div class="sorter" field="category">sort</div></div>
+			<div class="cell description"><div class="sorter" field="description">sort</div>Description</div>
+			<div class="cell score"><div class="sorter" field="score">sort</div>Score</div>
+			<div class="cell sentiment"><div class="sorter" field="sentiment">sort</div>POPVOX Sentiment</div>
+			<div class="cell action_buttons">Take Action</div>
+		</div>
+		
+		
+		{% for proposal in bills|dictsortreversed:"savings" %}
+		<div class="proposal body"
+			bill_id="{{proposal.bill.id}}"  bill_url="{{proposal.bill.url}}"
+			category="{{proposal.category_name}}" description="{{proposal.title}}" score="{{proposal.savings}}" sentiment="{% firstof proposal.sentiment.scaled_pro "0" %}">
+			<div class="cell category {{proposal.category_icon}}" title="{{proposal.category_name}}"> {% comment %}i_farm i_tax i_health i_financial i_tax i_govreform i_defense{% endcomment %}
+				{{proposal.category_name}}
+			</div>
+			<div class="cell description">
+				<div class="small">
+					<a class="i_eye" href="{{proposal.bill.url}}">view</a>
+					<div class="title"><a href="{{proposal.bill.url}}">{{proposal.title}}</a></div>
+					<div class="hashtag">{{proposal.bill.hashtag}}</div>
+				</div>
+				<div class="large">
+					<a class="i_eye" href="{{proposal.bill.url}}">view</a>
+					<div class="title"><a href="{{proposal.bill.url}}">{{proposal.title}}</a></div>
+					<p>{{proposal.description}}</p>
+					<p><strong>Source: </strong> <a href="{{proposal.source_url}}" target="_blank">{{proposal.source}}</a></p>
+					<p class="hashtag">{{proposal.bill.hashtag}}</p>
+					<p class="how_should_they_vote">Tell your Members of Congress what you think:</p>
+					<div class="action_buttons">
+						<a class="support lg" href="{{proposal.bill.url}}/comment/support">Support</a>
+						<a class="oppose lg" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
+					</div>
+				</div>
+			</div>
+			<div class="cell score">${{proposal.savings}} <span>B</span></div>
+			<div class="cell sentiment">
+				{% if proposal.sentiment %}
+					<div class="tooltip_sent"><p><span class="heart">{{proposal.sentiment.pro_pct}}%</span><span class="anti">{{proposal.sentiment.con_pct}}%</span></p><p class="total">{{proposal.sentiment.total}} total users</p></div> 
+					<div class="bar_pro" style="width: {{proposal.sentiment.scaled_pro}}px"> </div><div class="bar_con" style="width: {{proposal.sentiment.scaled_con}}px"> </div>
+					<div class="maplink">map</div>
+				{% else %}
+					<span class="nodata"><a href="{{proposal.bill.url}}">Be the first to weigh in</a></span>
+				{% endif %}
+			</div>
+			<div class="cell action_buttons">
+				<a class="support" href="{{proposal.bill.url}}/comment/support">Support</a>
+				<a class="oppose" href="{{proposal.bill.url}}/comment/oppose">Oppose</a>
+			</div>
+		</div>
+		{% endfor %}
+		</div>
+
+		<div style="height: 200px"> </div> <!-- buffer so hover of last time doesn't go on top of footer -->
+	</div> <!-- col_12 -->
+
+</div><!-- e: content -->
+
+<div style="display: none">
+	<div id="what_is_it_colorbox" class="colorbox">
+		<h1>What is the &ldquo;Fiscal Cliff&rdquo;?</h1>
+	
+		<p>The &ldquo;Fiscal Cliff&rdquo; refers to the combined effect a number of policies would have on our economy beginning in January 2013. Lowering the national debt over time improves long-term economic growth, but there's an increased risk of recession if the deficit is reduced suddenly, according to the Congressional Budget Office.</p>
+		
+		<p>These policies include:</p>
+		
+		<p>TAXES</p>
+			
+		<p><b>Expiring tax cuts:</b> Tax legislation passed in 2001, 2003, and 2010 are frequently referred to as the &ldquo;Bush tax cuts.&rdquo; These expire on December 31, 2012, reinstating the pre-tax cut rates for income, capital gains, and estate taxes. In addition the Alternative Minimum Tax, which is not adjusted to inflation, would apply to millions more people. See <a href="http://www.fas.org/sgp/crs/misc/R42485.pdf" target="_blank"><i>CRS Report on Expiring Tax Provisions</i></a>.</p>
+		
+		<p><b>Expiring payroll tax cut:</b> The 2% Social Security payroll tax holiday expires on December 31, 2012, raising the rate from 4.2 to 6.2% for 160 million Americans.</p>
+		
+		<p><b>New taxes enacted in the Affordable Care Act:</b> The Affordable Care Act included tax provisions that will go into effect at the beginning of 2013. See <a href="http://www.irs.gov/uac/Affordable-Care-Act-Tax-Provisions" target="_blank"><i>IRS List of tax provisions int he ACA</i></a>.</p>
+		
+		<p>SPENDING CUTS</p>
+		
+		<p><b>Sequestration:</b> Automatic, across-the-board cuts to federal spending to take effect on January 2, 2013, if Congress does not act on further deficit reduction. The Sequestration requires $109 billion annually in federal spending cuts, resulting in a 9.4% reduction in defense discretionary funding and an 8.2% reduction in nondefense discretionary funding. See <a href="http://www.whitehouse.gov/sites/default/files/omb/assets/legislative_reports/stareport.pdf" target="_blank"><i>Office of Management and Budget List of Planned Cuts under the Sequester</i></a>.</p>
+		
+		<p><b>Expiring of Emergency Unemployment Benefits:</b> Unemployment insurance benefits will expire for two million people on Dec. 29, 2012. See <a href="http://www.cbo.gov/publication/43735" target="_blank"><i>Congressional Budget Office Analysis of Unemployment Insurance</i></a>.</p>
+		
+		<p><b>Medicare Payments to Doctors Reduced:</b> The Medicare "sustainable growth rate" has been using temporary “fixes” to protect doctors from huge automatic reductions in reimbursements. Without the so-called “Doc Fix,” doctors would see a 30% decrease in their reimbursements beginning in January. See <a href=" http://www.cbo.gov/sites/default/files/cbofiles/attachments/43502-SGR%20Options2012.pdf" target="_blank"><i>Congressional Budget Office Analysis of Approaches to the SGR</i></a>.</p>
+		
+		<p><b>Debt ceiling:</b> The U.S. is expected to reach the maximum amount of outstanding federal debt allowed by law ($16.39 trillion) in early 2013, requiring the ceiling to be raised. The last time this happened, in the Summer 2011, a standoff between the White House and Congress ensued before an agreement was reached, unsettling financial markets and potentially cost the U.S. $1.3 billion in increased borrowing costs. See <a href="http://www.gao.gov/assets/600/592832.pdf" target="_blank"><i>Government Accountability Office report on increased borrowing costs due to fiscal cliff standoff</i></a>.</p>
+	
+	</div>
+	
+	<div id="map_colorbox" class="colorbox">
+		<h1> </h1>
+		
+		<div style="width: 568px">
+			<a class="btn b_view_report" href="#">View Report &amp; Comments</a>
+		</div>
+		
+		<div id="map_iframe_container">
+		</div>
+		
+		<div id="map_proposal_list">
+		<h2>All Proposals</h2>
+		{% for proposal in bills|dictsort:"title" %}
+		{% if proposal.sentiment %}
+		<div bill_id="{{proposal.bill.id}}" bill_url="{{proposal.bill.url}}">
+			{{proposal.title}}
+		</div>
+		{% endif %}
+		{% endfor %}
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

@@ -477,6 +477,29 @@ def register_validation(request):
     request.goal = { "goal": "registration-start", "mode": axn.mode }
 
     return { "status": "success" }
+    
+@csrf_protect
+def user_profile(request, userid):
+    try:
+        profile = UserProfile.objects.get(id=userid)
+    except:
+        print "no user"
+        raise Http404
+    
+    district = profile.most_recent_comment_district()
+    user = profile.user
+    
+    members = govtrack.getMembersOfCongressForDistrict(district)
+    comments = user.comments.all()
+    letters = len(comments.filter(message__isnull=False))
+    appreciates = sum([len(comment.diggs.all()) for comment in comments])
+    commentssup = [comment for comment in comments if comment.position == '+']
+    commentsopp = [comment for comment in comments if comment.position == '-']
+    
+    
+    return render_to_response('popvox/userprofile.html', { "profile": profile, "district": district, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp,
+        },
+        context_instance=RequestContext(request))
         
 @csrf_protect
 @login_required

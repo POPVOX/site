@@ -23,108 +23,9 @@
 
 
 <div class="col_12 col_top col_last">
-{% if district != "None" %}
-<h1 class="rule_btm">{% if archive %}{{archive}} {% endif %}District Info / {{statename}}-{{district}}</h1>
-{% else %}{% if state == "DC" or state == "PR" %}
-<h1 class="rule_btm">District Info / {{statename}}</h1>
-{% else %}
-<h1 class="rule_btm">State Info / {{statename}}</h1>
-{% endif %}
-{% endif %}
-<div class="stats">
-	<h2>Facts &amp; Figures</h2>
-	{% for member in members %}
-		<div class="rep media">
-			<div class="img">
-				<img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}" width="65" height="80" />
-			</div>
-			<div class="bd">
-				<p><a href="/member/{{member.pvurl}}">{{member.name}}</a></p>
-			</div>
-		</div>
-	{% empty %}
-		<h3>No members :-( </h3>
-	{% endfor %}
-	
-	<div class="census">
-    {% if census_data %}
-        <div class="pop">
-			<dl>
-				<dt>Population</dt>
-				<dd><span class="digits">{{census_data.population|intcomma}}</span></dd>
-			</dl>
-		</div>
-        <div class="residence section">
-			     <div id="urban_rural_graph" class="bar_graph"><script type="text/javascript">two_part_bar_chart("urban_rural_graph", {{census_data.urban|floatformat}}, {{census_data.rural|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Urban", right_label: "Rural", colors: ["#7575d","#414046"],labels:false });</script></div>
-			<div>
-			<dl class="urban">
-				<dt>Urban</dt>
-				<dd><span class="digits">{{census_data.urban|floatformat}}%</span></dd>
-			</dl>
-	        <dl class="rural">
-				<dt>Rural</dt>
-				<dd><span class="digits">{{census_data.rural|floatformat}}%</span></dd>
-			</dl>
-		    </div>
-			<div style="clear:both;"></div>
-		</div>
-		<div class="sex">
-			     <div id="male_female_graph" class="bar_graph"><script type="text/javascript">two_part_bar_chart("male_female_graph", {{census_data.male|floatformat}}, {{census_data.female|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Male", right_label: "Female", colors: ["#7575d","#414046"], labels:false });</script></div>
-		<div>
-		<dl class="male">
-			<dt>Male</dt>
-			<dd><span class="digits">{{census_data.male|floatformat}}%</span></dd>
-		</dl>
-        <dl class="female">
-			<dt>Female</dt>
-			<dd><span class="digits">{{census_data.female|floatformat}}%</span></dd>
-		</dl>
-	</div>
-	<div style="clear:both;"></div>
-		</div>
-        <div class="age">
-			<dl>
-				<dt>Median Age</dt>
-				<dd><span class="digits">{{census_data.age|floatformat}}</span> <span class="units">years old</span></dd>
-			<dl>
-		</div>
-		<div class="race">
-		<div>
-			<dl>
-				<dt>Ethnicity</dt>
-			<dd>
-			<div id="ethnicity_graph">
-				<script type="text/javascript">race_chart("ethnicity_graph",{{census_data.white}}, {{census_data.black}}, {{census_data.latino}}, {{census_data.asian}}, {{census_data.ai}}, {{census_data.hpi}}, {{census_data.biracial}}, {{census_data.other}}, {});</script></div>
-		</dd>
-		</div>
-	</div>
-        <div class="edu">
-			<dl>
-				<dt>Education</dt>
-				<dd><p><span class="digits">{{census_data.hs|floatformat}}%</span> <span class="units">High School</span></p>
-			        <p><span class="digits">{{census_data.bachelor|floatformat}}%</span> <span class="units">Bachelor's</span></p></div>
-        <div class="mil">
-			<dl>
-				<dt>Veterans</dt>
-				<dd><span class="digits">{{census_data.veteran|floatformat}}%</span></dd>
-			</dl>
-		</div>
-        <div class="income">
-			<dl>
-				<dt>Median income</dt>
-				<dd><span class="digits">${{census_data.income|intcomma}}</span></dd>
-			</dl>
-		</div>
-    {% else %}
-        {% if district != "None" %}
-        <p>No district statistics available. :(</p>
-        {% else %}
-        <p>No state statistics available. :(</p>
-        {% endif %}
-    {% endif %}
-	</div><!-- end census info -->
-	</div><!--end stats -->
-
+<h1 class="rule_btm">What do POPVOX users in the new {{statename}}-{{district}} think?</h1>
+<p>Congressional Districts all over the United States have been re-drawn. The Representatives who've been elected to serve these new districts will take office in January, when the 113th Congress begins.</p>
+<p>Check out the top and trending bills among POPVOX users in the new {{statename}}-{{district}}. We'll have more information on this new district as it becomes available.</p>
 <div class="district-legislation">
 	<div class="legislation-tabs">
 	   <h4 class="active" id="populartab"><a href="#">Popular</a></h4>
@@ -148,7 +49,7 @@
 			<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
 					<a href="{{bill.url}}/report">
-			        	<div id="trending_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
+			        	<div id="trending_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 				</a>
 			<p class="usercount">sentiment of {{total}} users in {{statename}}{% if district != "None" %}-{{district}}{% endif %}</p>
 			{% else %}
@@ -181,7 +82,7 @@
 	        <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
 				<a href="{{bill.url}}/report">
-					<div id="popular_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
+					<div id="popular_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 				</a>
 			<p class="usercount">sentiment of {{total}} users in {{statename}}{% if district != "None" %}-{{district}}{% endif %}</p>
 			{% else %}
@@ -199,7 +100,7 @@
 </div><!-- end col_9 col_top col_last -->
 {% include "ads/rightbar.html" %}
 </div>
-<script type="text/javascript">
+<script>
 $(document).ready(function($){
 	$('.highcharts-container').each( function() {
 		$(this).width($(this).parent().parent().width());

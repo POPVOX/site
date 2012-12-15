@@ -3,6 +3,7 @@
 {% block title %}Bill Search{% endblock%}
 {% block description %}Search for legislation pending before Congress.{% endblock%}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
+
 {% block head %}
 <script type="text/javascript">
 {% include "popvox/track.js" %}
@@ -28,6 +29,10 @@
 	</div>
 	
 	<div class="clear"> </div>
+
+    <h3 class="search_alert">In light of the recent events in Newtown, CT, we have experienced an uptick in searches for gun and firearm-related bills. These can be found in <a href="http://www.popvox.com/blog/2012/issue-spotlight-firearms/">a February 2012 issue spotlight on the POPVOX blog.</a><br><br>
+
+    Our thoughts are with everyone touched by this tragedy.</h3><br>
 	<h3 class="no_rule">Search Results</h3>
 
 	{% if not bills %}

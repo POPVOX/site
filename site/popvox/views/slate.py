@@ -104,6 +104,15 @@ def congress_match(request):
         return render_to_response('popvox/home_match.html', {'billvotes': [], 'members': []},
             context_instance=RequestContext(request))
             
+    changeddistrict = False
+    print most_recent_address.congressionaldistrict
+    print most_recent_address.congressionaldistrict2013
+    print changeddistrict
+    if most_recent_address.congressionaldistrict != most_recent_address.congressionaldistrict2013:
+        changeddistrict = True
+        print changeddistrict
+        #user's district number has changed.
+            
     memberids = getmemberids(most_recent_address)
     
     membermatch = popvox.match.membermatch(memberids, user)
@@ -118,16 +127,22 @@ def congress_match(request):
         members.append(popvox.govtrack.getMemberOfCongress(id))
 
     for member in members:
-        url = [k for k, v in memurls.items() if member['id'] == v][0]
-        member['pvurl'] = url
+        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
         
-    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'stats': stats, 'had_abstain': had_abstain, 'type':"match"},
+    return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'changeddistrict': changeddistrict, 'stats': stats, 'had_abstain': had_abstain, 'type':"match"},
         context_instance=RequestContext(request))
 
 
 def key_votes(request, orgslug=None, slateslug=None):
-    org = Org.objects.get(slug=orgslug)
-    slate = Slate.objects.get(org=org,slug=slateslug)
+    try:
+        org = Org.objects.get(slug=orgslug)
+    except Org.DoesNotExist:
+        raise Http404
+    try:
+        slate = Slate.objects.get(org=org,slug=slateslug)
+    except Slate.DoesNotExist:
+        raise Http404
+    
     admin = False
     leadership = False
     orgstaff = False
@@ -204,8 +219,7 @@ def key_votes(request, orgslug=None, slateslug=None):
 
 
     for member in members:
-        url = [k for k, v in memurls.items() if member['id'] == v][0]
-        member['pvurl'] = url
+        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
         
     #merging stats into member info
     x = 0
@@ -332,7 +346,10 @@ def keyvotes_create(request, orgslug=None, slateslug=None):
         #orgslug will only be True on edit
         print orgslug
         if orgslug != None:
-            org = Org.objects.get(slug=orgslug)
+            try:  
+                org = Org.objects.get(slug=orgslug)
+            except Org.DoesNotExist:
+                raise Http404
             
             #make sure they're authorized to edit that slate:
             permission = orgpermission(org, user)

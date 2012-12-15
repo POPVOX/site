@@ -287,12 +287,13 @@ th.stathead ul {
         <h1 class="rule_btm"> {{org.name}} - {{slate.name}}  {% if admin %} | <a href="/keyvotes/{{org.slug}}/{{slate.slug}}/edit">edit</a> {% endif %}</h1>
         {% endif %}
 
-        {% if type == "match" %}
 		<h3>How Did Your Members of Congress Vote?</h3>
 		<p>Are your senators and representative voting the way you want them to? Here is a personalized grid that displays every bill on which you weighed in, along with how your legislators voted if a vote was held on the bill. That includes letting you know if your Member of Congress abstained or was absent.  </p>
-        {% else %} {% comment %} type is keyvotes {% endcomment %}
-        {{slate.description}}
-        {% endif %}
+
+        <h3>Redistricting</h3>
+        <p>Congressional Districts all over the United States have been re-drawn. The Representatives who've been elected to serve these new districts will take office in January, when the 113th Congress begins. Until then, you are still represented by your previous Members of Congress, based on the old district lines.</p>
+
+        <p>{% if most_recent_address.congressionaldistrict2013 %}The address we have on file for you indicates that you are {% if changeddistrict %}now{% else %}still{% endif %} in {{most_recent_address.state}}-{{most_recent_address.congressionaldistrict2013}}.{% endif %} Team POPVOX is hard at work updating our information about the new congressional districts and Members of Congress. {% if changeddistrict %}We'll switch you over to your new district as soon as the 113th Congress begins.{% endif %} If your Members of Congress have changed as a result of the election, you'll see your new Members on Congress Match as soon as the 112th Congress ends.</p>
 	</div>
 	<div class="clear"> </div>
 

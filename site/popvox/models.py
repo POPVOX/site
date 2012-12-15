@@ -16,6 +16,7 @@ from urllib import urlopen
 from xml.dom import minidom
 import re
 import hashlib
+import datetime
 
 from tinymce import models as tinymce_models
 from picklefield import PickledObjectField
@@ -71,8 +72,28 @@ class MemberOfCongress(models.Model):
     """A Member of Congress or former member."""
     
     # The primary key is the GovTrack ID.
-    pvurl = models.CharField(max_length=100,blank=True,null=True)
-    documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_memberofcongress")
+    id = models.IntegerField(primary_key=True)
+    firstname = models.CharField(max_length=255,null=False)
+    middlename = models.CharField(max_length=255)
+    nickname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255,null=False)
+    namemod = models.CharField(max_length=255)
+    lastnameenc = models.CharField(max_length=255,null=False)
+    lastnamealt = models.CharField(max_length=255)
+    birthday = models.DateField(default=datetime.date.min)
+    gender = models.CharField(max_length=1, null=False, default='')
+    religion = models.CharField(max_length=255)
+    osid = models.CharField(max_length=50, default=None)
+    bioguideid = models.CharField(max_length=7, default=None)
+    pvsid = models.IntegerField(default=None)
+    fecid = models.CharField(max_length=9, default=None)
+    metavidid = models.CharField(max_length=255)
+    youtubeid = models.CharField(max_length=36, default=None)
+    twitterid = models.CharField(max_length=255)
+    lismemberid = models.CharField(max_length=6, default=None)
+    icpsrid = models.IntegerField(default=None)
+    fbid = models.IntegerField(default=None)
+    thomasid = models.IntegerField(default=None)
 
 
     def __unicode__(self):
@@ -93,6 +114,10 @@ class MemberOfCongress(models.Model):
             
     def info(self):
         return govtrack.getMemberOfCongress(self.id)
+        
+    def pvurl(self):
+        bio = MemberBio.objects.get(id=self.id)
+        return bio.pvurl
     
     # Make sure there is a record for every Member of Congress.
     @classmethod
@@ -106,6 +131,29 @@ class MemberOfCongress(models.Model):
                 if new:
                     sys.stderr.write("Initializing new Member of Congress: " + str(obj) + "\n")
 
+                    
+class MemberOfCongressRole(models.Model):
+    TITLE_CHOICES = [ ('REP', 'Rep.'), ('DEL', 'Del.'), ('SEN','Sen.')]
+    personeroleid = models.AutoField(primary_key=True,null=False)
+    personid = models.IntegerField(null=False, default=0)
+    type = models.CharField(max_length=8, null=False, default='')
+    startdate = models.DateField(default=datetime.date.min)
+    enddate = models.DateField(default=datetime.date.min)
+    party = models.CharField(max_length=255)
+    state = models.CharField(max_length=5, default=None)
+    district = models.IntegerField(default=None)
+    senateclass = models.IntegerField(default=None)
+    url = models.CharField(max_length=100, default=None)
+    title = models.CharField(max_length=3,choices=TITLE_CHOICES, null=False, default='REP')
+    address = models.TextField()
+                    
+class MemberBio(models.Model):
+    id = models.IntegerField(primary_key=True)
+    googleplus = models.URLField(blank=True)
+    flickr_id = models.CharField(max_length=100, blank=True)
+    pvurl = models.CharField(max_length=100,blank=True,null=True)
+    documents = models.ManyToManyField("PositionDocument", blank=True, related_name="owner_memberbio")
+                    
 class CongressionalCommittee(models.Model):
     """A congressional committee or subcommittee."""
     code = models.CharField(max_length=8, unique=True, db_index=True)
@@ -412,6 +460,68 @@ def bill_from_url(url):
         raise Exception("No bill with that number exists.")
     else:
         return bill[0]
+        
+class BillList(models.Model):
+    EVENT_TYPES = [
+        ('news', 'In The News'),
+        ('reintroduction', 'Reintroduction'),
+        ('slate', 'Slate'),
+        ('spotlight', 'Issue Spotlight'),
+        ]
+    
+    title = models.CharField(max_length=90)
+    type = models.CharField(choices=EVENT_TYPES, max_length=max([len(x[0]) for x in EVENT_TYPES]))
+    description = description = models.TextField(blank=True, null=True)
+    date = models.DateTimeField()
+    visible = models.BooleanField(default=False)
+    slug = models.SlugField(blank=True)
+    
+    def set_default_slug(self):
+        import string
+        
+        self.slug = slugify(self.title)
+        if self.slug != "" and not BillList.objects.filter(slug=self.slug).exists():
+            return
+        else:
+            suffix = ""
+            while True:
+                slates = BillList.objects.filter(slug = self.slug + str(suffix))
+                if len(slates) == 0:
+                    self.slug = self.slug + str(suffix)
+                    break # found a good one
+                if suffix == "":
+                    suffix = 0
+                suffix += 1
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.type, self.title)
+        
+class BillEvent(models.Model):
+    EVENT_TYPES = [
+        ('news', 'In The News'),
+        ('reintroduction', 'Reintroduction'),
+        ('slate', 'Slate'),
+        ('spotlight', 'Issue Spotlight'),
+        ]
+    POSITION_CHOICES = [
+        ('+', 'Support'),
+        ('-', 'Oppose'),
+        ('0', 'Neutral')
+        ]
+    
+    bill = models.ForeignKey(Bill, related_name="events")
+    date = models.DateTimeField()
+    type = models.CharField(choices=EVENT_TYPES, max_length=max([len(x[0]) for x in EVENT_TYPES]))
+    title = models.CharField(max_length=90, blank=True, null=True)
+    description = models.TextField(max_length=300, blank=True, null=True)
+    list = models.ForeignKey(BillList, related_name="events", blank=True, null=True)
+    position = models.CharField(choices=POSITION_CHOICES, max_length=max([len(x[0]) for x in EVENT_TYPES]), blank=True, null=True, default=None)
+    
+    def shortname(self):
+        return self.bill.shortname
+        
+    def listname(self):
+        return self.list.type+' '+self.list.title
         
 # ORGANIZATIONS #
 
@@ -727,6 +837,8 @@ class OrgCampaign(models.Model):
         if not self.org.visible: return "org-not-published"
         if not self.visible: return "campaign-not-published"
         return "visible"
+    def org_name(self):
+        return self.org.name
 
 class OrgExternalMemberCount(models.Model):
     """An external count of a size of an organization, e.g. as reported by the org or from Facebook or Twitter."""
@@ -767,6 +879,10 @@ class OrgCampaignPosition(models.Model):
         unique_together = (("campaign", "bill"),)
     def __unicode__(self):
         return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position
+    def campaign_name(self):
+        return self.campaign.org.name
+    def bill_shortname(self):
+        return self.bill.shortname
     def get_absolute_url(self):
         return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
     def documents(self):
@@ -813,16 +929,18 @@ class PositionDocument(models.Model):
     toc = models.TextField(blank=True, null=True) # json encoded
     def __unicode__(self):
         owner = ""
-        if self.owner_memberofcongress.all().exists():
-            owner = unicode(self.owner_memberofcongress.all()[0]) + ": "
+        if self.owner_memberbio.all().exists():
+            owner = unicode(MemberOfCongress.objects.get(id=self.owner_memberbio.all()[0].id)) + ": "
         if self.owner_org.all().exists():
             owner = unicode(self.owner_org.all()[0]) + ": "
         return owner + self.bill.title + " [" + self.get_doctype_display() + "]"
     def get_absolute_url(self):
+	print "made it to get_absolute_url"
         if self.owner_org.all().exists():
             return self.bill.url() + "/docs/" + self.owner_org.all()[0].slug + "/" + str(self.doctype)
-        if self.owner_memberofcongress.all().exists():
-            return self.bill.url() + "/docs/" + self.owner_memberofcongress.all()[0].id + "/" + str(self.doctype)
+        if self.owner_memberbio.all().exists():
+            return ''
+            return self.bill.url() + "/docs/" + self.owner_memberbio.all()[0].personid + "/" + str(self.doctype)
         return self.bill.url() # !!
 
     def url(self):
@@ -872,6 +990,8 @@ class UserProfile(models.Model):
     usertags = models.ManyToManyField(UserTag, blank=True, null=True)
     
     options = PickledObjectField(default={})
+    tagline = models.CharField(max_length=140,blank=True,null=True)
+    bio = models.TextField(blank=True,null=True)
     
     def __unicode__(self):
         ret = self.user.username
@@ -890,10 +1010,19 @@ class UserProfile(models.Model):
         super(UserProfile, self).delete(*args, **kwargs)
         self.user.delete()
         
+    def most_recent_address(self):
+        
+        address = PostalAddress.objects.filter(user=self.user.id).order_by("-created")[0]
+        return address
+            
+        
     def most_recent_comment_district(self):
-        for c in self.user.comments.order_by("-created").select_related("address"):
+        comments = self.user.comments.order_by("-created").select_related("address")
+        try:
+            c = comments[0]
             return c.address.state + str(c.address.congressionaldistrict)
-        return None
+        except IndexError:
+            return None
 
     _is_org_admin = None # cache because of the frequency we call from templates; but dangerous?
     def is_org_admin(self):
@@ -1020,6 +1149,8 @@ class UserLegStaffRole(models.Model):
             if self.committee.code[0] in ("H", "S"): # but not J
                 return self.committee.code[0]
         return None
+    def memberbio(self):
+        return MemberBio.objects.get(id=self.member.id)
         
 class PostalAddress(models.Model):
     """A postal address."""
@@ -1042,6 +1173,9 @@ class PostalAddress(models.Model):
     zipcode = models.CharField(max_length=10)
     phonenumber = models.CharField(max_length=18, blank=True)
     congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
+    #these two are for transitioning when new congressional districts get drawn.
+    congressionaldistrict2003 = models.IntegerField()
+    congressionaldistrict2013 = models.IntegerField()
     state_legis_upper = models.TextField(blank=True, null=True)
     state_legis_lower = models.TextField(blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
@@ -1988,11 +2122,6 @@ class CensusData(models.Model):
     income = models.PositiveIntegerField(verbose_name="Median household income")
     urban = models.DecimalField(max_digits=5,decimal_places=2)
     rural = models.DecimalField(max_digits=5,decimal_places=2)
-    
-class MemberBio(models.Model):
-    id = models.IntegerField(primary_key=True)
-    googleplus = models.URLField(blank=True)
-    flickr_id = models.CharField(max_length=100, blank=True)
     
 class Slate(models.Model):
     name = models.CharField(max_length=140, blank=True)
