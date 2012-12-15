@@ -519,6 +519,81 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
             "show_share_footer": True,
         }, context_instance=RequestContext(request))
 
+def billbox(bill):
+    stats = bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=False, want_totalcomments=True, force_data=True)
+    cosponsors = bill.cosponsors.all()
+    dems = 0
+    gops = 0
+    indies = 0
+    for sponsor in cosponsors:
+        if sponsor.party() == 'R':
+            gops += 1
+        elif sponsor.party() == 'D':
+            dems += 1
+        else:
+            indies += 1
+    if bill.sponsor.party() == 'R':
+        gops += 1
+    elif bill.sponsor.party() == 'D':
+        dems += 1
+    else:
+        indies += 1
+    sponsors = {"dems":dems, "gops":gops, "indies":indies}
+    return (bill, stats, sponsors)
+    
+def billboxes(bills):
+    L = []
+    for bill in bills:
+        L.append(billbox(bill))
+    return L
+        
+# working on this...
+def new_bills(request, NumDays):
+    
+    
+    LookupDays = int(NumDays)
+    
+    NewBills = []
+    # Get all bills from past 7 days
+    bills = Bill.objects.filter(introduced_date__gt=datetime.datetime.now()-timedelta(days=LookupDays))
+    
+    
+    #House Bills
+    HR = billboxes(bills.filter(billtype='h'))
+    #Senate Bills
+    S = billboxes(bills.filter(billtype='s'))
+    #House Resolutions
+    HRes = billboxes(bills.filter(billtype='hr'))
+    #Senate Resolutions
+    SRes = billboxes(bills.filter(billtype='sr'))
+    #House Concurrent Resolutions
+    HCRes = billboxes(bills.filter(billtype='hc'))
+    #Senate Concurrent Resolutions
+    SCRes = billboxes(bills.filter(billtype='sc'))
+    #House Joint Resolutions
+    HJRes = billboxes(bills.filter(billtype='hj'))
+    #Senate Joint Resolutions
+    SJRes = billboxes(bills.filter(billtype='sj'))
+    
+    for b in bills:
+        NewBills.append(b)
+    
+    return render_to_response('popvox/bill_list_NewBills.html',
+            {
+                "HR": HR,
+                "S": S,
+                "HRes": HRes,
+                "SRes": SRes,
+                "HCRes": HCRes,
+                "SCRes": SCRes,
+                "HJRes": HJRes,
+                "SJRes": SJRes,
+                "NumDays":NumDays
+            },
+            context_instance=RequestContext(request))
+# ******************
+        
+        
 def bill_userstate(request, congressnumber, billtype, billnumber, vehicleid):
     ret = { }
 

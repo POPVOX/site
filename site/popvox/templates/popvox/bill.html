@@ -395,7 +395,7 @@ function getshorturl() {
 			<li id="admin_tracking_tab" style="display: none;"><a href="#" onclick="return showtab('admin_tracking')">ADMIN &gt; Users Tracking</a></li>
 		</ul>
 	</div>
-	
+	{% include "popvox/billbox.html" %}
 	<div class="tab_pane">
 		<div id="billstatus" style="display: none" class="tab_panel">
 			<h3 class="no_rule">Bill Status</h3>
@@ -505,8 +505,8 @@ function getshorturl() {
         <div id="billevents" style="display: none" class="tab_panel">
             <h4>Latest News</h4>
             {% for event in bill.events.all %}
-                <li>{% if event.type == 'spotlight' %}{{bill.shortname}} was featured in Issue Spotlight: {{event.list.title}} on {{event.date}}{% endif %}
-                {% if event.type == 'news' %}{{bill.shortname}} was In The News on {{event.date}}{% endif %}</li>
+                <li>{% if event.type == 'spotlight' %}{{bill.shortname}} was featured in Issue Spotlight: {{event.list.title}} on {{event.date.date}}{% endif %}
+                {% if event.type == 'news' %}{{bill.shortname}} was In The News on {{event.date.date}}{% endif %}</li>
             {% endfor %}
         </div>
 		
