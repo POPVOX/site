@@ -1766,17 +1766,20 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     
     start = int(request.REQUEST.get("start", "0"))
     limit = int(request.REQUEST.get("count", "50"))
+    print "start: "+ str(start)
+    print "limit: "+ str(limit)
     
     def fetch(p):
-        cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
+        '''cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
         ret = cache.get(cache_key)
-        if ret != None: return ret
+        if ret != None: return ret'''
         
         q = bill_comments(bill, position=p, state=state, congressionaldistrict=district)\
             .filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))\
             .only("id", "created", "updated", "message", "position", "state", "congressionaldistrict", "bill__id", "bill__congressnumber", "bill__billtype", "bill__billnumber", "user__username", "address__id", "user__email")\
             .order_by("-created")
-        limited = False
+        count = q.count()
+        '''limited = False
         if q.count() > limit:
             q = q[start:limit]
             limited = True
@@ -1785,13 +1788,15 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             
         cache.set(cache_key, (q,limited), 60*2) # cache results for two minutes
             
-        return q, limited
+        return q, limited'''
+        return q, count
     
-    pro_comments, pro_limited = fetch("+")
-    con_comments, con_limited = fetch("-")
+    pro_comments, pro_count = fetch("+")
+    con_comments, con_count = fetch("-")
+
+    print "pro count: "+str(pro_count)
+    print "con count: "+str(con_count)
     
-    comments = list(pro_comments) + list(con_comments)
-    comments.sort(key = lambda x : x.updated, reverse=True)
     
     if state == None:
         reporttitle = "Legislative Report for POPVOX Nation"
@@ -1863,15 +1868,25 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             user_appreciated.add(c.id)
     
     # Pre-load the count of num_appreciations.
-    num_appreciations = {}
+    num_appreciations_pro = {}
     q = UserCommentDigg.objects.filter(
-        comment__id__in = [c.id for c in comments],
+        comment__id__in = [c.id for c in pro_comments],
         diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
         .values("comment")\
         .annotate(num_diggs=Count("id"))\
         .values("comment_id", "num_diggs")
     for c in q:
-        num_appreciations[c["comment_id"]] = c["num_diggs"]
+        num_appreciations_pro[c["comment_id"]] = c["num_diggs"]
+
+    num_appreciations_con = {}
+    q = UserCommentDigg.objects.filter(
+        comment__id__in = [c.id for c in con_comments],
+        diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
+        .values("comment")\
+        .annotate(num_diggs=Count("id"))\
+        .values("comment_id", "num_diggs")
+    for c in q:
+        num_appreciations_con[c["comment_id"]] = c["num_diggs"]
 
         
     # Legislative staff?
@@ -1932,7 +1947,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
         from django.db import connection
         debug_info = "".join(["%s: %s\n" % (q["time"], q["sql"]) for q in connection.queries])
         
-    comments_data_basic = [ {
+    pro_comments_data_basic = [ {
                 "id": c.id,
                 "user": c.user.username,
                 "msg": msg(c.message),
@@ -1942,12 +1957,46 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
                 "share": bill_url + "/comment/" + str(c.id), #c.url(),
                 "verb": verb(c), #c.verb(tense="past"),
                 "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
-                "appreciates": num_appreciations[c.id] if c.id in num_appreciations else 0,
+                "appreciates": num_appreciations_pro[c.id] if c.id in num_appreciations_pro else 0,
                 "appreciated": c.id in user_appreciated,
                 "state": c.state,
                 "district": c.congressionaldistrict
-                } for c in comments ]
+                } for c in pro_comments ]
                 
+
+
+    if pro_count > limit:
+        pro_comments_data = sorted(pro_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
+        pro_limited=True
+    else:
+        pro_comments_data = sorted(pro_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:]
+        pro_limited=False
+
+    con_comments_data_basic = [ {
+                "id": c.id,
+                "user": c.user.username,
+                "msg": msg(c.message),
+                "location": location(c),
+                "date": formatDateTime(c.created),
+                "pos": c.position,
+                "share": bill_url + "/comment/" + str(c.id), #c.url(),
+                "verb": verb(c), #c.verb(tense="past"),
+                "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
+                "appreciates": num_appreciations_con[c.id] if c.id in num_appreciations_con else 0,
+                "appreciated": c.id in user_appreciated,
+                "state": c.state,
+                "district": c.congressionaldistrict
+                } for c in con_comments ]
+                
+
+    if con_count > limit:
+        con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
+        con_limited=True
+    else:
+        con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:]
+        con_limited=False
+
+    comments_data_basic = pro_comments_data + con_comments_data
     comments_data = sorted(comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)
 
     return {
