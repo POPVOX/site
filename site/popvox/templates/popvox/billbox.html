@@ -1,0 +1,46 @@
+{% load humanize %}
+{% load popvox_utils %}
+<div><h4>{{bill.nicename}}</h4>
+{{bill.sponsor.name}}<br>
+D: {{sponsors.dems}}<br/>
+R: {{sponsors.gops}}<br/>
+I: {{sponsors.indies}}<br/>
+Pro: {{stats.pro}}<br/>
+Con: {{stats.con}}<br/>
+Status: {{bill.status_advanced}} ({{bill.current_status_date|date2}})<br/>
+{% if stats.total %}
+    <div class="chart_info">
+        <div style="float: left; width: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px; margin-right: 15px">
+            {% if not chart_no_links %}<a href="{{bill.url}}/report">{% endif %}
+                <div id="chart-container-{{bill.id}}{{chart_id}}" style="width: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px; height: {% if chart_size %}{{chart_size}}{% else %}95{% endif %}px"></div>
+                <script>bill_chart('chart-container-{{bill.id}}{{chart_id}}', {{stats.pro_pct}}, {{stats.con_pct}} {% if chart_opts %}, {{chart_opts}}{% endif %});</script>
+            {% if not chart_no_links %}</a>{% endif %}
+        </div>
+        {% if not chart_no_numbers %}
+         <div style="float: left; width: 110px">
+            <p class="chart_stats">
+                <span class="chart_title">{{ stats.longdescription}}:</span><br />
+                <span class="bg_support">{{ stats.pro_pct }}% Support <!-- {{stats.pro }} --></span><br />
+                <span class="bg_oppose">{{ stats.con_pct }}% Oppose <!-- {{stats.con }} --></span><br />
+                <span class="users">({{stats.total|intcomma}} user{{stats.total|pluralize}})</span>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+{% endif %}
+{% if not chart_no_links %}
+{% if not stats.total and stats.pro_reintro %}
+    <div class="no_pie">
+        <p>{{stats.pro_reintro}} individuals support the reintroduction of {{bill.shortname}}. <a href="{{bill.url}}/report">View report</a></p>
+    </div>
+{% endif %}
+{% if not stats.total and not stats.pro_reintro %}
+    <div class="no_pie">
+        <p>Too few constituents have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+    </div>
+{% endif %}
+{% endif %}
+{% if not chart_no_clear %}
+<div class="clear"> </div>
+{% endif %}
+</div>
