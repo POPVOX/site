@@ -1766,8 +1766,6 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     
     start = int(request.REQUEST.get("start", "0"))
     limit = int(request.REQUEST.get("count", "50"))
-    print "start: "+ str(start)
-    print "limit: "+ str(limit)
     
     def fetch(p):
         '''cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
@@ -1793,10 +1791,6 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     
     pro_comments, pro_count = fetch("+")
     con_comments, con_count = fetch("-")
-
-    print "pro count: "+str(pro_count)
-    print "con count: "+str(con_count)
-    
     
     if state == None:
         reporttitle = "Legislative Report for POPVOX Nation"
