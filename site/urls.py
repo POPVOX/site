@@ -240,6 +240,6 @@ if settings.DEBUG:
 
 if "SITE_DOWN" in os.environ and os.environ["SITE_DOWN"] == "1":
      urlpatterns = patterns('',
-		(r'^.*', 'views.sitedown'),
+		(r'^.*', 'popvox.views.main.sitedown'),
 	)
 
