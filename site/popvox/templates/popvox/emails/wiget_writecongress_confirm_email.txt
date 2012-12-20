@@ -6,7 +6,7 @@ In order to complete delivery to your Representative or Senators, we need to
 verify your email address. We may also need some additional information from
 you to meet your legislator's specific requirements.
 
-To finish your letter and ensure delivery to Congress, click here:
+To confirm your letter and ensure delivery to Congress, click here:
 
      {{URL}}
 
