@@ -88,7 +88,12 @@ Notes:
 	{% if "widget_theme" in permissions and request.GET.bg %}
 	body, input, textarea, select, h4.congrats { background-color: #{{request.GET.bg}}; color: #{{request.GET.fg}}; }
 	.optional, input[disabled] { color: #{{request.GET.fg2}}; }
-	a, p.error { color: #{{request.GET.lnk}}; }
+    a { color: #{{request.GET.lnk}}; }
+    p.error {
+        color: red;
+        font-size: 16px;
+        font-weight: bold;
+    }
 	
 	#widget_top ul { background: url(/services/widgets/img/writecongress/2?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg2}},darken) right -7px no-repeat; height: 32px; }
 	#widget_top ul li.tab_2 { background: url(/services/widgets/img/writecongress/2?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg2}},darken) -10px -7px no-repeat; }
@@ -111,7 +116,9 @@ Notes:
 	#panel_write_why_reason { border-bottom: 1px solid #D1D1CF; clear: both; display: block; padding-top: 10px;}
 	#b_send_no_msg { background-image: url(b_send_no_msg.png); }
 	#b_preview { background: url(/services/widgets/img/writecongress/preview?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
-	#b_send_to_congress a { background-image: url(/services/widgets/img/writecongress/send?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken); }
+	#b_send_to_congress a { background-image: url(/services/widgets/img/writecongress/send?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken);
+    {% if whitehouse %}background-image: url(/media/master/b_send_to_congress_wh.png){% endif %}
+    }
 	{% endif %}
 	
 	</style>
@@ -263,6 +270,12 @@ Notes:
 							} else if (email_status == "not-registered") {
 								$('#unregistered').show();
 								$('#registered_password, #registered_sso').hide();
+                                $('#email').attr("tabindex",84);
+                                $('#firstname').attr("tabindex",2);
+                                $('#lastname').attr("tabindex",3);
+                                $('#zipcode').attr("tabindex",4);
+
+
 								$('#panel_login .next').show();
 							} else {
 								$('#unregistered').hide();
@@ -271,6 +284,10 @@ Notes:
 								
 								if (data.has_password) {
 									$('#registered_password, #panel_login .next').show();
+                                    $('#email').attr("tabindex",2);
+                                    $('#firstname').attr("tabindex",84);
+                                    $('#lastname').attr("tabindex",85);
+                                    $('#zipcode').attr("tabindex",86);
 								} else if (data.sso_methods.length > 0) {
 									$('#registered_sso').show();
 								} // had better be one or the other, but give preference to password
@@ -594,21 +611,21 @@ Notes:
 								$('h3.congrats').text('Your message will be sent!')
 								$('h4.congrats').text('Thank you for taking the time to share your opinion.');
 							} else if (data.status == "confirm-address") {
-								$('h3.congrats').text('Check your email!');
-								$('h4.congrats').text('We need to confirm your address before delivering your message.');
+								$('h3.congrats').text({% if whitehouse %}'One More Step!'{% else %}'Check your email!'{% endif %});
+								$('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 							} else if (data.status == "confirm-email") {
-								$('h3.congrats').text('Check your email!');
-								$('h4.congrats').text('We need to confirm your email address before delivering your message.');
+								$('h3.congrats').text({% if whitehouse %}'One More Step!'{% else %}'Check your email!'{% endif %});
+								$('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 								
 							} else if (data.status == "demo-submitted") {
 								$('h3.congrats').text('Your message will (NOT) be sent!')
 								$('h4.congrats').text('This widget is in demo mode. No information was saved.');
 							} else if (data.status == "demo-confirm-address") {
 								$('h3.congrats').text('[DEMO] Check your email! [DEMO]');
-								$('h4.congrats').text('We need to confirm your address before delivering your message.');
+								$('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 							} else if (data.status == "demo-confirm-email") {
 								$('h3.congrats').text('[DEMO] Check your email! [DEMO]');
-								$('h4.congrats').text('We need to confirm your email address before delivering your message.');
+								$('h4.congrats').text({% if whitehouse %}'One More Step! Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 							}
 							
 							show_panel(5);
@@ -713,7 +730,7 @@ Notes:
 							<h3>Tell Congress who you are</h3>
 							
 							<div id="login">
-								<input id="email" name="email" value="" size="25" maxlength="40" type="text"><span class="check" style="display: none">check</span><br />
+								<input id="email" name="email" value="" size="25" maxlength="40" type="text" tabindex="1"><span class="check" style="display: none">check</span><br />
 	
 								{% comment %} -- this is not used currently, and commenting it out saves us loading some image resources --
 								<div id="registered_sso" style="display: none" class="clear">
@@ -776,7 +793,7 @@ Notes:
 						</script>
 						
 						{% comment %}keep in mind: large buttons for neutral widgets and at least one line for the service account owner{% endcomment %}
-						<p style="margin-top: 50px; padding-right: 1em;">Your letter will be sent to your representative or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
+						<p style="margin-top: 50px; padding-right: 1em;">Your letter will be sent to {% if whitehouse %}the White House and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
 						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">A copy will also go to {{campaign.account}}.</p>{% endif %}
                         <p>View our <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>
 					</div> <!-- e: panel_login -->
@@ -788,17 +805,17 @@ Notes:
 								<p>Provide the address of your residence where you intend to vote.<br />
 								Congressional offices only accept mail with complete contact information.</p>
 							
-								<label for="useraddress_prefix">Prefix</label>
+								<label for="useraddress_prefix">Prefix*</label>
 								<select class="c2" id="useraddress_prefix">
 									{% for prefix in useraddress_prefixes %}
 									<option value="{{prefix}}" {% if useraddress.nameprefix == prefix %}selected{% endif %}>{{prefix}}{% if not prefix %}(select){% endif %}</option>
 									{% endfor %}
 								</select><br />
 								
-								<label for="useraddress_firstname">First Name</label>
+								<label for="useraddress_firstname">First Name*</label>
 								<span id="useraddress_firstname">...</span><br />
 								
-								<label for="useraddress_lastname">Last Name</label>
+								<label for="useraddress_lastname">Last Name*</label>
 								<span id="useraddress_lastname">...</span><br />
 								
 								<label for="useraddress_suffix">Suffix</label>
@@ -809,25 +826,25 @@ Notes:
 								</select>
 								<span class="optional">optional</span><br />
 								
-								<label for="useraddress_address1">Address Line 1</label>
+								<label for="useraddress_address1">Address Line 1*</label>
 								<input class="c3" id="useraddress_address1" type="text" value=""/><br />
 								
 								<label for="useraddress_address2">Address Line 2</label>
 								<input class="c3" id="useraddress_address2" type="text" value=""/>
 								<span class="optional">optional</span><br />
 								
-								<label for="useraddress_city">City</label>
+								<label for="useraddress_city">City*</label>
 								<input class="c2" id="useraddress_city" type="text" value=""/><br />
 								
-								<label for="useraddress_state">State</label>
+								<label for="useraddress_state">State*</label>
 								<span id="useraddress_state">...</span><br />
 								
-								<label for="useraddress_zipcode">ZIP Code</label>
+								<label for="useraddress_zipcode">ZIP Code*</label>
 								<span id="useraddress_zipcode">...</span><br />
 								
-								<label for="useraddress_phonenumber">Phone Number</label>
+								<label for="useraddress_phonenumber">Phone Number*</label>
 								<input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/><br />
-								<small class="mrg_top_0">We only use your phone number when required on a Congressional message submission form.</small>
+								<small class="mrg_top_0">Some Members of Congress require a phone number with your message. Don't worry, POPVOX only shares your number when your Members of Congress ask for it.</small>
 								{% if tagvals %}
 								<label for="useraddress_tag">{{ taglabel }}</label>
 								<select class="c2" id="useraddress_tag" type="text" value="" maxlength="18">
@@ -902,7 +919,7 @@ Notes:
 						
 						<div class="clear"> </div>
 						
-						<p style="margin-top: 30px; padding-right: 1em;">Your letter will be sent to Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
+						<p style="margin-top: 30px; padding-right: 1em;">Your letter will be sent to Congress and {% if whitehouse %}the White House and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
 						
 					</div><!-- e: panel_write -->
 					
