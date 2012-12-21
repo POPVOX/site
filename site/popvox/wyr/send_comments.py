@@ -219,7 +219,7 @@ def process_comment(comment, thread_id):
 		msg.org_contact = "" # "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
 	
 	msg.delivery_agent = "POPVOX.com"
-	msg.delivery_agent_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
+	msg.delivery_agent_contact = "Annalee Flower Horne, POPVOX.com -- annalee@popvox.com"
 	
 	# Begin delivery.
 	for gid in govtrackrecipientids:
