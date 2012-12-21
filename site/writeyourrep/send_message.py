@@ -1385,7 +1385,8 @@ def send_message(msg, moc, previous_attempt, loginfo):
     govtrackrecipientid = moc.govtrackid
     mm = getMemberOfCongress(govtrackrecipientid)
     if "current" not in mm or mm["type"] not in ('sen', 'rep'):
-        raise Exception("Recipient is not currently in office as a senator or representative.")
+        if govtrackrecipientid not 400629:
+            raise Exception("Recipient is not currently in office as a senator or representative.")
 
     if moc.method == Endpoint.METHOD_NONE:
         if mm["type"] == "rep":

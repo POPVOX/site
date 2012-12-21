@@ -1455,7 +1455,13 @@ class UserComment(models.Model):
             govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
         else: # ch == "c", direct messages to all reps
             govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d)
-            
+
+        # FIXME later, using permissions and stuffs
+        campaignid = self.actionrecord.campaign.id
+        if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
+            obama = govtrack.getMemberOfCongress(400629)
+            govtrackrecipients.append(obama)
+
         # Remove recipients for whom we've already delivered to another Member in the same
         # office, because of e.g. a resignation followed by a replacement. This would raise a M2M
         # error if the user comment isn't stored in the database yet, but happens when we're just
