@@ -2,6 +2,7 @@
 
 import os, os.path, sys
 import datetime
+from django.db.models import Q
 
 # set the backend flag to anything to avoid Amazon SES because
 # when we do delivery by plain SMTP, we send from the user's
@@ -63,10 +64,13 @@ if "COMMENT" in os.environ:
 if "ADDR" in os.environ:
 	comments_iter = comments_iter.filter(address__id=int(os.environ["ADDR"]))
 if "TARGET" in os.environ:
-	m = getMemberOfCongress(int(os.environ["TARGET"]))
-	comments_iter = comments_iter.filter(state=m["state"])
-	if m["type"] == "rep":
-		comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
+    if int(os.environ["TARGET"]) == 400629:
+        comments_iter = comments_iter.filter(Q(actionrecord__campaign__id__contains=1866) | Q(actionrecord__campaign__id__contains=1872))
+    else:
+        m = getMemberOfCongress(int(os.environ["TARGET"]))
+        comments_iter = comments_iter.filter(state=m["state"])
+        if m["type"] == "rep":
+            comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
 if "LAST_ERR" in os.environ:
 	if os.environ["LAST_ERR"] == "ANY":
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__success=False)

@@ -1322,6 +1322,7 @@ class UserComment(models.Model):
     # this bill.
     position = models.CharField(max_length=1, choices=POSITION_CHOICES)
     
+    title = models.CharField(max_length=100, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
 
     address = models.ForeignKey(PostalAddress, db_index=True, related_name="usercomments", on_delete=models.PROTECT) # current address at time of writing
@@ -1457,10 +1458,14 @@ class UserComment(models.Model):
             govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d)
 
         # FIXME later, using permissions and stuffs
-        campaignid = self.actionrecord.all()[0].campaign.id
+        try:
+            campaignid = self.actionrecord.all()[0].campaign.id
+        except:
+            campaignid = 0 #not all comments have campaign action records
         if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
             obama = govtrack.getMemberOfCongress(400629)
             obama["office_id"] = "WH-S44"
+            obama["type"] = "pres"
             govtrackrecipients.append(obama)
 
         # Remove recipients for whom we've already delivered to another Member in the same
