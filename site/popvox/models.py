@@ -1457,7 +1457,7 @@ class UserComment(models.Model):
             govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d)
 
         # FIXME later, using permissions and stuffs
-        campaignid = self.actionrecord.campaign.id
+        campaignid = self.actionrecord.all()[0].campaign.id
         if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
             obama = govtrack.getMemberOfCongress(400629)
             govtrackrecipients.append(obama)
