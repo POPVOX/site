@@ -771,7 +771,7 @@ class WriteCongressEmailVerificationCallback:
             org = campaign.account.org
         else:
             org = None
-        return "Finish Your Letter to Congress" + (" - " + org.name + " Needs Your Help" if org != None else "")
+        return "Confirm Your Letter to Congress" + (" - " + org.name + " Needs Your Help" if org != None else "")
     
     def email_templates(self):
         return ("popvox/emails/wiget_writecongress_confirm_email", {
