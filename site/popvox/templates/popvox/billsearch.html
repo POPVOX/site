@@ -3,7 +3,9 @@
 {% block title %}Bill Search{% endblock%}
 {% block description %}Search for legislation pending before Congress.{% endblock%}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
+
 {% block head %}
+
 <script>
 {% include "popvox/track.js" %}
 </script>
@@ -28,6 +30,7 @@
 	</div>
 	
 	<div class="clear"> </div>
+
 	<h3 class="no_rule">Search Results</h3>
 
 	{% if not bills %}
