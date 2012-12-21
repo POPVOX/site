@@ -664,6 +664,14 @@ def load_fiscal_cliff_bill_list():
 			"source_url": "http://www.momentoftruthproject.org/sites/default/files/MeasuringUp5_11_2011.pdf",
 		},
 		{
+			"bill": Bill.objects.get(id=26139), # The Permanent Tax Relief for Families and Small Businesses Act
+			"savings": -4140,
+			"category_name": "Tax",
+			"category_icon": "i_tax",
+			"source": u"Speaker of the House John Boehner",
+			"source_url": "http://www.speaker.gov/general/house-vote-cut-spending-replace-defense-sequester-protect-millions-tax-hikes",
+		},
+		{
 			"bill": Bill.objects.get(id=20063), # Reinstate Superfund Tax
 			"savings": 18,
 			"category_name": "Tax",
@@ -686,14 +694,6 @@ def load_fiscal_cliff_bill_list():
 			"category_icon": "i_health",
 			"source": u"Lieberman-Coburn Health Proposal",
 			"source_url": "http://lieberman.senate.gov/index.cfm/issues-legislation/health-and-social-policy/saving-medicare-the-liebermancoburn-plan",
-		},
-		{
-			"bill": Bill.objects.get(id=24017), # The Sequester Replacement Reconciliation Act
-			"savings": 242,
-			"category_name": "Tax",
-			"category_icon": "i_tax",
-			"source": u"Sponsor: Rep. Paul Ryan",
-			"source_url": "https://www.popvox.com/member/rep-paul-ryan-wi/",
 		},
 	]
 	for bill in fiscal_cliff_bill_list:
