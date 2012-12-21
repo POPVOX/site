@@ -1460,6 +1460,7 @@ class UserComment(models.Model):
         campaignid = self.actionrecord.all()[0].campaign.id
         if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
             obama = govtrack.getMemberOfCongress(400629)
+            obama["office_id"] = "WH-S44"
             govtrackrecipients.append(obama)
 
         # Remove recipients for whom we've already delivered to another Member in the same
