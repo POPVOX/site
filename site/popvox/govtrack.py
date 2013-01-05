@@ -1,6 +1,6 @@
 # TODO: Caching needs to be thread-safe?
 
-CURRENT_CONGRESS = 112
+CURRENT_CONGRESS = 113
 
 #govtrack ids of the current congressional leadership. Used for example members for slates, and might come in handy for other purposes later. Currently it's Boehner, Pelosi, Reid, and McConnell, in that order.
 CURRENT_LEADERSHIP = [400036, 400314, 300082, 300072]
@@ -12,7 +12,7 @@ import os, os.path
 from urllib import urlencode
 from xml.dom import minidom
 from lxml import etree
-from datetime import datetime
+from datetime import datetime, date
 import re
 import feedparser
 
@@ -123,7 +123,8 @@ def loadpeople():
                     px["office_id"] = ("%s-H%02d" % (px["state"], px["district"]))
 
     # committee assignments
-    xml = etree.parse(open_govtrack_file("us/%d/committees.xml" % CURRENT_CONGRESS))
+    #xml = etree.parse(open_govtrack_file("us/%d/committees.xml" % CURRENT_CONGRESS))
+    xml = etree.parse(open_govtrack_file("us/committees.xml"))
     for node in xml.xpath("committee|subcommittee"):
         cid = node.get("code")
         if cid == "": continue # subcommittee without a code?
@@ -653,8 +654,10 @@ def getCommitteeList():
     committees.sort(key = lambda x : x["name"].replace("the ", ""))
     
     # Load members from current congress...
-    if os.path.exists("us/" + str(CURRENT_CONGRESS) + "/committees.xml"):
-        xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/committees.xml"))
+    #if os.path.exists("us/" + str(CURRENT_CONGRESS) + "/committees.xml"):
+        #xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/committees.xml"))
+    if os.path.exists("us/committees.xml"):
+        xml = minidom.parse(open_govtrack_file("us/committees.xml"))
         for node in xml.getElementsByTagName("committee") + xml.getElementsByTagName("subcommittee"):
             if node.nodeName == "committee":
                 id = node.getAttribute("code")
@@ -685,6 +688,7 @@ def loadfeed(monitors):
 
 def getCongressDates(congressnumber):
     global congressdates
+
     if congressdates == None:
         cd = { }
         for line in open_govtrack_file("us/sessions.tsv"):
@@ -694,7 +698,7 @@ def getCongressDates(congressnumber):
             cn = int(cn)
             if not cn in cd:
                 cd[cn] = [parse_govtrack_date(startdate).date(), None]
-            cd[cn][1] = parse_govtrack_date(enddate).date()
+                cd[cn][1] = parse_govtrack_date(enddate).date()
         congressdates = cd
     return congressdates[congressnumber]
 
