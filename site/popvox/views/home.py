@@ -1230,6 +1230,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
 
     trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
     if searchdistrict:
+        print "in here!"
         if int(searchdistrict) == 0:
             sd = searchstate.upper()+str(searchdistrict)
         else:
@@ -1238,9 +1239,20 @@ def district_info(request, searchstate=None, searchdistrict=None):
         members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
         members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
         try:
-            censusdata = popvox.models.CensusData.objects.get(id=sd)
+            print "now here!"
+	        # FIXME when there's census data
+            #censusdata = popvox.models.CensusData.objects.get(id=sd)
+            censusdata = popvox.models.CensusData.objects.get(id=searchstate)
+            maxdist = popvox.govtrack.stateapportionment[searchstate.upper()] 
+            print "searchdistrict: "+str(searchdistrict)
+            print "maxdist: "+str(maxdist)
+            if int(searchdistrict) > int(maxdist):
+                print "wtf"
+                raise Http404()
+	    
         except:
             raise Http404()
+	    pass
     else:
         members = popvox.govtrack.getMembersOfCongressForState(searchstate.upper())
         members = sorted(members, key=lambda member: member['type'],reverse=True) #sorting so reps come before senators on the district page

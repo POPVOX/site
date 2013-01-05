@@ -23,7 +23,7 @@ statenames = {"AL":"Alabama", "AK":"Alaska", "AS":"American Samoa", "AZ":"Arizon
 statelist = list(statenames.items())
 statelist.sort(key=lambda x : x[1])
 
-stateapportionment = {"AL":7, "AK":1, "AS":1, "AZ":8, "AR":4, "CA":53, "CO":7, "CT":5, "DE":1, "DC":1, "FL":25, "GA":13, "GU":1, "HI":2, "ID":2, "IL":19, "IN":9, "IA":5, "KS":4, "KY":6, "LA":7, "ME":2, "MD":8, "MA":10, "MI":15, "MN":8, "MS":4, "MO":9, "MT":1, "NE":3, "NV":3, "NH":2, "NJ":13, "NM":3, "NY":29, "NC":13, "ND": 1, "MP":1, "OH":18, "OK":5, "OR":5, "PA":19, "PR":1, "RI":2, "SC":6, "SD":1, "TN":9, "TX":32, "UT":3, "VT":1, "VI":1, "VA":11, "WA":9, "WV":3, "WI":8, "WY":1}
+stateapportionment = {"AL":7, "AK":1, "AS":1, "AZ":9, "AR":4, "CA":53, "CO":7, "CT":5, "DE":1, "DC":1, "FL":27, "GA":14, "GU":1, "HI":2, "ID":2, "IL":18, "IN":9, "IA":4, "KS":4, "KY":6, "LA":6, "ME":2, "MD":8, "MA":9, "MI":14, "MN":8, "MS":4, "MO":8, "MT":1, "NE":3, "NV":4, "NH":2, "NJ":12, "NM":3, "NY":27, "NC":13, "ND": 1, "MP":1, "OH":16, "OK":5, "OR":5, "PA":18, "PR":1, "RI":2, "SC":6, "SD":1, "TN":9, "TX":36, "UT":4, "VT":1, "VI":1, "VA":11, "WA":10, "WV":3, "WI":8, "WY":1}
 
 people = None # map of all IDs to people records
 people_list = None # sorted list of people records for current people only

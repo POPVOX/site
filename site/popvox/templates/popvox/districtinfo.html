@@ -47,6 +47,7 @@
 	{% endfor %}
 	
 	<div class="census">
+    {%if district != "None" %}<small>(These are state figures because district census data is not yet available)</small>{% endif %}
     {% if census_data %}
         <div class="pop">
 			<dl>
