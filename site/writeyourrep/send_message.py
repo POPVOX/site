@@ -463,7 +463,7 @@ skippable_fields = (
     "military_branch", "military_retired",
     "ecclesiastical_title", "ecclesiastical_toggle", "military_toggle",
     "phcell",
-    )
+    "suffix")
 
 radio_choices = {
     "reason": "legsitemail",
