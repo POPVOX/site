@@ -1552,7 +1552,8 @@ class UserComment(models.Model):
         if self.message == None:
             return ret
         for recip in recips:
-            if recip["type"] == "rep":
+            mem = govtrack.getMemberOfCongress(recip)
+            if mem["type"] == "rep":
                 if self.address.congressionaldistrict2013 is None:
                     return ret
  
