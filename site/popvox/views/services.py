@@ -262,6 +262,10 @@ def widget_render_writecongress_page(request, account, permissions):
         franking = None
         if "franking" in request.GET:
             franking = request.GET["franking"]
+            
+        whitehouse = None
+        if "whitehouse" in request.GET:
+            whitehouse = request.GET["whitehouse"]
         
         if "ocp" not in request.GET:
             if not "bill" in request.GET:
@@ -362,6 +366,7 @@ def widget_render_writecongress_page(request, account, permissions):
             "useraddress_suffixes": PostalAddress.SUFFIXES,
 
             "franking": franking,
+            "whitehouse": whitehouse,
             "taglabel": taglabel,
             "tagvals": tagvals,
             
