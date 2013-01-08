@@ -139,6 +139,32 @@
 	{% endblock %}
 	</script>
 
+    <style>
+    #signup p {
+        color: #FFFFFF;
+        font-size: 14px;
+        line-height: 20px;
+        margin: 0;
+    }
+
+    #signup span.signup_txt {
+        display: block;
+        float: left;
+        margin-top: -10px;
+        width: 700px;
+    }
+
+    #signup p span a {
+        color: #FFFFFF;
+        text-decoration: underline;
+        font: italic 16px georgia;
+    }
+
+    p span.signup_txt > strong {
+        font-size: 18px;
+    }
+    </style>
+
 	{% block head %}
 	{% endblock %}
 
@@ -166,7 +192,8 @@
 <div id="signup">
 	<div>
 		<!--<p class="close_x">close</p>-->
-		<p><span class="signup_txt">Stay up to date with what&rsquo;s on the Hill.</span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></p>
+		<p><span class="signup_txt">It's a new Congress -- with a new docket of bills!
+Weigh in on <a href="/newbills">new bills</a> as they're introduced--<br>or tell Congress which <a href="/blog/2013/top-bills-112th-congress/">bills from the last Congress</a> should be re-introduced.</span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></p>
 	</div>
 </div><!-- e: signup -->
 <div class="clear"> </div>
