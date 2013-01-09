@@ -71,6 +71,8 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
         for b in pop:
             if b.usercomments__count == 0:
                 break
+            if b.billtype == 'x':
+                break
             if not b in popular_bills:
                 popular_bills.append(b)
                 if len(popular_bills) > 12:
@@ -120,11 +122,12 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
             bill_data.sort(key = lambda x : x[1][0]) # then resort to put them in ascending order of raw count, so they display better
             
             for bill, (commentcount, score) in bill_data:
-                bill = Bill.objects.get(id=bill)
-                bill.trending_time_period = time_period_name
-                bill.new_positions = commentcount
-                popular_bills.append(bill)
-                seen_bills.add(bill.id)
+                if bill.billtype != 'x': #exclude non bill actions
+                    bill = Bill.objects.get(id=bill)
+                    bill.trending_time_period = time_period_name
+                    bill.new_positions = commentcount
+                    popular_bills.append(bill)
+                    seen_bills.add(bill.id)
         
     popular_bills_cache = (datetime.datetime.now(), popular_bills)
     
