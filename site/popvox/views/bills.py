@@ -510,9 +510,14 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
         return orgs
     for grp in orgs:
         grp[1] = sort_orgs(grp[1].values())
+        
+    billsup = len(bill.usercomments.filter(position='+'))
+    billopp = len(bill.usercomments.filter(position='-'))
     
     return render_to_response('popvox/bill.html', {
             'bill': bill,
+            'billsup': billsup,
+            'billopp': billopp,
             "deadbox": not bill.isAlive(),
             "nextchamber": ch,
             "orgs": orgs,
@@ -1769,9 +1774,9 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     limit = int(request.REQUEST.get("count", "50"))
     
     def fetch(p):
-        '''cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
+        cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
         ret = cache.get(cache_key)
-        if ret != None: return ret'''
+        if ret != None: return ret
         
         q = bill_comments(bill, position=p, state=state, congressionaldistrict=district)\
             .filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))\
@@ -1783,11 +1788,11 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             q = q[start:limit]
             limited = True
         else:
-            q = q[start:]
+            q = q[start:]'''
             
-        cache.set(cache_key, (q,limited), 60*2) # cache results for two minutes
+        cache.set(cache_key, (q,count), 60*2) # cache results for two minutes
             
-        return q, limited'''
+        '''return q, limited'''
         return q, count
     
     pro_comments, pro_count = fetch("+")
