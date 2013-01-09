@@ -415,7 +415,7 @@ def compute_prompts(user):
     
     from bills import get_popular_bills
     for bill in get_popular_bills():
-        if bill.id not in targets and bill.id not in hidden_bills:
+        if bill.id not in targets and bill.id not in hidden_bills and bill.billtype != 'x':
             targets[bill.id] = [(None, max_sim/10.0, "trending", None)]
     
     # Put the targets in descending similarity order, summing over the similarity scores used to pick out the target across all sources.
