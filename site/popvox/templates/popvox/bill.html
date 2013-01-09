@@ -360,10 +360,14 @@ function getshorturl() {
     {% comment %} START OF PIE CHART {% endcomment %}
     <div class="col_3 col_top col_last users_say">
         <h3 class="no_rule">What POPVOX Users Say</h3>
-        {% bill_statistics bill as stats %}
-        {% include "popvox/bill_statistics_pie_simple.html" %}
-        Support: {{ billsup }} users.<br>
-        Oppose: {{ billopp }} users.
+        <div id="svo">
+    	    {% bill_statistics bill as stats %}
+  	        {% include "popvox/bill_statistics_pie_simple.html" %}
+  	        <div id="svo_users">
+	       	 {{ billsup }} users<br>
+	       	 {{ billopp }} users
+	       	</div>
+	    </div>
     </div>
     {% comment %} END OF PIE CHART {% endcomment %}
     

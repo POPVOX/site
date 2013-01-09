@@ -2586,6 +2586,7 @@ p.view_report {
     margin-bottom: 0;
     padding-top: 0;
     padding-left: 0px;
+    width: 160px;
     }
 
     p.view_report span {
@@ -6396,6 +6397,27 @@ font-weight: normal;
 #keyvotes_meta textarea {
 	padding: 10px;
 	color: #404045;
-}			
+}	
+		
+
+.chart_info {
+	width: 200px;
+	float: left;
+}
+#svo_users {
+	width: 100px;
+	float: right;
+	margin-top: -75px;
+	text-align: right;
+}
+.users_say {
+	margin-left: 20px;
+}
+#svo .highcharts-container {
+	margin-left: 50px;
+}
+#svo span.users {
+	display: none;
+}
 
 
