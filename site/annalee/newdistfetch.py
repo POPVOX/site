@@ -41,6 +41,8 @@ for address in addresses:
             districtnum=district.split('-')
             districtnum = int(districtnum[1])
             address.congressionaldistrict2013 = districtnum
+            address.congressionaldistrict2003 = address.congresionaldistrict
+            address.congressionaldistrict = districtnum
 
             address.save()
             
