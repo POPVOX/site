@@ -415,7 +415,7 @@ def compute_prompts(user):
     
     from bills import get_popular_bills
     for bill in get_popular_bills():
-        if bill.id not in targets and bill.id not in hidden_bills:
+        if bill.id not in targets and bill.id not in hidden_bills and bill.billtype != 'x':
             targets[bill.id] = [(None, max_sim/10.0, "trending", None)]
     
     # Put the targets in descending similarity order, summing over the similarity scores used to pick out the target across all sources.
@@ -1230,6 +1230,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
 
     trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
     if searchdistrict:
+        print "in here!"
         if int(searchdistrict) == 0:
             sd = searchstate.upper()+str(searchdistrict)
         else:
@@ -1238,9 +1239,20 @@ def district_info(request, searchstate=None, searchdistrict=None):
         members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
         members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
         try:
-            censusdata = popvox.models.CensusData.objects.get(id=sd)
+            print "now here!"
+	        # FIXME when there's census data
+            #censusdata = popvox.models.CensusData.objects.get(id=sd)
+            censusdata = popvox.models.CensusData.objects.get(id=searchstate)
+            maxdist = popvox.govtrack.stateapportionment[searchstate.upper()] 
+            print "searchdistrict: "+str(searchdistrict)
+            print "maxdist: "+str(maxdist)
+            if int(searchdistrict) > int(maxdist):
+                print "wtf"
+                raise Http404()
+	    
         except:
             raise Http404()
+	    pass
     else:
         members = popvox.govtrack.getMembersOfCongressForState(searchstate.upper())
         members = sorted(members, key=lambda member: member['type'],reverse=True) #sorting so reps come before senators on the district page
@@ -1510,10 +1522,14 @@ def gettoknow(request):
             mem = popvox.models.MemberOfCongress.objects.get(id=member['id'])
             member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
 
-            url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member['id'])
-            json_data = "".join(urllib2.urlopen(url).readlines())
-            loaded_data = json.loads(json_data)
-            mem_data = loaded_data['response']['legislator']
+            loaded_data=[]
+            try:
+                url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member['id'])
+                json_data = "".join(urllib2.urlopen(url).readlines())
+                loaded_data = json.loads(json_data)
+                mem_data = loaded_data['response']['legislator']
+            except urllib2.HTTPError:
+                pass
 
             member['plain_name'] = mem_data['title']+" "+mem_data['firstname']+" "+mem_data['lastname']
             if mem_data['chamber'] == "house":

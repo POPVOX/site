@@ -1,6 +1,6 @@
 # TODO: Caching needs to be thread-safe?
 
-CURRENT_CONGRESS = 112
+CURRENT_CONGRESS = 113
 
 #govtrack ids of the current congressional leadership. Used for example members for slates, and might come in handy for other purposes later. Currently it's Boehner, Pelosi, Reid, and McConnell, in that order.
 CURRENT_LEADERSHIP = [400036, 400314, 300082, 300072]
@@ -12,7 +12,7 @@ import os, os.path
 from urllib import urlencode
 from xml.dom import minidom
 from lxml import etree
-from datetime import datetime
+from datetime import datetime, date
 import re
 import feedparser
 
@@ -23,7 +23,7 @@ statenames = {"AL":"Alabama", "AK":"Alaska", "AS":"American Samoa", "AZ":"Arizon
 statelist = list(statenames.items())
 statelist.sort(key=lambda x : x[1])
 
-stateapportionment = {"AL":7, "AK":1, "AS":1, "AZ":8, "AR":4, "CA":53, "CO":7, "CT":5, "DE":1, "DC":1, "FL":25, "GA":13, "GU":1, "HI":2, "ID":2, "IL":19, "IN":9, "IA":5, "KS":4, "KY":6, "LA":7, "ME":2, "MD":8, "MA":10, "MI":15, "MN":8, "MS":4, "MO":9, "MT":1, "NE":3, "NV":3, "NH":2, "NJ":13, "NM":3, "NY":29, "NC":13, "ND": 1, "MP":1, "OH":18, "OK":5, "OR":5, "PA":19, "PR":1, "RI":2, "SC":6, "SD":1, "TN":9, "TX":32, "UT":3, "VT":1, "VI":1, "VA":11, "WA":9, "WV":3, "WI":8, "WY":1}
+stateapportionment = {"AL":7, "AK":1, "AS":1, "AZ":9, "AR":4, "CA":53, "CO":7, "CT":5, "DE":1, "DC":1, "FL":27, "GA":14, "GU":1, "HI":2, "ID":2, "IL":18, "IN":9, "IA":4, "KS":4, "KY":6, "LA":6, "ME":2, "MD":8, "MA":9, "MI":14, "MN":8, "MS":4, "MO":8, "MT":1, "NE":3, "NV":4, "NH":2, "NJ":12, "NM":3, "NY":27, "NC":13, "ND": 1, "MP":1, "OH":16, "OK":5, "OR":5, "PA":18, "PR":1, "RI":2, "SC":6, "SD":1, "TN":9, "TX":36, "UT":4, "VT":1, "VI":1, "VA":11, "WA":10, "WV":3, "WI":8, "WY":1}
 
 people = None # map of all IDs to people records
 people_list = None # sorted list of people records for current people only
@@ -123,7 +123,8 @@ def loadpeople():
                     px["office_id"] = ("%s-H%02d" % (px["state"], px["district"]))
 
     # committee assignments
-    xml = etree.parse(open_govtrack_file("us/%d/committees.xml" % CURRENT_CONGRESS))
+    #xml = etree.parse(open_govtrack_file("us/%d/committees.xml" % CURRENT_CONGRESS))
+    xml = etree.parse(open_govtrack_file("us/committees.xml"))
     for node in xml.xpath("committee|subcommittee"):
         cid = node.get("code")
         if cid == "": continue # subcommittee without a code?
@@ -653,8 +654,10 @@ def getCommitteeList():
     committees.sort(key = lambda x : x["name"].replace("the ", ""))
     
     # Load members from current congress...
-    if os.path.exists("us/" + str(CURRENT_CONGRESS) + "/committees.xml"):
-        xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/committees.xml"))
+    #if os.path.exists("us/" + str(CURRENT_CONGRESS) + "/committees.xml"):
+        #xml = minidom.parse(open_govtrack_file("us/" + str(CURRENT_CONGRESS) + "/committees.xml"))
+    if os.path.exists("us/committees.xml"):
+        xml = minidom.parse(open_govtrack_file("us/committees.xml"))
         for node in xml.getElementsByTagName("committee") + xml.getElementsByTagName("subcommittee"):
             if node.nodeName == "committee":
                 id = node.getAttribute("code")
@@ -685,6 +688,7 @@ def loadfeed(monitors):
 
 def getCongressDates(congressnumber):
     global congressdates
+
     if congressdates == None:
         cd = { }
         for line in open_govtrack_file("us/sessions.tsv"):
@@ -694,7 +698,7 @@ def getCongressDates(congressnumber):
             cn = int(cn)
             if not cn in cd:
                 cd[cn] = [parse_govtrack_date(startdate).date(), None]
-            cd[cn][1] = parse_govtrack_date(enddate).date()
+                cd[cn][1] = parse_govtrack_date(enddate).date()
         congressdates = cd
     return congressdates[congressnumber]
 

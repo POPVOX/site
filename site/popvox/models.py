@@ -1480,6 +1480,10 @@ class UserComment(models.Model):
         
     def get_recipients_display(self):
         recips = self.get_recipients()
+        for recip in recips:
+            if recip['type'] == "rep":
+                if self.address.congressionaldistrict2013 is None:
+                    return "Representative"
         if not type(recips) == list:
             # Normally, show recipients that we would deliver to now.
             # But if the bill is dead, show who we delivered to already, if any.
@@ -1547,7 +1551,12 @@ class UserComment(models.Model):
         # But we can report what was delivered.
         if self.message == None:
             return ret
-        
+        for recip in recips:
+            mem = govtrack.getMemberOfCongress(recip)
+            if mem["type"] == "rep":
+                if self.address.congressionaldistrict2013 is None:
+                    return ret
+ 
         if len(recips) > 0:
             ret += ref1 + " is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
             

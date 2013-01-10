@@ -71,6 +71,8 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
         for b in pop:
             if b.usercomments__count == 0:
                 break
+            if b.billtype == 'x':
+                break
             if not b in popular_bills:
                 popular_bills.append(b)
                 if len(popular_bills) > 12:
@@ -120,11 +122,12 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
             bill_data.sort(key = lambda x : x[1][0]) # then resort to put them in ascending order of raw count, so they display better
             
             for bill, (commentcount, score) in bill_data:
-                bill = Bill.objects.get(id=bill)
-                bill.trending_time_period = time_period_name
-                bill.new_positions = commentcount
-                popular_bills.append(bill)
-                seen_bills.add(bill.id)
+                if bill.billtype != 'x': #exclude non bill actions
+                    bill = Bill.objects.get(id=bill)
+                    bill.trending_time_period = time_period_name
+                    bill.new_positions = commentcount
+                    popular_bills.append(bill)
+                    seen_bills.add(bill.id)
         
     popular_bills_cache = (datetime.datetime.now(), popular_bills)
     
@@ -510,9 +513,14 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
         return orgs
     for grp in orgs:
         grp[1] = sort_orgs(grp[1].values())
+        
+    billsup = len(bill.usercomments.filter(position='+'))
+    billopp = len(bill.usercomments.filter(position='-'))
     
     return render_to_response('popvox/bill.html', {
             'bill': bill,
+            'billsup': billsup,
+            'billopp': billopp,
             "deadbox": not bill.isAlive(),
             "nextchamber": ch,
             "orgs": orgs,
@@ -703,6 +711,7 @@ class DelayedCommentAction:
 def get_comment_recipients(bill, address):
     if address == None: return None
     if address.state == None or address.congressionaldistrict == None: return # can be called with incomplete info
+    if address.congressionaldistrict2013 == None: return
     c = UserComment(bill=bill, address=address)
     recips = c.get_recipients()
     if type(recips) != list: return None
@@ -1768,9 +1777,9 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     limit = int(request.REQUEST.get("count", "50"))
     
     def fetch(p):
-        '''cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
+        cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
         ret = cache.get(cache_key)
-        if ret != None: return ret'''
+        if ret != None: return ret
         
         q = bill_comments(bill, position=p, state=state, congressionaldistrict=district)\
             .filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))\
@@ -1782,11 +1791,11 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             q = q[start:limit]
             limited = True
         else:
-            q = q[start:]
+            q = q[start:]'''
             
-        cache.set(cache_key, (q,limited), 60*2) # cache results for two minutes
+        cache.set(cache_key, (q,count), 60*2) # cache results for two minutes
             
-        return q, limited'''
+        '''return q, limited'''
         return q, count
     
     pro_comments, pro_count = fetch("+")
