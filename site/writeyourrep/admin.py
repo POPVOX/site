@@ -7,7 +7,7 @@ class EndpointAdmin(admin.ModelAdmin):
     list_display = ("govtrackid", "method", "office", "mocname", "webform", "notes")
     list_filter = ("method",)
     search_fields = ["govtrackid", "notes"]
-    readonly_fields = ("govtrackid", "office")
+    #readonly_fields = ("govtrackid", "office")
 
 class DeliveryRecordAdmin(admin.ModelAdmin):
     raw_id_fields = ("target", "next_attempt")

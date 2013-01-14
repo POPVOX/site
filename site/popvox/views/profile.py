@@ -486,7 +486,10 @@ def user_profile(request, userid):
         print "no user"
         raise Http404
     
-    district = profile.most_recent_comment_district()
+    try:
+        district = profile.most_recent_comment_district()
+    except:
+        district = False
     user = profile.user
     
     members = govtrack.getMembersOfCongressForDistrict(district)

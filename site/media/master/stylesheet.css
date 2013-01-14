@@ -803,12 +803,14 @@ table.form_fields td {
 /* alert dead */
 
 .alert_dead {
-    background: url(bg_dead.gif) left top no-repeat;
-    width: 940px;
-    height: 260px;
+    background: url("bg_dead.gif") no-repeat scroll left top #CC6912;
+    clear: both;
+    color: #FFFFFF;
+    display: block;
+    height: 300px;
     margin-bottom: 10px;
     padding: 5px 20px;
-    color: #fff;
+    width: 920px;
     }
 
     .alert_dead .col_6 {

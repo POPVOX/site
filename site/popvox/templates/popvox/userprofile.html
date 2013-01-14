@@ -21,7 +21,7 @@ p.feedback a { color: #CC7722; }
     <div class="col_9 col_top">
         <h1 class="rule_btm">User Profile - {{user.get_name}}</h1>
 <h2>{{profile.tagline}}</h2>
-        district: {{district}}<br/>
+        {% if district %}district: {{district}}{% endif %}<br/>
         bills supported: {{commentssup|length}}<br/>
         bills opposed: {{commentsopp|length}}<br/>
         letters written: {{letters}}<br/>

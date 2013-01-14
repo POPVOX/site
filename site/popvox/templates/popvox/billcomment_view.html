@@ -168,7 +168,7 @@ ul.social_share_btns {
 				</p>
 				
 				<p style="padding-top: 20px; text-align: center; font: italic 12px sans-serif; color: #555">
-					{{comment.delivery_status_public}}
+					{% comment %}{{comment.delivery_status_public}} removed 1/2/13 until we get msg delivery through the transition.{% endcomment %}
 					
 					{% with comment.shares.count as comment_shares_count %}
 						{% if comment_shares_count %}

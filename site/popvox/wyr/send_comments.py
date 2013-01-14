@@ -90,6 +90,10 @@ if "LAST_ERR" in os.environ:
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE, delivery_attempts__trace__contains="CAPTCHA")
 if "RECENT" in os.environ:
 	comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=7))
+if "REDISTRICTED" in os.environ:
+    #Only run comments for users whose new districts we know we have.
+    comments_iter = comments_iter.filter(address__congressionaldistrict2013__isnull=False)
+    print comments_iter.count()
 	
 def process_comment(comment, thread_id):
 	global success, failure, needs_attention, pending, held_for_offline
@@ -371,7 +375,7 @@ def process_comments_group(thread_index, thread_count):
 	# endpoint delays are properly executed in a serial fashion.
 
 	cm = comments_iter\
-		.extra(where=["(ORD(MID(state,1,1))+ORD(MID(state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
+		.extra(where=["(ORD(MID(popvox_usercomment.state,1,1))+ORD(MID(popvox_usercomment.state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
 		.order_by('created')\
 		.select_related("bill", "user")
 

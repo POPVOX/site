@@ -41,20 +41,22 @@ for address in addresses:
             districtnum=district.split('-')
             districtnum = int(districtnum[1])
             address.congressionaldistrict2013 = districtnum
-            address.congressionaldistrict2003 = address.congresionaldistrict
+            address.congressionaldistrict2003 = address.congressionaldistrict
             address.congressionaldistrict = districtnum
 
             address.save()
             
-            if address.congressionaldistrict2013 == districtnum:
-                wincount +=1
-                if wincount >= 1000:
+            if address.congressionaldistrict == districtnum:
                     print "success" + "\t" + str(address.id)
-                    wincount = 0
+                    wincount += 1
             else:
                 print "mismatch" + "\t" + str(address.id)
                 failcount += 1
         
+        except IndexError:
+            print "IndexError on"+ "\t" +str(address.id)
+            failcount += 1
+            
         except:
             print "exception on"+ "\t" +str(address.id)
             failcount += 1
@@ -63,4 +65,4 @@ for address in addresses:
         print "lat and/or long missing on"+ "\t" +str(address.id)
         failcount += 1
     
-print failcount
+print "success:"+"\t"+str(wincount)+"\n"+"fail:"+"\t"+str(failcount)
