@@ -9,10 +9,11 @@
 		<div>
 			<select id="billsearch_congress" name="congressnumber">
 				<option value="">Current Legislation</option>
+                <option value="112" {% if congressnumber == "112" %}selected{% endif %}>112th Congress</option>
 				<option value="111" {% if congressnumber == "111" %}selected{% endif %}>111th Congress</option>
 			</select>
 		</div>
 		</div>
 	</form>
-	{% if not q %}<script>$('#billsearch_q').input_default("bill number or keywords");</script>{% endif %}
+	{% if not q %}<script type="text/javascript">$('#billsearch_q').input_default("bill number or keywords");</script>{% endif %}
 

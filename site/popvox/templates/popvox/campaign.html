@@ -12,7 +12,7 @@
 		{% include "popvox/org_common_scripts.html" %}
 	{% endwith %}
 	{% if admin %}
-		<script>
+		<script type="text/javascript">
 			{% include "popvox/org_billaction.js" %}
 		</script>
 	{% endif %}
@@ -94,7 +94,7 @@
 		{% endfor %}
 		</div>
 		{% if admin %}
-		<script>$( "#agendaitems_{{cam.id}}" ).sortable({
+		<script type="text/javascript">$( "#agendaitems_{{cam.id}}" ).sortable({
 			items: ".orgcampaignposition",
 			axis: "y",
 			containment: ".col_6", // containing to the list prevents moving any item to the bottom

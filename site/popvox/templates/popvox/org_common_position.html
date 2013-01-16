@@ -19,7 +19,7 @@
 		<div id="campos_{{cam.id}}_{{position.id}}_comment_editor" style="display: none">
 			<textarea id="campos_{{cam.id}}_{{position.id}}_comment_textarea" style="width: 375px">{% if position.comment %}{{position.comment}}{% endif %}</textarea>
 		</div>
-		<script>
+		<script type="text/javascript">
 			$('#campos_{{cam.id}}_{{position.id}}_comment').inline_edit(
 				function(value, field, callback) {
 					setposcomment('{{cam.slug|escapejs}}', {{cam.id}}, {{position.id}}, value, field, callback);

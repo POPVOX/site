@@ -24,7 +24,7 @@
 
 <div class="col_12 col_top col_last">
 {% if district != "None" %}
-<h1 class="rule_btm">District Info / {{statename}}-{{district}}</h1>
+<h1 class="rule_btm">{% if archive %}{{archive}} {% endif %}District Info / {{statename}}-{{district}}</h1>
 {% else %}{% if state == "DC" or state == "PR" %}
 <h1 class="rule_btm">District Info / {{statename}}</h1>
 {% else %}
@@ -47,6 +47,7 @@
 	{% endfor %}
 	
 	<div class="census">
+    {%if district != "None" %}<small>(These are state figures because district census data is not yet available)</small>{% endif %}
     {% if census_data %}
         <div class="pop">
 			<dl>
@@ -55,7 +56,7 @@
 			</dl>
 		</div>
         <div class="residence section">
-			     <div id="urban_rural_graph" class="bar_graph"><script>two_part_bar_chart("urban_rural_graph", {{census_data.urban|floatformat}}, {{census_data.rural|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Urban", right_label: "Rural", colors: ["#7575d","#414046"],labels:false });</script></div>
+			     <div id="urban_rural_graph" class="bar_graph"><script type="text/javascript">two_part_bar_chart("urban_rural_graph", {{census_data.urban|floatformat}}, {{census_data.rural|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Urban", right_label: "Rural", colors: ["#7575d","#414046"],labels:false });</script></div>
 			<div>
 			<dl class="urban">
 				<dt>Urban</dt>
@@ -69,7 +70,7 @@
 			<div style="clear:both;"></div>
 		</div>
 		<div class="sex">
-			     <div id="male_female_graph" class="bar_graph"><script>two_part_bar_chart("male_female_graph", {{census_data.male|floatformat}}, {{census_data.female|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Male", right_label: "Female", colors: ["#7575d","#414046"], labels:false });</script></div>
+			     <div id="male_female_graph" class="bar_graph"><script type="text/javascript">two_part_bar_chart("male_female_graph", {{census_data.male|floatformat}}, {{census_data.female|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Male", right_label: "Female", colors: ["#7575d","#414046"], labels:false });</script></div>
 		<div>
 		<dl class="male">
 			<dt>Male</dt>
@@ -94,7 +95,7 @@
 				<dt>Ethnicity</dt>
 			<dd>
 			<div id="ethnicity_graph">
-				<script>race_chart("ethnicity_graph",{{census_data.white}}, {{census_data.black}}, {{census_data.latino}}, {{census_data.asian}}, {{census_data.ai}}, {{census_data.hpi}}, {{census_data.biracial}}, {{census_data.other}}, {});</script></div>
+				<script type="text/javascript">race_chart("ethnicity_graph",{{census_data.white}}, {{census_data.black}}, {{census_data.latino}}, {{census_data.asian}}, {{census_data.ai}}, {{census_data.hpi}}, {{census_data.biracial}}, {{census_data.other}}, {});</script></div>
 		</dd>
 		</div>
 	</div>
@@ -148,7 +149,7 @@
 			<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
 					<a href="{{bill.url}}/report">
-			        	<div id="trending_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
+			        	<div id="trending_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 				</a>
 			<p class="usercount">sentiment of {{total}} users in {{statename}}{% if district != "None" %}-{{district}}{% endif %}</p>
 			{% else %}
@@ -181,7 +182,7 @@
 	        <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
 				<a href="{{bill.url}}/report">
-					<div id="popular_bar_{{forloop.counter}}" class="bar_graph"><script>two_part_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
+					<div id="popular_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 				</a>
 			<p class="usercount">sentiment of {{total}} users in {{statename}}{% if district != "None" %}-{{district}}{% endif %}</p>
 			{% else %}
@@ -199,7 +200,7 @@
 </div><!-- end col_9 col_top col_last -->
 {% include "ads/rightbar.html" %}
 </div>
-<script>
+<script type="text/javascript">
 $(document).ready(function($){
 	$('.highcharts-container').each( function() {
 		$(this).width($(this).parent().parent().width());

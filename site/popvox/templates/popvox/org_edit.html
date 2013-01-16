@@ -6,9 +6,9 @@
 {%block nav_orgadmin_class_profile%}active{%endblock%}
 {% block head %}
 		{% if request.ua.os_family == "iPhone OS" %}
-			<script src="/media/js/fileuploader.js"></script>
+			<script type="text/javascript" src="/media/js/fileuploader.js"></script>
 			<link rel="stylesheet" href="/media/css/fileuploader.css" type="text/css" />
-			<script>
+			<script type="text/javascript">
 			$(function() {
 				var uploader = new qq.FileUploader({
 				element: document.getElementById('file-uploader'),
@@ -44,7 +44,7 @@
 			</script>
 		{% endif %}
 		
-		<script>
+		<script type="text/javascript">
 		function updateslug(validate) {
 			ajaxform("/ajax/orgs/updatefields",
 				{ "org": "{{org.slug|escapejs}}", "validate": (validate ? "validate" : "") },
@@ -132,7 +132,7 @@
 			</div>
 			<img id="profileimage" src="{% if org.logo %}{{org.logo.url}}{% else %}/media/master/grey.gif{% endif %}" alt="Profile Image" width="220" height="166" />
 		</div>
-		<script>
+		<script type="text/javascript">
 		$(function() {
 			$('#profileimagecontainer').mouseenter(function() { $('#file-uploader-opener').show(); });
 			$('#profileimagecontainer').mouseleave(function() { $('#file-uploader-opener').hide(); });
@@ -191,7 +191,7 @@
 			</select>
 			<div id="errorlabel_homestate" class="error"> </div>
 			
-			<script>$('#description, #postaladdress').input_autosize();</script>
+			<script type="text/javascript">$('#description, #postaladdress').input_autosize();</script>
 
 			<label for="website">Website</label>
 			<input type="text" class="c3" id="website" value="{{org.website}}"/><br />
@@ -215,7 +215,7 @@
 
 			<input type="button" class="submit" id="submitbutton" value="Save Your Changes" onclick="updateprofile(false)" disabled="1"/>
 			<p id="errorlabel" class="error"/>
-			<script>
+			<script type="text/javascript">
 			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #gplusurl, #twittername,').textchange(function() { $('#submitbutton').prop("disabled", false); });
 			$('#homestate').change(function() { $('#submitbutton').prop("disabled", false); });
 			$('#description, #postaladdress, #phonenumber, #website, #facebookurl, #gplusurl, #twittername').keyup_delayed(function() { updateprofile(true) });
@@ -228,7 +228,7 @@
 
 		<div id="slugedit" class="form clear" {% if org.visible %}style="display: none"{% endif %}>
 			<div id="slugwhathappened" style="display: none" class="error">The page was reloaded to reflect the change in your organization&rsquo;s POPVOX address.</div>
-			<script>if (window.location.hash == "#editurl") $('#slugwhathappened').show();</script>
+			<script type="text/javascript">if (window.location.hash == "#editurl") $('#slugwhathappened').show();</script>
 			
 			<label for="slug">Custom URL:</label>
 			<div class="field">http://www.popvox.com/orgs/<input type="text" id="slug" value="{{org.slug}}"/></div>
@@ -236,7 +236,7 @@
 			<small>Enter a short, lowercase abbreviation for your organization. It can contain only letters, numbers, underscores and hyphens. Note that if you change your URL, existing links outside of POPVOX to your landing page on POPVOX will break, so it is not advised that you change your URL once you publish your profile.</small>
 			<input type="button" class="submit" id="slugsubmitbutton" value="Change URL" onclick="updateslug(false)"/>
 			<div id="slugerrorlabel" class="error"></div>
-			<script>
+			<script type="text/javascript">
 			$('#slug').keyup_delayed(function() { updateslug(true) });
 			$('#slug').input_default();
 			</script>
@@ -264,7 +264,7 @@
 		{% else %}
 		<p>The following contact information is made available to Congressional staff.</p>
 		{% endif %}
-		 <script>
+		 <script type="text/javascript">
 		 var contactinfos = { };
 		 var edit_contact_id = null;
 		 function appendContact(id, name,  title, email, phone) {
@@ -362,7 +362,7 @@
 		<ul class="bullets">
 			<li><a href="#" onclick="resetStaffContactFields(); return showStaffContact();">Add Staff Contact</a></li>
 		 </ul>
-		 <script>
+		 <script type="text/javascript">
 			{% for staff in org.contacts.all %}
 			appendContact("{{ staff.id|escapejs }}", "{{ staff.name|escapejs }}", "{{ staff.title|escapejs }}", "{{ staff.email|escapejs }}", "{{ staff.phonenumber|escapejs }}");
 			{% endfor %}
@@ -398,7 +398,7 @@
 		{% if org.approved %}
 		<div class="clear form">
 			<h3>Organization Directory Status</h3>
-			<script>
+			<script type="text/javascript">
 			var currently_visible = {% if org.visible %}true{% else %}false{% endif %};
 			function updatevisibility_setcaptions() {
 				if (!currently_visible) {
@@ -430,12 +430,12 @@
 			<p id="visiblestatus"></p>
 			<input type="button" class="submit stackbutton" id="viewprofilebutton" value="View Profile" onclick="window.location = '{{org.url|escapejs}}'; return false;"/>
 			<input type="button" class="submit stackbutton" id="publishbutton" value="Publish" onclick="return updatevisibility()"/>
-			<script>$(updatevisibility_setcaptions);</script>
+			<script type="text/javascript">$(updatevisibility_setcaptions);</script>
 		</div>
 		{% endif %}
 		
 		<h3 class="clear">Profile Administrators</h3>
-		 <script>
+		 <script type="text/javascript">
 		 function appendAdmin(name, id, fullname) {
 			var d = document.createElement("li");
 			d.setAttribute('id', "adminlist" + id);
@@ -481,7 +481,7 @@
 		}
 		 </script>
 			<ul id="adminlist" class="staff"> </ul>
-			<script>
+			<script type="text/javascript">
 				{% for staff in org.admins.all %}
 				appendAdmin("{{ staff.user.username|escapejs }}", {{staff.user.id|escapejs}} {% if staff.user.userprofile.fullname %}, "{{ staff.user.userprofile.fullname|escapejs }}"{% endif %});
 				{% endfor %}

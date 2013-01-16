@@ -52,7 +52,7 @@ body {
 </form>
 {% if actionword == "sedit" %}<hr/><a href="/keyvotes/{{org.slug}}/{{slate.slug}}/delete">Delete This Slate</a>{% endif %}
 <script src="/media/js/jquery.multi-select.js" type="text/javascript"></script>
-<script>
+<script type="text/javascript">
 $('#id_bills_support').multiSelect()
 $('#id_bills_oppose').multiSelect()
 $('#id_bills_neutral').multiSelect()

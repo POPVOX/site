@@ -461,6 +461,68 @@ def bill_from_url(url):
     else:
         return bill[0]
         
+class BillList(models.Model):
+    EVENT_TYPES = [
+        ('news', 'In The News'),
+        ('reintroduction', 'Reintroduction'),
+        ('slate', 'Slate'),
+        ('spotlight', 'Issue Spotlight'),
+        ]
+    
+    title = models.CharField(max_length=90)
+    type = models.CharField(choices=EVENT_TYPES, max_length=max([len(x[0]) for x in EVENT_TYPES]))
+    description = description = models.TextField(blank=True, null=True)
+    date = models.DateTimeField()
+    visible = models.BooleanField(default=False)
+    slug = models.SlugField(blank=True)
+    
+    def set_default_slug(self):
+        import string
+        
+        self.slug = slugify(self.title)
+        if self.slug != "" and not BillList.objects.filter(slug=self.slug).exists():
+            return
+        else:
+            suffix = ""
+            while True:
+                slates = BillList.objects.filter(slug = self.slug + str(suffix))
+                if len(slates) == 0:
+                    self.slug = self.slug + str(suffix)
+                    break # found a good one
+                if suffix == "":
+                    suffix = 0
+                suffix += 1
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.type, self.title)
+        
+class BillEvent(models.Model):
+    EVENT_TYPES = [
+        ('news', 'In The News'),
+        ('reintroduction', 'Reintroduction'),
+        ('slate', 'Slate'),
+        ('spotlight', 'Issue Spotlight'),
+        ]
+    POSITION_CHOICES = [
+        ('+', 'Support'),
+        ('-', 'Oppose'),
+        ('0', 'Neutral')
+        ]
+    
+    bill = models.ForeignKey(Bill, related_name="events")
+    date = models.DateTimeField()
+    type = models.CharField(choices=EVENT_TYPES, max_length=max([len(x[0]) for x in EVENT_TYPES]))
+    title = models.CharField(max_length=90, blank=True, null=True)
+    description = models.TextField(max_length=300, blank=True, null=True)
+    list = models.ForeignKey(BillList, related_name="events", blank=True, null=True)
+    position = models.CharField(choices=POSITION_CHOICES, max_length=max([len(x[0]) for x in EVENT_TYPES]), blank=True, null=True, default=None)
+    
+    def shortname(self):
+        return self.bill.shortname
+        
+    def listname(self):
+        return self.list.type+' '+self.list.title
+        
 # ORGANIZATIONS #
 
 class Org(models.Model):
@@ -775,6 +837,8 @@ class OrgCampaign(models.Model):
         if not self.org.visible: return "org-not-published"
         if not self.visible: return "campaign-not-published"
         return "visible"
+    def org_name(self):
+        return self.org.name
 
 class OrgExternalMemberCount(models.Model):
     """An external count of a size of an organization, e.g. as reported by the org or from Facebook or Twitter."""
@@ -815,6 +879,10 @@ class OrgCampaignPosition(models.Model):
         unique_together = (("campaign", "bill"),)
     def __unicode__(self):
         return unicode(self.campaign) + " -- " + unicode(self.bill) + " -- " + self.position
+    def campaign_name(self):
+        return self.campaign.org.name
+    def bill_shortname(self):
+        return self.bill.shortname
     def get_absolute_url(self):
         return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
     def documents(self):
@@ -922,6 +990,8 @@ class UserProfile(models.Model):
     usertags = models.ManyToManyField(UserTag, blank=True, null=True)
     
     options = PickledObjectField(default={})
+    tagline = models.CharField(max_length=140,blank=True,null=True)
+    bio = models.TextField(blank=True,null=True)
     
     def __unicode__(self):
         ret = self.user.username
@@ -940,10 +1010,19 @@ class UserProfile(models.Model):
         super(UserProfile, self).delete(*args, **kwargs)
         self.user.delete()
         
+    def most_recent_address(self):
+        
+        address = PostalAddress.objects.filter(user=self.user.id).order_by("-created")[0]
+        return address
+            
+        
     def most_recent_comment_district(self):
-        for c in self.user.comments.order_by("-created").select_related("address"):
+        comments = self.user.comments.order_by("-created").select_related("address")
+        try:
+            c = comments[0]
             return c.address.state + str(c.address.congressionaldistrict)
-        return None
+        except IndexError:
+            return None
 
     _is_org_admin = None # cache because of the frequency we call from templates; but dangerous?
     def is_org_admin(self):
@@ -1243,6 +1322,7 @@ class UserComment(models.Model):
     # this bill.
     position = models.CharField(max_length=1, choices=POSITION_CHOICES)
     
+    title = models.CharField(max_length=100, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
 
     address = models.ForeignKey(PostalAddress, db_index=True, related_name="usercomments", on_delete=models.PROTECT) # current address at time of writing
@@ -1376,7 +1456,18 @@ class UserComment(models.Model):
             govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
         else: # ch == "c", direct messages to all reps
             govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d)
-            
+
+        # FIXME later, using permissions and stuffs
+        try:
+            campaignid = self.actionrecord.all()[0].campaign.id
+        except:
+            campaignid = 0 #not all comments have campaign action records
+        if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
+            obama = govtrack.getMemberOfCongress(400629)
+            obama["office_id"] = "WH-S44"
+            obama["type"] = "pres"
+            govtrackrecipients.append(obama)
+
         # Remove recipients for whom we've already delivered to another Member in the same
         # office, because of e.g. a resignation followed by a replacement. This would raise a M2M
         # error if the user comment isn't stored in the database yet, but happens when we're just
@@ -1389,6 +1480,10 @@ class UserComment(models.Model):
         
     def get_recipients_display(self):
         recips = self.get_recipients()
+        for recip in recips:
+            if recip['type'] == "rep":
+                if self.address.congressionaldistrict2013 is None:
+                    return "Representative"
         if not type(recips) == list:
             # Normally, show recipients that we would deliver to now.
             # But if the bill is dead, show who we delivered to already, if any.
@@ -1456,7 +1551,12 @@ class UserComment(models.Model):
         # But we can report what was delivered.
         if self.message == None:
             return ret
-        
+        for recip in recips:
+            mem = govtrack.getMemberOfCongress(recip)
+            if mem["type"] == "rep":
+                if self.address.congressionaldistrict2013 is None:
+                    return ret
+ 
         if len(recips) > 0:
             ret += ref1 + " is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
             

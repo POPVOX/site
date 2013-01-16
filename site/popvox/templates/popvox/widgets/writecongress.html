@@ -270,12 +270,11 @@ Notes:
 							} else if (email_status == "not-registered") {
 								$('#unregistered').show();
 								$('#registered_password, #registered_sso').hide();
-                                $('#email').attr("tabindex",84);
+
+                                $('#password').attr("tabindex",84);
                                 $('#firstname').attr("tabindex",2);
                                 $('#lastname').attr("tabindex",3);
                                 $('#zipcode').attr("tabindex",4);
-
-
 								$('#panel_login .next').show();
 							} else {
 								$('#unregistered').hide();
@@ -611,11 +610,11 @@ Notes:
 								$('h3.congrats').text('Your message will be sent!')
 								$('h4.congrats').text('Thank you for taking the time to share your opinion.');
 							} else if (data.status == "confirm-address") {
-								$('h3.congrats').text({% if whitehouse %}'One More Step!'{% else %}'Check your email!'{% endif %});
-								$('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
+                               $('h3.congrats').text({% if whitehouse %}'One More Step!'{% else %}'Check your email!'{% endif %});
+                               $('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 							} else if (data.status == "confirm-email") {
-								$('h3.congrats').text({% if whitehouse %}'One More Step!'{% else %}'Check your email!'{% endif %});
-								$('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
+                               $('h3.congrats').text({% if whitehouse %}'One More Step!'{% else %}'Check your email!'{% endif %});
+                               $('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 								
 							} else if (data.status == "demo-submitted") {
 								$('h3.congrats').text('Your message will (NOT) be sent!')
@@ -681,14 +680,17 @@ Notes:
 			if (method == "email") f = email_share;
 			if (method == "link") f = link_share;
 			
-			{% if franking != "true" %}
-			if (position == "+") verb = "Support"; else verb = "Oppose";
-			f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
-			{% else %}
-			if (position == "+") verb = "I just supported"; else verb = "I just opposed";
-			f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
-			{% endif %}
-
+            {% if whitehouse %}
+                f("", "I just told Congress and @BarackObama to pass common sense laws to end gun violence. Join me and #DemandAPlan http://DemandAPlan.org", "");
+            {% else %}
+                {% if franking != "true" %}
+                    if (position == "+") verb = "Support"; else verb = "Oppose";
+                        f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
+                {% else %}
+                    if (position == "+") verb = "I just supported"; else verb = "I just opposed";
+                        f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
+                {% endif %}
+            {% endif %}
 			return false;
 		}
 		
@@ -712,7 +714,7 @@ Notes:
 			
 					<div id="panel_login" class="widget_panel">
 						{% if position %}
-							<h1>Tell Congress that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
+                           <h1>Tell Congress {% if whitehouse %}and the President {%endif%}that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
 						{% else %}
 							{% if franking == "true" %}
 								<h1>Share your views on {{bill.shortname}}</h1>

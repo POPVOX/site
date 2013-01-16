@@ -330,6 +330,7 @@ common_fieldnames = {
     "topic_radio": "topicarea",
     "subject1_select": "topicarea",
     "whatisyourgeneraltopic_select": "topicarea",
+    "field_250a9cb8-13dc-40f7-94fb-d301593db4c9": "topicarea",
     
     "responserequested": "response_requested",
     "responserequest": "response_requested",
@@ -368,12 +369,74 @@ common_fieldnames = {
     "j15": "response_requested",
     "k01": "message",
     
+    #Obama's fields:
+    "submitted[first_name]" : "firstname",
+    "submitted[last_name]" : "lastname",
+    "submitted[suffix]" : "suffix",
+    "submitted[email]" : "email",
+    "submitted[street]" : "address1",
+    "submitted[zip]":"zipcode",
+    "submitted[city]":"city",
+    "submitted[state]" : "state",
+    "submitted[subject]" : "topicarea",
+    "submitted[message]" : "message",
+    "submitted[contact_me][0]" : "response_requested",
+    "submitted[bill_number]" : "billnumber",
+    "submitted[name]" : "org_name",
+    "submitted[about_organization]": "org_description",
+    "submitted[delivery_agent_name]" : "delivery_agent",
+    
     }
 
 # Here are field names that we assume are optional everywhere.
 # All lowercase here.
-skippable_fields = ("prefixother", "middle", "middlename",
-"name_middle",     "middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
+skippable_fields = (
+    #Whitehouse skippables:
+    "submitted[prefix]",
+    "submitted[middle_name]",
+    "submitted[phone]",
+    "submitted[title]",
+    "submitted[organization]",
+    "submitted[class]",
+    "submitted[type]",
+    "submitted[non_us_state]",
+    "submitted[country]",
+    "submitted[congress_]",
+    "submitted[position]",
+    "submitted[summary]",
+    "submitted[more_info_url]",
+    "submitted[agency_contact_prefix]",
+    "submitted[agency_contact_first_name]",
+    "submitted[agency_contact_middle_name]",
+    "submitted[agency_contact_last_name]",
+    "submitted[agency_contact_suffix]",
+    "submitted[agency_contact_email]",
+    "submitted[agency_contact_phone]",
+    "submitted[agency_contact_title]",
+    "submitted[agency_contact_organization]",
+    "submitted[agency_contact_type]",
+    "submitted[agency_contact_street]",
+    "submitted[agency_contact_zip]",
+    "submitted[agency_contact_city]",
+    "submitted[agency_contact_state]",
+    "submitted[agency_contact_non_us_state]",
+    "submitted[agency_contact_country]",
+    "submitted[delivery_agent_middle_name]",
+    "submitted[delivery_agent_suffix]",
+    "submitted[delivery_agent_phone]",
+    "submitted[delivery_agent_title]",
+    "submitted[delivery_agent_organization]",
+    "submitted[delivery_agent_type]",
+    "submitted[delivery_agent_street]",
+    "submitted[delivery_agent_zip]",
+    "submitted[delivery_agent_city]",
+    "submitted[delivery_agent_state]",
+    "submitted[delivery_agent_non_us_state]",
+    "submitted[delivery_agent_country]",
+
+
+    "prefixother", "middle", "middlename",
+    "name_middle",     "middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
     "countdown",
     "contact-type",
     "dummy_zip",
@@ -400,7 +463,8 @@ skippable_fields = ("prefixother", "middle", "middlename",
     "captcha_a989233d-1b27-4ab7-a270-e7767f58cb9e",
     "military_branch", "military_retired",
     "ecclesiastical_title", "ecclesiastical_toggle", "military_toggle",
-    "phcell")
+    "phcell",
+    "suffix")
 
 radio_choices = {
     "reason": "legsitemail",
@@ -574,6 +638,10 @@ custom_overrides = {
     "839_field_5fef6d8e-3cf0-4915-aaec-a017cfbf311c_radio": "voice",
     "867_message-type_radio":"legislative",
     "869_aff1req_text": "",
+    "886_submitted[delivery_agent_prefix]_select" : "2",
+    "886_submitted[delivery_agent_first_name]_text" : "Annalee",
+    "886_submitted[delivery_agent_last_name]_text" : "Flower Horne",
+    "886_submitted[delivery_agent_email]_email" : "info@popvox.com",   
 }
 
 # Supply additional POST data from the message object that doesn't correspond to a form field.
@@ -1385,7 +1453,8 @@ def send_message(msg, moc, previous_attempt, loginfo):
     govtrackrecipientid = moc.govtrackid
     mm = getMemberOfCongress(govtrackrecipientid)
     if "current" not in mm or mm["type"] not in ('sen', 'rep'):
-        raise Exception("Recipient is not currently in office as a senator or representative.")
+        if govtrackrecipientid != 400629:
+            raise Exception("Recipient is not currently in office as a senator or representative.")
 
     if moc.method == Endpoint.METHOD_NONE:
         if mm["type"] == "rep":

@@ -85,6 +85,7 @@ def bill_inline(request):
         raise Http404'''
 
 @do_not_track_compliance
+@strong_cache
 def commentmapus(request):
     count = { }
     totals = None
@@ -254,6 +255,7 @@ def top_bills(request):
     max_sup = 0
     max_opp = 0
     for b in Bill.objects.filter(congressnumber = CURRENT_CONGRESS) \
+        .exclude(billtype = 'x') \
         .annotate(Count('usercomments')).order_by('-usercomments__count') \
         [0:count]:
         

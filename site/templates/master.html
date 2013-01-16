@@ -7,8 +7,8 @@
 	<meta name="alexaVerifyID" content="NUmEZVeFCXOnEAQaqaZbnp_G6qI" />
 
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
-	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /><!--[if lte IE 7]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" /><!--[if lte IE 8]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 	
 <!--
                       _                                      
@@ -40,20 +40,20 @@
 	<link rel="stylesheet" href="/media/master/elizabeth.css" type="text/css" media="screen" /> 
 	
 	<script type="text/javascript" src="/media/js/jquery.js"></script>
-	<script>
+	<script type="text/javascript">
 		var csrf_token = "{{csrf_token}}";
 		$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", csrf_token); });
 
 		if (/Firefox[\/\s](\d+\.\d+)/.test(navigator.userAgent)) { jQuery.fx.off = true; }
 	</script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
-	<script src="/media/js/popvox.js"></script>
+	<script type="text/javascript" src="/media/js/popvox.js"></script>
 	
 	<link href="/media/css/jquery-ui-1.8.14.custom.css" rel="stylesheet" type="text/css"/> <!-- autocomplete -->
 	<script type="text/javascript" src="/media/js/jquery-ui-1.8.14.custom.min.js"></script>
 	
 	<link rel="stylesheet" href="/media/css/colorbox/colorbox.css" type="text/css" />
-	<script src="/media/js/jquery.colorbox-min.js"></script>
+	<script type="text/javascript" src="/media/js/jquery.colorbox-min.js"></script>
 
 	<script type="text/javascript" src="/media/tiny_mce/tiny_mce.js"></script>
 	<script type="text/javascript">
@@ -118,7 +118,7 @@
 		kkeys.push( e.keyCode );
 		if ( kkeys.toString().indexOf( konami ) >= 0 ){
 			$(document).unbind('keydown',arguments.callee);
-			$('#wrap').append("<img src='/media/photos/easteregg.png' style='position: absolute; left: 150px; top: 200px; border: 1px solid black'/>");
+			$('#wrap').append("<img src='/media/photos/easteregg.png' alt='photo of the POPVOX team' style='position: absolute; left: 150px; top: 200px; border: 1px solid black'/>");
 		} else if (konami.indexOf(e.keyCode) == -1) {
 			kkeys = [];
 		}
@@ -127,17 +127,43 @@
 	
 	{% comment %}{% include "feedback/header.html" %}{% endcomment %}
 	<link rel="stylesheet" href="/media/feedback/main.css"/>
-	<script src="/media/feedback/jquery.form.js"></script>
-	<script src="/media/feedback/main.js"></script>
+	<script type="text/javascript" src="/media/feedback/jquery.form.js"></script>
+	<script type="text/javascript" src="/media/feedback/main.js"></script>
 
 	<!--<script src="http://cdn.jquerytools.org/1.2.5/tiny/jquery.tools.min.js"></script>-->
 	
-	<script>
+	<script type="text/javascript">
 	var login_redirect = "";
 	{% block disable_login_redirect %}
 	login_redirect = '?next=' + document.location.pathname + document.location.search;
 	{% endblock %}
 	</script>
+
+    <style>
+    #signup p {
+        color: #FFFFFF;
+        font-size: 14px;
+        line-height: 20px;
+        margin: 0;
+    }
+
+    #signup span.signup_txt {
+        display: block;
+        float: left;
+        margin-top: -10px;
+        width: 700px;
+    }
+
+    #signup p span a {
+        color: #FFFFFF;
+        text-decoration: underline;
+        font: italic 16px georgia;
+    }
+
+    p span.signup_txt > strong {
+        font-size: 18px;
+    }
+    </style>
 
 	{% block head %}
 	{% endblock %}
@@ -155,7 +181,7 @@
 	  })();
 	</script>
 	{% comment %} this is disabled since cached pages don't know who the user is
-	<script>
+	<script type="text/javascript">
 	_gaq.push(['_setCustomVar', 1, 'usertype', {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}, 1]);
 	</script>
 	{% endcomment %}
@@ -166,7 +192,8 @@
 <div id="signup">
 	<div>
 		<!--<p class="close_x">close</p>-->
-		<p><span class="signup_txt">Stay up to date with what&rsquo;s on the Hill.</span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></span></p>
+		<p><span class="signup_txt">It's a new Congress -- with a new docket of bills!
+Weigh in on <a href="/newbills">new bills</a> as they're introduced--<br>or tell Congress which <a href="/blog/2013/top-bills-112th-congress/">bills from the last Congress</a> should be re-introduced.</span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></p>
 	</div>
 </div><!-- e: signup -->
 <div class="clear"> </div>
@@ -204,7 +231,7 @@
 						<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
 							<input type="text" value="" name="q" class="search" id="master_billsearch_q"><br />
 							<input type="submit" value="Search" class="submit_search btn">
-							<script>$('#master_billsearch_q').input_default("bill number or keywords");</script>
+							<script type="text/javascript">$('#master_billsearch_q').input_default("bill number or keywords");</script>
 						</form>
 					</div>
 				</li>
@@ -238,9 +265,11 @@
 				</div>
 				<div id="search_head">
 					<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
-						<input type="text" value="" name="q" class="search" id="master_billsearch_q"><br />
-						<input type="submit" value="Search" class="submit_search btn">
-						<script>$('#master_billsearch_q').input_default("bill number or keywords");</script>
+						<fieldset>
+							<input type="text" value="" name="q" class="search" id="master_billsearch_q"/><br />
+							<input type="submit" value="Search" class="submit_search btn"/>
+						</fieldset>
+						<script type="text/javascript">$('#master_billsearch_q').input_default("bill number or keywords");</script>
 					</form>
 				</div>
 			</ul>
@@ -265,7 +294,7 @@
 		</div>
 	</div><!-- e: head --> 
 
-	<script>master_state(function (res) {
+	<script type="text/javascript">master_state(function (res) {
 		if (!res.user) {
 			$('#nav .loginlink').show();
 			$('#nav_2 .individual_role').show();
@@ -395,7 +424,7 @@
 		{% endif %}
 	</ul>
 </div>
-<script>
+<script type="text/javascript">
 function share_footer_share() {
 	var share_type = $(this).text();
 	
@@ -430,7 +459,7 @@ if (navigator.userAgent.match(/Mobile\//) && navigator.userAgent.match(/Safari\/
 </script>
 {% endif %}
 
-<script>
+<script type="text/javascript">
 {% comment %}// http://www.badlydrawntoy.com/2009/03/03/replacing-target_blank-for-strict-xhtml-using-jquery-redux/ {% endcomment %}
 $(function() {
 	$("a[class=blank]").attr("target", "_blank");
@@ -442,7 +471,7 @@ $(function() {
 <script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script>
 {% endif %}
 <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('6db7097c351adc437da30e64e0d86d12'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: function(event,props,callback) { if (callback) callback(); },  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn, identify: null_fn, name_tag: null_fn }; } </script>
-<script>
+<script type="text/javascript">
 {% comment %}wont work on cached page...
 {% with request.session.shorturl.target.meta as surlm %}
 	{% if surlm.mixpanel_event %}

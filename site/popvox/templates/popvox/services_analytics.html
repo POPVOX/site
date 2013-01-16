@@ -369,7 +369,7 @@ border:none;
 }
 
 </style>
-<script>
+<script type="text/javascript">
 function draw_timeseries(container, data, small) {
   var series = [];
   for (var sname in data.values) {
@@ -558,7 +558,7 @@ function draw_timeseries(container, data, small) {
 	
 	<p class="help">Select a campaign to view its stats:</p>
 	
-	<script>
+	<script type="text/javascript">
 	var campaigns_info = { };
 	</script>
 
@@ -566,7 +566,7 @@ function draw_timeseries(container, data, small) {
 		{% for acct in accts %}
 			{% for cam in acct.campaigns.all %}
 					<li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
-					<script>
+					<script type="text/javascript">
 					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
 					{% with cam.mixpanel_stats as mpstats %}
 					campaigns_info["{{cam.id}}"] = {
@@ -683,7 +683,7 @@ function draw_timeseries(container, data, small) {
 		</div>
 		
 		<p id="iconHelp" class="help"> </p>
-		<script>
+		<script type="text/javascript">
 			$('#iconContain .icons').hover(
 				function() { $('#iconHelp').text(this.getAttribute("help_text")); },
 				function() { $('#iconHelp').text(''); });
@@ -749,7 +749,7 @@ function draw_timeseries(container, data, small) {
 {% include "ads/rightbar.html" %}
 </div> <!-- e:content -->
 
-<script>
+<script type="text/javascript">
 	function myround(num) {
 		if (!num) return 0;
 		return Math.round(num);

@@ -3,7 +3,7 @@
 {% block description %}Tell your elected officials why you {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title }}.{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {% block finalscript %}
-<script>
+<script type="text/javascript">
 mpmetrics.register({
   'user type @ comment start': {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}
 });
@@ -11,9 +11,9 @@ mpmetrics.track('comment start', { 'bill': '{{bill.displaynumber|escapejs}}', 'p
 </script>
 {% endblock %}
 {% block head %}
-<script>var bill_display_number = "{{bill.title_parens_if_too_long|escapejs}}";</script>
-<script src="/media/js/lettertips.js"> </script>
-<script>
+<script type="text/javascript">var bill_display_number = "{{bill.title_parens_if_too_long|escapejs}}";</script>
+<script type="text/javascript" src="/media/js/lettertips.js"> </script>
+<script type="text/javascript">
 function validate_form() {
 	var m = $('#message').hasClass('default') ? "" : $('#message').val().replace(/^\s+|\s+$/g, '');
 	if (m == "") {
@@ -125,7 +125,7 @@ function validate_form() {
 		<div class="form mar_top">
 			<textarea class="c5 h4" id="message" name="message" wrap="virtual">{% if message %}{{message}}{% else %}I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_parens_if_too_long }} because...{% endif %}</textarea>
 			<div id="messageerror"></div>
-			<script>
+			<script type="text/javascript">
 			{% if not message %}
 			$('#message').input_default();
 			{% endif %}
@@ -165,7 +165,7 @@ function validate_form() {
 	</div>
 	{% endif %}
 </div>
-<script>
+<script type="text/javascript">
 if (!document.cookie)
                 $('.tab_pane').html("POPVOX requires cookies to be enabled in your browser in order to weigh in on this bill.");
 </script>

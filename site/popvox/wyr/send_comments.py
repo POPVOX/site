@@ -2,6 +2,7 @@
 
 import os, os.path, sys
 import datetime
+from django.db.models import Q
 
 # set the backend flag to anything to avoid Amazon SES because
 # when we do delivery by plain SMTP, we send from the user's
@@ -63,10 +64,13 @@ if "COMMENT" in os.environ:
 if "ADDR" in os.environ:
 	comments_iter = comments_iter.filter(address__id=int(os.environ["ADDR"]))
 if "TARGET" in os.environ:
-	m = getMemberOfCongress(int(os.environ["TARGET"]))
-	comments_iter = comments_iter.filter(state=m["state"])
-	if m["type"] == "rep":
-		comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
+    if int(os.environ["TARGET"]) == 400629:
+        comments_iter = comments_iter.filter(Q(actionrecord__campaign__id__contains=1866) | Q(actionrecord__campaign__id__contains=1872))
+    else:
+        m = getMemberOfCongress(int(os.environ["TARGET"]))
+        comments_iter = comments_iter.filter(state=m["state"])
+        if m["type"] == "rep":
+            comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
 if "LAST_ERR" in os.environ:
 	if os.environ["LAST_ERR"] == "ANY":
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__success=False)
@@ -86,6 +90,10 @@ if "LAST_ERR" in os.environ:
 		comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE, delivery_attempts__trace__contains="CAPTCHA")
 if "RECENT" in os.environ:
 	comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=7))
+if "REDISTRICTED" in os.environ:
+    #Only run comments for users whose new districts we know we have.
+    comments_iter = comments_iter.filter(address__congressionaldistrict2013__isnull=False)
+    print comments_iter.count()
 	
 def process_comment(comment, thread_id):
 	global success, failure, needs_attention, pending, held_for_offline
@@ -215,7 +223,7 @@ def process_comment(comment, thread_id):
 		msg.org_contact = "" # "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
 	
 	msg.delivery_agent = "POPVOX.com"
-	msg.delivery_agent_contact = "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
+	msg.delivery_agent_contact = "Annalee Flower Horne, POPVOX.com -- annalee@popvox.com"
 	
 	# Begin delivery.
 	for gid in govtrackrecipientids:
@@ -367,7 +375,7 @@ def process_comments_group(thread_index, thread_count):
 	# endpoint delays are properly executed in a serial fashion.
 
 	cm = comments_iter\
-		.extra(where=["(ORD(MID(state,1,1))+ORD(MID(state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
+		.extra(where=["(ORD(MID(popvox_usercomment.state,1,1))+ORD(MID(popvox_usercomment.state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
 		.order_by('created')\
 		.select_related("bill", "user")
 

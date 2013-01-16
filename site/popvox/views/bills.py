@@ -67,7 +67,7 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
 
     if False:
         # Select bills with the most number of comments in the last week.
-        pop = Bill.objects.filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]
+        pop = Bill.objects.filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=7)).exclude(billtype = 'x').annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]
         for b in pop:
             if b.usercomments__count == 0:
                 break
@@ -125,7 +125,7 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
                 bill.new_positions = commentcount
                 popular_bills.append(bill)
                 seen_bills.add(bill.id)
-        
+                
     popular_bills_cache = (datetime.datetime.now(), popular_bills)
     
     return popular_bills
@@ -145,10 +145,11 @@ def get_popular_bills2(searchstate = None, searchdistrict = None, newdist = Fals
     popular_bills2 = [ ]
     bmap = { }
     for bill in popular_bills:
-        b = { }
-        popular_bills2.append(b)
-        b["bill"] = bill
-        bmap[bill.id] = b
+        if bill.billtype != 'x':
+            b = { }
+            popular_bills2.append(b)
+            b["bill"] = bill
+            bmap[bill.id] = b
 
     popular_bills_cache_2 = (datetime.datetime.now(), popular_bills2)
     
@@ -510,15 +511,140 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
         return orgs
     for grp in orgs:
         grp[1] = sort_orgs(grp[1].values())
+        
+    billsup = len(bill.usercomments.filter(position='+'))
+    billopp = len(bill.usercomments.filter(position='-'))
     
     return render_to_response('popvox/bill.html', {
             'bill': bill,
+            'billsup': billsup,
+            'billopp': billopp,
             "deadbox": not bill.isAlive(),
             "nextchamber": ch,
             "orgs": orgs,
             "show_share_footer": True,
         }, context_instance=RequestContext(request))
 
+def billbox(bill):
+    stats = bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=False, want_totalcomments=True, force_data=True)
+    cosponsors = bill.cosponsors.all()
+    dems = 0
+    gops = 0
+    indies = 0
+    for sponsor in cosponsors:
+        if sponsor.party() == 'R':
+            gops += 1
+        elif sponsor.party() == 'D':
+            dems += 1
+        else:
+            indies += 1
+    if bill.sponsor.party() == 'R':
+        gops += 1
+    elif bill.sponsor.party() == 'D':
+        dems += 1
+    else:
+        indies += 1
+    sponsors = {"dems":dems, "gops":gops, "indies":indies}
+    return (bill, stats, sponsors)
+    
+def billboxes(bills):
+    L = []
+    for bill in bills:
+        L.append(billbox(bill))
+    return L
+
+def new_bills(request, NumDays):
+    
+    LookupDays = int(NumDays)
+    
+    NewBills = []
+    # Get all bills from past 7 days
+    bills = Bill.objects.filter(introduced_date__gt=datetime.datetime.now()-timedelta(days=LookupDays))
+    
+    
+    #House Bills
+    HR = bills.filter(billtype='h')
+    #Senate Bills
+    S = bills.filter(billtype='s')
+    #House Resolutions
+    HRes = bills.filter(billtype='hr')
+    #Senate Resolutions
+    SRes = bills.filter(billtype='sr')
+    #House Concurrent Resolutions
+    HCRes = bills.filter(billtype='hc')
+    #Senate Concurrent Resolutions
+    SCRes = bills.filter(billtype='sc')
+    #House Joint Resolutions
+    HJRes = bills.filter(billtype='hj')
+    #Senate Joint Resolutions
+    SJRes = bills.filter(billtype='sj')
+    
+    for b in bills:
+        NewBills.append(b)
+    
+    return render_to_response('popvox/bill_list_NewBills.html',
+            {
+                "HR": HR,
+                "S": S,
+                "HRes": HRes,
+                "SRes": SRes,
+                "HCRes": HCRes,
+                "SCRes": SCRes,
+                "HJRes": HJRes,
+                "SJRes": SJRes,
+                "NumDays":NumDays
+            },
+            context_instance=RequestContext(request))
+# ******************
+
+        
+# this is the view for the new newbills page. take out the first new_ and delete the other view when it's ready to go.
+def new_new_bills(request, NumDays):
+    
+    
+    LookupDays = int(NumDays)
+    
+    NewBills = []
+    # Get all bills from past 7 days
+    bills = Bill.objects.filter(introduced_date__gt=datetime.datetime.now()-timedelta(days=LookupDays))
+    
+    
+    #House Bills
+    HR = billboxes(bills.filter(billtype='h'))
+    #Senate Bills
+    S = billboxes(bills.filter(billtype='s'))
+    #House Resolutions
+    HRes = billboxes(bills.filter(billtype='hr'))
+    #Senate Resolutions
+    SRes = billboxes(bills.filter(billtype='sr'))
+    #House Concurrent Resolutions
+    HCRes = billboxes(bills.filter(billtype='hc'))
+    #Senate Concurrent Resolutions
+    SCRes = billboxes(bills.filter(billtype='sc'))
+    #House Joint Resolutions
+    HJRes = billboxes(bills.filter(billtype='hj'))
+    #Senate Joint Resolutions
+    SJRes = billboxes(bills.filter(billtype='sj'))
+    
+    for b in bills:
+        NewBills.append(b)
+    
+    return render_to_response('popvox/bill_list_NewBills.html',
+            {
+                "HR": HR,
+                "S": S,
+                "HRes": HRes,
+                "SRes": SRes,
+                "HCRes": HCRes,
+                "SCRes": SCRes,
+                "HJRes": HJRes,
+                "SJRes": SJRes,
+                "NumDays":NumDays
+            },
+            context_instance=RequestContext(request))
+# ******************
+        
+        
 def bill_userstate(request, congressnumber, billtype, billnumber, vehicleid):
     ret = { }
 
@@ -628,6 +754,7 @@ class DelayedCommentAction:
 def get_comment_recipients(bill, address):
     if address == None: return None
     if address.state == None or address.congressionaldistrict == None: return # can be called with incomplete info
+    if address.congressionaldistrict2013 == None: return
     c = UserComment(bill=bill, address=address)
     recips = c.get_recipients()
     if type(recips) != list: return None
@@ -1632,6 +1759,7 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
         text["-"] = compute_frequencies(text["-"], stop_list=["oppose"])
         tag_cloud_support = make_tag_cloud(text["+"], text["-"], 50*4, 7, 9, 22, count_by_chars=True, width=350, color="#CC6A11")
         tag_cloud_oppose = make_tag_cloud(text["-"], text["+"], 50*4, 7, 9, 22, count_by_chars=True, width=350, color="#CC6A11")
+        
 
     return render_to_response('popvox/bill_report.html', {
             'bill': bill,
@@ -1701,22 +1829,21 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             .filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))\
             .only("id", "created", "updated", "message", "position", "state", "congressionaldistrict", "bill__id", "bill__congressnumber", "bill__billtype", "bill__billnumber", "user__username", "address__id", "user__email")\
             .order_by("-created")
-        limited = False
+        count = q.count()
+        '''limited = False
         if q.count() > limit:
             q = q[start:limit]
             limited = True
         else:
-            q = q[start:]
+            q = q[start:]'''
             
-        cache.set(cache_key, (q,limited), 60*2) # cache results for two minutes
+        cache.set(cache_key, (q,count), 60*2) # cache results for two minutes
             
-        return q, limited
+        '''return q, limited'''
+        return q, count
     
-    pro_comments, pro_limited = fetch("+")
-    con_comments, con_limited = fetch("-")
-    
-    comments = list(pro_comments) + list(con_comments)
-    comments.sort(key = lambda x : x.updated, reverse=True)
+    pro_comments, pro_count = fetch("+")
+    con_comments, con_count = fetch("-")
     
     if state == None:
         reporttitle = "Legislative Report for POPVOX Nation"
@@ -1788,15 +1915,25 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             user_appreciated.add(c.id)
     
     # Pre-load the count of num_appreciations.
-    num_appreciations = {}
+    num_appreciations_pro = {}
     q = UserCommentDigg.objects.filter(
-        comment__id__in = [c.id for c in comments],
+        comment__id__in = [c.id for c in pro_comments],
         diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
         .values("comment")\
         .annotate(num_diggs=Count("id"))\
         .values("comment_id", "num_diggs")
     for c in q:
-        num_appreciations[c["comment_id"]] = c["num_diggs"]
+        num_appreciations_pro[c["comment_id"]] = c["num_diggs"]
+
+    num_appreciations_con = {}
+    q = UserCommentDigg.objects.filter(
+        comment__id__in = [c.id for c in con_comments],
+        diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
+        .values("comment")\
+        .annotate(num_diggs=Count("id"))\
+        .values("comment_id", "num_diggs")
+    for c in q:
+        num_appreciations_con[c["comment_id"]] = c["num_diggs"]
 
         
     # Legislative staff?
@@ -1857,7 +1994,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
         from django.db import connection
         debug_info = "".join(["%s: %s\n" % (q["time"], q["sql"]) for q in connection.queries])
         
-    comments_data_basic = [ {
+    pro_comments_data_basic = [ {
                 "id": c.id,
                 "user": c.user.username,
                 "msg": msg(c.message),
@@ -1867,12 +2004,46 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
                 "share": bill_url + "/comment/" + str(c.id), #c.url(),
                 "verb": verb(c), #c.verb(tense="past"),
                 "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
-                "appreciates": num_appreciations[c.id] if c.id in num_appreciations else 0,
+                "appreciates": num_appreciations_pro[c.id] if c.id in num_appreciations_pro else 0,
                 "appreciated": c.id in user_appreciated,
                 "state": c.state,
                 "district": c.congressionaldistrict
-                } for c in comments ]
+                } for c in pro_comments ]
                 
+
+
+    if pro_count > limit:
+        pro_comments_data = sorted(pro_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
+        pro_limited=True
+    else:
+        pro_comments_data = sorted(pro_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:]
+        pro_limited=False
+
+    con_comments_data_basic = [ {
+                "id": c.id,
+                "user": c.user.username,
+                "msg": msg(c.message),
+                "location": location(c),
+                "date": formatDateTime(c.created),
+                "pos": c.position,
+                "share": bill_url + "/comment/" + str(c.id), #c.url(),
+                "verb": verb(c), #c.verb(tense="past"),
+                "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
+                "appreciates": num_appreciations_con[c.id] if c.id in num_appreciations_con else 0,
+                "appreciated": c.id in user_appreciated,
+                "state": c.state,
+                "district": c.congressionaldistrict
+                } for c in con_comments ]
+                
+
+    if con_count > limit:
+        con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
+        con_limited=True
+    else:
+        con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:]
+        con_limited=False
+
+    comments_data_basic = pro_comments_data + con_comments_data
     comments_data = sorted(comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)
 
     return {

@@ -11,7 +11,7 @@
 {% block finalscript %}
 {% if comment.user == request.user %}
 	{% comment %}not really appropriate because a user can come back to this page later{% endcomment %}
-	<script>mpmetrics.track('comment finished', { 'bill': '{{bill.displaynumber|escapejs}}', mode: "{{follow_up|escapejs}}", 'personalized': {% if comment.message %}'yes'{% else %}'no'{% endif %} });</script>
+	<script type="text/javascript">mpmetrics.track('comment finished', { 'bill': '{{bill.displaynumber|escapejs}}', mode: "{{follow_up|escapejs}}", 'personalized': {% if comment.message %}'yes'{% else %}'no'{% endif %} });</script>
 {% endif %}
 {% endblock %}
 {% block head %}
@@ -88,7 +88,7 @@ ul.social_share_btns {
 				<span id="share_email_status" class="error"></span>
 			</div>
 			<p class="tip_inline">The email will be sent from your email address <tt>{{user.email}}</tt>.</p>
-			<script>$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or new lines)"); $('#share_email_field').input_autosize(); });</script>
+			<script type="text/javascript">$(function(){ $('#share_email_field').input_default("(enter email addresses separated by commas or new lines)"); $('#share_email_field').input_autosize(); });</script>
 		</div>
 		{% else %}
 			<p>You&rsquo;ll have to <a href="/accounts/login?next={{comment.url|urlencode}}">log in</a> first to share this comment by email.</p>
@@ -99,7 +99,7 @@ ul.social_share_btns {
 		<h1>Share A Link</h1>
 		<p>Paste this link in email or IM:</p>
 		<input id="share_link_result" type="text" readonly="1" value="" style="font: bold 13px Courier New; width: 350px;"/>
-		<script>
+		<script type="text/javascript">
 			$("#share_link_result").click(function(){
 				// Select input field contents
 				this.select();
@@ -168,7 +168,7 @@ ul.social_share_btns {
 				</p>
 				
 				<p style="padding-top: 20px; text-align: center; font: italic 12px sans-serif; color: #555">
-					{{comment.delivery_status_public}}
+					{% comment %}{{comment.delivery_status_public}} removed 1/2/13 until we get msg delivery through the transition.{% endcomment %}
 					
 					{% with comment.shares.count as comment_shares_count %}
 						{% if comment_shares_count %}
@@ -245,7 +245,7 @@ ul.social_share_btns {
 		</div>
 		
 		{% if user.is_staff or user.is_superuser %}
-		<script>
+		<script type="text/javascript">
 		function moderate(url) {
 			if (!$('#moderation_comment').hasClass('default'))
 				url += "?log=" + encodeURIComponent($('#moderation_comment').val());
@@ -284,7 +284,7 @@ ul.social_share_btns {
 					{% endif %}
 					
 					<textarea id="moderation_comment" rows="2" style="width: 100%; display: none" wrap="virtual"></textarea>
-					<script>$('#moderation_comment').input_default('Enter a reason for the moderation.')</script>
+					<script type="text/javascript">$('#moderation_comment').input_default('Enter a reason for the moderation.')</script>
 					
 					{% if comment.moderation_log %}
 						<div style="margin-top: 1em; height: 6em; overflow: auto">

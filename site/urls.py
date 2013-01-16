@@ -41,6 +41,7 @@ urlpatterns = patterns('',
 	
 	(r'^home$', 'popvox.views.home.home'),
 	(r'^home/match$', 'popvox.views.slate.congress_match'),
+	#(r'^user/(?P<userid>\d+)$', 'popvox.views.profile.user_profile'),
 	(r'^keyvotes/$', 'popvox.views.slate.keyvotes_index'),
     (r'^keyvotes/create/$', 'popvox.views.slate.keyvotes_create'),
     (r'^keyvotes/(?P<orgslug>[\w\-]+)/(?P<slateslug>[\w\-]+)/edit', 'popvox.views.slate.keyvotes_create'),
@@ -53,6 +54,7 @@ urlpatterns = patterns('',
 	(r'^district/(?P<searchstate>[a-zA-Z]{2})/(?P<searchdistrict>\d+)/$', 'popvox.views.home.district_info'),
 	(r'^district/(?P<searchstate>[a-zA-Z]{2})/(?P<searchdistrict>\d+)/2013$', 'popvox.views.home.new_district_info'),
 	(r'^district/(?P<searchstate>[a-zA-Z]{2})/(?P<searchdistrict>\d+)/2013/(?P<csv>csv)$', 'popvox.views.home.new_district_info'),
+	(r'^district/(?P<searchstate>[a-zA-Z]{2})/(?P<searchdistrict>\d+)/(?P<archive>2012)$', 'popvox.views.home.district_archive'),
 	(r'^member/(?P<membername>[a-zA-Z\-]+)/$', 'popvox.views.home.member_page'),
 	(r'^docket$', 'popvox.views.home.docket'),
 	(r'^ajax/docket/bill_categories$', 'popvox.views.home.legstaff_bill_categories'),
@@ -60,12 +62,14 @@ urlpatterns = patterns('',
 	(r'^home/constituent-messages$', 'popvox.views.home.legstaff_download_messages'),
 	(r'^congress/facebook$', 'popvox.views.features.legstaff_facebook_report'),
 	(r'^ajax/congress/facebook$', 'popvox.views.features.legstaff_facebook_report_getinfo'),
+	#(r'^spotlight/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<slug>[\w\-]+)$', 'popvox.views.home.spotlight'),
+	
 	
 	(r'^activity$', 'popvox.views.home.activity'),
 	(r'^ajax/activity$', 'popvox.views.home.activity_getinfo'),
-	(r'^newbills$', 'popvox.views.home.new_bills',{'NumDays':7}),
-	(r'^newbills/$', 'popvox.views.home.new_bills',{'NumDays':7}),
-	(r'^newbills/(?P<NumDays>[1-9]|1[0-9]|2[0-9]|30)$', 'popvox.views.home.new_bills'),
+	(r'^newbills$', 'popvox.views.bills.new_bills',{'NumDays':7}),
+	(r'^newbills/$', 'popvox.views.bills.new_bills',{'NumDays':7}),
+	(r'^newbills/(?P<NumDays>[1-9]|1[0-9]|2[0-9]|30)$', 'popvox.views.bills.new_bills'),
 	
 	
 	# internal pages

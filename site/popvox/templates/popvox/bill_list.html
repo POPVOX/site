@@ -10,7 +10,7 @@
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
-<script>
+<script type="text/javascript">
 $(function() {
 	$.ajax({
 		type:"POST",
@@ -198,7 +198,7 @@ $(function() {
 		
 		<p id="anonymous" style="margin-bottom: 2em; display: none;">With POPVOX, you can voice your concerns on specific bills in a format that is tailored for Congress.</p>
 		
-		<script>master_state(function(res) {
+		<script type="text/javascript">master_state(function(res) {
 			if (res.user && res.user.legstaffrole) $('.content h1').text("Bills in Congress");
 			if (!res.user) $('#anonymous').show();
 		});</script>

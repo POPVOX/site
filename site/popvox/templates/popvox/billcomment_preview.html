@@ -3,7 +3,7 @@
 {% block title %}Preview Comment on {{ bill.title }}{% endblock%}
 {% block description %}Preview your comment on {{ bill.title }}{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block finalscript %}<script>mpmetrics.track('comment preview', { 'bill': '{{bill.displaynumber|escapejs}}', 'personalized': {% if message %}'yes'{% else %}'no'{% endif %}, 'had_error': {% if newaccount_error %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
+{% block finalscript %}<script type="text/javascript">mpmetrics.track('comment preview', { 'bill': '{{bill.displaynumber|escapejs}}', 'personalized': {% if message %}'yes'{% else %}'no'{% endif %}, 'had_error': {% if newaccount_error %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
 {% block head %}
 <style>
 #needsauth { margin-top: 35px   }
@@ -57,7 +57,7 @@
 		
 .b_create_accnt { margin-left: 100px; }
 </style>
-<script>
+<script type="text/javascript">
 function startlogin() {
 	ajax(
 		"/registration/ajax/get-login-type",
@@ -190,7 +190,7 @@ function trylogin() {
 			{% if newaccount_error.email %}<div id="createacct_errorlabel_email" class="error" style="display: block">{{newaccount_error.email}}</div>{% endif %}
 			<div id="login_next_btn" class="btn b_next" style="margin-left: 100px"> </div>
 			<div class="clear" style="height: 10px"> </div>
-			<script>$(function() { $('#login_email').keyup_delayed(startlogin); $('#login_next_btn').click(startlogin); });</script>
+			<script type="text/javascript">$(function() { $('#login_email').keyup_delayed(startlogin); $('#login_next_btn').click(startlogin); });</script>
 			
 			<div id="login_sso_container" style="display: none">
 				<div class="signin_social">
@@ -209,7 +209,7 @@ function trylogin() {
 				<input class="b_login btn" type="button" value="Login" onclick="trylogin()" class="submit"/>
 				<div class="clear error" id="login_errorlabel"></div>
 			
-				<script>$(function() { $('#login_password').keydown_enter(trylogin); });</script>
+				<script type="text/javascript" >$(function() { $('#login_password').keydown_enter(trylogin); });</script>
 			</div>
 			
 			<div id="login_get_password" style="display: none; margin-left: 100px;">
@@ -271,7 +271,7 @@ function trylogin() {
 
 	</form>
 	
-	<script>
+	<script type="text/javascript">
 	function submitform(mode) {
 		$('#submitmode').val(mode);
 		$('#commentform').submit();

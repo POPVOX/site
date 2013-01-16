@@ -1,0 +1,63 @@
+{% extends "master.html" %}
+{% load humanize %}
+{% load popvox_utils %}
+{% block title %}Profile{% endblock%}
+{% block description %}Lorem Ipsum{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block head %}
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+
+<style>
+sup { font-size: 85%; font-style: italic; vertical-align:super; }
+p.feedback { border-top: 1px solid #BBB; padding: 2px 10px 2px 10px; font-size: 10px; color: #666; }
+p.feedback a { color: #CC7722; }
+</style>
+{% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{% block content %}
+<div class="content profile">
+
+    <div class="col_9 col_top">
+        <h1 class="rule_btm">User Profile - {{user.get_name}}</h1>
+<h2>{{profile.tagline}}</h2>
+        {% if district %}district: {{district}}{% endif %}<br/>
+        bills supported: {{commentssup|length}}<br/>
+        bills opposed: {{commentsopp|length}}<br/>
+        letters written: {{letters}}<br/>
+        description:<div>{{profile.bio}}
+
+        <h3>Supporting comments</h3>
+        {% for c in commentssup %}
+            {%if c.message %}
+                <h4>{{c.bill.nicename}}</h4>
+                <p>{{c.message}}</p>
+            {% endif %}
+        {% endfor %}
+
+        <h3>Opposing comments</h3>
+        {% for c in commentsopp %}
+            {%if c.message %}
+                <h4>{{c.bill.nicename}}</h4>
+                <p>{{c.message}}</p>
+            {% endif %}
+        {% endfor %}
+        
+    </div>
+    
+    
+</div>
+
+{% if request.META.HTTP_DNT != 1 %}
+{% comment %}Our master share bar is disabled on this page, otherwise we'd be loading this script twice.{% endcomment %}
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+{% endif %}
+
+{% endblock %}
+

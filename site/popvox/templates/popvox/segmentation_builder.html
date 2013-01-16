@@ -2,9 +2,9 @@
 {% load popvox_utils %}
 {% block title %}POPVOX User Segment Builder{% endblock%}
 {% block head %}
-<script src="/media/js/jquery.dataTables.js"> </script>
-<script src="/media/js/jquery.ba-bbq.min.js"> </script>
-<script>
+<script type="text/javascript" src="/media/js/jquery.dataTables.js"> </script>
+<script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"> </script>
+<script type="text/javascript">
 	var segment = null;
 	function load_segment() {
 		$.ajax({
@@ -268,7 +268,7 @@ cursor: default;
 			</div>
 		</div>
 		
-		<script>$('#tabs').pvtabs()</script>
+		<script type="text/javascript">$('#tabs').pvtabs()</script>
 
 	</div>
 	

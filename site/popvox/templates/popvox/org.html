@@ -11,7 +11,7 @@
 	.colorbox { width: 550px; height: 420px;}
 	</style>
 	{% include "popvox/org_common_scripts.html" %}
-	<script>
+	<script type="text/javascript">
 	function showcolorbox(id) {
 		$.colorbox({
 			transition: "none",
@@ -367,7 +367,7 @@ We would like to join your coalition.</textarea>
 				</div>
 				
 				{% if admin %}
-				<script>$("#agendaitems_{{cam.id}}").sortable({
+				<script type="text/javascript">$("#agendaitems_{{cam.id}}").sortable({
 					items: ".orgcampaignposition",
 					axis: "y",
 					containment: ".campaigns", // containing to the list prevents moving any item to the bottom

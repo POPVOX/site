@@ -220,7 +220,7 @@ def metrics_report_spreadsheet(request, sheet):
 
 	elif sheet == "powerusers":
 		header = ['id', 'email', 'positions_count', 'firstname', 'lastname', 'unsubscribe_link']
-		qs = User.objects.all().annotate(positions_count=Count("comments")).order_by('-positions_count')
+		qs = User.objects.filter(userprofile__allow_mass_mails=True).annotate(positions_count=Count("comments")).order_by('-positions_count')
 		ct = 10000
 		st = int(request.GET.get("page", "1")) - 1
 		qs = qs[0+st*ct:st*ct+ct].iterator()
