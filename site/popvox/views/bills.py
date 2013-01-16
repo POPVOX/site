@@ -126,7 +126,6 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
                 popular_bills.append(bill)
                 seen_bills.add(bill.id)
                 
-    print popular_bills
     popular_bills_cache = (datetime.datetime.now(), popular_bills)
     
     return popular_bills
@@ -153,7 +152,6 @@ def get_popular_bills2(searchstate = None, searchdistrict = None, newdist = Fals
             bmap[bill.id] = b
 
     popular_bills_cache_2 = (datetime.datetime.now(), popular_bills2)
-    print popular_bills2
     
     return popular_bills2
 
@@ -1713,7 +1711,6 @@ def get_default_statistics_context(user, individuals=True):
 @strong_cache
 def billreport(request, congressnumber, billtype, billnumber, vehicleid):
     bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
-    print govtrack.getCongressDates(bill.congressnumber)[1]
 
     if bill.migrate_to:
         return HttpResponseRedirect(bill.migrate_to.url() + "/report")

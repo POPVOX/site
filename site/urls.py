@@ -41,7 +41,7 @@ urlpatterns = patterns('',
 	
 	(r'^home$', 'popvox.views.home.home'),
 	(r'^home/match$', 'popvox.views.slate.congress_match'),
-	(r'^user/(?P<userid>\d+)$', 'popvox.views.profile.user_profile'),
+	#(r'^user/(?P<userid>\d+)$', 'popvox.views.profile.user_profile'),
 	(r'^keyvotes/$', 'popvox.views.slate.keyvotes_index'),
     (r'^keyvotes/create/$', 'popvox.views.slate.keyvotes_create'),
     (r'^keyvotes/(?P<orgslug>[\w\-]+)/(?P<slateslug>[\w\-]+)/edit', 'popvox.views.slate.keyvotes_create'),
@@ -62,7 +62,7 @@ urlpatterns = patterns('',
 	(r'^home/constituent-messages$', 'popvox.views.home.legstaff_download_messages'),
 	(r'^congress/facebook$', 'popvox.views.features.legstaff_facebook_report'),
 	(r'^ajax/congress/facebook$', 'popvox.views.features.legstaff_facebook_report_getinfo'),
-	(r'^spotlight/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<slug>[\w\-]+)$', 'popvox.views.home.spotlight'),
+	#(r'^spotlight/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<slug>[\w\-]+)$', 'popvox.views.home.spotlight'),
 	
 	
 	(r'^activity$', 'popvox.views.home.activity'),
@@ -244,6 +244,6 @@ if settings.DEBUG:
 
 if "SITE_DOWN" in os.environ and os.environ["SITE_DOWN"] == "1":
      urlpatterns = patterns('',
-		(r'^.*', 'views.sitedown'),
+		(r'^.*', 'popvox.views.main.sitedown'),
 	)
 
