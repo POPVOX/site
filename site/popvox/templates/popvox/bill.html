@@ -364,8 +364,8 @@ function getshorturl() {
     	    {% bill_statistics bill as stats %}
   	        {% include "popvox/bill_statistics_pie_simple.html" %}
   	        <div id="svo_users">
-	       	 {{ billsup }} users<br>
-	       	 {{ billopp }} users
+	       	 {{ stats.pro }} users<br>
+	       	 {{ stats.con }} users
 	       	</div>
 	    </div>
     </div>
