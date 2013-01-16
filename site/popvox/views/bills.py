@@ -67,7 +67,7 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
 
     if False:
         # Select bills with the most number of comments in the last week.
-        pop = Bill.objects.filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=7)).annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]
+        pop = Bill.objects.filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=7)).exclude(billtype = 'x').annotate(Count('usercomments')).order_by('-usercomments__count').select_related("sponsor")[0:12]
         for b in pop:
             if b.usercomments__count == 0:
                 break
@@ -125,7 +125,8 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
                 bill.new_positions = commentcount
                 popular_bills.append(bill)
                 seen_bills.add(bill.id)
-        
+                
+    print popular_bills
     popular_bills_cache = (datetime.datetime.now(), popular_bills)
     
     return popular_bills
@@ -145,12 +146,14 @@ def get_popular_bills2(searchstate = None, searchdistrict = None, newdist = Fals
     popular_bills2 = [ ]
     bmap = { }
     for bill in popular_bills:
-        b = { }
-        popular_bills2.append(b)
-        b["bill"] = bill
-        bmap[bill.id] = b
+        if bill.billtype != 'x':
+            b = { }
+            popular_bills2.append(b)
+            b["bill"] = bill
+            bmap[bill.id] = b
 
     popular_bills_cache_2 = (datetime.datetime.now(), popular_bills2)
+    print popular_bills2
     
     return popular_bills2
 
@@ -551,9 +554,54 @@ def billboxes(bills):
     for bill in bills:
         L.append(billbox(bill))
     return L
-        
-# working on this...
+
 def new_bills(request, NumDays):
+    
+    LookupDays = int(NumDays)
+    
+    NewBills = []
+    # Get all bills from past 7 days
+    bills = Bill.objects.filter(introduced_date__gt=datetime.datetime.now()-timedelta(days=LookupDays))
+    
+    
+    #House Bills
+    HR = bills.filter(billtype='h')
+    #Senate Bills
+    S = bills.filter(billtype='s')
+    #House Resolutions
+    HRes = bills.filter(billtype='hr')
+    #Senate Resolutions
+    SRes = bills.filter(billtype='sr')
+    #House Concurrent Resolutions
+    HCRes = bills.filter(billtype='hc')
+    #Senate Concurrent Resolutions
+    SCRes = bills.filter(billtype='sc')
+    #House Joint Resolutions
+    HJRes = bills.filter(billtype='hj')
+    #Senate Joint Resolutions
+    SJRes = bills.filter(billtype='sj')
+    
+    for b in bills:
+        NewBills.append(b)
+    
+    return render_to_response('popvox/bill_list_NewBills.html',
+            {
+                "HR": HR,
+                "S": S,
+                "HRes": HRes,
+                "SRes": SRes,
+                "HCRes": HCRes,
+                "SCRes": SCRes,
+                "HJRes": HJRes,
+                "SJRes": SJRes,
+                "NumDays":NumDays
+            },
+            context_instance=RequestContext(request))
+# ******************
+
+        
+# this is the view for the new newbills page. take out the first new_ and delete the other view when it's ready to go.
+def new_new_bills(request, NumDays):
     
     
     LookupDays = int(NumDays)
@@ -1665,6 +1713,7 @@ def get_default_statistics_context(user, individuals=True):
 @strong_cache
 def billreport(request, congressnumber, billtype, billnumber, vehicleid):
     bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
+    print govtrack.getCongressDates(bill.congressnumber)[1]
 
     if bill.migrate_to:
         return HttpResponseRedirect(bill.migrate_to.url() + "/report")
@@ -1713,6 +1762,7 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
         text["-"] = compute_frequencies(text["-"], stop_list=["oppose"])
         tag_cloud_support = make_tag_cloud(text["+"], text["-"], 50*4, 7, 9, 22, count_by_chars=True, width=350, color="#CC6A11")
         tag_cloud_oppose = make_tag_cloud(text["-"], text["+"], 50*4, 7, 9, 22, count_by_chars=True, width=350, color="#CC6A11")
+        
 
     return render_to_response('popvox/bill_report.html', {
             'bill': bill,
