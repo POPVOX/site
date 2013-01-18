@@ -1486,7 +1486,11 @@ def send_message(msg, moc, previous_attempt, loginfo):
     if len(msg.zipcode) == 5:
         # if we only have a 5-digit zip code, make up the +4 based on the congressional
         # district.
-        alt_zip = get_zip_plus_four(msg.zipcode, msg.state, msg.congressionaldistrict)
+        try:
+            alt_zip = get_zip_plus_four(msg.zipcode, msg.state, msg.congressionaldistrict)
+        except:
+            print "zipcode error: "+str(msg.id)
+            pass
         if not alt_zip:
             from popvox.models import PostalAddress
             try:
