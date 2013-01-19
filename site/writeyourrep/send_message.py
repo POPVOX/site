@@ -1489,8 +1489,11 @@ def send_message(msg, moc, previous_attempt, loginfo):
         try:
             alt_zip = get_zip_plus_four(msg.zipcode, msg.state, msg.congressionaldistrict)
         except:
-            print "zipcode error: "+str(msg.id)
-            pass
+            try:
+                print "zipcode error: "+str(msg.id)
+                pass
+            except AttributeError:
+                pass
         if not alt_zip:
             from popvox.models import PostalAddress
             try:
