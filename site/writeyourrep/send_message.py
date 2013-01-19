@@ -1208,8 +1208,10 @@ def send_message_webform(di, msg, deliveryrec):
         
         postdata[k] = postdata[k].encode("utf8")
         if k == "required-response":
-            if postdata[k] == "":
+            if "no" in  msg.response_requested:
                 postdata[k] = "N"
+            else:
+                postdata[k] = "Y"
 
     for k, v in field_default.items():
         postdata[k] = v.encode("utf8")
