@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <style>
+	{%comment %}
 	
 	.h1 {
 		display: block;
@@ -37,7 +38,6 @@
 		margin-bottom: 10px;
 		padding-left: 100px;
 		padding-top: 4px;
-		background: url(/media/press/bg_arrow.png) left 5px no-repeat;
 		width: 580px;
 		border: none;
 		min-height: 30px;
@@ -56,7 +56,7 @@
 		color: #E8E5DF;
 		border: none;
 		cursor: pointer;
-	}
+		} {%endcomment%}
 	.NewBills_MsgBox {
 		display: inline-block;
 		width: 680px;
@@ -123,6 +123,7 @@
 	<ul>
 </div>
 
+<div class="new_pv"
 	<div class="BillList">
 	{% if HR|length > 0 %}
 		<a name="HR"></a>
@@ -130,11 +131,8 @@
 		<h2>House Bills<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Proposed legislation which would become law if it passes the House and then the Senate, and is signed by the President.</div>
 		<ul>
-		{% 	for b in HR %}
-			<li><span><a href="{{ b.get_absolute_url }}">HR {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		{% 	for bill, stats, sponsors in HR %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% 	endfor %}
 		</ul>
 	{% endif %}
@@ -145,11 +143,8 @@
 		<h2>Senate Bills<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Proposed legislation which would become law if it passes the Senate and then the House, and is signed by the President.</div>
 		<ul>
-		{% for b in S %}
-			<li><span><a href="{{ b.get_absolute_url }}">S {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		{% for bill, stats, sponsors in S %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
@@ -159,11 +154,8 @@
 		<h2>House Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to take action on behalf of only the House, give its non-binding opinion or propose internal rules. Resolutions do not become law.</div>
 		<ul>
-		{% for b in HRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">HRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		{% for bill, stats, sponsors in HRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
@@ -173,11 +165,8 @@
 		<h2>Senate Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to take action on behalf of only the Senate, give its non-binding opinion or propose internal rules. Resolutions do not become law.</div>
 		<ul>
-		{% for b in SRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">SRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		{% for bill, stats, sponsors in SRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
@@ -187,11 +176,8 @@
 		<h2>House Concurrent Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to take action or express opinion on behalf of both the House and Senate. It does not make law.</div>
 		<ul>
-		{% for b in HCRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">HCRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		{% for bill, stats, sponsors in HCRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
@@ -201,11 +187,8 @@
 		<h2>Senate Concurrent Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to take action or express opinion on behalf of both the Senate and House. It does not make law.</div>
 		<ul>
-		{% for b in SCRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">SCRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		{% for bill, stats, sponsors in SCRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
@@ -215,11 +198,8 @@
 		<h2>House Joint Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to pose constitutional amendments, fix technical errors or appropriate funds. Joint resolutions, like bills, become public law if adopted by both the House and Senate. Constitutional amendments must also be approved by 3/4 of the states.</div>
 		<ul>
-		{% for b in HJRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">HJRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		{% for bill, stats in HJRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
@@ -229,11 +209,8 @@
 		<h2>Senate Joint Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to pose constitutional amendments, fix technical errors or appropriate funds. Joint resolutions, like bills, become public law if adopted by both the House and Senate. Constitutional amendments must also be approved by 3/4 of the states.</div>
 		<ul>
-		{% for b in SJRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">SJRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		{% for bill, stats, sponsors in SJRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
@@ -241,6 +218,7 @@
 	
 	</div>
 	
+</div>
 	
 	
 	
