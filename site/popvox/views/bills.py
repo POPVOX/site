@@ -1837,13 +1837,12 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
         else:
             q = q[start:]'''
             
-        cache.set(cache_key, (q,count), 60*2) # cache results for two minutes
+        cache.set(cache_key, (q,count), 60*15) # cache results for two minutes
             
         '''return q, limited'''
         return q, count
     
-    pro_comments, pro_count = fetch("+")
-    con_comments, con_count = fetch("-")
+
     
     if state == None:
         reporttitle = "Legislative Report for POPVOX Nation"
@@ -1866,10 +1865,10 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             
     # Functions for formatting comments.
     
+    re_whitespace = re.compile(r"\n+\W*$") # remove trailing non-textual characters
     t = re.escape(bill.title).replace(":", ":?")
     re_because = re.compile(r"I (support|oppose) " + t + r" because[\s\.:]*(\S)") # remove common text
     re_because_repl = lambda x : x.group(2).upper()
-    re_whitespace = re.compile(r"\n+\W*$") # remove trailing non-textual characters
     def msg(m):
         m = re_because.sub(re_because_repl, m)
         m = re_whitespace.sub("", m)
@@ -1914,26 +1913,6 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
         for c in UserComment.objects.filter(diggs__diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, diggs__user=request.user):
             user_appreciated.add(c.id)
     
-    # Pre-load the count of num_appreciations.
-    num_appreciations_pro = {}
-    q = UserCommentDigg.objects.filter(
-        comment__id__in = [c.id for c in pro_comments],
-        diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
-        .values("comment")\
-        .annotate(num_diggs=Count("id"))\
-        .values("comment_id", "num_diggs")
-    for c in q:
-        num_appreciations_pro[c["comment_id"]] = c["num_diggs"]
-
-    num_appreciations_con = {}
-    q = UserCommentDigg.objects.filter(
-        comment__id__in = [c.id for c in con_comments],
-        diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
-        .values("comment")\
-        .annotate(num_diggs=Count("id"))\
-        .values("comment_id", "num_diggs")
-    for c in q:
-        num_appreciations_con[c["comment_id"]] = c["num_diggs"]
 
         
     # Legislative staff?
@@ -1990,61 +1969,99 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     bill_url = bill.url()
     
     debug_info = None
-    if DEBUG:
-        from django.db import connection
-        debug_info = "".join(["%s: %s\n" % (q["time"], q["sql"]) for q in connection.queries])
+    #if DEBUG:
+    #    from django.db import connection
+    #    debug_info = "".join(["%s: %s\n" % (q["time"], q["sql"]) for q in connection.queries])
         
-    pro_comments_data_basic = [ {
-                "id": c.id,
-                "user": c.user.username,
-                "msg": msg(c.message),
-                "location": location(c),
-                "date": formatDateTime(c.created),
-                "pos": c.position,
-                "share": bill_url + "/comment/" + str(c.id), #c.url(),
-                "verb": verb(c), #c.verb(tense="past"),
-                "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
-                "appreciates": num_appreciations_pro[c.id] if c.id in num_appreciations_pro else 0,
-                "appreciated": c.id in user_appreciated,
-                "state": c.state,
-                "district": c.congressionaldistrict
-                } for c in pro_comments ]
-                
+
+    def get_comments():
+        comment_cache_key = ("billreport_getcomments_%d,%s,%s,%d,%d" % (bill.id, state, str(district), start, limit))
+        com_ret = cache.get(comment_cache_key)
+        if com_ret != None: return com_ret
+
+        pro_comments, pro_count = fetch("+")
+        con_comments, con_count = fetch("-")
+
+        # Pre-load the count of num_appreciations.
+        num_appreciations_pro = {}
+        q = UserCommentDigg.objects.filter(
+            comment__id__in = [c.id for c in pro_comments],
+            diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
+            .values("comment")\
+            .annotate(num_diggs=Count("id"))\
+            .values("comment_id", "num_diggs")
+        for c in q:
+            num_appreciations_pro[c["comment_id"]] = c["num_diggs"]
+
+        num_appreciations_con = {}
+        q = UserCommentDigg.objects.filter(
+            comment__id__in = [c.id for c in con_comments],
+            diggtype = UserCommentDigg.DIGG_TYPE_APPRECIATE)\
+            .values("comment")\
+            .annotate(num_diggs=Count("id"))\
+            .values("comment_id", "num_diggs")
+        for c in q:
+            num_appreciations_con[c["comment_id"]] = c["num_diggs"]
 
 
-    if pro_count > limit:
-        pro_comments_data = sorted(pro_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
-        pro_limited=True
-    else:
-        pro_comments_data = sorted(pro_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:]
-        pro_limited=False
 
-    con_comments_data_basic = [ {
-                "id": c.id,
-                "user": c.user.username,
-                "msg": msg(c.message),
-                "location": location(c),
-                "date": formatDateTime(c.created),
-                "pos": c.position,
-                "share": bill_url + "/comment/" + str(c.id), #c.url(),
-                "verb": verb(c), #c.verb(tense="past"),
-                "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
-                "appreciates": num_appreciations_con[c.id] if c.id in num_appreciations_con else 0,
-                "appreciated": c.id in user_appreciated,
-                "state": c.state,
-                "district": c.congressionaldistrict
-                } for c in con_comments ]
-                
+        pro_comments_data_basic = [ {
+                    "id": c.id,
+                    "user": c.user.username,
+                    "msg": msg(c.message),
+                    "location": location(c),
+                    "date": formatDateTime(c.created),
+                    "pos": c.position,
+                    "share": bill_url + "/comment/" + str(c.id), #c.url(),
+                    "verb": verb(c), #c.verb(tense="past"),
+                    "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
+                    "appreciates": num_appreciations_pro[c.id] if c.id in num_appreciations_pro else 0,
+                    "appreciated": c.id in user_appreciated,
+                    "state": c.state,
+                    "district": c.congressionaldistrict
+                    } for c in pro_comments ]
+                    
 
-    if con_count > limit:
-        con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
-        con_limited=True
-    else:
-        con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:]
-        con_limited=False
 
-    comments_data_basic = pro_comments_data + con_comments_data
-    comments_data = sorted(comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)
+        if pro_count > limit:
+            pro_comments_data = sorted(pro_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
+            pro_limited=True
+        else:
+            pro_comments_data = sorted(pro_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:]
+            pro_limited=False
+
+        con_comments_data_basic = [ {
+                    "id": c.id,
+                    "user": c.user.username,
+                    "msg": msg(c.message),
+                    "location": location(c),
+                    "date": formatDateTime(c.created),
+                    "pos": c.position,
+                    "share": bill_url + "/comment/" + str(c.id), #c.url(),
+                    "verb": verb(c), #c.verb(tense="past"),
+                    "private_info": { "name": c.address.name_string(), "address": c.address.address_string(), "email": c.user.email } if show_private_info else None,
+                    "appreciates": num_appreciations_con[c.id] if c.id in num_appreciations_con else 0,
+                    "appreciated": c.id in user_appreciated,
+                    "state": c.state,
+                    "district": c.congressionaldistrict
+                    } for c in con_comments ]
+                    
+
+        if con_count > limit:
+            con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
+            con_limited=True
+        else:
+            con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:]
+            con_limited=False
+
+        comments_data_basic = pro_comments_data + con_comments_data
+        sorted_comments_data =  sorted(comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)
+
+        cache.set(comment_cache_key, (sorted_comments_data, pro_limited, con_limited), 60*30) # cache results for two minutes
+        return sorted_comments_data, pro_limited, con_limited
+
+
+    comments_data, pro_limited, con_limited = get_comments()
 
     return {
         "reporttitle": reporttitle,
