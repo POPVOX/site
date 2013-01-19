@@ -331,6 +331,7 @@ common_fieldnames = {
     "subject1_select": "topicarea",
     "whatisyourgeneraltopic_select": "topicarea",
     "field_250a9cb8-13dc-40f7-94fb-d301593db4c9": "topicarea",
+    "field_6544a2ff-bc89-4c03-b786-c7927f5bc6f7": "topicarea",
     
     "responserequested": "response_requested",
     "responserequest": "response_requested",
@@ -350,6 +351,7 @@ common_fieldnames = {
     "responsereq": "response_requested",
     "ddlreply": "response_requested",
     "field_1f0bf197-193c-4a61-a149-feb5a1da4482": "response_requested",
+    "required-response": "response_requested",
     
     'view_select': 'support_oppose',
     
@@ -556,6 +558,7 @@ custom_mapping = {
     "864_phone_prefix_text" : "phone_areacode",
     "864_phone_first_text" : "phone_prefix",
     "864_phone_second_text" : "phone_line",
+    "1028_required-response_select":"response_requested",
 }
 
 custom_overrides = {
@@ -1109,7 +1112,7 @@ def send_message_webform(di, msg, deliveryrec):
     except:
         deliveryrec.trace += u"\n" + webform.decode('utf8', 'replace') + u"\n\n"
         raise
-        
+
     # Make sure that we've found the equivalent of all of the fields
     # that the form should be accepting.
     for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined", "address_split_street"), ("address2", "address_combined", "address_split_street"), ("zipcode", "zip5"), "message"):
@@ -1204,7 +1207,10 @@ def send_message_webform(di, msg, deliveryrec):
                 raise SelectOptionNotMappable("Can't map value %s for %s into available option from %s." % (postdata[k], k, field_options[k]), k, postdata[k], select_opts)
         
         postdata[k] = postdata[k].encode("utf8")
-        
+        if k == "required-response":
+            if postdata[k] == "":
+                postdata[k] = "N"
+
     for k, v in field_default.items():
         postdata[k] = v.encode("utf8")
         

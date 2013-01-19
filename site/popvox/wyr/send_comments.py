@@ -142,11 +142,11 @@ def process_comment(comment, thread_id):
 		if comment.created < datetime.datetime.now()-datetime.timedelta(days=16):
 			msg.message += "\npopvox holds letters on bills until they are pending a vote in your chamber"
 		msg.message_personal = "yes"
-		msg.response_requested = ("yes", "response needed", "WEBRN")
+		msg.response_requested = ("yes", "response needed", "WEBRN","Yes","Y", "Yes, please contact me")
 	else:
 		msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
 		msg.message_personal = "no"
-		msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","no response needed","WEBNRN","")
+		msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","no response needed","WEBNRN","No, I wanted to voice my opinion", "N","")
 		
 	topterm = comment.bill.topterm
 	
