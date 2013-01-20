@@ -229,6 +229,7 @@ def get_zip_plus_four(zip5, state, district):
 	# This is used when we have a ZIP+5 and a district and want to make up
 	# a complete ZIP+4 to get a message through a webform.
 	
+	print zip5
 	zipcode = "".join([ d for d in zip5 if d.isdigit() ])
 	if len(zipcode) != 5:
 		raise ValueError("expects 5-digit zip code")

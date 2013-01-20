@@ -77,7 +77,7 @@ class UserCommentDiggAdmin(admin.ModelAdmin):
     list_display = ['created', 'user', 'comment', 'diggtype']
 
 class PostalAddressAdmin(admin.ModelAdmin):
-    search_fields = ("user__username","user__email","firstname","lastname","address1")
+    search_fields = ("user__username","user__email","firstname","lastname","address1", "zipcode")
     raw_id_fields = ('user',)
 
 class OrgCampaignInline(admin.TabularInline):
