@@ -1479,7 +1479,7 @@ class UserComment(models.Model):
         return govtrackrecipients
         
     def get_recipients_display(self):
-        if self.address.congressionaldistrict2013 is null:
+        if self.address.congressionaldistrict2013 is None:
             return "your representatives"
         recips = self.get_recipients()
         for recip in recips:
