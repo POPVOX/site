@@ -624,6 +624,7 @@ custom_overrides = {
     '198_field_5eb7428f-9e29-4ecb-a666-6bc56b6a435e_radio': 'NO', #response req
     '204_action_radio': '', # subscribe
     '345_enews_radio': '',
+    "355_opt_radio":"no",
     "426_aff1_radio": "<AFFL>Subscribe</AFFL>",
     "503_phonetype_radio": "voice",
     "550_issue_type_radio": "issue",
@@ -1064,6 +1065,8 @@ def test_zipcode_rejected(webform, deliveryrec):
         or "Your zip code is not an acceptable zip code." in webform\
         or "the zip code you entered is incomplete or lies outside" in webform\
         or "The zip code which was entered was not found." in webform\
+        or "You belong to a different Congressional District" in webform\
+        or "That address falls outside" in webform\
         or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
         deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
         raise DistrictDisagreementException()
