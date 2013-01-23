@@ -206,12 +206,14 @@ common_fieldnames = {
     "first_name": "firstname",
     "name_first": "firstname",
     "first-name": "firstname",
+    "firstname_require": "firstname",
     "last": "lastname",
     "lname": "lastname",
     "namelast": "lastname",
     "last_name": "lastname",
     "last-name": "lastname",
     "name_last": "lastname",
+    "lastname_require": "lastname",
     "fullname": "name",
     "name_suffix": "suffix",
     "suffix2": "suffix",
@@ -248,6 +250,7 @@ common_fieldnames = {
     "hstate": "state",
     "mailing_state": "state",
     "addressstate": "state",
+    "state_require": "state",
     "zip": "zipcode",
     "hzip": "zipcode",
     "zip5": "zip5",
@@ -263,6 +266,7 @@ common_fieldnames = {
     "postalcode": "zipcode",
     "mailing_zipcode": "zipcode",
     "addresszip": "zipcode",
+    "zip_require": "zipcode",
     "phone": "phone",
     "phone_number": "phone",
     "phonenumber": "phone",
@@ -287,6 +291,8 @@ common_fieldnames = {
     "email2": "email",
     "fromemail": "email",
     "verify-email": "email",
+    "emailaddress_require":"email",
+    "EmailCheck": "email",
     
     "messagebody": "message",
     "comment": "message",
@@ -300,6 +306,7 @@ common_fieldnames = {
     "msg": "message",
     "body": "message",
     "claim": "message",
+    "message_require": "message",
     
     "textmodified": "message_personal",
     "modified": "message_personal",
@@ -332,6 +339,8 @@ common_fieldnames = {
     "whatisyourgeneraltopic_select": "topicarea",
     "field_250a9cb8-13dc-40f7-94fb-d301593db4c9": "topicarea",
     "field_6544a2ff-bc89-4c03-b786-c7927f5bc6f7": "topicarea",
+    "field_ff576494-50ce-42fc-aff0-a14f510dc4d8": "topicarea",
+    "subject_require": "topicarea",
     
     "responserequested": "response_requested",
     "responserequest": "response_requested",
@@ -352,6 +361,8 @@ common_fieldnames = {
     "ddlreply": "response_requested",
     "field_1f0bf197-193c-4a61-a149-feb5a1da4482": "response_requested",
     "required-response": "response_requested",
+    "response_require": "response_requested",
+    "response-needed": "response_requested",
     
     'view_select': 'support_oppose',
     
@@ -451,7 +462,7 @@ skippable_fields = (
     "h03", "H03",
     "name-title", 'military', "personalcode",
     "organization",
-    "unsubscribe", "newsletteraction", "email.optin", "newslettercode",
+    "unsubscribe", "newsletteraction", "email.optin", "newslettercode","newsletteroptin","optintoemailsfromrepmarkey",
     "q1",
     "enewssign", "enewsletter", "newsletteraction",
     "countdown", "txthomesearch",
@@ -470,7 +481,10 @@ skippable_fields = (
     "suffix",
     "phone2",
     "phone3",
-    "enews")
+    "enews",
+    "affl1",
+    "affll",
+    )
 
 radio_choices = {
     "reason": "legsitemail",
@@ -553,6 +567,9 @@ custom_mapping = {
     "832_phone1_text" : "phone_areacode",
     "832_phone2_text" : "phone_prefix",
     "832_phone3_text" : "phone_line",
+    "836_phone1_text" : "phone_areacode",
+    "836_phone2_text" : "phone_prefix",
+    "836_phone3_text" : "phone_line",
     "839_field_310ab902-1d78-4444-849d-077807c25eaf_text" : "address2",
     "839_field_83770021-924f-4be5-b642-98871ec90dee_text" : "zip5",
     "839_field_ad57e3b4-5705-489d-be8a-ee887514258c_select": "topicarea",
@@ -560,9 +577,21 @@ custom_mapping = {
     "842_J01": "subjectline",
     "842_field_f6958bc0-eb9a-41ae-ad61-57221e74199f_text": "topicarea",
     "842_field_e9e2e61c-2fa8-40c3-8e90-374a97fd3322_radio": "response_requested",
+    "849_radiogroup1_radio": "response_requested",
     "864_phone_prefix_text" : "phone_areacode",
     "864_phone_first_text" : "phone_prefix",
     "864_phone_second_text" : "phone_line",
+    "920_required_phone1_text" : "phone_areacode",
+    "920_required_phone2_text" : "phone_prefix",
+    "920_required_phone3_text" : "phone_line",
+    "920_phone1_text" : "phone_areacode",
+    "920_phone2_text" : "phone_prefix",
+    "920_phone3_text" : "phone_line",
+    "942_phone1_text" : "phone_areacode",
+    "942_phone2_text" : "phone_prefix",
+    "942_phone3_text" : "phone_line",
+    "978_phone3_text" : "phone_prefix",
+    "978_phone4_text" : "phone_line",
     "1028_required-response_select":"response_requested",
 }
 
@@ -1213,11 +1242,20 @@ def send_message_webform(di, msg, deliveryrec):
                 raise SelectOptionNotMappable("Can't map value %s for %s into available option from %s." % (postdata[k], k, field_options[k]), k, postdata[k], select_opts)
         
         postdata[k] = postdata[k].encode("utf8")
+
+
+        ### REALLY special cases
+        # I think this was for Frankel or Walorski
         if k == "required-response":
             if "no" in  msg.response_requested:
                 postdata[k] = "N"
             else:
                 postdata[k] = "Y"
+
+        # Calvert has a fake form item
+        if di.id == 934:
+            if k == "ctl00$ctl14$Subject":
+                postdata[k] = ''
 
     for k, v in field_default.items():
         postdata[k] = v.encode("utf8")
