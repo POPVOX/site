@@ -421,7 +421,7 @@ print "Success:", success
 print "Failure:", failure
 if duplicate_records:
     for comment, records in duplicate_records:
-        print "comment id: "+str(k)
+        print "comment id: "+str(comment)
         print "duplicates:"
         for rec in records:
             print rec
