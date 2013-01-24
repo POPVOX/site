@@ -1385,7 +1385,8 @@ def send_message_webform(di, msg, deliveryrec):
     "Thank you for your correspondence",
     "The following information has been submitted",
     "Thank you for taking the time to write me"
-    "Thank you, your message has been submitted"]
+    "Thank you, your message has been submitted",
+    "Thank you for taking the time to write me"]
     
     for x in common_responses:
         if x in ret:
