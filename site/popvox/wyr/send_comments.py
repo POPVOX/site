@@ -3,6 +3,7 @@
 import os, os.path, sys
 import datetime
 from django.db.models import Q
+from django.core.exceptions import MultipleObjectsReturned
 
 # set the backend flag to anything to avoid Amazon SES because
 # when we do delivery by plain SMTP, we send from the user's
@@ -30,6 +31,7 @@ mocs_require_phone_number = (
 stats_only = (len(sys.argv) < 2 or sys.argv[1] != "send")
 success = 0
 failure = 0
+duplicate_records = {}
 needs_attention = 0
 held_for_offline = 0
 pending = 0
@@ -96,7 +98,7 @@ if "REDISTRICTED" in os.environ:
     print comments_iter.count()
     
 def process_comment(comment, thread_id):
-    global success, failure, needs_attention, pending, held_for_offline
+    global success, failure, duplicate_records, needs_attention, pending, held_for_offline
 
     # since we don't deliver message-less comments, when we activate an endpoint we
     # end up sending the backlog of those comments. don't bother. This is also in
@@ -259,9 +261,11 @@ def process_comment(comment, thread_id):
             last_delivery_attempt = comment.delivery_attempts.get(target__govtrackid = gid, next_attempt__isnull = True)
         except DeliveryRecord.DoesNotExist:
             pass
-        except:
-            print "this comment tried to break the send: "+str(comment.id)
-            pass
+        except MultipleObjectsReturned:
+            last_delivery_attempts = comment.delivery_attempts.filter(target__govtrackid = gid, next_attempt__isnull = True)
+            attemptids = [int(x.id) for x in last_delivery_attempts]
+            duplicate_records[comment.id] = attemptids
+            continue
         
         # Should we send the comment to this recipient?
         
@@ -415,6 +419,12 @@ else:
 
 print "Success:", success
 print "Failure:", failure
+if duplicate_records:
+    for comment, records in duplicate_records:
+        print "comment id: "+str(k)
+        print "duplicates:"
+        for rec in records:
+            print rec
 print "Needs Attention:", needs_attention
 print "Pending:", pending
 print "Held for Offline Delivery:", held_for_offline
