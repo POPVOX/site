@@ -269,7 +269,7 @@ def make_tag_cloud(freq, base_freq, N, num_lines, min_font, max_font, count_by_c
 
 	return lines
 
-def group_by_issue(objlist, min_count=16, top_count=6, top_title=None, exclude_issues=[], other_title="Other"):
+def group_by_issue(objlist, min_count=24, top_count=6, top_title=None, exclude_issues=[], other_title="Other"):
 	# Groups objects in objlist by issue area according to its
 	# .issues.all() attribute. Returns a list of groups, each group
 	# a dict with keys id, name, and objlist.
