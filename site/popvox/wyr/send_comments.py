@@ -420,7 +420,7 @@ else:
 print "Success:", success
 print "Failure:", failure
 if duplicate_records:
-    for comment, records in duplicate_records:
+    for comment, records in duplicate_records.iteritems():
         print "comment id: "+str(comment)
         print "duplicates:"
         for rec in records:

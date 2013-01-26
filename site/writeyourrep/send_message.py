@@ -1043,6 +1043,7 @@ def parse_webform(webformurl, webform, webformid, id, dr):
 def test_zipcode_rejected(webform, deliveryrec):
     if "The zip code you typed in does not appear to be a zip code within my district" in webform\
         or "You might not be in my district" in webform \
+        or "appears that you live outside of" in webform \
         or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
         or "The zip code entered indicates that you reside outside the" in webform\
         or "Your zip code indicates that you are outside of the" in webform\
