@@ -327,7 +327,10 @@ def getbill(congressnumber, billtype, billnumber, vehicleid=None):
     except:
         raise Http404("Invalid bill number. \"" + billtype + "\" is not valid.")
     try:
-        return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
+        if billtype is 'x':
+            return Bill.objects.filter(billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
+        else:
+            return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
     except:
         raise Http404("Invalid bill number. There is no bill by that number.")
     
