@@ -183,12 +183,12 @@ def bills_issue_areas():
     uncat_count = Bill.objects.filter(congressnumber=CURRENT_CONGRESS, topterm=None).count()
     if uncat_count > 0:
         issues = list(issues)
-        issues.append( { "primaryorder": len(issues), "commentcount": 0, "id": "other", "name": "Uncategorized Bills", "billcount": uncat_count } )
-        
+        issues.append( { "primaryorder": len(issues), "commentcount": 0, "id": "other", "name": "Uncategorized Bills", "billcount": uncat_count } ) 
     return issues
 
 @strong_cache
 def bills_issues_bills(request):
+    print 0
     ix = request.GET.get('ix', "0")
     if ix != "other":
         ix = get_object_or_404(IssueArea, id=ix)
@@ -327,7 +327,10 @@ def getbill(congressnumber, billtype, billnumber, vehicleid=None):
     except:
         raise Http404("Invalid bill number. \"" + billtype + "\" is not valid.")
     try:
-        return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
+        if billtype is 'x':
+            return Bill.objects.filter(billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
+        else:
+            return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
     except:
         raise Http404("Invalid bill number. There is no bill by that number.")
     

@@ -85,7 +85,6 @@ def bill_inline(request):
         raise Http404'''
 
 @do_not_track_compliance
-@strong_cache
 def commentmapus(request):
     print "0"
     count = { }
