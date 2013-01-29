@@ -4,7 +4,6 @@
 {% block title %}POPVOX Metrics{% endblock%}
 {% block description %}Usage statistics for POPVOX.{% endblock%}
 {% block head %}
-<link rel="stylesheet" href="/media/css/datatables/popvox_table.css" type="text/css"/>
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <style>
 	th, td { padding: 4px 7px 4px 7px; font-size: 12px; }
@@ -96,8 +95,8 @@
 		
 		<h3>by {{period}}</h3>
 		
-		<table id="table_{{period}}">
-		<!-- <tr class="multicol">
+		<table>
+		<tr class="multicol">
 			<th/>
 			<th/>
 			<th colspan="3">Users</th>
@@ -109,48 +108,54 @@
 			<th colspan="3">Widget Users</th>
 			<th/>
 			<th colspan="3">Widget Positions</th>
-		</tr> -->
-		<thead>
+		</tr>
 		<tr>
-			<th style="border:3px;">Date</th>
-			<th>New Users</th>
+			<th>Date</th>
+			<th/>
+			<th>New</th>
 			<th>Total</th>
-			<th style="border-right:3px">%Chg</th>
-			<th>New Pos</th>
+			<th>%Chg</th>
+			<th/>
+			<th>New</th>
 			<th>Total</th>
-			<th style="border-right:3px">%Chg</th>
-			<th>New Comm</th>
+			<th>%Chg</th>
+			<th/>
+			<th>New</th>
 			<th>Total</th>
-			<th style="border-right:3px">%Chg</th>
-			<th>New WUsers</th>
+			<th>%Chg</th>
+			<th/>
+			<th>New</th>
 			<th>Total</th>
-			<th style="border-right:3px">%Chg</th>
-			<th>New WPos</th>
+			<th>%Chg</th>
+			<th/>
+			<th>New</th>
 			<th>Total</th>
 			<th>%Chg</th>
 		</tr>
-		</thead>
 		{% for date, stats in statsbook %}
-		<tbody>
 			<tr>
 				<td>{{date|date:stats.dateformat}}</td>
+				<th/>
 				<td>{{stats.new_users.count}}</td>
 				<td>{{stats.new_users.cumulative}}</td>
 				<td>{{stats.new_users.percent_change}}%</td>
+				<th/>
 				<td>{{stats.new_positions.count}}</td>
 				<td>{{stats.new_positions.cumulative}}</td>
 				<td>{{stats.new_positions.percent_change}}%</td>
+				<th/>
 				<td>{{stats.new_comments.count}}</td>
 				<td>{{stats.new_comments.cumulative}}</td>
 				<td>{{stats.new_comments.percent_change}}%</td>
+				<th/>
 				<td>{{stats.new_widget_users.count}}</td>
 				<td>{{stats.new_widget_users.cumulative}}</td>
 				<td>{{stats.new_widget_users.percent_change}}%</td>
+				<th/>
 				<td>{{stats.new_widget_positions.count}}</td>
 				<td>{{stats.new_widget_positions.cumulative}}</td>
 				<td>{{stats.new_widget_positions.percent_change}}%</td>
 			</tr>
-		</tbody>
 		{% endfor %}
 		</table>
 		
@@ -236,20 +241,5 @@
 
 	</div> <!-- col_12 -->
 </div><!-- e: content -->
-<script type="text/javascript" src="/media/js/jquery.dataTables.js"></script>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#table_day').dataTable({
-			bFilter: false
-		});
-		$('#table_week').dataTable({
-			bFilter: false
-		});
-		$('#table_month').dataTable( {
-			bSort:true,
-			bFilter: false
-		});
-	});
-</script>
 {% endblock %}
 
