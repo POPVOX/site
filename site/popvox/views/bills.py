@@ -191,6 +191,7 @@ def bills_issues_bills(request):
     print 0
     ix = request.GET.get('ix', "0")
     if ix != "other":
+        print ix
         ix = get_object_or_404(IssueArea, id=ix)
         name = ix.name
         bills = Bill.objects.filter(topterm=ix)
@@ -208,6 +209,7 @@ def bills_issues_bills(request):
         .annotate(Count('usercomments')).order_by('-usercomments__count') \
         | bills
     
+    return bills
     from utils import group_by_issue
     groups = group_by_issue(bills, top_title="Top Bills", exclude_issues=[ix], other_title="Other Bills")
     if len(groups) == 1:
@@ -236,6 +238,10 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
     c.SetFilter("congressnumber", [cn])
     c.SetLimits(0, 1000)
     ret = c.Query(q, "bill_titles")
+    print "q: "+q
+    print "ret length: "+str(len(ret))
+    for b in ret:
+        print ret
     bill_weights = { }
     status = "ok"
     error = None
@@ -244,11 +250,14 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
         status = "callfail"
     else:
         for b in ret["matches"]:
+            print "loop!"
             bill_weights[b["id"]] = (0, 0, -b["weight"]) # default sort order
             if len(bill_weights) == 100:
+                print "i hit the breakpoint"
                 status = "overflow"
                 break
 
+    print "length now: "+str(len(bill_weights))
     # Pull in the bill objects for the search result matches.
 
     # Update sort order for those bills with comments in the last three weeks.
@@ -275,12 +284,15 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
     for b in bills:
         w = 0
         for v in xrange(len(b.weight)):
-            if weightrange[v][0] == weightrange[v][1]: continue
+            if weightrange[v][0] == weightrange[v][1]: 
+                print "continuing..."
+                continue
             w += 1.0/(v+1) * (b.weight[v]-weightrange[v][0])/(weightrange[v][1]-weightrange[v][0])
         b.weight = w
         
     bills.sort(key = lambda bill : bill.weight)
         
+    print "returning "+str(len(bills))+" bills"
     return (bills, status, error)
 
 @csrf_protect_if_logged_in
