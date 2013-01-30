@@ -976,6 +976,7 @@ def parse_webform(webformurl, webform, webformid, id, dr):
             m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
             if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
             try:
+                print urlparse.urljoin(webformurl, m.group(1))
                 image_content = urllib2.urlopen(urlparse.urljoin(webformurl, m.group(1))).read()
             except:
                 raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img did not load.")
@@ -1072,7 +1073,7 @@ def test_zipcode_rejected(webform, deliveryrec):
         deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
         raise DistrictDisagreementException()
     
-def send_message_webform(di, msg, deliveryrec):
+def send_message_webform(di, msg, deliveryrec, dontpost=False):
     # Load the web form and parse the fields.
     
     if not "#" in di.webform:
@@ -1091,7 +1092,7 @@ def send_message_webform(di, msg, deliveryrec):
                 sleep(int(delay_secs - current_delay + 1.0))
 
     # Some webforms require a form POST just to get to the form.
-    if webform_stages[0].startswith("post:"):
+    if webform_stages[0].startswith("post:") and dontpost is not True:
         postdata = webform_stages.pop(0)[len("post:"):]
         sleep(5)
         webform = urlopen(webformurl, postdata, "POST", deliveryrec).read()
@@ -1497,7 +1498,7 @@ def send_message_housewyr(msg, deliveryrec):
     
     return True
 
-def send_message(msg, moc, previous_attempt, loginfo):
+def send_message(msg, moc, previous_attempt, loginfo, dontpost=False):
     global extra_cookies
     global http_last_url
 

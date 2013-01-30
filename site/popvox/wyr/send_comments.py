@@ -18,6 +18,7 @@ from writeyourrep.addressnorm import verify_adddress, validate_phone
 from writeyourrep.district_lookup import county_lookup_coordinate
 
 from settings import POSITION_DELIVERY_CUTOFF_DAYS
+import time
 
 mocs_require_phone_number = (
     412248,412326,412243,300084,400194,300072,412271,412191,400432,412208,
@@ -36,6 +37,9 @@ needs_attention = 0
 held_for_offline = 0
 pending = 0
 target_counts = { }
+
+# nelson (73) only gets a post at the beginning of the send_message for the first message
+nelsonran = False
 
 # Build a Baysean classification model to assign bills without top terms
 # into subject areas automatically.
@@ -98,7 +102,7 @@ if "REDISTRICTED" in os.environ:
     print comments_iter.count()
     
 def process_comment(comment, thread_id):
-    global success, failure, duplicate_records, needs_attention, pending, held_for_offline
+    global success, failure, duplicate_records, needs_attention, pending, held_for_offline, nelsonran
 
     # since we don't deliver message-less comments, when we activate an endpoint we
     # end up sending the backlog of those comments. don't bother. This is also in
@@ -338,7 +342,14 @@ def process_comment(comment, thread_id):
             mark_for_offline("not-attempted")
             continue
         
-        delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id))
+        if endpoint.id == 73 and nelsonran is True:
+            time.sleep(10)
+            delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id),dontpost=True)
+        else:
+            delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id),dontpost=False)
+            if endpoint.id == 73:
+                nelsonran = True
+
         if delivery_record == None:
             print thread_id, gid, comment.address.zipcode, endpoint
             mark_for_offline("no-method")
@@ -380,6 +391,7 @@ def process_comments_group(thread_index, thread_count):
     # the modulus operator works right. the modulus is applied to the commenting
     # user's state so that each endpoint is confined to a particular thread so that
     # endpoint delays are properly executed in a serial fashion.
+
 
     cm = comments_iter\
         .extra(where=["(ORD(MID(popvox_usercomment.state,1,1))+ORD(MID(popvox_usercomment.state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
