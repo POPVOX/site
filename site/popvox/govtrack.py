@@ -696,8 +696,10 @@ def getCongressDates(congressnumber):
             if not "-" in startdate: # header
                 continue
             cn = int(cn)
-            if not cn in cd:
+            if not cn in cd: #if it's not in the dict, then it's hitting the first session of that congress. Fill out both start and end dates.
                 cd[cn] = [parse_govtrack_date(startdate).date(), None]
+                cd[cn][1] = parse_govtrack_date(enddate).date()
+            else: #it's in the dict already, so it must be hitting the second session. Update the enddate.
                 cd[cn][1] = parse_govtrack_date(enddate).date()
         congressdates = cd
     return congressdates[congressnumber]

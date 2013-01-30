@@ -188,7 +188,6 @@ def bills_issue_areas():
 
 @strong_cache
 def bills_issues_bills(request):
-    print 0
     ix = request.GET.get('ix', "0")
     if ix != "other":
         ix = get_object_or_404(IssueArea, id=ix)
@@ -365,6 +364,8 @@ def bill_comments(bill, **filterargs):
 
 def bill_statistics_cache(f):
     def g(bill, shortdescription, longdescription, want_timeseries=False, want_totalcomments=False, force_data=False, as_of=None, **filterargs):
+        
+    
         cache_key = ("bill_statistics_cache:%d,%s,%s,%s,%s" % (bill.id, shortdescription.replace(" ", ""), want_timeseries, want_totalcomments, as_of))
         if as_of: cache_key = None
         
@@ -389,13 +390,17 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, wa
             
     # Get comments that were left only before the session ended.
     enddate = govtrack.getCongressDates(bill.congressnumber)[1] + timedelta(days=1)
-    
     # Get all counts at once, where stage = 0 if the comment was before the end of
     # the session, 1 if after the end of the session.
     if as_of: filterargs["created__lt"] = as_of
     
     if bill.congressnumber < CURRENT_CONGRESS:
-        counts = bill_comments(bill, **filterargs).order_by().extra(select={"stage": "popvox_usercomment.created > '" + enddate.strftime("%Y-%m-%d") + "'"}).values("position", "stage").annotate(count=Count("id"))
+        if bill.billtype in ('x',): #non-bill actions should not be limited by congress
+            counts = bill_comments(bill, **filterargs).order_by().values("position").annotate(count=Count("id"))
+            for count in counts:
+                count["stage"] = long(0)
+        else:
+            counts = bill_comments(bill, **filterargs).order_by().extra(select={"stage": "popvox_usercomment.created > '" + enddate.strftime("%Y-%m-%d") + "'"}).values("position", "stage").annotate(count=Count("id"))
     else:
         if len(filterargs) > 0:
             counts = bill_comments(bill, **filterargs).order_by().values("position").annotate(count=Count("id"))
