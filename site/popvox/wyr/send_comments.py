@@ -38,8 +38,6 @@ held_for_offline = 0
 pending = 0
 target_counts = { }
 
-# nelson (73) only gets a post at the beginning of the send_message for the first message
-nelsonran = False
 
 # Build a Baysean classification model to assign bills without top terms
 # into subject areas automatically.
@@ -102,7 +100,7 @@ if "REDISTRICTED" in os.environ:
     print comments_iter.count()
     
 def process_comment(comment, thread_id):
-    global success, failure, duplicate_records, needs_attention, pending, held_for_offline, nelsonran
+    global success, failure, duplicate_records, needs_attention, pending, held_for_offline
 
     # since we don't deliver message-less comments, when we activate an endpoint we
     # end up sending the backlog of those comments. don't bother. This is also in
@@ -342,13 +340,9 @@ def process_comment(comment, thread_id):
             mark_for_offline("not-attempted")
             continue
         
-        if endpoint.id == 73 and nelsonran is True:
-            time.sleep(10)
-            delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id),dontpost=True)
-        else:
-            delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id),dontpost=False)
-            if endpoint.id == 73:
-                nelsonran = True
+        if endpoint.id == 73:
+            time.sleep(6)
+        delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id))
 
         if delivery_record == None:
             print thread_id, gid, comment.address.zipcode, endpoint

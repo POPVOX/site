@@ -1073,7 +1073,7 @@ def test_zipcode_rejected(webform, deliveryrec):
         deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
         raise DistrictDisagreementException()
     
-def send_message_webform(di, msg, deliveryrec, dontpost=False):
+def send_message_webform(di, msg, deliveryrec):
     # Load the web form and parse the fields.
     
     if not "#" in di.webform:
@@ -1092,7 +1092,7 @@ def send_message_webform(di, msg, deliveryrec, dontpost=False):
                 sleep(int(delay_secs - current_delay + 1.0))
 
     # Some webforms require a form POST just to get to the form.
-    if webform_stages[0].startswith("post:") and dontpost is not True:
+    if webform_stages[0].startswith("post:"):
         postdata = webform_stages.pop(0)[len("post:"):]
         sleep(5)
         webform = urlopen(webformurl, postdata, "POST", deliveryrec).read()
@@ -1498,7 +1498,7 @@ def send_message_housewyr(msg, deliveryrec):
     
     return True
 
-def send_message(msg, moc, previous_attempt, loginfo, dontpost=False):
+def send_message(msg, moc, previous_attempt, loginfo):
     global extra_cookies
     global http_last_url
 
