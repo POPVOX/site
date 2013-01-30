@@ -25,16 +25,17 @@
 	</div>
 {% endif %}
 {% if not chart_no_links %}
-{% if not stats.total and stats.pro_reintro %}
-	<div class="no_pie">
-		<p>{{stats.pro_reintro}} individuals support the reintroduction of {{bill.shortname}}. <a href="{{bill.url}}/report">View report</a></p>
-	</div>
-{% endif %}
-{% if not stats.total and not stats.pro_reintro %}
-	<div class="no_pie">
-		<p>Too few constituents have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
-	</div>
-{% endif %}
+    {% if not stats.total %}
+        <div class="no_pie">
+            <p>Too few constituents have commented on {{bill.shortname}} to display statistics. <br /> For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
+        </div>
+    {% else %}
+        {% if stats.pro_reintro %}
+            <div class="no_pie">
+                <p>{{stats.pro_reintro}} individuals support the reintroduction of {{bill.shortname}}. <a href="{{bill.url}}/report">View report</a></p>
+            </div>
+        {% endif %}
+    {% endif %}
 {% endif %}
 {% if not chart_no_clear %}
 <div class="clear"> </div>
