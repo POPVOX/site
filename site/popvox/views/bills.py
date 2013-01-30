@@ -381,7 +381,7 @@ def bill_statistics_cache(f):
     return g
 
 @bill_statistics_cache # the arguments must match in the decorator!
-def bill_statistics(bill, shortdescription, longdescription, want_timeseries, want_totalcomments, force_data, as_of, **filterargs):
+def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, want_totalcomments=False, force_data=False, as_of=False, **filterargs):
     # If any of the filters is None, meaning it is based on demographic info
     # that the user has not set, return None for the whole statistic group.
     for key in filterargs:
@@ -426,7 +426,8 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, wa
     # Don't display statistics when there's very little data,
     # and definitely not when pro+con == 0 since that'll gen
     # an error down below.
-    if (pro+con+pro_reintro < 10 and not force_data) or pro+con+pro_reintro == 0:
+    #if (pro+con+pro_reintro < 10 and not force_data) or pro+con+pro_reintro == 0:
+    if pro+con+pro_reintro == 0:
         return None
 
     if pro+con < 10:
