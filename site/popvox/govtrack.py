@@ -155,7 +155,7 @@ def getMemberOfCongress(id):
     global people
     loadpeople()
     if not id in people:
-        return { "id": id, "name": "Unknown", "lastname": "Unknown", "sortkey": "", "current": False }
+        return { "id": id, "name": "Unknown", "lastname": "Unknown", "sortkey": "", "current": False, "address": "" }
     return people[id]
     
 def getMembersOfCongressForState(state, moctype="all"):
