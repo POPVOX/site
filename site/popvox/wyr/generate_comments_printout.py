@@ -23,8 +23,10 @@ from settings import SERVER_EMAIL, POSITION_DELIVERY_CUTOFF_DAYS
 buildings = {
     "cannon": "house",
     "dirksen": "senate",
+    "d street":"house",
     "hart": "senate",
     "longworth": "house",
+    "pennsylvania" : "whitehouse",
     "rayburn": "house",
     "russell": "senate"
     }
@@ -94,10 +96,17 @@ def create_tex(tex, serial):
     def get_address_sort(id_batch):
         try:
             addr = getMemberOfCongress(id_batch[0])["address"]
+            addr = addr.split(" ")
         except:
-            addr = "" #TODO: Get it to report missing addresses as 421 D St NW
-        addr = addr.split(" ")
-        return (buildings[addr[1].lower()], addr[1], addr[0].zfill(5))
+            addr = ["1421", "d street"]
+            print id_batch[0], getMemberOfCongress(id_batch[0])["name"], "No Address"
+        try:
+            return (buildings[addr[1].lower()], addr[1], addr[0].zfill(5))
+        except: #hardcoding white house because it's not syncing for some reason
+            if id_batch[0] == 400629:
+                return (buildings["pennsylvania"], "Pennsylvania Ave", "1600".zfill(5))
+            else:
+                pass
     targets.sort(key = get_address_sort)
     
     targets2 = []
@@ -139,7 +148,14 @@ def create_tex(tex, serial):
         outfile.write_esc(getMemberOfCongress(govtrack_id)["name"])
         outfile.write(r"} \bigskip" + "\n\n" + r"\noindent ")
 
-        outfile.write_esc(getMemberOfCongress(govtrack_id)["address"])
+        try:
+            outfile.write_esc(getMemberOfCongress(govtrack_id)["address"])
+        except:
+            if govtrack_id == 400629:
+                outfile.write_esc('1600 Pennsylvania Avenue NW, Washington, DC 20500')
+            else:
+                print "can't write address for", getMemberOfCongress(govtrack_id)["name"]
+                outfile.write_esc(getMemberOfCongress(govtrack_id)["address"])
         outfile.write(r"\bigskip" + "\n\n" + r"\noindent ")
 
         outfile.write(r"\bigskip" + "\n\n")
@@ -252,9 +268,17 @@ def create_tex(tex, serial):
             p = getMemberOfCongress(govtrack_id)
             outfile.write_esc("#" + batch_no[len(serial)+1:])
             outfile.write(r" --- ")
-            outfile.write_esc(p["lastname"] + " " + p["state"] + (str(p["district"]) if p["district"]!=None else ""))
+            try:
+                outfile.write_esc(p["lastname"] + " " + str(p["state"]) + (str(p["district"]) if p["district"]!=None else ""))
+            except: #doing if p["state"] as with district did not work. no idea why.
+                if govtrack_id == 400629: #hardcoding obama again
+                    outfile.write_esc(p["lastname"])
             outfile.write(r"  --- ")
-            outfile.write_esc(" ".join(p["address"][0:10].split(" ")[0:2]))
+            try:
+                outfile.write_esc(" ".join(p["address"][0:10].split(" ")[0:2]))
+            except:
+                if govtrack_id == 400629: #hardcoding obama again
+                    outfile.write_esc("1600 Pennsylvania Ave")
             outfile.write(r"  --- ")
             outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no, comment__created__lt=cutoff).count()) + " ")
             outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method",)]))
