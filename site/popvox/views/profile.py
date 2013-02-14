@@ -518,15 +518,10 @@ def user_profile(request, userid):
     commentsopp = [comment for comment in allcommentsopp if comment.message != None ][0:10]
     numcommentsopp = len(allcommentsopp)
     
-    diggcount = 0
-    allmsgs = commentssup + commentsopp
-    for msg in allmsgs:
-        diggcount += msg.diggs.count()
-    print diggcount
     
 
     
-    return render_to_response('popvox/userprofile.html', { "profile": profile, "user": user, "district": district, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp, "numcommentssup": numcommentssup, "numcommentsopp": numcommentsopp, "diggcount": diggcount
+    return render_to_response('popvox/userprofile.html', { "profile": profile, "user": user, "district": district, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp, "numcommentssup": numcommentssup, "numcommentsopp": numcommentsopp,
         },
         context_instance=RequestContext(request))
         
