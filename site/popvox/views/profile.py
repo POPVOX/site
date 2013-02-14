@@ -492,15 +492,19 @@ def user_profile(request, userid):
         district = False
     user = profile.user
     
-    members = govtrack.getMembersOfCongressForDistrict(district)
+    try:
+        members = govtrack.getMembersOfCongressForDistrict(district)
+    except:
+        members = False
     comments = user.comments.all()
     letters = len(comments.filter(message__isnull=False))
     appreciates = sum([len(comment.diggs.all()) for comment in comments])
     commentssup = [comment for comment in comments if comment.position == '+']
     commentsopp = [comment for comment in comments if comment.position == '-']
     
+    #FIXME: we're not passing user in, so it's probably taking it from request.user. namespace issue!
     
-    return render_to_response('popvox/userprofile.html', { "profile": profile, "district": district, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp,
+    return render_to_response('popvox/userprofile.html', { "profile": profile, "user": user, "district": district, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp,
         },
         context_instance=RequestContext(request))
         
