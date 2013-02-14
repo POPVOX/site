@@ -291,6 +291,21 @@ def obfuscated_email(parser, token):
 	return ObfuscatedEmailNode(tokens[1])
 register.tag('obfuscated_email', obfuscated_email)
 
+
+@register.filter
+def roundspecial(x, base=5):
+    value = float(x)
+    if value == 0:
+        return 0
+    if value == 100:
+        return 100
+    rounded =  int(base * round(float(value)/base))
+    if rounded <= (float(base)/2):
+        return 1
+    if rounded >= (100-(float(base)/2)):
+        return 99
+    return rounded
+
 @register.filter
 @stringfilter
 def truncate(value, arg):
