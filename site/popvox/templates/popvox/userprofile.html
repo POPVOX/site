@@ -4,7 +4,6 @@
 {% block title %}Profile{% endblock%}
 {% block description %}Lorem Ipsum{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
-{%block extracss %}<link rel="stylesheet" href="/media/master/_style.css" type="text/css" media="screen" />{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -140,46 +139,108 @@ function showdata(is_first_load, is_more) {
 	
 </script>
 {% endblock %}
+{% block extracss %}<link rel="stylesheet" href="/media/master/_style.css" type="text/css" media="screen" />{% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
-<div class="content profile">
-
-    <div class="col_9 col_top">
-        <h1 class="rule_btm">User Profile - {{user.get_name}}</h1>
-<h2>{{profile.tagline}}</h2>
-        {% if district %}district: {{district}}{% endif %}<br/>
-        bills supported: {{commentssup|length}}<br/>
-        bills opposed: {{commentsopp|length}}<br/>
-        letters written: {{letters}}<br/>
-        description:<div>{{profile.bio}}
-
-<div style="display: none" id="comment_template">
-		<div class="comment clear">
-			<h4>
-				<span class="date"><nobr>Tuesday</nobr></span>
-				<span class="verb"> </span>
-			</h4>
-			<p class="usercomment endorse_oppose_image">Lorem ipsum etc etc</p>
-			<div class="clear"> </div>
-			<div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="text">...</span><span class="num">96</span></div>
-			<div class="share"><a href="">share</a></div>
-			<div class="clear"> </div>
-		</div>
+<header id="header">
+	<div class="inner">
+		<h1 class="crumb-title">PROFILE / {{user.get_name}}
 	</div>
-		<div class="comments">
-			<h3>Supporting comments</h3>
-			<div id="comments_pro">
+</header><!-- e: header -->
+
+<section id="page">
+	<div class="inner">
+
+		<section class="my-profile">
+			<div class="my-details">
+
+				<h2>Details</h2>
+				<h3>{% if district %}district: {{district}}{% endif %}</h3>
+				{% comment %}
+				<h3>{% if profile.tagline %}{{profile.tagline}}{% endif %}</h3>
+				<img src="img/avatar-lg.jpg" alt="" />
+				{% endcomment %}
+			</div>
+			<div class="my-stats">
+				<h2>Stats</h2>
+				<ul>
+					<li class="stat1"><strong>{{numcommentssup}}</strong> bills<br/>supported</li>
+					<li class="stat2"><strong>{{numcommentsopp}}</strong> bills<br/>opposed</li>
+					<li class="stat3"><strong>{{letters}}</strong> letters<br/>written</li>
+					<li class="stat4"><strong>{{appreciates}}</strong> total<br/>appreciates</li>
+				</ul>
 			</div>
 
-			<h3>Opposing comments</h3>
-			<div id="comments_con">
+			{% comment %}<div class="my-district">
+				<h2>District</h2>
+				<h3><a href="#">Tennessee's 8th</a></h3>
+				<img src="img/district.jpg" alt="" />
+			</div> {% endcomment %}
+
+			<div class="my-members">
+				<h2>Members</h2>
+				<ul>
+					{% for member in members %}
+					<li><img src="/static/member_photos/{{member.id}}-100px.jpeg" alt="{{member.name}}"/><a href="/member/{{member.pvurl}}">{{member.name}}</a></li>
+					{% endfor %}
+				</ul>
 			</div>
+		</section>
+
+		{% comment %}<article class="my-bio">
+			<h2>Bio</h2>
+				{% if profile.bio %}{{profile.bio}}</div>{% endif %}
+		</article>{% endcomment %}
+			
+		
+
+		<div style="display: none" id="comment_template">
+			<div class="comment clear">
+				<h4>
+					<span class="date"><nobr>Tuesday</nobr></span>
+					<span class="verb"> </span>
+				</h4>
+				<p class="usercomment endorse_oppose_image">Lorem ipsum etc etc</p>
+				<div class="clear"> </div>
+				<div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="text">...</span><span class="num">96</span></div>
+				<div class="share"><a href="">share</a></div>
+				<div class="clear"> </div>
+			</div>
+		</div>
+
+		<div class="split-col clean">
+			<h3 class="support-header">Supporting comments</h3>
+			{% for c in commentssup %}
+				<div class="support-quote">
+					<p><strong>{{c.bill.nicename}}</strong></p>
+					<blockquote>{{c.message}}</blockquote>
+					<!-- <a href="#" class="btn">View More</a> -->
+				</div>
+				<div class="support-quote-details">
+					{% comment %}<span class="supporting-avatar"><img src="img/avatar.jpg" alt="" /><strong>catfish<br />OH-3</strong></span>{% endcomment %}
+					<em class="date">{{c.created}}</em>
+					<a href="#" class="appreciate">{{c.diggs.count}} <span>Appreciate</span></a>
+				</div>
+			 {% endfor %}
+		</div>
+		<div class="split-col clean">
+			<h3 class="oppose-header">Opposing comments</h3>
+			 {% for c in commentsopp %}
+				<div class="oppose-quote">
+					<p><strong>{{c.bill.nicename}}</strong></p>
+					<blockquote>{{c.message}}</blockquote>
+					<!-- <a href="#" class="btn">View More</a> -->
+				</div>
+				<div class="oppose-quote-details">
+					{% comment %}<span class="supporting-avatar"><img src="img/avatar.jpg" alt="" /><strong>catfish<br />OH-3</strong></span>{% endcomment %}
+					<em class="date">{{c.created}}</em>
+					<a href="#" class="appreciate">{{c.diggs.count}} <span>Appreciate</span></a>
+				</div>
+			 {% endfor %}
 		</div>
 			
-	</div>
-    
-    
-</div>
+	</div><!-- e: inner -->
+</section><!-- e: page -->
 
 {% if request.META.HTTP_DNT != 1 %}
 {% comment %}Our master share bar is disabled on this page, otherwise we'd be loading this script twice.{% endcomment %}
