@@ -222,6 +222,7 @@ body {
   left: 0px;
   top: 45px;
   width: 150px;
+  background:none;
 }
 .new_pv .my-details img {
   max-width: 100%;
@@ -2076,7 +2077,7 @@ body {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
   }
-  .new_pv .split-col:nth-of-type(even) {
+  .new_pv .split-col:nth-of-type(odd) {
     float: right;
     clear: none;
   }

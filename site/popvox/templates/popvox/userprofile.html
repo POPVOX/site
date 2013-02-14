@@ -142,6 +142,7 @@ function showdata(is_first_load, is_more) {
 {% block extracss %}<link rel="stylesheet" href="/media/master/_style.css" type="text/css" media="screen" />{% endblock %}
 {% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
 {% block content %}
+<div class="new_pv">
 <header id="header">
 	<div class="inner">
 		<h1 class="crumb-title">PROFILE / {{user.get_name}}
@@ -155,11 +156,8 @@ function showdata(is_first_load, is_more) {
 			<div class="my-details">
 
 				<h2>Details</h2>
-				<h3>{% if district %}district: {{district}}{% endif %}</h3>
-				{% comment %}
 				<h3>{% if profile.tagline %}{{profile.tagline}}{% endif %}</h3>
-				<img src="img/avatar-lg.jpg" alt="" />
-				{% endcomment %}
+				<img src="/media/master/img/avatar-lg.jpg" alt="" />
 			</div>
 			<div class="my-stats">
 				<h2>Stats</h2>
@@ -217,7 +215,7 @@ function showdata(is_first_load, is_more) {
 					<!-- <a href="#" class="btn">View More</a> -->
 				</div>
 				<div class="support-quote-details">
-					{% comment %}<span class="supporting-avatar"><img src="img/avatar.jpg" alt="" /><strong>catfish<br />OH-3</strong></span>{% endcomment %}
+					<span class="supporting-avatar"><img src="/media/master/img/avatar.jpg" alt="" /><strong>{{user.get_name}}<br />{{district}}</strong></span>
 					<em class="date">{{c.created}}</em>
 					<a href="#" class="appreciate">{{c.diggs.count}} <span>Appreciate</span></a>
 				</div>
@@ -232,7 +230,7 @@ function showdata(is_first_load, is_more) {
 					<!-- <a href="#" class="btn">View More</a> -->
 				</div>
 				<div class="oppose-quote-details">
-					{% comment %}<span class="supporting-avatar"><img src="img/avatar.jpg" alt="" /><strong>catfish<br />OH-3</strong></span>{% endcomment %}
+					<span class="supporting-avatar"><img src="/media/master/img/avatar.jpg" alt="" /><strong>{{user.get_name}}<br />{{district}}</strong></span>
 					<em class="date">{{c.created}}</em>
 					<a href="#" class="appreciate">{{c.diggs.count}} <span>Appreciate</span></a>
 				</div>
@@ -241,6 +239,8 @@ function showdata(is_first_load, is_more) {
 			
 	</div><!-- e: inner -->
 </section><!-- e: page -->
+
+</div><!-- new_pv wrapper -->
 
 {% if request.META.HTTP_DNT != 1 %}
 {% comment %}Our master share bar is disabled on this page, otherwise we'd be loading this script twice.{% endcomment %}
