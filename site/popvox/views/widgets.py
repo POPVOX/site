@@ -85,8 +85,8 @@ def bill_inline(request):
         raise Http404'''
 
 @do_not_track_compliance
-@strong_cache
 def commentmapus(request):
+    print "0"
     count = { }
     totals = None
     max_count = 0
@@ -108,7 +108,7 @@ def commentmapus(request):
         request.strong_cache = True
         request.session = None
         request.user = AnonymousUser()
-
+        
     elif "sac" in request.GET and request.user.is_authenticated():
         if not request.user.has_perm("popvox.can_snoop_service_analytics"):
             # validate the service account campaign is in one of the accounts accessible

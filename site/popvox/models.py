@@ -343,7 +343,11 @@ class Bill(models.Model):
             return "N/A"
     def status_sentence(self):
         if self.is_bill():
-            return govtrack.getBillStatusSentence(self)
+            try:
+                status = govtrack.getBillStatusSentence(self)
+            except:
+                status = ''
+            return status
         else:
             return "N/A"
     def isAlive(self):
@@ -1479,6 +1483,8 @@ class UserComment(models.Model):
         return govtrackrecipients
         
     def get_recipients_display(self):
+        if self.address.congressionaldistrict2013 is None:
+            return "your representatives"
         recips = self.get_recipients()
         for recip in recips:
             if recip['type'] == "rep":

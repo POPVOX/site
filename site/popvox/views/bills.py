@@ -183,8 +183,7 @@ def bills_issue_areas():
     uncat_count = Bill.objects.filter(congressnumber=CURRENT_CONGRESS, topterm=None).count()
     if uncat_count > 0:
         issues = list(issues)
-        issues.append( { "primaryorder": len(issues), "commentcount": 0, "id": "other", "name": "Uncategorized Bills", "billcount": uncat_count } )
-        
+        issues.append( { "primaryorder": len(issues), "commentcount": 0, "id": "other", "name": "Uncategorized Bills", "billcount": uncat_count } ) 
     return issues
 
 @strong_cache
@@ -236,6 +235,10 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
     c.SetFilter("congressnumber", [cn])
     c.SetLimits(0, 1000)
     ret = c.Query(q, "bill_titles")
+    print "q: "+q
+    print "ret length: "+str(len(ret))
+    for b in ret:
+        print ret
     bill_weights = { }
     status = "ok"
     error = None
@@ -244,11 +247,14 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
         status = "callfail"
     else:
         for b in ret["matches"]:
+            print "loop!"
             bill_weights[b["id"]] = (0, 0, -b["weight"]) # default sort order
             if len(bill_weights) == 100:
+                print "i hit the breakpoint"
                 status = "overflow"
                 break
 
+    print "length now: "+str(len(bill_weights))
     # Pull in the bill objects for the search result matches.
 
     # Update sort order for those bills with comments in the last three weeks.
@@ -275,12 +281,15 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
     for b in bills:
         w = 0
         for v in xrange(len(b.weight)):
-            if weightrange[v][0] == weightrange[v][1]: continue
+            if weightrange[v][0] == weightrange[v][1]: 
+                print "continuing..."
+                continue
             w += 1.0/(v+1) * (b.weight[v]-weightrange[v][0])/(weightrange[v][1]-weightrange[v][0])
         b.weight = w
         
     bills.sort(key = lambda bill : bill.weight)
         
+    print "returning "+str(len(bills))+" bills"
     return (bills, status, error)
 
 @csrf_protect_if_logged_in
@@ -327,7 +336,10 @@ def getbill(congressnumber, billtype, billnumber, vehicleid=None):
     except:
         raise Http404("Invalid bill number. \"" + billtype + "\" is not valid.")
     try:
-        return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
+        if billtype is 'x':
+            return Bill.objects.filter(billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
+        else:
+            return Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None).select_related("sponsor")[0]
     except:
         raise Http404("Invalid bill number. There is no bill by that number.")
     
@@ -362,6 +374,8 @@ def bill_comments(bill, **filterargs):
 
 def bill_statistics_cache(f):
     def g(bill, shortdescription, longdescription, want_timeseries=False, want_totalcomments=False, force_data=False, as_of=None, **filterargs):
+        
+    
         cache_key = ("bill_statistics_cache:%d,%s,%s,%s,%s" % (bill.id, shortdescription.replace(" ", ""), want_timeseries, want_totalcomments, as_of))
         if as_of: cache_key = None
         
@@ -377,7 +391,7 @@ def bill_statistics_cache(f):
     return g
 
 @bill_statistics_cache # the arguments must match in the decorator!
-def bill_statistics(bill, shortdescription, longdescription, want_timeseries, want_totalcomments, force_data, as_of, **filterargs):
+def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, want_totalcomments=False, force_data=False, as_of=False, **filterargs):
     # If any of the filters is None, meaning it is based on demographic info
     # that the user has not set, return None for the whole statistic group.
     for key in filterargs:
@@ -386,13 +400,17 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, wa
             
     # Get comments that were left only before the session ended.
     enddate = govtrack.getCongressDates(bill.congressnumber)[1] + timedelta(days=1)
-    
     # Get all counts at once, where stage = 0 if the comment was before the end of
     # the session, 1 if after the end of the session.
     if as_of: filterargs["created__lt"] = as_of
     
     if bill.congressnumber < CURRENT_CONGRESS:
-        counts = bill_comments(bill, **filterargs).order_by().extra(select={"stage": "popvox_usercomment.created > '" + enddate.strftime("%Y-%m-%d") + "'"}).values("position", "stage").annotate(count=Count("id"))
+        if bill.billtype in ('x',): #non-bill actions should not be limited by congress
+            counts = bill_comments(bill, **filterargs).order_by().values("position").annotate(count=Count("id"))
+            for count in counts:
+                count["stage"] = long(0)
+        else:
+            counts = bill_comments(bill, **filterargs).order_by().extra(select={"stage": "popvox_usercomment.created > '" + enddate.strftime("%Y-%m-%d") + "'"}).values("position", "stage").annotate(count=Count("id"))
     else:
         if len(filterargs) > 0:
             counts = bill_comments(bill, **filterargs).order_by().values("position").annotate(count=Count("id"))
@@ -418,7 +436,8 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries, wa
     # Don't display statistics when there's very little data,
     # and definitely not when pro+con == 0 since that'll gen
     # an error down below.
-    if (pro+con+pro_reintro < 10 and not force_data) or pro+con+pro_reintro == 0:
+    #if (pro+con+pro_reintro < 10 and not force_data) or pro+con+pro_reintro == 0:
+    if pro+con+pro_reintro == 0:
         return None
 
     if pro+con < 10:

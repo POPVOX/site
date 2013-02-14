@@ -206,12 +206,14 @@ common_fieldnames = {
     "first_name": "firstname",
     "name_first": "firstname",
     "first-name": "firstname",
+    "firstname_require": "firstname",
     "last": "lastname",
     "lname": "lastname",
     "namelast": "lastname",
     "last_name": "lastname",
     "last-name": "lastname",
     "name_last": "lastname",
+    "lastname_require": "lastname",
     "fullname": "name",
     "name_suffix": "suffix",
     "suffix2": "suffix",
@@ -248,6 +250,7 @@ common_fieldnames = {
     "hstate": "state",
     "mailing_state": "state",
     "addressstate": "state",
+    "state_require": "state",
     "zip": "zipcode",
     "hzip": "zipcode",
     "zip5": "zip5",
@@ -263,6 +266,7 @@ common_fieldnames = {
     "postalcode": "zipcode",
     "mailing_zipcode": "zipcode",
     "addresszip": "zipcode",
+    "zip_require": "zipcode",
     "phone": "phone",
     "phone_number": "phone",
     "phonenumber": "phone",
@@ -287,6 +291,8 @@ common_fieldnames = {
     "email2": "email",
     "fromemail": "email",
     "verify-email": "email",
+    "emailaddress_require":"email",
+    "EmailCheck": "email",
     
     "messagebody": "message",
     "comment": "message",
@@ -300,6 +306,7 @@ common_fieldnames = {
     "msg": "message",
     "body": "message",
     "claim": "message",
+    "message_require": "message",
     
     "textmodified": "message_personal",
     "modified": "message_personal",
@@ -332,6 +339,8 @@ common_fieldnames = {
     "whatisyourgeneraltopic_select": "topicarea",
     "field_250a9cb8-13dc-40f7-94fb-d301593db4c9": "topicarea",
     "field_6544a2ff-bc89-4c03-b786-c7927f5bc6f7": "topicarea",
+    "field_ff576494-50ce-42fc-aff0-a14f510dc4d8": "topicarea",
+    "subject_require": "topicarea",
     
     "responserequested": "response_requested",
     "responserequest": "response_requested",
@@ -352,6 +361,8 @@ common_fieldnames = {
     "ddlreply": "response_requested",
     "field_1f0bf197-193c-4a61-a149-feb5a1da4482": "response_requested",
     "required-response": "response_requested",
+    "response_require": "response_requested",
+    "response-needed": "response_requested",
     
     'view_select': 'support_oppose',
     
@@ -440,6 +451,7 @@ skippable_fields = (
     "prefixother", "middle", "middlename",
     "name_middle",     "middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
     "countdown",
+    "affll",
     "contact-type",
     "dummy_zip",
     "signup",
@@ -450,7 +462,7 @@ skippable_fields = (
     "h03", "H03",
     "name-title", 'military', "personalcode",
     "organization",
-    "unsubscribe", "newsletteraction", "email.optin", "newslettercode",
+    "unsubscribe", "newsletteraction", "email.optin", "newslettercode","newsletteroptin","optintoemailsfromrepmarkey",
     "q1",
     "enewssign", "enewsletter", "newsletteraction",
     "countdown", "txthomesearch",
@@ -466,7 +478,13 @@ skippable_fields = (
     "military_branch", "military_retired",
     "ecclesiastical_title", "ecclesiastical_toggle", "military_toggle",
     "phcell",
-    "suffix")
+    "suffix",
+    "phone2",
+    "phone3",
+    "enews",
+    "affl1",
+    "affll",
+    )
 
 radio_choices = {
     "reason": "legsitemail",
@@ -485,6 +503,7 @@ radio_choices = {
     "enewsletteroption": "eoptout",
     "rsptype": "email",
     "forums": "forums_no",
+    "required-newsletter": "noAction"
 }
 
 custom_mapping = {
@@ -548,6 +567,9 @@ custom_mapping = {
     "832_phone1_text" : "phone_areacode",
     "832_phone2_text" : "phone_prefix",
     "832_phone3_text" : "phone_line",
+    "836_phone1_text" : "phone_areacode",
+    "836_phone2_text" : "phone_prefix",
+    "836_phone3_text" : "phone_line",
     "839_field_310ab902-1d78-4444-849d-077807c25eaf_text" : "address2",
     "839_field_83770021-924f-4be5-b642-98871ec90dee_text" : "zip5",
     "839_field_ad57e3b4-5705-489d-be8a-ee887514258c_select": "topicarea",
@@ -555,9 +577,21 @@ custom_mapping = {
     "842_J01": "subjectline",
     "842_field_f6958bc0-eb9a-41ae-ad61-57221e74199f_text": "topicarea",
     "842_field_e9e2e61c-2fa8-40c3-8e90-374a97fd3322_radio": "response_requested",
+    "849_radiogroup1_radio": "response_requested",
     "864_phone_prefix_text" : "phone_areacode",
     "864_phone_first_text" : "phone_prefix",
     "864_phone_second_text" : "phone_line",
+    "920_required_phone1_text" : "phone_areacode",
+    "920_required_phone2_text" : "phone_prefix",
+    "920_required_phone3_text" : "phone_line",
+    "920_phone1_text" : "phone_areacode",
+    "920_phone2_text" : "phone_prefix",
+    "920_phone3_text" : "phone_line",
+    "942_phone1_text" : "phone_areacode",
+    "942_phone2_text" : "phone_prefix",
+    "942_phone3_text" : "phone_line",
+    "978_phone3_text" : "phone_prefix",
+    "978_phone4_text" : "phone_line",
     "1028_required-response_select":"response_requested",
 }
 
@@ -590,6 +624,7 @@ custom_overrides = {
     '198_field_5eb7428f-9e29-4ecb-a666-6bc56b6a435e_radio': 'NO', #response req
     '204_action_radio': '', # subscribe
     '345_enews_radio': '',
+    "355_opt_radio":"no",
     "426_aff1_radio": "<AFFL>Subscribe</AFFL>",
     "503_phonetype_radio": "voice",
     "550_issue_type_radio": "issue",
@@ -645,6 +680,7 @@ custom_overrides = {
     "886_submitted[delivery_agent_first_name]_text" : "Annalee",
     "886_submitted[delivery_agent_last_name]_text" : "Flower Horne",
     "886_submitted[delivery_agent_email]_email" : "info@popvox.com",   
+    "930_newsletter_radio": "noAction"
 }
 
 # Supply additional POST data from the message object that doesn't correspond to a form field.
@@ -940,6 +976,7 @@ def parse_webform(webformurl, webform, webformid, id, dr):
             m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
             if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
             try:
+                print urlparse.urljoin(webformurl, m.group(1))
                 image_content = urllib2.urlopen(urlparse.urljoin(webformurl, m.group(1))).read()
             except:
                 raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img did not load.")
@@ -1007,6 +1044,7 @@ def parse_webform(webformurl, webform, webformid, id, dr):
 def test_zipcode_rejected(webform, deliveryrec):
     if "The zip code you typed in does not appear to be a zip code within my district" in webform\
         or "You might not be in my district" in webform \
+        or "appears that you live outside of" in webform \
         or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
         or "The zip code entered indicates that you reside outside the" in webform\
         or "Your zip code indicates that you are outside of the" in webform\
@@ -1029,6 +1067,8 @@ def test_zipcode_rejected(webform, deliveryrec):
         or "Your zip code is not an acceptable zip code." in webform\
         or "the zip code you entered is incomplete or lies outside" in webform\
         or "The zip code which was entered was not found." in webform\
+        or "You belong to a different Congressional District" in webform\
+        or "That address falls outside" in webform\
         or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
         deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
         raise DistrictDisagreementException()
@@ -1207,18 +1247,27 @@ def send_message_webform(di, msg, deliveryrec):
                 raise SelectOptionNotMappable("Can't map value %s for %s into available option from %s." % (postdata[k], k, field_options[k]), k, postdata[k], select_opts)
         
         postdata[k] = postdata[k].encode("utf8")
+
+
+        ### REALLY special cases
+        # I think this was for Frankel or Walorski
         if k == "required-response":
             if "no" in  msg.response_requested:
                 postdata[k] = "N"
             else:
                 postdata[k] = "Y"
 
+        # Calvert has a fake form item
+        if di.id == 934:
+            if k == "ctl00$ctl14$Subject":
+                postdata[k] = ''
+
     for k, v in field_default.items():
         postdata[k] = v.encode("utf8")
         
     # Thess guys have some weird restrictions on the text input to prevent the user from submitting
     # SQL... rather than just escaping the input.
-    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882):
+    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882, 916, 946, 988):
         re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
         for k in postdata:
             postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -1338,7 +1387,8 @@ def send_message_webform(di, msg, deliveryrec):
     "Thank you for your correspondence",
     "The following information has been submitted",
     "Thank you for taking the time to write me"
-    "Thank you, your message has been submitted"]
+    "Thank you, your message has been submitted",
+    "Thank you for taking the time to write me"]
     
     for x in common_responses:
         if x in ret:
