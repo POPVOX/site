@@ -478,6 +478,15 @@ def register_validation(request):
 
     return { "status": "success" }
     
+
+@json_response
+def userprofile_getcomments(request, userid):
+    try:
+        profile = UserProfile.objects.get(id=userid)
+    except:
+        raise Http404
+
+
 @csrf_protect
 def user_profile(request, userid):
     try:
