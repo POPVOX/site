@@ -1226,6 +1226,7 @@ body {
   box-sizing: border-box;
   background: #fff;
   margin-bottom: 5px;
+  width: 33%;
 }
 .new_pv .roundup > li:after {
   /* for use on :after */
@@ -1247,12 +1248,18 @@ body {
   padding-left: 40px;
   background: url(img/p1.png) top left no-repeat;
   padding-bottom: 18px;
+  height:10ex;
+  display:block;
 }
 .new_pv .roundup header strong {
   font-weight: bold;
+  height:4ex;
+  display:block;
 }
 .new_pv .roundup h2 {
   font-size: 24px;
+  height:5ex;
+  display:block;
 }
 .new_pv .roundup .detail-story {
   display: none;
@@ -1271,7 +1278,7 @@ body {
   display: block !important;
   line-height: 1.4em;
   position: absolute;
-  top: 80px;
+  top: 15ex;
   left: 23px;
   right: 23px;
 }
@@ -1307,6 +1314,7 @@ body {
   position: relative;
   margin-left: 2px;
   z-index: 50;
+  margin-top:1ex;
 }
 .new_pv .round-stat img {
   position: absolute;
@@ -1332,7 +1340,7 @@ body {
 .new_pv .round-stat .rs1 {
   background: url(img/i_user.jpg) left center no-repeat;
   color: #7b8d91;
-  font-size: 22px;
+  font-size: 16px;
   line-height: 21px;
   margin-bottom: 3px;
 }
@@ -1375,6 +1383,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11px;
   font-weight: bold;
+  line-height:2ex;
 }
 .new_pv .bill-stat .bill-love {
   color: #7da006;

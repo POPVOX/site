@@ -1,6 +1,5 @@
 {% load humanize %}
 {% load popvox_utils %}
-{% block extracss %}<link rel="stylesheet" href="/media/master/_style.css" type="text/css" media="screen" />{% endblock %}
 {% comment %} <div class="new_pv">
     <h4>{{bill.nicename}}</h4>
     {{bill.sponsor.name}}<br />
@@ -50,14 +49,14 @@
 
 
     <header>
-        <h2>{{bill.nicename}}</h2>
+        <h2>{{bill.nicename|truncatewords:7}}</h2>
         <strong>{{bill.sponsor.name}}</strong>
     </header>
 
 	{% if stats.total %}
     <div class="round-stat">
         {% if not chart_no_links %}<a href="{{bill.url}}/report">{% endif %}
-			<img src="media/master/img/pie_{{stats.pro_pct|roundspecial}}.png" alt="{{stats.pro_pct}}% support" />
+			<img src="/media/master/img/pie_{{stats.pro_pct|roundspecial}}.png" alt="{{stats.pro_pct}}% support" />
         {% if not chart_no_links %}</a>{% endif %}
         {% if not chart_no_numbers %}
         <ul>
@@ -97,7 +96,7 @@
 	{% endif %}
 
     <p class="detail-story">
-        {{ stats.longdescription}}
+        {{bill.nicename}}
     </p>
-    <a href="{{bill.url}}" class="roundup-link">{{bill.nicename}}</a>
+    <a href="{{bill.url}}" class="roundup-link">{{bill.nicename|truncatewords:6}}</a>
 

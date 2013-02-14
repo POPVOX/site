@@ -563,21 +563,21 @@ def new_bills(request, NumDays):
     
     
     #House Bills
-    HR = bills.filter(billtype='h')
+    HR = billboxes(bills.filter(billtype='h'))
     #Senate Bills
-    S = bills.filter(billtype='s')
+    S = billboxes(bills.filter(billtype='s'))
     #House Resolutions
-    HRes = bills.filter(billtype='hr')
+    HRes = billboxes(bills.filter(billtype='hr'))
     #Senate Resolutions
-    SRes = bills.filter(billtype='sr')
+    SRes = billboxes(bills.filter(billtype='sr'))
     #House Concurrent Resolutions
-    HCRes = bills.filter(billtype='hc')
+    HCRes = billboxes(bills.filter(billtype='hc'))
     #Senate Concurrent Resolutions
-    SCRes = bills.filter(billtype='sc')
+    SCRes = billboxes(bills.filter(billtype='sc'))
     #House Joint Resolutions
-    HJRes = bills.filter(billtype='hj')
+    HJRes = billboxes(bills.filter(billtype='hj'))
     #Senate Joint Resolutions
-    SJRes = bills.filter(billtype='sj')
+    SJRes = billboxes(bills.filter(billtype='sj'))
     
     for b in bills:
         NewBills.append(b)
