@@ -511,11 +511,13 @@ def user_profile(request, userid):
     appreciates = sum([len(comment.diggs.all()) for comment in comments])
 
     allcommentssup = [comment for comment in comments if comment.position == '+']
-    commentssup = [comment for comment in allcommentssup if comment.message != None][0:10]
+    #Grab comments with messages. Sort by appreciate (reverse to put most appreciates up top). Then grab the first ten:
+    commentssup = sorted([comment for comment in allcommentssup if comment.message != None], key=lambda comment: len(comment.diggs.all()), reverse=True)[0:10]
     numcommentssup = len(allcommentssup)
 
     allcommentsopp = [comment for comment in comments if comment.position == '-']
-    commentsopp = [comment for comment in allcommentsopp if comment.message != None ][0:10]
+    #As above, but with oppose.
+    commentsopp = sorted([comment for comment in allcommentsopp if comment.message != None], key=lambda comment: len(comment.diggs.all()), reverse=True)[0:10]
     numcommentsopp = len(allcommentsopp)
     
     
