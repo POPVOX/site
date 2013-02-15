@@ -506,24 +506,33 @@ def user_profile(request, userid):
     except:
         members = False
 
+    if profile.power_user is False:
+        raise Http404()
+
+    showcomments = profile.display_comments
+
     comments = user.comments.all()
     letters = len(comments.filter(message__isnull=False))
     appreciates = sum([len(comment.diggs.all()) for comment in comments])
+    if showcomments is True:
 
-    allcommentssup = [comment for comment in comments if comment.position == '+']
-    #Grab comments with messages. Sort by appreciate (reverse to put most appreciates up top). Then grab the first ten:
-    commentssup = sorted([comment for comment in allcommentssup if comment.message != None], key=lambda comment: len(comment.diggs.all()), reverse=True)[0:10]
-    numcommentssup = len(allcommentssup)
+        allcommentssup = [comment for comment in comments if comment.position == '+']
+        #Grab comments with messages. Sort by appreciate (reverse to put most appreciates up top). Then grab the first ten:
+        commentssup = sorted([comment for comment in allcommentssup if comment.message != None], key=lambda comment: len(comment.diggs.all()), reverse=True)[0:10]
+        numcommentssup = len(allcommentssup)
 
-    allcommentsopp = [comment for comment in comments if comment.position == '-']
-    #As above, but with oppose.
-    commentsopp = sorted([comment for comment in allcommentsopp if comment.message != None], key=lambda comment: len(comment.diggs.all()), reverse=True)[0:10]
-    numcommentsopp = len(allcommentsopp)
+        allcommentsopp = [comment for comment in comments if comment.position == '-']
+        #As above, but with oppose.
+        commentsopp = sorted([comment for comment in allcommentsopp if comment.message != None], key=lambda comment: len(comment.diggs.all()), reverse=True)[0:10]
+        numcommentsopp = len(allcommentsopp)
+    else:
+        commentssup = None
+        numcommentssup = 0
+        commentsopp = None
+        numcommentsopp = 0
+        comments = None
     
-    
-
-    
-    return render_to_response('popvox/userprofile.html', { "profile": profile, "user": user, "district": district, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp, "numcommentssup": numcommentssup, "numcommentsopp": numcommentsopp,
+    return render_to_response('popvox/userprofile.html', { "profile": profile, "user": user, "district": district, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp, "numcommentssup": numcommentssup, "numcommentsopp": numcommentsopp, 
         },
         context_instance=RequestContext(request))
         

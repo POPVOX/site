@@ -3,7 +3,7 @@
 {% load popvox_utils %}
 {% block title %}Profile{% endblock%}
 {% block description %}Lorem Ipsum{% endblock %}
-{%block nav_citzen_class_home%}active{%endblock%}
+{%block nav_citizen_class_home%}active{%endblock%}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -206,6 +206,7 @@ function showdata(is_first_load, is_more) {
 			</div>
 		</div>
 
+		{% if commentssup and commentsopp %}
 		<div class="split-col clean">
 			<h3 class="support-header">Supporting comments</h3>
 			{% for c in commentssup %}
@@ -236,6 +237,7 @@ function showdata(is_first_load, is_more) {
 				</div>
 			 {% endfor %}
 		</div>
+		{% endif %}
 			
 	</div><!-- e: inner -->
 </section><!-- e: page -->
