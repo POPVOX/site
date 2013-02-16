@@ -280,17 +280,14 @@
 
 	#menu{
 		position: relative;
-		background: @greydk;
 
 		li{
-			position: relative;
 			.true(40px);
 
 			a{
-				.true(40px);
+				height: 40px;
 				display: block;
 				text-align: center;
-				font-size: 14px;
 				font-weight: normal;
 				color: #fff;
 				text-shadow: 0 -1px #111;
@@ -298,6 +295,13 @@
 
 			ul{
 				display: none;
+
+				li {
+					float:left;
+					a {
+						display:block;
+					}
+				}
 			}
 		}
 	}
@@ -1909,6 +1913,8 @@
 
 		#nav{
 			position: relative;
+            height: auto! important;
+            float: none;
 
 			&:after{
 				.clear;
@@ -1941,6 +1947,9 @@
 					}
 				}
 
+                &.active ul {
+                    display: block;
+                }
 				&.active > a{
 					.true(40px);
 					color: @orange;
@@ -1954,6 +1963,7 @@
 					left:0;
 					right:0;
 					display: block;
+					background:none;
 
 					li{
 						position: relative;
@@ -2068,10 +2078,12 @@
 
 
 		#wrap{
+			width: auto;
 			max-width: 768px;
 		}
 
 		.inner{
+			width: auto;
 			max-width: 1143px;
 		}
 
@@ -2132,6 +2144,7 @@
 	/**/
 	@media only screen and (min-width: 1144px) {
 		#wrap{
+			width: auto;
 			max-width: 1144px;
 		}
 		

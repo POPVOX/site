@@ -150,25 +150,27 @@ body {
 }
 .new_pv #menu {
   position: relative;
-  background: #414c50;
 }
 .new_pv #menu li {
-  position: relative;
   height: 40px;
   line-height: 40px;
 }
 .new_pv #menu li a {
   height: 40px;
-  line-height: 40px;
   display: block;
   text-align: center;
-  font-size: 14px;
   font-weight: normal;
   color: #fff;
   text-shadow: 0 -1px #111111;
 }
 .new_pv #menu li ul {
   display: none;
+}
+.new_pv #menu li ul li {
+  float: left;
+}
+.new_pv #menu li ul li a {
+  display: block;
 }
 .new_pv #header {
   position: relative;
@@ -1671,6 +1673,8 @@ body {
   }
   #nav {
     position: relative;
+    height: auto! important;
+    float: none;
   }
   #nav:after {
     /* for use on :after */
@@ -1706,6 +1710,9 @@ body {
   #menu li > a:hover {
     color: #e58c0e;
   }
+  #menu li.active ul {
+    display: block;
+  }
   #menu li.active > a {
     height: 40px;
     line-height: 40px;
@@ -1722,6 +1729,7 @@ body {
     left: 0;
     right: 0;
     display: block;
+    background: none;
   }
   #menu li ul li {
     position: relative;
@@ -1804,9 +1812,11 @@ body {
     clear: both;
   }
   #wrap {
+    width: auto;
     max-width: 768px;
   }
   .inner {
+    width: auto;
     max-width: 1143px;
   }
   .bill-boxes {
@@ -1858,6 +1868,7 @@ body {
 }
 @media only screen and (min-width: 1144px) {
   #wrap {
+    width: auto;
     max-width: 1144px;
   }
   .steps {
