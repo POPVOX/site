@@ -1,11 +1,11 @@
-{% extends "master.html" %}
 {% load cache %}
 {% load popvox_utils %}
+{% xextends "master.html" with newstyle=True %}
 {% block title %}New Bills in Congress{% endblock%}
 {% block description %}View all new bills in Congress.{% endblock %}
 {%block nav_legstaff_class_bills%}active{%endblock%}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
-{%block nav_citzen_class_bills%}active{%endblock%}
+{%block nav_citizen_class_bills%}active{%endblock%}
 {%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
 {% block extracss %}<link rel="stylesheet" href="/media/master/_style.css" type="text/css" media="screen" />{% endblock %}
 {% block head %}
