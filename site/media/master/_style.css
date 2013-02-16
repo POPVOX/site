@@ -115,6 +115,8 @@ body {
 	/* Overlap
 	/**/
 
+  /* new_pv */
+
   /*/*
 	/* Smaller Screens 
 	/**/
@@ -1667,16 +1669,16 @@ body {
   }
 }
 @media only screen and (min-width: 768px) {
-  #logo {
+  .new_pv #logo {
     float: left;
     margin-top: -3px;
   }
-  #nav {
+  .new_pv #nav {
     position: relative;
     height: auto! important;
     float: none;
   }
-  #nav:after {
+  .new_pv #nav:after {
     /* for use on :after */
   
     content: " ";
@@ -1685,7 +1687,7 @@ body {
     clear: both;
     visibility: hidden;
   }
-  #menu {
+  .new_pv #menu {
     position: relative;
     clear: none;
     margin-left: 100px;
@@ -1693,13 +1695,13 @@ body {
     min-height: 76px;
     background: none;
   }
-  #menu li {
+  .new_pv #menu li {
     float: left;
     height: 40px;
     line-height: 40px;
     position: static;
   }
-  #menu li > a {
+  .new_pv #menu li > a {
     float: left;
     font-size: 16px;
     padding: 0 15px;
@@ -1707,13 +1709,13 @@ body {
     line-height: 30px;
     text-decoration: none;
   }
-  #menu li > a:hover {
+  .new_pv #menu li > a:hover {
     color: #e58c0e;
   }
-  #menu li.active ul {
+  .new_pv #menu li.active ul {
     display: block;
   }
-  #menu li.active > a {
+  .new_pv #menu li.active > a {
     height: 40px;
     line-height: 40px;
     color: #e58c0e;
@@ -1723,7 +1725,7 @@ body {
     -o-border-radius: 4px 4px 0 0;
     border-radius: 4px 4px 0 0;
   }
-  #menu li ul {
+  .new_pv #menu li ul {
     position: absolute;
     top: 52px;
     left: 0;
@@ -1731,17 +1733,17 @@ body {
     display: block;
     background: none;
   }
-  #menu li ul li {
+  .new_pv #menu li ul li {
     position: relative;
     height: 36px;
     line-height: 36px;
   }
-  #menu li ul a {
+  .new_pv #menu li ul a {
     height: 36px;
     line-height: 36px;
     font-size: 14px;
   }
-  #search {
+  .new_pv #search {
     position: absolute;
     display: none;
     top: 0;
@@ -1749,47 +1751,47 @@ body {
     right: 0;
     left: 100px;
   }
-  #header {
+  .new_pv #header {
     position: relative;
   }
-  .page-title {
+  .new_pv .page-title {
     font-size: 44px;
     padding-left: 55px;
   }
-  .head-list {
+  .new_pv .head-list {
     position: relative;
   }
-  .head-list li {
+  .new_pv .head-list li {
     float: left;
     width: 25%;
   }
-  .selectors {
+  .new_pv .selectors {
     position: relative;
   }
-  .selectors a.btn {
+  .new_pv .selectors a.btn {
     float: left;
     margin-top: 3px;
   }
-  .selectors a.btn + p {
+  .new_pv .selectors a.btn + p {
     float: right;
   }
-  .my-details {
+  .new_pv .my-details {
     float: left;
     width: 15%;
     margin-right: 1.3%;
   }
-  .my-stats {
+  .new_pv .my-stats {
     float: left;
     width: 25%;
     margin-right: 1.3%;
   }
-  .my-district {
+  .new_pv .my-district {
     float: left;
     width: 25%;
     margin-right: 1.3%;
     clear: none;
   }
-  .my-members {
+  .new_pv .my-members {
     float: left;
     width: 25%;
   }
