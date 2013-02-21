@@ -490,21 +490,30 @@ def userprofile_getcomments(request, userid):
 @csrf_protect
 def user_profile(request, userid):
     try:
-        profile = UserProfile.objects.get(id=userid)
+        profile = UserProfile.objects.get(user__id=userid)
     except:
         print "no user"
+        raise Http404
+
+    if not profile.power_user:
         raise Http404
     
     try:
         district = profile.most_recent_comment_district()
+        prettydistrict = district[0:2]+"\n"+district[2:]
     except:
         district = False
+        prettydistrict = False
     user = profile.user
     
     try:
         members = govtrack.getMembersOfCongressForDistrict(district)
     except:
         members = False
+
+    for member in members:
+        memberid = member['id']
+        member['pvurl'] =  MemberBio.objects.get(id=memberid).pvurl
 
     if profile.power_user is False:
         raise Http404()
@@ -531,10 +540,28 @@ def user_profile(request, userid):
         commentsopp = None
         numcommentsopp = 0
         comments = None
+
+    if request.user ==  user:
+        pageowner = True
+    else:
+        pageowner = False
+        
     
-    return render_to_response('popvox/userprofile.html', { "profile": profile, "user": user, "district": district, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp, "numcommentssup": numcommentssup, "numcommentsopp": numcommentsopp, 
+    return render_to_response('popvox/userprofile.html', { "profile": profile, "user": user, "district": district, "prettydistrict": prettydistrict, "members": members, "comments": comments, "letters": letters, "appreciates": appreciates, "commentssup": commentssup, "commentsopp": commentsopp, "numcommentssup": numcommentssup, "numcommentsopp": numcommentsopp, "pageowner":pageowner, "showcomments":showcomments,
         },
         context_instance=RequestContext(request))
+
+
+@csrf_protect
+@ajaxmultifieldupdate([])
+@login_required
+def user_profile_update(request, field, value, validate_only):
+    if field == "showcomments":
+        if not validate_only:
+            prof = request.user.get_profile()
+            prof.display_comments = (value == "1")
+            prof.save()
+        return { "status": "success" }
         
 @csrf_protect
 @login_required

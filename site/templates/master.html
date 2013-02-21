@@ -304,12 +304,14 @@ Weigh in on <a href="/newbills">new bills</a> as they're introduced--<br>or tell
 
 		<ul id="menu">
 			<li class="homelink {%block nav_citizen_class_home%}{%endblock%}"><a href="/home">Home</a>
+				{% if request.user.id != None %}
 				<ul>
 					<li><a href="/home">Dashboard</a></li>
 					<li><a href="/home/history">History</a></li>
 					<li><a href="/accounts/profile">Settings</a></li>
-					<li><a href="#">Profile</a></li>
+					<li><a href="/user/{{request.user.id}}">Profile</a></li>
 				</ul>
+				{% endif %}
 			</li>
 			<li class="{%block nav_citizen_class_bills%}{%endblock%}"><a href="/bills">Bills In Congress</a>
 				<ul>
@@ -335,7 +337,7 @@ Weigh in on <a href="/newbills">new bills</a> as they're introduced--<br>or tell
 		</ul>
 
 		<form action="" method="post" id="search">
-			<img src="/media/master/img/avatar.jpg" alt="" />
+			<img src="/media/master/img/avatar.png" alt="" />
 			<p>
 				<input type="text" placeholder="bill number or keywords" />
 				<input type="submit" value="Go" />

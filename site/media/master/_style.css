@@ -240,6 +240,12 @@ body {
   font-weight: bold;
   padding-top: .5em;
 }
+.new_pv .my-details .avatarlg {
+  width: 100%;
+  font-size: 500%;
+  color: #fff;
+  background: url(/media/master/img/avatar-lg.png) no-repeat;
+}
 .new_pv .my-stats {
   float: left;
   width: 49%;

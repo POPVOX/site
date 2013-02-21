@@ -13,6 +13,21 @@ sup { font-size: 85%; font-style: italic; vertical-align:super; }
 p.feedback { border-top: 1px solid #BBB; padding: 2px 10px 2px 10px; font-size: 10px; color: #666; }
 p.feedback a { color: #CC7722; }
 </style>
+        <script type="text/javascript">
+        function updateprofile(validate) {
+            ajaxform("/ajax/userprofile/updatefields",
+                {   
+                    "showcomments": "#showcomments",
+                },
+                {
+                    statusfield: "errorlabel",
+                    savebutton: "submitbutton",
+                    success: function(res) {
+                    }
+                }
+                );
+        }
+</script>
 <script type="text/javascript">
 function showdata(is_first_load, is_more) {
 		update(true);
@@ -151,13 +166,22 @@ function showdata(is_first_load, is_more) {
 
 <section id="page">
 	<div class="inner">
+		{% if pageowner %}
+			<form>
+				<input id="showcomments" type="checkbox" checked="{{showcomments}}"/>
+				<label for="showcomments">Display my comments on my profile</label>
+				<br/>
+				<input type="button" class="submit" id="submitbutton" value="Save" onclick="updateprofile(false)" style="margin-top: 25px ; margin-bottom: 25px;"/>
+				<p id="errorlabel" class="error clear"/>
+			</form>
+		{% endif %}
 
 		<section class="my-profile">
 			<div class="my-details">
 
 				<h2>Details</h2>
 				<h3>{% if profile.tagline %}{{profile.tagline}}{% endif %}</h3>
-				<img src="/media/master/img/avatar-lg.jpg" alt="" />
+				<div class="avatarlg">{{prettydistrict}}</div>
 			</div>
 			<div class="my-stats">
 				<h2>Stats</h2>
@@ -216,7 +240,7 @@ function showdata(is_first_load, is_more) {
 					<!-- <a href="#" class="btn">View More</a> -->
 				</div>
 				<div class="support-quote-details">
-					<span class="supporting-avatar"><img src="/media/master/img/avatar.jpg" alt="" /><strong>{{user.get_name}}<br />{{district}}</strong></span>
+					<span class="supporting-avatar"><img src="/media/master/img/avatar.png" alt="" /><strong>{{user.get_name}}<br />{{district}}</strong></span>
 					<em class="date">{{c.created}}</em>
 					<a href="#" class="appreciate">{{c.diggs.count}} <span>Appreciate</span></a>
 				</div>
@@ -231,7 +255,7 @@ function showdata(is_first_load, is_more) {
 					<!-- <a href="#" class="btn">View More</a> -->
 				</div>
 				<div class="oppose-quote-details">
-					<span class="supporting-avatar"><img src="/media/master/img/avatar.jpg" alt="" /><strong>{{user.get_name}}<br />{{district}}</strong></span>
+					<span class="supporting-avatar"><img src="/media/master/img/avatar.png" alt="" /><strong>{{user.get_name}}<br />{{district}}</strong></span>
 					<em class="date">{{c.created}}</em>
 					<a href="#" class="appreciate">{{c.diggs.count}} <span>Appreciate</span></a>
 				</div>

@@ -3,3 +3,7 @@
 site/database.*
 libs/*/
 oughttabealaw/database.*
+
+*.tsv
+*.csv
+*.bak
