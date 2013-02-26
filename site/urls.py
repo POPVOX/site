@@ -41,7 +41,7 @@ urlpatterns = patterns('',
 	
 	(r'^home$', 'popvox.views.home.home'),
 	(r'^home/match$', 'popvox.views.slate.congress_match'),
-	#(r'^user/(?P<userid>\d+)$', 'popvox.views.profile.user_profile'),
+	(r'^user/(?P<userid>\d+)$', 'popvox.views.profile.user_profile'),
 	(r'^keyvotes/$', 'popvox.views.slate.keyvotes_index'),
     (r'^keyvotes/create/$', 'popvox.views.slate.keyvotes_create'),
     (r'^keyvotes/(?P<orgslug>[\w\-]+)/(?P<slateslug>[\w\-]+)/edit', 'popvox.views.slate.keyvotes_create'),
@@ -144,6 +144,7 @@ urlpatterns = patterns('',
 	
 	(r'^ajax/accounts/register$', 'popvox.views.profile.register_validation'),
 	(r'^ajax/accounts/profile/updatefields$', 'popvox.views.profile.account_profile_update'),
+	(r'^ajax/userprofile/updatefields$', 'popvox.views.profile.user_profile_update'),
 	(r'^ajax/accounts/profile/updatefield$', 'popvox.views.profile.account_profile_update2'),
 	(r'^ajax/accounts/profile/trackbill$', 'popvox.views.profile.trackbill'),
 	

@@ -4,7 +4,7 @@
 {% block disable_login_redirect %}{% endblock %}
 {%block nav_citzen_class_home%}active{%endblock%}
 {% block head %}
-		<script>
+		<script type="text/javascript">
 		function updateprofile(validate) {
 			ajaxform("/ajax/accounts/profile/updatefields",
 				{ "validate": (validate ? "validate" : "") },

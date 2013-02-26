@@ -987,6 +987,8 @@ class UserProfile(models.Model):
     allow_mass_mails = models.BooleanField(default=True)
     registration_followup_sent = models.BooleanField(default=False)
     registration_welcome_sent = models.BooleanField(default=False)
+    power_user = models.BooleanField(default=False) #gets to see new features first.
+    display_comments = models.BooleanField(default=False) #display user's comments on their profile
     
     issues = models.ManyToManyField(IssueArea, blank=True)
     tracked_bills = models.ManyToManyField(Bill, blank=True, related_name="trackedby")

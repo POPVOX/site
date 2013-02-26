@@ -1,62 +1,17 @@
-{% extends "master.html" %}
 {% load cache %}
 {% load popvox_utils %}
+{% xextends "master.html" with newstyle=True %}
 {% block title %}New Bills in Congress{% endblock%}
 {% block description %}View all new bills in Congress.{% endblock %}
 {%block nav_legstaff_class_bills%}active{%endblock%}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
-{%block nav_citzen_class_bills%}active{%endblock%}
+{%block nav_citizen_class_bills%}active{%endblock%}
 {%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
+{% block extracss %}<link rel="stylesheet" href="/media/master/_style.css" type="text/css" media="screen" />{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <style>
-	
-	.h1 {
-		display: block;
-		height: 30px;
-		margin-bottom: 20px;
-		margin-top: 20pz;
-		padding-bottom: 0px;
-		line-height: 30px;
-	}
-	
-	.BillList {
-		display: block;
-		width: 700px;
-	}
-	.BillList h2 {
-		margin-top: 30px;
-		margin-bottom: 10px;
-	}
-	.BillList h2 a {
-		font-size: 14px;
-	}
-	.BillList ul li {
-		margin-left: 0;
-		margin-bottom: 10px;
-		padding-left: 100px;
-		padding-top: 4px;
-		background: url(/media/press/bg_arrow.png) left 5px no-repeat;
-		width: 580px;
-		border: none;
-		min-height: 30px;
-	}
-	.BillList ul li span {
-		margin-left: -100px;
-		color: #fff;
-		padding: 5px 0px 2px 10px;
-		width: 80px;
-		float: left;
-	}
-	.BillList ul li span a {
-		color: #fff;
-	}
-	.BillList ul li span:hover a {
-		color: #E8E5DF;
-		border: none;
-		cursor: pointer;
-	}
 	.NewBills_MsgBox {
 		display: inline-block;
 		width: 680px;
@@ -97,7 +52,10 @@
 		color: #ffffff;
 		text-decoration: none;
 	}
-	
+	.BillList h2.billtype {
+		font-size:24px;
+		clear:both;
+	}
 </style>
 {% endblock %}
 {% block content %}
@@ -108,6 +66,7 @@
 
 <span style="display:inline-block;clear:both;margin-bottom:10px;"><a href="/newbills/7" class="SelectTimeFrame">Past Week</a><a href="/newbills/14" class="SelectTimeFrame">Past Two Weeks</a><a href="/newbills/21" class="SelectTimeFrame">Past Three Weeks</a><a href="/newbills/28" class="SelectTimeFrame">Past Four Weeks</a></span>
 
+<div class="new_pv">
 <div class="NewBills_MsgBox">
 	<span style="display:inline-block;clear:both;margin-bottom:10px;font-size:16px;font-style:italic;font-weight:bold;color:#404045;">Currently Viewing Past {{ NumDays }} Days</span>
 	<p>Here is a list of bills introduced in the past <b>{{ NumDays }} days</b> -- one of the most popular requests among POPVOX users. We hope you'll weigh in on these bills and share the list with your friends and networks.</p>
@@ -127,14 +86,11 @@
 	{% if HR|length > 0 %}
 		<a name="HR"></a>
 		
-		<h2>House Bills<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<h2 class="billtype">House Bills<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Proposed legislation which would become law if it passes the House and then the Senate, and is signed by the President.</div>
-		<ul>
-		{% 	for b in HR %}
-			<li><span><a href="{{ b.get_absolute_url }}">HR {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		<ul class="roundup">
+		{% 	for bill, stats, sponsors in HR %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% 	endfor %}
 		</ul>
 	{% endif %}
@@ -142,98 +98,77 @@
 	{% if S|length > 0 %}
 		<a name="S"></a>
 		
-		<h2>Senate Bills<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<h2 class="billtype">Senate Bills<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Proposed legislation which would become law if it passes the Senate and then the House, and is signed by the President.</div>
-		<ul>
-		{% for b in S %}
-			<li><span><a href="{{ b.get_absolute_url }}">S {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		<ul class="roundup">
+		{% for bill, stats, sponsors in S %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
 
 	{% if HRes|length > 0 %}
 		<a name="HRes"></a>
-		<h2>House Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<h2 class="billtype">House Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to take action on behalf of only the House, give its non-binding opinion or propose internal rules. Resolutions do not become law.</div>
-		<ul>
-		{% for b in HRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">HRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		<ul class="roundup">
+		{% for bill, stats, sponsors in HRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
 
 	{% if SRes|length > 0 %}
 		<a name="SRes"></a>
-		<h2>Senate Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<h2 class="billtype">Senate Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to take action on behalf of only the Senate, give its non-binding opinion or propose internal rules. Resolutions do not become law.</div>
-		<ul>
-		{% for b in SRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">SRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		<ul class="roundup">
+		{% for bill, stats, sponsors in SRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
 
 	{% if HCRes|length > 0 %}
 		<a name="HCRes"></a>
-		<h2>House Concurrent Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<h2 class="billtype">House Concurrent Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to take action or express opinion on behalf of both the House and Senate. It does not make law.</div>
-		<ul>
-		{% for b in HCRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">HCRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		<ul class="roundup">
+		{% for bill, stats, sponsors in HCRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
 
 	{% if SCRes|length > 0 %}
 		<a name="SCRes"></a>
-		<h2>Senate Concurrent Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<h2 class="billtype">Senate Concurrent Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to take action or express opinion on behalf of both the Senate and House. It does not make law.</div>
-		<ul>
-		{% for b in SCRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">SCRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		<ul class="roundup">
+		{% for bill, stats, sponsors in SCRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
 		
 	{% if HJRes|length > 0 %}
 		<a name="HJRes"></a>
-		<h2>House Joint Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<h2 class="billtype">House Joint Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to pose constitutional amendments, fix technical errors or appropriate funds. Joint resolutions, like bills, become public law if adopted by both the House and Senate. Constitutional amendments must also be approved by 3/4 of the states.</div>
-		<ul>
-		{% for b in HJRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">HJRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		<ul class="roundup">
+		{% for bill, stats in HJRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
 	
 	{% if SJRes|length > 0 %}
 		<a name="SJRes"></a>
-		<h2>Senate Joint Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
+		<h2 class="billtype">Senate Joint Resolutions<a href="#NewBillsTop" style="display:block;float:right;">Top</a></h2>
 		<div class="NewBills_MsgBox">Used to pose constitutional amendments, fix technical errors or appropriate funds. Joint resolutions, like bills, become public law if adopted by both the House and Senate. Constitutional amendments must also be approved by 3/4 of the states.</div>
-		<ul>
-		{% for b in SJRes %}
-			<li><span><a href="{{ b.get_absolute_url }}">SJRes {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
-			<br />
-			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
-			</li>
+		<ul class="roundup">
+		{% for bill, stats, sponsors in SJRes %}
+			<li>{% include "popvox/billbox.html" %}</li>
 		{% endfor %}
 		</ul>
 	{% endif %}
