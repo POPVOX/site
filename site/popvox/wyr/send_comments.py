@@ -11,7 +11,7 @@ from django.core.exceptions import MultipleObjectsReturned
 os.environ["EMAIL_BACKEND"] = "BASIC"
 
 from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, OrgCampaign, Bill, MemberOfCongress, IssueArea
-from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress
+from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress, getCongressDates
 
 from writeyourrep.send_message import Message, send_message, Endpoint, DeliveryRecord
 from writeyourrep.addressnorm import verify_adddress, validate_phone
@@ -57,10 +57,11 @@ else:
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
+lcenddate = getCongressDates(CURRENT_CONGRESS -1)[1] #end date of the previous congress. this is already a datetime object.
 comments_iter = UserComment.objects.filter(
     bill__congressnumber=CURRENT_CONGRESS,
     status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
-    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), # let users revise
+    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
     )
 
 if "COMMENT" in os.environ:
