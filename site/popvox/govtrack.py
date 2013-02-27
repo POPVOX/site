@@ -69,7 +69,7 @@ def loadpeople():
         
     cache = FileBasedCache("/tmp/popvox%s/cache" % ("_" + os.environ["USER"] if "USER" in os.environ else ""), { })
         
-    people = cache.get("govtrack_people")
+    #people = cache.get("govtrack_people")
     people_list = cache.get("govtrack_people_list")
     senators = cache.get("govtrack_senators")
     congresspeople = cache.get("govtrack_congresspeople")
@@ -155,7 +155,7 @@ def getMemberOfCongress(id):
     global people
     loadpeople()
     if not id in people:
-        return { "id": id, "name": "Unknown", "lastname": "Unknown", "sortkey": "", "current": False }
+        return { "id": id, "name": "Unknown", "lastname": "Unknown", "sortkey": "", "current": False, "address": "" }
     return people[id]
     
 def getMembersOfCongressForState(state, moctype="all"):
@@ -601,6 +601,7 @@ def getBillStatusSentence(bill) :
     elif status == "ENACTED:VETO_OVERRIDE":
         return (None, "was enacted after a successful veto override.")
     
+    print bill
     raise Exception()
 
 def isStatusAVote(status):

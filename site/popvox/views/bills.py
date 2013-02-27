@@ -190,7 +190,6 @@ def bills_issue_areas():
 def bills_issues_bills(request):
     ix = request.GET.get('ix', "0")
     if ix != "other":
-        print ix
         ix = get_object_or_404(IssueArea, id=ix)
         name = ix.name
         bills = Bill.objects.filter(topterm=ix)
@@ -208,7 +207,6 @@ def bills_issues_bills(request):
         .annotate(Count('usercomments')).order_by('-usercomments__count') \
         | bills
     
-    return bills
     from utils import group_by_issue
     groups = group_by_issue(bills, top_title="Top Bills", exclude_issues=[ix], other_title="Other Bills")
     if len(groups) == 1:
