@@ -343,7 +343,11 @@ class Bill(models.Model):
             return "N/A"
     def status_sentence(self):
         if self.is_bill():
-            return govtrack.getBillStatusSentence(self)
+            try:
+                status = govtrack.getBillStatusSentence(self)
+            except:
+                status = ''
+            return status
         else:
             return "N/A"
     def isAlive(self):
