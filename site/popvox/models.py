@@ -684,8 +684,8 @@ class Org(models.Model):
             if rec.prev_count != None:
                 if count == 0:
                     rec.growth = None
-                elif (datetime.now() - rec.prev_updated).days > 0:
-                    rec.growth = float(count-rec.prev_count) / float((datetime.now() - rec.prev_updated).days) / float(count)
+                elif (datetime.datetime.now() - rec.prev_updated).days > 0:
+                    rec.growth = float(count-rec.prev_count) / float((datetime.datetime.now() - rec.prev_updated).days) / float(count)
             
             rec.save()
 

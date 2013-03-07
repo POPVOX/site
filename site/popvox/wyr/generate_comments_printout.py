@@ -16,7 +16,7 @@ from django.core.mail import EmailMultiAlternatives
 import datetime, re, shutil, subprocess, sys, tempfile, os.path
 
 from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign
-from popvox.govtrack import getMemberOfCongress
+from popvox.govtrack import getMemberOfCongress, getCongressDates, CURRENT_CONGRESS
 from writeyourrep.models import DeliveryRecord, Endpoint
 from settings import SERVER_EMAIL, POSITION_DELIVERY_CUTOFF_DAYS
 
@@ -107,6 +107,7 @@ def create_tex(tex, serial):
                 return (buildings["pennsylvania"], "Pennsylvania Ave", "1600".zfill(5))
             else:
                 pass
+
     targets.sort(key = get_address_sort)
     
     targets2 = []
@@ -156,6 +157,7 @@ def create_tex(tex, serial):
             else:
                 print "can't write address for", getMemberOfCongress(govtrack_id)["name"]
                 outfile.write_esc(getMemberOfCongress(govtrack_id)["address"])
+
         outfile.write(r"\bigskip" + "\n\n" + r"\noindent ")
 
         outfile.write(r"\bigskip" + "\n\n")
@@ -167,6 +169,7 @@ def create_tex(tex, serial):
             bill = Bill.objects.get(id=t2["comment__bill"])
 
             comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__created__lt=cutoff).select_related("comment")
+
             
             # Reminder: Dont skip any messages that are already in a batch at this point!
 
@@ -268,6 +271,7 @@ def create_tex(tex, serial):
             p = getMemberOfCongress(govtrack_id)
             outfile.write_esc("#" + batch_no[len(serial)+1:])
             outfile.write(r" --- ")
+
             try:
                 outfile.write_esc(p["lastname"] + " " + str(p["state"]) + (str(p["district"]) if p["district"]!=None else ""))
             except: #doing if p["state"] as with district did not work. no idea why.
@@ -289,10 +293,17 @@ def create_tex(tex, serial):
     outfile_.close()
     
 def clean_ucodrs():
+    lcenddate = getCongressDates(CURRENT_CONGRESS -1)[1]
+    
     # delete UCODR objects for no-message positions that are too old
     UserCommentOfflineDeliveryRecord.objects.filter(batch=None,
         comment__message=None,
         comment__updated__lt=datetime.datetime.now()-datetime.timedelta(days=POSITION_DELIVERY_CUTOFF_DAYS))\
+        .delete()
+        
+    #delete UCODR objects for messages from a previous congress
+    UserCommentOfflineDeliveryRecord.objects.filter(batch=None,
+        comment__updated__lt=lcenddate)\
         .delete()
     
     # delete UCDOR objects for mail that has since been delivered
