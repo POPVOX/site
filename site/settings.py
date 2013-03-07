@@ -80,7 +80,7 @@ CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
 
 if not "LOCAL" in os.environ:
     mysqlhost = "10.73.70.84" # unix domain
-    mysqluser = "root"
+    mysqluser = "popvoxdb"
     if "REMOTEDB" in os.environ and os.environ["REMOTEDB"] == "1":
         mysqlhost = "127.0.0.1"
     elif "REMOTEDB" in os.environ:
