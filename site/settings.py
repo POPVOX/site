@@ -5,21 +5,21 @@ import os
 import os.path
 
 if not "LOCAL" in os.environ:
-	execfile("/mnt/persistent/config/tokens.py")
+    execfile("/mnt/persistent/config/tokens.py")
 
 DEBUG = ("DEBUG" in os.environ) or os.path.exists(os.path.dirname(__file__) + "/debug")
 TEMPLATE_DEBUG = DEBUG
-INTERNAL_IPS = ('127.0.0.1',) # used by django.core.context_processors.debug
+INTERNAL_IPS = ('127.0.0.1', ) # used by django.core.context_processors.debug
 if "SSH_CONNECTION" in os.environ:
-	# When launched from an SSH session, add the remote hose to
-	# the list of INTERNAL_IPSs so that he can see the SQL
-	# debugging output.
-	INTERNAL_IPS = ('127.0.0.1', os.environ["SSH_CONNECTION"].split(" ")[0])
-	print "Internal IPs:", repr(INTERNAL_IPS)
+    # When launched from an SSH session, add the remote hose to
+    # the list of INTERNAL_IPSs so that he can see the SQL
+    # debugging output.
+    INTERNAL_IPS = ('127.0.0.1', os.environ["SSH_CONNECTION"].split(" ")[0])
+    print "Internal IPs:", repr(INTERNAL_IPS)
 if os.path.exists("/home/www/slave"):
-	for line in open("/home/www/slave"):
-		name, val = line.strip().split("=")
-		os.environ[name] = val
+    for line in open("/home/www/slave"):
+        name, val = line.strip().split("=")
+        os.environ[name] = val
 
 # If the site is accessed from multiple domains, then this is going to be
 # a problem since we filter redirects to this path to make sure we aren't
@@ -36,9 +36,9 @@ ADMINS = [ ('Mackenzie', 'mackenzie@popvox.com'), ('Annalee', 'annalee@popvox.co
 MANAGERS = [ ('POPVOX Team', 'feedback@popvox.com') ]
 
 if not "LOCAL" in os.environ:
-	DATADIR = os.path.dirname(__file__) + "/data/"
+    DATADIR = os.path.dirname(__file__) + "/data/"
 else:
-	DATADIR = os.path.dirname(__file__) + "/data_testing/"
+    DATADIR = os.path.dirname(__file__) + "/data_testing/"
 
 # Django generates a Message-ID on mail using the system's
 # reported FQDN, but hosted in the cloud we're resolving
@@ -49,60 +49,60 @@ import django.core.mail.message
 django.core.mail.message.DNS_NAME = 'popvox.com'
 
 if "LOCAL" in os.environ:
-	# When running a local instance, print outbound emails to the console.
-	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    # When running a local instance, print outbound emails to the console.
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 elif os.environ.get("EMAIL_BACKEND") in ("AWS-SES",):
-	# For AWS SES:
-	#  The SERVER_EMAIL and EMAILVERIFICATION_FROMADDR must be 
-	#  verified with ./ses-verify-email-address.pl.
-	#  We must be approved for production use.
-	#  The SPF record on the domain must include "include:amazonses.com".
-	#  https://github.com/hmarr/django-ses:
-	#   django_ses is added to installed apps for management commands.
-	#   plus with django_ses.urls mapped to /admin/ses for the dash.
-	#  We should really be monitoring the statistics.
-	EMAIL_BACKEND = 'django_ses.SESBackend'
+    # For AWS SES:
+    #  The SERVER_EMAIL and EMAILVERIFICATION_FROMADDR must be 
+    #  verified with ./ses-verify-email-address.pl.
+    #  We must be approved for production use.
+    #  The SPF record on the domain must include "include:amazonses.com".
+    #  https://github.com/hmarr/django-ses:
+    #   django_ses is added to installed apps for management commands.
+    #   plus with django_ses.urls mapped to /admin/ses for the dash.
+    #  We should really be monitoring the statistics.
+    EMAIL_BACKEND = 'django_ses.SESBackend'
 
 elif os.environ.get("EMAIL_BACKEND") == "SENDGRID" or True:
-	# be sure to set SPF record: v=spf1 a mx include:sendgrid.net ~all
-	EMAIL_HOST = "smtp.sendgrid.net"
-	EMAIL_HOST_USER = SENDGRID_USERNAME
-	EMAIL_HOST_PASSWORD = SENDGRID_PASSWORD
-	EMAIL_PORT = 587
-	EMAIL_USE_TLS = True
+    # be sure to set SPF record: v=spf1 a mx include:sendgrid.net ~all
+    EMAIL_HOST = "smtp.sendgrid.net"
+    EMAIL_HOST_USER = SENDGRID_USERNAME
+    EMAIL_HOST_PASSWORD = SENDGRID_PASSWORD
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
 else:
-	raise Exception("No email backend configured.")
+    raise Exception("No email backend configured.")
 
 
 SEND_BROKEN_LINK_EMAILS = False
 CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
 
 if not "LOCAL" in os.environ:
-	mysqlhost = "localhost" # unix domain
-	mysqluser = "root"
-	if "REMOTEDB" in os.environ and os.environ["REMOTEDB"] == "1":
-		mysqlhost = "127.0.0.1"
-	elif "REMOTEDB" in os.environ:
-		mysqlhost = os.environ["REMOTEDB"]
-		mysqluser = "slave"
-	DATABASES = {
-	    'default': {
-	        'NAME': 'popvox',
-	        'ENGINE': 'django.db.backends.mysql',
-	        'USER': mysqluser,
-	        'PASSWORD': 'qsg;5TtC',
-	        'HOST': mysqlhost,
-	        'PORT': 3306
-	    }
-	}
+    mysqlhost = "10.73.70.84" # unix domain
+    mysqluser = "root"
+    if "REMOTEDB" in os.environ and os.environ["REMOTEDB"] == "1":
+        mysqlhost = "127.0.0.1"
+    elif "REMOTEDB" in os.environ:
+        mysqlhost = os.environ["REMOTEDB"]
+        mysqluser = "slave"
+    DATABASES = {
+        'default': {
+            'NAME': 'popvox',
+            'ENGINE': 'django.db.backends.mysql',
+            'USER': mysqluser,
+            'PASSWORD': 'qsg;5TtC',
+            'HOST': mysqlhost,
+            'PORT': 3306
+        }
+    }
 else:
-	DATABASES = {
-		'default': {
-			'NAME': os.path.dirname(__file__) + '/database.sqlite',
-			'ENGINE': 'django.db.backends.sqlite3',
-		}
-	}
+    DATABASES = {
+        'default': {
+            'NAME': os.path.dirname(__file__) + '/database.sqlite',
+            'ENGINE': 'django.db.backends.sqlite3',
+        }
+    }
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3.S3Storage'
 AWS_STORAGE_BUCKET_NAME = "static.popvox.com"
@@ -144,11 +144,11 @@ ADMIN_MEDIA_PREFIX = '/admin_media/'
 SECRET_KEY = '#hk(--a8dq@6$z%476=mmf7*rgg-x204xm5@t5^jcco6x#)u2r'
 
 CACHES = {
-	'default': {
-		"BACKEND": 'django.core.cache.backends.memcached.MemcachedCache',
-		"LOCATION": '127.0.0.1:11211',
-		"VERSION": 2,
-	},
+    'default': {
+        "BACKEND": 'django.core.cache.backends.memcached.MemcachedCache',
+        "LOCATION": '127.0.0.1:11211',
+        "VERSION": 2,
+    },
 }
 
 AUTH_PROFILE_MODULE = 'popvox.UserProfile'
@@ -169,6 +169,7 @@ MIDDLEWARE_CLASSES = (
     'adserver.middleware.Middleware',
     'popvox.middleware.StandardCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'popvox.middleware.SessionFromFormMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -177,17 +178,18 @@ MIDDLEWARE_CLASSES = (
     'popvox.middleware.IE6BlockMiddleware',
     'popvox.middleware.AdserverTargetsMiddleware',
     'shorturl.middleware.ShorturlMiddleware',
+    
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-	"django.contrib.auth.context_processors.auth",
-	"django.core.context_processors.debug",
-	"django.core.context_processors.i18n",
-	"django.core.context_processors.media",
-	"django.contrib.messages.context_processors.messages",
-	'django.core.context_processors.request',
-	'popvox.middleware.template_context_processor',
-	)
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.contrib.messages.context_processors.messages",
+    'django.core.context_processors.request',
+    'popvox.middleware.template_context_processor',
+    )
 
 ROOT_URLCONF = 'urls'
 
@@ -199,9 +201,9 @@ TEMPLATE_DIRS = (
 )
 
 if not DEBUG:
-	SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 if not "LOCAL" in os.environ: # if running with Django's test server, it's over http:
-	SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -217,6 +219,7 @@ INSTALLED_APPS = (
     'feedback',
     'picklefield',
     'articles',
+    'debug_toolbar',
     #'django_dowser',
     'jquery',
     'writeyourrep',
@@ -229,8 +232,8 @@ INSTALLED_APPS = (
 )
 
 if "LOCAL" in os.environ:
-	INSTALLED_APPS = list(INSTALLED_APPS)
-	INSTALLED_APPS.remove("articles") # dependency is not available locally because repo is on /mnt/persistent, see urls.py
+    INSTALLED_APPS = list(INSTALLED_APPS)
+    INSTALLED_APPS.remove("articles") # dependency is not available locally because repo is on /mnt/persistent, see urls.py
 
 TINYMCE_JS_URL = '/media/tiny_mce/tiny_mce.js'
 TINYMCE_DEFAULT_CONFIG = {

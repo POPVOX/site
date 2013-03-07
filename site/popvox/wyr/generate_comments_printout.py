@@ -16,7 +16,7 @@ from django.core.mail import EmailMultiAlternatives
 import datetime, re, shutil, subprocess, sys, tempfile, os.path
 
 from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign
-from popvox.govtrack import getMemberOfCongress
+from popvox.govtrack import getMemberOfCongress, getCongressDates, CURRENT_CONGRESS
 from writeyourrep.models import DeliveryRecord, Endpoint
 from settings import SERVER_EMAIL, POSITION_DELIVERY_CUTOFF_DAYS
 
@@ -91,6 +91,7 @@ def create_tex(tex, serial):
     outfile.write(r"\begin{document}" + "\n")
     
     targets = []
+<<<<<<< Updated upstream
     for t in UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).values('target', 'batch').distinct():
         targets.append((t["target"], t["batch"]))
     def get_address_sort(id_batch):
@@ -107,6 +108,14 @@ def create_tex(tex, serial):
                 return (buildings["pennsylvania"], "Pennsylvania Ave", "1600".zfill(5))
             else:
                 pass
+=======
+    for t in UserCommentOfflineDeliveryRecord.objects.values('target', 'batch').distinct():
+        targets.append((t["target"], t["batch"]))
+    def get_address_sort(id_batch):
+        addr = getMemberOfCongress(id_batch[0])["address"]
+        addr = addr.split(" ")
+        return (buildings[addr[1].lower()], addr[1], addr[0].zfill(5))
+>>>>>>> Stashed changes
     targets.sort(key = get_address_sort)
     
     targets2 = []
@@ -114,7 +123,11 @@ def create_tex(tex, serial):
     for govtrack_id, batch in targets:
         if "ONLY" in os.environ and int(os.environ["ONLY"]) != govtrack_id: continue
         
+<<<<<<< Updated upstream
         topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=cutoff).values("comment__bill", "comment__position").distinct()
+=======
+        topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch).values("comment__bill", "comment__position").distinct()
+>>>>>>> Stashed changes
         
         if batch != None:
             batch_no = batch
@@ -148,6 +161,7 @@ def create_tex(tex, serial):
         outfile.write_esc(getMemberOfCongress(govtrack_id)["name"])
         outfile.write(r"} \bigskip" + "\n\n" + r"\noindent ")
 
+<<<<<<< Updated upstream
         try:
             outfile.write_esc(getMemberOfCongress(govtrack_id)["address"])
         except:
@@ -156,6 +170,9 @@ def create_tex(tex, serial):
             else:
                 print "can't write address for", getMemberOfCongress(govtrack_id)["name"]
                 outfile.write_esc(getMemberOfCongress(govtrack_id)["address"])
+=======
+        outfile.write_esc(getMemberOfCongress(govtrack_id)["address"])
+>>>>>>> Stashed changes
         outfile.write(r"\bigskip" + "\n\n" + r"\noindent ")
 
         outfile.write(r"\bigskip" + "\n\n")
@@ -166,7 +183,11 @@ def create_tex(tex, serial):
             position = t2["comment__position"]
             bill = Bill.objects.get(id=t2["comment__bill"])
 
+<<<<<<< Updated upstream
             comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__created__lt=cutoff).select_related("comment")
+=======
+            comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position).select_related("comment")
+>>>>>>> Stashed changes
             
             # Reminder: Dont skip any messages that are already in a batch at this point!
 
@@ -268,6 +289,7 @@ def create_tex(tex, serial):
             p = getMemberOfCongress(govtrack_id)
             outfile.write_esc("#" + batch_no[len(serial)+1:])
             outfile.write(r" --- ")
+<<<<<<< Updated upstream
             try:
                 outfile.write_esc(p["lastname"] + " " + str(p["state"]) + (str(p["district"]) if p["district"]!=None else ""))
             except: #doing if p["state"] as with district did not work. no idea why.
@@ -281,6 +303,13 @@ def create_tex(tex, serial):
                     outfile.write_esc("1600 Pennsylvania Ave")
             outfile.write(r"  --- ")
             outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no, comment__created__lt=cutoff).count()) + " ")
+=======
+            outfile.write_esc(p["lastname"] + " " + p["state"] + (str(p["district"]) if p["district"]!=None else ""))
+            outfile.write(r"  --- ")
+            outfile.write_esc(" ".join(p["address"][0:10].split(" ")[0:2]))
+            outfile.write(r"  --- ")
+            outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no).count()) + " ")
+>>>>>>> Stashed changes
             outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method",)]))
             outfile.write(r" \\" + "\n")
     
@@ -289,11 +318,24 @@ def create_tex(tex, serial):
     outfile_.close()
     
 def clean_ucodrs():
+<<<<<<< Updated upstream
+=======
+    lcenddate = getCongressDates(CURRENT_CONGRESS -1)[1]
+    
+>>>>>>> Stashed changes
     # delete UCODR objects for no-message positions that are too old
     UserCommentOfflineDeliveryRecord.objects.filter(batch=None,
         comment__message=None,
         comment__updated__lt=datetime.datetime.now()-datetime.timedelta(days=POSITION_DELIVERY_CUTOFF_DAYS))\
         .delete()
+<<<<<<< Updated upstream
+=======
+        
+    #delete UCODR objects for messages from a previous congress
+    UserCommentOfflineDeliveryRecord.objects.filter(batch=None,
+        comment__updated__lt=lcenddate)\
+        .delete()
+>>>>>>> Stashed changes
     
     # delete UCDOR objects for mail that has since been delivered
     for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None):
@@ -370,7 +412,11 @@ elif len(sys.argv) == 2 and sys.argv[1] == "status":
     out.writerow(["count", "govtrackid", "endpointid", "member"])
     total = 0
 
+<<<<<<< Updated upstream
     for rec in UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).values("target").annotate(count=Count("target")).order_by("count").values("target", "count"):
+=======
+    for rec in UserCommentOfflineDeliveryRecord.objects.values("target").annotate(count=Count("target")).order_by("count").values("target", "count"):
+>>>>>>> Stashed changes
         try:
             endpoint = Endpoint.objects.get(govtrackid=rec["target"]).id
         except:
@@ -409,9 +455,15 @@ elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
         shutil.rmtree(path)
 
 else:
+<<<<<<< Updated upstream
     print UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False, comment__created__lt=cutoff).count(), "messages printed"
     
     batches = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False, comment__created__lt=cutoff).values_list("batch", flat=True).distinct()
+=======
+    print UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False).count(), "messages printed"
+    
+    batches = UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False).values_list("batch", flat=True).distinct()
+>>>>>>> Stashed changes
     batches = list(batches)
     batches.sort(key = lambda x : (x.split(":")[0], int(x.split(":")[1])))
     for b in batches:
