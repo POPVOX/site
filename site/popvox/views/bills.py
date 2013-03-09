@@ -59,6 +59,9 @@ def issuearea_chooser_list(request):
 
 def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False):
     global popular_bills_cache
+    
+    #3/9/13-- site is crashing on the popular bills query; testing if killing it fixes things.
+    return [] #popular_bills_cache[1]
 
     if popular_bills_cache != None and (datetime.datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
         return popular_bills_cache[1]
@@ -862,7 +865,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
     # in a short period of time and if we are not editing an existing comment.
     require_captcha = False
     #if not request.user.is_anonymous() and request.user.id not in (1, 59):
-    #    require_captcha = request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
+    #    require_captcha = request.user.comments.filter(created__gt = datetime.datetime.now()-timedelta(days=20)).count() > 20 \
     #    and not request.user.comments.filter(bill = bill).exists()
     
     try:
