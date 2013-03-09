@@ -236,8 +236,6 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
     c.SetFilter("congressnumber", [cn])
     c.SetLimits(0, 1000)
     ret = c.Query(q, "bill_titles")
-    print "q: "+q
-    print "ret length: "+str(len(ret))
     for b in ret:
         print ret
     bill_weights = { }
@@ -248,14 +246,11 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
         status = "callfail"
     else:
         for b in ret["matches"]:
-            print "loop!"
             bill_weights[b["id"]] = (0, 0, -b["weight"]) # default sort order
             if len(bill_weights) == 100:
-                print "i hit the breakpoint"
                 status = "overflow"
                 break
 
-    print "length now: "+str(len(bill_weights))
     # Pull in the bill objects for the search result matches.
 
     # Update sort order for those bills with comments in the last three weeks.
