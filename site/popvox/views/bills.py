@@ -171,12 +171,13 @@ def bills_issue_areas():
     # since we can't annotate on two things at once (messes up the counts)
     # and we also want a count of bills and also of comments...
     issues_dict = dict((ix.id, ix) for ix in issues)
+    '''
     for issue in \
         IssueArea.objects\
         .filter(toptermbills__congressnumber=CURRENT_CONGRESS)\
         .annotate(commentcount=Count("toptermbills__usercomments")):
         issues_dict[issue.id].commentcount = issue.commentcount
-    
+    '''
     for i, ix in enumerate(issues):
         ix.primaryorder = i
         
