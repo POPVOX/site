@@ -1,6 +1,5 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
-{# {% load adserver_tags %} #}
 {% block title %}POPVOX Report -- {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock%}
 {% block description %}Letters to Congress and constituent sentiment statistics on {% if bill.street_name %}{{bill.street_name|capfirst}}{% else %}{{ bill.title }}{% endif %}{% endblock%}
 {%block nav_legstaff_class_bills%}active{%endblock%}
