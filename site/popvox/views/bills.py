@@ -60,9 +60,6 @@ def issuearea_chooser_list(request):
 def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False):
     global popular_bills_cache
     
-    #3/9/13-- site is crashing on the popular bills query; testing if killing it fixes things.
-    return [] #popular_bills_cache[1]
-
     if popular_bills_cache != None and (datetime.datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
         return popular_bills_cache[1]
         
