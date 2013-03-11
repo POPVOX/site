@@ -9,12 +9,12 @@ if not "LOCAL" in os.environ:
 
 DEBUG = ("DEBUG" in os.environ) or os.path.exists(os.path.dirname(__file__) + "/debug")
 TEMPLATE_DEBUG = DEBUG
-INTERNAL_IPS = ('127.0.0.1', ) # used by django.core.context_processors.debug
+INTERNAL_IPS = ('127.0.0.1',) # used by django.core.context_processors.debug
 if "SSH_CONNECTION" in os.environ:
     # When launched from an SSH session, add the remote hose to
     # the list of INTERNAL_IPSs so that he can see the SQL
     # debugging output.
-    INTERNAL_IPS = ('127.0.0.1', os.environ["SSH_CONNECTION"].split(" ")[0])
+    INTERNAL_IPS = ('127.0.0.1', '173.66.58.87', os.environ["SSH_CONNECTION"].split(" ")[0])
     print "Internal IPs:", repr(INTERNAL_IPS)
 if os.path.exists("/home/www/slave"):
     for line in open("/home/www/slave"):
@@ -79,7 +79,7 @@ SEND_BROKEN_LINK_EMAILS = False
 CSRF_FAILURE_VIEW = 'views.csrf_failure_view'
 
 if not "LOCAL" in os.environ:
-    mysqlhost = "10.73.70.84" # unix domain
+    mysqlhost = "10.73.70.84" #real db: "10.73.70.84" # unix domain #test db: "10.108.178.167" #popvox_new: "10.150.6.43"
     mysqluser = "popvoxdb"
     if "REMOTEDB" in os.environ and os.environ["REMOTEDB"] == "1":
         mysqlhost = "127.0.0.1"
@@ -88,7 +88,7 @@ if not "LOCAL" in os.environ:
         mysqluser = "slave"
     DATABASES = {
         'default': {
-            'NAME': 'popvox',
+            'NAME': 'popvox', #'popvox',
             'ENGINE': 'django.db.backends.mysql',
             'USER': mysqluser,
             'PASSWORD': 'qsg;5TtC',
@@ -169,15 +169,15 @@ MIDDLEWARE_CLASSES = (
     'adserver.middleware.Middleware',
     'popvox.middleware.StandardCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'popvox.middleware.SessionFromFormMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'trafficanalysis.middleware.TrafficAnalysisMiddleware',
+    #'trafficanalysis.middleware.TrafficAnalysisMiddleware',
     'popvox.middleware.IE6BlockMiddleware',
     'popvox.middleware.AdserverTargetsMiddleware',
     'shorturl.middleware.ShorturlMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     
 )
 
@@ -226,7 +226,7 @@ INSTALLED_APPS = (
     'emailverification',
     'shorturl',
     'registration',
-    'trafficanalysis',
+    #'trafficanalysis',
     'popvox',
     'adserver',
 )
