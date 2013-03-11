@@ -222,12 +222,12 @@ $(function() {
 		
 			<div class="controller">
 				<div id="sort_alph" class="active">alphabetical</div>
-				<!--<div id="sort_pop">most popular</div>-->
+				<div id="sort_pop">most popular</div>
 			</div>
 			<div class="clear"> </div>
 			<div class="issues issue-list">
 			{% for ix in issues %}
-			<div class="issue" sort_alph="{{ix.primaryorder}}" {%comment%}sort_pop="-{{ix.commentcount}}"{%endcomment%} ix="{{ix.id}}">
+			<div class="issue" sort_alph="{{ix.primaryorder}}" sort_pop="-{{ix.commentcount}}" ix="{{ix.id}}">
 					<span class="name">{{ix.name}}</span>
 					<span class="count">({{ix.billcount}})</span>
 				</div>
