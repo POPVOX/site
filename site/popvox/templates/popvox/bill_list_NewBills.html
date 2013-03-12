@@ -131,7 +131,7 @@
 		<div class="NewBills_MsgBox">Proposed legislation which would become law if it passes the House and then the Senate, and is signed by the President.</div>
 		<ul>
 		{% 	for b in HR %}
-			<li><span><a href="{{ b.get_absolute_url }}">HR {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{{ b.title_no_number }}
+			<li><span><a href="{{ b.get_absolute_url }}">HR {{ b.billnumber }}</a></span>{% if b.street_name != None %}<b><em>{{ b.street_name|capfirst }}</em></b>:&nbsp;&nbsp;{% endif %}{% if b.title_no_number != None %}{{ b.title_no_number }}{% endif %}
 			<br />
 			<font style="color: #cc6a11;">&raquo;</font> <i style="font-size:10px;">Introduced on {{ b.introduced_date }} {% if b.sponsor != None %} <font style="color: #cc6a11;">&raquo;</font> Sponsored by <a href="/member/{{ b.sponsor.pvurl }}">{{ b.sponsor.name }}</a> {% endif %}</i>
 			</li>
