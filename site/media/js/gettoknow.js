@@ -432,7 +432,7 @@ var memurls = {
 ['Rep. Kevin Yoder [R, KS-3]','rep-kevin-yoder-ks'],
 ['Rep. Mike Pompeo [R, KS-4]','rep-mike-pompeo-ks']],
 
-'MA': [['Sen. John Kerry [D, MA]', 'sen-john-kerry-ma'],
+'MA': [['Sen. Mo Cowan [D, MA]', 'sen-mo-cowan-ma'],
 ['Sen. Elizabeth Warren [D, MA]', 'sen-elizabeth-warren-ma'],
 ['Rep. Joe Kennedy [D, MA-4]', 'rep-joe-kennedy-ma'],
 ['Rep. Stephen Lynch [D, MA-8]', 'rep-stephen-lynch-ma'],
