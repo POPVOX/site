@@ -516,6 +516,7 @@ custom_mapping = {
     "33_field_ccfdbe3a-7b46-4b3f-b920-20416836d599_textarea": "message",
     "37_affl3": "enews_subscribe",
     "37_field_302e8a41-000d-419e-991e-40c7cb96f97c_radio": "topicarea",
+    "39_subject_radio": "topicarea", #this form uses radio buttons instead of dropdown for subject
     "141_enews_select": "response_requested",
     "146_topic_checkbox": "topicarea",
     "148_radiogroup1_radio": "response_requested",
@@ -654,6 +655,7 @@ custom_overrides = {
     "689_field_07c7727a-6c47-4ff9-a890-c904fa4d408f_radio": "express an opinion or share your views with me",
     "690_aff2_radio": "",
     "694_affll_radio": "No",
+    "709_choice_select": "",
     "732_field_1807499f-bb47-4a2b-81af-4d6c2497c5e5_radio": " ",
     "741_field_217b8539-2613-4996-852b-f56184a42b20_radio": "email",
     "746_aff1req_text": "",

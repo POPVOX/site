@@ -59,7 +59,7 @@ def issuearea_chooser_list(request):
 
 def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False):
     global popular_bills_cache
-
+    
     if popular_bills_cache != None and (datetime.datetime.now() - popular_bills_cache[0] < timedelta(minutes=30)):
         return popular_bills_cache[1]
         
@@ -171,6 +171,7 @@ def bills_issue_areas():
     # since we can't annotate on two things at once (messes up the counts)
     # and we also want a count of bills and also of comments...
     issues_dict = dict((ix.id, ix) for ix in issues)
+    
     for issue in \
         IssueArea.objects\
         .filter(toptermbills__congressnumber=CURRENT_CONGRESS)\
@@ -235,8 +236,6 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
     c.SetFilter("congressnumber", [cn])
     c.SetLimits(0, 1000)
     ret = c.Query(q, "bill_titles")
-    print "q: "+q
-    print "ret length: "+str(len(ret))
     for b in ret:
         print ret
     bill_weights = { }
@@ -247,14 +246,11 @@ def billsearch_internal(q, cn=CURRENT_CONGRESS):
         status = "callfail"
     else:
         for b in ret["matches"]:
-            print "loop!"
             bill_weights[b["id"]] = (0, 0, -b["weight"]) # default sort order
             if len(bill_weights) == 100:
-                print "i hit the breakpoint"
                 status = "overflow"
                 break
 
-    print "length now: "+str(len(bill_weights))
     # Pull in the bill objects for the search result matches.
 
     # Update sort order for those bills with comments in the last three weeks.
@@ -862,7 +858,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
     # in a short period of time and if we are not editing an existing comment.
     require_captcha = False
     #if not request.user.is_anonymous() and request.user.id not in (1, 59):
-    #    require_captcha = request.user.comments.filter(created__gt = datetime.now()-timedelta(days=20)).count() > 20 \
+    #    require_captcha = request.user.comments.filter(created__gt = datetime.datetime.now()-timedelta(days=20)).count() > 20 \
     #    and not request.user.comments.filter(bill = bill).exists()
     
     try:

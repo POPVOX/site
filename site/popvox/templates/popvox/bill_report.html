@@ -1,6 +1,5 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
-{% load adserver_tags %}
 {% block title %}POPVOX Report -- {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock%}
 {% block description %}Letters to Congress and constituent sentiment statistics on {% if bill.street_name %}{{bill.street_name|capfirst}}{% else %}{{ bill.title }}{% endif %}{% endblock%}
 {%block nav_legstaff_class_bills%}active{%endblock%}
@@ -482,11 +481,6 @@ h2 span {
         
         </div>
         
-        <div class="col_3 col_last col_ad"> 
-            <h4>Sponsor Ads</h4>
-            {% show_ad std180x150 "legreport_slot1" %}
-        </div> 
-        <div class="clear"> </div>
         
     </div><!-- e: section -->
     

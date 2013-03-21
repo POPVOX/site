@@ -1,7 +1,7 @@
 #!/bin/bash
 
-MYUSER=root
-REMOTEDB=localhost
+MYUSER=popvoxdb
+REMOTEDB=10.73.70.84
 if [ -f ~/slave ]; then
 	source ~/slave
 	MYUSER=slave
