@@ -1,0 +1,46 @@
+<html>
+<head> 
+<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
+<link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
+<link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" />
+</head>
+
+<body style="background:transparent">
+<h1>{{org.name}} - {%if campaign%} {{campaign.name}}{%endif%}</h1>
+{%if campaign.description%}<p>{{campaign.description}}{%endif%}
+
+{% regroup positions by campaign as campaign_list %}
+{% for campaign in campaign_list %}
+<h2>{{campaign.grouper}}</h2>
+    {% for position in campaign.list %}
+        <h3>{{position.bill_shortname}}</h3>
+        <ul>
+            <li>Position: {{position.position}}</li>
+            <li>Comment: {{position.comment}}</li>
+            <li>Category: {{position.bill.topterm}}</li>
+            <li>Widget:<br><iframe src="https://www.popvox.com/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe></li>
+            <li>Map:<br>
+            <iframe width="720" height="590" frameborder="0" marginwidth="0" marginheight="0" border="0" src="/widgets/bill-comment-map?bill={{position.bill.id}}"></iframe></li>
+        </ul>
+    {% endfor %}
+{% endfor %}
+
+
+
+{%comment%}
+{%for position in positions%}
+<h2>{{position.bill_shortname}}</h2>
+<ul>
+    <li>Position: {{position.position}}</li>
+    <li>Comment: {{position.comment}}</li>
+    <li>Category: {{position.bill.topterm}}</li>
+    <li>Widget:<br><iframe src="https://www.popvox.com/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe></li>
+    <li>Map:<br>
+    <iframe width="720" height="590" frameborder="0" marginwidth="0" marginheight="0" border="0" src="/widgets/bill-comment-map?bill={{position.bill.id}}"></iframe></li>
+
+{% endfor%}
+{%endcomment%}
+
+
+</body>
+</html>
