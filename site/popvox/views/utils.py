@@ -332,57 +332,6 @@ def group_by_issue(objlist, min_count=24, top_count=6, top_title=None, exclude_i
     other_objlist = [b for b in objlist if not b in seen_objs]
     if len(other_objlist):
         groups.append({"id": "other", "name": other_title, "objlist": other_objlist})
-    print "past the ifs"
     
-    # Automatically group the objlist by sub-issue areas smartly.
-    # A smart grouping is one that divides the objlist into N evenly sized groups
-    # of sqrt(N) objlist with minimal overlap between groups.
-    
-    # create possibly-overlapping groups for each sub-issue area
-    # use an OrderedDict so that the issues for the top objlist go first,
-    # which is preserved in the greedy function below
-    import collections
-    issue_groups = collections.OrderedDict()
-    for obj in objlist:
-        print "in the outer for loop"
-        for issue in obj.issues.all():
-            if issue in exclude_issues: continue # exclude top term from reappearing
-            if not issue in issue_groups: issue_groups[issue] = []
-            issue_groups[issue].append(obj)
-    
-    # greedily choose issue areas
-    ngroups = int(len(objlist) / math.sqrt(len(objlist)))
-    if ngroups > len(issue_groups): ngroups = len(issue_groups)
-    if ngroups == 0: ngroups = 1
-    objs_per_group = len(objlist) / ngroups
-    
-    seen_issues = set()
-    seen_objs = set()
-    for i in xrange(ngroups):
-        # choose the next issue area with a count of unseen
-        # objects closest to objs_per_group.
-        best_item = None
-        best_score = None
-        for issue_obj, issue_objlist in issue_groups.items():
-            if issue_obj in seen_issues: continue
-            unique_objlist = [obj for obj in issue_objlist if not obj in seen_objs]
-            if len(unique_objlist) == 0: continue
-            score = int(math.sqrt(abs(len(unique_objlist) - objs_per_group)))
-                # the score doesn't need int(sqrt(...)) but this lets us priorities
-                # issues that came first (i.e. top objlist) when the scores are similar; useful??
-            if score > objs_per_group: issue_objlist = unique_objlist # show only uniques when sub-issue is really wide
-            if best_score == None or score < best_score:
-                best_score = score
-                best_item = (issue_obj, issue_objlist)
-        if best_score == None: break # no more issue areas to add in
-        groups.append({"id": len(groups), "name": best_item[0], "objlist": best_item[1]})
-        seen_issues.add(best_item[0])
-        for b in best_item[1]: seen_objs.add(b)
-    
-    # put the remaining objlist into an other category
-    other_objlist = [b for b in objlist if not b in seen_objs]
-    if len(other_objlist):
-        groups.append({"id": "other", "name": other_title, "objlist": other_objlist})
-
     return groups
 
