@@ -2,6 +2,7 @@
 *.txt
 *.csv
 *.tsv
+*.bak
 *~
 site/database.*
 libs/*/
