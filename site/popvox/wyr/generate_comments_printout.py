@@ -21,13 +21,18 @@ from writeyourrep.models import DeliveryRecord, Endpoint
 from settings import SERVER_EMAIL, POSITION_DELIVERY_CUTOFF_DAYS
 
 buildings = {
-	"cannon": "house",
-	"dirksen": "senate",
-	"hart": "senate",
-	"longworth": "house",
-	"rayburn": "house",
-	"russell": "senate"
-	}
+    "cannon": "house",
+    "dirksen": "senate",
+    "d street":"house",
+    "hart": "senate",
+    "longworth": "house",
+    "pennsylvania" : "whitehouse",
+    "rayburn": "house",
+    "russell": "senate"
+    }
+
+#don't print messages less than n days old--to give us time to fix more recent issues.
+cutoff = datetime.datetime.now() - datetime.timedelta(days=5)
 
 def create_tex(tex, serial):
 	batch_max = 0
