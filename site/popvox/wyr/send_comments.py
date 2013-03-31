@@ -61,6 +61,9 @@ lcenddate = getCongressDates(CURRENT_CONGRESS -1)[1] #end date of the previous c
 comments_iter = UserComment.objects.filter(
     bill__congressnumber=CURRENT_CONGRESS,
     status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
+    #this next line is to send only very recent comments:
+    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=2), updated__gt=datetime.datetime.now()-datetime.timedelta(hours=16)
+    #this line is our standard send:
     updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
     )
 

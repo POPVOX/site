@@ -255,6 +255,7 @@ common_fieldnames = {
     "hzip": "zipcode",
     "zip5": "zip5",
     "zip_verify": "zipcode",
+    "ctl00$ctl13$Zip": "zip5",
     "mainzip": "zip5",
     "zip4": "zip4",
     "zipfour": "zip4",
@@ -274,6 +275,7 @@ common_fieldnames = {
     "homephone": "phone",
     "phonehome": "phone",
     "phone_home": "phone",
+    "phonnum": "phone",
     "phone_h": "phone",
     "primaryphone": "phone",
     "phone1": "phone",
@@ -293,6 +295,7 @@ common_fieldnames = {
     "verify-email": "email",
     "emailaddress_require":"email",
     "EmailCheck": "email",
+    "emailcheck": "email",
     
     "messagebody": "message",
     "comment": "message",
@@ -446,10 +449,15 @@ skippable_fields = (
     "submitted[delivery_agent_state]",
     "submitted[delivery_agent_non_us_state]",
     "submitted[delivery_agent_country]",
+    
+    #Cantor's survey
+    "ratings[how_is_the_113th_congress_doing?]",
+    "ratings[is_the_113th_congress_addressing_the_issues_that_concern_you?]",
+    
 
 
-    "prefixother", "middle", "middlename",
-    "name_middle",     "middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
+    "prefixother", "middle", "middlename", "suffix",
+    "name_middle",     "middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "esignup", "townhall", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
     "countdown",
     "affll",
     "contact-type",
@@ -484,6 +492,10 @@ skippable_fields = (
     "enews",
     "affl1",
     "affll",
+    "user-ip",
+    "issueother",
+    "input_8", #Issa's phone field
+    "input_14", #issa's twitter field
     )
 
 radio_choices = {
@@ -508,6 +520,7 @@ radio_choices = {
 
 custom_mapping = {
     "2_field_420f4180-d327-4c63-aac5-efd047b1b463_text": "zip5",
+    "21_subject_select" : "topicarea",
     "18_field_1f16bf7a-1773-4479-bc8f-995d37e73f17_radio": "response_requested",
     "23_field_db3de26e-1334-48c8-ac2a-d173968c6236_radio": "response_requested",
     "23_field_d401e225-88e5-407f-8efa-da1a2e2b979e_radio" : "response_requested",
@@ -555,6 +568,7 @@ custom_mapping = {
     "741_field_0150929b-ae7d-4ec8-ac86-647e121e8610_text": "zip5",
     "741_field_a8731eec-5954-4ac5-a623-b840d3f4d9fc_select": "topicarea",
     "741_field_59e68b70-1f23-4b9a-a19c-e40156896a9b_textarea": "message",
+    "752_input_1_12_select": "prefix",
     "755_field_e5d28fe4-5b68-4619-9940-81168686475d_radio": "response_requested",
     "757_name_text": "firstname",
     "761_phone1_text": "phone_areacode",
@@ -642,6 +656,7 @@ custom_overrides = {
     "610_ecclesiastical_toggle_select":"",
     "610_ecclesiastical_title_select":"",
     "611_aff1req_text": "fill",
+    "629_suffix_select" : "",
     "637_radiogroup1_radio": "n",
     "639_aff1req_text": "fill",
     "644_subcategory_select": "",
@@ -659,6 +674,7 @@ custom_overrides = {
     "732_field_1807499f-bb47-4a2b-81af-4d6c2497c5e5_radio": " ",
     "741_field_217b8539-2613-4996-852b-f56184a42b20_radio": "email",
     "746_aff1req_text": "",
+    "747_affl1_radio": "TEST",
     "748_messagetype_radio": "express an opinion or share your views with me",
     "757_add2_text": "",
     "757_affl_select": "no-action",
@@ -713,6 +729,9 @@ class SubmissionSuccessUnknownException(Exception):
           return str(self.parameter)
 
 class DistrictDisagreementException(Exception):
+    pass
+
+class SubjectTooLongException(Exception):
     pass
 
 class AddressRejectedException(Exception):
@@ -1047,6 +1066,7 @@ def test_zipcode_rejected(webform, deliveryrec):
     if "The zip code you typed in does not appear to be a zip code within my district" in webform\
         or "You might not be in my district" in webform \
         or "appears that you live outside of" in webform \
+        or "You zipcode is not in Congressman Issa's district" in webform \
         or "A valid Zip code for the 5th District of Missouri was not entered" in webform\
         or "The zip code entered indicates that you reside outside the" in webform\
         or "Your zip code indicates that you are outside of the" in webform\
@@ -1074,6 +1094,11 @@ def test_zipcode_rejected(webform, deliveryrec):
         or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
         deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
         raise DistrictDisagreementException()
+    
+def test_subject_toolong(webform, deliveryrec):
+    if "Subject has exceeded the maximum length of 100 characters" in webform:
+        deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
+        raise SubjectTooLongException()
     
 def send_message_webform(di, msg, deliveryrec):
     # Load the web form and parse the fields.
@@ -1269,7 +1294,7 @@ def send_message_webform(di, msg, deliveryrec):
         
     # Thess guys have some weird restrictions on the text input to prevent the user from submitting
     # SQL... rather than just escaping the input.
-    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882, 916, 946, 988):
+    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882, 916, 946, 988, 1054, 1080):
         re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
         for k in postdata:
             postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -1349,7 +1374,13 @@ def send_message_webform(di, msg, deliveryrec):
         
     if ret.strip() in ("", "<BR>"):
         raise IOError("Response is empty or essentially empty.")
+    
+    if "The street number in the input address was not valid" in ret\
+        or "An exact street name match could not be found" in ret:
+        deliveryrec.trace += u"\n" + ret + u"\n\n"
+        raise AddressRejectedException("Address rejected: street number.")
         
+
     re_red_error = re.compile('<span id=".*_(.*Error)"><font color="Red">(.*?)</font></span>')
     m = re_red_error.search(ret)
     if m:
