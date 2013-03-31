@@ -617,12 +617,12 @@ def activity_getinfo(request):
             status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED),
             **filters) \
             .select_related("user", "bill", "address") \
-            .order_by('-created')
+            .order_by('-created')[0:count]
 
-        if format == "_bill":
-            total_count = q.count()
+        #if format == "_bill":
+        #    total_count = q.count()
     
-        q = q[0:count]
+        #q = q[0:count]
 
         # batch load all of the appreciations
         c_id = {}
@@ -659,7 +659,7 @@ def activity_getinfo(request):
         "items": items,
         "can_see_user_details": can_see_user_details,
         "bill": bill,
-        "total_count": total_count,
+        #"total_count": total_count,
         }, context_instance=RequestContext(request))
 
 def calendar(request):

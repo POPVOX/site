@@ -1323,7 +1323,11 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
     else:
         comment.status = UserComment.COMMENT_NOT_REVIEWED
 
-    comment.save()
+    try: 
+        comment.save()
+    except IntegrityError, e:
+        if string.find(str(e),"Duplicate entry") != -1:
+            pass
     
     if referrer != None:
         UserCommentReferral.create(comment, referrer)
