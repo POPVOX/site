@@ -10,7 +10,7 @@ from django.views.decorators.cache import cache_page
 from django.template.defaultfilters import truncatewords
 from django.utils.html import strip_tags
 from django.db.models import Count
-from django.db import connection
+from django.db import connection, IntegrityError
 from django.core.cache import cache
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
