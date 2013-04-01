@@ -10,7 +10,7 @@ from django.views.decorators.cache import cache_page
 from django.template.defaultfilters import truncatewords
 from django.utils.html import strip_tags
 from django.db.models import Count
-from django.db import connection
+from django.db import connection, IntegrityError
 from django.core.cache import cache
 
 from jquery.ajax import json_response, ajax_fieldupdate_request, sanitize_html, validation_error_message
@@ -131,6 +131,7 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
     return popular_bills
 
 def get_popular_bills2(searchstate = None, searchdistrict = None, newdist = False):
+    return []
     global popular_bills_cache_2
 
     if popular_bills_cache_2 != None and (datetime.datetime.now() - popular_bills_cache_2[0] < timedelta(minutes=30)):
@@ -1323,7 +1324,11 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
     else:
         comment.status = UserComment.COMMENT_NOT_REVIEWED
 
-    comment.save()
+    try: 
+        comment.save()
+    except IntegrityError, e:
+        if string.find(str(e),"Duplicate entry") != -1:
+            pass
     
     if referrer != None:
         UserCommentReferral.create(comment, referrer)

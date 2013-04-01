@@ -592,6 +592,12 @@ def activity_getinfo(request):
                 if state == member["state"] and (member["type"] == "sen" or district == member["district"]):
                     can_see_user_details = True
     
+    return render_to_response('popvox/activity_items' + format + '.html', {
+        "items": [],
+        "can_see_user_details": can_see_user_details,
+        "bill": None,
+        #"total_count": total_count,
+        }, context_instance=RequestContext(request))
     count = 80
     if "count" in request.REQUEST:
         count = int(request.REQUEST["count"])
@@ -617,12 +623,12 @@ def activity_getinfo(request):
             status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED),
             **filters) \
             .select_related("user", "bill", "address") \
-            .order_by('-created')
+            .order_by('-created')[0:count]
 
-        if format == "_bill":
-            total_count = q.count()
+        #if format == "_bill":
+        #    total_count = q.count()
     
-        q = q[0:count]
+        #q = q[0:count]
 
         # batch load all of the appreciations
         c_id = {}
@@ -659,7 +665,7 @@ def activity_getinfo(request):
         "items": items,
         "can_see_user_details": can_see_user_details,
         "bill": bill,
-        "total_count": total_count,
+        #"total_count": total_count,
         }, context_instance=RequestContext(request))
 
 def calendar(request):

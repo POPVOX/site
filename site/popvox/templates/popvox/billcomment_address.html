@@ -5,6 +5,13 @@
 {% block finalscript %}<script type="text/javascript">mpmetrics.track('comment address', { 'bill': '{{bill.displaynumber|escapejs}}', 'personalized': {% if message %}'yes'{% else %}'no'{% endif %}, 'had_error': {% if error_is_validation %}'yes'{% else %}'no'{% endif %} });</script>{% endblock %}
 {% block description %}Finish your comment on {{ bill.title }}{% endblock%}
 {% block content %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $(document).unload(function() {
+        $('#submitcomment').attr('disabled', 'disabled');
+    });
+});
+</script>
 <div class="content">
 
 	{% with "address" as billcomment_progress_step %}
