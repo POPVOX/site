@@ -574,6 +574,7 @@ def activity(request):
         }, context_instance=RequestContext(request))
 
 def activity_getinfo(request):
+    return "";
     format = ""
     
     state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None

@@ -131,6 +131,7 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
     return popular_bills
 
 def get_popular_bills2(searchstate = None, searchdistrict = None, newdist = False):
+    return []
     global popular_bills_cache_2
 
     if popular_bills_cache_2 != None and (datetime.datetime.now() - popular_bills_cache_2[0] < timedelta(minutes=30)):
