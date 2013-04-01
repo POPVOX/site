@@ -574,7 +574,6 @@ def activity(request):
         }, context_instance=RequestContext(request))
 
 def activity_getinfo(request):
-    return "";
     format = ""
     
     state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
@@ -593,6 +592,12 @@ def activity_getinfo(request):
                 if state == member["state"] and (member["type"] == "sen" or district == member["district"]):
                     can_see_user_details = True
     
+    return render_to_response('popvox/activity_items' + format + '.html', {
+        "items": [],
+        "can_see_user_details": can_see_user_details,
+        "bill": None,
+        #"total_count": total_count,
+        }, context_instance=RequestContext(request))
     count = 80
     if "count" in request.REQUEST:
         count = int(request.REQUEST["count"])
