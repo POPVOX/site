@@ -810,7 +810,7 @@ class OrgContact(models.Model):
 
 class OrgCampaign(models.Model):
     """An organization's campaign."""
-    org = models.ForeignKey(Org, on_delete=models.CASCADE) # implicitly indexed by the unique-together
+    org = models.ForeignKey(Org, related_name="campaigns", on_delete=models.CASCADE) # implicitly indexed by the unique-together
     slug = models.SlugField()
     name = models.CharField(max_length=100)
     website = models.URLField(blank=True, null=True)
