@@ -353,7 +353,7 @@ def leg_agenda(request):
         campaigns = [campaign]
     else:'''
     campaign = False
-    campaigns = org.campaigns.all()
+    campaigns = OrgCampaign.objects.filter(org = org)
     
     #Positions include the bill, org position, and other useful data. We'll be building the actual table of bills from these.
     positions =  []
