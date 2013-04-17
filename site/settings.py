@@ -14,7 +14,7 @@ if "SSH_CONNECTION" in os.environ:
     # When launched from an SSH session, add the remote hose to
     # the list of INTERNAL_IPSs so that he can see the SQL
     # debugging output.
-    INTERNAL_IPS = ('127.0.0.1', '173.66.58.87', os.environ["SSH_CONNECTION"].split(" ")[0])
+    INTERNAL_IPS = ('127.0.0.1', '173.66.58.87', '69.167.215.11', os.environ["SSH_CONNECTION"].split(" ")[0])
     print "Internal IPs:", repr(INTERNAL_IPS)
 if os.path.exists("/home/www/slave"):
     for line in open("/home/www/slave"):
