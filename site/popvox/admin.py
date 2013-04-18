@@ -151,7 +151,7 @@ class MemberBioAdmin(admin.ModelAdmin):
         print member
         return member.name()
 
-    list_display = ('id','name')
+    list_display = ['id','name', 'pvurl']
     exclude = ('documents',)
     
 

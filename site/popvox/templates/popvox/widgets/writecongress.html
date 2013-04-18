@@ -681,7 +681,7 @@ Notes:
 			if (method == "link") f = link_share;
 			
             {% if whitehouse %}
-                f("", "I just told Congress and @BarackObama to pass common sense laws to end gun violence. Join me and #DemandAPlan http://DemandAPlan.org", "");
+                f("", "I'm using @POPVOX to oppose planned furlough of air-traffic controllers. @whitehouse https://www.popvox.com/bills/us/113/x202", "");
             {% else %}
                 {% if franking != "true" %}
                     if (position == "+") verb = "Support"; else verb = "Oppose";
@@ -714,7 +714,7 @@ Notes:
 			
 					<div id="panel_login" class="widget_panel">
 						{% if position %}
-                           <h1>Tell Congress {% if whitehouse %}and the President {%endif%}that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
+                           <h1>Tell Congress {% if whitehouse %}and the Administration {%endif%}that you {% if position == "+" %}support{% else %}oppose{% endif %} {{bill.shortname}}</h1>
 						{% else %}
 							{% if franking == "true" %}
 								<h1>Share your views on {{bill.shortname}}</h1>
@@ -795,7 +795,7 @@ Notes:
 						</script>
 						
 						{% comment %}keep in mind: large buttons for neutral widgets and at least one line for the service account owner{% endcomment %}
-						<p style="margin-top: 50px; padding-right: 1em;">Your letter will be sent to {% if whitehouse %}the White House and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
+						<p style="margin-top: 50px; padding-right: 1em;">Your letter will be sent to {% if whitehouse %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
 						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">A copy will also go to {{campaign.account}}.</p>{% endif %}
                         <p>View our <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>
 					</div> <!-- e: panel_login -->
@@ -921,7 +921,7 @@ Notes:
 						
 						<div class="clear"> </div>
 						
-						<p style="margin-top: 30px; padding-right: 1em;">Your letter will be sent to Congress and {% if whitehouse %}the White House and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
+						<p style="margin-top: 30px; padding-right: 1em;">Your letter will be sent to Congress and {% if whitehouse %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
 						
 					</div><!-- e: panel_write -->
 					
