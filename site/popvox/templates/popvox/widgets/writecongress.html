@@ -681,7 +681,7 @@ Notes:
 			if (method == "link") f = link_share;
 			
             {% if whitehouse %}
-                f("", "I'm using @POPVOX to oppose FAA-imposed flight delays @whitehouse @FAANews @USDOT", "");
+                f("{{url|escapejs}}", "I'm using @POPVOX to oppose FAA-imposed flight delays @whitehouse @FAANews @USDOT", "");
             {% else %}
                 {% if franking != "true" %}
                     if (position == "+") verb = "Support"; else verb = "Oppose";
