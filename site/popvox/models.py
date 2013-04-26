@@ -1178,8 +1178,8 @@ class PostalAddress(models.Model):
     phonenumber = models.CharField(max_length=18, blank=True)
     congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
     #these two are for transitioning when new congressional districts get drawn.
-    congressionaldistrict2003 = models.IntegerField()
-    congressionaldistrict2013 = models.IntegerField()
+    congressionaldistrict2003 = models.IntegerField(blank=True, null=True)
+    congressionaldistrict2013 = models.IntegerField(blank=True, null=True)
     state_legis_upper = models.TextField(blank=True, null=True)
     state_legis_lower = models.TextField(blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
@@ -1466,7 +1466,7 @@ class UserComment(models.Model):
             campaignid = self.actionrecord.all()[0].campaign.id
         except:
             campaignid = 0 #not all comments have campaign action records
-        if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
+        if campaignid in [1866,1872,2731]: # these are campaign ids for whitehouse widgets
             obama = govtrack.getMemberOfCongress(400629)
             obama["office_id"] = "WH-S44"
             obama["type"] = "pres"
@@ -1483,13 +1483,7 @@ class UserComment(models.Model):
         return govtrackrecipients
         
     def get_recipients_display(self):
-        if self.address.congressionaldistrict2013 is None:
-            return "your representatives"
         recips = self.get_recipients()
-        for recip in recips:
-            if recip['type'] == "rep":
-                if self.address.congressionaldistrict2013 is None:
-                    return "Representative"
         if not type(recips) == list:
             # Normally, show recipients that we would deliver to now.
             # But if the bill is dead, show who we delivered to already, if any.
@@ -1559,9 +1553,6 @@ class UserComment(models.Model):
             return ret
         for recip in recips:
             mem = govtrack.getMemberOfCongress(recip)
-            if mem["type"] == "rep":
-                if self.address.congressionaldistrict2013 is None:
-                    return ret
  
         if len(recips) > 0:
             ret += ref1 + " is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."

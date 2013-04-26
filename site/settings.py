@@ -90,10 +90,11 @@ if not "LOCAL" in os.environ:
         'default': {
             'NAME': 'popvox', #'popvox',
             'ENGINE': 'django.db.backends.mysql',
+            #'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'USER': mysqluser,
             'PASSWORD': 'qsg;5TtC',
             'HOST': mysqlhost,
-            'PORT': 3306
+            'PORT': 3306 #mysql: 3306 #postgres: 5432
         }
     }
 else:
@@ -245,6 +246,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'height': '300px',
     'theme_advanced_toolbar_location': "top",
     'theme_advanced_toolbar_align': "left",
+    'extended_valid_elements' : "iframe[src|frameborder|style|scrolling|class|width|height|name|align]"
 }
 
 FEEDBACK_BLOCKED_IPS = ["91.212.226.143"]
