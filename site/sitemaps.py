@@ -16,10 +16,10 @@ class MemberpageSitemap(Sitemap):
 
     def items(self):
         today = datetime.today()
-        currentmems = [m for m in mems if m.info()['current']]
+        currentmems = [m for m in MemberOfCongress.objects.all() if m.info()['current']]
         memlist = []
         for mem in currentmems:
-            personid = mem.personid
+            personid = mem.id
             member = MemberOfCongress.objects.get(id=personid)
             memlist.append(member)
         return memlist #excluding past members who don't have member pages anymore.
