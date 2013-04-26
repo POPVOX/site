@@ -208,12 +208,22 @@ def bills_issues_bills(request):
         filter(usercomments__created__gt=datetime.datetime.now()-timedelta(days=21))\
         .annotate(Count('usercomments')).order_by('-usercomments__count') \
         | bills
+
+    if request.user.is_authenticated():
+        user = request.user
+        for bill in bills:
+            try:
+                if bill.usercomments.get(user=user):
+                    bill.userweighedin = True
+            except UserComment.DoesNotExist:
+                bill.userweighedin = False
     
     from utils import group_by_issue
     groups = group_by_issue(bills, top_title="Top Bills", exclude_issues=[ix], other_title="Other Bills")
     if len(groups) == 1:
         groups[0]["name"] = name
-    
+
+
     return render_to_response('popvox/bill_list_issues_bills.html', {
         'groups': groups,
         }, context_instance=RequestContext(request))
@@ -305,6 +315,13 @@ def billsearch(request):
         import home
         home.annotate_track_status(request.user.userprofile, bills)
 
+        user = request.user
+        for bill in bills:
+            try:
+                if bill.usercomments.get(user=user):
+                    bill.userweighedin = True
+            except UserComment.DoesNotExist:
+                bill.userweighedin = False
     if len(bills) == 1:
         if request.user.is_authenticated() and request.user.userprofile.is_leg_staff():
             return HttpResponseRedirect(bills[0].url() + "/report")
