@@ -16,7 +16,7 @@ class MemberpageSitemap(Sitemap):
 
     def items(self):
         today = datetime.today()
-        currentmems = MemberOfCongressRole.objects.filter(enddate__gt=today)
+        currentmems = [m for m in mems if m.info()['current']]
         memlist = []
         for mem in currentmems:
             personid = mem.personid

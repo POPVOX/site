@@ -1090,7 +1090,7 @@ def member_page(request, membername=None):
         memberid = MemberBio.objects.get(pvurl=membername).id
         member = MemberOfCongress.objects.get(id=memberid)
         
-    except MemberBio.DoesNotExist, KeyError:
+    except (MemberBio.DoesNotExist, KeyError):
         raise Http404()
         #Now that we have all the members ever, supporting url-hacking is too hard.
         membername = membername.replace("-"," ")
@@ -1101,6 +1101,8 @@ def member_page(request, membername=None):
                 member = mem
                 
     if member is None:
+        raise Http404()
+    if not member.info()['current']:
         raise Http404()
     
     memberids = [member.id] #membermatch needs a list
@@ -1113,7 +1115,7 @@ def member_page(request, membername=None):
         json_data = "".join(urllib2.urlopen(url).readlines())
         loaded_data = json.loads(json_data)
         mem_data = loaded_data['results'][0]
-    except urllib2.HTTPError:
+    except (urllib2.HTTPError, IndexError):
         pass
 
     if 'youtube_url' in mem_data and mem_data['youtube_url'] != "":

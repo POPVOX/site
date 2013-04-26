@@ -1327,7 +1327,7 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
     try: 
         comment.save()
     except IntegrityError, e:
-        if string.find(str(e),"Duplicate entry") != -1:
+        if "Duplicate entry" in str(e):
             pass
     
     if referrer != None:
