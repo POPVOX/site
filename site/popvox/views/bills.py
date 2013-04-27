@@ -156,7 +156,6 @@ def get_popular_bills2(searchstate = None, searchdistrict = None, newdist = Fals
     
     return popular_bills2
 
-@strong_cache
 def bills(request):
     return render_to_response('popvox/bill_list.html', {
         'trending_bills': get_popular_bills2(),
@@ -188,9 +187,31 @@ def bills_issue_areas():
         issues.append( { "primaryorder": len(issues), "commentcount": 0, "id": "other", "name": "Uncategorized Bills", "billcount": uncat_count } ) 
     return issues
 
-@strong_cache
 def bills_issues_bills(request):
     ix = request.GET.get('ix', "0")
+
+    # cache magic
+    if request.user.is_authenticated():
+        user = request.user
+        # check to see if we have a cache of what the user's weighed in on
+        cache_key = ("bill_issues_bills_cache:"+str(user.id)+","+str(ix))
+    else:
+        user = None
+        cache_key = ("bill_issues_bills_cache:None,"+str( ix))
+
+    
+    bills = cache.get(cache_key) if cache_key else None
+    if bills != None:
+        from utils import group_by_issue
+        groups = group_by_issue(bills, top_title="Top Bills", exclude_issues=[ix], other_title="Other Bills")
+        if len(groups) == 1:
+            groups[0]["name"] = name
+        
+        return render_to_response('popvox/bill_list_issues_bills.html', {
+        'groups': groups,
+        }, context_instance=RequestContext(request))
+
+    # if we get here, the user's weigh-in status is not yet cached
     if ix != "other":
         ix = get_object_or_404(IssueArea, id=ix)
         name = ix.name
@@ -210,13 +231,15 @@ def bills_issues_bills(request):
         | bills
 
     if request.user.is_authenticated():
-        user = request.user
         for bill in bills:
             try:
                 if bill.usercomments.get(user=user):
                     bill.userweighedin = True
             except UserComment.DoesNotExist:
                 bill.userweighedin = False
+        if cache_key: cache.set(cache_key,bills,60*30) #cache user's weigh-in list half-hourly
+    else:
+        if cache_key: cache.set(cache_key,bills,60*60*8) #cache bill list for 8 hours for logged out users
     
     from utils import group_by_issue
     groups = group_by_issue(bills, top_title="Top Bills", exclude_issues=[ix], other_title="Other Bills")
