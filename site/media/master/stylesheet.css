@@ -1142,10 +1142,15 @@ h3#reportsubtitle {
     }
 
 .no_pie {
-    background: url(bg_pie_empty.png) left top no-repeat;
-    padding-left: 85px;
-    xxx-height: 80px;
-    height: 120px;
+    background: none repeat scroll 0 0 #D4D1CA;
+    display: block;
+    float: left;
+    height: 50px;
+    left: 320px;
+    padding: 20px;
+    position: absolute;
+    text-align: center;
+    width: 300px;
     }
 
 div.block.leg_agenda .no_pie {
