@@ -1,0 +1,386 @@
+/* media object from http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/ */
+
+.media, .bd {overflow:hidden; _overflow:visible; zoom:1;}
+.media .img {float:left; margin-right: 10px;}
+.media .img img{display:block;}
+
+/* Layout */
+.stats,
+.district-legislation,
+.member,
+.member-legislation,
+.member-info {
+	float: left;
+	padding-right: 20px;
+}
+
+.member-info-inner{
+	padding:10px;
+	padding-top:0;
+	background:#FFFFFF;
+}
+.stats,
+.member {
+	width: 220px;
+}
+
+.member-legislation {
+	width: 360px;
+}
+
+.district-legislation {
+    width: 460px;
+}
+
+.district-info .col_ad {
+    margin-top: 0;
+}
+
+.member .member_name{
+	color:#C86917;
+	font-weight:bold;
+}
+.member .member_partydata{
+	color:#C86917;
+}
+
+.member-info {
+	padding-right: 0;
+	width: 300px;
+}
+
+.member .member-stats {
+	background:#D4D1CA;
+}
+.member .member-stats h3 {
+	margin:10px;
+}
+
+.member .member-stats table {
+	border-spacing:10px;
+	border-collapse:separate;
+}
+.member .member-stats table th {
+	text-align:right;
+}
+.member .member-stats table td {
+	font-weight:bold;
+	text-align:left;
+}
+.member .member-stats table td li{
+	margin-bottom:10px;
+}
+
+/*Typography */
+
+.district-info h2 {
+	color: #75747c;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font-size: 30px;
+}
+
+.subhead {
+	background: url(../master/m-bill.png) no-repeat 0 0;
+	font-size: 16px;
+	padding-left: 40px;
+	line-height: 40px;
+}
+
+/* Stats column */
+
+.stats .rep { 
+	margin-bottom: 10px;
+	}
+	
+.stats .rep p {
+	color: #CC6A11;
+	font-weight: bold;
+}
+.stats .census {
+	background: #d4d1ca;
+	margin-top: 20px;
+}
+.stats .census > div {
+	border-bottom: 1px solid #e8e5df;
+	padding: 10px;
+}
+.stats .census dl {
+	margin: 0;
+}
+.stats .census dt {
+	color: #40405;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font-size: 24px;
+    font-weight: normal;
+}
+.stats .census dd,
+.stats .census dd p {
+	color: #cc6a11;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	margin-left: 0;
+	padding-top: 20px;
+	padding-left: 70px;
+	background-repeat: no-repeat;
+	background-position: 0% 50%;
+}
+.stats .census dd .digits {
+	font-size: 36px;
+}
+.stats .census dd .units {
+	font-size: 18px;
+}
+.stats .census .pop dd {
+	background-image: url(../master/silhouette.png);
+}
+.stats .census .age dd {
+	background-image: url(../master/hourglass.png);
+}
+.stats .census .income dd {
+	background-image: url(../master/dollars.png);
+}
+.stats .census .edu dd {
+	background-image: url(../master/cap.png);
+}
+.stats .census .edu dd p {
+	padding-left: 0;
+}
+.stats .census .mil dd {
+	background-image: url(../master/medal.png);
+}
+
+.stats .census .residence dd {
+	padding-left: 0;
+}
+
+.stats .census .residence .urban {
+	/*background: url(../master/skyscrapers.png);
+	padding-top: 30px;
+	padding-left: 0;*/
+	float:left;
+}
+.stats .census .residence .rural {
+	/*background: url(../master/farm.png);
+	padding-top: 30px;
+	padding-left: 0;*/
+	float:right;
+}
+.stats .census .sex {
+	clear: both;
+}
+.stats .census .sex dd {
+	padding-left: 0;
+}
+.stats .census .sex .male {
+	float: left;
+}
+.stats .census .sex .female {
+	float: right;
+}
+
+.stats .census .race dd {
+	padding-left:0;
+}
+
+.1stats .census .bar-fake-graph {
+	background: #75757d;
+	height: 30px;
+	width: 200px;
+	position: relative;
+	margin-bottom: 10px;
+}
+.stats .census .sex .bar-fake-graph .y-chromosome,
+.stats .census .sex .bar-fake-graph .urban {
+	background: #404045;
+	height: 30px;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+
+/* Legislation column */
+
+.legislation-tabs {
+	border: 3px solid #d4d1ca;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	margin-bottom: 10px;
+}
+
+.legislation-tabs h4{
+	font: 14px helvetica, arial, sans-serif;
+	font-weight:bold;
+	width:50%;
+	text-align:center;
+	float:left;
+	clear:right;
+	margin-top:0;
+	line-height:30px;
+}
+
+.legislation-tabs h4.active {
+	background-image: -ms-linear-gradient(top, #AC510B 0%, #CC7413 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#AC510B', endColorstr='#CC7413');
+	background-image: -moz-linear-gradient(top, #AC510B 0%, #CC7413 100%);
+	background-image: -o-linear-gradient(top, #AC510B 0%, #CC7413 100%);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #AC510B), color-stop(1, #CC7413));
+	background-image: -webkit-linear-gradient(top, #AC510B 0%, #CC7413 100%);
+	background-image: linear-gradient(top, #AC510B 0%, #CC7413 100%);
+}
+.legislation-tabs h4.active a {
+	color:#FFFFFF;
+}
+
+.legislation-tabs h4.inactive {
+	background-image: -ms-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#F8F8FA', endColorstr='#E8E9EB');
+	background-image: -moz-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
+	background-image: -o-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #F8F8FA), color-stop(1, #E8E9EB));
+	background-image: -webkit-linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
+	background-image: linear-gradient(top, #F8F8FA 0%, #E8E9EB 100%);
+
+	color:#c46708;
+}
+
+ .legislation-tabs a {display:block;}
+ .legislation-tabs a:hover { border: none; }
+
+
+.district-legislation li,
+.member-legislation li {
+	background: #fff url(../master/b_bill.png) no-repeat 10px 90%;
+	margin-bottom: 10px;
+	padding: 10px;
+}
+
+.district-legislation li .number,
+.member-legislation li .number { 
+	float: right;
+	color: #75747c;
+	font-family: 'BebasNeueRegular', helvetica, arial, sans-serif;
+	font-size: 30px;
+	margin: 5px;
+	}
+
+.district-legislation li h5 a,
+.member-legislation li h5 a {
+	font-weight: bold;
+}
+
+/* Member page */
+.myhill h3 {
+	background: none;
+	color: #75747c;
+	font: 14px helvetica, arial, sans-serif;
+}
+.member .member-photo {
+	width: 220px;
+	height: 250px;
+}
+.member .member-photo img {
+	margin: 0 auto;
+	width:200px;
+}
+.member-legislation h3 {
+	background: none;
+	color: #75747c;
+	font: 14px helvetica, arial, sans-serif;
+}
+
+/* Member page */
+.myhill h3 {
+	background: none;
+	font: normal 24px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+
+.myhill h2 {
+	margin: 15px 0 22px;
+	font: normal 40px/40px 'BebasNeueRegular', helvetica, arial, sans-serif;
+	letter-spacing: .02em;
+	color:#75767b;
+}
+
+.myhill h1 .name {
+	color:#75767b;
+}
+
+.member-info-inner ul.social-links {
+	display: block;
+	height: 50px;
+}
+.member-info-inner ul.social-links li a {
+	display: block;
+	float: left;
+	text-indent: -9999em;
+	width:  30px;
+	height: 32px;
+	margin-right: 10px
+}
+	
+	.member-info-inner ul.social-links li a:hover {
+		background-position: left -40px;
+		text-decoration: none;
+		border: none;
+	}
+
+.member-info-inner ul li a.facebook {
+	background: url(/media/master/moc_facebook.png) left top no-repeat;
+}
+
+.member-info-inner ul li a.twitter {
+	background: url(/media/master/moc_twitter.png) left top no-repeat;
+}
+
+.member-info-inner ul li a.youtube {
+	background: url(/media/master/moc_youtube.png) left top no-repeat;
+}
+
+.member-info-inner ul li a.flickr {
+	background: url(/media/master/moc_flickr.png) left top no-repeat;
+}
+.member-info-inner ul li a.googleplus {
+	background: url(/media/master/moc_googleplus.png) left top no-repeat;
+}
+.myhill h2 {
+	margin-bottom: 5px;
+}	
+
+.member-info-inner p {
+	color: #75757d;
+}	
+	
+.member-legislation div.sponsoredbills ul{
+	margin-bottom: 30px;
+}	
+
+.member-legislation li {
+	background: #FFFFFF;
+}
+
+.member-legislation ul li.bill p.toofew {	
+	font: italic normal 14px/16px georgia, serif;
+	margin-top: 5px;
+	margin-bottom: 15px;
+}
+
+.member-legislation ul li.bill p.takeaction {	
+	background: url("../master/b_bill.png") no-repeat scroll left;
+	padding-left: 30px;
+}	
+li.bill p.usercount {	
+	margin-top: -20px;
+	font-size: x-small;
+	margin-bottom: 15px;
+}
+	
+.bar_graph {
+	margin:15px 0 25px 0;
+}
+
+p.trend {
+	font-style:italic;
+}
