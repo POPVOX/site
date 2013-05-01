@@ -1,30 +1,173 @@
+<!doctype html>
 <html>
-<head> 
-<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
-<link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
-<link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" />
+<head>
+	<title>Testing</title>
+	<link rel="stylesheet" href="/media/master/reset.css">
+	<link rel="stylesheet" href="/media/master/style.css">
+	<link rel="stylesheet" href="/media/widget/la_widget.css">
 </head>
-
-<body style="background:transparent">
-<h1>{{org.name}} - {%if campaign%} {{campaign.name}}{%endif%}</h1>
-{%if campaign.description%}<p>{{campaign.description}}{%endif%}
-
-{% regroup positions by campaign as campaign_list %}
-{% for campaign in campaign_list %}
-<h2>{{campaign.grouper}}</h2>
-    {% for position in campaign.list %}
-        <h3>{{position.bill_shortname}}</h3>
-        <ul>
-            <li>Position: {{position.position}}</li>
-            <li>Comment: {{position.comment}}</li>
-            <li>Category: {{position.bill.topterm}}</li>
-            <li>Widget:<br><iframe src="https://www.popvox.com/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe></li>
-            <li>Map:<br>
-            <iframe width="720" height="590" frameborder="0" marginwidth="0" marginheight="0" border="0" src="/widgets/bill-comment-map?bill={{position.bill.id}}"></iframe></li>
-        </ul>
-    {% endfor %}
-{% endfor %}
-
-
+<body class="la_widget_pg">
+	<div id="wrapper">
+		
+		<div id="proposal_list">
+		<div class="proposal heading">
+			<div class="cell campaign"><div class="sorter" field="campaign">sort</div>Campaign</div>
+			<div class="cell description"><div class="sorter" field="description">sort</div>Priority Bills and Proposals</div>
+			<div class="cell sentiment">POPVOX Sentiment</div>
+			<div class="cell action_buttons">Take Action</div>
+		</div>
+		
+		
+		<div class="proposal body" bill_id="15780" bill_url="/bills/us/112/hr1124" category="Tax" description="The Toomey-Schumer-Manchin Amendment" score="873" sentiment="78">
+			<div class="cell campaign" title="Tax"> 
+				<em></em>
+			</div>
+			<div class="cell description">
+				<div class="small">
+					<a class="i_eye" href="/bills/us/112/hr1124">view</a>
+					<div class="title"><a href="/bills/us/112/hr1124" data-fancybox-type="iframe"><span></span>The Toomey-Schumer-Manchin Amendment</a></div>
+					
+				</div>
+				<div class="large">
+					<a class="i_eye" class="fire_modal" href="https://www.popvox.com/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&ocp=6021&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">view</a>
+					<div class="title"><a class="fire_modal" href="https://www.popvox.com/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&ocp=6021&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">The Toomey-Schumer-Manchin Amendment</a></div>
+					<p>Much like the underlying bill, the Schumer-Toomey-Manchin Amendment is highly flawed. It would infringe on Americans' constitutional rights and do little to prevent horrific crimes. In addition to substantial Second Amendment concerns, the bill contains several additional flaws. <strong></strong> <a href="https://www.popvox.com/bills/us/113/x120" class="underline" target="_blank">View the full position statement</a></p>
+					
+					<p class="how_should_they_vote">Join Heritage Action in opposing</p>
+					<div class="action_buttons">
+						<a class="oppose lg" href="/bills/us/112/hr1124/comment/oppose">Oppose</a>
+					</div>
+				</div>
+			</div>
+			<div class="cell sentiment">
+					<div class="tooltip_sent"><p><span class="heart">55%</span><span class="anti">45%</span></p><p class="total">1505 total users</p></div> 
+					<div class="bar_pro" style="width: 78px"> </div><div class="bar_con" style="width: 64px"> </div>
+					<!--<div class="maplink">map</div>-->
+			</div>
+			<div class="cell action_buttons">
+				<a class="oppose single" href="/bills/us/112/hr1124/comment/oppose" title="Join Heritage Action in opposing">Oppose</a>
+			</div>
+		</div>
+		
+		
+		
+		
+		<div class="proposal body" bill_id="19773" bill_url="/bills/us/112/x4" category="Tax" description="S. 649: Safe Communities, Safe Schools Act of2013" score="453" sentiment="93">
+			<div class="cell campaign"> 
+				<em></em><span><a href="/bills/us/112/x4">S. 649</a></span>
+			</div>
+			<div class="cell description">
+				<div class="small">
+					<a class="i_eye" href="/bills/us/112/x4">view</a>
+					<div class="title"><a href="/bills/us/112/x4"> Safe Communities, Safe Schools Act of2013</a></div>
+					
+				</div>
+				<div class="large">
+					<a class="i_eye" href="/bills/us/112/x4">view</a>
+					<div class="title"><a href="/bills/us/112/x4"><span>S. 649</span> Safe Communities, Safe Schools Act of2013</a></div>
+					<p>The Safe Communities, Safe Schools Act of 2013 (S.649) would undermine Americans' constitutional rights and do little to prevent horrific crimes such as the massacre in Newtown, Connecticut.</p>
+					<p>First and foremost, any legislation must respect Americans&lsquo; constitutional right to keep and bear arms. <strong></strong> <a href="http://www.democraticleader.gov/pdf/WaysMeans101311.pdf" class="underline" target="_blank">View the the full position statement</a></p>
+					
+					<p class="how_should_they_vote">Join Heritage Action in opposing</p>
+					<div class="action_buttons">
+						<a class="oppose lg" href="/bills/us/112/x4/comment/oppose">Oppose</a>
+					</div>
+				</div>
+			</div>
+			<div class="cell sentiment">
+				<div class="tooltip_sent"><p><span class="heart">66%</span><span class="anti">34%</span></p><p class="total">1298 total users</p></div> 
+				<div class="bar_pro" style="width: 93px"> </div><div class="bar_con" style="width: 49px"> </div>
+				<!--<div class="maplink">map</div>-->
+			</div>
+			<div class="cell action_buttons">
+				<a class="oppose single" href="/bills/us/112/x4/comment/oppose" title="Join Heritage Action in opposing">Oppose</a>
+			</div>
+		</div>
+		
+		
+		
+		
+		<div class="proposal body" bill_id="19877" bill_url="/bills/us/112/x21" category="Tax" description="The Salmon Rule" score="432" sentiment="107">
+			<div class="cell campaign"> 
+				<em>Cut Spending</em><span><a href="/bills/us/112/x21">H.R. 1033</a></span>
+			</div>
+			<div class="cell description">
+				<div class="small">
+					<a class="i_eye" href="/bills/us/112/x21">view</a>
+					<div class="title"><a href="/bills/us/112/x21"><span>H.R. 1033</span> American Battlefield Protection Program Amendments Act of 2013</a></div>
+					
+				</div>
+				<div class="large">
+					<a class="i_eye" href="/bills/us/112/x21">view</a>
+					<div class="title"><a href="/bills/us/112/x21"><span>H.R. 1033</span> American Battlefield Protection Program Amendments Act of 2013</a></div>
+					<p>The bill would expand eligibility of the Battlefield Acquisition Grant Program, which provides taxpayer handouts to state and local governments to purchase eligible land that is not within the boundaries of the National Park System.</p>
+					<p>According to the Congressional Budget Office (CBO) estimate, “implementing H.R. 1033 would cost $46 million over the 2014-2018 period and about $4 million after 2018.” The spending on land acquisition comes when National Park Service (NPS) officials, who administer the battlefield program, claim “there’s no fat left to trim” and cite sequester-related budget cuts for reduced services, facility closures and hiring freezes.</p>
+					<p>It is time for self-described conservatives to end the practice of enabling passage of legislation that is not conservative. <strong></strong> <a href="https://www.popvox.com/bills/us/113/x117" class="underline" target="_blank">view the full position statement</a></p>
+					
+					<p class="how_should_they_vote">Join Heritage Action in opposing</p>
+					<div class="action_buttons">
+						<a class="support lg" href="/bills/us/113/x117/comment/oppose">Oppose</a>
+					</div>
+				</div>
+			</div>
+			<div class="cell sentiment">
+				<div class="tooltip_sent"><p><span class="heart">76%</span><span class="anti">24%</span></p><p class="total">687 total users</p></div> 
+				<div class="bar_pro" style="width: 107px"> </div><div class="bar_con" style="width: 35px"> </div>
+				<!--<div class="maplink">map</div>-->
+			</div>
+			<div class="cell action_buttons">
+				<a class="support single" href="/bills/us/113/x117/comment/support" title="Join Heritage Action in supporting">Support</a>
+			</div>
+		</div>
+		
+		
+		
+		
+		
+		
+		<div class="proposal body" bill_id="19775" bill_url="bills/us/113/s47" category="Tax" description="S. 47: Violence Against Women Reauthorization Act of 2013" score="410" sentiment="86">
+			<div class="cell campaign"> 
+				<em></em><a href="bills/us/113/s47"><span>S. 47</span></a>
+			</div>
+			<div class="cell description">
+				<div class="small">
+					<a class="i_eye" href="bills/us/113/s47">view</a>
+					<div class="title"><a href="bills/us/113/s47">Violence Against Women Reauthorization Act of 2013</a></div>
+					
+				</div>
+				<div class="large">
+					<a class="i_eye" href="bills/us/113/s47">view</a>
+					<div class="title"><a href="bills/us/113/s47">S. 47: Violence Against Women Reauthorization Act of 2013</a></div>
+					<p>This week, the Senate is expected to vote on the deceptively named Violence Against Women Act of 2013 (VAWA) (S.47). The bill would reauthorize and expand the 1994 law that made domestic violence - typically handled by state and local governments - a federal crime. <strong></strong> <a href="#" class="underline" target="_blank">View the full position statement</a></p>
+					
+					<p class="how_should_they_vote">Join Heritage Action in opposing</p>
+					<div class="action_buttons">
+						<a class="oppose lg" href="bills/us/113/s47/comment/oppose">Oppose</a>
+					</div>
+				</div>
+			</div>
+			<div class="cell sentiment">
+				
+					<div class="tooltip_sent"><p><span class="heart">61%</span><span class="anti">39%</span></p><p class="total">684 total users</p></div> 
+					<div class="bar_pro" style="width: 86px"> </div><div class="bar_con" style="width: 56px"> </div>
+					<!--<div class="maplink">map</div>-->
+				
+			</div>
+			<div class="cell action_buttons">
+				<a class="oppose single inactive" href="bills/us/113/s47/comment/oppose" title="Join Heritage Action in opposing">Oppose</a>
+			</div>
+		</div>
+		
+		
+		
+		
+		
+		
+		</div>
+	</div>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+	<script src="/media/js/qtip.js"></script>
+	<script src="/media/js/jquery.fancybox.pack.js"></script>
+	<script src="/media/js/main.js"></script>
 </body>
 </html>
