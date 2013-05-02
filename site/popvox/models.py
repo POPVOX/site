@@ -362,6 +362,9 @@ class Bill(models.Model):
     def getDeadReason(self):
         # dead = no longer pending action because it passed, failed, or died in a previous session
         if not self.is_bill():
+            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
+            if self.id==28896:
+                return "is no longer active"
             if self.congressnumber != govtrack.CURRENT_CONGRESS:
                 return "was proposed in a previous session of Congress"
             return None
