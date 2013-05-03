@@ -352,11 +352,19 @@ class Bill(models.Model):
             return "N/A"
     def isAlive(self):
         # alive = pending further Congressional action
-        if not self.is_bill(): return self.congressnumber == govtrack.CURRENT_CONGRESS
+        if not self.is_bill():
+            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
+            if self.id==28896:
+                return False
+            else:
+                return self.congressnumber == govtrack.CURRENT_CONGRESS
         return govtrack.billFinalStatus(self) == None
     def getDeadReason(self):
         # dead = no longer pending action because it passed, failed, or died in a previous session
         if not self.is_bill():
+            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
+            if self.id==28896:
+                return "is no longer active"
             if self.congressnumber != govtrack.CURRENT_CONGRESS:
                 return "was proposed in a previous session of Congress"
             return None
@@ -913,6 +921,11 @@ class OrgCampaignPosition(models.Model):
         if self.position == "+": return "endorsed"
         if self.position == "-": return "opposed"
         if self.position == "0": return "posted a statement on"
+        
+    def ingverb(self):
+        if self.position == "+": return "endorsing"
+        if self.position == "-": return "opposing"
+        if self.position == "0": return "weighing in on"
 
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 
