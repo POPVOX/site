@@ -54,7 +54,7 @@
                     </div>
                     <div class="cell sentiment">
                         <div class="tooltip_sent"><p><span class="heart">{{ stats.pro_pct }}%</span><span class="anti">{{ stats.con_pct }}%</span></p><p class="total">{{stats.total}} total users</p></div> 
-                        <div class="bar_pro" style="width: 50%"> </div><div class="bar_con" style="width: 50%"> </div>
+                        <div class="bar_pro" style="width: {{ stats.pro_pct }}%"> </div><div class="bar_con" style="width: {{ stats.con_pct }}%"> </div>
                         <!--<div class="maplink">map</div>-->
                     </div>
                     <div class="cell action_buttons">
