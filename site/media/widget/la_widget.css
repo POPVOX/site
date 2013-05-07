@@ -3,7 +3,7 @@
 
 .la_widget_pg #wrapper{
 	width: 900px;
-	margin: 280px auto 0;
+	margin: 0 auto 0;
 
 }
 
@@ -429,7 +429,7 @@
 			}
 			
 		.proposal .sentiment {
-			width: 150px;
+			width: 145px;
 			}
 			.proposal.body .sentiment {
 				padding: 0;

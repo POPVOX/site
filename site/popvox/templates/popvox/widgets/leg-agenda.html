@@ -13,6 +13,7 @@
 	<div id="wrapper">
 		<body style="background:transparent">
     <h1>{{org.name}}{%if campaign%} - {{campaign.name}}{%endif%}</h1>
+    <h2>THIS THIS THIS</h2></h2>
     <p>{%if campaign.description%}<p>{{campaign.description}}{%endif%}</p>
 		<div id="proposal_list">
 		<div class="proposal heading">
@@ -30,7 +31,8 @@
                 {% bill_statistics bill as stats %}
                 <div class="proposal body" bill_id="{{bill.id}}" bill_url="{{bill.get_absolute_url}}" category="{{bill.topterm}}" sentiment="{{stats.total}}">
                     <div class="cell campaign"> 
-                        <em>{{campaign.name}}</em><span><a href="{{bill.get_absolute_url}}">{{bill.displaynumber}}</a></span>
+                        <em>{{campaign.name}}</em>
+                        <span><a class="fire_modal" href="https://william.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">{{bill.displaynumber}}</a></span>
                     </div>
                     <div class="cell description">
                         <div class="small">
@@ -39,23 +41,24 @@
                             
                         </div>
                         <div class="large">
-                            <a class="i_eye fire_modal" href="https://www.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">view</a>
-                            <div class="title"><a class="fire_modal" href="https://www.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">{{bill.nicename}}</a></div>
-                            <div>{{position.comment|wraplines:"p style='margin-bottom: .5em'"|truncatewords_html:100}}</div> <a href="/orgs/{{org.slug}}/{{campaign.slug}}" class="underline" target="_blank">view the full position statement</a></p>
+                            <a class="i_eye fire_modal" href="https://william.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">view</a>
+                            <div class="title"><a class="fire_modal" href="https://william.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">{{bill.nicename}}</a></div>
+                            <div>{{position.comment|wraplines:"p style='margin-bottom: .5em'"|truncatewords_html:10}}</div> <a href="/orgs/{{org.slug}}/{{campaign.slug}}" class="underline" target="_blank">view the full position statement</a></p>
                             
                             <p class="how_should_they_vote">Join {{org.name}} in {{position.ingverb}} {{bill.shortname}}</p>
                             <div class="action_buttons">
-                                <a class="{{position.get_position_display|lower}} lg" href="{{bill.get_absolute_url}}/comment/{{position.get_position_display|lower}}">{{position.get_position_display}}</a>
+                                <a class="{{position.get_position_display|lower}} lg 
+                                fire_modal" href="https://william.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">{{position.get_position_display}}</a>
                             </div>
                         </div>
                     </div>
                     <div class="cell sentiment">
                         <div class="tooltip_sent"><p><span class="heart">{{ stats.pro_pct }}%</span><span class="anti">{{ stats.con_pct }}%</span></p><p class="total">{{stats.total}} total users</p></div> 
-                        <div class="bar_pro" style="width: 107px"> </div><div class="bar_con" style="width: 35px"> </div>
+                        <div class="bar_pro" style="width: 50%"> </div><div class="bar_con" style="width: 50%"> </div>
                         <!--<div class="maplink">map</div>-->
                     </div>
                     <div class="cell action_buttons">
-                        <a class="{{position.get_position_display|lower}} single {%if not bill.isAlive%}inactive{%endif%}" href="{{bill.get_absolute_url}}/comment/{{position.get_position_display|lower}}" title="Join {{org.name}} in {{position.ingverb}} {{bill.shortname}}">{{position.get_position_display}}</a>
+                        <a class="{{position.get_position_display|lower}} single {%if not bill.isAlive%}inactive{%endif%} fire_modal" href="https://william.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" title="Join {{org.name}} in {{position.ingverb}} {{bill.shortname}}">{{position.get_position_display}}</a>
                     </div>
                 </div>
                 {% endwith %}{% endwith %}
@@ -65,7 +68,7 @@
 
 		</div>
 	</div>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 	<script src="/media/js/qtip.js"></script>
 	<script src="/media/js/jquery.fancybox.pack.js"></script>
 	<script src="/media/js/main.js"></script>

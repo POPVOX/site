@@ -76,6 +76,11 @@ POP = function()
 		});
 	};
 
+	var makeInactive = function(billID)
+	{
+		$('div[bill_id="'+billID+'"]').find('div.action_buttons a').addClass('inactive');
+	};
+
 	var init = function()
 	{
 		showDetail();
@@ -84,7 +89,8 @@ POP = function()
 	};
 
 	return {
-		init:init
+		init:init,
+		makeInactive:makeInactive
 	};
 
 } ();
