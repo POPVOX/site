@@ -344,7 +344,7 @@ document.write("<iframe id='popvox_billtext_widget' src='https://%s/widgets/bill
 @do_not_track_compliance
 def leg_agenda(request):
     
-    org = Org.objects.get(id=2121)
+    org = Org.objects.get(id=request.GET["org"])
     
     #legagenda widgets can cover all an org's bills, or just one campaign.
     '''if request.GET["campaign"]:
