@@ -35,13 +35,13 @@
           src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
         {% endif %}
 		
-		<p><span class="member_name">{{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}</span> <span class="member_partydata">[{%if memdata.chamber == "house" %}{%if memdata.state == "DC" or memdata.state == "PR" %}<a href="/district/{{memdata.state}}">{{memdata.party}}, {{memdata.state}}</a>{% else %}<a href="/district/{{memdata.state}}/{{memdata.district}}">{{memdata.party}}, {{memdata.state}}-{{memdata.district}}</a>{% endif %}{% else %}<a href="/state/{{memdata.state}}">{{memdata.party}}, {{memdata.state}}</a>{% endif %}]</span></p>
+		<p><span class="member_name">{{memdata.title}} {{memdata.first_name}} {{memdata.last_name}}</span> <span class="member_partydata">[{%if memdata.chamber == "house" %}{%if memdata.state == "DC" or memdata.state == "PR" %}<a href="/district/{{memdata.state}}">{{memdata.party}}, {{memdata.state}}</a>{% else %}<a href="/district/{{memdata.state}}/{{memdata.district}}">{{memdata.party}}, {{memdata.state}}-{{memdata.district}}</a>{% endif %}{% else %}<a href="/state/{{memdata.state}}">{{memdata.party}}, {{memdata.state}}</a>{% endif %}]</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
 		<table>
 			{% if memdata.committees %}<tr><th>Committees</th>
-				<td><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul> {% endif %}</td></tr>
-			<tr><th>Age</th><td>{{ memdata.age }}</td></tr>
+				<td><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul></td></tr>{%endif%}
+			<!--<tr><th>Age</th><td>{{ memdata.age }}</td></tr>-->
 			<tr><th>Birth Date</th>	<td>{{ memdata.birthday|date:"m/d/Y" }}</td></tr>
 		</table>
 	</div><!--end member-stats -->
@@ -145,7 +145,7 @@
 
 	<h3>Address</h3>
 	<p>Washington, DC:<br/>
-{{memdata.congress_office}}<br/>
+{{memdata.office}}<br/>
 Washington, DC 20515</p>
 	</div></div><!--end member-info -->
 

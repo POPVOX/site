@@ -1090,7 +1090,7 @@ def member_page(request, membername=None):
         memberid = MemberBio.objects.get(pvurl=membername).id
         member = MemberOfCongress.objects.get(id=memberid)
         
-    except MemberBio.DoesNotExist, KeyError:
+    except (MemberBio.DoesNotExist, KeyError):
         raise Http404()
         #Now that we have all the members ever, supporting url-hacking is too hard.
         membername = membername.replace("-"," ")
@@ -1102,17 +1102,20 @@ def member_page(request, membername=None):
                 
     if member is None:
         raise Http404()
+    if not member.info()['current']:
+        raise Http404()
     
     memberids = [member.id] #membermatch needs a list
     
     #Social media links and bio info from the sunlight API (and our own db, where necessary)
     mem_data = {}
     try:
-        url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member.id)
+        #url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member.id)
+        url = "http://congress.api.sunlightfoundation.com/legislators?apikey=2dfed0d65519430593c36b031f761a11&&govtrack_id=\""+str(member.id)+"\""
         json_data = "".join(urllib2.urlopen(url).readlines())
         loaded_data = json.loads(json_data)
-        mem_data = loaded_data['response']['legislator']
-    except urllib2.HTTPError:
+        mem_data = loaded_data['results'][0]
+    except (urllib2.HTTPError, IndexError):
         pass
 
     if 'youtube_url' in mem_data and mem_data['youtube_url'] != "":
@@ -1128,8 +1131,8 @@ def member_page(request, membername=None):
         except (IndexError, urllib2.HTTPError):
             pass
         
-    if 'birthdate' in mem_data:
-        birthdate = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d").date()
+    if 'birthday' in mem_data:
+        birthdate = datetime.strptime(mem_data['birthday'],"%Y-%m-%d").date()
         today = date.today()
         try: # raised when birth date is February 29 and the current year is not a leap year
             birthday = birthdate.replace(year=today.year)
@@ -1139,7 +1142,7 @@ def member_page(request, membername=None):
             age = today.year - birthdate.year - 1
         else:
             age = today.year - birthdate.year
-        mem_data['birthday'] = datetime.strptime(mem_data['birthdate'],"%Y-%m-%d")
+        mem_data['birthday'] = datetime.strptime(mem_data['birthday'],"%Y-%m-%d")
     if 'age' in mem_data:
         mem_data['age'] = age
     
