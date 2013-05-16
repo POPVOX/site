@@ -33,7 +33,7 @@
                 <div class="proposal body" bill_id="{{bill.id}}" bill_url="{{bill.get_absolute_url}}" category="{{bill.topterm}}" sentiment="{{stats.total}}">
                     <div class="cell campaign"> 
                         <em>{{campaign.name}}</em>
-                        <span><a class="fire_modal" href="https://william.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">{{bill.displaynumber}}</a></span>
+                        <span {%if bill.billtype == 'hc' or bill.billtype == 'sc' or bill.billtype == 'hj' or bill.billtype == 'sj' %} class="conres"{%endif%}><a class="fire_modal" href="https://william.popvox.com/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">{{bill.displaynumber}}</a></span>
                     </div>
                     <div class="cell description">
                         <div class="small">
