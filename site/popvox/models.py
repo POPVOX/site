@@ -78,7 +78,7 @@ class MemberOfCongress(models.Model):
     nickname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255,null=False)
     namemod = models.CharField(max_length=255)
-    lastnameenc = models.CharField(max_length=255,null=False)
+    lastnameenc = models.CharField(max_length=255)
     lastnamealt = models.CharField(max_length=255)
     birthday = models.DateField(default=datetime.date.min)
     gender = models.CharField(max_length=1, null=False, default='')
@@ -100,8 +100,8 @@ class MemberOfCongress(models.Model):
         return unicode(self.id) + u" " + self.name()
     def name(self):
         return self.info()["name"]
-    def lastname(self):
-        return self.info()["lastname"]
+    '''def lastname(self):
+        return self.info()["lastname"]'''
     def party(self):
         if "party" in self.info():
             return self.info()["party"]
