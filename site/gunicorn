@@ -1,0 +1,117 @@
+#!/bin/bash
+
+# Start, graceful switch, or stop the Gunicorn Python instance.
+# Run with the argument 'stop' to stop all executing instances.
+# Otherwise, a new instance is started on a fresh port and once
+# it is started the old instances are killed for a graceful
+# restart, using SIGHUP to gracefully end Gunicorn.
+
+# change to the site directory, where this script is located
+ME=`readlink -m $0`
+MYDIR=`dirname $ME`
+cd $MYDIR
+
+HOSTNAME=`hostname -I | tr -d ' '` # assumes only one interface
+
+# Remove any running instance from the server farm table to inform the
+# master that this server is no longer accepting connections.
+if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
+    ./mysql_shell.sh -e "DELETE FROM farm WHERE hostport LIKE \"$HOSTNAME:%\";"
+fi
+
+# Get the CURPID, CURPIDFILE, and CURPORT of the running instance.
+for CURPIDFILE in `ls /tmp | egrep "django-gunicorn-$USER(-.*)?.pid"`
+do
+    CURPID=`cat -- /tmp/$CURPIDFILE`;
+    CURPORT=`echo $CURPIDFILE | sed "s/django-gunicorn-$USER-\([0-9]*\).pid/\1/"`;
+
+    # Stop: Kill the running instance if the stop argument was used.
+    if [ "$1" = "stop" ]; then
+        echo "Stopping $CURPORT (pid=$CURPID)...";
+        kill -HUP $CURPID;
+        rm -f -- /tmp/$CURPIDFILE;
+        ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9;
+    fi
+done
+
+# Stop: Exit if the stop argument was used.
+if [ "$1" = "stop" ]; then
+    exit;
+fi
+
+# Select a port for the new instance.
+PORT=`echo 1000+$UID*2|bc`
+
+# If it is the same as the running instance's port, add 1.
+if [ "$PORT" = "$CURPORT" ]; then
+    PORT=`echo $PORT+1|bc`
+fi
+
+# Start the new instance...
+
+# Wait for the port to clear.
+CTR=0
+while [ "`netstat -tln |grep $PORT`" != "" ]; do
+	if [ $CTR -gt 1 ]; then
+		echo "Port $PORT already bound...";
+		netstat -tln |grep $PORT;
+		ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
+	fi
+	CTR=`echo $CTR+1|bc`
+	sleep 1;
+done
+
+INSTANCES=8
+if [ "$USER" != "www" ]; then
+	INSTANCES=2
+fi
+
+echo "Starting $HOSTNAME:$PORT x $INSTANCES...";
+
+# select a PIDFILE
+PIDFILE=/tmp/django-gunicorn-$USER-$PORT.pid
+
+# This is the important part! This command block starts up Django (manage is effectively "manage.py")
+# So this is manage.py run_gunicorn [a metric ton of options]
+# It took me FOREVER to identify this simple line of code as the actual inception of the server.
+# Now that I see it, it's blindingly obvious. Which is why this stuff never gets documented.
+# Document. Your. Code. No one is psychic, and no documentation comment is too obvious.
+
+#./manage run_gunicorn host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
+#                workdir=$MYDIR umask=0002 debug=1 \
+#                 maxchildren=$INSTANCES maxspare=$INSTANCES \
+#                 outlog=~/logs/output_log errlog=~/logs/error_log ;
+
+nohup /home/$USER/sources/site/manage run_gunicorn --bind=$HOSTNAME:$PORT --pid $PIDFILE \
+				--umask=0002 --debug --timeout 300 \
+				--workers=$INSTANCES --log-file=$HOME/logs/output_log &
+
+# Only valid if we're starting a drone instance from /home/www/slave
+if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
+    # Inform the master that we are accepting connections.
+    ./mysql_shell.sh -e "INSERT IGNORE INTO farm SET hostport=\"$HOSTNAME:$PORT\";"
+fi
+
+# Kill the previously running instance.
+if [ "$CURPIDFILE" != "" ]; then
+    sleep 2; # give the new instance a chance to start up and
+             # the old instance a chance to complete requests
+
+    echo "Stopping $CURPORT (pid=$CURPID)...";
+    kill -HUP $CURPID;
+    rm -f -- /tmp/$CURPIDFILE;
+    ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
+
+    # wait for the port to clear
+    CTR=0
+    while [ "`netstat -tln |grep $CURPORT`" != "" ]; do
+	if [ $CTR -gt 1 ]; then
+		echo "Waiting for port $CURPORT to be freed...";
+		netstat -tln |grep $PORT;
+	fi
+	CTR=`echo $CTR+1|bc`
+	sleep 1;
+	ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
+    done
+fi
+
