@@ -144,6 +144,11 @@ class SlateCommentAdmin(admin.ModelAdmin):
 class BillRecommendationAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     list_display = ["created", "name", "because"]
+    
+class MemberOfCongressAdmin(admin.ModelAdmin):
+    search_fields = ["lastname", "id"]
+    list_display = ['id', 'lastname', 'firstname']
+    readonly_fields = ["id"]
 
 class MemberBioAdmin(admin.ModelAdmin):
     def name (self,obj):
@@ -153,7 +158,6 @@ class MemberBioAdmin(admin.ModelAdmin):
 
     list_display = ['id','name', 'pvurl']
     exclude = ('documents',)
-    
 
 class UserTagAdmin(admin.ModelAdmin):
     list_display = ("org","label","value")
@@ -165,7 +169,7 @@ admin.site.register(Org, OrgAdmin)
 admin.site.register(OrgCampaign)
 admin.site.register(OrgCampaignPosition, OrgCampaignPositionAdmin)
 admin.site.register(OrgContact)
-admin.site.register(MemberOfCongress)
+admin.site.register(MemberOfCongress, MemberOfCongressAdmin)
 admin.site.register(Bill, BillAdmin)
 admin.site.register(Slate, SlateAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)

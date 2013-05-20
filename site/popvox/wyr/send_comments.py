@@ -71,9 +71,11 @@ if "COMMENT" in os.environ:
     comments_iter = comments_iter.filter(id=int(os.environ["COMMENT"]))
 if "ADDR" in os.environ:
     comments_iter = comments_iter.filter(address__id=int(os.environ["ADDR"]))
+#whitehouse = [1866, 1872]
 if "TARGET" in os.environ:
     if int(os.environ["TARGET"]) == 400629:
         comments_iter = comments_iter.filter(Q(actionrecord__campaign__id__contains=2731) | Q(actionrecord__campaign__id__contains=1872)) #whitehouse campaigns
+
     else:
         m = getMemberOfCongress(int(os.environ["TARGET"]))
         comments_iter = comments_iter.filter(state=m["state"])
