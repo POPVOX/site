@@ -88,13 +88,14 @@ if not "LOCAL" in os.environ:
         mysqluser = "slave"
     DATABASES = {
         'default': {
-            'NAME': 'popvox', #'popvox',
-            'ENGINE': 'django.db.backends.mysql',
-            #'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'popvox_test', #'popvox',
+            #'ENGINE': 'django.db.backends.mysql',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'USER': mysqluser,
             'PASSWORD': 'qsg;5TtC',
             'HOST': mysqlhost,
-            'PORT': 3306 #mysql: 3306 #postgres: 5432
+            'PORT': 5432, #mysql: 3306 #postgres: 5432
+            'OPTIONS': {'autocommit': True,}
         }
     }
 else:
@@ -167,7 +168,7 @@ if not DEBUG:
 
 
 MIDDLEWARE_CLASSES = (
-    'adserver.middleware.Middleware',
+    #'adserver.middleware.Middleware',
     'popvox.middleware.StandardCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -229,7 +230,8 @@ INSTALLED_APPS = (
     'registration',
     #'trafficanalysis',
     'popvox',
-    'adserver',
+    #'adserver',
+    'gunicorn',
 )
 
 if "LOCAL" in os.environ:

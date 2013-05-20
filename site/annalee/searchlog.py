@@ -63,6 +63,8 @@ with open('searchterms.tsv', 'w') as st:
 #splitting the date down for use in the file name:
 filedate = str(date).split(' ')
 filedate = filedate[0]
+
+#sending tsv as an attachment
 with open('searchterms.tsv', 'rb') as f:
     msg = EmailMultiAlternatives("Last Week in Site Search!",
         "Here are the search terms for the past seven days.",
