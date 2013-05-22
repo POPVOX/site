@@ -7,42 +7,59 @@
 # restart, using SIGHUP to gracefully end Gunicorn.
 
 # change to the site directory, where this script is located
+# This means the script can be run from anywhere, as long as the
+# full path is designated.
 ME=`readlink -m $0`
 MYDIR=`dirname $ME`
 cd $MYDIR
 
-HOSTNAME=`hostname -I | tr -d ' '` # assumes only one interface
+# This just grabs the main IP and puts it in the variable $HOSTNAME
+# This assumes only one interface.
+HOSTNAME=`hostname -I | tr -d ' '`
 
 # Remove any running instance from the server farm table to inform the
 # master that this server is no longer accepting connections.
-if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
-    ./mysql_shell.sh -e "DELETE FROM farm WHERE hostport LIKE \"$HOSTNAME:%\";"
-fi
+# if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
+#    ./mysql_shell.sh -e "DELETE FROM farm WHERE hostport LIKE \"$HOSTNAME:%\";"
+# fi
 
+# This reads the pidfile located in /tmp. It uses the pidfile name
+# to find the current port ($CURPORT), and the pidfile contents to
+# designate $CURPID.
 # Get the CURPID, CURPIDFILE, and CURPORT of the running instance.
+# It's worth noting that $CURPID appears to be 1 pid ID higher than we want
+# Possibly because whatever inserts the pid later on is grabbing the wrong
+# info?
 for CURPIDFILE in `ls /tmp | egrep "django-gunicorn-$USER(-.*)?.pid"`
 do
     CURPID=`cat -- /tmp/$CURPIDFILE`;
     CURPORT=`echo $CURPIDFILE | sed "s/django-gunicorn-$USER-\([0-9]*\).pid/\1/"`;
 
     # Stop: Kill the running instance if the stop argument was used.
+    # This does NOT work right now, and we'd LOVE to fix it.
+    # This may need an adjustment to how $CURPID is generated
     if [ "$1" = "stop" ]; then
         echo "Stopping $CURPORT (pid=$CURPID)...";
-        kill -HUP $CURPID;
+        kill -TERM $CURPID;
         rm -f -- /tmp/$CURPIDFILE;
-        ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9;
+	# Presently, the following command gets Permission Denied, and doesn't
+	# Detect all rogue pids.
+        # ps -ef | grep gunicorn | grep $USER | cut -d" " -f4 | xargs kill -9;
     fi
 done
 
-# Stop: Exit if the stop argument was used.
+# Exit if the stop argument was used.
 if [ "$1" = "stop" ]; then
     exit;
 fi
 
-# Select a port for the new instance.
+# $PORT is based off the user's UID. Therefor, it is locked to each individual user.
 PORT=`echo 1000+$UID*2|bc`
 
 # If it is the same as the running instance's port, add 1.
+# This will only ever vary the port by 1
+# Either $CURPORT is the same as the UID generated port,
+# or it's not.
 if [ "$PORT" = "$CURPORT" ]; then
     PORT=`echo $PORT+1|bc`
 fi
@@ -50,17 +67,27 @@ fi
 # Start the new instance...
 
 # Wait for the port to clear.
+# If the port gets stuck, auto quit so the user can kill processes manually.
 CTR=0
 while [ "`netstat -tln |grep $PORT`" != "" ]; do
 	if [ $CTR -gt 1 ]; then
 		echo "Port $PORT already bound...";
 		netstat -tln |grep $PORT;
-		ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
+		# This next command currently doesn't work
+		# ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
 	fi
 	CTR=`echo $CTR+1|bc`
+
+	# To prevent this sodding script from locking up, exit if things are going wrong.
+	if [ $CTR -gt 10 ]; then
+		echo "The kill command appears to have failed."
+		echo "Port is not clear, please manually end processes."
+		exit;
+	fi
 	sleep 1;
 done
 
+# Set the number of worker instances. More for WWW than for test sites.
 INSTANCES=8
 if [ "$USER" != "www" ]; then
 	INSTANCES=2
@@ -68,14 +95,13 @@ fi
 
 echo "Starting $HOSTNAME:$PORT x $INSTANCES...";
 
-# select a PIDFILE
+# Manually designate the name of the pidfile based on the current user and the $PORT variable.
+# This variable is used by the actual gunicorn start script to designate the pidfile.
+# Because $PORT is always offset from the previous pidfile, the rest of the script can deal with
+# the old PID file by refrencing $CURPORT
 PIDFILE=/tmp/django-gunicorn-$USER-$PORT.pid
 
-# This is the important part! This command block starts up Django (manage is effectively "manage.py")
-# So this is manage.py run_gunicorn [a metric ton of options]
-# It took me FOREVER to identify this simple line of code as the actual inception of the server.
-# Now that I see it, it's blindingly obvious. Which is why this stuff never gets documented.
-# Document. Your. Code. No one is psychic, and no documentation comment is too obvious.
+# This is the important part! This command block starts up Django
 
 #./manage run_gunicorn host=$HOSTNAME port=$PORT pidfile=$PIDFILE \
 #                workdir=$MYDIR umask=0002 debug=1 \
@@ -86,21 +112,28 @@ nohup /home/$USER/sources/site/manage run_gunicorn --bind=$HOSTNAME:$PORT --pid 
 				--umask=0002 --debug --timeout 300 \
 				--workers=$INSTANCES --log-file=$HOME/logs/output_log &
 
+echo "New Gunicorn instance started"
+
 # Only valid if we're starting a drone instance from /home/www/slave
-if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
-    # Inform the master that we are accepting connections.
-    ./mysql_shell.sh -e "INSERT IGNORE INTO farm SET hostport=\"$HOSTNAME:$PORT\";"
-fi
+# The entire scripting system for this needs an overhaul.
+# if [ -f /home/www/slave ] && [ "$USER" = "www" ]; then
+#    # Inform the master that we are accepting connections.
+#    ./mysql_shell.sh -e "INSERT IGNORE INTO farm SET hostport=\"$HOSTNAME:$PORT\";"
+# fi
 
 # Kill the previously running instance.
+# $CURPIDFILE should NOT be the same as the --pid designated above. This should be
+# Left over from the previous instance.
 if [ "$CURPIDFILE" != "" ]; then
     sleep 2; # give the new instance a chance to start up and
              # the old instance a chance to complete requests
 
-    echo "Stopping $CURPORT (pid=$CURPID)...";
-    kill -HUP $CURPID;
-    rm -f -- /tmp/$CURPIDFILE;
-    ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
+    echo "Stopping old port: $CURPORT (pid=$CURPID)...";
+    kill -TERM $CURPID;
+    rm -f /tmp/$CURPIDFILE;
+
+    # This trick isn't working yet.
+    # ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
 
     # wait for the port to clear
     CTR=0
@@ -111,7 +144,17 @@ if [ "$CURPIDFILE" != "" ]; then
 	fi
 	CTR=`echo $CTR+1|bc`
 	sleep 1;
-	ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
+
+        # To prevent this sodding script from locking up, exit if things are going wrong.
+        if [ $CTR -gt 10 ]; then
+                echo "The kill command appears to have failed."
+                echo "$CURPORT is not clear, please manually end $CURPID."
+		echo "Alternately, end any pid associated with $CURPORT:"
+		echo "`lsof -n -i`"
+                exit;
+        fi
+
+	# ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
     done
 fi
 
