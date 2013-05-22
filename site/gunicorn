@@ -30,10 +30,7 @@ do
         echo "Stopping $CURPORT (pid=$CURPID)...";
         kill -HUP $CURPID;
         rm -f -- /tmp/$CURPIDFILE;
-<<<<<<< Updated upstream
         ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9;
-=======
->>>>>>> Stashed changes
     fi
 done
 
@@ -58,10 +55,7 @@ while [ "`netstat -tln |grep $PORT`" != "" ]; do
 	if [ $CTR -gt 1 ]; then
 		echo "Port $PORT already bound...";
 		netstat -tln |grep $PORT;
-<<<<<<< Updated upstream
 		ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
-=======
->>>>>>> Stashed changes
 	fi
 	CTR=`echo $CTR+1|bc`
 	sleep 1;
@@ -106,10 +100,8 @@ if [ "$CURPIDFILE" != "" ]; then
     echo "Stopping $CURPORT (pid=$CURPID)...";
     kill -HUP $CURPID;
     rm -f -- /tmp/$CURPIDFILE;
-<<<<<<< Updated upstream
     ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
-=======
->>>>>>> Stashed changes
+
 
     # wait for the port to clear
     CTR=0
@@ -120,14 +112,6 @@ if [ "$CURPIDFILE" != "" ]; then
 	fi
 	CTR=`echo $CTR+1|bc`
 	sleep 1;
-<<<<<<< Updated upstream
 	ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
     done
 fi
-
-=======
-    done
-fi
-
-
->>>>>>> Stashed changes
