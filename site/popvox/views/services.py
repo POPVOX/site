@@ -405,7 +405,7 @@ def widget_render_writecongress_action(request, account, permissions):
             if request.POST["email_auth_hmac"].lower() == hmac.new(account.secret_key.encode("ascii"), request.POST["email"].encode("utf8"), hashlib.sha256).hexdigest().lower():
                 # Try to log in this user.
                 try:
-                    user = User.objects.get(email=request.POST["email"])
+                    user = User.objects.get(email__iexact=request.POST["email"])
                     user = authenticate(user_object = user)
                     login(request, user)
                     return { "identity": widget_render_writecongress_get_identity(user) }
@@ -428,7 +428,7 @@ def widget_render_writecongress_action(request, account, permissions):
         csrf_token = compute_csrf_token(request)
         
         try:
-            u = User.objects.get(email = email)
+            u = User.objects.get(email__iexact = email)
         except User.DoesNotExist:
             return { "status": "not-registered", "csrf_token": csrf_token }
             
@@ -784,7 +784,7 @@ class WriteCongressEmailVerificationCallback:
             user = User.objects.get(id=self.post["userid"])
         else:
             try:
-                user = User.objects.get(email=self.post["email"])
+                user = User.objects.get(email__iexact=self.post["email"])
             except User.DoesNotExist:
                 # If the account has not been created, then the action has not been completed.
                 return True
@@ -808,7 +808,7 @@ class WriteCongressEmailVerificationCallback:
             if "userid" in self.post and self.post["userid"] != "":
                 user = User.objects.get(id=self.post["userid"])
             else:
-                user = User.objects.get(email=self.post["email"])
+                user = User.objects.get(email__iexact=self.post["email"])
                 
             user_is_new = user.username.startswith("Anonymous")
         except User.DoesNotExist:
