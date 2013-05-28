@@ -921,6 +921,11 @@ class OrgCampaignPosition(models.Model):
         if self.position == "+": return "endorsed"
         if self.position == "-": return "opposed"
         if self.position == "0": return "posted a statement on"
+        
+    def ingverb(self):
+        if self.position == "+": return "endorsing"
+        if self.position == "-": return "opposing"
+        if self.position == "0": return "weighing in on"
 
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 

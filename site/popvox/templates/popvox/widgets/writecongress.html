@@ -604,6 +604,12 @@ Notes:
 						if (data.status == "fail") {
 							$("#panel_preview .error").text(data.msg);
 						} else {
+
+							if (typeof parent.POP.makeInactive === 'function')
+							{
+								parent.POP.makeInactive({{bill.id}});
+							}
+
 							$("#panel_preview .error").text("");
 							
 							if (data.status == "submitted") {

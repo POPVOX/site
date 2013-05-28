@@ -339,3 +339,32 @@ if (pv_qs_loc.indexOf("#") >= 0) pv_qs_loc = pv_qs_loc.substring(0, pv_qs_loc.in
 document.write("<iframe id='popvox_billtext_widget' src='https://%s/widgets/bill-text?%s&baseurl=" + escape(pv_qs_loc) + pv_qsargs + "' width='%d' height='%d' border='0' marginheight='0' marginwidth='0' frameborder='0'></iframe>");
 """ % (request.get_host(), urllib.urlencode(request.GET), width, height)
     , mimetype="text/javascript")
+
+
+@do_not_track_compliance
+def leg_agenda(request):
+    
+    org = Org.objects.get(id=request.GET["org"])
+    
+    #legagenda widgets can cover all an org's bills, or just one campaign.
+    '''if request.GET["campaign"]:
+        #if there's one campaign, we'll want its name for the page, so storing it separately
+        campaign = OrgCampaign.objects.get(id=request.GET["campaign"])
+        campaigns = [campaign]
+    else:'''
+    campaign = False
+    campaigns = OrgCampaign.objects.filter(org = org)
+    
+    #Positions include the bill, org position, and other useful data. We'll be building the actual table of bills from these.
+    positions =  []
+    for cam in campaigns:
+        campositions = list(cam.positions.all())
+        #this widget only includes bills that can still be weighed in on.
+        livepositions = [position for position in campositions if position.bill.isAlive()]
+        positions.extend(livepositions)
+    
+    return render_to_response('popvox/widgets/leg-agenda.html', {
+        "org": org,
+        "campaign": campaign,
+        "positions": positions,
+    }, context_instance=RequestContext(request))
