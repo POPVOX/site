@@ -4,7 +4,6 @@
 {%block nav_legstaff_class_orgs%}active{%endblock%}
 {%block nav_orgadmin_class_orgs%}active{%endblock%}
 {%block nav_citzen_class_orgs%}active{%endblock%}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 <script type="text/javascript">
 var current_cat = "issue";
@@ -115,10 +114,6 @@ function toggle_categories() {
 				</div>
 			</div>
 		</div>
-			
-		{% with 1 as no_rule %}
-		{% include "ads/rightbar_single.html" %}
-		{% endwith %}
 		
 		<div id="issue_list" class="col_3 rule">
 			<div id="by_issue">
