@@ -3,7 +3,6 @@
 {% block title %}Home{% endblock%}
 {% block description %}POPVOX is a neutral, nonpartisan advocacy platform that meshes legislative data with individuals’ personal stories and sentiment. POPVOX delivers public input to Congress in a format tailored to actionable policy decisions and empowers users to leverage their expertise and numbers.{% endblock%}
 {%block nav_orgadmin_class_dashboard%}active{%endblock%}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
@@ -91,9 +90,6 @@
 	{% include "popvox/bookmarked_bills.html" %}
 
 </div>
-
-{% include "ads/rightbar.html" %}
-	
 </div>
 {% endblock %}
 
