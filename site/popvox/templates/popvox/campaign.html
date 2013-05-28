@@ -6,7 +6,6 @@
 {%block nav_orgadmin_class_profile%}{%if admin%}active{%endif%}{%endblock%}
 {%block nav_orgadmin_class_orgs%}{%if not admin%}active{%endif%}{%endblock%}
 {%block nav_citzen_class_orgs%}active{%endblock%}
-{% block adunits %}{% include "ads/rightbar_head.html" %}{% endblock %}
 {% block head %}
 	{% with cam.org as org %}
 		{% include "popvox/org_common_scripts.html" %}
@@ -113,9 +112,6 @@
 		{% endif %}
 				
 	</div><!-- e: col_6 --> 
-
-    {% include "ads/rightbar.html" %}
-
 </div>	
 	
 {% endblock %}
