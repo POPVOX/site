@@ -7,3 +7,5 @@
 site/database.*
 libs/*/
 oughttabealaw/database.*
+debug
+debugtoolbar

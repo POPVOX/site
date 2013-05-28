@@ -1,0 +1,645 @@
+/* Leg Agenda */
+
+
+.sc_pg #wrapper{
+	width: 900px;
+	margin: 280px auto 0;
+
+}
+
+.sc_pg {
+	background: url(../images/bg_leg_widget.jpg) top center no-repeat;
+	}
+	
+	h1#sc_h1 {
+		font-size: 34px;
+		}
+		
+	#contain {
+		height: 75px;
+		background: #d4d1ca;
+		}
+		
+	h2.sc_explain {
+	/*	background: #75747c; */
+		color: #404045;
+		margin: 10px 0;
+		padding: 12px 25px;
+/**/	padding-bottom: 10px;		
+		font: normal 15px/24px helvetica, arial, sans-serif;
+		width: 460px;
+		}
+		
+		h2.sc_explain span {
+			font-size: 17px;
+			font-weight: bold;
+			}
+
+.sc_pc .col_12 {
+	margin-top: 10px;
+	padding-top: 10px;
+	display: block;
+	}
+	
+	#timeline {
+		height: 150px;
+		padding-top: 10px;
+		background: url(../images/bg_timeline.png) 0px 38px repeat-x;
+		border-bottom: 1px solid #a9a59b
+		}
+
+		#timeline > div { 
+			display: none; /* animated in */
+			position: absolute;
+			background: url(../images/i_dots.png) left top no-repeat;
+			width: 40px;
+			height: 20px;
+			text-indent: -9999em;
+			z-index: 100;
+			margin-top: 43px;
+			}
+			
+			#timeline > div.month {
+				background: url(../images/bg_timeline_mid.png) left top no-repeat;
+				height: 22px;
+				margin-top: 38px;
+				}
+			#timeline > div.year {
+				background: url(../images/bg_timeline_end.png) left top no-repeat;
+				height: 22px;
+				margin-top: 38px;
+				}
+
+			.tooltip {
+				display: none;
+				position: relative;
+				background: #fff;
+				font-size: 12px;
+				width: 260px;
+				height: 70px;
+				padding: 10px 15px 15px;
+				color: #404045;
+				z-index: 120;
+				
+				-moz-box-shadow: 0 0 36px rgba(0,0,0,.3);
+				-webkit-box-shadow: 0 0 36px rgba(0,0,0,.3);
+				box-shadow: 0 0 36px rgba(0,0,0,.3);
+				filter:progid:DXImageTransform.Microsoft.Shadow(color='#aaaaaa',direction='120',strength='10');	
+				}
+			
+			.tooltip span {
+				background: url("../images/bg_tip.png") left center;
+				width: 20px;
+				height: 11px;
+				position: absolute;
+				top: -11px;
+				left: 103px;
+				}
+				
+				.tooltip strong {
+					font-weight: bold;
+					margin-right: 10px;
+					}
+			
+			#timeline > div.event:hover {
+				background-position: left -60px;
+				cursor: pointer;
+				}
+						
+		h3.timeline {
+			border-top:  1px solid #a9a59b;
+			background: url(../images/i_cal.png) 10px 17px no-repeat;
+			margin-top: 20px;
+			padding: 25px 0 0 50px;
+			font-size: 36px;
+			}
+			
+		#timeline > div.today {
+			display: block;
+			background: url(../images/today.png) left top no-repeat;
+			width: 76px;
+			height: 50px;
+			margin-top: 0px;
+			margin-left: -31px;
+			}
+	
+.col_12 h3#what_is_it {
+	background: url(../images/i_question.png) 5px top no-repeat;
+	margin: 20px 0 0 0;
+	padding: 5px 0 5px 40px;
+	font: bold 18px helvetica, arial, sans-serif;
+	text-transform: none;
+	float: right;
+	}
+
+	#social {
+		float: right;
+		width: 132px;
+		height: 60px;
+		margin-top: 5px; 
+		}
+		
+		#social p {
+			font-size: 14px;
+			margin: 10px 0 5px;
+			width: 109px;
+			text-align: right;
+			}
+	
+		#social ul {
+			margin-left: 15px;
+			}
+						
+		#social li {
+			display: inline;
+		    float: left;
+		    margin-top: 0px;
+			}
+			
+			#social li a {
+			    border: none;
+			    display: block;
+			    width: 20px;
+			    height: 18px;
+			    margin-right: 5px;
+			    text-indent: -9999em;
+				}
+				
+				
+				#social li a.twitter {
+					background: url(../images/i_twitter.png) left 1px no-repeat;
+					}
+
+				#social li a.facebook {
+					background: url(../images/i_facebook.png) left 1px no-repeat;
+					}
+
+				#social li a.favorite {
+					background: url(../images/i_star.png) left 1px no-repeat;
+					}
+					
+				#social li a.email {
+					background: url(../images/i_share.png) left 1px no-repeat;
+					}
+
+				#social li a:hover {
+					background-position: bottom;
+					}
+					
+
+.proposal { 
+	background-color: none;
+	height: 50px;
+	width: 816px;
+	overflow: hidden;
+	margin: 0 auto;
+	}
+
+	.proposal .cell {
+/*		height: 38px;*/
+		}
+
+
+	#proposal_list {
+		background: url(../images/temp_zebra.png) center -8px repeat-y;
+		display: block;
+		}
+		
+	.proposal.heading {
+		background-color: #333333;
+		height: 37px;
+		margin-bottom: 4px;
+		}
+	
+	.proposal.heading .cell {
+		margin-bottom: 2px;
+		height: 25px;
+		text-indent: none;
+		color: #fff;
+		text-transform: uppercase;
+		font-size: 12px;
+		padding-top: 12px;
+		}
+		
+		.proposal.heading .campaign {
+			width: 138px;
+			border-right: 1px solid #76757b;
+		}
+
+		.proposal.heading .description {
+			width: 393px;
+			border-right: 1px solid #76757b;
+		}
+
+		.proposal.heading .sentiment {
+			width: 137px;
+			border-right: 1px solid #76757b;
+		}
+
+		.proposal.heading .action_buttons {
+			width: 90px;
+		}
+		
+		.proposal.heading .sorter {
+			background: url(../images/b_triangle.png) left top no-repeat;
+			display: block;
+			margin: 2px 5px 0 0;
+			width: 12px;
+			height: 12px;
+			float: right;
+			text-indent: -9999em;
+			cursor: pointer;
+			}
+			
+			.proposal.heading .sorter.active {
+				background-position: left bottom;
+				}
+			
+			.proposal.heading .description {
+				padding-left: 9px;
+				}
+			.proposal.heading .score {
+				padding-left: 11px;
+				}
+	
+	.proposal.active .cell {
+		/* what to do? */
+		}
+			
+	.cell.description {
+		display: block;
+		width: 50px;
+		height: 50px;
+		}
+	
+		.i_tax span{
+			background: url(../images/i_proposal.png) 5px 3px no-repeat;
+			}
+
+		.i_health span {
+			background: url(../images/i_proposal.png) -156px 3px no-repeat;
+			}
+
+		.i_financial span{
+			background: url(../images/i_proposal.png) -239px 3px no-repeat;
+			}
+
+		.i_energy span{
+			background: url(../images/i_proposal.png) -76px -55px no-repeat;
+			}
+			
+		.i_defense span{
+			background: url(../images/i_proposal.png) -157px -55px no-repeat;
+			}
+			
+		.i_wireless span{
+			background: url(../images/i_proposal.png) -242px -55px no-repeat;
+			}
+
+		.i_govreform span{
+			background: url(../images/i_proposal.png) -319px -52px no-repeat;
+			}
+
+			
+		.i_farm span{
+			background: url(../images/i_proposal.png) -320px 3px no-repeat;
+			}
+
+		.i_edu {
+					background: url(../images/i_proposal.png) 1px -52px no-repeat;
+					}
+                        
+		.i_eye {
+			float: right;
+			width: 24px;
+			height: 38px;
+			display: block;
+			text-indent: -9999em;
+			background: url(../images/i_eye.png) 2px 10px no-repeat;
+			}
+			
+			.i_eye:hover {
+				background-position: 2px -21px;
+				text-decoration: none;
+				border: 0;	
+				cursor: pointer;
+				}
+		
+	h3.proposals {
+			background: url(../images/i_proposals.png) 15px 6px no-repeat;
+/**/		margin-bottom: 7px;
+			padding-left: 50px;
+			font-size: 36px;
+			}
+			
+	.proposal > .cell { 
+		display: block;
+		float: left;
+		padding: 5px;
+		}
+
+	.proposal .category { 
+		width: 38px; 
+		height: 38px; 
+		text-indent: -9999em;
+		}
+		
+	.proposal .campaign {
+		width: 195px;
+		height: 28px;
+		text-align: left;
+		line-height: 16px;
+		font-weight: bold;
+		color: #CC6A11;
+		padding-left: 10px;
+		padding-right: 0;
+		margin-top: 3px;
+	}
+	
+		.proposal .campaign em {
+			float: left;
+			width: 145px;
+			font: bold 14px/16px helvetica, arial, sans-serif;
+		}
+	
+		.proposal .campaign span {
+			display: block;
+			width: 50px;
+			height: 45px;
+			float: right;
+			margin-top: -12px;
+		}
+	
+	
+	.proposal .title {
+		font-weight: bold;
+	}
+		
+	.proposal .description { 
+		width: 343px; 
+		text-align: left;
+		padding-left: 12px;
+		line-height: 16px;
+		}
+
+		.proposal .description .small { 
+			margin: 3px 0 0 5px;
+			}
+			
+			.proposal .description .small .title a:hover {
+				border: none;
+				}
+			
+			.proposal .description .hashtag, .proposal .description .how_should_they_vote { 
+				font-size: 12px;
+				padding-top: 2px;
+				}
+
+		.proposal .description .large {
+			position: absolute;
+			display: none;
+			background-color: white;
+			margin: -6px;
+			padding: 12px 5px 12px 9px;
+			width: 490px;
+			border: 1px solid #CC6A11;
+			-moz-box-shadow: 0 0 36px rgba(0,0,0,.3);
+			-webkit-box-shadow: 0 0 36px rgba(0,0,0,.3);
+			box-shadow: 0 0 36px rgba(0,0,0,.3);
+			filter:progid:DXImageTransform.Microsoft.Shadow(color='#aaaaaa',direction='120',strength='10');
+			}
+			
+			.proposal .description .large p {
+				margin: 10px 0 10px 0;
+				font-size: 12px;
+				}
+					
+		.proposal .score {
+			width: 73px;
+			}
+		
+		.proposal.body .score {
+		    letter-spacing: .02em;
+		    padding: 12px 11px 0 15px;
+			font: normal 28px 'BebasNeueRegular', helvetica, arial, sans-serif;
+			}
+			
+		.proposal .sentiment {
+			width: 150px;
+			}
+			.proposal.body .sentiment {
+				padding: 0;
+				z-index: 1;
+				}
+			
+			.proposal .sentiment span.nodata a {
+				padding-top: 12px;
+				padding-left: 8px;
+				display: block;
+				font: normal 16px/30px 'BebasNeueRegular', helvetica, arial, sans-serif;
+				}
+				
+				.proposal .sentiment span.nodata a:hover {
+					border: none;
+					color: #404045;
+					}
+					
+		.proposal .sentiment .tooltip_sent {
+			display: none;
+			background: url("../images/bg_tooltip_sentiment.png") left center;
+			width: 163px;
+			height: 69px;
+			position: absolute;
+			margin-top: -40px;
+			margin-left: -10px;
+			z-index: 100;
+			}
+			
+			.tooltip_sent p {
+				display: block;
+				color: #fff;
+				height: 13px;
+				font-size: 12px;
+				}
+				
+				.tooltip_sent p span.heart {
+					float: left;
+					margin: 13px 0 0 35px;
+					}
+
+				.tooltip_sent p span.anti {
+					float: right;
+					margin: 13px 33px 0 0;
+					}
+					
+				.tooltip_sent p.total {
+					text-align: center;
+					text-transform: uppercase;
+					}
+
+
+		.bar_pro {
+			display: block;
+			float: left;
+			background: #69944f url(../images/bg_percent_heart.png) 5px 5px no-repeat;
+			height: 44px;
+			margin: 2px 0;
+			}
+			
+		.bar_con {
+			display: block;
+			float: left;
+			background: #fdcc32 url(../images/bg_percent_anti.png) right 5px no-repeat;
+			height: 44px;
+			margin: 2px 5px 0 0;
+			}
+			
+			
+		.proposal .sentiment .maplink {
+			background: url(../images/i_map.png) 5px 15px no-repeat;
+			width: 46px;
+			height: 44px;
+			display: block;
+			float: left;
+			text-indent: -9999em;
+			}
+
+		.proposal .sentiment .maplink:hover {
+			background-position: 5px -27px;
+			cursor: pointer;
+			}
+			
+		.proposal > .action_buttons {
+			width: 80px;
+			padding-left: 10px;
+			}
+			.proposal .action_buttons a:hover {
+				border: none;
+				}
+
+				
+		#map_colorbox h1 {
+			text-align: center;
+			}
+
+		#map_colorbox h2 {
+			margin: 0 0 2px 10px;
+			font: normal 24px/28px 'BebasNeueRegular', helvetica, arial, sans-serif;
+			}
+			
+		#map_iframe_container {
+			width: 580px;
+			float: left;
+			margin: 10px 10px 0;
+			}
+			
+			#map_colorbox .b_view_report {
+				margin: 0 0 30px;
+				}
+			
+		#map_proposal_list {
+			width: 260px;
+			float: left;
+			margin: 10px 0 0 10px;
+			padding: 0 10px 0 0;
+			height: 460px;
+			overflow: auto;
+			}
+			
+		#map_proposal_list > div {
+			background-color: #F0F0F2;
+			color: #75747c;
+			padding: 8px 5px 5px 10px;
+			font-weight: normal;
+			margin-bottom: 4px;
+			cursor: pointer;
+			}
+			#map_proposal_list > div:hover {
+				color: black;
+				}
+			#map_proposal_list > div.active {
+				background-color: #CC6A11;
+				color: white;
+				}
+			
+		.sc_pg .support {
+			background: url(../images/i_action.png) left top no-repeat;
+			display: block;
+			margin: 2px 9px 0 0;
+			width: 34px;
+			height: 34px;
+			float: left;
+			text-indent: -9999em;
+			}
+			
+			.sc_pg .support.single {
+				float: none;
+				margin: 2px auto 0;
+			}
+			
+			.sc_pg .support.lg {
+				background: url(../images/b_support_sc.png) left top no-repeat;
+				display: block;
+				margin: 2px 9px 0 0;
+				width: 115px;
+				height: 34px;
+				float: left;
+				text-indent: -9999em;
+				}
+
+			.sc_pg .support:hover, .sc_pg .support.inactive:hover {
+				background-position: left -60px;
+				cursor: pointer;
+				}
+				
+			.sc_pg .support.inactive {
+				background-position: left -134px;
+				}
+				
+			
+
+				
+		.sc_pg .oppose {
+			background: url(../images/i_action.png) -41px top no-repeat;
+			display: block;
+			margin: 2px 0px 0 0;
+			padding: 0;
+			width: 34px;
+			height: 34px;
+			float: left;
+			text-indent: -9999em;
+			}
+			
+			.sc_pg .oppose.single {
+				float: none;
+				margin: 2px auto 0;
+			}
+			
+			.sc_pg .oppose.lg {
+				background: url(../images/b_oppose_sc.png) left top no-repeat;
+				display: block;
+				margin: 2px 9px 0 0;
+				width: 115px;
+				height: 34px;
+				float: left;
+				text-indent: -9999em;
+				}
+
+			.sc_pg .oppose:hover, .sc_pg .oppose.inactive:hover {
+				background-position: -41px -60px;
+				cursor: pointer;
+				}
+				
+				.sc_pg .oppose.lg:hover {
+					background-position: left -60px;
+					}
+				
+			.sc_pg .oppose.inactive {
+				background-position: -41px -134px;
+				}
+			
+	#proposal_btm {
+		display: block;
+		background: url(../images/bg_proposal_btm.png) -10px bottom no-repeat;
+		height: 20px;
+		}

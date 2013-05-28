@@ -394,7 +394,7 @@ def process_comments_group(thread_index, thread_count):
 
 
     cm = comments_iter\
-        .extra(where=["(ORD(MID(popvox_usercomment.state,1,1))+ORD(MID(popvox_usercomment.state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
+        .extra(where=["MOD((ASCII(SUBSTRING(popvox_usercomment.state,1,1))+ASCII(SUBSTRING(popvox_usercomment.state,2,1))), %d) = %d" % (thread_count, thread_index)])\
         .order_by('created')\
         .select_related("bill", "user")
 
