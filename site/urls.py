@@ -29,7 +29,7 @@ urlpatterns = patterns('',
 	(r'ajax/master-state', 'popvox.views.main.master_state'),
 	(r'ajax/get-short-url', 'popvox.views.main.get_short_url'),
 	
-	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|about/testimonials|advertising|faq|blog_template|features/opendataday2011|testing)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
+	(r'^(|congress|congress/letters|organization|about|about/team|about/principles|about/whyitworks|about/contact|about/testimonials|advertising|faq|blog_template|features/opendataday2011|signup|testing)$', 'popvox.views.main.staticpage'), # maps arg to a template file name without checking for safety, so options must be defined in the regex explicitly
 	(r'^press$', 'popvox.views.main.press_page'),
 	(r'^legal$', 'popvox.views.main.legal_page'),
 	(r'^testing$', 'popvox.views.home.testing'),
@@ -113,7 +113,7 @@ urlpatterns = patterns('',
 	
 	(r'^ajax/issues/chooser_list$', "popvox.views.bills.issuearea_chooser_list"),
 	
-	(r'^orgs/([\w\-]+)$', "popvox.views.org.org"),
+	(r'^orgs/([\w\-]+)/?$', "popvox.views.org.org"),
 	(r'^orgs/([\w\-]+)/_edit$', "popvox.views.org.org_edit"),
 	(r'^orgs/([\w\-]+)/_newcampaign$', "popvox.views.org.org_newcampaign"),
 	(r'^orgs/([\w\-]+)/([\w\-]+)$', "popvox.views.org.orgcampaign"),
@@ -152,6 +152,7 @@ urlpatterns = patterns('',
 	(r'^widgets/js/bill.js$', 'popvox.views.widgets.bill_js'),
 	(r'^widgets/bill-comment-map$', "popvox.views.widgets.commentmapus"),
 	(r'^widgets/top-bills$', "popvox.views.widgets.top_bills"),
+	(r'^widgets/leg-agenda$', "popvox.views.widgets.leg_agenda"),
 	(r'^widgets/minimap$', "popvox.views.widgets.minimap"),
 	(r'^widgets/bill-text.js$', "popvox.views.widgets.bill_text_js"),
 	(r'^widgets/bill-text$', "popvox.views.widgets.bill_text"),

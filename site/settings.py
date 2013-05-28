@@ -15,6 +15,7 @@ if "SSH_CONNECTION" in os.environ:
     # When launched from an SSH session, add the remote hose to
     # the list of INTERNAL_IPSs so that he can see the SQL
     # debugging output.
+
     INTERNAL_IPS = ('127.0.0.1', '173.66.58.87',
         '173.66.171.249', #daniel's
         '69.167.215.11',
