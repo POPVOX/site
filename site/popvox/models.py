@@ -316,6 +316,7 @@ class Bill(models.Model):
         if self.billtype in ('dh', 'ds', 'x'): # these don't have numbered titles
             return self.title
         return self.title[self.title.index(":")+2:]
+        
     def title_parens_if_too_long(self):
         # this is used for pre-populating a comment on a bill
         if not self.is_officially_numbered():
