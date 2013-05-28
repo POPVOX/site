@@ -11,18 +11,28 @@
 </head>
 <body class="la_widget_pg">
 	<div id="wrapper">
-		<body style="background:transparent">
-<!--
-    <h1>{{org.name}}{%if campaign%} - {{campaign.name}}{%endif%}</h1>
-    <p>{%if campaign.description%}<p>{{campaign.description}}{%endif%}</p>
--->
-		<div id="proposal_list">
-		<div class="proposal heading">
-			<div class="cell campaign"><div class="sorter" field="campaign">sort</div>Campaign</div>
-			<div class="cell description"><div class="sorter" field="description">sort</div>Priority Bills and Proposals</div>
-			<div class="cell sentiment">POPVOX Sentiment</div>
-			<div class="cell action_buttons">Take Action</div>
-	</div>
+		<body>
+
+			<div id="leg_header">
+		    	<div class="l_head">
+			    	<h2>{{org.name}}{%if campaign%} - {{campaign.name}}{%endif%}</h2>
+			    	<h1>Legislative Agenda</h1>
+			    	<!-- <p>{%if campaign.description%}<p>{{campaign.description}}{%endif%}</p> -->
+				</div>
+		    	<div class="r_head">
+		    		<p class="powr">powered by <span><a href="https://popvox.com" target="_blank">POPVOX</a></span></p>
+					<p><a href="https://www.popvox.com/legal">privacy policy</a></p>
+				</div>
+				<div class="clear"> </div>
+			</div>
+			
+			<div id="proposal_list">
+				<div class="proposal heading">
+					<div class="cell campaign"><div class="sorter" field="campaign">sort</div>Campaign</div>
+					<div class="cell description"><div class="sorter" field="description">sort</div>Priority Bills and Proposals</div>
+					<div class="cell sentiment">POPVOX Sentiment</div>
+					<div class="cell action_buttons">Take Action</div>
+			</div>
 		
 		{% regroup positions by campaign as campaign_list %}
         {% for campaign in campaign_list %}

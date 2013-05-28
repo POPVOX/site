@@ -2,13 +2,14 @@
 
 
 .la_widget_pg #wrapper{
-	width: 900px;
+	width: 817px;
 	margin: 0 auto 0;
 
 }
 
 .la_widget_pg {
-	background: url(bg_leg_widget.jpg) top center no-repeat;
+	/* background: url(bg_leg_widget.jpg) top center no-repeat; */
+	background: none;
 	}
 	
 	h1#sc_h1 {
@@ -19,6 +20,60 @@
 		height: 75px;
 		background: #d4d1ca;
 		}
+		
+	#leg_header {
+		background: #333;
+		text-align: left;
+		padding: 15px 15px 10px;
+		}
+		
+		#leg_header .l_head {
+			float: left;
+			width: 500px;
+			}
+
+		#leg_header .r_head {
+			float: right;
+			width: 200px;
+			text-align: right;
+			}
+			
+			
+		
+		#leg_header h1 {
+			margin: 0;
+			color: #fff;
+			}
+			
+		#leg_header h2 {
+			color: #fff;
+			margin-bottom: 5px;
+			}
+			
+		#leg_header p {
+			color: #fff;
+			margin-bottom: 0;
+			}
+			
+			#leg_header p.powr {
+				height: 50px;
+				margin-left: 5px;
+				}
+			
+		#leg_header p.powr a {
+			display: block;
+			width: 65px;
+			height: 50px;
+			float: right;
+			background: url(logo_popvox.png) top right no-repeat;
+			text-indent: -9999em;
+			text-align: left;
+			}
+			
+			#leg_header p.powr a:hover {
+				border: none;
+				}
+
 		
 	h2.sc_explain {
 	/*	background: #75747c; */
@@ -209,6 +264,7 @@
 		background-color: #333333;
 		height: 37px;
 		margin-bottom: 6px;
+		border-top: 1px solid #76757B;
 		}
 	
 	.proposal.heading .cell {
@@ -315,7 +371,7 @@
 			height: 38px;
 			display: block;
 			text-indent: -9999em;
-			background: url(i_eye.png) 2px 10px no-repeat;
+		/* 	background: url(i_eye.png) 2px 10px no-repeat; */
 			}
 			
 			.i_eye:hover {
@@ -371,6 +427,10 @@
 			text-align: center;
 		}
 	
+			.proposal .campaign span.conres {
+				width: 45px;
+				overflow: hidden;
+			}
 	
 	.proposal .title {
 		font-weight: bold;
@@ -637,7 +697,7 @@
 			
 			.la_widget_pg .support.single {
 				float: none;
-				margin: 2px auto 0;
+				margin: 2px auto 0 28px;
 			}
 			
 			.la_widget_pg .support.lg {
@@ -653,6 +713,10 @@
 			.la_widget_pg .support:hover, .la_widget_pg .support.inactive:hover, .la_widget_pg .neutral:hover {
 				background-position: left -60px;
 				cursor: pointer;
+				}
+			
+			.la_widget_pg .neutral:hover {
+				background-position: 8px -60px;
 				}
 				
 			.la_widget_pg .support.inactive, .la_widget_pg .support.inactive:hover {
@@ -675,7 +739,7 @@
 			
 			.la_widget_pg .oppose.single {
 				float: none;
-				margin: 2px auto 0;
+				margin: 2px auto 0 28px;
 			}
 			
 			
