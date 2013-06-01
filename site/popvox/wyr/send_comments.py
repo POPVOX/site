@@ -71,9 +71,11 @@ if "COMMENT" in os.environ:
     comments_iter = comments_iter.filter(id=int(os.environ["COMMENT"]))
 if "ADDR" in os.environ:
     comments_iter = comments_iter.filter(address__id=int(os.environ["ADDR"]))
+#whitehouse = [1866, 1872]
 if "TARGET" in os.environ:
     if int(os.environ["TARGET"]) == 400629:
         comments_iter = comments_iter.filter(Q(actionrecord__campaign__id__contains=2731) | Q(actionrecord__campaign__id__contains=1872)) #whitehouse campaigns
+
     else:
         m = getMemberOfCongress(int(os.environ["TARGET"]))
         comments_iter = comments_iter.filter(state=m["state"])
@@ -392,7 +394,7 @@ def process_comments_group(thread_index, thread_count):
 
 
     cm = comments_iter\
-        .extra(where=["(ORD(MID(popvox_usercomment.state,1,1))+ORD(MID(popvox_usercomment.state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
+        .extra(where=["MOD((ASCII(SUBSTRING(popvox_usercomment.state,1,1))+ASCII(SUBSTRING(popvox_usercomment.state,2,1))), %d) = %d" % (thread_count, thread_index)])\
         .order_by('created')\
         .select_related("bill", "user")
 

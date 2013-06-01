@@ -73,35 +73,35 @@ class MemberOfCongress(models.Model):
     
     # The primary key is the GovTrack ID.
     id = models.IntegerField(primary_key=True)
-    firstname = models.CharField(max_length=255, null=False)
-    middlename = models.CharField(max_length=255, blank=True, null=True)
-    nickname = models.CharField(max_length=255, blank=True, null=True)
-    lastname = models.CharField(max_length=255, null=False)
-    namemod = models.CharField(max_length=255, blank=True, null=True)
-    lastnameenc = models.CharField(max_length=255,null=False)
-    lastnamealt = models.CharField(max_length=255, blank=True, null=True)
+    firstname = models.CharField(max_length=255,null=False)
+    middlename = models.CharField(max_length=255)
+    nickname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255,null=False)
+    namemod = models.CharField(max_length=255)
+    lastnameenc = models.CharField(max_length=255)
+    lastnamealt = models.CharField(max_length=255)
     birthday = models.DateField(default=datetime.date.min)
     gender = models.CharField(max_length=1, null=False, default='')
-    religion = models.CharField(max_length=255, blank=True, null=True)
-    osid = models.CharField(max_length=50, default=None, blank=True, null=True)
-    bioguideid = models.CharField(max_length=7, default=None, blank=True, null=True)
-    pvsid = models.IntegerField(default=None, blank=True, null=True)
-    fecid = models.CharField(max_length=9, default=None, blank=True, null=True)
-    metavidid = models.CharField(max_length=255, blank=True, null=True)
-    youtubeid = models.CharField(max_length=36, default=None, blank=True, null=True)
-    twitterid = models.CharField(max_length=255, blank=True, null=True)
-    lismemberid = models.CharField(max_length=6, default=None, blank=True, null=True)
-    icpsrid = models.IntegerField(default=None, blank=True, null=True)
-    fbid = models.IntegerField(default=None, blank=True, null=True)
-    thomasid = models.IntegerField(default=None, blank=True, null=True)
+    religion = models.CharField(max_length=255)
+    osid = models.CharField(max_length=50, default=None)
+    bioguideid = models.CharField(max_length=7, default=None)
+    pvsid = models.IntegerField(default=None)
+    fecid = models.CharField(max_length=9, default=None)
+    metavidid = models.CharField(max_length=255)
+    youtubeid = models.CharField(max_length=36, default=None)
+    twitterid = models.CharField(max_length=255)
+    lismemberid = models.CharField(max_length=6, default=None)
+    icpsrid = models.IntegerField(default=None)
+    fbid = models.IntegerField(default=None)
+    thomasid = models.IntegerField(default=None)
 
 
     def __unicode__(self):
         return unicode(self.id) + u" " + self.name()
     def name(self):
         return self.info()["name"]
-    def lastname(self):
-        return self.info()["lastname"]
+    '''def lastname(self):
+        return self.info()["lastname"]'''
     def party(self):
         if "party" in self.info():
             return self.info()["party"]
@@ -316,6 +316,7 @@ class Bill(models.Model):
         if self.billtype in ('dh', 'ds', 'x'): # these don't have numbered titles
             return self.title
         return self.title[self.title.index(":")+2:]
+        
     def title_parens_if_too_long(self):
         # this is used for pre-populating a comment on a bill
         if not self.is_officially_numbered():
@@ -352,11 +353,19 @@ class Bill(models.Model):
             return "N/A"
     def isAlive(self):
         # alive = pending further Congressional action
-        if not self.is_bill(): return self.congressnumber == govtrack.CURRENT_CONGRESS
+        if not self.is_bill():
+            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
+            if self.id==28896:
+                return False
+            else:
+                return self.congressnumber == govtrack.CURRENT_CONGRESS
         return govtrack.billFinalStatus(self) == None
     def getDeadReason(self):
         # dead = no longer pending action because it passed, failed, or died in a previous session
         if not self.is_bill():
+            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
+            if self.id==28896:
+                return "is no longer active"
             if self.congressnumber != govtrack.CURRENT_CONGRESS:
                 return "was proposed in a previous session of Congress"
             return None
@@ -913,6 +922,11 @@ class OrgCampaignPosition(models.Model):
         if self.position == "+": return "endorsed"
         if self.position == "-": return "opposed"
         if self.position == "0": return "posted a statement on"
+        
+    def ingverb(self):
+        if self.position == "+": return "endorsing"
+        if self.position == "-": return "opposing"
+        if self.position == "0": return "weighing in on"
 
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 
@@ -1178,8 +1192,8 @@ class PostalAddress(models.Model):
     phonenumber = models.CharField(max_length=18, blank=True)
     congressionaldistrict = models.IntegerField() # 0 for at-large, otherwise cong. district number
     #these two are for transitioning when new congressional districts get drawn.
-    congressionaldistrict2003 = models.IntegerField(blank=True, null=True)
-    congressionaldistrict2013 = models.IntegerField(blank=True, null=True)
+    congressionaldistrict2003 = models.IntegerField()
+    congressionaldistrict2013 = models.IntegerField()
     state_legis_upper = models.TextField(blank=True, null=True)
     state_legis_lower = models.TextField(blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
@@ -1466,7 +1480,7 @@ class UserComment(models.Model):
             campaignid = self.actionrecord.all()[0].campaign.id
         except:
             campaignid = 0 #not all comments have campaign action records
-        if campaignid in [1866,1872,2731]: # these are campaign ids for whitehouse widgets
+        if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
             obama = govtrack.getMemberOfCongress(400629)
             obama["office_id"] = "WH-S44"
             obama["type"] = "pres"
@@ -1483,7 +1497,13 @@ class UserComment(models.Model):
         return govtrackrecipients
         
     def get_recipients_display(self):
+        if self.address.congressionaldistrict2013 is None:
+            return "your representatives"
         recips = self.get_recipients()
+        for recip in recips:
+            if recip['type'] == "rep":
+                if self.address.congressionaldistrict2013 is None:
+                    return "Representative"
         if not type(recips) == list:
             # Normally, show recipients that we would deliver to now.
             # But if the bill is dead, show who we delivered to already, if any.
@@ -1553,6 +1573,9 @@ class UserComment(models.Model):
             return ret
         for recip in recips:
             mem = govtrack.getMemberOfCongress(recip)
+            if mem["type"] == "rep":
+                if self.address.congressionaldistrict2013 is None:
+                    return ret
  
         if len(recips) > 0:
             ret += ref1 + " is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."
