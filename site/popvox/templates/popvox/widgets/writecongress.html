@@ -65,7 +65,21 @@ Notes:
 	<script>var bill_display_number = "{{bill.shortname|escapejs}}";</script>
 	<script src="/media/js/lettertips.js"> </script>
 	
-	<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('{{MIXPANEL_TOKEN}}'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
+	<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel-2.2.min.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('{{MIXPANEL_TOKEN}}'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
+
+<script type="text/javascript">
+    (function(c,a){window.mixpanel=a;var b,d,h,e;b=c.createElement("script");
+    b.type="text/javascript";b.async=!0;b.src=("https:"===c.location.protocol?"https:":"http:")+
+    '//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';d=c.getElementsByTagName("script")[0];
+    d.parentNode.insertBefore(b,d);a._i=[];a.init=function(b,c,f){function d(a,b){
+    var c=b.split(".");2==c.length&&(a=a[c[0]],b=c[1]);a[b]=function(){a.push([b].concat(
+    Array.prototype.slice.call(arguments,0)))}}var g=a;"undefined"!==typeof f?g=a[f]=[]:
+    f="mixpanel";g.people=g.people||[];h=['disable','track','track_pageview','track_links',
+    'track_forms','register','register_once','unregister','identify','alias','name_tag','set_config',
+    'people.set','people.set_once','people.increment','people.track_charge','people.append'];
+    for(e=0;e<h.length;e++)d(g,h[e]);a._i.push([b,c,f])};a.__SV=1.2;})(document,window.mixpanel||[]);
+    mixpanel.init("6db7097c351adc437da30e64e0d86d12");
+</script>
 
 	<style>
 	{% if request.GET.iframe %}
@@ -339,17 +353,17 @@ Notes:
 		
 		function do_login(chosen_position) {
 			if (working) return false;
-			
+
 			if (email_status != "not-registered" && email_status != "registered" && email_status != "logged-in") {
-				alert($("#panel_login .error").text());
+				$("#panel_login .error").text();
 				return false;
 			}
-			
+
 			{% if not request.GET.demo %}
 			mixpanel_properties.position = chosen_position;
 			mpmetrics.track('widget_writecongress_start', mixpanel_properties);
 			{% endif %}
-			
+
 			position = chosen_position;
 			$('.position_verb').text(position == "+" ? "support" : "oppose");
 			$('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
@@ -357,7 +371,6 @@ Notes:
 			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
 			{% endif %}
 			if ($("#panel_login .next").hasClass("disabled")) return false;
-			
 			var data;
 			
 			if (email_status != "registered") {
@@ -604,12 +617,15 @@ Notes:
 						if (data.status == "fail") {
 							$("#panel_preview .error").text(data.msg);
 						} else {
-
-							if (typeof parent.POP.makeInactive === 'function')
-							{
-								parent.POP.makeInactive({{bill.id}});
-							}
-
+                            var referrer = document.referrer;
+                            var refpatt=new RegExp("popvox.com/widgets/legagenda","i");
+                            if (refpatt.test(referrer) == true)
+                            {
+                                if (typeof parent.POP.makeInactive === 'function')
+                                {
+                                    parent.POP.makeInactive({{bill.id}});
+                                }
+                            }
 							$("#panel_preview .error").text("");
 							
 							if (data.status == "submitted") {
