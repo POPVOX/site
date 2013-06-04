@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
+from django.utils.encoding import smart_str, smart_unicode
 
 from popvox.models import *
 from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS, getMemberOfCongress
@@ -388,7 +389,7 @@ def widget_render_writecongress_action(request, account, permissions):
 
     def compute_csrf_token(request):
         sha1 = hashlib.sha1()
-        sha1.update(SECRET_KEY + "|" + request.POST["email"])
+        sha1.update(SECRET_KEY + "|" + request.POST["email"].lower())
         return sha1.hexdigest()
     
     ########################################
@@ -536,7 +537,6 @@ def widget_render_writecongress_action(request, account, permissions):
                     email = email,
                     completed_stage = "login",
                     request_dump = meta_log(request.META) )
-            
 
             return {
                 "status": "success",
