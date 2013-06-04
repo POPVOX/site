@@ -27,15 +27,18 @@ def metrics_by_period(request):
         fixdate = lambda x : x
         if period == "day":
             group = ("date(%s)" % (field,))
+            c.execute("select date(%s), %s from %s group by %s" % (field, fields, table, group))
         elif period == "week":
             group = ("yearweek(%s)" % (field,)) # year plus sunday and zero-based week number
             def fixdate(x): # normalize each date row to the first day of the week
                 return x - timedelta(days=(x.weekday() + 1) % 7) # weekday() returns 0 for Monday, but we actually want to subtract 1 day to get back to sunday
         elif period == "month":
-            group = ("year(%s), month(%s)" % (field, field))
+            #group = ("year(%s), month(%s)" % (field, field))
+            group = ("date_trunc('%s', %s)" % (period, field))
             def fixdate(x): # normalize each date row to the first day of the month
                 return x.replace(day=1)
-        c.execute("select date(%s), %s from %s group by %s" % (field, fields, table, group))
+            #c.execute("select date(%s), %s from %s group by %s" % (field, fields, table, group))
+            c.execute("select date_trunc('%s', %s), %s from %s group by %s" % (period, field, fields, table, group))
         
         rows = [{"date": fixdate(r[0]), "count": r[1] } for r in c.fetchall()]
         
@@ -55,7 +58,7 @@ def metrics_by_period(request):
         ret = {}
         for key, val in inf.items():
             for row in val:
-                if row["date"] < datetime(2011, 1, 1).date(): continue
+                #if row["date"] < datetime(2011, 1, 1).date(): continue
                 if not row["date"] in ret: ret[row["date"]] = {} # date
                 ret[row["date"]][key] = row
                 del row["date"]
@@ -78,7 +81,7 @@ def metrics_by_period(request):
         return ret
         
     general_stats = OrderedDict()
-    for period, dateformat in (("month", "Y-m"), ("week", "Y-m-d"), ("day", "Y-m-d")):
+    for period, dateformat in (("month", "Y-m"), ("day", "Y-m-d")):#(("month", "Y-m"), ("week", "Y-m-d"), ("day", "Y-m-d")):
 
         new_users = get_stats("date_joined", "count(*)", "auth_user", period=period, growth=True)
         new_positions = get_stats("created", "count(*)", "popvox_usercomment", period=period, growth=True)
