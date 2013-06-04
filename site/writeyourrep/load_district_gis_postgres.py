@@ -11,6 +11,7 @@ from django.db import connection
 import shpUtils
 
 import settings
+from osgeo import ogr
 
 statefips = {
 	1: "AL", 2: "AK", 4: "AZ", 5: "AR", 6: "CA", 8: "CO", 9: "CT",
@@ -32,29 +33,44 @@ for layer, censusfile in (("congressionaldistrict", "cd113"), ("county", "county
 	except:
 		# even though it has IF EXISTS, a warning is being generated that busts everything
 		pass
+	try:
+		cursor.execute("DROP INDEX IF EXISTS bbox_index")
+	except:
+		# even though it has IF EXISTS, a warning is being generated that busts everything
+		pass
 	cursor.execute("CREATE TABLE %spolygons_ (state VARCHAR(2), district SMALLINT, name VARCHAR(32))" % layer)
-	cursor.execute("SELECT AddGeometryColumn('%spolygons_', 'bbox', 4326, 'POLYGON', 2)" % layer)  
+	cursor.execute("SELECT AddGeometryColumn('%spolygons_', 'bbox', -1, 'MULTIPOLYGON', 2)" % layer)  
 	cursor.execute("CREATE INDEX bbox_index ON %spolygons_ USING GIST (bbox)" % layer)
 	
 	for shpf in ('us',): # previously 'us' file didn't include island areas: '60', '66', '69', '78'
 		# shpRecords = shpUtils.loadShapefile("/mnt/persistent/gis/tl_2011_%s_%s.shp" % (shpf, censusfile))
-		ds = ogr.Open('/home/ben/sources/site/annalee/2013 Maps/tl_rd13_%s_%s.shp' % (shpf, censusfile))
+		print '/home/ben/sources/site/annalee/2013 maps/tl_rd13_%s_%s.shp' % (shpf, censusfile)
+		ds = ogr.Open('/home/ben/sources/site/annalee/2013 maps/tl_rd13_%s_%s.shp' % (shpf, censusfile))
 		lyr = ds.GetLayerByIndex(0)
 
 		for district in lyr:
-			state = statefips[int(district["STATEFP"])]
+			state = statefips[int(district.GetField('STATEFP'))]
+
 			if layer == "congressionaldistrict":
-				cd = int(district["CD111FP"])
-				if cd in (98, 99):
+				if district.GetField('CD113FP') in ('98', '99', 'XX','YY','ZZ'):
 					cd = 0
+				else:
+					cd = int(district.GetField('CD113FP'))
 				name = None
 			else:
 				cd = None
-				name = district["NAME"].decode("latin1")
+				name = district.GetField('NAME').decode("latin1")
 				
 			got_state.add(state)
-			cursor.execute("INSERT INTO " + layer + "polygons_ VALUES(%s, %s, %s, GeomFromText('%s'))",
-					[state, cd, name, district.geometry().ExportToWkt()])
+			print district.geometry().ExportToWkt()[0:30]
+			g = district.geometry()
+			if g.GetGeometryName() == 'POLYGON':
+				g2 = ogr.Geometry(ogr.wkbMultiPolygon)
+				g2.AddGeometry(g)
+			else:
+				g2 = g
+			cursor.execute("INSERT INTO " + layer + "polygons_ VALUES(%s, %s, %s, GeomFromText(%s))",
+					[state, cd, name, g2.ExportToWkt()])
 	
 	for state in statefips.values():
 		if not state in got_state:
@@ -65,5 +81,5 @@ for layer, censusfile in (("congressionaldistrict", "cd113"), ("county", "county
 	except:
 		# again, a warning is causing problems even though we have IF NOT EXISTS
 		pass
-	cursor.execute("RENAME TABLE %spolygons_ TO %spolygons" % (layer, layer))
+	cursor.execute("ALTER TABLE %spolygons_ RENAME TO %spolygons" % (layer, layer))
 
