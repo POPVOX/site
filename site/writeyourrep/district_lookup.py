@@ -136,7 +136,7 @@ def district_lookup_coordinate(lng, lat):
 	
 	# Find all of the districts whose bounding box contains the point.
 	cursor = connection.cursor()
-	cursor.execute("SELECT state, district FROM congressionaldistrictpolygons WHERE MBRContains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])
+	cursor.execute("SELECT state, district FROM congressionaldistrictpolygons WHERE ST_Contains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])
 	rows = cursor.fetchall()
 
 	# If there's just one distinct state/district pair, that must be the right district. There
@@ -145,21 +145,13 @@ def district_lookup_coordinate(lng, lat):
 	if len(rets) == 1:
 		return rows[0]
 			
-	# Otherwise, we need to do a point-in-polygon test for each polygon.
-	# Most times the point will be in a unique bounding box and we won't get this far, so we delay pulling the polygon itself until this point.
-	cursor.execute("SELECT state, district, pointspickle FROM congressionaldistrictpolygons WHERE MBRContains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])
-	rows = cursor.fetchall()
-	for row in rows:
-		poly = cPickle.loads(base64.b64decode(row[2]))
-		if point_in_poly(float(lng), float(lat), poly):
-			return row[0], row[1]
 
 	return None
 
 def county_lookup_coordinate(lng, lat):
 	# Find all of the districts whose bounding box contains the point.
 	cursor = connection.cursor()
-	cursor.execute("SELECT state, name FROM countypolygons WHERE MBRContains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])
+	cursor.execute("SELECT state, name FROM countypolygons WHERE ST_Contains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])
 	rows = cursor.fetchall()
 
 	# If there's just one distinct state/county pair, that must be the right district. There
@@ -168,15 +160,6 @@ def county_lookup_coordinate(lng, lat):
 	if len(rets) == 1:
 		return rows[0]
 			
-	# Otherwise, we need to do a point-in-polygon test for each polygon.
-	# Most times the point will be in a unique bounding box and we won't get this far, so we delay pulling the polygon itself until this point.
-	cursor.execute("SELECT state, name, pointspickle FROM countypolygons WHERE MBRContains(bbox, GeomFromText('Point(%s %s)'))", [float(lng), float(lat)])
-	rows = cursor.fetchall()
-	for row in rows:
-		poly = cPickle.loads(base64.b64decode(row[2]))
-		if point_in_poly(float(lng), float(lat), poly):
-			return row[0], row[1]
-
 	return None
 
 def point_in_poly(x, y, poly):
