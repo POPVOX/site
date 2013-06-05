@@ -65,7 +65,7 @@ Notes:
 	<script>var bill_display_number = "{{bill.shortname|escapejs}}";</script>
 	<script src="/media/js/lettertips.js"> </script>
 	
-	<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel-2.2.min.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('{{MIXPANEL_TOKEN}}'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
+	<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel-2.2.min.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mixpanel = new MixpanelLib('{{MIXPANEL_TOKEN}}'); } catch(err) { null_fn = function () {}; var mixpanel = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
 
 <script type="text/javascript">
     (function(c,a){window.mixpanel=a;var b,d,h,e;b=c.createElement("script");
@@ -145,7 +145,7 @@ Notes:
 			{% if campaign %}bucket: "{{campaign.mixpanel_bucket|escapejs}}",{% endif %}
 			bill: "{{bill.shortname|escapejs}}"
 		};
-		mpmetrics.track('widget_writecongress_hit', mixpanel_properties);
+		mixpanel.track('widget_writecongress_hit', mixpanel_properties);
 		{% endif %}
 		
 		// General //
@@ -361,7 +361,7 @@ Notes:
 
 			{% if not request.GET.demo %}
 			mixpanel_properties.position = chosen_position;
-			mpmetrics.track('widget_writecongress_start', mixpanel_properties);
+			mixpanel.track('widget_writecongress_start', mixpanel_properties);
 			{% endif %}
 
 			position = chosen_position;
@@ -547,7 +547,7 @@ Notes:
 			
 			{% if not request.GET.demo %}
 			mixpanel_properties.personalized = !$('#message').hasClass("default");
-			mpmetrics.track('widget_writecongress_write', mixpanel_properties);
+			mixpanel.track('widget_writecongress_write', mixpanel_properties);
 			{% endif %}
 			
 			// convert message text into a nicely paragraphed html preview
@@ -578,7 +578,7 @@ Notes:
 			if (working) return;
 			
 			{% if not request.GET.demo %}
-			mpmetrics.track('widget_writecongress_send', mixpanel_properties);
+			mixpanel.track('widget_writecongress_send', mixpanel_properties);
 			{% endif %}
 			
 			$.ajax({
@@ -693,7 +693,7 @@ Notes:
 		function do_share(method) {
 			{% if not request.GET.demo %}
 			mixpanel_properties.share_method = method;
-			mpmetrics.track('widget_writecongress_share', mixpanel_properties);
+			mixpanel.track('widget_writecongress_share', mixpanel_properties);
 			{% endif %}
 			
 			var f;
