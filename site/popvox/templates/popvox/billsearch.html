@@ -50,6 +50,7 @@
 	<table width="100%">
 	{% for bill in bills %}
 		<tr class="bill">
+			<td>{% if bill.userweighedin %}<span title="You weighed in already">&#x2713;</span>{%endif%}</td>
 			<td style="padding-left: 5px; padding-right: 1em">
 				<nobr><a href="{{bill.url}}{% if is_leg_staff %}/report{% endif %}">
 					{{bill.displaynumber}}
