@@ -1031,7 +1031,10 @@ class UserProfile(models.Model):
     def most_recent_address(self):
         
         address = PostalAddress.objects.filter(user=self.user.id).order_by("-created")[0]
-        return address
+        try:
+            return address
+        except PostalAddress.IndexError:
+            return None
             
         
     def most_recent_comment_district(self):
@@ -1898,6 +1901,7 @@ class ServiceAccountCampaignActionRecord(models.Model):
     completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord", on_delete=models.SET_NULL)
     completed_stage = models.CharField(max_length=16, blank=True, null=True)
     request_dump = models.TextField(blank=True, null=True)
+    referrer = models.TextField(blank=True, null=True)
     # various indexing above is for the data table sort on the analytics page
     class Meta:
         ordering = ['created']
