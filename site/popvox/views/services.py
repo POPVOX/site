@@ -32,6 +32,8 @@ from itertools import chain
 from base64 import urlsafe_b64decode
 import hashlib, hmac
 
+INITIAL_REFERRER=""
+
 @csrf_protect_if_logged_in
 #@login_required
 def widget_config(request):
@@ -101,6 +103,9 @@ def validate_widget_request(request, api_key, is_widget=True):
             host = urlparse.urlparse(request.META["HTTP_REFERER"]).hostname.lower()
             if host.startswith("www."):
                 host = host[4:]
+            global INITIAL_REFERRER 
+            if INITIAL_REFERRER == "":
+                INITIAL_REFERRER = host
         except:
             return "You have disabled the HTTP Referrer Header in your web browser, your web browser sent an invalid value, or you visited the widget iframe URL directly. Enable the HTTP Referrer Header to access this content if it has been disabled."
 
@@ -501,7 +506,8 @@ def widget_render_writecongress_action(request, account, permissions):
                 zipcode = identity["zipcode"],
                 email = identity["email"],
                 completed_stage = "start",
-                request_dump = meta_log(request.META) )
+                referrer = INITIAL_REFERRER,
+                request_dump = meta_log(request.META)  )
         
         return {
             "status": "success",
