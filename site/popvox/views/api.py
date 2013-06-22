@@ -803,6 +803,92 @@ class user_get_info(BaseHandler):
 
         return ret
         
+@api_handler
+class user_get_comments(BaseHandler):
+    bill_fields = ('id', 'title')
+    description = "Returns the comments a logged-in user has left on POPVOX, based on a session token parameter."
+    qs_args = (
+        ('session', 'A session token returned by the user login API method. If session token is not provided, an error occurs.', None),
+        ('has_message', 'Optional. Set to "1" to only return comments with messages.', '1'),
+        ('position', 'Optional. Restrict comments to either supporting (+) or opposing (-) comments. Be sure to URL-encode the argument.', '+'),)
+    response_summary = "Returns a paginated list of comments on bills left by the user."
+    response_fields = (
+        ('id', 'a numeric identifier for the comment'),
+        ('bill', 'the bill to which the comment refers'),
+        ('bill/id', 'the numeric identifier of the bill'),
+        ('bill/title', 'the display title of the bill'),
+        ('position', 'the comment\'s position: + for support or - for oppose. (there is no neutral option for comments)'),
+        ('position_text', 'the comment\'s position as an English verb'),
+        ('screenname', 'the screen name of the individual leaving the comment'),
+        ('message', 'the personal message left with the comment; optional'),
+        ('created', 'the date the message was first written'),
+        ('state', 'the two-letter USPS state abbreviation for the physical address where the individual votes'),
+        ('congressionaldistrict', 'the congressional district (within the indicated state) where the individual votes'),
+        ('link', 'an absolute URL to the page to view the comment on POPVOX (if message is null, this is a URL to the bill instead as there is no view page)'),
+        ('address', 'constituent address information provided when a legislative staff API key or session token is used and the legislative staff account is in the office of a Member of Congress representing the state and, for congressmen, the district specified in the query string filter arguments'),
+        ('address/name', 'when authorized as above, the constituent\'s full name'),
+        ('address/address', 'when authorized as above, the constituent\'s postal address, which can be two or three lines separated by newline (\\n) characters'),
+        ('address/phonenumber', 'when authorized as above, the constituent\'s phone number'),
+        ('address/latitude', 'when authorized as above, the constituent\'s postal address\'s latitude'),
+        ('address/longitude', 'when authorized as above, the constituent\'s postal address\'s longitude'),
+        ('address/email', 'when authorized as above, the constituent\'s email address'),
+        )
+    allow_empty_api_key = True
+    
+    @paginate
+    def read(self, request, acct):
+        if not request.user.is_authenticated():
+            return HttpResponseBadRequest("No valid session token was specified.")
+        
+        items = UserComment.objects.filter(user=request.user)
+        if request.GET.get("has_message", "0") == "1": items = items.filter(message__isnull=False)
+        if "position" in request.GET: items = items.filter(position=request.GET["position"])
+        return items
+
+    @staticmethod
+    def screenname(item, request, acct):
+        return item.user.username
+        
+    @staticmethod
+    def link(item, request, acct):
+        if item.message:
+            return SITE_ROOT_URL + item.url()
+        else:
+            return None
+            
+    @staticmethod
+    def position_text(item, request, acct):
+        return item.verb()
+    
+    @staticmethod
+    def referral(item, request, acct):
+        return [str(r) for r in item.referrers()]
+        
+    @staticmethod
+    def usercomment_fields(request, acct):
+        fields = ['id', 'bill', 'position', 'position_text', 'screenname', 'message', 'created', 'state', 'congressionaldistrict', 'link']
+
+        if request.user.is_authenticated() and request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member != None:
+            member = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
+            if member != None and member["current"]:
+                if member["state"] == request.GET.get("state", "").upper() and (member["district"] == None or member["district"] == int(request.GET.get("district", "-1"))):
+                    request.is_leg_staff = True
+                    fields.append('address')
+                    comments.postaladdress_fields = ('name', 'address', 'phonenumber', 'latitude', 'longitude', 'email')
+            
+        return fields
+        
+    @staticmethod
+    def postaladdress_name(item, request, acct):
+        return item.name_string()
+        
+    @staticmethod
+    def postaladdress_address(item, request, acct):
+        return item.address_string()
+
+    @staticmethod
+    def postaladdress_email(item, request, acct):
+        return item.user.email
         
 @api_handler
 class org_get_info(BaseHandler):
