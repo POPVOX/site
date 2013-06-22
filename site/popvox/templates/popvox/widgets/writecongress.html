@@ -235,7 +235,6 @@ Notes:
 		}
 		
 		function check_email() {
-			alert("checking email")
 			if (working || $('#email').prop('disabled')) return;
 			
 			$("#panel_login .error").text("");
@@ -387,8 +386,7 @@ Notes:
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
 					lastname: $("#lastname").val(),
-					zipcode: $("#zipcode").val(),
-                    referrer: document.referrer
+					zipcode: $("#zipcode").val()
 					};
 				
 			} else {
@@ -401,7 +399,6 @@ Notes:
 					action: "login",
 					email: $("#email").val(),
 					password: $("#password").val()
-                    referrer: document.referrer
 					};
 			}
 
@@ -503,7 +500,6 @@ Notes:
 						bill: {{bill.id}},
 						action: "address",
 						email: identity.email,
-                        referrer: document.referrer,
 						useraddress_prefix: $("#useraddress_prefix").val(),
 						useraddress_firstname: identity.firstname,
 						useraddress_lastname: identity.lastname,
@@ -593,7 +589,6 @@ Notes:
 						action: "submit",
 						csrf_token: csrf_token,
 						email: identity.email,
-                        referrer: document.referrer,
 						password: $("#password").val(), // resend
 						{% if "widget_optin" in permissions and request.GET.optin == "1" %}
 						optin: $('#optin').prop('checked') ? "1" : "0",
