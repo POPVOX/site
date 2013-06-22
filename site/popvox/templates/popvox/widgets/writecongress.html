@@ -62,7 +62,7 @@ Notes:
 	<script type="text/javascript" src="/media/js/mwheelIntent.js"></script>
 	<script type="text/javascript" src="/media/js/jquery.jscrollpane.min.js"></script>	
 	
-	<script>var bill_display_number = "{{bill.shortname|escapejs}}";</script>
+	<script type="text/javascript">var bill_display_number = "{{bill.shortname|escapejs}}";</script>
 	<script src="/media/js/lettertips.js"> </script>
 
 <script type="text/javascript">
@@ -135,7 +135,7 @@ Notes:
 	
 	</style>
 	
-	<script>
+	<script type="text/javascript">
 		// Initialization //
 		
 		{% if not request.GET.demo %}
@@ -235,6 +235,7 @@ Notes:
 		}
 		
 		function check_email() {
+			alert("checking email")
 			if (working || $('#email').prop('disabled')) return;
 			
 			$("#panel_login .error").text("");
@@ -386,7 +387,8 @@ Notes:
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
 					lastname: $("#lastname").val(),
-					zipcode: $("#zipcode").val()
+					zipcode: $("#zipcode").val(),
+                    referrer: document.referrer
 					};
 				
 			} else {
@@ -399,6 +401,7 @@ Notes:
 					action: "login",
 					email: $("#email").val(),
 					password: $("#password").val()
+                    referrer: document.referrer
 					};
 			}
 
@@ -500,6 +503,7 @@ Notes:
 						bill: {{bill.id}},
 						action: "address",
 						email: identity.email,
+                        referrer: document.referrer,
 						useraddress_prefix: $("#useraddress_prefix").val(),
 						useraddress_firstname: identity.firstname,
 						useraddress_lastname: identity.lastname,
@@ -589,6 +593,7 @@ Notes:
 						action: "submit",
 						csrf_token: csrf_token,
 						email: identity.email,
+                        referrer: document.referrer,
 						password: $("#password").val(), // resend
 						{% if "widget_optin" in permissions and request.GET.optin == "1" %}
 						optin: $('#optin').prop('checked') ? "1" : "0",
@@ -792,7 +797,7 @@ Notes:
 							<p class="or" style="display: block; width: 60px; height: 47px; float: left; font-weight: bold; margin: 20px 0 0; padding: 15px 0 0; text-align: center ">OR</p>
 							<input style="margin: 20px 0; /*put me in head */" value="oppose" class="btn or next_oppose disabled" onclick="return do_login('-');" type="button"/>
 							{% endif %}
-							<script>$('#panel_login .next, #panel_login .next_support, #panel_login  .next_oppose').hover(
+							<script type="text/javascript">$('#panel_login .next, #panel_login .next_support, #panel_login  .next_oppose').hover(
 								function() { if ($('#email').hasClass("default")) { $('#email').css({'font-weight': 'bold', 'color': 'red'}); } },
 								function() { $('#email').css({'font-weight': '', 'color': ''}); }
 							);</script>
@@ -805,7 +810,7 @@ Notes:
 							
 						</form>
 						
-						<script>
+						<script type="text/javascript">
 							$('#email').input_default("enter your email address");
 							$('#firstname').input_default("first name");
 							$('#lastname').input_default("last name");
@@ -816,7 +821,7 @@ Notes:
 						
 						{% comment %}keep in mind: large buttons for neutral widgets and at least one line for the service account owner{% endcomment %}
 						<p style="margin-top: 50px; padding-right: 1em;">Your letter will be sent to {% if whitehouse %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
-						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">A copy will also go to {{campaign.account}}.</p>{% endif %}
+						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {{campaign.account}}.</p>{% endif %}
                         <p>View our <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>
 					</div> <!-- e: panel_login -->
 
@@ -898,7 +903,7 @@ Notes:
 							<p>{{reason}}</p>
 						</div>
 						</div>
-						<script>
+						<script type="text/javascript">
 							$('#panel_write_why_reason').hover(
 								function() { $('#panel_write .reason').slideDown(); },
 								function() { $('#panel_write .reason').slideUp(); } );
@@ -934,7 +939,7 @@ Notes:
 							<p id="messagetip"></p>
 							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
 						</div>
-						<script>
+						<script type="text/javascript">
 							$('#message').input_default();
 							$('#message').textchange(function() { validate('message'); });
 						</script>

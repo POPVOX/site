@@ -33,6 +33,8 @@ buildings = {
 
 #don't print messages less than three days old. We probably haven't had a chance to fix them yet.
 cutoff = datetime.datetime.now() - datetime.timedelta(days=3)
+#sometimes we need to see only who we have recent mail for, to diagnose who's endpoints are currently broken
+cutoffgt = datetime.datetime.now() - datetime.timedelta(days=14)
 
 def create_tex(tex, serial):
     batch_max = 0
@@ -370,7 +372,7 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
 
         ucodr.delete()
 
-elif len(sys.argv) == 2 and sys.argv[1] == "status":
+elif sys.argv[1] == "status":
     clean_ucodrs()
 
     from popvox.govtrack import getMemberOfCongress
@@ -380,8 +382,13 @@ elif len(sys.argv) == 2 and sys.argv[1] == "status":
     out = writer(sys.stdout)
     out.writerow(["count", "govtrackid", "endpointid", "member"])
     total = 0
+    
+    if "RECENT" in os.environ:
+        deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__gt=cutoffgt, comment__created__lt=cutoff).values("target").annotate(count=Count("target")).order_by("count").values("target", "count")
+    else:
+        deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).values("target").annotate(count=Count("target")).order_by("count").values("target", "count")
 
-    for rec in UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).values("target").annotate(count=Count("target")).order_by("count").values("target", "count"):
+    for rec in deliveryrecs:
         try:
             endpoint = Endpoint.objects.get(govtrackid=rec["target"]).id
         except:
