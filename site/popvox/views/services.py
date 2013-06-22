@@ -542,6 +542,7 @@ def widget_render_writecongress_action(request, account, permissions):
                 ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
                     email = email,
                     completed_stage = "login",
+                    referrer = request.POST["referrer"],
                     request_dump = meta_log(request.META) )
 
             return {
@@ -580,6 +581,7 @@ def widget_render_writecongress_action(request, account, permissions):
                 lastname = request.POST["useraddress_lastname"],
                 zipcode = request.POST["useraddress_zipcode"],
                 completed_stage = "address",
+                referrer = request.POST["referrer"],
                 request_dump = meta_log(request.META) )
             campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
             saccount = campaign.account
@@ -695,6 +697,7 @@ def widget_render_writecongress_action(request, account, permissions):
                 lastname = request.POST["useraddress_lastname"],
                 zipcode = request.POST["useraddress_zipcode"],
                 completed_stage = status if status != "submitted" else "finished",
+                referrer = request.POST["referrer"],
                 request_dump = meta_log(request.META) )
 
         if status == "submitted":
