@@ -198,6 +198,7 @@ urlpatterns = patterns('',
 	(r'^api/v1/users/login$', 'popvox.views.api.user_login'),
 	(r'^api/v1/users/logout$', 'popvox.views.api.user_logout'),
 	(r'^api/v1/users/me$', 'popvox.views.api.user_get_info'),
+	(r'^api/v1/users/me/comments$', 'popvox.views.api.user_get_comments'),
 	(r'^api/v1/users/registration/fields$', 'popvox.views.api.user_registration_fields'),
 	(r'^api/v1/users/registration$', 'popvox.views.api.user_registration'),
 	
