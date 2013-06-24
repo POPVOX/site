@@ -15,9 +15,22 @@
 
 body {
 	background: #e8e5df;
+	background: url(/media/gis/map_background_cds.png) no-repeat;
 }
 body.width_274 {
 	background: url(../widget/bg_mini-map.gif) left 7px no-repeat;
+}
+body.width_238 {
+	background: url(/media/gis/map_background_cds.png) 0 24px no-repeat;
+	background-size: 238px;
+}
+body.width_600{	
+	background: url(/media/gis/map_background_cds.png) no-repeat;
+	background-size: 600px;
+	background-position: 0 20px;
+}
+body.width_600 #brought_to_you {
+	top: 295px;
 }
 
 #mapdots {
