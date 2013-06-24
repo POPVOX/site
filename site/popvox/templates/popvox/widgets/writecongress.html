@@ -46,9 +46,10 @@ Notes:
 	<title>write congress widget // POPVOX</title>
 	
 	<!-- {{permissions}} -->
+	<!-- test -->
 	
 	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
-	<link rel="stylesheet" href="/media/widget/widget_writecongress.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="/media/widgets/css/writecongress.css" type="text/css" media="screen" />
 
 	<script type="text/javascript" src="/media/js/jquery.js"></script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
@@ -713,6 +714,22 @@ Notes:
             {% endif %}
 			return false;
 		}
+
+		// new, less broken stuff
+		//var viewportWidth  = document.documentElement.clientWidth;
+		//var viewportHeight = document.documentElement.clientHeight;
+		//console.log(viewportWidth);
+		//console.log(viewportHeight);
+
+		//if(viewportWidth >= 300){
+			//things here
+		//} else if(viewportWidth > 500) {
+			//things here
+		//} else if(viewportWidth > 700) {
+			// things here
+		//}
+		// nevermind, probably need to replace the entire set of widgets.
+
 		
 	</script>
 </head>
@@ -721,10 +738,10 @@ Notes:
 		<div class="float_left">
 			<div id="widget_top">
 				<ul id="progress">
-					<li class="tab_1 active">login</li>
-					<li class="tab_2">write</li>
-					<li class="tab_3">send</li>
-					<li class="tab_4">share</li>
+					<li class="tab_1 active"><span>1</span></li>
+					<li class="tab_2"><span>2</span></li>
+					<li class="tab_3"><span>3</span></li>
+					<li class="tab_4"><span>4</span></li>
 				</ul>
 			</div>
 			
@@ -820,7 +837,7 @@ Notes:
                         <p>View our <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>
 					</div> <!-- e: panel_login -->
 
-					<div id="panel_addressform" class="widget_panel" style="display: none">
+					<div id="panel_addressform" class="widget_panel" style="display: none;" >
 						<form class="form" action="#" onsubmit="return false;">
 							<h3>Tell Congress who you are</h3>
 							
@@ -848,7 +865,7 @@ Notes:
 								</select>
 								<span class="optional">optional</span><br />
 								
-								<label for="useraddress_address1">Address Line 1*</label>
+								<label for="useraddress_address1">Address<!-- Line 1-->*</label>
 								<input class="c3" id="useraddress_address1" type="text" value=""/><br />
 								
 								<label for="useraddress_address2">Address Line 2</label>
@@ -863,9 +880,9 @@ Notes:
 								
 								<label for="useraddress_zipcode">ZIP Code*</label>
 								<span id="useraddress_zipcode">...</span><br />
-								
-								<label for="useraddress_phonenumber">Phone Number*</label>
-								<input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/><br />
+																
+								<input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/>
+								<label for="useraddress_phonenumber">Phone#*</label><br />
 								<small class="mrg_top_0">Some Members of Congress require a phone number with your message. Don't worry, POPVOX only shares your number when your Members of Congress ask for it.</small>
 								{% if tagvals %}
 								<label for="useraddress_tag">{{ taglabel }}</label>
@@ -886,7 +903,7 @@ Notes:
 						{% endif %}
 					</div>
 							
-					<div id="panel_write" class="widget_panel" style="display: none">
+					<div id="panel_write" class="widget_panel" style="display: none;">
 						{% if reason %}
 						{% if franking != "true" %}
 						<div id="panel_write_why_reason">
@@ -928,11 +945,13 @@ Notes:
 						<div id="tips">
 							{% if franking != "true" %}
 							<h3>A message is optional</h3>
-							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. To skip this step, just click Preview.</p>
+							<p class="is-optional">When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. <em>To skip this step, just click Preview.</em></p>
 							{% endif %}
+							<!--
 							<h3>Tips</h3>
 							<p id="messagetip"></p>
 							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
+							-->
 						</div>
 						<script type="text/javascript">
 							$('#message').input_default();
@@ -941,11 +960,11 @@ Notes:
 						
 						<div class="clear"> </div>
 						
-						<p style="margin-top: 30px; padding-right: 1em;">Your letter will be sent to Congress and {% if whitehouse %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
+						<p>Your letter will be sent to Congress and {% if whitehouse %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
 						
 					</div><!-- e: panel_write -->
 					
-					<div id="panel_preview" class="widget_panel" style="display: none">
+					<div id="panel_preview" class="widget_panel" style="display: none;" >
 										
 						<h3>Preview your message</h3>
 		
@@ -958,10 +977,9 @@ Notes:
 								Consider <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and writing a personal message.<p>
 							</div>
 							<p class="signature">
-								<span class="name">Bob Smith</span><br />
+								<span class="name"><strong>Bob Smith</strong> | edit <a href="#" onclick="return working ? false : show_panel(2);"> address</a> or <a href="#" onclick="return working ? false : show_panel(3);">message</a></span><br />
 								<span class="address1">35 Morningside Dr.</span><br />
 								<span class="citystatezip">Jackson, TN 38301</span><br />
-								<a href="#" onclick="return working ? false : show_panel(2);">edit address</a> | <a href="#" onclick="return working ? false : show_panel(3);">revise message</a>
 							</p>
 							
 						</div>	
