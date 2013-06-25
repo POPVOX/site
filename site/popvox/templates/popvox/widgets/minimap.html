@@ -194,16 +194,15 @@ $(document).ready(showdata(true));
                 {% endif %}
 
             {% endif %}
-
+            {%comment%} this next block is a sloppy mess. Should figure out what Topher was doing with anaap/anaap2 so we can straighten it out. {%endcomment%}
+            {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
             {% if request.GET.client == 'anaap' %}
             <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=600&hover=0&client=anaap" width="600" height="458" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
             {% endif %}
-
             {% if request.GET.client == 'anaap2' %}
             <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=238&hover=0&client=anaap2" height="200" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
             {% endif %}
-
-            {% if request.GET.client == '' %}
+            {% else %}
             <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274&hover=0" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
             {% endif %}
 
