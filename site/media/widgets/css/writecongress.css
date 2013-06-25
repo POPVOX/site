@@ -95,7 +95,7 @@ a {
 
 	
 #widget_top ul {
-	background: url(bg_bar.png) right 4px repeat-x;
+	background: url(../../widget/bg_bar.png) right 4px repeat-x;
 	height: 32px;
 	}
 	
@@ -103,52 +103,52 @@ a {
 		width: 24%;
 		height: 32px;
 		float: left;
-		background: url(bg_bar.png) left top repeat-x;
+		background: url(../../widget/bg_bar.png) left top repeat-x;
 		text-indent: -9999em;
 		}
 		
 		#widget_top ul li.tab_1.active {
-			background: url(bg_bar_one.png) left top no-repeat;
+			background: url(../../widget/bg_bar_one.png) left top no-repeat;
 			}
 			
 			#widget_top ul li.tab_1.complete {
-				background: url(bg_bar_one.png) left -29px no-repeat;
+				background: url(../../widget/bg_bar_one.png) left -29px no-repeat;
 				}
 
 		#widget_top ul li.tab_2 {
-			background: url(bg_bar_two.png) left top no-repeat;
+			background: url(../../widget/bg_bar_two.png) left top no-repeat;
 			}
 
 			#widget_top ul li.tab_2.active {
-				background: url(bg_bar_two.png) left -29px no-repeat;
+				background: url(../../widget/bg_bar_two.png) left -29px no-repeat;
 				}
 			
 			#widget_top ul li.tab_2.complete {
-				background: url(bg_bar_two.png) left -58px no-repeat;
+				background: url(../../widget/bg_bar_two.png) left -58px no-repeat;
 				}
 
 		#widget_top ul li.tab_3 {
-			background: url(bg_bar_three.png) left top no-repeat;
+			background: url(../../widget/bg_bar_three.png) left top no-repeat;
 			}
 			
 			#widget_top ul li.tab_3.active {
-				background: url(bg_bar_three.png) left -29px no-repeat;
+				background: url(../../widget/bg_bar_three.png) left -29px no-repeat;
 				}
 				
 			#widget_top ul li.tab_3.complete {
-				background: url(bg_bar_three.png) left -58px no-repeat;
+				background: url(../../widget/bg_bar_three.png) left -58px no-repeat;
 				}
 
 		#widget_top ul li.tab_4 {
-			background: url(bg_bar_four.png) left top no-repeat;
+			background: url(../../widget/bg_bar_four.png) left top no-repeat;
 			}
 			
 			#widget_top ul li.tab_4.active {
-				background: url(bg_bar_four.png) left -29px no-repeat;
+				background: url(../../widget/bg_bar_four.png) left -29px no-repeat;
 				}
 				
 			#widget_top ul li.tab_4.complete {
-				background: url(bg_bar_four.png) left -58px no-repeat;
+				background: url(../../widget/bg_bar_four.png) left -58px no-repeat;
 				}
 
 	
@@ -202,19 +202,19 @@ a {
 			}
 			
 		.singlesignon .social_facebook {
-			background: url(../icons/sm/facebook-login.png) left top no-repeat;
+			background: url(../../icons/sm/facebook-login.png) left top no-repeat;
 			}
 		
 		.singlesignon .social_twitter {
-			background: url(../icons/sm/twitter-login.png) left top no-repeat;
+			background: url(../../icons/sm/twitter-login.png) left top no-repeat;
 			}
 			
 		.singlesignon .social_google_openid {
-			background: url(../icons/sm/google-login.png) left top no-repeat;
+			background: url(../../icons/sm/google-login.png) left top no-repeat;
 			}
 			
 		.singlesignon .social_linkedin {
-			background: url(../icons/sm/linkedin-login.png) left top no-repeat;
+			background: url(../../icons/sm/linkedin-login.png) left top no-repeat;
 			}
 			
 		#panel_addressform p {
@@ -309,7 +309,7 @@ a {
 			}
 				
 			.form .check {
-				background: url(bg_check.gif) left top no-repeat;
+				background: url(../../widget/bg_check.gif) left top no-repeat;
 				width: 45px;
 				height: 24px;
 				display: block;
@@ -358,10 +358,10 @@ a {
 			cursor: pointer;
 			}
 			.btn.next_support {
-				background-image: url(next_support.png);
+				background-image: url(../../widget/next_support.png);
 				}
 			.btn.next_oppose {
-				background-image: url(next_oppose.png);
+				background-image: url(../../widget/next_oppose.png);
 				}
 
 		p.error {
@@ -391,7 +391,7 @@ a {
 		.why a.expand {
 			float: left;
 			text-indent: -9999em;
-			background: url(b_expand.png) left top no-repeat;
+			background: url(../../widget/b_expand.png) left top no-repeat;
 			width: 21px;
 			height: 21px;
 			margin-left: 17px;
@@ -405,10 +405,10 @@ a {
 		padding: 2px 0 0 46px;
 		}
 		#panel_write h4.support {
-			background: url(../master/bg_endorsed_bubl.png) left top no-repeat;
+			background: url(../../widget/bg_endorsed_bubl.png) left top no-repeat;
 			}
 		#panel_write h4.oppose {
-			background: url(../master/bg_opposed_bubl.png) left top no-repeat;
+			background: url(../../widget/bg_opposed_bubl.png) left top no-repeat;
 			}
 		
 	.reason {
@@ -499,14 +499,14 @@ a {
 			
 		
 		#msg_preview {
-			background: url(bg_preview_msg.png) -20px 3px no-repeat;
+			background: url(../../widget/bg_preview_msg.png) -20px 3px no-repeat;
 			font-family: Georgia, serif;
 			margin-bottom: 10px;
 			color: black;
 			}
 			
 			#msg_preview p.greeting {
-				background: url(bg_ preview_msg_top.png) left top no-repeat;
+				background: url(../../widget/bg_ preview_msg_top.png) left top no-repeat;
 				height: 35px;
 				padding: 70px 40px 0;
 				} 
@@ -518,11 +518,11 @@ a {
 				}
 				
 			#msg_preview p.support span {
-				background: url("bg_endorsed_bubl_l.png") no-repeat scroll 0px 8px transparent;
+				background: url(../../widget/bg_endorsed_bubl_l.png") no-repeat scroll 0px 8px transparent;
 				}
 				
 			#msg_preview p.oppose span {
-				background: url("bg_opposed_bubl_l.png") no-repeat scroll 0px 8px transparent;
+				background: url(../../widget/bg_opposed_bubl_l.png") no-repeat scroll 0px 8px transparent;
 				}
 			
 			#msg_preview p.signature {
@@ -637,25 +637,25 @@ a {
 			}
 	
 		.social_facebook {
-			background: url(../icons/sm/b_icon_facebook.png) left top no-repeat;
+			background: url(../../icons/sm/b_icon_facebook.png) left top no-repeat;
 			}
 		
 		.social_twitter {
-			background: url(../icons/sm/b_icon_twitter.png) left top no-repeat;
+			background: url(../../icons/sm/b_icon_twitter.png) left top no-repeat;
 			}
 			
 		.social_email {
-			background: url(../master/b_social_email.png) left top no-repeat;
+			background: url(../../master/b_social_email.png) left top no-repeat;
 			}
 		
 		.social_link {
-			background: url(../icons/sm/b_icon_link.png) left top no-repeat;
+			background: url(../../icons/sm/b_icon_link.png) left top no-repeat;
 			}
 	
 	
 	h3.support {
 		border-top: 1px solid #d1d1cf;
-		background: url("bg_endorsed_bubl_sm.png") no-repeat 0px 15px;
+		background: url(../../widget/bg_endorsed_bubl_sm.png") no-repeat 0px 15px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -663,7 +663,7 @@ a {
 				
 	h3.oppose {
 		border-top: 1px solid #d1d1cf;
-		background: url("bg_opposed_bubl_sm.png") no-repeat 0px 15px;
+		background: url(../../widget/bg_opposed_bubl_sm.png") no-repeat 0px 15px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -717,13 +717,13 @@ a {
 			}
 		
 		.search #search.form input {
-			background: url(bg_search.png) left top no-repeat;
+			background: url(../../widget/bg_search.png) left top no-repeat;
 			border: none;
 			height: 18px;
 			}	
 
 .b_continue {
-	background: url("b_continue.png") repeat scroll 0 0 transparent;
+	background: url("../../widget/b_continue.png") repeat scroll 0 0 transparent;
 	display: block;
 	height: 22px;
 	text-indent: -9999em;
@@ -731,7 +731,7 @@ a {
 	}
 	
 .b_do_later {
-	background: url("b_do_later.png") repeat scroll 0 0 transparent;
+	background: url("../../widget/b_do_later.png") repeat scroll 0 0 transparent;
 	display: block;
 	height: 22px;
 	text-indent: -9999em;
@@ -748,7 +748,7 @@ a {
 	}			
 
 	#widget_foot a {
-		background: url(../icons/sm/logo_pv_small_o.png) right top no-repeat;
+		background: url(../../icons/sm/logo_pv_small_o.png) right top no-repeat;
 		display: block;
 		width: 140px;
 		height: 22px;
