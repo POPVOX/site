@@ -23,6 +23,15 @@
 	#widget_body {
 		overflow: hidden;
 	}
+	.arrow {
+		border-bottom: 5px solid transparent;
+		border-left: 6px solid #FFFFFF;
+		border-top: 5px solid transparent;
+		display: inline-block;
+		height: 0;
+		margin: 6px 0 0 3px;
+		width: 0;
+	}
 	{% endif %}
 
 	
@@ -126,7 +135,7 @@
 			</div>
 			
 			{% if request.GET.client == 'anaap' %}
-				<div id="widget_body" style='height: 230px;'>
+				<div id="widget_body" style='height: 215px;'>
 			{% else %}
 				<div id="widget_body">
 			{% endif %}
@@ -168,7 +177,7 @@
 			</div>
 			{% else %}
 			<div id="widget_foot" style='padding-top:8px; padding-bottom:12px;background:#fafafa; text-align:center;'>
-				<a style='display:inline-block; height:23px;line-height:23px; font-family: Arial; background:#777; text-align: center; width: 180px; color: #fff; text-decoration:none; font-size:11px; text-transform: uppercase;-webkit-border-radius: 12px;-moz-border-radius: 12px; o-border-radius: 12px;-ms-border-radius: 12px;border-radius: 12px;' href='{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}'>Read More</a>
+				<a style='display:inline-block; height:23px;line-height:23px; font-family: Arial; background:#777; text-align: center; width: 180px; color: #fff; text-decoration:none; font-size:11px; text-transform: uppercase;-webkit-border-radius: 12px;-moz-border-radius: 12px; o-border-radius: 12px;-ms-border-radius: 12px;border-radius: 12px;' href='{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}'>Read More </a>
 			</div>
 			{% endif %}
 			

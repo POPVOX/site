@@ -101,7 +101,11 @@
                         $('#chart' + ' .pro_reintro').text(stats.pro_reintro + " people support reintroduction of the bill."); 
                     }
                     
+                    {% if request.GET.client == 'anaap' %}
+                    bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff", colors:["#4a9410", "#edd501"] });
+                    {% else %}
                     bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff" });
+                    {% endif %}
                     {% if request.GET.client == 'anaap2' %}
 					bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 230 });
                     {% else %}
@@ -169,8 +173,8 @@
 $(document).ready(showdata(true));
 
 </script>
- {% if request.GET.client == 'anaap' %}
-<body style="background: none !important;">
+ {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
+<body id="anaap" style="background: none !important;">
 {% endif %}
 <div class="content">
 
@@ -184,22 +188,21 @@ $(document).ready(showdata(true));
 
                 {% if bill.street_name %}
 
-                    <h3{% if request.GET.client == 'anaap2' %} style="height: 40px; border-bottom:0; background-color: #777; background-position: -9px -9px;" {% endif %}><a {% if request.GET.client == 'anaap2' %} style="height: 50px; text-indent: -9999em; display: none;" {% endif %} href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.billtypeslug}}{{bill.billnumber}}: {{bill.street_name|truncatewords:6}}</a></h3>
+                    <h3{% if request.GET.client == 'anaap2' %} style="padding: 10px 0 10px 5px; font-family: helvetica, san-serif; height: 50px; border-bottom:0; background-color: #777; background-image: none; background-position: -9px -9px;" {% endif %}>Americans Support a National Airline Policy <a {% if request.GET.client == 'anaap2' %} style="height: 50px; text-indent: -9999em; display: none;" {% endif %} href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.billtypeslug}}{{bill.billnumber}}: {{bill.street_name|truncatewords:6}}</a></h3>
                 {% else %}
                     <h3{% if request.GET.client == 'anaap2' %} style="height: 50px; border-bottom:0; background: #777 url(../widget/widget_logo.png) left top no-repeat;" {% endif %}><a {% if request.GET.client == 'anaap2' %} style="height: 50px; text-indent: -9999em; display: none;" {% endif %} href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.title|truncatewords:6}}</a></h3>
                 {% endif %}
 
             {% endif %}
-
+            {%comment%} this next block is a sloppy mess. Should figure out what Topher was doing with anaap/anaap2 so we can straighten it out. {%endcomment%}
+            {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
             {% if request.GET.client == 'anaap' %}
             <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=600&hover=0&client=anaap" width="600" height="458" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
             {% endif %}
-
             {% if request.GET.client == 'anaap2' %}
             <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=238&hover=0&client=anaap2" height="200" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
             {% endif %}
-
-            {% if request.GET.client == '' %}
+            {% else %}
             <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274&hover=0" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
             {% endif %}
 
@@ -213,7 +216,7 @@ $(document).ready(showdata(true));
                 {% endif %}
 
                 {% if request.GET.client == 'anaap' %}
-                <div id="chart" class="clear" style="display: none; position: absolute; top: 420px; right: 40px;">
+                <div id="chart" class="clear" style="display: none; position: absolute; top: 400px; right: 40px;">
                 {% else %}
                 <div id="chart" class="clear" style="display: none;">
                 {% endif %}
@@ -236,10 +239,16 @@ $(document).ready(showdata(true));
 					</div> <!-- /col_3 col_last past_stats -->
                     {% endif %}
 				</div> <!-- /chart -->
-				<div id="footer">
+        
+			{% if request.GET.client == 'anaap' %}
+				<div id="footer"> </div><!-- /footer -->
+    	    {% else %}
+    			<div id="footer">
 					<p class="foot_text">Real-time sentiment registered on <br/><a href="http://www.popvox.com" target="_blank">www.popvox.com</a> - <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>	
 					<p id="shortmessages"></p>
 				</div><!-- /footer -->
+	        {% endif %}
+
 			</div> <!-- /mini-map -->
 </div> <!-- /content -->
 
