@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
+from django.utils.encoding import smart_str, smart_unicode
 
 from popvox.models import *
 from popvox.govtrack import statelist, statenames, CURRENT_CONGRESS, getMemberOfCongress
@@ -31,6 +32,8 @@ import random, math
 from itertools import chain
 from base64 import urlsafe_b64decode
 import hashlib, hmac
+
+INITIAL_REFERRER=""
 
 @csrf_protect_if_logged_in
 #@login_required
@@ -101,6 +104,9 @@ def validate_widget_request(request, api_key, is_widget=True):
             host = urlparse.urlparse(request.META["HTTP_REFERER"]).hostname.lower()
             if host.startswith("www."):
                 host = host[4:]
+            global INITIAL_REFERRER 
+            if INITIAL_REFERRER == "":
+                INITIAL_REFERRER = host
         except:
             return "You have disabled the HTTP Referrer Header in your web browser, your web browser sent an invalid value, or you visited the widget iframe URL directly. Enable the HTTP Referrer Header to access this content if it has been disabled."
 
@@ -388,7 +394,7 @@ def widget_render_writecongress_action(request, account, permissions):
 
     def compute_csrf_token(request):
         sha1 = hashlib.sha1()
-        sha1.update(SECRET_KEY + "|" + request.POST["email"])
+        sha1.update(SECRET_KEY + "|" + request.POST["email"].lower())
         return sha1.hexdigest()
     
     ########################################
@@ -405,7 +411,7 @@ def widget_render_writecongress_action(request, account, permissions):
             if request.POST["email_auth_hmac"].lower() == hmac.new(account.secret_key.encode("ascii"), request.POST["email"].encode("utf8"), hashlib.sha256).hexdigest().lower():
                 # Try to log in this user.
                 try:
-                    user = User.objects.get(email=request.POST["email"])
+                    user = User.objects.get(email__iexact=request.POST["email"])
                     user = authenticate(user_object = user)
                     login(request, user)
                     return { "identity": widget_render_writecongress_get_identity(user) }
@@ -428,7 +434,7 @@ def widget_render_writecongress_action(request, account, permissions):
         csrf_token = compute_csrf_token(request)
         
         try:
-            u = User.objects.get(email = email)
+            u = User.objects.get(email__iexact = email)
         except User.DoesNotExist:
             return { "status": "not-registered", "csrf_token": csrf_token }
             
@@ -501,7 +507,8 @@ def widget_render_writecongress_action(request, account, permissions):
                 zipcode = identity["zipcode"],
                 email = identity["email"],
                 completed_stage = "start",
-                request_dump = meta_log(request.META) )
+                referrer = INITIAL_REFERRER,
+                request_dump = meta_log(request.META)  )
         
         return {
             "status": "success",
@@ -536,7 +543,6 @@ def widget_render_writecongress_action(request, account, permissions):
                     email = email,
                     completed_stage = "login",
                     request_dump = meta_log(request.META) )
-            
 
             return {
                 "status": "success",
@@ -784,7 +790,7 @@ class WriteCongressEmailVerificationCallback:
             user = User.objects.get(id=self.post["userid"])
         else:
             try:
-                user = User.objects.get(email=self.post["email"])
+                user = User.objects.get(email__iexact=self.post["email"])
             except User.DoesNotExist:
                 # If the account has not been created, then the action has not been completed.
                 return True
@@ -808,7 +814,7 @@ class WriteCongressEmailVerificationCallback:
             if "userid" in self.post and self.post["userid"] != "":
                 user = User.objects.get(id=self.post["userid"])
             else:
-                user = User.objects.get(email=self.post["email"])
+                user = User.objects.get(email__iexact=self.post["email"])
                 
             user_is_new = user.username.startswith("Anonymous")
         except User.DoesNotExist:

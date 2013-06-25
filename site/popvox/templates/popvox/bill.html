@@ -155,9 +155,6 @@ function getshorturl() {
         </div>
     </div>
     
-    {% with "1" as no_rule %}
-    {% include "ads/rightbar_single.html" %}    
-    {% endwith %}
         
     {% comment %} START FOR ORG STAFF {% endcomment %}
     <div id="org_bar" style="display: none">
@@ -364,8 +361,8 @@ function getshorturl() {
     	    {% bill_statistics bill as stats %}
   	        {% include "popvox/bill_statistics_pie_simple.html" %}
   	        <div id="svo_users" {% if not stats.total %} style="margin-top:0"{%endif%}>
-	       	 {{ stats.pro }} users<br>
-	       	 {{ stats.con }} users
+	       	 {%if stats.pro%}{{ stats.pro }}{%else%}0{%endif%} users<br>
+	       	 {%if stats.con%}{{ stats.con }}{%else%}0{%endif%} users
 	       	</div>
 	    </div>
     </div>

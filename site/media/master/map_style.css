@@ -15,9 +15,22 @@
 
 body {
 	background: #e8e5df;
+	background: url(/media/gis/map_background_cds.png) no-repeat;
 }
 body.width_274 {
 	background: url(../widget/bg_mini-map.gif) left 7px no-repeat;
+}
+body.width_238 {
+	background: url(/media/gis/map_background_cds.png) 0 24px no-repeat;
+	background-size: 238px;
+}
+body.width_600{	
+	background: url(/media/gis/map_background_cds.png) no-repeat;
+	background-size: 600px;
+	background-position: 0 20px;
+}
+body.width_600 #brought_to_you {
+	top: 295px;
 }
 
 #mapdots {
@@ -48,6 +61,7 @@ body.width_274 {
 
 .colormode_1 .dots { background-image: url("bg_dots.png");  }
 .colormode_2 .dots { background-image: url("bg_dots_alt.png");  }
+.colormode_3 .dots { background-image: url("bg_dots_new.png");  }
 
 .dot_clr_1.dot_sz_1 { background-position: -80px -0px; }
 .dot_clr_2.dot_sz_1 { background-position: -80px -20px; }

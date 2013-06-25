@@ -46,9 +46,10 @@ Notes:
 	<title>write congress widget // POPVOX</title>
 	
 	<!-- {{permissions}} -->
+	<!-- test -->
 	
 	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
-	<link rel="stylesheet" href="/media/widget/widget_writecongress.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="/media/widgets/css/writecongress.css" type="text/css" media="screen" />
 
 	<script type="text/javascript" src="/media/js/jquery.js"></script>
 	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
@@ -62,10 +63,22 @@ Notes:
 	<script type="text/javascript" src="/media/js/mwheelIntent.js"></script>
 	<script type="text/javascript" src="/media/js/jquery.jscrollpane.min.js"></script>	
 	
-	<script>var bill_display_number = "{{bill.shortname|escapejs}}";</script>
+	<script type="text/javascript">var bill_display_number = "{{bill.shortname|escapejs}}";</script>
 	<script src="/media/js/lettertips.js"> </script>
-	
-	<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script> <script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('{{MIXPANEL_TOKEN}}'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: null_fn,  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn }; } </script>
+
+<script type="text/javascript">
+    (function(c,a){window.mixpanel=a;var b,d,h,e;b=c.createElement("script");
+    b.type="text/javascript";b.async=!0;b.src=("https:"===c.location.protocol?"https:":"http:")+
+    '//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';d=c.getElementsByTagName("script")[0];
+    d.parentNode.insertBefore(b,d);a._i=[];a.init=function(b,c,f){function d(a,b){
+    var c=b.split(".");2==c.length&&(a=a[c[0]],b=c[1]);a[b]=function(){a.push([b].concat(
+    Array.prototype.slice.call(arguments,0)))}}var g=a;"undefined"!==typeof f?g=a[f]=[]:
+    f="mixpanel";g.people=g.people||[];h=['disable','track','track_pageview','track_links',
+    'track_forms','register','register_once','unregister','identify','alias','name_tag','set_config',
+    'people.set','people.set_once','people.increment','people.track_charge','people.append'];
+    for(e=0;e<h.length;e++)d(g,h[e]);a._i.push([b,c,f])};a.__SV=1.2;})(document,window.mixpanel||[]);
+    mixpanel.init('{{MIXPANEL_TOKEN}}');
+</script>
 
 	<style>
 	{% if request.GET.iframe %}
@@ -123,7 +136,7 @@ Notes:
 	
 	</style>
 	
-	<script>
+	<script type="text/javascript">
 		// Initialization //
 		
 		{% if not request.GET.demo %}
@@ -131,7 +144,7 @@ Notes:
 			{% if campaign %}bucket: "{{campaign.mixpanel_bucket|escapejs}}",{% endif %}
 			bill: "{{bill.shortname|escapejs}}"
 		};
-		mpmetrics.track('widget_writecongress_hit', mixpanel_properties);
+		mixpanel.track('widget_writecongress_hit', mixpanel_properties);
 		{% endif %}
 		
 		// General //
@@ -339,17 +352,17 @@ Notes:
 		
 		function do_login(chosen_position) {
 			if (working) return false;
-			
+
 			if (email_status != "not-registered" && email_status != "registered" && email_status != "logged-in") {
-				alert($("#panel_login .error").text());
+				$("#panel_login .error").text();
 				return false;
 			}
-			
+
 			{% if not request.GET.demo %}
 			mixpanel_properties.position = chosen_position;
-			mpmetrics.track('widget_writecongress_start', mixpanel_properties);
+			mixpanel.track('widget_writecongress_start', mixpanel_properties);
 			{% endif %}
-			
+
 			position = chosen_position;
 			$('.position_verb').text(position == "+" ? "support" : "oppose");
 			$('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
@@ -357,7 +370,6 @@ Notes:
 			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
 			{% endif %}
 			if ($("#panel_login .next").hasClass("disabled")) return false;
-			
 			var data;
 			
 			if (email_status != "registered") {
@@ -534,7 +546,7 @@ Notes:
 			
 			{% if not request.GET.demo %}
 			mixpanel_properties.personalized = !$('#message').hasClass("default");
-			mpmetrics.track('widget_writecongress_write', mixpanel_properties);
+			mixpanel.track('widget_writecongress_write', mixpanel_properties);
 			{% endif %}
 			
 			// convert message text into a nicely paragraphed html preview
@@ -565,7 +577,7 @@ Notes:
 			if (working) return;
 			
 			{% if not request.GET.demo %}
-			mpmetrics.track('widget_writecongress_send', mixpanel_properties);
+			mixpanel.track('widget_writecongress_send', mixpanel_properties);
 			{% endif %}
 			
 			$.ajax({
@@ -604,6 +616,15 @@ Notes:
 						if (data.status == "fail") {
 							$("#panel_preview .error").text(data.msg);
 						} else {
+                            var referrer = document.referrer;
+                            var refpatt=new RegExp("popvox.com/widgets/legagenda","i");
+                            if (refpatt.test(referrer) == true)
+                            {
+                                if (typeof parent.POP.makeInactive === 'function')
+                                {
+                                    parent.POP.makeInactive({{bill.id}});
+                                }
+                            }
 							$("#panel_preview .error").text("");
 							
 							if (data.status == "submitted") {
@@ -671,7 +692,7 @@ Notes:
 		function do_share(method) {
 			{% if not request.GET.demo %}
 			mixpanel_properties.share_method = method;
-			mpmetrics.track('widget_writecongress_share', mixpanel_properties);
+			mixpanel.track('widget_writecongress_share', mixpanel_properties);
 			{% endif %}
 			
 			var f;
@@ -693,6 +714,22 @@ Notes:
             {% endif %}
 			return false;
 		}
+
+		// new, less broken stuff
+		//var viewportWidth  = document.documentElement.clientWidth;
+		//var viewportHeight = document.documentElement.clientHeight;
+		//console.log(viewportWidth);
+		//console.log(viewportHeight);
+
+		//if(viewportWidth >= 300){
+			//things here
+		//} else if(viewportWidth > 500) {
+			//things here
+		//} else if(viewportWidth > 700) {
+			// things here
+		//}
+		// nevermind, probably need to replace the entire set of widgets.
+
 		
 	</script>
 </head>
@@ -701,10 +738,10 @@ Notes:
 		<div class="float_left">
 			<div id="widget_top">
 				<ul id="progress">
-					<li class="tab_1 active">login</li>
-					<li class="tab_2">write</li>
-					<li class="tab_3">send</li>
-					<li class="tab_4">share</li>
+					<li class="tab_1 active"><span>1</span></li>
+					<li class="tab_2"><span>2</span></li>
+					<li class="tab_3"><span>3</span></li>
+					<li class="tab_4"><span>4</span></li>
 				</ul>
 			</div>
 			
@@ -772,7 +809,7 @@ Notes:
 							<p class="or" style="display: block; width: 60px; height: 47px; float: left; font-weight: bold; margin: 20px 0 0; padding: 15px 0 0; text-align: center ">OR</p>
 							<input style="margin: 20px 0; /*put me in head */" value="oppose" class="btn or next_oppose disabled" onclick="return do_login('-');" type="button"/>
 							{% endif %}
-							<script>$('#panel_login .next, #panel_login .next_support, #panel_login  .next_oppose').hover(
+							<script type="text/javascript">$('#panel_login .next, #panel_login .next_support, #panel_login  .next_oppose').hover(
 								function() { if ($('#email').hasClass("default")) { $('#email').css({'font-weight': 'bold', 'color': 'red'}); } },
 								function() { $('#email').css({'font-weight': '', 'color': ''}); }
 							);</script>
@@ -785,7 +822,7 @@ Notes:
 							
 						</form>
 						
-						<script>
+						<script type="text/javascript">
 							$('#email').input_default("enter your email address");
 							$('#firstname').input_default("first name");
 							$('#lastname').input_default("last name");
@@ -796,11 +833,11 @@ Notes:
 						
 						{% comment %}keep in mind: large buttons for neutral widgets and at least one line for the service account owner{% endcomment %}
 						<p style="margin-top: 50px; padding-right: 1em;">Your letter will be sent to {% if whitehouse %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
-						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">A copy will also go to {{campaign.account}}.</p>{% endif %}
+						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {{campaign.account}}.</p>{% endif %}
                         <p>View our <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>
 					</div> <!-- e: panel_login -->
 
-					<div id="panel_addressform" class="widget_panel" style="display: none">
+					<div id="panel_addressform" class="widget_panel" style="display: none;" >
 						<form class="form" action="#" onsubmit="return false;">
 							<h3>Tell Congress who you are</h3>
 							
@@ -828,7 +865,7 @@ Notes:
 								</select>
 								<span class="optional">optional</span><br />
 								
-								<label for="useraddress_address1">Address Line 1*</label>
+								<label for="useraddress_address1">Address<!-- Line 1-->*</label>
 								<input class="c3" id="useraddress_address1" type="text" value=""/><br />
 								
 								<label for="useraddress_address2">Address Line 2</label>
@@ -843,9 +880,9 @@ Notes:
 								
 								<label for="useraddress_zipcode">ZIP Code*</label>
 								<span id="useraddress_zipcode">...</span><br />
-								
-								<label for="useraddress_phonenumber">Phone Number*</label>
-								<input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/><br />
+																
+								<input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/>
+								<label for="useraddress_phonenumber">Phone#*</label><br />
 								<small class="mrg_top_0">Some Members of Congress require a phone number with your message. Don't worry, POPVOX only shares your number when your Members of Congress ask for it.</small>
 								{% if tagvals %}
 								<label for="useraddress_tag">{{ taglabel }}</label>
@@ -866,7 +903,7 @@ Notes:
 						{% endif %}
 					</div>
 							
-					<div id="panel_write" class="widget_panel" style="display: none">
+					<div id="panel_write" class="widget_panel" style="display: none;">
 						{% if reason %}
 						{% if franking != "true" %}
 						<div id="panel_write_why_reason">
@@ -878,7 +915,7 @@ Notes:
 							<p>{{reason}}</p>
 						</div>
 						</div>
-						<script>
+						<script type="text/javascript">
 							$('#panel_write_why_reason').hover(
 								function() { $('#panel_write .reason').slideDown(); },
 								function() { $('#panel_write .reason').slideUp(); } );
@@ -908,24 +945,26 @@ Notes:
 						<div id="tips">
 							{% if franking != "true" %}
 							<h3>A message is optional</h3>
-							<p>When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. To skip this step, just click Preview.</p>
+							<p class="is-optional">When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. <em>To skip this step, just click Preview.</em></p>
 							{% endif %}
+							<!--
 							<h3>Tips</h3>
 							<p id="messagetip"></p>
 							<p>There is no need to sign your name. We&rsquo;ll add that for you.</p>
+							-->
 						</div>
-						<script>
+						<script type="text/javascript">
 							$('#message').input_default();
 							$('#message').textchange(function() { validate('message'); });
 						</script>
 						
 						<div class="clear"> </div>
 						
-						<p style="margin-top: 30px; padding-right: 1em;">Your letter will be sent to Congress and {% if whitehouse %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
+						<p>Your letter will be sent to Congress and {% if whitehouse %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
 						
 					</div><!-- e: panel_write -->
 					
-					<div id="panel_preview" class="widget_panel" style="display: none">
+					<div id="panel_preview" class="widget_panel" style="display: none;" >
 										
 						<h3>Preview your message</h3>
 		
@@ -938,10 +977,9 @@ Notes:
 								Consider <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and writing a personal message.<p>
 							</div>
 							<p class="signature">
-								<span class="name">Bob Smith</span><br />
+								<span class="name"><strong>Bob Smith</strong> | edit <a href="#" onclick="return working ? false : show_panel(2);"> address</a> or <a href="#" onclick="return working ? false : show_panel(3);">message</a></span><br />
 								<span class="address1">35 Morningside Dr.</span><br />
 								<span class="citystatezip">Jackson, TN 38301</span><br />
-								<a href="#" onclick="return working ? false : show_panel(2);">edit address</a> | <a href="#" onclick="return working ? false : show_panel(3);">revise message</a>
 							</p>
 							
 						</div>	

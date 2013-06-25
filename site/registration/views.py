@@ -76,7 +76,7 @@ class EmailPasswordLoginBackend(ModelBackend):
 
     def authenticate(self, email = None, password = None):
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email__iexact=email)
             if user.check_password(password):
                 return user
         except:

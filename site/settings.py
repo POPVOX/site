@@ -8,13 +8,18 @@ if not "LOCAL" in os.environ:
     execfile("/mnt/persistent/config/tokens.py")
 
 DEBUG = ("DEBUG" in os.environ) or os.path.exists(os.path.dirname(__file__) + "/debug")
+DEBUGTOOLBAR = ("DEBUGTOOLBAR" in os.environ) or os.path.exists(os.path.dirname(__file__) + "/debugtoolbar")
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1',) # used by django.core.context_processors.debug
 if "SSH_CONNECTION" in os.environ:
     # When launched from an SSH session, add the remote hose to
     # the list of INTERNAL_IPSs so that he can see the SQL
     # debugging output.
-    INTERNAL_IPS = ('127.0.0.1', '173.66.58.87', '69.167.215.11', os.environ["SSH_CONNECTION"].split(" ")[0])
+
+    INTERNAL_IPS = ('127.0.0.1', '173.66.58.87',
+        '173.66.171.249', #daniel's
+        '69.167.215.11',
+        os.environ["SSH_CONNECTION"].split(" ")[0])
     print "Internal IPs:", repr(INTERNAL_IPS)
 if os.path.exists("/home/www/slave"):
     for line in open("/home/www/slave"):
@@ -88,7 +93,7 @@ if not "LOCAL" in os.environ:
         mysqluser = "slave"
     DATABASES = {
         'default': {
-            'NAME': 'popvox_test', #'popvox',
+            'NAME': 'popvox', #'popvox',
             #'ENGINE': 'django.db.backends.mysql',
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'USER': mysqluser,
@@ -273,4 +278,18 @@ ARTICLES_TEASER_LIMIT = 100 #The number of words to display in the teaser. Defau
 ARTICLES_AUTO_TAG = False #Whether or not to automatically tag articles. Defaults to True.
 
 # Cut-off age for a message with no comment before we stop trying to deliver the message
-POSITION_DELIVERY_CUTOFF_DAYS = 31
+POSITION_DELIVERY_CUTOFF_DAYS = 14
+
+#settings for Django Debug Toolbar
+def show_toolbar(request):
+    if DEBUG == True:
+        if request.user.is_staff or request.user.id in [59, 60543]: #59 = POPVOXTweets, 60543= Longwing
+            return True
+        elif DEBUGTOOLBAR == True:
+            return True
+    return False
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+    # Rest of config
+}

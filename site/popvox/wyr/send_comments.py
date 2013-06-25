@@ -74,8 +74,7 @@ if "ADDR" in os.environ:
 #whitehouse = [1866, 1872]
 if "TARGET" in os.environ:
     if int(os.environ["TARGET"]) == 400629:
-        comments_iter = comments_iter.filter(Q(actionrecord__campaign__id__contains=2731) | Q(actionrecord__campaign__id__contains=1872)) #whitehouse campaigns
-
+        comments_iter = comments_iter.filter(Q(actionrecord__campaign__id__contains=2731) | Q(actionrecord__campaign__id__contains=1872) | Q(actionrecord__campaign__id__contains=1866)) #whitehouse campaigns
     else:
         m = getMemberOfCongress(int(os.environ["TARGET"]))
         comments_iter = comments_iter.filter(state=m["state"])
@@ -99,7 +98,7 @@ if "LAST_ERR" in os.environ:
     if os.environ["LAST_ERR"] == "CAPTCHA":
         comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE, delivery_attempts__trace__contains="CAPTCHA")
 if "RECENT" in os.environ:
-    comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=7))
+    comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=14))
 if "REDISTRICTED" in os.environ:
     #Only run comments for users whose new districts we know we have.
     comments_iter = comments_iter.filter(address__congressionaldistrict2013__isnull=False)
@@ -116,12 +115,20 @@ def process_comment(comment, thread_id):
     
     # skip flagged addresses... when I put this into the .filter(),
     # a SQL error is generated over ambiguous 'state' column
-    if comment.address.flagged_hold_mail:
+    try:
+        if comment.address.flagged_hold_mail:
+            return
+    except:
+        duplicate_records[comment.id] = ['exception'] #postal address does not exist
         return
     
     # Who are we delivering to? Anyone?
-    govtrackrecipients = comment.get_recipients()
-    if not type(govtrackrecipients) == list:
+    try:
+        govtrackrecipients = comment.get_recipients()
+        if not type(govtrackrecipients) == list:
+            return
+    except KeyError:
+        duplicate_records[comment.id] = ['KeyError'] #key error issue with the endpoint
         return
         
     govtrackrecipientids = [g["id"] for g in govtrackrecipients]
@@ -237,6 +244,8 @@ def process_comment(comment, thread_id):
     
     # Begin delivery.
     for gid in govtrackrecipientids:
+        if gid == 412597: #6/13/13: Jeff Chiesa is new. TODO: add him to MemberOfCongress table & set up his webform.
+            continue
         if "TARGET" in os.environ and gid != int(os.environ["TARGET"]):
             continue
             
@@ -247,6 +256,7 @@ def process_comment(comment, thread_id):
                 comment.address.normalize()
                 msg.county = comment.address.county
             else:
+                continue #Polygons are broken right now.
                 county = county_lookup_coordinate(comment.address.longitude, comment.address.latitude)
                 if county and county[0] == comment.address.state: # is a (state, county) tuple
                     print thread_id, "Found County", comment.address.id, county
@@ -279,7 +289,7 @@ def process_comment(comment, thread_id):
         
         # Have we already successfully delivered this message?
         if last_delivery_attempt != None and last_delivery_attempt.success:
-            success += 1
+            #success += 1 #old success numbers are not actually very helpful.
             continue
                 
         # Check that we have no UserCommentOfflineDeliveryRecord, meaning it is pending
@@ -291,7 +301,8 @@ def process_comment(comment, thread_id):
                 continue
             else:
                 ucodr.delete() # will recreate if needed, and delete records for messages whose content has been removed
-        except UserCommentOfflineDeliveryRecord.DoesNotExist:
+        except (UserCommentOfflineDeliveryRecord.DoesNotExist, MemberOfCongress.DoesNotExist):
+            print gid
             pass
 
         endpoints = Endpoint.objects.filter(govtrackid=gid, office=getMemberOfCongress(gid)["office_id"])
@@ -361,7 +372,12 @@ def process_comment(comment, thread_id):
         # If we got this far, a delivery attempt was made although it
         # may not have been successful. Whatever happened, record it
         # so we know not to try again.
-        comment.delivery_attempts.add(delivery_record)
+        try:
+            comment.delivery_attempts.add(delivery_record)
+        except:
+            print delivery_record
+            duplicate_records[comment.id] = ['really unhandled exception.']
+            continue
         
         print thread_id, comment.created, delivery_record
         
@@ -394,7 +410,7 @@ def process_comments_group(thread_index, thread_count):
 
 
     cm = comments_iter\
-        .extra(where=["(ORD(MID(popvox_usercomment.state,1,1))+ORD(MID(popvox_usercomment.state,2,1))) MOD %d = %d" % (thread_count, thread_index)])\
+        .extra(where=["MOD((ASCII(SUBSTRING(popvox_usercomment.state,1,1))+ASCII(SUBSTRING(popvox_usercomment.state,2,1))), %d) = %d" % (thread_count, thread_index)])\
         .order_by('created')\
         .select_related("bill", "user")
 

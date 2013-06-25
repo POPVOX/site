@@ -23,6 +23,15 @@
 	#widget_body {
 		overflow: hidden;
 	}
+	.arrow {
+		border-bottom: 5px solid transparent;
+		border-left: 6px solid #FFFFFF;
+		border-top: 5px solid transparent;
+		display: inline-block;
+		height: 0;
+		margin: 6px 0 0 3px;
+		width: 0;
+	}
 	{% endif %}
 
 	
@@ -67,10 +76,14 @@
 	var scroll_delay = 9000;
 	
 	$(function() {
-			$('#widget_top').css("height", ($('#widget_top h1').height() + $('#widget_top h2').height() + 15) + "px");
-			
+			{% if request.GET.client != 'anaap' %}	
+			$('#widget_top').css("height", ($('#widget_top h1').height() + $('#widget_top h2').height() + 15) + "px");			
+			{% endif %}
+
+			{% if request.GET.client != 'anaap' %}			
 			{% if request.GET.iframe %}
 			$('#widget_body').css("height", ($(window).height() - $('#widget_top').height() - $('#widget_foot').height() - 25) + "px");
+			{% endif %}
 			{% endif %}
 			
 			if (scroll_delay) window.setTimeout("scroll_comments()", scroll_delay);
@@ -101,16 +114,31 @@
 <body>
 	<div id="wrap">
 		<div id="comment_widget" class="float_left">
-			<div id="widget_top">
-				<h1>{{title1}}</h1>
-				{% if url %}
-					<h2><a href="{{url}}" target="_blank">{{title2|truncate:80}}</a></h2>
+			{% if request.GET.client == 'anaap' %}
+				<div id="widget_top" style='height:24px; line-height: 10px;'>
+			{% else %}
+				<div id="widget_top">
+			{% endif %}
+
+				{% if request.GET.client == 'anaap' %}
+					<h1 style='text-align: center; line-height: 10px;'>{{title1}}</h1>
 				{% else %}
-					<h2>{{title2|truncatewords:10}}</h2>
+					<h1>{{title1}}</h1>
+				{% endif %}
+				{% if request.GET.client != 'anaap' %}
+					{% if url %}
+						<h2><a href="{{url}}" target="_blank">{{title2|truncate:80}}</a></h2>
+					{% else %}
+						<h2>{{title2|truncatewords:10}}</h2>
+					{% endif %}
 				{% endif %}
 			</div>
 			
-			<div id="widget_body">
+			{% if request.GET.client == 'anaap' %}
+				<div id="widget_body" style='height: 215px;'>
+			{% else %}
+				<div id="widget_body">
+			{% endif %}
 				{% for item in comments %}
 
 				<div class="widget_item">
@@ -142,10 +170,16 @@
 				
 				{% endfor %}
 			</div><!-- e: body -->
-			
+
+			{% if request.GET.client != 'anaap' %}
 			<div id="widget_foot">
-				<p><a href="https://www.popvox.com/legal#privacypolicy" target="_blank">privacy</a> | <a href="{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}" target="_blank">read more</a></p>
+				<p><a href="https://www.popvox.com/legal#privacypolicy" target="_blank">privacy</a> | <a href="{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}" target="_blank">read more <span class="arrow"></span></a></p>
 			</div>
+			{% else %}
+			<div id="widget_foot" style='padding-top:8px; padding-bottom:12px;background:#fafafa; text-align:center;'>
+				<a style='display:inline-block; height:23px;line-height:23px; font-family: helvetica, Arial, sans-serif; background:#777; text-align: center; width: 180px; color: #fff; text-decoration:none; font-size:12px; text-transform: uppercase;-webkit-border-radius: 12px;-moz-border-radius: 12px; o-border-radius: 12px;-ms-border-radius: 12px;border-radius: 12px;' href='{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}'>Read More <span class="arrow"></span></a>
+			</div>
+			{% endif %}
 			
 		</div><!-- e: widget -->
 	</div><!-- e: wrap -->

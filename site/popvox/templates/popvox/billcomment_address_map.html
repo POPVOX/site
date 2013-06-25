@@ -15,7 +15,7 @@
 			  getTileUrl: function(coord, zoom) 
 			  {
 				  return "http://www.govtrack.us/perl/wms/wms.cgi?google_tile_template_values=" + coord.x + "," + coord.y + "," + zoom
-				  	+ "&LAYERS=cd-110" + (outlines_only ? "-outlines" : "")
+				  	+ "&LAYERS=cd-112" + (outlines_only ? "-outlines" : "")
 					+ (state ? ":http://www.rdfabout.com/rdf/usgov/geo/us/" + state
 						+ (!district ? "%25"
 							: "/cd/110/" + district)

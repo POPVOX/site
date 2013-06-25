@@ -210,12 +210,12 @@ $(function() {
 				<div class="issue active" tab="highlights">
 					<span class="name">Highlights</span>
 				</div>
-				<!--<div class="issue" tab="activity">
+				<div class="issue" tab="activity">
 					<span class="name">Recent Activity</span>
 				</div>
 				<div class="issue" tab="trending">
 					<span class="name">Top/Trending Bills</span>
-				</div>-->
+				</div>
 			</div>
 			
 			<h3 class="no_rule" style="margin-top: 15px;">By Issue Area</h3>
@@ -259,14 +259,14 @@ $(function() {
 			<div id="activity_div"> </div>
 
 			<div style="text-align: center">
-				<!--(<a href="/activity">more</a>)-->
+				(<a href="/activity">more</a>)
 			</div>
 		</div>
 
 		<div id="trending" class="col_9 col_last bills" style="display: none; padding-top: 0;">
 			<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px;">Popular Bills</h3>
 			
-			<iframe src="/widgets/top-bills?width=700&height=150" width="700" height="150" frameborder="0" scrolling="no" style="margin: 15px 0 15px 0"> </iframe>
+			<!--<iframe src="/widgets/top-bills?width=700&height=150" width="700" height="150" frameborder="0" scrolling="no" style="margin: 15px 0 15px 0"> </iframe>-->
 		
 			<h3 class="no_rule" style="background: url(/media/master/bg_rule.gif) repeat-x scroll left bottom transparent; padding-bottom: 14px;">Trending Bills</h3>
 			
@@ -332,7 +332,6 @@ $(function() {
 		</div>
 	</div>
 		
-	{% include "ads/rightbar.html" %}
 </div>
 		    
 {% endblock %}

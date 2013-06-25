@@ -316,6 +316,7 @@ class Bill(models.Model):
         if self.billtype in ('dh', 'ds', 'x'): # these don't have numbered titles
             return self.title
         return self.title[self.title.index(":")+2:]
+        
     def title_parens_if_too_long(self):
         # this is used for pre-populating a comment on a bill
         if not self.is_officially_numbered():
@@ -921,6 +922,11 @@ class OrgCampaignPosition(models.Model):
         if self.position == "+": return "endorsed"
         if self.position == "-": return "opposed"
         if self.position == "0": return "posted a statement on"
+        
+    def ingverb(self):
+        if self.position == "+": return "endorsing"
+        if self.position == "-": return "opposing"
+        if self.position == "0": return "weighing in on"
 
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 
@@ -1025,7 +1031,10 @@ class UserProfile(models.Model):
     def most_recent_address(self):
         
         address = PostalAddress.objects.filter(user=self.user.id).order_by("-created")[0]
-        return address
+        try:
+            return address
+        except PostalAddress.IndexError:
+            return None
             
         
     def most_recent_comment_district(self):
@@ -1892,6 +1901,7 @@ class ServiceAccountCampaignActionRecord(models.Model):
     completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord", on_delete=models.SET_NULL)
     completed_stage = models.CharField(max_length=16, blank=True, null=True)
     request_dump = models.TextField(blank=True, null=True)
+    referrer = models.TextField(blank=True, null=True)
     # various indexing above is for the data table sort on the analytics page
     class Meta:
         ordering = ['created']

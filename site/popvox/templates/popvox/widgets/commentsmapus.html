@@ -117,7 +117,11 @@
             /* totals: {{totals}} */
         </script>
     </head>
+    {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
+    <body id="anaap" class="colormode_3 width_{{width}}">
+    {% else %}
     <body class="colormode_1 width_{{width}}">
+    {% endif %}
         <div id="mapdots">
         {% for district, count in data %}
             <a href="{{bill.url}}/report#{{count.href}}" target="_top"

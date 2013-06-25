@@ -5699,6 +5699,10 @@ body.gettoknow h1 {
 	overflow: hidden;
 	}
 	
+	#anaap .mini-map h3 {
+		background-image: none;
+	}
+	
 .mini-map h3 a {
     color: #fff;
 }
@@ -5750,6 +5754,11 @@ body.gettoknow h1 {
     	display: block;
 		}
 		
+		#anaap .mini-map p.chart_stats span.bg_oppose, #anaap2 .mini-map p.chart_stats span.bg_oppose {
+			color: #edd501;
+	    	background: url(../widget/i_wdgt_oppose_ylw.png) left top no-repeat;
+		}
+		
 	.mini-map p.chart_stats span.users {
 		font: normal 12px/14px helvetica, arial, sans-serif;
 		color: #75757d;
@@ -5778,7 +5787,7 @@ body.gettoknow h1 {
 	    font: normal 13px/15px helvetica, arial, sans-serif;
 		height: 38px;
 		padding-top: 8px;
-	    background: #cc6a11;
+	    background: #727176;
 		margin-bottom:0;
 		text-align:center;
 		width:280px;
