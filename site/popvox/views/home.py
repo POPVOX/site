@@ -1530,7 +1530,6 @@ def gettoknow(request):
         if member['current'] == True:
             mem = popvox.models.MemberOfCongress.objects.get(id=member['id'])
             member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
-
             loaded_data=[]
             try:
                 url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member['id'])

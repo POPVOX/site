@@ -5750,6 +5750,11 @@ body.gettoknow h1 {
     	display: block;
 		}
 		
+		#anaap .mini-map p.chart_stats span.bg_oppose {
+			color: #edd501;
+	    	background: url(../widget/i_wdgt_oppose_ylw.png) left top no-repeat;
+		}
+		
 	.mini-map p.chart_stats span.users {
 		font: normal 12px/14px helvetica, arial, sans-serif;
 		color: #75757d;
