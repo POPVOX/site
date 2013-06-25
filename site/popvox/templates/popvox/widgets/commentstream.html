@@ -173,11 +173,11 @@
 
 			{% if request.GET.client != 'anaap' %}
 			<div id="widget_foot">
-				<p><a href="https://www.popvox.com/legal#privacypolicy" target="_blank">privacy</a> | <a href="{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}" target="_blank">read more</a></p>
+				<p><a href="https://www.popvox.com/legal#privacypolicy" target="_blank">privacy</a> | <a href="{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}" target="_blank">read more <span class="arrow"></span></a></p>
 			</div>
 			{% else %}
 			<div id="widget_foot" style='padding-top:8px; padding-bottom:12px;background:#fafafa; text-align:center;'>
-				<a style='display:inline-block; height:23px;line-height:23px; font-family: Arial; background:#777; text-align: center; width: 180px; color: #fff; text-decoration:none; font-size:11px; text-transform: uppercase;-webkit-border-radius: 12px;-moz-border-radius: 12px; o-border-radius: 12px;-ms-border-radius: 12px;border-radius: 12px;' href='{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}'>Read More </a>
+				<a style='display:inline-block; height:23px;line-height:23px; font-family: helvetica, Arial, sans-serif; background:#777; text-align: center; width: 180px; color: #fff; text-decoration:none; font-size:12px; text-transform: uppercase;-webkit-border-radius: 12px;-moz-border-radius: 12px; o-border-radius: 12px;-ms-border-radius: 12px;border-radius: 12px;' href='{% if url %}{{url}}{% else %}http://www.popvox.com{% endif %}'>Read More <span class="arrow"></span></a>
 			</div>
 			{% endif %}
 			
