@@ -5699,6 +5699,10 @@ body.gettoknow h1 {
 	overflow: hidden;
 	}
 	
+	#anaap .mini-map h3 {
+		background-image: none;
+	}
+	
 .mini-map h3 a {
     color: #fff;
 }
@@ -5748,6 +5752,11 @@ body.gettoknow h1 {
     	padding: 5px 0 5px 32px;
     	float: left;
     	display: block;
+		}
+		
+		#anaap .mini-map p.chart_stats span.bg_oppose, #anaap2 .mini-map p.chart_stats span.bg_oppose {
+			color: #edd501;
+	    	background: url(../widget/i_wdgt_oppose_ylw.png) left top no-repeat;
 		}
 		
 	.mini-map p.chart_stats span.users {

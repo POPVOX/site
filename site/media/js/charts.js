@@ -40,7 +40,7 @@ function bill_chart(container, pro_pct, con_pct, opts) {
 				}
 			}
 		},
-		colors: ["#71b32b", "#ed5a24"],
+		colors: (!opts || !opts.colors) ? ["#71b32b", "#ed5a24"] : opts.colors,
 		title: { text: null },
 		legend: { enabled: false },
 		series: [{
