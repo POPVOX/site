@@ -15,7 +15,7 @@
 
 body {
 	background: #e8e5df;
-	background: url(/media/gis/map_background_cds.png) no-repeat;
+/* 	background: url(/media/gis/map_background_cds.png) no-repeat; */
 }
 body.width_274 {
 	background: url(../widget/bg_mini-map.gif) left 7px no-repeat;
