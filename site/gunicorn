@@ -157,4 +157,3 @@ if [ "$CURPIDFILE" != "" ]; then
 	# ps -ef | grep gunicorn | grep annalee | cut -d" " -f4 | xargs kill -9
     done
 fi
-
