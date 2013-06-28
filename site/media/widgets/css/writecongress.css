@@ -119,6 +119,7 @@ a {
 
 	#widget_top li.active{
 		font-weight: bold;
+		color: #9c0000;
 	}
 
 	#widget_top li:first-of-type{
@@ -541,11 +542,11 @@ a {
 				}
 				
 			#msg_preview p.support span {
-				background: url(../../widget/bg_endorsed_bubl_l.png") no-repeat scroll 0px 8px transparent;
+				background: url(../../widget/bg_endorsed_bubl_l.png) no-repeat scroll 0px 8px transparent;
 				}
 				
 			#msg_preview p.oppose span {
-				background: url(../../widget/bg_opposed_bubl_l.png") no-repeat scroll 0px 8px transparent;
+				background: url(../../widget/bg_opposed_bubl_l.png) no-repeat scroll 0px 8px transparent;
 				}
 			
 				.address1, .citystatezip{
@@ -679,7 +680,7 @@ a {
 	
 	h3.support {
 		border-top: 1px solid #d1d1cf;
-		background: url(../../widget/bg_endorsed_bubl_sm.png") no-repeat 0px 15px;
+		background: url(../../widget/bg_endorsed_bubl_sm.png) no-repeat 0px 15px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -687,7 +688,7 @@ a {
 				
 	h3.oppose {
 		border-top: 1px solid #d1d1cf;
-		background: url(../../widget/bg_opposed_bubl_sm.png") no-repeat 0px 15px;
+		background: url(../../widget/bg_opposed_bubl_sm.png) no-repeat 0px 15px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -747,7 +748,7 @@ a {
 			}	
 
 .b_continue {
-	background: url("../../widget/b_continue.png") repeat scroll 0 0 transparent;
+	background: url(../../widget/b_continue.png) repeat scroll 0 0 transparent;
 	display: block;
 	height: 22px;
 	text-indent: -9999em;
@@ -755,7 +756,7 @@ a {
 	}
 	
 .b_do_later {
-	background: url("../../widget/b_do_later.png") repeat scroll 0 0 transparent;
+	background: url(../../widget/b_do_later.png) repeat scroll 0 0 transparent;
 	display: block;
 	height: 22px;
 	text-indent: -9999em;
@@ -1319,11 +1320,11 @@ a {
 				}
 				
 			#msg_preview p.support span {
-				background: url(../../widget/bg_endorsed_bubl_l.png") no-repeat scroll 0px 8px transparent;
+				background: url(../../widget/bg_endorsed_bubl_l.png) no-repeat scroll 0px 8px transparent;
 				}
 				
 			#msg_preview p.oppose span {
-				background: url(../../widget/bg_opposed_bubl_l.png") no-repeat scroll 0px 8px transparent;
+				background: url(../../widget/bg_opposed_bubl_l.png) no-repeat scroll 0px 8px transparent;
 				}
 			
 			#msg_preview p.signature {
@@ -1456,7 +1457,7 @@ a {
 	
 	h3.support {
 		border-top: 1px solid #d1d1cf;
-		background: url(../../widget/bg_endorsed_bubl_sm.png") no-repeat 0px 15px;
+		background: url(../../widget/bg_endorsed_bubl_sm.png) no-repeat 0px 15px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -1464,7 +1465,7 @@ a {
 				
 	h3.oppose {
 		border-top: 1px solid #d1d1cf;
-		background: url(../../widget/bg_opposed_bubl_sm.png") no-repeat 0px 15px;
+		background: url(../../widget/bg_opposed_bubl_sm.png) no-repeat 0px 15px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -1524,7 +1525,7 @@ a {
 			}	
 
 .b_continue {
-	background: url("../../widget/b_continue.png") repeat scroll 0 0 transparent;
+	background: url(../../widget/b_continue.png) repeat scroll 0 0 transparent;
 	display: block;
 	height: 22px;
 	text-indent: -9999em;
@@ -1532,7 +1533,7 @@ a {
 	}
 	
 .b_do_later {
-	background: url("../../widget/b_do_later.png") repeat scroll 0 0 transparent;
+	background: url(../../widget/b_do_later.png) repeat scroll 0 0 transparent;
 	display: block;
 	height: 22px;
 	text-indent: -9999em;
