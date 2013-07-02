@@ -61,8 +61,7 @@ def verify_adddress_cached(address, ret, validate=True):
     address.cdyne_response = json.dumps(ret)
 
     from popvox.govtrack import stateapportionment
-
-    if ret["LegislativeInfo"]["CongressionalDistrictNumber"] is None:
+    if ret["LegislativeInfo"] is None or ret["LegislativeInfo"]["CongressionalDistrictNumber"] is None:
         if not validate:
             return
         raise AddressVerificationError("We couldn't determine the Congressional district at that address. Make sure you haven't abbreviated the name of your street or city.")
