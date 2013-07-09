@@ -763,9 +763,9 @@ Notes:
 						{% if bill.is_bill %}
 						<p class="bill_name" title="{{bill.title}}"><span>Official Title:</span> {{bill.title|truncatewords:15}}</p>
 						{% else %}
-						<p class="bill_name" title="{{bill.description}}">{{bill.description|truncatewords:17}}</p>
+						<p class="bill_name" title="{{bill.description}}">{{bill.description|truncatewords:34}}</p>
 						{% endif %}
-						<form class="form" action="#" onsubmit="return false;" autocomplete="off"><br />
+						<form class="form" action="#" onsubmit="return false;" autocomplete="off">
 							<h3>Tell Congress who you are</h3>
 							
 							<div id="login">
@@ -832,7 +832,7 @@ Notes:
 						</script>
 						
 						{% comment %}keep in mind: large buttons for neutral widgets and at least one line for the service account owner{% endcomment %}
-						<p style="margin-top: 50px; padding-right: 1em;">Your letter will be sent to {% if whitehouse %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
+						<p style="margin-top: 20px; padding-right: 1em;">Your letter will be sent to {% if whitehouse %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
 						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {{campaign.account}}.</p>{% endif %}
                         <p>View our <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>
 					</div> <!-- e: panel_login -->
