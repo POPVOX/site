@@ -1528,8 +1528,12 @@ def gettoknow(request):
     members = []
     for member in all_members:
         if member['current'] == True:
-            mem = popvox.models.MemberOfCongress.objects.get(id=member['id'])
-            member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
+            try:
+                mem = popvox.models.MemberOfCongress.objects.get(id=member['id'])
+                member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
+            except MemberOfCongress.DoesNotExist:
+                sys.stderr.write("id: "+str(member['id']))
+                next
             loaded_data=[]
             try:
                 url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member['id'])
