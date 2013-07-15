@@ -462,7 +462,7 @@ class ResetPasswordAction:
     userid = None
     email = None
     def get_response(self, request, vrec):
-        user = User.objects.get(id = self.userid, email = self.email)
+        user = User.objects.get(id = self.userid, email__iexact = self.email)
         
         # randomize the password
         newpw = User.objects.make_random_password(length=6, allowed_chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789')
@@ -509,7 +509,7 @@ def resetpassword(request):
             try:
                 validate_captcha(request)
                 
-                user = User.objects.get(email = request.POST["email"].strip())
+                user = User.objects.get(email__iexact = request.POST["email"].strip())
                 
                 axn = ResetPasswordAction()
                 axn.userid = user.id
