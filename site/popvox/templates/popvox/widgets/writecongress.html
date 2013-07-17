@@ -107,7 +107,7 @@ Notes:
         font-size: 16px;
         font-weight: bold;
     }
-	
+	/*
 	#widget_top ul { background: url(/services/widgets/img/writecongress/2?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg2}},darken) right -7px no-repeat; height: 32px; }
 	#widget_top ul li.tab_2 { background: url(/services/widgets/img/writecongress/2?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg2}},darken) -10px -7px no-repeat; }
 	#widget_top ul li.tab_3 { background: url(/services/widgets/img/writecongress/3?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg2}},darken) -10px -7px no-repeat; }
@@ -119,6 +119,8 @@ Notes:
 	#widget_top ul li.tab_1.complete { background: url(/services/widgets/img/writecongress/1?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken) left -38px no-repeat; }
 	#widget_top ul li.tab_2.complete { background: url(/services/widgets/img/writecongress/2?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken) -10px -69px no-repeat; }
 	#widget_top ul li.tab_3.complete { background: url(/services/widgets/img/writecongress/3?sub=C76825,{{request.GET.sbg}}&sub=FFFFFF,{{request.GET.bg}}&sub=75747C,{{request.GET.fg}}&sub=E7E4DD,{{request.GET.sbg2}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken) -10px -69px no-repeat; }
+	*/
+
 	
 	.btn.next { background: url(/services/widgets/img/writecongress/next?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=864817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
 	.btn.next_support { background: url(/services/widgets/img/writecongress/support-btn?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=844817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
@@ -133,6 +135,15 @@ Notes:
     {% if whitehouse %}background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
     }
 	{% endif %}
+
+
+	#widget_top li span{
+		background: #{{request.GET.bgc1}} !important;
+	}
+
+	#widget_top li.active span{
+		background: #{{request.GET.bgc2}} !important;
+	}
 	
 	</style>
 	
