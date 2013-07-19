@@ -74,6 +74,20 @@ POP = function()
 				text: 'You have already taken action.'
 			}
 		});
+		$('.proposal .sentiment').qtip({
+			style: {
+				classes: 'qtip-dark qtip-shadow'
+			},
+			position: {
+				my: 'bottom center',
+				at: 'top center'
+			},
+			content: {
+				text: function(api) {
+					return $(this).find('.tooltip_sent').html();
+				}
+			}
+		});
 	};
 
 	var makeInactive = function(billID)
