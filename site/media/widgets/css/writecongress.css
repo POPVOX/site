@@ -413,7 +413,7 @@ a {
 			float: right;
 			width: 60px;
 			height: 22px;
-			background-image: url(../master/b_next.png);
+			background-image: url(../../master/b_next.png);
 			display: block;
 			text-indent: -9999em;
 			font-size: 0; /* IE 7 */
@@ -553,7 +553,7 @@ a {
 	#b_preview {
 		width: 92px;
 		height: 22px;
-		background: url(../master/b_preview.png);
+		background: url(../../master/b_preview.png);
 		display: block;
 		text-indent: -9999em;
 		margin: 0 -13px 0 0;
@@ -647,7 +647,7 @@ a {
 				
 			
 		#b_send_to_congress a {
-			background: url(b_send_to_congress.png) left top no-repeat;
+			background: url(../../widget/b_send_to_congress.png) left top no-repeat;
 			width: 204px;
 			height: 76px;
 			display: block;
@@ -1181,7 +1181,7 @@ a {
 		.btn.next {
 			width: 81px;
 			height: 22px;
-			background-image: url(../master/b_next.png);
+			background-image: url(../../master/b_next.png);
 			display: block;
 			text-indent: -9999em;
 			font-size: 0; /* IE 7 */
@@ -1322,7 +1322,7 @@ a {
 	#b_preview {
 		width: 81px;
 		height: 22px;
-		background: url(../master/b_preview.png);
+		background: url(../../master/b_preview.png);
 		display: block;
 		text-indent: -9999em;
 		margin: 0 -13px 0 0;
@@ -1422,7 +1422,7 @@ a {
 				
 			
 		#b_send_to_congress a {
-			background: url(b_send_to_congress.png) left top no-repeat;
+			background: url(../../widget/b_send_to_congress.png) left top no-repeat;
 			width: 204px;
 			height: 76px;
 			display: block;

@@ -74,25 +74,25 @@ class MemberOfCongress(models.Model):
     # The primary key is the GovTrack ID.
     id = models.IntegerField(primary_key=True)
     firstname = models.CharField(max_length=255,null=False)
-    middlename = models.CharField(max_length=255)
-    nickname = models.CharField(max_length=255)
+    middlename = models.CharField(max_length=255, blank=True, null=True)
+    nickname = models.CharField(max_length=255, blank=True, null=True)
     lastname = models.CharField(max_length=255,null=False)
-    namemod = models.CharField(max_length=255)
-    lastnameenc = models.CharField(max_length=255)
-    lastnamealt = models.CharField(max_length=255)
+    namemod = models.CharField(max_length=255, blank=True, null=True)
+    lastnameenc = models.CharField(max_length=255, blank=True, null=True)
+    lastnamealt = models.CharField(max_length=255, blank=True, null=True)
     birthday = models.DateField(default=datetime.date.min)
     gender = models.CharField(max_length=1, null=False, default='')
-    religion = models.CharField(max_length=255)
-    osid = models.CharField(max_length=50, default=None)
-    bioguideid = models.CharField(max_length=7, default=None)
-    pvsid = models.IntegerField(default=None)
-    fecid = models.CharField(max_length=9, default=None)
-    metavidid = models.CharField(max_length=255)
-    youtubeid = models.CharField(max_length=36, default=None)
-    twitterid = models.CharField(max_length=255)
-    lismemberid = models.CharField(max_length=6, default=None)
-    icpsrid = models.IntegerField(default=None)
-    fbid = models.IntegerField(default=None)
+    religion = models.CharField(max_length=255, blank=True, null=True)
+    osid = models.CharField(max_length=50, default=None, blank=True, null=True)
+    bioguideid = models.CharField(max_length=7, default=None, blank=True, null=True)
+    pvsid = models.IntegerField(default=None, blank=True, null=True)
+    fecid = models.CharField(max_length=9, default=None, blank=True, null=True)
+    metavidid = models.CharField(max_length=255, blank=True, null=True)
+    youtubeid = models.CharField(max_length=36, default=None, blank=True, null=True)
+    twitterid = models.CharField(max_length=255, blank=True, null=True)
+    lismemberid = models.CharField(max_length=6, default=None, blank=True, null=True)
+    icpsrid = models.IntegerField(default=None, blank=True, null=True)
+    fbid = models.IntegerField(default=None, blank=True, null=True)
     thomasid = models.IntegerField(default=None)
 
 
@@ -1503,10 +1503,6 @@ class UserComment(models.Model):
         if self.address.congressionaldistrict2013 is None:
             return "your representatives"
         recips = self.get_recipients()
-        for recip in recips:
-            if recip['type'] == "rep":
-                if self.address.congressionaldistrict2013 is None:
-                    return "Representative"
         if not type(recips) == list:
             # Normally, show recipients that we would deliver to now.
             # But if the bill is dead, show who we delivered to already, if any.
@@ -1532,6 +1528,8 @@ class UserComment(models.Model):
         recips_ = self.get_recipients()
         recips = [g["id"] for g in recips_] if type(recips_) == list else []
         
+        
+        # First, we're dealing with deliveries that we actually attempted.
         # Group successful deliveries by date and method, and unsuccessful deliveries uniquely by target.
         retd = { }
         for d in self.delivery_attempts.filter(next_attempt__isnull = True):
@@ -1545,6 +1543,8 @@ class UserComment(models.Model):
             # if we are no longer targetting that office as a recipient.
             elif self.message != None and d.target.govtrackid in recips:
                 retd[govtrack.getMemberOfCongress(d.target.govtrackid)["sortkey"]] = "We had trouble delivering " + ref1.lower() + " to " + govtrack.getMemberOfCongress(d.target.govtrackid)["name"] + " but we will try again. "
+            elif d.method == Endpoint.METHOD_DO_NOT_DELIVER:
+                retd[govtrack.getMemberOfCongress(d.target.govtrackid)["sortkey"]] = " "
 
             # remove from list so we know who we haven't attempted yet
             if d.target.govtrackid in recips:
@@ -1563,22 +1563,18 @@ class UserComment(models.Model):
                 ret += ref1 + " was " + verb + " to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in retd[k]]) + " on " + k[0] + ". "
             else:
                 ret += retd[k]
+        #If ret is still "" when you exit this loop, we haven't attempted delivery for this message yet.
                 
-        # If we had nothing
+        # If there are no recipients, the office(s) is/are vacant.
         if ret == "" and len(recips) == 0:
             if type(recips_) == str:
                 return recips_
             return "The comment cannot be delivered at this time because the Congressional office(s) that represents " + ref2 + " is/are currently vacant."
-            
-        # Don't pre-sage these deliveries because if we can't deliver electronically we don't bother.
-        # But we can report what was delivered.
+        
+        # Now we're handling endpoints we haven't tried to deliver to yet.
+        # If a message doesn't have a comment, don't show a pending message, because we won't print these if they fail.
         if self.message == None:
             return ret
-        for recip in recips:
-            mem = govtrack.getMemberOfCongress(recip)
-            if mem["type"] == "rep":
-                if self.address.congressionaldistrict2013 is None:
-                    return ret
  
         if len(recips) > 0:
             ret += ref1 + " is pending delivery to " + " and ".join([govtrack.getMemberOfCongress(g)["name"] for g in recips]) + "."

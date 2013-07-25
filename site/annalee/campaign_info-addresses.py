@@ -8,12 +8,13 @@ from django.contrib.auth.models import User
 import unicodedata
 
 sep = "\t"
+sac = pv.ServiceAccount.objects.get(id=1940)
 
 #paidaccount ids:
     #Mayors Against Illegal Guns: 2882
 
 with open('campaign_info-addresses.csv','w') as info:
-    for campaign in pv.ServiceAccountCampaign.objects.filter(account__id=2882):
+    for campaign in pv.ServiceAccountCampaign.objects.filter(account__id=sac.id):
         for record in campaign.actionrecords.all():
             #clean unicode out of names:
             firstname = unicodedata.normalize('NFKD',record.firstname).encode('ascii','ignore')
@@ -52,16 +53,17 @@ with open('campaign_info-addresses.csv','w') as info:
                 city     = ''
                 state    = ''
                 message  = ''
-                
-            print str(record.email)
-            print str(firstname)
-            print str(lastname)
-            print str(address1)
-            print str(address2)
-            print str(city)
-            print str(state)
-            print str(record.zipcode)
-            print str(message)
             
-            info.write( str(firstname) +sep+ str(lastname) +sep+ statedist +sep+ str(address1)+sep+ str(address2)+sep+ str(city)+sep+ str(state) +sep+ str(record.zipcode) +sep+ str(record.email) +sep+ str(record.created) +sep+ str(record.updated) +sep+ str(record.completed_stage)+ sep +str(message) +"\n" )
+            has_usertags = pv.UserTag.objects.filter(org=sac.org.id).exclude(value="None").exclude(value="Other").order_by("value")
+            if has_usertags:
+                rec_has_usertags = record.usertags.all()
+                if rec_has_usertags:
+                    tags = record.usertags.all()[0].value
+                else:
+                    tags = ''
+            else:
+                tags = ''
+                
+            
+            info.write( str(firstname) +sep+ str(lastname) +sep+ statedist +sep+ str(address1)+sep+ str(address2)+sep+ str(city)+sep+ str(state) +sep+ str(record.zipcode) +sep+ str(record.email) +sep+ str(record.created) +sep+ str(record.updated) +sep+ str(record.completed_stage)+ sep +str(message) + sep + str(tags) +"\n" )
             

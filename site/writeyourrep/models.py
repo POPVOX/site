@@ -12,6 +12,7 @@ class Endpoint(models.Model):
 	METHOD_INPERSON = 4
 	METHOD_STAFFDOWNLOAD = 5
 	METHOD_OFFSITE_DELIVERY = 6 # the 160 D Street NE delivery acceptance office
+	METHOD_DO_NOT_DELIVER = 7 #for when we are failing silently on delivery.
 	
 	METHOD_CHOICES = [(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP"), (METHOD_INPERSON, "In-Person Delivery"), (METHOD_STAFFDOWNLOAD, "Staff Download"), (METHOD_OFFSITE_DELIVERY, "Dropped off at 160 D Street NE")]
 	
