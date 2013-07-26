@@ -92,7 +92,7 @@ def validate_email(value, skip_if_this_user=None, for_login=False, fielderrors=N
 		value = forms.EmailField(max_length = 75, error_messages = {'max_length': "Email addresses on this site can have at most 75 characters."}).clean(value) # Django's auth_user table has email as varchar(75)
 		if value[-1] == ".": raise forms.ValidationError("An email address cannot end with a period.")
 		if not for_login:
-			users = User.objects.filter(email = value)
+			users = User.objects.filter(email__iexact = value)
 			if len(users) > 0 and users[0] != skip_if_this_user:
 				raise forms.ValidationError("If that's your email address, it looks like you're already registered. You can try logging in instead.")
 		return value
