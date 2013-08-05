@@ -26,16 +26,16 @@
                 <div class="clear"> </div>
             </div>
             
-            <table summary="Table summary">
+            <table id="summary-table" summary="Table summary">
                 <thead>
                     <tr class="proposal heading">
-                        <th class="cell campaign"><div class="sorter" field="campaign">sort</div>Campaign</th>
-                        <th class="cell description"><div class="sorter" field="description">sort</div>Priority Bills and Proposals</th>
+                        <th class="cell campaign">Campaign</th>
+                        <th class="cell description">Priority Bills and Proposals</th>
                         <th class="cell sentiment">POPVOX Sentiment</th>
                         <th class="cell action_buttons">Take Action</th>
                     </tr>
                 </thead>
-        
+                <tbody id="proposal_list">
         {% regroup positions by campaign as campaign_list %}
         {% for campaign in campaign_list %}
             {% for position in campaign.list %}
@@ -73,11 +73,11 @@
                             <span class="sent_icon_con"></span>
                         </div>
                         <div class="tooltip_sent">
-                            <p>
-                                <span class="heart">{{ stats.pro_pct }}%</span>
-                                <span class="anti">{{ stats.con_pct }}%</span>
-                            </p>
-                            <p class="total">{{stats.total}} total users</p>
+                        	<p class="sentiment-percent">
+                        		<span class="heart">{{ stats.pro_pct }}%</span>
+                        		<span class="anti">{{ stats.con_pct }}%</span>
+                        	</p>
+                        	<p class="total">{{stats.total}} total users</p>
                         </div> 
                         <div class="bar_pro" style="width: {{ stats.pro_pct }}%"> </div>
                         <div class="bar_con" style="width: {{ stats.con_pct }}%"> </div>
@@ -99,6 +99,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
     <script src="/media/js/qtip.js"></script>
     <script src="/media/js/jquery.fancybox.pack.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
     <script src="/media/js/main.js"></script>
 </body>
 </html>

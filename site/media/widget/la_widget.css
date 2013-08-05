@@ -25,6 +25,7 @@
 		background: #333;
 		text-align: left;
 		padding: 15px 15px 10px;
+		border-bottom: 1px solid #76757B;
 		}
 		
 		#leg_header .l_head {
@@ -244,9 +245,6 @@
 
 .proposal { 
 	background-color: none;
-	height: 50px;
-	width: 816px;
-	overflow: hidden;
 	margin: 0 auto;
 	}
 
@@ -256,8 +254,9 @@
 
 
 	#proposal_list {
-		background: url(temp_zebra.png) center -8px repeat-y;
+		background: url(zebra.png) center -1px repeat-y;
 		display: block;
+		width: 817px;
 		}
 		
 	.proposal.heading {
@@ -283,17 +282,19 @@
 		}
 
 		.proposal.heading .description {
-			width: 333px;
+			width: 313px;
 			border-right: 1px solid #76757b;
 		}
 
 		.proposal.heading .sentiment {
-			width: 137px;
+			width: 132px;
+			padding-left: 10px;
 			border-right: 1px solid #76757b;
 		}
 
 		.proposal.heading .action_buttons {
-			width: 90px;
+			width: 110px;
+			padding-left: 10px;
 		}
 		
 		.proposal.heading .sorter {
@@ -325,7 +326,6 @@
 	.cell.description {
 		display: block;
 		width: 50px;
-		height: 50px;
 		}
 	
 		.i_tax span{
@@ -402,7 +402,7 @@
 		
 	.proposal .campaign {
 		width: 195px;
-		height: 28px;
+		height: 37px;
 		text-align: left;
 		line-height: 16px;
 		font-weight: bold;
@@ -437,7 +437,7 @@
 	}
 		
 	.proposal .description { 
-		width: 344px; 
+		width: 324px; 
 		text-align: left;
 		padding-left: 12px;
 		line-height: 16px;
@@ -543,24 +543,32 @@
 			z-index: 100;
 			}
 			
-			.tooltip_sent p {
+			.qtip-content p {
 				display: block;
 				color: #fff;
 				height: 13px;
 				font-size: 12px;
+				margin-bottom: 5px;
 				}
 				
-				.tooltip_sent p span.heart {
+				.qtip-content p span.heart {
+					background: url(../images/bg_percent_heart.png) 0 -6px no-repeat;
+					display: block;
 					float: left;
-					margin: 13px 0 0 35px;
+					margin: 0;
+					width: 40%;
+					padding-left: 15px;
 					}
 
-				.tooltip_sent p span.anti {
+				.qtip-content span.anti {
+					background: url(../images/bg_percent_anti.png) right -6px no-repeat;
+					display: block;
 					float: right;
-					margin: 13px 33px 0 0;
+					margin: 0;
+					padding-right: 15px;
 					}
 					
-				.tooltip_sent p.total {
+				.qtip-content p.total {
 					text-align: center;
 					text-transform: uppercase;
 					}
@@ -598,8 +606,8 @@
 			}
 			
 		.proposal > .action_buttons {
-			width: 80px;
-			padding-left: 10px;
+			width: 114px;
+			padding-left: 2px;
 			}
 			.proposal .action_buttons a:hover {
 				border: none;
@@ -686,10 +694,10 @@
 			
 	
 		.la_widget_pg .support {
-			background: url(i_action.png) left top no-repeat;
+			background: url(b_support_sc.png) left top no-repeat;
 			display: block;
 			margin: 2px 9px 0 0;
-			width: 34px;
+			width: 114px;
 			height: 34px;
 			float: left;
 			text-indent: -9999em;
@@ -697,7 +705,7 @@
 			
 			.la_widget_pg .support.single {
 				float: none;
-				margin: 2px auto 0 28px;
+				margin: 2px auto 0 8px;
 			}
 			
 			.la_widget_pg .support.lg {
@@ -727,11 +735,11 @@
 
 				
 		.la_widget_pg .oppose {
-			background: url(i_action.png) -41px top no-repeat;
+			background: url(b_oppose_sc.png) left top no-repeat;
 			display: block;
 			margin: 2px 0px 0 0;
 			padding: 0;
-			width: 34px;
+			width: 115px;
 			height: 34px;
 			float: left;
 			text-indent: -9999em;
@@ -739,7 +747,7 @@
 			
 			.la_widget_pg .oppose.single {
 				float: none;
-				margin: 2px auto 0 28px;
+				margin: 2px auto 0 8px;
 			}
 			
 			
@@ -756,7 +764,7 @@
 				}
 
 			.la_widget_pg .oppose:hover, .la_widget_pg .oppose.inactive:hover {
-				background-position: -41px -60px;
+				background-position: 0px -60px;
 				cursor: pointer;
 				}
 				
@@ -774,6 +782,22 @@
 		background: url(bg_proposal_btm.png) -10px bottom no-repeat;
 		height: 20px;
 		}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * DataTables sorting
+ */
+
+.sorting_asc {
+	background: url('/media/widget/b_triangle_down.png') no-repeat right 15px;
+}
+
+.sorting_desc {
+	background: url('/media/widget/b_triangle.png') no-repeat right 15px;
+}
+
+.sorting {
+	background: url('/media/widget/sort_both.png') no-repeat right 10px;
+}
 
 /*
  * qTip2 - Pretty powerful tooltips - v2.0.1-89-
