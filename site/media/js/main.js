@@ -100,6 +100,18 @@ POP = function()
 		showDetail();
 		showTooltip();
 		showModal();
+
+		$('#summary-table').dataTable({
+			'bPaginate': false,
+			'bFilter': false,
+			'bInfo': false,
+			'aoColumns': [
+				null,
+				null,
+				{ 'bSortable': false },
+				{ 'bSortable': false }
+		     ]
+		});
 	};
 
 	return {

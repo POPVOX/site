@@ -254,7 +254,7 @@
 
 
 	#proposal_list {
-		background: url(temp_zebra.png) center -1px repeat-y;
+		background: url(zebra.png) center -1px repeat-y;
 		display: block;
 		width: 817px;
 		}
@@ -402,7 +402,7 @@
 		
 	.proposal .campaign {
 		width: 195px;
-		height: 28px;
+		height: 37px;
 		text-align: left;
 		line-height: 16px;
 		font-weight: bold;
@@ -543,24 +543,32 @@
 			z-index: 100;
 			}
 			
-			.tooltip_sent p {
+			.qtip-content p {
 				display: block;
 				color: #fff;
 				height: 13px;
 				font-size: 12px;
+				margin-bottom: 5px;
 				}
 				
-				.tooltip_sent p span.heart {
+				.qtip-content p span.heart {
+					background: url(../images/bg_percent_heart.png) 0 -6px no-repeat;
+					display: block;
 					float: left;
-					margin: 13px 0 0 35px;
+					margin: 0;
+					width: 40%;
+					padding-left: 15px;
 					}
 
-				.tooltip_sent p span.anti {
+				.qtip-content span.anti {
+					background: url(../images/bg_percent_anti.png) right -6px no-repeat;
+					display: block;
 					float: right;
-					margin: 13px 33px 0 0;
+					margin: 0;
+					padding-right: 15px;
 					}
 					
-				.tooltip_sent p.total {
+				.qtip-content p.total {
 					text-align: center;
 					text-transform: uppercase;
 					}
@@ -774,6 +782,22 @@
 		background: url(bg_proposal_btm.png) -10px bottom no-repeat;
 		height: 20px;
 		}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * DataTables sorting
+ */
+
+.sorting_asc {
+	background: url('/media/widget/b_triangle_down.png') no-repeat right 15px;
+}
+
+.sorting_desc {
+	background: url('/media/widget/b_triangle.png') no-repeat right 15px;
+}
+
+.sorting {
+	background: url('/media/widget/sort_both.png') no-repeat right 10px;
+}
 
 /*
  * qTip2 - Pretty powerful tooltips - v2.0.1-89-
