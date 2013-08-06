@@ -13,9 +13,8 @@
 	
 #widget_top ul#progress {
 		background: #ccc;
-		height: 2px;
-		border-top: 15px solid #fff;
-		border-bottom: 15px solid #fff;
+		height: 4px;
+		margin-top: 15px;
 	}
 
 	#widget_top li{
