@@ -766,7 +766,9 @@ def bill_userstate(request, congressnumber, billtype, billnumber, vehicleid):
     if request.user.is_authenticated() and (request.user.is_staff or request.user.is_superuser):
         users_tracking_this_bill = bill.trackedby.filter(allow_mass_mails=True, user__orgroles__isnull = True, user__legstaffrole__isnull = True).distinct().order_by("user__date_joined").select_related("user")
         users_commented_on_this_bill = UserProfile.objects.filter(allow_mass_mails=True, user__comments__bill=bill).distinct().order_by("user__comments__created").select_related("user")
-        ret["admin"] = { "tracking": [u.user.email for u in users_tracking_this_bill], "commented": [u.user.email for u in users_commented_on_this_bill] }
+        adminlist = [position.campaign.org.admins.all() for position in OrgCampaignPosition.objects.filter(bill=bill).select_related("campaign__org")]
+        admins = [adm for subl in adminlist for adm in subl]
+        ret["admin"] = { "tracking": [u.user.email for u in users_tracking_this_bill], "commented": [u.user.email for u in users_commented_on_this_bill], "admins": [u.user.email for u in admins] }
 
     return ret
 bill.user_state = bill_userstate

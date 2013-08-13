@@ -478,21 +478,27 @@ function getshorturl() {
         
             <h3>Individuals Tracking This Bill (<span id="admin_tracking_tracking_count"> </span>):</h3>
             <p>Sorted by date the user joined POPVOX.</p>
-            <div id="admin_tracking_tracking"> </div>
+            <ul id="admin_tracking_tracking"> </ul>
             
             <h3>Users That Weighed In (<span id="admin_tracking_weighedin_count"> </span>)</h3>
             <p>Sorted by the date of the user weighing in.</p>
-            <div id="admin_tracking_weighedin"> </div>
+            <ul id="admin_tracking_weighedin"> </ul>
+
+            <h3>Org Admins That Weighed In (<span id="admin_tracking_position_count"> </span>)</h3>
+            <ul id="admin_tracking_position"> </ul>
         </div>
         <script>master_state(function(res) {
                 if (res.page.admin && (res.page.admin.tracking.length > 0 || res.page.admin.commented.length > 0)) {
                     $('#admin_tracking_tab').show();
                     $('#admin_tracking_tracking_count').text(res.page.admin.tracking.length);
                     $('#admin_tracking_weighedin_count').text(res.page.admin.commented.length);
+                    $('#admin_tracking_position_count').text(res.page.admin.admins.length);
                     for (var i = 0; i < res.page.admin.tracking.length; i++)
-                        $('#admin_tracking_tracking').append($("<div/>").text(res.page.admin.tracking[i]));
+                        $('#admin_tracking_tracking').append($("<li/>").text(res.page.admin.tracking[i]));
                     for (var i = 0; i < res.page.admin.commented.length; i++)
-                        $('#admin_tracking_weighedin').append($("<div/>").text(res.page.admin.commented[i]));
+                        $('#admin_tracking_weighedin').append($("<li/>").text(res.page.admin.commented[i]));
+                    for (var i = 0; i < res.page.admin.admins.length; i++)
+                        $('#admin_tracking_position').append($("<li/>").text(res.page.admin.admins[i]));
                 }
         });</script>
 
