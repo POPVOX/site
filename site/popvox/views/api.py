@@ -13,6 +13,7 @@ from popvox.models import *
 from popvox import govtrack
 from popvox.govtrack import CURRENT_CONGRESS
 from popvox.views.services import validate_widget_request
+from popvox.views.bills import bill_statistics
 
 import re, base64, json, urlparse, urllib
 from itertools import chain
@@ -374,8 +375,51 @@ class bill_metadata(BillHandler):
         ('shorturl', 'a "pvox.co" short URL to the primary page for the bill on POPVOX. the short URL is owned by the user specified in a session token, if provided, otherwise by the owner of the API key used in the request. this field is only returned if explicitly requested with fields=shorturl.'),
         )
     allow_public_api_key = True
-    def read(self, request, account, billid):
+    def read(self, request, billid):
         return Bill.objects.get(id=billid)
+
+@api_handler
+class bill_sentiment(BaseHandler):
+    url_pattern_args = [("000", "BILL_ID")]
+    url_example_args = (14113,)
+    description = "Retreives popvox user sentiment for a bill."
+    qs_args = (
+        ('state', 'Optional. Restrict stats to users from a state. Set to a USPS state abbreviation.', 'NY'),
+        ('district', 'Optional. Restrict stats to users from a congressional district. Set this parameter to an integer, the Congressional district, and also set the state parameter.', '2'),
+        )
+    response_summary = "Returns popvox user sentiment for a bill."
+    response_fields = (
+        ("shortdescription", 'a short description of the scope of the stats (POPVOX, State, or state and district)'),
+        ("longdescription", 'a longer description of the scope of the stats (POPVOX, State, or state and district)'),
+        ("total", 'total number of user comments on a bill, including comments with and without personal messages'),
+        ("pro", 'total number of users who have supported the bill'),
+        ("con", 'total number of users who have opposed the bill'),
+        ("pro_pct", 'percentage of comments that are supporting the bill'),
+        ("con_pct", 'percentage of comments that are opposing the bill'),
+        ("total_comments", 'total number of comments that include a personal message'),
+        ("pro_reintro", 'number of comments supporting reintroduction'),
+        )
+    
+    def read(self, request, account, billid):
+        if "state" in request.GET and "district" in request.GET:
+            state = request.GET["state"]
+            district = request.GET["district"]
+            shortdescription = state + "-" + str(district)
+            longdescription = state + "-" + str(district)
+        elif "state" in request.GET:
+            state = request.GET["state"]
+            congressionaldistrict = None
+            shortdescription = request.GET['state']
+            longdescription = govtrack.statenames[state]
+        else:
+            state = None
+            congressionaldistrict = None
+            shortdescription = "POPVOX"
+            longdescription = "POPVOX Nation"
+        bill = Bill.objects.get(id=billid)
+        stats = bill_statistics(bill, shortdescription, longdescription, state=state, congressionaldistrict=district)
+        
+        return stats
 
 @api_handler
 class bill_positions(BaseHandler):
@@ -402,7 +446,7 @@ class bill_positions(BaseHandler):
     allow_public_api_key = True
     
     @paginate
-    def read(self, request, acount, billid):
+    def read(self, request, account, billid):
         return Bill.objects.get(id=billid).campaign_positions(position=request.GET.get("position", None))
 
     @staticmethod
