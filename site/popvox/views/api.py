@@ -401,24 +401,23 @@ class bill_sentiment(BaseHandler):
         )
     
     def read(self, request, account, billid):
+        bill = Bill.objects.get(id=billid)
         if "state" in request.GET and "district" in request.GET:
             state = request.GET["state"]
             district = request.GET["district"]
             shortdescription = state + "-" + str(district)
             longdescription = state + "-" + str(district)
+            stats = bill_statistics(bill, shortdescription, longdescription, state=state, congressionaldistrict=district)
         elif "state" in request.GET:
             state = request.GET["state"]
-            congressionaldistrict = None
-            shortdescription = request.GET['state']
+            shortdescription = state
             longdescription = govtrack.statenames[state]
+            stats = bill_statistics(bill, shortdescription, longdescription, state=state)
         else:
-            state = None
-            congressionaldistrict = None
             shortdescription = "POPVOX"
             longdescription = "POPVOX Nation"
-        bill = Bill.objects.get(id=billid)
-        stats = bill_statistics(bill, shortdescription, longdescription, state=state, congressionaldistrict=district)
-        
+            stats = bill_statistics(bill, shortdescription, longdescription)
+            
         return stats
 
 @api_handler
