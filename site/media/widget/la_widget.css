@@ -257,6 +257,7 @@
 		background: url(zebra.png) center -1px repeat-y;
 		display: block;
 		width: 817px;
+		border-bottom: 1px solid #76747F;
 		}
 		
 	.proposal.heading {
