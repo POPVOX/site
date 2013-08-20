@@ -510,12 +510,22 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
             "pro": [sum([bins[y]["+"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in days],
             "con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in days],
             }
+    
+    #if pro and con both have half a percentage point, rounding will cause the total to be 101. In that case, round both down to get 99.
+    pro_pct = int(round(100.0*pro/float(pro+con))) if pro+con > 0 else 0
+    con_pct = int(round(100.0*con/float(pro+con))) if pro+con > 0 else 0
+    
+    #if pro and con both have half a percentage point, rounding will cause the total to be 101. In that case, round both down to get 99.
+    if (pro_pct % 1 == .5) and (con_pct % 1 == .5):
+        pro_pct -= 0.5
+        con_pct -= 0.5
             
     return {
         "shortdescription": shortdescription,
         "longdescription": longdescription,
         "total": pro+con, "pro":pro, "con":con,
-        "pro_pct": int(round(100.0*pro/float(pro+con))) if pro+con > 0 else 0, "con_pct": int(round(100.0*con/float(pro+con))) if pro+con > 0 else 0,
+        "pro_pct": pro_pct,
+        "con_pct": con_pct,
         "total_comments": bill_comments(bill, **filterargs).filter(message__isnull=False).count() if want_totalcomments else None,
         "timeseries": time_series,
         "pro_reintro": pro_reintro}
