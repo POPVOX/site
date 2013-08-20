@@ -80,7 +80,7 @@ class MemberOfCongress(models.Model):
     namemod = models.CharField(max_length=255, blank=True, null=True)
     lastnameenc = models.CharField(max_length=255, blank=True, null=True)
     lastnamealt = models.CharField(max_length=255, blank=True, null=True)
-    birthday = models.DateField(default=datetime.date.min)
+    birthday = models.DateField(default=datetime.date.min, blank=True, null=True)
     gender = models.CharField(max_length=1, null=False, default='')
     religion = models.CharField(max_length=255, blank=True, null=True)
     osid = models.CharField(max_length=50, default=None, blank=True, null=True)
@@ -953,7 +953,6 @@ class PositionDocument(models.Model):
             owner = unicode(self.owner_org.all()[0]) + ": "
         return owner + self.bill.title + " [" + self.get_doctype_display() + "]"
     def get_absolute_url(self):
-	print "made it to get_absolute_url"
         if self.owner_org.all().exists():
             return self.bill.url() + "/docs/" + self.owner_org.all()[0].slug + "/" + str(self.doctype)
         if self.owner_memberbio.all().exists():

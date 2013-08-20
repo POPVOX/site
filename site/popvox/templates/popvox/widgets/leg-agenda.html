@@ -57,7 +57,7 @@
                         <div class="large">
                             <a class="i_eye fire_modal" href="/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">view</a>
                             <div class="title"><a class="fire_modal" href="/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{position.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">{{bill.nicename}}</a></div>
-                            <div>{{position.comment|wraplines:"p style='margin-bottom: .5em'"|truncatewords_html:10}}</div> <a href="/orgs/{{org.slug}}/{{campaign.slug}}" class="underline" target="_blank">view the full position statement</a></p>
+                            <div>{{position.comment|wraplines:"p style='margin-bottom: .5em'"|truncatewords_html:10}}</div> <a href="/orgs/{{org.slug}}/{{campaign.slug}}#{{org.slug}}-{{position.bill.billtypeslug}}-{{position.bill.billnumber}}-{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}{% if position.position == "0" %}neutral{% endif %}" class="underline" target="_blank">view the full position statement</a></p>
                             
                             <p class="how_should_they_vote">Join {{org.name}} in {{position.ingverb}} {{bill.shortname}}</p>
                             <div class="action_buttons">

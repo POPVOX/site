@@ -544,6 +544,7 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
                 "id": cam.org.id,
                 "name": cam.org.name,
                 "url": cam.org.url(),
+                "slug": cam.org.slug,
                 "object": cam.org,
                 "campaigns": [],
                 "comment": None,

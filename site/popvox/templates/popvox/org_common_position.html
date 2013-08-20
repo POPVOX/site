@@ -5,7 +5,7 @@
 	<div class="btn b_move" title="Move" style="margin-right: 5px; margin-left: 5px">move</div>
 	{% endif %}
 	<div class="{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}{% if position.position == "0" %}neutral{% endif %}">
-		<h5><a href="{{position.bill.url}}{% if admin %}/report{% endif %}">{% if position.bill.streetname %}{{ position.bill.streetname|truncatewords:25 }}{%else%}{{position.bill.title|truncatewords:25}}{%endif%}</a></h5>
+		<h5><a name="{{position.campaign.org.slug}}-{{position.bill.billtypeslug}}-{{position.bill.billnumber}}-{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}{% if position.position == "0" %}neutral{% endif %}"><a href="{{position.bill.url}}{% if admin %}/report{% endif %}">{% if position.bill.streetname %}{{ position.bill.streetname|truncatewords:25 }}{%else%}{{position.bill.title|truncatewords:25}}{%endif%}</a></a></h5>
 		
 		<div id="campos_{{cam.id}}_{{position.id}}_comment" class="usercomment comment" {% if admin %}title="Click to Edit"{% endif %}>{% if position.comment %}{{position.comment|wraplines:"p style='margin-bottom: .5em'"}}{% else %}{% if admin %}<em>No comment.</em>{% endif %}{% endif %}</div>
 				

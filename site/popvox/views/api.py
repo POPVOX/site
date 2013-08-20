@@ -422,7 +422,7 @@ class bill_sentiment(BaseHandler):
 
 @api_handler
 class bill_positions(BaseHandler):
-    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created', 'documents', 'updated']
+    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created', 'documents', 'updated', 'positionlink']
     positiondocument_deferred_text_fields = ['id', 'title', 'created', 'pdf_url']
     org_fields = ["id", "name", "link"]
     url_pattern_args = [("000", "BILL_ID")]
@@ -436,14 +436,15 @@ class bill_positions(BaseHandler):
         ('organization/id', 'a numeric identifier for the organization'),
         ('organization/name', 'the display name for the organization'),
         ('organization/link', 'a link to the primary page on POPVOX for the organization'),
-        ('position', 'the position of the organization on the bill, one of + for endorse, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
+        ('position', 'the position of the organization on the bill, one of + for support, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
         ('documents', 'a list of organization documents uploaded to accompany their position on the bill, plain text format; optional'),
         ('updated', 'the date and time when the position record was last modified on POPVOX'),
+        ('positionlink', 'a direct link to the position on popvox')
         )
     allow_public_api_key = True
-    
+
     @paginate
     def read(self, request, account, billid):
         return Bill.objects.get(id=billid).campaign_positions(position=request.GET.get("position", None))
@@ -455,10 +456,20 @@ class bill_positions(BaseHandler):
     @staticmethod
     def link(obj, request, acct):
         return SITE_ROOT_URL + obj.url()
+
+    @staticmethod
+    def positionlink(obj, request, acct):
+        if obj.position == "+":
+            pos = "endorse"
+        elif obj.position == "-":
+            pos = "oppose"
+        else:
+            pos = "neutral"
+        return SITE_ROOT_URL+str(obj.campaign.org.url())+'/'+obj.campaign.slug+'#'+obj.campaign.org.slug+'-'+str(obj.bill.billtypeslug())+'-'+str(obj.bill.billnumber)+'-'+pos
         
 @api_handler
 class org_positions(BillHandler):
-    orgcampaignposition_fields = ['id', 'bill', 'organization', 'position', 'comment', 'created', 'documents', 'updated']
+    orgcampaignposition_fields = ['id', 'bill', 'organization', 'position', 'comment', 'created', 'documents', 'updated', 'positionlink']
     positiondocument_deferred_text_fields = ['id', 'title', 'created', 'pdf_url']
     bill_fields = ['id', 'congressnumber','billtype', 'billnumber']
     org_fields = ["id", "name", "link"]
@@ -482,6 +493,7 @@ class org_positions(BillHandler):
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
         ('updated', 'the date and time when the position record was last modified on POPVOX'),
+        ('positionlink', 'a direct link to the position on popvox'),
         )
     allow_public_api_key = False
 
@@ -505,6 +517,16 @@ class org_positions(BillHandler):
     @staticmethod
     def link(obj, request, acct):
         return SITE_ROOT_URL + obj.url()
+    
+    @staticmethod
+    def positionlink(obj, request, acct):
+        if obj.position == "+":
+            pos = "endorse"
+        elif obj.position == "-":
+            pos = "oppose"
+        else:
+            pos = "neutral"
+        return SITE_ROOT_URL+str(obj.campaign.org.url())+'/'+obj.campaign.slug+'#'+obj.campaign.org.slug+'-'+str(obj.bill.billtypeslug())+'-'+str(obj.bill.billnumber)+'-'+pos
         
 class DocumentHandler(BaseHandler):
     @staticmethod

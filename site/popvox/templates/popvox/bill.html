@@ -431,7 +431,7 @@ function getshorturl() {
                 {% if not orgset %}<p>No organization has {% if position == "support" %}endorsed{% else %}opposed{% endif %} this {{bill.proposition_type}} yet on POPVOX.</p>{% endif %}
                 {% for org in orgset %}
                 <div>
-                    <h5><a href="{{org.url}}">{{org.name}}</a>
+                    <h5><a name="{{org.slug}}-{{bill.billtypeslug}}-{{bill.billnumber}}-{{position}}"><a href="{{org.url}}">{{org.name}}</a></a>
                         {% if org.object.facebook_fan_count %}
                             <small>{{org.object.facebook_fan_count|intcomma}} Facebook fans</small>
                         {% endif %}
