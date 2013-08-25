@@ -36,6 +36,7 @@ def loginform(request):
         try:
             password = forms.CharField().clean(request.POST["password"])
         except forms.ValidationError, e:
+            sys.stderr.write("email and password in post")
             sys.stderr.write( e)
             pass
     
@@ -49,6 +50,7 @@ def loginform(request):
                             validate_next(request, request.POST["next"]) # raises exception on error
                             return HttpResponseRedirect(request.POST["next"])
                         except Exception, e:
+                            sys.stderr.write("non-blank email and password")
                             sys.stderr.write(e)
                             pass # fall through
                     return HttpResponseRedirect(LOGIN_REDIRECT_URL)
