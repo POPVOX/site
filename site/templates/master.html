@@ -467,9 +467,13 @@ $(function() {
 
 <!-- mixpanel -->
 {% if not debug %}
-<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script>
+<!-- start Mixpanel --><script type="text/javascript">(function(e,b){if(!b.__SV){var a,f,i,g;window.mixpanel=b;a=e.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===e.location.protocol?"https:":"http:")+'//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';f=e.getElementsByTagName("script")[0];f.parentNode.insertBefore(a,f);b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==
+typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");for(g=0;g<i.length;g++)f(c,i[g]);
+b._i.push([a,e,d])};b.__SV=1.2}})(document,window.mixpanel||[]);
+mixpanel.init("6db7097c351adc437da30e64e0d86d1");</script><!-- end Mixpanel -->
 {% endif %}
-<script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('6db7097c351adc437da30e64e0d86d12'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: function(event,props,callback) { if (callback) callback(); },  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn, identify: null_fn, name_tag: null_fn }; } </script>
+
+
 <script type="text/javascript">
 {% comment %}wont work on cached page...
 {% with request.session.shorturl.target.meta as surlm %}
