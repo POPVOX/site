@@ -431,7 +431,7 @@ function share_footer_share() {
 		// For the blog, we can't call the AJAX interface to get a shorturl.
 		// We don't have a shorturl anyway.
 		share_link(share_type, $('title').text(), window.location.href, null);
-		mpmetrics.track("master_share", { service: share_type, view: "http", url: window.location.href });
+		mixpanel.track("master_share", { service: share_type, view: "http", url: window.location.href });
 		return false;
 	}
 	
@@ -443,7 +443,7 @@ function share_footer_share() {
 		success: function(res) {
 			if (!res.title) res.title = $('title').text();
 			share_link(share_type, res.title, res.shorturl, res.hashtag);
-			mpmetrics.track("master_share", { service: share_type, view: res.view, url: window.location.href });
+			mixpanel.track("master_share", { service: share_type, view: res.view, url: window.location.href });
 		}
 	});
 	return false;
@@ -478,22 +478,22 @@ mixpanel.init("6db7097c351adc437da30e64e0d86d1");</script><!-- end Mixpanel -->
 {% comment %}wont work on cached page...
 {% with request.session.shorturl.target.meta as surlm %}
 	{% if surlm.mixpanel_event %}
-		mpmetrics.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
+		mixpanel.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
 	{% endif %}
 {% endwith %}
 {% endcomment %}
 master_state(function (res) {
 	if (!res.user) {
-		mpmetrics.register({ 'user type': "anonymous" });
+		mixpanel.register({ 'user type': "anonymous" });
 	} else {
-		mpmetrics.identify("pv_uid_" + res.user.id);
-		mpmetrics.name_tag(res.user.email);
+		mixpanel.identify("pv_uid_" + res.user.id);
+		mixpanel.name_tag(res.user.email);
 		if (res.user.legstaffrole)
-			mpmetrics.register({ 'user type': "legstaff" });
+			mixpanel.register({ 'user type': "legstaff" });
 		else if (res.user.orgs.length > 0)
-			mpmetrics.register({ 'user type': "orgstaff" });
+			mixpanel.register({ 'user type': "orgstaff" });
 		else
-			mpmetrics.register({ 'user type': "individual" });
+			mixpanel.register({ 'user type': "individual" });
 	}
 });
 </script>
