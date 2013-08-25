@@ -36,7 +36,7 @@ def loginform(request):
         try:
             password = forms.CharField().clean(request.POST["password"])
         except forms.ValidationError, e:
-            #print e
+            sys.stderr.write( e)
             pass
     
         if email != None and password != None:
@@ -49,7 +49,7 @@ def loginform(request):
                             validate_next(request, request.POST["next"]) # raises exception on error
                             return HttpResponseRedirect(request.POST["next"])
                         except Exception, e:
-                            #print e
+                            sys.stderr.write(e)
                             pass # fall through
                     return HttpResponseRedirect(LOGIN_REDIRECT_URL)
                 else:
