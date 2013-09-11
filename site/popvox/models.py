@@ -354,11 +354,7 @@ class Bill(models.Model):
     def isAlive(self):
         # alive = pending further Congressional action
         if not self.is_bill():
-            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
-            if self.id==28896:
-                return False
-            else:
-                return self.congressnumber == govtrack.CURRENT_CONGRESS
+            return self.congressnumber == govtrack.CURRENT_CONGRESS
         return govtrack.billFinalStatus(self) == None
     def getDeadReason(self):
         # dead = no longer pending action because it passed, failed, or died in a previous session
