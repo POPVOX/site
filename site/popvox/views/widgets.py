@@ -29,6 +29,8 @@ def do_not_track_compliance(f):
 def bill_js(request):
     try:
         bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
+        if bill.migrate_to:
+            bill = bill.migrate_to
     except:
         bill = None
     
@@ -43,8 +45,11 @@ def bill_js(request):
 def bill_iframe(request):
     try:
         bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
+        if bill.migrate_to:
+            bill = bill.migrate_to
     except:
         bill = None
+       
     
     return HttpResponse("""<html><body><script src="/widgets/js/bill.js?%sstats=%d&title=%d&iframe=%d"> </script></body></html>""" % (
         ("bill=" + bill.url().replace("/bills/us/", "") + "&") if bill else "",
@@ -63,6 +68,10 @@ def bill_inline(request):
                 return HttpResponseBadRequest("<small>(No bill with that number exists)</small>.")
     else:
         return HttpResponseBadRequest("Invalid URL.")
+    
+    if bill.migrate_to:
+        bill = bill.migrate_to
+    
     billtype = bill.billtypeslug().upper()
     billnum = billtype+' '+str(bill.billnumber)
     total = bill.usercomments.get_query_set().count()

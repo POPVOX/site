@@ -280,6 +280,8 @@ def widget_render_writecongress_page(request, account, permissions):
                 bill = bill_from_url("/bills/" + request.GET["bill"])
             except:
                 return HttpResponseBadRequest("No bill with that number exists.")
+            if bill.migrate_to:
+                bill = bill.migrate_to
             position_verb = request.GET.get("position", "")
             if position_verb == "support":
                 position = "+"
