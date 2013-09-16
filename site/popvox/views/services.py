@@ -313,6 +313,11 @@ def widget_render_writecongress_page(request, account, permissions):
                 bill = bill,
                 position = position if position != None else "0")
             
+        try:
+            customizations = json.loads(account.customizations)
+        except:
+            customizations = None
+            
         if not bill.isAlive():
             return HttpResponseBadRequest("This letter-writing widget has been turned off because the bill is no longer open for comments.")
             
@@ -361,6 +366,7 @@ def widget_render_writecongress_page(request, account, permissions):
         # Render.
         response = render_to_response('popvox/widgets/writecongress.html', {
             "permissions": permissions,
+            "customizations": customizations,
             
             "campaign": campaign,
             "reason": reason,

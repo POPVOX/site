@@ -359,9 +359,6 @@ class Bill(models.Model):
     def getDeadReason(self):
         # dead = no longer pending action because it passed, failed, or died in a previous session
         if not self.is_bill():
-            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
-            if self.id==28896:
-                return "is no longer active"
             if self.congressnumber != govtrack.CURRENT_CONGRESS:
                 return "was proposed in a previous session of Congress"
             return None
@@ -1721,6 +1718,8 @@ class ServiceAccount(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     options = PickledObjectField(default={})
+    
+    customizations = models.TextField(blank=True, null=True, help_text="Appearance Customizations for this account's widgets, stored in JSON.")
 
     def __unicode__(self):
         if self.name: return self.name
@@ -1885,6 +1884,7 @@ class ServiceAccountCampaignActionRecord(models.Model):
     zipcode = models.CharField(max_length=16, blank=True, db_index=True)
     email = models.EmailField(db_index=True)
     usertags = models.ManyToManyField(UserTag,blank=True,null=True)
+    optin = models.NullBooleanField(default=False, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
     completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord", on_delete=models.SET_NULL)
