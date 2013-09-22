@@ -61,10 +61,12 @@ lcenddate = getCongressDates(CURRENT_CONGRESS -1)[1] #end date of the previous c
 comments_iter = UserComment.objects.filter(
     bill__congressnumber=CURRENT_CONGRESS,
     status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
-    #this next line is to send only very recent comments:
-    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=2), updated__gt=datetime.datetime.now()-datetime.timedelta(hours=16)
+    #this next line is to send only recent comments:
+    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=5)
+    #to send very old comments:
+    #updated__lt=datetime.datetime.now()-datetime.timedelta(days=45), updated__gt=lcenddate
     #this line is our standard send:
-    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
+    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
     )
 
 if "COMMENT" in os.environ:
@@ -98,7 +100,7 @@ if "LAST_ERR" in os.environ:
     if os.environ["LAST_ERR"] == "CAPTCHA":
         comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE, delivery_attempts__trace__contains="CAPTCHA")
 if "RECENT" in os.environ:
-    comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=14))
+    comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=45))
 if "REDISTRICTED" in os.environ:
     #Only run comments for users whose new districts we know we have.
     comments_iter = comments_iter.filter(address__congressionaldistrict2013__isnull=False)
@@ -154,6 +156,8 @@ def process_comment(comment, thread_id):
 
     msg.message = comment.updated.strftime("%x") + ". "
     if comment.message != None:
+        if "OLDMAIL" in os.environ and comment.created < datetime.datetime.now()-datetime.timedelta(days=45):
+            msg.message += "We experienced problems delivering this message, which caused a significant delay in receipt by your office. The problem has been rectified and the individual notified that this was an issue in the POPVOX system -- not the Congressional office. We tremendously regret the delay and are committed to timely delivery. If you have any questions about this, please contact POPVOX CEO, Marci Harris, marci@popvox.com. We always welcome your feedback.\n\n"
         msg.message += comment.message + \
             "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
         if comment.created < datetime.datetime.now()-datetime.timedelta(days=16):
