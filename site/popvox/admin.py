@@ -7,7 +7,7 @@ class BillAdmin(admin.ModelAdmin):
     list_display = ("congressnumber", "billtype", "billnumber", "title", "street_name")
     list_display_links = ("title",)
     search_fields = ("title", "street_name")
-    #readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "num_cosponsors", "latest_action")
+    readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "num_cosponsors", "latest_action")
     raw_id_fields = ('vehicle_for','sponsor','reintroduced_as', 'migrate_to')
     filter_horizontal = ("cosponsors", 'committees', 'issues')
     exclude = ('srcfilehash',)
@@ -91,8 +91,17 @@ class OrgAdmin(admin.ModelAdmin):
     readonly_fields = ('logo', 'documents')
     raw_id_fields = ('coalitionmembers',)
     
+class OrgCampaignPositionInline(admin.TabularInline):
+    model = OrgCampaignPosition
+    extra = 1
+    
+class OrgCampaignAdmin(admin.ModelAdmin):
+    search_fields = ["name", "org__name"]
+    list_display = ["org", "name"]
+    #inlines = [OrgCampaignPositionInline] #takes way too long to load
+    
 class OrgCampaignPositionAdmin(admin.ModelAdmin):
-    search_fields = ["Campaign", "Bill"]
+    search_fields = ["campaign", "bill"]
     list_display = ["campaign_name", "bill_shortname"]
     raw_id_fields = ['campaign', "bill"]
 
@@ -166,7 +175,7 @@ class UserTagAdmin(admin.ModelAdmin):
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
 admin.site.register(Org, OrgAdmin)
-admin.site.register(OrgCampaign)
+admin.site.register(OrgCampaign, OrgCampaignAdmin)
 admin.site.register(OrgCampaignPosition, OrgCampaignPositionAdmin)
 admin.site.register(OrgContact)
 admin.site.register(MemberOfCongress, MemberOfCongressAdmin)
