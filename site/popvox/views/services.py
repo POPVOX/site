@@ -240,10 +240,16 @@ def widget_render_commentstream(request, account, permissions):
                 
     comments = comments[0:50]
     
+    try:
+        customizations = json.loads(account.customizations)
+    except:
+        customizations = None
+    
     return render_to_response('popvox/widgets/commentstream.html', {
         'title1': title1,
         'title2': title2,
         'comments': comments,
+        'customizations': customizations,
         "show_bill_number": show_bill_number,
         "url": url,
         "permissions": permissions,
