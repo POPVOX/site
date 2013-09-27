@@ -271,13 +271,6 @@ def widget_render_writecongress_page(request, account, permissions):
         org = None
         reason = None
 
-        franking = None
-        if "franking" in request.GET:
-            franking = request.GET["franking"]
-            
-        whitehouse = None
-        if "whitehouse" in request.GET:
-            whitehouse = request.GET["whitehouse"]
         
         if "ocp" not in request.GET:
             if not "bill" in request.GET:
@@ -368,6 +361,8 @@ def widget_render_writecongress_page(request, account, permissions):
                 tagvals.insert(0,'None')
                 tagvals.append('Other')
                 taglabel = usertags[0].label
+                
+        sys.stderr.write(str(permissions))
         
         # Render.
         response = render_to_response('popvox/widgets/writecongress.html', {
@@ -385,8 +380,6 @@ def widget_render_writecongress_page(request, account, permissions):
             "useraddress_prefixes": PostalAddress.PREFIXES,
             "useraddress_suffixes": PostalAddress.SUFFIXES,
 
-            "franking": franking,
-            "whitehouse": whitehouse,
             "taglabel": taglabel,
             "tagvals": tagvals,
             
@@ -505,6 +498,7 @@ def widget_render_writecongress_action(request, account, permissions):
             "state": get_state_for_zipcode(request.POST["zipcode"].strip()),
             "zipcode": request.POST["zipcode"].strip(),
             }
+
         if not re.search("[A-Za-z]", identity["firstname"]): return { "status": "fail", "msg": "Enter your first name." }
         if not re.search("[A-Za-z]", identity["lastname"]): return { "status": "fail", "msg": "Enter your last name." }
         if identity["state"] == None: return { "status": "fail", "msg": "That's not a ZIP code within a U.S. congressional district. Please enter the ZIP code where you vote." } 
@@ -515,14 +509,25 @@ def widget_render_writecongress_action(request, account, permissions):
         
         # Record the information for the org. This also occurs at the point of returning user login, checking address, and submit.
         if "campaign" in request.POST and "demo" not in request.POST:
-            ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
-                firstname = identity["firstname"],
-                lastname = identity["lastname"],
-                zipcode = identity["zipcode"],
-                email = identity["email"],
-                completed_stage = "start",
-                referrer = INITIAL_REFERRER,
-                request_dump = meta_log(request.META)  )
+            if "email_optin" in request.POST:
+                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                    firstname = identity["firstname"],
+                    lastname = identity["lastname"],
+                    zipcode = identity["zipcode"],
+                    email = identity["email"],
+                    optin = request.POST["email_optin"],
+                    completed_stage = "start",
+                    referrer = INITIAL_REFERRER,
+                    request_dump = meta_log(request.META)  )
+            else:
+                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                    firstname = identity["firstname"],
+                    lastname = identity["lastname"],
+                    zipcode = identity["zipcode"],
+                    email = identity["email"],
+                    completed_stage = "start",
+                    referrer = INITIAL_REFERRER,
+                    request_dump = meta_log(request.META)  )
         
         return {
             "status": "success",
@@ -553,10 +558,17 @@ def widget_render_writecongress_action(request, account, permissions):
 
             # Record the information for the org. This also occurs at the point of new user information, checking the address, and submit.
             if "campaign" in request.POST and "demo" not in request.POST:
-                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
-                    email = email,
-                    completed_stage = "login",
-                    request_dump = meta_log(request.META) )
+                if "email_optin" in request.POST:
+                    ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                        email = email,
+                        optin = request.POST["email_optin"],
+                        completed_stage = "login",
+                        request_dump = meta_log(request.META) )
+                else:
+                    ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                        email = email,
+                        completed_stage = "login",
+                        request_dump = meta_log(request.META) )
 
             return {
                 "status": "success",
@@ -588,13 +600,23 @@ def widget_render_writecongress_action(request, account, permissions):
 
         # Record the information for the org. This also occurs at the point of new user and returning user login and submit.
         if "campaign" in request.POST and "demo" not in request.POST:
-            ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
-                email = request.POST["email"],
-                firstname = request.POST["useraddress_firstname"],
-                lastname = request.POST["useraddress_lastname"],
-                zipcode = request.POST["useraddress_zipcode"],
-                completed_stage = "address",
-                request_dump = meta_log(request.META) )
+            if "email_optin" in request.POST:
+                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                    email = request.POST["email"],
+                    firstname = request.POST["useraddress_firstname"],
+                    lastname = request.POST["useraddress_lastname"],
+                    zipcode = request.POST["useraddress_zipcode"],
+                    email_optin = request.POST["email_optin"],
+                    completed_stage = "address",
+                    request_dump = meta_log(request.META) )
+            else:
+                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                    email = request.POST["email"],
+                    firstname = request.POST["useraddress_firstname"],
+                    lastname = request.POST["useraddress_lastname"],
+                    zipcode = request.POST["useraddress_zipcode"],
+                    completed_stage = "address",
+                    request_dump = meta_log(request.META) )
             campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
             saccount = campaign.account
             try:
@@ -703,13 +725,23 @@ def widget_render_writecongress_action(request, account, permissions):
 
         # Record the information for the org. This also occurs at the point of new user and returning user login and address.
         if "campaign" in request.POST and "demo" not in request.POST:
-            ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
-                email = request.POST["email"],
-                firstname = request.POST["useraddress_firstname"],
-                lastname = request.POST["useraddress_lastname"],
-                zipcode = request.POST["useraddress_zipcode"],
-                completed_stage = status if status != "submitted" else "finished",
-                request_dump = meta_log(request.META) )
+            if "email_optin" in request.POST:
+                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                    email = request.POST["email"],
+                    firstname = request.POST["useraddress_firstname"],
+                    lastname = request.POST["useraddress_lastname"],
+                    zipcode = request.POST["useraddress_zipcode"],
+                    email_optin = request.POST["email_optin"],
+                    completed_stage = status if status != "submitted" else "finished",
+                    request_dump = meta_log(request.META) )
+            else:
+                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                    email = request.POST["email"],
+                    firstname = request.POST["useraddress_firstname"],
+                    lastname = request.POST["useraddress_lastname"],
+                    zipcode = request.POST["useraddress_zipcode"],
+                    completed_stage = status if status != "submitted" else "finished",
+                    request_dump = meta_log(request.META) )
 
         if status == "submitted":
             return { "status": status }
@@ -786,7 +818,7 @@ class WriteCongressEmailVerificationCallback:
     account = None
     
     def email_subject(self):
-        referrer, campaign, message, optin = widget_render_writecongress_getsubmitparams(self.post, self.account)
+        referrer, campaign, message, optin  = widget_render_writecongress_getsubmitparams(self.post, self.account)
         if campaign:
             org = campaign.account.org
         else:
@@ -873,7 +905,7 @@ class WriteCongressEmailVerificationCallback:
     @csrf_protect_me # because writecongress_followup calls back to set username/password
     def get_response(self, request, vrec):
         # Get the comment details.
-        referrer, campaign, message, optin = widget_render_writecongress_getsubmitparams(self.post, self.account)
+        referrer, campaign, message, optin, = widget_render_writecongress_getsubmitparams(self.post, self.account)
 
         # Create user record if this is a new user and it is the first time they 
         # hit the verification link.
