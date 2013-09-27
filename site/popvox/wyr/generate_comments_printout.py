@@ -397,7 +397,10 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
             pass
         
         ucodr.comment.delivery_attempts.add(dr)
-        print ucodr.comment
+        try:
+            print ucodr.comment
+        except:
+            pass
 
         ucodr.delete()
 

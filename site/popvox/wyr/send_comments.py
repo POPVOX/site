@@ -62,11 +62,11 @@ comments_iter = UserComment.objects.filter(
     bill__congressnumber=CURRENT_CONGRESS,
     status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
     #this next line is to send only recent comments:
-    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=5)
+    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=5)
     #to send very old comments:
     #updated__lt=datetime.datetime.now()-datetime.timedelta(days=45), updated__gt=lcenddate
     #this line is our standard send:
-    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
+    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
     )
 
 if "COMMENT" in os.environ:
