@@ -131,7 +131,10 @@ function getshorturl() {
             {% if bill.description and not bill.notes %}
             <p><strong>Summary: </strong>{{ bill.description }} {% if bill.is_bill %}(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>){% endif %}</p>
             {% else %}
+                {% if bill.id == 31752 %} {%comment%}govtrack doesn't have updated info on this bill {%endcomment%}
+                {%else%}
                 {% if bill.is_bill %}<p>(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Information at GovTrack</a>)</p>{% endif %}
+                {% endif %}
             {% endif %}
             {% if not bill.isAlive and not deadbox %}
                 <p><strong>This {{bill.proposition_type}} {{bill.getDeadReason}}.</strong></p>
