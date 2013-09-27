@@ -1866,11 +1866,23 @@ class ServiceAccountCampaign(models.Model):
     def total_widget_records(self):
         return self.actionrecords.filter(completed_stage__isnull=False).count()
     def add_action_record(self, **kwargs):
+        #sys.stderr.write(str(kwargs))
         email = kwargs.pop("email")
         rec, isnew = ServiceAccountCampaignActionRecord.objects.get_or_create(
             campaign=self,
             email=email,
             defaults = kwargs)
+        if "optin" in kwargs:
+            sys.stderr.write("in the if")
+            optin = kwargs.pop("optin")
+            if optin == "1":
+                setattr(rec,"optin",True)
+            else:
+                setattr(rec,"optin",False)
+        else:
+            sys.stderr.write("I'm in ur else")
+            setattr(rec,"optin",None)
+        rec.save()
         if not isnew or "created" in kwargs:
             # Update the record with the new values.
             for k, v in kwargs.items():

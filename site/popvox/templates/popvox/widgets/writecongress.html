@@ -132,7 +132,7 @@ Notes:
 	#b_send_no_msg { background-image: url(b_send_no_msg.png); }
 	#b_preview { background: url(/services/widgets/img/writecongress/preview?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
 	#b_send_to_congress a { background-image: url(/services/widgets/img/writecongress/send?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken);
-    {% if whitehouse %}background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
+    {% if 'whitehouse' in permissions %}background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
     }
 	{% endif %}
 
@@ -313,6 +313,7 @@ Notes:
                                 $('#firstname').attr("tabindex",2);
                                 $('#lastname').attr("tabindex",3);
                                 $('#zipcode').attr("tabindex",4);
+                                {%if 'email_optin' in permissions %}$('#email_optin').attr("tabindex",5);{%endif%}
 								$('#panel_login .next').show();
 							} else {
 								$('#unregistered').hide();
@@ -325,6 +326,7 @@ Notes:
                                     $('#firstname').attr("tabindex",84);
                                     $('#lastname').attr("tabindex",85);
                                     $('#zipcode').attr("tabindex",86);
+                                    {%if 'email_optin' in permissions %}$('#email_optin').attr("tabindex",3);{%endif%}
 								} else if (data.sso_methods.length > 0) {
 									$('#registered_sso').show();
 								} // had better be one or the other, but give preference to password
@@ -391,7 +393,8 @@ Notes:
 			position = chosen_position;
 			$('.position_verb').text(position == "+" ? "support" : "oppose");
 			$('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
-			{% if franking != "true" %}
+			{% if 'franking' in permissions %}
+            {% else %}
 			$('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
 			{% endif %}
 			if ($("#panel_login .next").hasClass("disabled")) return false;
@@ -412,7 +415,8 @@ Notes:
 					email: $("#email").val(),
 					firstname: $("#firstname").val(),
 					lastname: $("#lastname").val(),
-					zipcode: $("#zipcode").val()
+					zipcode: $("#zipcode").val(),
+                    {%if 'email_optin' in permissions %}email_optin: $("#email_optin").prop('checked') ? "1" : "0",{%endif%}
 					};
 				
 			} else {
@@ -424,7 +428,8 @@ Notes:
 					{% if campaign %}campaign: {{campaign.id}},{% endif %}
 					action: "login",
 					email: $("#email").val(),
-					password: $("#password").val()
+					password: $("#password").val(),
+                    {%if 'email_optin' in permissions %}email_optin: $("#email_optin").prop('checked') ? "1" : "0",{%endif%}
 					};
 			}
 
@@ -526,6 +531,8 @@ Notes:
 						bill: {{bill.id}},
 						action: "address",
 						email: identity.email,
+                        {%if 'email_optin' in permissions %}
+						optin: $('#optin').prop('checked') ? "1" : "0",{%endif%}
 						useraddress_prefix: $("#useraddress_prefix").val(),
 						useraddress_firstname: identity.firstname,
 						useraddress_lastname: identity.lastname,
@@ -628,6 +635,9 @@ Notes:
 						useraddress_city: $("#useraddress_city").val(),
 						useraddress_state: identity.state,
 						useraddress_zipcode: identity.zipcode,
+                        {% if "email_optin" in permissions %}
+                        email_optin: $('#email_optin').prop('checked') ? "1" : "0",
+                        {% endif %}
 						useraddress_phonenumber: $("#useraddress_phonenumber").val(),
                         {% if tagvals %}
 						useraddress_tag: $("#useraddress_tag").val(),
@@ -656,21 +666,21 @@ Notes:
 								$('h3.congrats').text('Your message will be sent!')
 								$('h4.congrats').text('Thank you for taking the time to share your opinion.');
 							} else if (data.status == "confirm-address") {
-                               $('h3.congrats').text({% if whitehouse %}'One More Step!'{% else %}'Check your email!'{% endif %});
-                               $('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
+                               $('h3.congrats').text({% if 'whitehouse' in permissions %}'One More Step!'{% else %}'Check your email!'{% endif %});
+                               $('h4.congrats').text({% if 'whitehouse' in permissions %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 							} else if (data.status == "confirm-email") {
-                               $('h3.congrats').text({% if whitehouse %}'One More Step!'{% else %}'Check your email!'{% endif %});
-                               $('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
+                               $('h3.congrats').text({% if 'whitehouse' in permissions %}'One More Step!'{% else %}'Check your email!'{% endif %});
+                               $('h4.congrats').text({% if 'whitehouse' in permissions %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 								
 							} else if (data.status == "demo-submitted") {
 								$('h3.congrats').text('Your message will (NOT) be sent!')
 								$('h4.congrats').text('This widget is in demo mode. No information was saved.');
 							} else if (data.status == "demo-confirm-address") {
 								$('h3.congrats').text('[DEMO] Check your email! [DEMO]');
-								$('h4.congrats').text({% if whitehouse %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
+								$('h4.congrats').text({% if 'whitehouse' in permissions %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 							} else if (data.status == "demo-confirm-email") {
 								$('h3.congrats').text('[DEMO] Check your email! [DEMO]');
-								$('h4.congrats').text({% if whitehouse %}'One More Step! Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
+								$('h4.congrats').text({% if 'whitehouse' in permissions %}'One More Step! Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
 							}
 							
 							show_panel(5);
@@ -726,16 +736,12 @@ Notes:
 			if (method == "email") f = email_share;
 			if (method == "link") f = link_share;
 			
-            {% if whitehouse %}
-                f("", "I'm using @POPVOX to oppose FAA-imposed flight delays @whitehouse @FAANews @USDOT", ""); {%comment%} no {{url|escapejs}} in that first argument because the airlines don't want a url{%endcomment%}
+            {% if 'franking' in permissions %}
+                if (position == "+") verb = "I just supported"; else verb = "I just opposed";
+                    f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
             {% else %}
-                {% if franking != "true" %}
-                    if (position == "+") verb = "Support"; else verb = "Oppose";
-                        f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
-                {% else %}
-                    if (position == "+") verb = "I just supported"; else verb = "I just opposed";
-                        f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
-                {% endif %}
+                if (position == "+") verb = "Support"; else verb = "Oppose";
+                    f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
             {% endif %}
 			return false;
 		}
@@ -776,9 +782,9 @@ Notes:
 			
 					<div id="panel_login" class="widget_panel">
 						{% if position %}
-                           <h1>Tell Congress {% if whitehouse %}and the Administration {%endif%}that you {% if position == "+" %}Support{% else %}Oppose{% endif %} {{bill.shortname}}</h1>
+                           <h1>Tell Congress {% if 'whitehouse' in permissions %}and the Administration {%endif%}that you {% if position == "+" %}Support{% else %}Oppose{% endif %} {{bill.shortname}}</h1>
 						{% else %}
-							{% if franking == "true" %}
+							{% if 'franking' in permissions %}
 								<h1>Share your views on {{bill.shortname}}</h1>
 							{% else %}
 								<h1>Tell Congress What You Think About {{bill.shortname}}</h1>
@@ -826,6 +832,11 @@ Notes:
 								<p>Welcome <strong>{{displayname}}</strong>.
 								<a href="#" onclick="return logout();">Not you?</a>
 							</div>
+                            {% if 'email_optin' in permissions %} <div class="optin">
+                                <input id="email_optin" type="checkbox" style="width:5%"/>
+                                <label for="email_optin" style="width:60%">Send me updates about this bill and related issues from {{campaign.account}}.</label>
+                            </div>
+                                    {% endif %}
 							
 							{% if position %}
 							<input value="next" class="btn next disabled" onclick="return do_login('{{position}}');" type="button"/>
@@ -857,7 +868,7 @@ Notes:
 						</script>
 						
 						{% comment %}keep in mind: large buttons for neutral widgets and at least one line for the service account owner{% endcomment %}
-						<p style="margin-top: 20px; padding-right: 1em;">Your letter will be sent to {% if whitehouse %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
+						<p style="margin-top: 20px; padding-right: 1em;">Your letter will be sent to {% if 'whitehouse' in permissions %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
 						{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {{campaign.account}}.</p>{% endif %}
                         <p>View our <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">Privacy Policy</a></p>
 					</div> <!-- e: panel_login -->
@@ -930,29 +941,30 @@ Notes:
 							
 					<div id="panel_write" class="widget_panel" style="display: none;">
 						{% if reason %}
-						{% if franking != "true" %}
-						<div id="panel_write_why_reason">
-						<div class="why">
-							<h3>Why should I <span class="position_verb"> </span> {{bill.shortname}}?</h3>
-							<a href="#" class="expand btn" onclick="return false;">expand</a>
-						</div><div class="clear"> </div>
-						<div class="reason" style="display: none">
-							<p>{{reason}}</p>
-						</div>
-						</div>
-						<script type="text/javascript">
-							$('#panel_write_why_reason').hover(
-								function() { $('#panel_write .reason').slideDown(); },
-								function() { $('#panel_write .reason').slideUp(); } );
-						</script>
-						{% endif %}
+                            {% if 'franking' in permissions %} {%comment%}done this way because I'm not positive 'not in' will work for this template tag{%endcomment%}
+                            {% else %}
+                                <div id="panel_write_why_reason">
+                                <div class="why">
+                                    <h3>Why should I <span class="position_verb"> </span> {{bill.shortname}}?</h3>
+                                    <a href="#" class="expand btn" onclick="return false;">expand</a>
+                                </div><div class="clear"> </div>
+                                <div class="reason" style="display: none">
+                                    <p>{{reason}}</p>
+                                </div>
+                                </div>
+                                <script type="text/javascript">
+                                    $('#panel_write_why_reason').hover(
+                                        function() { $('#panel_write .reason').slideDown(); },
+                                        function() { $('#panel_write .reason').slideUp(); } );
+                                </script>
+                            {% endif %}
 						{% endif %}
 										
 						<h3>Write a Personal Message</h3>
-						{% if franking != "true" %}
-						<h4>I <span class="position_verb"> </span> {{bill.shortname}} because...</h4>
+						{% if 'franking' in permissions %}
+                        <h4>Here are my views on {{bill.shortname}}.</h4>
 						{% else %}
-						<h4>Here are my views on {{bill.shortname}}.</h4>
+						<h4>I <span class="position_verb"> </span> {{bill.shortname}} because...</h4>
 						{% endif %}
 
 		
@@ -968,7 +980,8 @@ Notes:
 							<div class="clear"> </div>
 						</form>
 						<div id="tips">
-							{% if franking != "true" %}
+							{% if 'franking' in permissions %}
+                            {% else %}
 							<h3>A message is optional</h3>
 							<p class="is-optional">When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. <em>To skip this step, just click Preview.</em></p>
 							{% endif %}
@@ -985,7 +998,7 @@ Notes:
 						
 						<div class="clear"> </div>
 						
-						<p>Your letter will be sent to Congress and {% if whitehouse %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
+						<p>Your letter will be sent to Congress and {% if 'whitehouse' in permissions %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
 						
 					</div><!-- e: panel_write -->
 					
@@ -1028,7 +1041,7 @@ Notes:
 						<h4 class="congrats">More information on what happened!</h4>
 		
 						<div id="social_share">
-							{% if franking == "true" %}
+							{% if 'franking' in permissions %}
 							<h3>Share on social media</h3>
 							{% else %}
 							<h3>Tell your friends to <span class="position_verb"> </span> this bill</h3>
@@ -1043,31 +1056,31 @@ Notes:
 							<p class="link" style="display: none"></p>
 						</div>	
 						
-								{% if franking != "true" %}
-						{% for class, text, list in suggestions %}
-							{% if list|length > 0 %}
-								<h3 class="{{class}} no_rule">{{text}}</h3>
-								
-								{% for bill in list %}
-									{% bill_statistics bill as stats %}
-									{% with "1" as chart_no_links %}
-									{% with "1" as chart_no_clear %}
-									{% with "{bg: 'white'}" as chart_opts %}
-									{% with "50" as chart_size %}
-										{% include "popvox/bill_statistics_pie_simple.html" %}
-									{% endwith %}
-									{% endwith %}
-									{% endwith %}
-									{% endwith %}
-									
-									<p><a href="{{bill.url}}" target="_blank">{{bill.title|truncatewords:12}}</a></p>
-									
-									<div class="clear"> </div>
-								{% endfor %}
-							{% endif %}
-						{% endfor %}
+								{% if 'franking' in permissions %}
+                                    <h3 class="{{class}} no_rule">You may also be interested in these bills</h3>
 								{% else %}
-								<h3 class="{{class}} no_rule">You may also be interested in these bills</h3>
+                                    {% for class, text, list in suggestions %}
+                                        {% if list|length > 0 %}
+                                            <h3 class="{{class}} no_rule">{{text}}</h3>
+                                            
+                                            {% for bill in list %}
+                                                {% bill_statistics bill as stats %}
+                                                {% with "1" as chart_no_links %}
+                                                {% with "1" as chart_no_clear %}
+                                                {% with "{bg: 'white'}" as chart_opts %}
+                                                {% with "50" as chart_size %}
+                                                    {% include "popvox/bill_statistics_pie_simple.html" %}
+                                                {% endwith %}
+                                                {% endwith %}
+                                                {% endwith %}
+                                                {% endwith %}
+                                                
+                                                <p><a href="{{bill.url}}" target="_blank">{{bill.title|truncatewords:12}}</a></p>
+                                                
+                                                <div class="clear"> </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
 								{% endif %}
 						
 						{% if not campaign %}
