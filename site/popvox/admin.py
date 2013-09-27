@@ -3,11 +3,14 @@ from django.contrib import admin
 from django.db.models import Count
 from django.forms import ModelForm
 
+class PositionDocumentInline(admin.StackedInline):
+    model = PositionDocument
+    extra = 1
+
 class BillAdmin(admin.ModelAdmin):
     list_display = ("congressnumber", "billtype", "billnumber", "title", "street_name")
     list_display_links = ("title",)
     search_fields = ("title", "street_name")
-    #readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "num_cosponsors", "latest_action")
     raw_id_fields = ('vehicle_for','sponsor','reintroduced_as', 'migrate_to')
     filter_horizontal = ("cosponsors", 'committees', 'issues')
     exclude = ('srcfilehash',)
@@ -18,6 +21,8 @@ class BillAdmin(admin.ModelAdmin):
         ("Optional Metadata", { "fields": ('sponsor', 'cosponsors', 'committees', 'issues', 'latest_action', 'reintroduced_as', 'migrate_to', 'hold_metadata')}),
         ("Upcoming Event", { "fields": ( 'upcoming_event_post_date', 'upcoming_event' ) }),
         )
+    
+    inlines = [PositionDocumentInline]
 
 class BillEventInline(admin.StackedInline):
     model = BillEvent
@@ -75,6 +80,10 @@ class UserCommentAdmin(admin.ModelAdmin):
         
 class UserCommentDiggAdmin(admin.ModelAdmin):
     list_display = ['created', 'user', 'comment', 'diggtype']
+    
+class PositionDocumentAdmin(admin.ModelAdmin):
+    list_display = ["bill", "title", "doctype"]
+    search_fields = ["title"]
 
 class PostalAddressAdmin(admin.ModelAdmin):
     search_fields = ("user__username","user__email","firstname","lastname","address1", "zipcode")
@@ -187,7 +196,7 @@ admin.site.register(UserCommentDigg, UserCommentDiggAdmin)
 admin.site.register(UserOrgRole, UserOrgRoleAdmin)
 admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
 admin.site.register(PostalAddress, PostalAddressAdmin)
-admin.site.register(PositionDocument)
+admin.site.register(PositionDocument, PositionDocumentAdmin)
 admin.site.register(ServiceAccount, ServiceAccountAdmin)
 admin.site.register(ServiceAccountPermission)
 admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)
