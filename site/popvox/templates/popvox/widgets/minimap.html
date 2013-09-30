@@ -114,7 +114,7 @@
                         bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 230, colors:["#4a9410", "#edd501"] });
                     {% else %}
                         {% if request.GET.client == 'lilly' %}
-                            bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 270 });
+                            bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 230, colors:["#4a9410", "#edd501"] });
                         {% else %}
                             bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 270 });
                         {% endif %}
@@ -206,7 +206,7 @@ $(document).ready(showdata(true));
 
                     <h3{% if request.GET.client == 'anaap2' %} style="padding: 10px 0 10px 5px; font-family: helvetica, san-serif; height: 50px; border-bottom:0; background-color: #777; background-image: none; background-position: -9px -9px;">Americans Support a National Airline Policy{%else%}>{% endif %} <a {% if request.GET.client == 'anaap2' %} style="height: 50px; text-indent: -9999em; display: none;" {% endif %} href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.billtypeslug}}{{bill.billnumber}}: {{bill.street_name|truncatewords:6}}</a></h3>
                 {% else %}
-                    <h3{% if request.GET.client == 'anaap2' %} style="height: 50px; border-bottom:0; background: #777 url(../widget/widget_logo.png) left top no-repeat;" {% endif %}><a {% if request.GET.client == 'anaap2' %} style="height: 50px; text-indent: -9999em; display: none;" {% endif %} href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.title|truncatewords:6}}</a></h3>
+                    <h3{% if request.GET.client == 'anaap2' %} style="height: 50px; border-bottom:0; background: #777 url(../widget/widget_logo.png) left top no-repeat;" {% endif %}{% if request.GET.client == 'lilly2' %} style="height: 50px; border-bottom:0; background: #777 url(../widget/widget_logo.png) left top no-repeat;" {% endif %}><a {% if request.GET.client == 'anaap2' %} style="height: 50px; text-indent: -9999em; display: none;" {% endif %}{% if request.GET.client == 'lilly2' %} style="height: 50px; text-indent: -9999em; display: none;" {% endif %} href="https://www.popvox.com/bills/us/{{bill.congressnumber}}/{{bill.billtypeslug}}{{bill.billnumber}}" target="_blank">{{bill.title|truncatewords:6}}</a></h3>
                 {% endif %}
 
             {% endif %}
@@ -235,6 +235,9 @@ $(document).ready(showdata(true));
                 {% if request.GET.client != 'anaap2' %}
 				<p id="stats_overall_info" class="" ></p>
                 {% endif %}
+                {% if request.GET.client != 'lilly2' %}
+                <p id="stats_overall_info" class="" ></p>
+                {% endif %}
 
                 {% if request.GET.client == 'anaap' or request.GET.client == 'lilly' %}
                 <div id="chart" class="clear" style="display: none; position: absolute; top: 400px; right: 40px;">
@@ -245,7 +248,7 @@ $(document).ready(showdata(true));
                         <div id="chart_pie" style="height: 110px; width: 110px"></div><!--  -->
 					</div> <!-- /col_1 past_stats -->
 
-                     <div class="col_2 past_stats"{% if request.GET.client == 'anaap2' %} style="margin-left: -30px;" {% endif %}> <!-- style="padding-right: 1em; width: 280px" -->
+                     <div class="col_2 past_stats"{% if request.GET.client == 'anaap2' %} style="margin-left: -30px;" {% endif %}{% if request.GET.client == 'lilly2' %} style="margin-left: -30px;" {% endif %}> <!-- style="padding-right: 1em; width: 280px" -->
                         <p class="chart_stats">
                             <span class="chart_title">XXX:</span> <br />
                             <span class="bg_support">YYY% Support</span><br />
@@ -254,8 +257,8 @@ $(document).ready(showdata(true));
                         </p>
 					</div> <!-- /col_2 past_stats -->
                     {% if request.GET.client != 'anaap' and request.GET.client != 'lilly'%}
-                    <div class="col_3 col_last past_stats"{% if request.GET.client == 'anaap2' %} style="width: 230px;" {% endif %}>
-                        <div id="chart_time"style="width: 280px; height: 150px; margin-bottom: 10px; {% if request.GET.client == 'anaap2' %} width: 238px; {% endif %}" ></div>
+                    <div class="col_3 col_last past_stats"{% if request.GET.client == 'anaap2' %} style="width: 230px;" {% endif %}{% if request.GET.client == 'lilly2' %} style="width: 230px;" {% endif %}>
+                        <div id="chart_time"style="width: 280px; height: 150px; margin-bottom: 10px; {% if request.GET.client == 'anaap2' %} width: 238px; {% endif %}{% if request.GET.client == 'lilly2' %} width: 238px; {% endif %}" ></div>
                         <!--<div style="font-size: 8pt; color: #999">Cumulative Number of Individuals Over Time</div>-->
 					</div> <!-- /col_3 col_last past_stats -->
                     {% endif %}
