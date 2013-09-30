@@ -101,16 +101,20 @@
                         $('#chart' + ' .pro_reintro').text(stats.pro_reintro + " people support reintroduction of the bill."); 
                     }
                     
-                    {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' or request.GET.client == 'lilly' %}
+                    {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
                     bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff", colors:["#4a9410", "#edd501"] });
                     {% else %}
-                    bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff" });
+                        {% if request.GET.client == 'lilly' %}
+                            bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff", colors:["#4a9410", "#edd501"] });
+                        {% else %}
+                            bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff" });
+                        {% endif %}
                     {% endif %}
                     {% if request.GET.client == 'anaap2' %}
                         bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 230, colors:["#4a9410", "#edd501"] });
                     {% else %}
                         {% if request.GET.client == 'lilly' %}
-                            bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 230, colors:["#4a9410", "#edd501"] });
+                            bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 270 });
                         {% else %}
                             bill_timeseries('chart_time', stats.timeseries, {"bg":"#fff","width": 270 });
                         {% endif %}
@@ -185,10 +189,14 @@ $(document).ready(showdata(true));
         {% if request.GET.client == 'anaap' %}
         <div class="mini-map" style="width: 600px !important; height: 528px !important; background: none !important">
         {% else %}
-        <div class="mini-map">
+            {% if request.GET.client == 'lilly' %}
+                <div class="mini-map" style="width: 600px !important; height: 528px !important; background: none !important">
+            {% else %}
+                <div class="mini-map">
+            {% endif %}
         {% endif %}
 
-            {% if request.GET.client != 'anaap' %}
+            {% if request.GET.client != 'anaap' and if request.GET.client != 'lilly'%}
 
                 {% if bill.street_name %}
 
@@ -206,7 +214,7 @@ $(document).ready(showdata(true));
                     <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=238&hover=0&client=anaap2" height="200" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
                 {% endif %}
                 {% if request.GET.client == 'lilly' %}
-                    <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=238&hover=0&client=lilly" height="200" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
+                    <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=600&hover=0&client=lilly" width="600" height="458" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
                 {% endif %}
             {% else %}
                 <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274&hover=0" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
@@ -217,11 +225,11 @@ $(document).ready(showdata(true));
 <!-- <h3 id="reporttitle" class="no_rule" style="padding: 0">Loading Legislative Report...</h3>
 <h3 id="reportsubtitle" class="no_rule" style="padding: 0"></h3>
 <h3 class="no_rule">Constituents Say</h3> -->
-                {% if request.GET.client != 'anaap2' or request.GET.client == 'lilly' %}
+                {% if request.GET.client != 'anaap2' %}
 				<p id="stats_overall_info" class="" ></p>
                 {% endif %}
 
-                {% if request.GET.client == 'anaap' %}
+                {% if request.GET.client == 'anaap' or request.GET.client == 'lilly' %}
                 <div id="chart" class="clear" style="display: none; position: absolute; top: 400px; right: 40px;">
                 {% else %}
                 <div id="chart" class="clear" style="display: none;">
@@ -230,7 +238,7 @@ $(document).ready(showdata(true));
                         <div id="chart_pie" style="height: 110px; width: 110px"></div><!--  -->
 					</div> <!-- /col_1 past_stats -->
 
-                     <div class="col_2 past_stats"{% if request.GET.client == 'anaap2' or request.GET.client == 'lilly' %} style="margin-left: -30px;" {% endif %}> <!-- style="padding-right: 1em; width: 280px" -->
+                     <div class="col_2 past_stats"{% if request.GET.client == 'anaap2' %} style="margin-left: -30px;" {% endif %}> <!-- style="padding-right: 1em; width: 280px" -->
                         <p class="chart_stats">
                             <span class="chart_title">XXX:</span> <br />
                             <span class="bg_support">YYY% Support</span><br />
@@ -238,15 +246,15 @@ $(document).ready(showdata(true));
                             <span class="users">(WWW users)</span>
                         </p>
 					</div> <!-- /col_2 past_stats -->
-                    {% if request.GET.client != 'anaap' %}
-                    <div class="col_3 col_last past_stats"{% if request.GET.client == 'anaap2' or request.GET.client == 'lilly' %} style="width: 230px;" {% endif %}>
-                        <div id="chart_time"style="width: 280px; height: 150px; margin-bottom: 10px; {% if request.GET.client == 'anaap2' or request.GET.client == 'lilly' %} width: 238px; {% endif %}" ></div>
+                    {% if request.GET.client != 'anaap' and if request.GET.client != 'lilly'%}
+                    <div class="col_3 col_last past_stats"{% if request.GET.client == 'anaap2' %} style="width: 230px;" {% endif %}>
+                        <div id="chart_time"style="width: 280px; height: 150px; margin-bottom: 10px; {% if request.GET.client == 'anaap2' %} width: 238px; {% endif %}" ></div>
                         <!--<div style="font-size: 8pt; color: #999">Cumulative Number of Individuals Over Time</div>-->
 					</div> <!-- /col_3 col_last past_stats -->
                     {% endif %}
 				</div> <!-- /chart -->
         
-			{% if request.GET.client == 'anaap' %}
+			{% if request.GET.client == 'anaap' or request.GET.client == 'lilly' %}
 				<div id="footer"> </div><!-- /footer -->
     	    {% else %}
     			<div id="footer">
@@ -258,7 +266,7 @@ $(document).ready(showdata(true));
 			</div> <!-- /mini-map -->
 </div> <!-- /content -->
 
- {% if request.GET.client == 'anaap' %}
+ {% if request.GET.client == 'anaap' or request.GET.client == 'lilly' %}
 </body>
 {% endif %}
 {% endblock %}
