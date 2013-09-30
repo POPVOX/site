@@ -5741,6 +5741,11 @@ body.gettoknow h1 {
     	display: block;
 		}
 
+		#lilly .mini-map p.chart_stats span.bg_support {
+			color: #0077d8;
+	    	background: url(../widget/i_wdgt_support_lilly.png) left top no-repeat;
+	    	}
+
 	.mini-map p.chart_stats span.bg_oppose {
     	font: normal 22px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
     	background: url(../widget/i_wdgt_oppose.png) left top no-repeat;
@@ -5759,6 +5764,11 @@ body.gettoknow h1 {
 	    	background: url(../widget/i_wdgt_oppose_ylw.png) left top no-repeat;
 		}
 		
+		#lilly .mini-map p.chart_stats span.bg_oppose {
+			color: #eb5c32;
+    		background: url(../widget/i_wdgt_oppose_lilly.png) left top no-repeat;
+		}
+				
 	.mini-map p.chart_stats span.users {
 		font: normal 12px/14px helvetica, arial, sans-serif;
 		color: #75757d;

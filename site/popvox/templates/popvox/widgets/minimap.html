@@ -105,7 +105,7 @@
                     bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff", colors:["#4a9410", "#edd501"] });
                     {% else %}
                         {% if request.GET.client == 'lilly' %}
-                            bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff", colors:["#4a9410", "#edd501"] });
+                            bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff", colors:["#0077d8", "#eb5c32"] });
                         {% else %}
                             bill_chart('chart_pie', stats.pro_pct, stats.con_pct, { "small": true, "bg": "#fff" });
                         {% endif %}
@@ -181,9 +181,13 @@
 $(document).ready(showdata(true));
 
 </script>
- {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' or request.GET.client == 'lilly' %}
+ {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
 <body id="anaap" style="background: none !important;">
 {% endif %}
+ {% if request.GET.client == 'lilly' %}
+<body id="lilly" style="background: none !important;">
+{% endif %}
+
 <div class="content">
 
         {% if request.GET.client == 'anaap' %}
@@ -206,7 +210,7 @@ $(document).ready(showdata(true));
                 {% endif %}
 
             {% endif %}
-            {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' or request.GET.client == 'lilly' %}
+            {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' or request.GET.client == 'lilly' or request.GET.client == 'lilly2'%}
                 {% if request.GET.client == 'anaap' %}
                     <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=600&hover=0&client=anaap" width="600" height="458" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
                 {% endif %}
@@ -214,7 +218,10 @@ $(document).ready(showdata(true));
                     <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=238&hover=0&client=anaap2" height="200" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
                 {% endif %}
                 {% if request.GET.client == 'lilly' %}
-                    <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=600&hover=0&client=lilly" width="600" height="458" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
+					<iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=600&hover=0&client=lilly" width="600" height="458" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
+                {% endif %}
+                {% if request.GET.client == 'lilly2' %}
+                    <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274&hover=0&client=lilly2" height="241" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>
                 {% endif %}
             {% else %}
                 <iframe src="/widgets/bill-comment-map?bill={{bill.id}}&width=274&hover=0" width="274" height="250" border="0" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" style="overflow:hidden"></iframe>

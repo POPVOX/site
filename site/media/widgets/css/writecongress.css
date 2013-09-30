@@ -826,7 +826,7 @@ a {
 			
 /* foot */			
 #widget_foot {
-	margin-top: 300px;
+	margin-top: 275px;
 	border-top: 1px solid #d1d1cf;
 	padding: 10px 30%;
 	text-align: center;
@@ -1601,7 +1601,7 @@ a {
 			
 /* foot */			
 #widget_foot {
-	margin-top: 300px;
+	margin-top: 275px;
 	border-top: 1px solid #d1d1cf;
 	padding: 10px 30%;
 	text-align: center;
@@ -1622,13 +1622,18 @@ a {
 			}
 		
 .optin {
-	margin-left: 10px;
 	font-size: 12px;
 		}
 	.optin input {
 		float: left;
 		margin: 0 5px 20px 0;
+		width: 20px;
 		}
+	.form .optin label {
+		line-height: 20px;
+		padding-bottom: 10px;
+		}
+	
 
 }
 
