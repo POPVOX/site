@@ -196,7 +196,7 @@ $(document).ready(showdata(true));
             {% endif %}
         {% endif %}
 
-            {% if request.GET.client != 'anaap' and if request.GET.client != 'lilly'%}
+            {% if request.GET.client != 'anaap' and request.GET.client != 'lilly'%}
 
                 {% if bill.street_name %}
 
@@ -246,7 +246,7 @@ $(document).ready(showdata(true));
                             <span class="users">(WWW users)</span>
                         </p>
 					</div> <!-- /col_2 past_stats -->
-                    {% if request.GET.client != 'anaap' and if request.GET.client != 'lilly'%}
+                    {% if request.GET.client != 'anaap' and request.GET.client != 'lilly'%}
                     <div class="col_3 col_last past_stats"{% if request.GET.client == 'anaap2' %} style="width: 230px;" {% endif %}>
                         <div id="chart_time"style="width: 280px; height: 150px; margin-bottom: 10px; {% if request.GET.client == 'anaap2' %} width: 238px; {% endif %}" ></div>
                         <!--<div style="font-size: 8pt; color: #999">Cumulative Number of Individuals Over Time</div>-->
