@@ -120,7 +120,7 @@
     {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
     <body id="anaap" class="colormode_3 width_{{width}}">
     {% else %}
-        {% if request.GET.client == 'lilly' %}
+        {% if request.GET.client == 'lilly' or request.GET.client == 'lilly2' %}
             <body id="lilly" class="colormode_4 width_{{width}}">
         {% else %}
             <body class="colormode_1 width_{{width}}">

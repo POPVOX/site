@@ -1213,6 +1213,8 @@ div.block.leg_agenda .no_pie {
 
 .chart_notlast { background: url(bg_hr.png) left bottom repeat-x    }
 
+#lilly .chart_notlast { margin-top: -40px;   }
+
 .pro_reintro {
     background: none repeat scroll 0 0 #D4D1CA;
     xxx-border-top: 20px solid #E8E5DF;
