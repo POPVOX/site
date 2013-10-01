@@ -1190,7 +1190,8 @@ a {
 			}
 			#panel_addressform .next {
 				margin-left: 285px;
-				}
+				}			
+				
 			.btn {
 				text-indent: -9999em;
 				background-color: white; /* IE8 with inherit yields a grey */
