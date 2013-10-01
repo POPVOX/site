@@ -532,7 +532,7 @@ Notes:
                         action: "address",
                         email: identity.email,
                         {%if 'email_optin' in permissions %}
-                        optin: $('#optin').prop('checked') ? "1" : "0",{%endif%}
+                        email_optin: $('#email_optin').prop('checked') ? "1" : "0",{%endif%}
                         useraddress_prefix: $("#useraddress_prefix").val(),
                         useraddress_firstname: identity.firstname,
                         useraddress_lastname: identity.lastname,
