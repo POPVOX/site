@@ -839,7 +839,7 @@ Notes:
                                     {% endif %}
                             
                             {% if position %}
-                            <input value="next" {% if request.GET.client == 'lilly' or request.GET.client == 'lilly2' %}style="position:absolute; margin-top: 140px"{% endif %} class="btn next disabled" onclick="return do_login('{{position}}');" type="button"/>
+                            <input value="next" {% if 'next_btn_move' in permissions  %}style="position:absolute; margin-top: 175px"{% endif %} class="btn next disabled" onclick="return do_login('{{position}}');" type="button"/>
                             {% else %}
                             <input style="margin: 20px 0; /*put me in head */" value="support" class="btn or next_support disabled" onclick="return do_login('+');" type="button"/>
                             <p class="or" style="display: block; width: 60px; height: 47px; float: left; font-weight: bold; margin: 20px 0 0; padding: 15px 0 0; text-align: center ">OR</p>
