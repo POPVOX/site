@@ -731,7 +731,7 @@ def widget_render_writecongress_action(request, account, permissions):
                     firstname = request.POST["useraddress_firstname"],
                     lastname = request.POST["useraddress_lastname"],
                     zipcode = request.POST["useraddress_zipcode"],
-                    email_optin = request.POST["email_optin"],
+                    optin = request.POST["email_optin"],
                     completed_stage = status if status != "submitted" else "finished",
                     request_dump = meta_log(request.META) )
             else:
