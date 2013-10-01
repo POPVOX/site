@@ -205,7 +205,7 @@ class Bill(models.Model):
     title = models.TextField()
     description = models.TextField(blank=True, null=True)
     introduced_date = models.DateField()
-    current_status = models.TextField(help_text="For non-bill actions, enter DRAFT.")
+    current_status = models.TextField(help_text="For non-bill actions, enter DRAFT. To turn off the campaign, enter NBA:ENDED.")
     current_status_date = models.DateTimeField(help_text="For non-bill actions, just choose today.", db_index=True)
     num_cosponsors = models.IntegerField()
     latest_action = models.TextField(blank=True)
@@ -354,11 +354,15 @@ class Bill(models.Model):
     def isAlive(self):
         # alive = pending further Congressional action
         if not self.is_bill():
+            if self.current_status == "NBA:ENDED":
+                return False
             return self.congressnumber == govtrack.CURRENT_CONGRESS
         return govtrack.billFinalStatus(self) == None
     def getDeadReason(self):
         # dead = no longer pending action because it passed, failed, or died in a previous session
         if not self.is_bill():
+            if self.current_status == "NBA:ENDED":
+                return "was a sponsored campaign that has now ended"
             if self.congressnumber != govtrack.CURRENT_CONGRESS:
                 return "was proposed in a previous session of Congress"
             return None
