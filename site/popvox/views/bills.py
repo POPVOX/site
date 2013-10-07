@@ -197,20 +197,17 @@ def bills_issues_bills(request):
     else:
         user = None
         cache_key = ("bill_issues_bills_cache:None,"+str( ix))
-
-    
+        
     bills = cache.get(cache_key) if cache_key else None
     if bills != None:
         from utils import group_by_issue
         groups = group_by_issue(bills, top_title="Top Bills", exclude_issues=[ix], other_title="Other Bills")
-        if len(groups) == 1:
-            groups[0]["name"] = name
         
         return render_to_response('popvox/bill_list_issues_bills.html', {
         'groups': groups,
         }, context_instance=RequestContext(request))
-
-    # if we get here, the user's weigh-in status is not yet cached
+        
+    # if we get here, the user's weigh-in status is not yet cached.
     if ix != "other":
         ix = get_object_or_404(IssueArea, id=ix)
         name = ix.name
@@ -219,7 +216,7 @@ def bills_issues_bills(request):
         ix = None
         name = "Uncategorized Bills"
         bills = Bill.objects.filter(topterm=None)
-    
+
     # order by number of recent comments.... but don't exclude bills without
     # any comments, by adding them back after by unioning with the whole set.
     # does that really work and not create dupes?
