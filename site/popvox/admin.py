@@ -107,6 +107,7 @@ class OrgCampaignPositionInline(admin.TabularInline):
 class OrgCampaignAdmin(admin.ModelAdmin):
     search_fields = ["name", "org__name"]
     list_display = ["org", "name"]
+    
     #inlines = [OrgCampaignPositionInline] #takes way too long to load
     
 class OrgCampaignPositionAdmin(admin.ModelAdmin):
