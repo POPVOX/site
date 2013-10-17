@@ -22,7 +22,7 @@ class BillAdmin(admin.ModelAdmin):
         ("Upcoming Event", { "fields": ( 'upcoming_event_post_date', 'upcoming_event' ) }),
         )
     
-    inlines = [PositionDocumentInline]
+    #inlines = [PositionDocumentInline]
 
 class BillEventInline(admin.StackedInline):
     model = BillEvent
