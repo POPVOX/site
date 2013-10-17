@@ -356,6 +356,8 @@ class Bill(models.Model):
         if not self.is_bill():
             if self.current_status == "NBA:ENDED":
                 return False
+            if self.current_status == "NONSPONSORED:ENDED":
+                return False
             return self.congressnumber == govtrack.CURRENT_CONGRESS
         return govtrack.billFinalStatus(self) == None
     def getDeadReason(self):
