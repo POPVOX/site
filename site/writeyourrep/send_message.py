@@ -645,6 +645,7 @@ custom_overrides = {
     '157_newsletter_radio': 'noAction',
     '174_textmodified_hidden': 'yes',
     '179_affl_radio': 'on',
+    "179_required-issue_select": "Comment on Policy",
     '198_field_5eb7428f-9e29-4ecb-a666-6bc56b6a435e_radio': 'NO', #response req
     '204_action_radio': '', # subscribe
     '345_enews_radio': '',
