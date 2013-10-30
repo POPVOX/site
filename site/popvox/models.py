@@ -205,7 +205,7 @@ class Bill(models.Model):
     title = models.TextField()
     description = models.TextField(blank=True, null=True)
     introduced_date = models.DateField()
-    current_status = models.TextField(help_text="For non-bill actions, enter DRAFT.")
+    current_status = models.TextField(help_text="For non-bill actions, enter DRAFT. To turn off the campaign, enter NBA:ENDED. For non-sponsored campaigns, like the debt limit deal, enter NONSPONSORED:ENDED.")
     current_status_date = models.DateTimeField(help_text="For non-bill actions, just choose today.", db_index=True)
     num_cosponsors = models.IntegerField()
     latest_action = models.TextField(blank=True)
@@ -354,14 +354,19 @@ class Bill(models.Model):
     def isAlive(self):
         # alive = pending further Congressional action
         if not self.is_bill():
+            if self.current_status == "NBA:ENDED":
+                return False
+            if self.current_status == "NONSPONSORED:ENDED":
+                return False
             return self.congressnumber == govtrack.CURRENT_CONGRESS
         return govtrack.billFinalStatus(self) == None
     def getDeadReason(self):
         # dead = no longer pending action because it passed, failed, or died in a previous session
         if not self.is_bill():
-            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
-            if self.id==28896:
-                return "is no longer active"
+            if self.current_status == "NBA:ENDED":
+                return "was a sponsored campaign that has now ended"
+            if self.current_status == "NONSPONSORED:ENDED":
+                return "is closed to comments"
             if self.congressnumber != govtrack.CURRENT_CONGRESS:
                 return "was proposed in a previous session of Congress"
             return None
@@ -1721,6 +1726,8 @@ class ServiceAccount(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     options = PickledObjectField(default={})
+    
+    customizations = models.TextField(blank=True, null=True, help_text="Appearance Customizations for this account's widgets, stored in JSON.")
 
     def __unicode__(self):
         if self.name: return self.name
@@ -1867,11 +1874,23 @@ class ServiceAccountCampaign(models.Model):
     def total_widget_records(self):
         return self.actionrecords.filter(completed_stage__isnull=False).count()
     def add_action_record(self, **kwargs):
+        #sys.stderr.write(str(kwargs))
         email = kwargs.pop("email")
         rec, isnew = ServiceAccountCampaignActionRecord.objects.get_or_create(
             campaign=self,
             email=email,
             defaults = kwargs)
+        if "optin" in kwargs:
+            sys.stderr.write("in the if")
+            optin = kwargs.pop("optin")
+            if optin == "1":
+                setattr(rec,"optin",True)
+            else:
+                setattr(rec,"optin",False)
+        else:
+            sys.stderr.write("I'm in ur else")
+            setattr(rec,"optin",None)
+        rec.save()
         if not isnew or "created" in kwargs:
             # Update the record with the new values.
             for k, v in kwargs.items():
@@ -1885,6 +1904,7 @@ class ServiceAccountCampaignActionRecord(models.Model):
     zipcode = models.CharField(max_length=16, blank=True, db_index=True)
     email = models.EmailField(db_index=True)
     usertags = models.ManyToManyField(UserTag,blank=True,null=True)
+    optin = models.NullBooleanField(default=False, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
     completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord", on_delete=models.SET_NULL)

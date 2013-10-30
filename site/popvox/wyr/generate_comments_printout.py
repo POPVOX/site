@@ -32,15 +32,12 @@ buildings = {
     }
 
 #don't print messages less than three days old. We probably haven't had a chance to fix them yet.
-cutoff = datetime.datetime.now() - datetime.timedelta(days=3)
+cutoff = datetime.datetime.now() - datetime.timedelta(days=4)
 #sometimes we need to see only who we have recent mail for, to diagnose who's endpoints are currently broken
-cutoffgt = datetime.datetime.now() - datetime.timedelta(days=14)
+cutoffgt = datetime.datetime.now() - datetime.timedelta(days=45)
 
 def create_tex(tex, serial):
     batch_max = 0
-    
-    #don't print messages less than three days old. We probably haven't had a chance to fix them yet.
-    cutoff = datetime.datetime.now() - datetime.timedelta(days=3)
 
     outfile_ = open(tex, "w")
     
@@ -59,13 +56,14 @@ def create_tex(tex, serial):
         x = re.sub(r"(\S{15})(\S{15})", r"\1" + u"\u00AD" + r"\2", x)
         
         # Escape special characters.
-        x = x.replace("\\", r"\\").replace("#", r"\#").replace("$", r"\$").replace("%", r"\%").replace("&", r"\&").replace("~", r"\~{}").replace("_", r"\_").replace("^", r"\^").replace("{", r"\{").replace("}", r"\}").replace(u"\u00AD", r"\discretionary{}{}{}")
+        x = x.replace("\\", r"\\").replace("#", r"\#").replace("$", r"\$").replace("%", r"\%").replace("&", r"\&").replace("~", r"\~{}").replace("_", r"\_").replace("^", r"\^").replace("{", r"\{").replace("}", r"\}").replace(u"\u00AD", r"\discretionary{}{}{}").replace("\x08","")
         
         # Smart quotes.
         x = re.sub(r'(\s)"', r'\1' + u"\u201C", x)
         x = re.sub(r"(\s)'", r'\1' + u"\u2018", x)
         x = re.sub(r'"', u"\u201D", x)
         x = re.sub(r"'", u"\u2019", x)
+
         
         return x
         
@@ -93,8 +91,18 @@ def create_tex(tex, serial):
     outfile.write(r"\begin{document}" + "\n")
     
     targets = []
-    for t in UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).values('target', 'batch').distinct():
-        targets.append((t["target"], t["batch"]))
+    if "RECENT" in os.environ and "POSITIONS" in os.environ:
+        for t in UserCommentOfflineDeliveryRecord.objects.filter(comment__created__gt=cutoffgt, comment__created__lt=cutoff).values('target', 'batch').distinct():
+            targets.append((t["target"], t["batch"]))
+    elif "RECENT" in os.environ:
+        for t in UserCommentOfflineDeliveryRecord.objects.filter(comment__created__gt=cutoffgt, comment__created__lt=cutoff).exclude(comment__message=None).values('target', 'batch').distinct():
+            targets.append((t["target"], t["batch"]))
+    elif "POSITIONS" in os.environ:
+        for t in UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).values('target', 'batch').distinct():
+            targets.append((t["target"], t["batch"]))
+    else:
+        for t in UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).exclude(comment__message=None).values('target', 'batch').distinct():
+            targets.append((t["target"], t["batch"]))
     def get_address_sort(id_batch):
         try:
             addr = getMemberOfCongress(id_batch[0])["address"]
@@ -117,7 +125,14 @@ def create_tex(tex, serial):
     for govtrack_id, batch in targets:
         if "ONLY" in os.environ and int(os.environ["ONLY"]) != govtrack_id: continue
         
-        topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=cutoff).values("comment__bill", "comment__position").distinct()
+        if "RECENT" in os.environ and "POSITIONS" in os.environ:
+            topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__gt=cutoffgt, comment__created__lt=cutoff).values("comment__bill", "comment__position").distinct()
+        elif "RECENT" in os.environ:
+            topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__gt=cutoffgt, comment__created__lt=cutoff).exclude(comment__message=None).values("comment__bill", "comment__position").distinct()
+        elif "POSITIONS" in os.environ:
+            topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=cutoff).values("comment__bill", "comment__position").distinct()
+        else:
+            topics_in_batch = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__created__lt=cutoff).exclude(comment__message=None).values("comment__bill", "comment__position").distinct()
         
         if batch != None:
             batch_no = batch
@@ -169,8 +184,15 @@ def create_tex(tex, serial):
         for t2 in topics_in_batch.order_by("comment__bill", "comment__position"):
             position = t2["comment__position"]
             bill = Bill.objects.get(id=t2["comment__bill"])
-
-            comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__created__lt=cutoff).select_related("comment")
+            
+            if "RECENT" in os.environ and "POSITIONS" in os.environ:
+                comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__created__gt=cutoffgt, comment__created__lt=cutoff).select_related("comment")
+            elif "RECENT" in os.environ:
+                comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__created__gt=cutoffgt, comment__created__lt=cutoff).exclude(comment__message=None).select_related("comment")
+            elif "POSITIONS" in os.environ:
+                comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__created__lt=cutoff).select_related("comment")
+            else:
+                comments_in_topic = UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch, comment__bill=bill, comment__position=position, comment__created__lt=cutoff).exclude(comment__message=None).select_related("comment")
 
             
             # Reminder: Dont skip any messages that are already in a batch at this point!
@@ -286,7 +308,14 @@ def create_tex(tex, serial):
                 if govtrack_id == 400629: #hardcoding obama again
                     outfile.write_esc("1600 Pennsylvania Ave")
             outfile.write(r"  --- ")
-            outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no, comment__created__lt=cutoff).count()) + " ")
+            if "RECENT" in os.environ and "POSITIONS" in os.environ:
+                outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no, comment__created__gt=cutoffgt, comment__created__lt=cutoff).count()) + " ")
+            elif "RECENT" in os.environ:
+                outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no, comment__created__gt=cutoffgt, comment__created__lt=cutoff).exclude(comment__message=None).count()) + " ")
+            elif "POSITIONS" in os.environ:
+                outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no, comment__created__lt=cutoff).count()) + " ")
+            else:
+                outfile.write_esc(str(UserCommentOfflineDeliveryRecord.objects.filter(target=govtrack_id, batch=batch_no, comment__created__lt=cutoff).exclude(comment__message=None).count()) + " ")
             outfile.write_esc(", ".join([k for k in target_errors if k not in ("no-method",)]))
             outfile.write(r" \\" + "\n")
     
@@ -368,11 +397,14 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
             pass
         
         ucodr.comment.delivery_attempts.add(dr)
-        print ucodr.comment
+        try:
+            print ucodr.comment
+        except:
+            pass
 
         ucodr.delete()
 
-elif sys.argv[1] == "status":
+elif len(sys.argv) ==2 and sys.argv[1] == "status":
     clean_ucodrs()
 
     from popvox.govtrack import getMemberOfCongress
@@ -383,10 +415,14 @@ elif sys.argv[1] == "status":
     out.writerow(["count", "govtrackid", "endpointid", "member"])
     total = 0
     
-    if "RECENT" in os.environ:
+    if "RECENT" in os.environ and "POSITIONS" in os.environ:
         deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__gt=cutoffgt, comment__created__lt=cutoff).values("target").annotate(count=Count("target")).order_by("count").values("target", "count")
-    else:
+    elif "RECENT" in os.environ:
+        deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__gt=cutoffgt, comment__created__lt=cutoff).exclude(comment__message=None).values("target").annotate(count=Count("target")).order_by("count").values("target", "count")
+    elif "POSITIONS" in os.environ:
         deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).values("target").annotate(count=Count("target")).order_by("count").values("target", "count")
+    else:
+        deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).exclude(comment__message=None).values("target").annotate(count=Count("target")).order_by("count").values("target", "count")
 
     for rec in deliveryrecs:
         try:
@@ -396,6 +432,52 @@ elif sys.argv[1] == "status":
         out.writerow([ rec["count"], rec["target"], endpoint, getMemberOfCongress(rec["target"])["name"].encode("utf8") ])
         total += rec["count"]
     out.writerow(["total", total])
+    
+elif len(sys.argv) == 2 and sys.argv[1] == "csv":
+    clean_ucodrs()
+
+    from popvox.govtrack import getMemberOfCongress
+    from writeyourrep.models import Endpoint
+    from popvox.models import PostalAddress, UserProfile
+    
+    with open('printed_comments.csv','w') as comsheet:
+        sep = "\t"
+        comsheet.write("comment id"+sep+"created"+sep+"updated"+sep+"bill"+sep+"message"+sep+"member"+sep+ "username"+sep+"user email"+sep+"user address"+sep+"user phone")
+        total = 0
+        
+        if "RECENT" in os.environ and "POSITIONS" in os.environ:
+            deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__gt=cutoffgt, comment__created__lt=cutoff)
+        elif "RECENT" in os.environ:
+            deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__gt=cutoffgt, comment__created__lt=cutoff).exclude(comment__message=None)
+        elif "POSITIONS" in os.environ:
+            deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff)
+        else:
+            deliveryrecs = UserCommentOfflineDeliveryRecord.objects.filter(comment__created__lt=cutoff).exclude(comment__message=None)
+
+        for rec in deliveryrecs:
+            comment = rec.comment
+            
+            #testing to see that it is in fact recording messages that it should not be)
+            message = comment.message
+            if message is None:
+                message = ''
+            
+            user = comment.user
+            try:
+                addr = UserProfile.objects.get(user=user).most_recent_address()
+                streetaddr = addr.address_string()
+                phone = addr.phonenumber
+            except:
+                streetaddr = ''
+                phone = ''
+                
+            memname = getMemberOfCongress(rec.target.id)["name"].encode("utf8")
+            
+            row = str(comment.id) +sep+ str(comment.created) +sep+ str(comment.updated) +sep+ comment.bill.nicename.encode('utf-8') +sep+ '"'+message.encode('utf-8')+'"' +sep+ memname +sep+ user.username +sep+ user.email.encode('utf-8') +sep+ '"'+streetaddr.encode('utf-8')+'"' +sep+ str(phone) +"\n"
+
+            comsheet.write(row)
+            total += 1
+        comsheet.write("total" +sep+ str(total))
 
 elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
     clean_ucodrs()
@@ -420,11 +502,12 @@ elif len(sys.argv) == 2 and sys.argv[1] == "pdf":
             msg.attach('messages_' + serial + '.pdf', f.read(), "application/pdf")
             msg.send()
             
-        #print "Done."
-        #sys.stdin.readline()
+        print "Done."
+        sys.stdin.readline()
     finally:
-        #print path
+        print path
         shutil.rmtree(path)
+        pass
 
 else:
     print UserCommentOfflineDeliveryRecord.objects.filter(batch__isnull = False, comment__created__lt=cutoff).count(), "messages printed"

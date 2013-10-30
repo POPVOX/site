@@ -134,6 +134,7 @@ def external_start(request, login_associate, provider):
     scope = request.GET.get("scope", None)
     mode = request.GET.get("mode", None)
 
+    # the following may call openid2_get_redirect, oauth1_get_redirect, or oauth2_get_redirect
     response = HttpResponseRedirect( providers.methods[providers.providers[provider]["method"]]["get_redirect"](request, provider, callback, scope, mode))
     response['Cache-Control'] = 'no-store'
     return response
