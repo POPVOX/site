@@ -782,7 +782,11 @@ Notes:
             
                     <div id="panel_login" class="widget_panel">
                         {% if position %}
-                           <h1>Tell Congress {% if 'whitehouse' in permissions %}and the Administration {%endif%}that you {% if position == "+" %}Support{% else %}Oppose{% endif %} {{bill.shortname}}</h1>
+                            {% if 'jointext' in permissions %}
+                            <h1>Join {{campaign.account}} in {% if position == "+" %}Supporting{% else %}Opposing{% endif %} {{bill.shortname}}</h1>
+                            {% else %}
+                            <h1>Tell Congress {% if 'whitehouse' in permissions %}and the Administration {%endif%}that you {% if position == "+" %}Support{% else %}Oppose{% endif %} {{bill.shortname}}</h1>
+                            {% endif %}
                         {% else %}
                             {% if 'franking' in permissions %}
                                 <h1>Share your views on {{bill.shortname}}</h1>
