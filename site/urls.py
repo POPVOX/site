@@ -21,6 +21,7 @@ sitemaps = {
 }
 
 urlpatterns = patterns('',
+    (r'^.*', 'popvox.views.main.sitedown'),
     (r'site-down', 'popvox.views.main.sitedown'),
     
     (r'sitemap\.xml', 'django.contrib.sitemaps.views.index', {'sitemaps':sitemaps}),
