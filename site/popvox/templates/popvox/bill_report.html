@@ -1,4 +1,5 @@
 {% extends "master.html" %}
+{% load humanize %}
 {% load popvox_utils %}
 {% block title %}POPVOX Report -- {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock%}
 {% block description %}Letters to Congress and constituent sentiment statistics on {% if bill.street_name %}{{bill.street_name|capfirst}}{% else %}{{ bill.title }}{% endif %}{% endblock%}
@@ -449,7 +450,7 @@ h2 span {
                     <p>
                     {{bill.status_advanced}} {{bill.current_status_date|date2}}
                     {% if bill.is_bill %}
-                    (<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>)
+                    (<a href="http://beta.congress.gov/bill/{{bill.congressnumber|ordinal}}-congress/{{bill.congressgov_billtype}}/{{bill.billnumber}}" title="More information on Congress.Gov" class="blank">More Info</a>)
                     {% endif %}
                     </p>
                 </div>

@@ -273,6 +273,34 @@ class Bill(models.Model):
         if not self.is_bill(): raise Exception("Invalid call on non-bill.")
         return "http://www.govtrack.us/congress/bill.xpd?bill=" + self.govtrack_code()
     
+    #used for generating links to congress.gov
+    def congressgov_billtype(self):
+        if not self.is_bill(): raise Exception("Invalid call on non-bill.")
+        if self.billtype   == 'h':
+            slug = "house-bill"
+        elif self.billtype == 's':
+            slug = "senate-bill"
+        elif self.billtype == 'hr':
+            slug = "house-resolution"
+        elif self.billtype == 'sr':
+            slug = "senate-resolution"
+        elif self.billtype == 'hj':
+            slug = "house-joint-resolution"
+        elif self.billtype == 'sj':
+            slug = "senate-joint-resolution"
+        elif self.billtype == 'hc':
+            slug = "house-concurrent-resolution"
+        elif self.billtype == 'sc':
+            slug = "house-concurrent-resolution"
+        elif self.billtype == 'sa':
+            slug = "senate-amendment"
+        elif self.billtype =='ha':
+            slug = "house-amendment"
+        else:
+            raise Exception("This billtype is not supported by Congress.Gov.")
+    
+        return slug
+    
     @property
     def nicename(self):
         # The nice name of a bill is how a bill is referred to on first
