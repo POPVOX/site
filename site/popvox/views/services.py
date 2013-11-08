@@ -1113,6 +1113,8 @@ def analytics(request):
     accts = request.user.userprofile.service_accounts()
     if request.user.has_perm("popvox.can_snoop_service_analytics") and "org" in request.GET:
         accts = ServiceAccount.objects.filter(org__slug=request.GET["org"])
+        
+        
     
     return render_to_response('popvox/services_analytics.html', {
             "accts": accts,

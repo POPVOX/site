@@ -564,38 +564,63 @@ function draw_timeseries(container, data, small) {
 
 	<ul class="ul_tags">
 		{% for acct in accts %}
-			{% for cam in acct.campaigns.all %}
-					<li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
-					<script type="text/javascript">
-					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
-					{% with cam.mixpanel_stats as mpstats %}
-					campaigns_info["{{cam.id}}"] = {
-						account_name: "{{acct|escapejs}}",
-						billnumber: "{{cam.bill.shortname|escapejs}}",
-						title: "{{cam.bill.nicename|truncatewords:10|escapejs}}",
-						descr: "{% if cam.bill.description %}{{cam.bill.description|truncatewords:25|escapejs}}{% endif %}",
-						position: "{{cam.position|escapejs}}",
-						date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
-						date_end: "{{cam.last_action_date|date:'n-j-y'|escapejs}}",
-						download_url: "/services/api/campaign/{{cam.id}}/supporters/",
-						counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": {{stage.list|length}}, {% endfor %} total: {{cam.total_widget_records}}, hits: {{mpstats.hit}}},
-						mpstats: {{mpstats.events|safe}},
-						mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
-						latest_data: [{% for item in cam.recent_comments %}{
-							link: "{{item.completed_comment.url|escapejs}}",
-							date: "{{item.completed_comment.created|date:"DATE_FORMAT"|escapejs}} at {{item.completed_comment.created|date:"TIME_FORMAT"|escapejs}}",
-							name: "{{item.completed_comment.address.firstname|escapejs}} {{item.completed_comment.address.lastname|escapejs}}",
-							district: "{{item.completed_comment.state|escapejs}}{{item.completed_comment.congressionaldistrict|escapejs}}",
-							{% if item.completed_comment.message %}message: "{{item.completed_comment.message|truncatewords:25|escapejs}}",{% endif %}
-							recipients: "{{item.completed_comment.get_recipients_display|escapejs}}",
-							position1: "{{item.completed_comment.position|escapejs}}",
-							position: "{{item.completed_comment.verb_imp|escapejs}}"
-						}{% if not forloop.last %},{% endif %}{% endfor %}]
-					};
-					draw_timeseries('analytics_{{cam.id}}', {{mpstats.events|safe}}, true);
-					{% endwith %}
-					</script>
-			{% endfor %}
+            {% if 'analytics' in acct.permissions_list %}
+                {% for cam in acct.campaigns.all %}
+                    <li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
+                    <script type="text/javascript">
+                    {% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
+                    {% with cam.mixpanel_stats as mpstats %}
+                    campaigns_info["{{cam.id}}"] = {
+                        account_name: "{{acct|escapejs}}",
+                        billnumber: "{{cam.bill.shortname|escapejs}}",
+                        title: "{{cam.bill.nicename|truncatewords:10|escapejs}}",
+                        descr: "{% if cam.bill.description %}{{cam.bill.description|truncatewords:25|escapejs}}{% endif %}",
+                        position: "{{cam.position|escapejs}}",
+                        date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
+                        date_end: "{{cam.last_action_date|date:'n-j-y'|escapejs}}",
+                        download_url: "/services/api/campaign/{{cam.id}}/supporters/",
+                        counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": {{stage.list|length}}, {% endfor %} total: {{cam.total_widget_records}}, hits: {{mpstats.hit}}},
+                        mpstats: {{mpstats.events|safe}},
+                        mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
+                        latest_data: [{% for item in cam.recent_comments %}{
+                            link: "{{item.completed_comment.url|escapejs}}",
+                            date: "{{item.completed_comment.created|date:"DATE_FORMAT"|escapejs}} at {{item.completed_comment.created|date:"TIME_FORMAT"|escapejs}}",
+                            name: "{{item.completed_comment.address.firstname|escapejs}} {{item.completed_comment.address.lastname|escapejs}}",
+                            district: "{{item.completed_comment.state|escapejs}}{{item.completed_comment.congressionaldistrict|escapejs}}",
+                            {% if item.completed_comment.message %}message: "{{item.completed_comment.message|truncatewords:25|escapejs}}",{% endif %}
+                            recipients: "{{item.completed_comment.get_recipients_display|escapejs}}",
+                            position1: "{{item.completed_comment.position|escapejs}}",
+                            position: "{{item.completed_comment.verb_imp|escapejs}}"
+                        }{% if not forloop.last %},{% endif %}{% endfor %}]
+                    };
+                    draw_timeseries('analytics_{{cam.id}}', {{mpstats.events|safe}}, true);
+                    {% endwith %}
+                    </script>
+                {% endfor %}
+            {% else %} {% comment %} zero out the stats for free service accts {% endcomment %}
+                {% for cam in acct.campaigns.all %}
+                    <li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
+                    <script type="text/javascript">
+                    {% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
+                    {% with cam.mixpanel_stats as mpstats %}
+                    campaigns_info["{{cam.id}}"] = {
+                        account_name: "{{acct|escapejs}}",
+                        billnumber: "{{cam.bill.shortname|escapejs}}",
+                        title: "{{cam.bill.nicename|truncatewords:10|escapejs}}",
+                        descr: "{% if cam.bill.description %}{{cam.bill.description|truncatewords:25|escapejs}}{% endif %}",
+                        position: "{{cam.position|escapejs}}",
+                        date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
+                        date_end: "{{cam.last_action_date|date:'n-j-y'|escapejs}}",
+                        download_url: "",
+                        counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": 00, {% endfor %} total: 000, hits: 00},
+                        mpstats: 000,
+                        mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
+                        latest_data: []
+                    };
+                    draw_timeseries('analytics_{{cam.id}}', {{mpstats.events|safe}}, true);
+                    {% endwith %}
+                    </script>
+            {% endif %}
 		{% endfor %}
 		<div class="clear"> </div>
 	</ul>
@@ -742,6 +767,7 @@ function draw_timeseries(container, data, small) {
 	</table>
 	<a id="supporters_download" href="#overview">Download</a>
 </div> <!-- tab_details -->
+
 </div> <!-- e:tabs_panel -->	
 {% endif %}
 

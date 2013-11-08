@@ -1791,6 +1791,9 @@ class ServiceAccount(models.Model):
 
     def has_permission(self, name):
         return self.permissions.filter(name=name).exists()
+    
+    def permissions_list(self):
+        return [p.name for p in self.permissions.all()]
         
     def getopt(self, key, default=None):
         if self.options == None or type(self.options) == str: # not initialized (null or empty string)
