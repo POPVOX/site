@@ -1677,3 +1677,49 @@ a.fancybox-close:hover {
 	background: #000;
 	background: rgba(0, 0, 0, .8);
 }
+
+
+
+
+
+
+
+/* embed */
+.la_widget_pg.embed #wrapper {
+	width: 661px;
+	border-left: 1px solid #76747F;
+}
+
+.embed .proposal.heading .campaign {
+	display: none;
+}
+
+.embed .proposal .campaign {
+	width: 41px;
+}
+
+.embed .proposal .campaign em {
+	display: none;
+}
+
+.embed #proposal_list {
+	background: url("zebra.png") repeat-y scroll -175px -1px rgba(0, 0, 0, 0);
+	width: 661px;
+}
+
+.embed #leg_header .r_head {
+	display: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
