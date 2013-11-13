@@ -406,6 +406,21 @@ common_fieldnames = {
     "submitted[about_organization]": "org_description",
     "submitted[delivery_agent_name]" : "delivery_agent",
     
+    #Nonsense Senate Fields:
+    "field_9a784ebc-408b-4eeb-a05b-05317a1df5d2": "prefix",
+    "field_e1b6dbd1-0ad9-40be-ab0f-9f51a3d6e884": "firstname",
+    "field_462d2bb9-db78-443e-be87-0b0b47dd00c5": "lastname",
+    "field_117b579f-a706-4735-a966-dd5746ae6ebd": "address1",
+    "field_e8f08f3d-981f-4f15-a76e-eb49b722c2b4": "address2",
+    "field_4e978a1e-0b3b-41ee-8fdc-eb9c26d77405": "city",
+    "field_193d88c0-8e02-4d0d-977c-749632d5d4e3": "state",
+    "field_04fc034d-d107-4519-b606-afb75aa37526": "zipcode",
+    "field_0919c49e-53e2-45f3-9967-4ac8ce6e4e96": "topicarea",
+    "field_a04e48fc-dd84-4b78-b573-2be80de041e3": "email",
+    "field_32e4bfdf-a639-47de-bdfb-6d0c705fd2ff": "message",
+    
+    "field_6dce4fee-bdb8-4dad-9496-d121f71a4bd9": "topicarea",
+    "field_4bbb4940-5fa9-43e1-9f05-0a9eb169c378": "message",
     }
 
 # Here are field names that we assume are optional everywhere.
@@ -459,6 +474,13 @@ skippable_fields = (
     "ratings[is_the_113th_congress_addressing_the_issues_that_concern_you?]",
     
     "lastcontact",
+    
+    #Hatch phone:
+    "field_0aaeac3f-dfba-4b74-b884-2494e1be87f2",
+    
+    #Gosar radios
+    "help",
+    "meeting",
 
 
     "agency", "prefixother", "middle", "middlename", "suffix", "preferredname",
@@ -539,6 +561,7 @@ custom_mapping = {
     "37_affl3": "enews_subscribe",
     "37_field_302e8a41-000d-419e-991e-40c7cb96f97c_radio": "topicarea",
     "39_subject_radio": "topicarea", #this form uses radio buttons instead of dropdown for subject
+    "64_field_38fba043-11a4-46cc-be06-78afff4ce884_radio": "response_requested",
     "141_enews_select": "response_requested",
     "146_topic_checkbox": "topicarea",
     "148_radiogroup1_radio": "response_requested",
@@ -708,7 +731,8 @@ custom_overrides = {
     "886_submitted[delivery_agent_first_name]_text" : "Annalee",
     "886_submitted[delivery_agent_last_name]_text" : "Flower Horne",
     "886_submitted[delivery_agent_email]_email" : "info@popvox.com",   
-    "930_newsletter_radio": "noAction"
+    "930_newsletter_radio": "noAction",
+    '1060_phonetype_radio': 'voice',
 }
 
 # Supply additional POST data from the message object that doesn't correspond to a form field.
@@ -1298,13 +1322,19 @@ def send_message_webform(di, msg, deliveryrec):
         if di.id == 934:
             if k == "ctl00$ctl14$Subject":
                 postdata[k] = ''
+                
+        #Isakson won't take subjects over 100 chars
+        if di.id == 49:
+            if v == 'subjectline':
+                postdata[k] = postdata[k][0:99]
+                
 
     for k, v in field_default.items():
         postdata[k] = v.encode("utf8")
         
     # Thess guys have some weird restrictions on the text input to prevent the user from submitting
     # SQL... rather than just escaping the input.
-    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882, 892, 899, 916, 946, 988, 990, 1037, 1040, 1054, 1056, 1080):
+    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 663, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882, 892, 899, 916, 946, 962, 988, 990, 1016, 1037, 1040, 1054, 1056, 1060, 1080):
         re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
         for k in postdata:
             postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
