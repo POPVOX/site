@@ -1685,9 +1685,13 @@ a.fancybox-close:hover {
 
 
 /* embed */
-.la_widget_pg.embed #wrapper {
-	width: 661px;
+.la_widget_pg.embed {
+	width: 700px;
+}
+
+.embed #summary-table_wrapper {
 	border-left: 1px solid #76747F;
+	margin-bottom: 5px;
 }
 
 .embed .proposal.heading .campaign {
@@ -1698,17 +1702,30 @@ a.fancybox-close:hover {
 	width: 41px;
 }
 
-.embed .proposal .campaign em {
-	display: none;
-}
+	.embed .proposal .campaign em {
+		display: none;
+	}
 
 .embed #proposal_list {
-	background: url("zebra.png") repeat-y scroll -175px -1px rgba(0, 0, 0, 0);
-	width: 661px;
+	background: url("zebra_embed.png") repeat-y scroll -136px -1px rgba(0, 0, 0, 0);
+	width: 700px;
 }
 
-.embed #leg_header .r_head {
-	display: none;
+	.embed #leg_header .r_head {
+		display: none;
+	}
+	
+	.embed .proposal.heading .description {
+		width: 352px;
+	}
+	
+	.embed .proposal .description {
+		width: 363px;
+	}
+
+.embed #leg_foot {	
+	text-align: right;
+	padding-right: 5px;
 }
 
 

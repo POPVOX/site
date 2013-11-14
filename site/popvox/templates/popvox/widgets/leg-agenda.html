@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="/media/master/reset.css">
     <link rel="stylesheet" href="/media/master/style.css">
     <link rel="stylesheet" href="/media/widget/la_widget.css">
-</head>{% endif %}
-<body>
+</head>
+<body>{% endif %}
     <div id="wrapper" class="la_widget_pg {% if embed %}embed{% endif %}" >
             {% if not embed %}<div id="leg_header">
                 <div class="l_head">
@@ -91,6 +91,11 @@
         {% endfor %}
             </tbody>
         </table>
+        {% if embed %}
+		<div id="leg_foot">
+			<p><a href="https://www.popvox.com/legal">view our privacy policy</a></p>
+		</div>
+        {% endif %}
 
         </div>
     </div>
@@ -99,5 +104,8 @@
     <script src="/media/js/jquery.fancybox.pack.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
     <script src="/media/js/main.js"></script>
+
+{% if embed %}
 </body>
 </html>
+{% endif %}
