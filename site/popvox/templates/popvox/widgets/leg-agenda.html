@@ -9,11 +9,11 @@
     <link rel="stylesheet" href="/media/master/style.css">
     <link rel="stylesheet" href="/media/widget/la_widget.css">
 </head>
-<body class="la_widget_pg embed">
-    <div id="wrapper">
+<body class="la_widget_pg {% if embed %}embed{% endif %}">
+    <div id="wrapper" >
         <body>
 
-            <div id="leg_header">
+            {% if not embed %}<div id="leg_header">
                 <div class="l_head">
                     <h2>{{org.name}}{%if campaign%} - {{campaign.name}}{%endif%}</h2>
                     <h1>Legislative Agenda</h1>
@@ -24,7 +24,7 @@
                     <p><a href="https://www.popvox.com/legal">privacy policy</a></p>
                 </div>
                 <div class="clear"> </div>
-            </div>
+            </div>{% endif %}
             
             <table id="summary-table" summary="Table summary">
                 <thead>

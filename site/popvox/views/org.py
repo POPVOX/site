@@ -22,6 +22,7 @@ from popvox.models import *
 from popvox.views.bills import getissueareas
 from popvox.views.main import strong_cache
 from popvox.views.slate import orgpermission
+from popvox.views.widgets import getpositions
 from popvox import govtrack
 from utils import csrf_protect_if_logged_in
 
@@ -49,6 +50,7 @@ def org(request, orgslug):
     else:
         cams = org.campaigns()
         slates = org.slates.filter(visible= True)
+        positions = getpositions(cams)
         
     set_last_campaign_viewed(request, org)
     
@@ -58,6 +60,8 @@ def org(request, orgslug):
         'admin': org.is_admin(request.user),
         'slates': slates,
         "cams": cams,
+        "positions": positions,
+        "embed": True, #this triggers css changes on the embedded leg-agenda template
         
         # list of orgs user admins that can join this org
         "coalition_can_join": Org.objects.filter(admins__user=request.user).exclude(id=org.id).exclude(ispartofcoalition=org)

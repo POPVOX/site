@@ -352,6 +352,15 @@ document.write("<iframe id='popvox_billtext_widget' src='https://%s/widgets/bill
 """ % (request.get_host(), urllib.urlencode(request.GET), width, height)
     , mimetype="text/javascript")
 
+def getpositions(campaigns):
+    #Positions include the bill, org position, and other useful data. We'll be building the actual table of bills from these.
+    positions =  []
+    for cam in campaigns:
+        campositions = list(cam.positions.all())
+        #this widget only includes bills that can still be weighed in on.
+        livepositions = [position for position in campositions if position.bill.isAlive()]
+        positions.extend(livepositions)
+    return positions
 
 @do_not_track_compliance
 def leg_agenda(request):
@@ -365,15 +374,9 @@ def leg_agenda(request):
         campaigns = [campaign]
     else:'''
     campaign = False
-    campaigns = OrgCampaign.objects.filter(org = org)
+    campaigns = org.campaigns()
     
-    #Positions include the bill, org position, and other useful data. We'll be building the actual table of bills from these.
-    positions =  []
-    for cam in campaigns:
-        campositions = list(cam.positions.all())
-        #this widget only includes bills that can still be weighed in on.
-        livepositions = [position for position in campositions if position.bill.isAlive()]
-        positions.extend(livepositions)
+    positions = getpositions(campaigns)
     
     return render_to_response('popvox/widgets/leg-agenda.html', {
         "org": org,
