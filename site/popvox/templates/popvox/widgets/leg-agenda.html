@@ -1,16 +1,16 @@
 {% load humanize %}
 {% load popvox_utils %}
 
-<!doctype html>
+{% if embed %}<!doctype html>
 <html>
 <head>
     <title>Testing</title>
     <link rel="stylesheet" href="/media/master/reset.css">
     <link rel="stylesheet" href="/media/master/style.css">
     <link rel="stylesheet" href="/media/widget/la_widget.css">
-</head>
-<body class="la_widget_pg {% if embed %}embed{% endif %}">
-    <div id="wrapper" >
+</head>{% endif %}
+<body>
+    <div id="wrapper" class="la_widget_pg {% if embed %}embed{% endif %}" >
             {% if not embed %}<div id="leg_header">
                 <div class="l_head">
                     <h2>{{org.name}}{%if campaign%} - {{campaign.name}}{%endif%}</h2>

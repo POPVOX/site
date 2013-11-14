@@ -7,6 +7,7 @@
 {%block nav_orgadmin_class_orgs%}{%if not admin%}active{%endif%}{%endblock%}
 {%block nav_citzen_class_orgs%}active{%endblock%}
 {% block head %}
+    <link rel="stylesheet" href="/media/widget/la_widget.css">
 	<style>
 	.colorbox { width: 550px; height: 420px;}
 	</style>
@@ -348,7 +349,7 @@ We would like to join your coalition.</textarea>
 		<div class="block campaigns">
 			<h3>Legislative Agenda</h3>
 
-            {% include "popvox/widgets/leg-agenda.html" with request=request org=org campaign=cam positions=positions embed=1 only %}
+            {% include "popvox/widgets/leg-agenda.html" with embed=1 %}
 			
 			{% for cam in cams %}
 				{% if not cam.default %}
