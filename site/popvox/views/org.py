@@ -50,8 +50,9 @@ def org(request, orgslug):
     else:
         cams = org.campaigns()
         slates = org.slates.filter(visible= True)
-        positions = getpositions(cams)
-        
+    
+    positions = getpositions(cams)
+    serviceacct = org.service_account(create=True)
     set_last_campaign_viewed(request, org)
     
     
