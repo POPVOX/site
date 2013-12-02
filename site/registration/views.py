@@ -184,7 +184,7 @@ def external_return(request, login_associate, provider):
         # a new AuthRecord.
         elif "trust_email" in providers.providers[provider] and providers.providers[provider]["trust_email"] and "email" in profile:
             try:
-                user = User.objects.get(email = profile["email"])
+                user = User.objects.get(email_iexact = profile["email"])
                 request.goal = { "goal": "oauth-login" }
             except:
                 pass
@@ -372,7 +372,7 @@ class RegisterUserAction:
 
         try:
             # If this user has already been created, just log the user in.
-            user = authenticate(user_object = User.objects.get(email=self.email))
+            user = authenticate(user_object = User.objects.get(email_iexact=self.email))
             login(request, user)
             return HttpResponseRedirect(self.next)
         except:
@@ -432,7 +432,7 @@ class DirectLoginBackend(ModelBackend):
 def ajax_get_login_type(request):
     email = validate_email(request.POST["email"], for_login=True)
     try:
-        u = User.objects.get(email=email)
+        u = User.objects.get(email__iexact=email)
     except User.DoesNotExist:
         return { "status": "success", "result": "not-recognized" }
 

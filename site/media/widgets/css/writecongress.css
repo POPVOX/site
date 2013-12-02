@@ -98,7 +98,17 @@ a {
 	width: 100%;
 	}
 	
-
+/* wm adds styles 11/27/13 */
+#wrap.w420 #widget_top { 
+    width: 96%;
+    margin-left: 2%;
+    padding-top: 0;
+    }
+        
+#wrap.w420 #panel_holder {  
+    width: 96%;
+    margin-left: 2%;
+    }
 	
 #widget_body {
 /*	overflow: hidden;*/
