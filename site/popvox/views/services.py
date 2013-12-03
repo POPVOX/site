@@ -404,6 +404,12 @@ def widget_render_writecongress_action(request, account, permissions):
         sha1.update(SECRET_KEY + "|" + request.POST["email"].lower())
         return sha1.hexdigest()
     
+    #The 'share record' flag tells us if the record was created on a pro widget.
+    #If so, the record will be shared with the org, and the user will be warned.
+    share_record = False
+    if "collect_analytics" in permissions:
+        share_record = True
+    
     ########################################
     if request.POST["action"] == "get-user-info":
         # If the user is logged in, return the user's info to pre-fill form fields.
@@ -509,8 +515,11 @@ def widget_render_writecongress_action(request, account, permissions):
         
         # Record the information for the org. This also occurs at the point of returning user login, checking address, and submit.
         if "campaign" in request.POST and "demo" not in request.POST:
+            
+            campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
+                
             if "email_optin" in request.POST:
-                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                campaign.add_action_record(
                     firstname = identity["firstname"],
                     lastname = identity["lastname"],
                     zipcode = identity["zipcode"],
@@ -518,9 +527,10 @@ def widget_render_writecongress_action(request, account, permissions):
                     optin = request.POST["email_optin"],
                     completed_stage = "start",
                     referrer = INITIAL_REFERRER,
+                    share_record = share_record,
                     request_dump = meta_log(request.META)  )
             else:
-                ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+                campaign.add_action_record(
                     firstname = identity["firstname"],
                     lastname = identity["lastname"],
                     zipcode = identity["zipcode"],
@@ -563,11 +573,13 @@ def widget_render_writecongress_action(request, account, permissions):
                         email = email,
                         optin = request.POST["email_optin"],
                         completed_stage = "login",
+                        share_record = share_record,
                         request_dump = meta_log(request.META) )
                 else:
                     ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
                         email = email,
                         completed_stage = "login",
+                        share_record = share_record,
                         request_dump = meta_log(request.META) )
 
             return {
@@ -607,6 +619,7 @@ def widget_render_writecongress_action(request, account, permissions):
                     lastname = request.POST["useraddress_lastname"],
                     zipcode = request.POST["useraddress_zipcode"],
                     optin = request.POST["email_optin"],
+                    share_record = share_record,
                     completed_stage = "address",
                     request_dump = meta_log(request.META) )
             else:
@@ -615,6 +628,7 @@ def widget_render_writecongress_action(request, account, permissions):
                     firstname = request.POST["useraddress_firstname"],
                     lastname = request.POST["useraddress_lastname"],
                     zipcode = request.POST["useraddress_zipcode"],
+                    share_record = share_record,
                     completed_stage = "address",
                     request_dump = meta_log(request.META) )
             campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
@@ -1061,7 +1075,9 @@ def download_supporters(request, campaignid, dataformat):
     
     ret = []
     
-    recs = campaign.actionrecords.all()
+    #we only share user records for pro widgets, where the user has been warned their info is being shared.
+    #in these cases, share_record will be True.
+    recs = campaign.actionrecords.filter(share_record = True)
     total_records = recs.count()
     if request.GET.get("iSortingCols", "") != "":
         order = []

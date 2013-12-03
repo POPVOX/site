@@ -1837,6 +1837,8 @@ class ServiceAccountCampaign(models.Model):
             )
     def __unicode__(self):
         return unicode(self.account) + " -- " + unicode(self.bill) + " -- " + self.position
+    def pro_actionrecords(self):
+        return self.actionrecords.filter(share_record = True)
     def mixpanel_bucket(self):
         if self.mpbucket: return self.mpbucket
         return "sac_" + str(self.id)
@@ -1892,18 +1894,18 @@ class ServiceAccountCampaign(models.Model):
         return { "hit": hits, "share": shares, "events": json.dumps(events["data"]) }
     def first_action_date(self):
         try:
-            return self.actionrecords.order_by('created')[0].created
+            return self.actionrecords.filter(share_record = True).order_by('created')[0].created
         except:
             return None
     def last_action_date(self):
         try:
-            return self.actionrecords.order_by('-created')[0].created
+            return self.actionrecords.filter(share_record = True).order_by('-created')[0].created
         except:
             return None
     def recent_comments(self):
-        return self.actionrecords.filter(completed_comment__isnull=False).order_by('-created')[0:6]
+        return self.actionrecords.filter(completed_comment__isnull=False, share_record = True).order_by('-created')[0:6]
     def total_widget_records(self):
-        return self.actionrecords.filter(completed_stage__isnull=False).count()
+        return self.actionrecords.filter(completed_stage__isnull=False, share_record = True).count()
     def add_action_record(self, **kwargs):
         #sys.stderr.write(str(kwargs))
         email = kwargs.pop("email")
@@ -1912,14 +1914,12 @@ class ServiceAccountCampaign(models.Model):
             email=email,
             defaults = kwargs)
         if "optin" in kwargs:
-            sys.stderr.write("in the if")
             optin = kwargs.pop("optin")
             if optin == "1":
                 setattr(rec,"optin",True)
             else:
                 setattr(rec,"optin",False)
         else:
-            sys.stderr.write("I'm in ur else")
             setattr(rec,"optin",None)
         rec.save()
         if not isnew or "created" in kwargs:
@@ -1942,6 +1942,7 @@ class ServiceAccountCampaignActionRecord(models.Model):
     completed_stage = models.CharField(max_length=16, blank=True, null=True)
     request_dump = models.TextField(blank=True, null=True)
     referrer = models.TextField(blank=True, null=True)
+    share_record = models.BooleanField(default=False)
     # various indexing above is for the data table sort on the analytics page
     class Meta:
         ordering = ['created']
