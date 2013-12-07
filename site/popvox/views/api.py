@@ -107,10 +107,10 @@ class BaseHandler(object):
         # Call the handler function, adding the account argument.
         if not DEBUG:
             # let exceptions be caught higher up
-            ret = f(request, acct, *args, **kwargs)
+            ret = f(request, *args, **kwargs)
         else:
             try:
-                ret = f(request, acct, *args, **kwargs)
+                ret = f(request, *args, **kwargs)
             except:
                 import traceback
                 response = HttpResponse(traceback.format_exc())
