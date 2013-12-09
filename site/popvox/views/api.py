@@ -107,10 +107,16 @@ class BaseHandler(object):
         # Call the handler function, adding the account argument.
         if not DEBUG:
             # let exceptions be caught higher up
-            ret = f(request, *args, **kwargs)
+            ret = f(request, acct, *args, **kwargs)
         else:
             try:
-                ret = f(request, *args, **kwargs)
+                ret = f(request, acct, *args, **kwargs)
+                #the bill metadata api wants f to have 3 arguments (works if
+                #acct is removed). The billtext widget wants it to have 4
+                #(breaks if acct is removed). Both are setting f to
+                #getattr(self, "read", None); I can't figure out the difference
+                #because I don't get a useful traceback. So the metadata api
+                #call is broken.
             except:
                 import traceback
                 response = HttpResponse(traceback.format_exc())
