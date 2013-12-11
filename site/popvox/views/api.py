@@ -111,12 +111,6 @@ class BaseHandler(object):
         else:
             try:
                 ret = f(request, acct, *args, **kwargs)
-                #the bill metadata api wants f to have 3 arguments (works if
-                #acct is removed). The billtext widget wants it to have 4
-                #(breaks if acct is removed). Both are setting f to
-                #getattr(self, "read", None); I can't figure out the difference
-                #because I don't get a useful traceback. So the metadata api
-                #call is broken.
             except:
                 import traceback
                 response = HttpResponse(traceback.format_exc())
@@ -503,18 +497,15 @@ class org_positions(BillHandler):
         )
     allow_public_api_key = False
 
-    
-    @paginate
     def read(self, request, acct, inputdate=None):
         account, permissions = validate_widget_request(request, request.GET["api_key"],False)
-        #permissions = ['api_congress']
         if not 'api_congress' in permissions:
             return HttpResponseBadRequest("This API key is not authorized for access to this API.")
         if inputdate:   
             dt = datetime.strptime(inputdate, "%Y-%m-%d-%H:%M:%S")
-            return OrgCampaignPosition.objects.filter(Q(created__gte=dt) | Q(updated__gte=dt))
+            return paginate_items(OrgCampaignPosition.objects.filter(Q(created__gte=dt) | Q(updated__gte=dt)), request)
         else:
-            return OrgCampaignPosition.objects.all()
+            return paginate_items(OrgCampaignPosition.objects.all(), request)
 
     @staticmethod
     def organization(obj, request, account):
