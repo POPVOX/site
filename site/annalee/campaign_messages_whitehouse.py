@@ -1,21 +1,18 @@
 #!runscript
 
-# It'll make a file in the dir you ran it from called campaign_info-addresses.csv
+# It'll make a file in the dir you ran it from called whitehouse-messages.csv
 
 import popvox.models as pv
 from django.contrib.auth.models import User
 import unicodedata
 
 sep = "\t"
-sac = pv.ServiceAccount.objects.get(id=5143)
+campaign = pv.ServiceAccountCampaign.objects.get(id=3658)
+sac = campaign.account
 
-#paidaccount ids:
-    #Mayors Against Illegal Guns: 2882
-    #Airlines for America: 5143
-
-with open('campaign_info-addresses.csv','w') as info:
-    for campaign in pv.ServiceAccountCampaign.objects.filter(account__id=sac.id):
-        for record in campaign.actionrecords.all():
+with open('whitehouse-messages.csv','w') as info:
+    for record in campaign.actionrecords.all():
+        if record.completed_stage == 'finished':
             #clean unicode out of names:
             firstname = unicodedata.normalize('NFKD',record.firstname).encode('ascii','ignore')
             lastname  = unicodedata.normalize('NFKD',record.lastname).encode('ascii','ignore')
@@ -65,5 +62,5 @@ with open('campaign_info-addresses.csv','w') as info:
                 tags = ''
                 
             
-            info.write( str(firstname) +sep+ str(lastname) +sep+ statedist +sep+ str(address1)+sep+ str(address2)+sep+ str(city)+sep+ str(state) +sep+ str(record.zipcode) +sep+ str(record.email) +sep+ str(record.created) +sep+ str(record.updated) +sep+ str(record.completed_stage)+ sep +str(message) + sep + str(tags) +"\n" )
-            
+            info.write( str(firstname) +sep+ str(lastname) +sep+ statedist +sep+ str(address1)+sep+ str(address2)+sep+ str(city)+sep+ str(state) +sep+ str(record.zipcode) +sep+ str(record.email) +sep+ str(record.created) + sep +str(message) + sep + str(tags) +"\n" )
+                

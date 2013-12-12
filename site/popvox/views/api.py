@@ -111,6 +111,12 @@ class BaseHandler(object):
         else:
             try:
                 ret = f(request, acct, *args, **kwargs)
+                #the bill metadata api wants f to have 3 arguments (works if
+                #acct is removed). The billtext widget wants it to have 4
+                #(breaks if acct is removed). Both are setting f to
+                #getattr(self, "read", None); I can't figure out the difference
+                #because I don't get a useful traceback. So the metadata api
+                #call is broken.
             except:
                 import traceback
                 response = HttpResponse(traceback.format_exc())
@@ -375,7 +381,7 @@ class bill_metadata(BillHandler):
         ('shorturl', 'a "pvox.co" short URL to the primary page for the bill on POPVOX. the short URL is owned by the user specified in a session token, if provided, otherwise by the owner of the API key used in the request. this field is only returned if explicitly requested with fields=shorturl.'),
         )
     allow_public_api_key = True
-    def read(self, request, billid):
+    def read(self, request, account, billid):
         return Bill.objects.get(id=billid)
 
 @api_handler
@@ -564,7 +570,7 @@ class document_metadata(DocumentHandler):
     bill_fields = ["id", "title", "link"]
     positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pdf_url', 'link', 'pages', 'formats', 'toc']
     url_pattern_args = [("000", "DOCUMENT_ID")]
-    url_example_args = (248,)
+    url_example_args = (2021,)
     description = "Returns metadata about a document."
     response_summary = "Metadata about a document."
     response_fields = (
@@ -602,7 +608,7 @@ class document_pages(BaseHandler):
     documentpage_fields = ['page', 'text']
     description = "Retreives complete data for all pages of a document, except binary data associated with a page (such as its image)."
     url_pattern_args = (("000",'DOCUMENT_ID'),)
-    url_example_args = (248,)
+    url_example_args = (97,)
     response_summary = "Returns a paginated list of pages."
     response_fields = (
         ('page', 'the one-based page number'),
@@ -646,7 +652,7 @@ def document_page(request, docid, pagenum, format):
         raise Http404("Page number out of range.")
 document_page.description = "Retreives one page of a document as either a PNG, a single-page PDF, or in plain text. Result is either image/png, application/pdf, or text/plain. The formats available for a document are given in the document metadata API method."
 document_page.url_pattern_args = (("000",'DOCUMENT_ID'), ("001",'PAGE_NUMBER'), ('aaa', '{png|pdf|txt}'))
-document_page.url_example_args = (248,20,'png')
+document_page.url_example_args = (25261,2,'png')
 document_page.has_read = True
 document_page.has_post = False
 
@@ -662,7 +668,7 @@ class document_search(BaseHandler):
         ('results/context', 'text surrounding the match'),
         )
     url_pattern_args = (("000",'DOCUMENT_ID'),)
-    url_example_args = (248,)
+    url_example_args = (2021,)
     qs_args = (('q', 'The search query.', 'budget authority'),)
     allow_public_api_key = True
     

@@ -253,7 +253,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'height': '300px',
     'theme_advanced_toolbar_location': "top",
     'theme_advanced_toolbar_align': "left",
-    'extended_valid_elements' : "iframe[src|frameborder|style|scrolling|class|width|height|name|align]"
+    'extended_valid_elements' : "iframe[src|frameborder|style|scrolling|class|width|height|name|align],img[src|border=0|alt|title|width|height|align|name]"
 }
 
 FEEDBACK_BLOCKED_IPS = ["91.212.226.143"]
