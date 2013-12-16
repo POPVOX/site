@@ -1924,7 +1924,7 @@ class ServiceAccountCampaign(models.Model):
         share_record = False
         if "share_record" in kwargs:
             share_record = kwargs.pop("share_record")
-            if share_record == "1"
+            if share_record == "1":
                 share_record = True
         setattr(rec,"share_record",share_record)
         
