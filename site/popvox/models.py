@@ -1511,7 +1511,7 @@ class UserComment(models.Model):
             campaignid = self.actionrecord.all()[0].campaign.id
         except:
             campaignid = 0 #not all comments have campaign action records
-        if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
+        if campaignid in [1866,1872, 3658]: # these are campaign ids for White House delivery
             obama = govtrack.getMemberOfCongress(400629)
             obama["office_id"] = "WH-S44"
             obama["type"] = "pres"

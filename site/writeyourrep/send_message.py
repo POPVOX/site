@@ -393,7 +393,6 @@ common_fieldnames = {
     "submitted[first_name]" : "firstname",
     "submitted[last_name]" : "lastname",
     "submitted[suffix]" : "suffix",
-    "submitted[email]" : "email",
     "submitted[street]" : "address1",
     "submitted[zip]":"zipcode",
     "submitted[city]":"city",
@@ -1217,7 +1216,7 @@ def send_message_webform(di, msg, deliveryrec):
     # Make sure that we've found the equivalent of all of the fields
     # that the form should be accepting.
     for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined", "address_split_street"), ("address2", "address_combined", "address_split_street"), ("zipcode", "zip5"), "message"):
-        if field == "email" and di.id == 839: #form doesn't actually collect email address
+        if field == "email" and di.id in [839, 886]: #form doesn't actually collect email address
             continue
         if field == "city" and di.id == 554: # no need to collect city since there is only one city in DC
             continue
@@ -1334,7 +1333,7 @@ def send_message_webform(di, msg, deliveryrec):
         
     # Thess guys have some weird restrictions on the text input to prevent the user from submitting
     # SQL... rather than just escaping the input.
-    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 663, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 851, 857, 861, 869, 878, 882, 892, 899, 916, 946, 962, 988, 990, 1016, 1037, 1040, 1054, 1056, 1060, 1080):
+    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 663, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 850, 851, 857, 861, 869, 878, 882, 892, 899, 916, 946, 962, 988, 990, 1016, 1037, 1040, 1054, 1056, 1060, 1080):
         re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
         for k in postdata:
             postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
