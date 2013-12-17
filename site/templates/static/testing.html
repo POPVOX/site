@@ -1,7 +1,7 @@
 {% extends "master.html" %}
-{% block title %}POPVOX - Job Opportunities{% endblock %}
+{% block title %}POPVOX - Testing{% endblock %}
 {% block title2 %}{% endblock %}
-{% block description %}POPVOX.com job opportunities.{% endblock %}
+{% block description %}This is a page where our developers test new features for widgets.{% endblock %}
 {% block content %}
 
 <div class="content">
@@ -9,11 +9,25 @@
 <div class="col_9 col_top col_last">
 <h1>Testing</h1>
 
+        <h3>This widget should be sharing your data with Save The Martians Foundation.</h3>
+        <p>You should see a note at the bottom of the first page of the widget telling you your data is being shared. If you don't see that, let me know.</p>
+        <p>After submitting data, please check <a href="https://annalee.popvox.com/services/analytics#details=3039">the campaign analytics page</a> and make sure that the data you entered is showing up in the table at the bottom.</p>
+        <b>A few notes:</b><br>
+
+        <ol>
+            <li>You must test on <i>my test site</i>, not the live site. Do not use the analytics page on the live site for this test.</li>
+            <li>You may have to log back in to my test site after submitting data in order to see the analytics page.</li>
+            <li>Please run several tests: one where you go through the whole wiget, then further tests where you stop after each page. Check that your data's showing up in the table each time.</li>
+        </ol>
+
         <iframe src="https://annalee.popvox.com/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&ocp=6495&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe>
 
-        <iframe frameborder="0" height="700" src="https://annalee.popvox.com/services/widgets/w/account/ACYGP00A0TZ4MC61/writecongress?iframe=1&amp;ocp=7791&amp;franking=false&amp;sbg=68B004&amp;sbg2=ADAB9F&amp;sfg=ffffff&amp;lnk=68B004&amp;bg=ffffff&amp;fg=555555&amp;fg2=cfcdcd" width="700"> </iframe>
+        <h3>This widget should NOT share your data to my personal account.</h3>
+        <p>You should NOT see a note at the bottom of the first page of the widget telling you that your data is being shared. If you do see it, let me know</p>
+        <p>Please run the same tests as above and let me know you've run them. I'll confirm that your data isn't showing up in my analytics dashboard</p>.
+        <iframe src="https://annalee.popvox.com/services/widgets/w/account/OE6RSVOQ1TAPUH8G/writecongress?iframe=1&bill=us/113/hr3&position=support&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe>
 
-        <h2>WWW:</h2>
+        <!--<h2>WWW:</h2>
         <iframe width="460" height="700" frameborder="0" src="https://www.popvox.com/services/widgets/w/account/XE2IJJ9Y22Q2EXGJ/writecongress?iframe=1&ocp=7401&franking=false&sbg=0077d8&sbg2=e7e4dd&sfg=ffffff&lnk=0077d8&bg=ffffff&fg=404045&fg2=dddddd"></iframe>
 
         <h2>Annalee:</h2>
@@ -25,7 +39,7 @@
 
         
 
-        <!--<p> trying this in a p tag <iframe src="http://annalee.popvox.com/widgets/bill-inline?bill=112/hjres98" height="21" scrolling="no" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe> with some text. </p>
+        <p> trying this in a p tag <iframe src="http://annalee.popvox.com/widgets/bill-inline?bill=112/hjres98" height="21" scrolling="no" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe> with some text. </p>
 
         <iframe src="/widgets/bill-comment-map?bill=15601&width=274" frameborder="0" marginwidth="0" marginheight="0" border="0"> </iframe>
 
