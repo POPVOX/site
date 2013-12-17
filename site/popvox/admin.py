@@ -128,7 +128,7 @@ class ServiceAccountCampaignActionRecordAdmin(admin.ModelAdmin):
     raw_id_fields = ("campaign","completed_comment")
     readonly_fields = ("campaign","completed_comment")
     search_fields = ["firstname", "lastname", "zipcode", "email"]
-    list_display = ["created", "info", "zipcode", "email"]
+    list_display = ["created", "info", "zipcode", "email", "share_record"]
 
     def info(self, obj):
         return obj.campaign.bill.displaynumber()

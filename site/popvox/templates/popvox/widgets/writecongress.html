@@ -873,7 +873,7 @@ Notes:
                         
                         {% comment %}keep in mind: large buttons for neutral widgets and at least one line for the service account owner{% endcomment %}
                         <p style="margin-top: 20px; padding-right: 1em;">Your letter will be sent to {% if 'whitehouse' in permissions %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
-                        {% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {{campaign.account}}.</p>{% endif %}
+                        {% if 'collect_analytics' in permissions %}{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {{campaign.account}}.</p>{% endif %}{% endif %}
                         <p>View <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">POPVOX's Privacy Policy</a></p>
                     </div> <!-- e: panel_login -->
 
@@ -1002,7 +1002,7 @@ Notes:
                         
                         <div class="clear"> </div>
                         
-                        <p>Your letter will be sent to Congress and {% if 'whitehouse' in permissions %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}A copy will also go to {{campaign.account}}.{% endif %}</p>
+                        <p>Your letter will be sent to Congress and {% if 'whitehouse' in permissions %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}{% if 'collect_analytics' in permissions %}A copy will also go to {{campaign.account}}.{% endif %}{% endif %}</p>
                         
                     </div><!-- e: panel_write -->
                     
