@@ -2971,7 +2971,19 @@ ul#issuearealist { margin-top: 10px     }
     }
 
 
+/* ----what is popvox---- */
+.what_popvox p {
+	font: normal 14px/22px helvetica, arial, sans-serif;
+}
 
+.what_popvox .img_r, .what_popvox .img_sign {
+	border: 3px solid #CC6A11;
+	margin-left: 20px;
+}
+
+.img_sign {
+	margin-top: 25px;
+}
 
 /* ----landing---- */
 
