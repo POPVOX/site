@@ -213,19 +213,29 @@ ul#nav_2 {
 		}
 
 /* ----dropnav---- */
-#subnav li div {
-		background: url("../_images/dbgt.png") no-repeat scroll left top transparent;
+#subnav li div#master_profile_orglist {
+		background: url("dbgt.png") no-repeat scroll left top transparent;
 		display: block;
-		left: 0;
-		padding-top: 15px;
+		left: 338px;
+		top: 95px;
+		padding-top: 13px;
 		position: absolute;
-		top: 40px;
 		width: 246px;
 		}
 
 	#subnav li:hover div {
 		display: block;
 		}
+		
+/*
+	#subnav li div div {
+		background: #fff;
+		margin: 0;
+		padding: 0;
+		top: 0;
+		left: 0;
+	}
+*/
 
 
 
@@ -243,7 +253,8 @@ ul#nav_2 {
     }
 
 .orglist_li {
-    background: url("bg_grey_drop.png") left top;
+/*     background: url("bg_grey_drop.png") left top; */
+	background: #fff;
     border: 1px solid #000;
     border-width: 0 1px 1px;
     margin-top: 1px;
