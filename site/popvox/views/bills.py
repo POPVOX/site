@@ -423,7 +423,7 @@ def bill_statistics_cache(f):
         return ret
     return g
 
-@bill_statistics_cache # the arguments must match in the decorator!
+#@bill_statistics_cache # the arguments must match in the decorator!
 def bill_statistics(bill, shortdescription, longdescription, want_timeseries=False, want_totalcomments=False, force_data=False, as_of=False, **filterargs):
     # If any of the filters is None, meaning it is based on demographic info
     # that the user has not set, return None for the whole statistic group.
@@ -508,15 +508,19 @@ def bill_statistics(bill, shortdescription, longdescription, want_timeseries=Fal
             "con": [sum([bins[y]["-"] for y in xrange(0, ndays) if y <= x and y in bins]) for x in days],
             }
     
-    #if pro and con both have half a percentage point, rounding will cause the total to be 101. In that case, round both down to get 99.
-    pro_pct = int(round(100.0*pro/float(pro+con))) if pro+con > 0 else 0
-    con_pct = int(round(100.0*con/float(pro+con))) if pro+con > 0 else 0
+    pro_pct = round(100.0*pro/float(pro+con), 1) if pro+con > 0 else 0
+    con_pct = round(100.0*con/float(pro+con), 1) if pro+con > 0 else 0
     
     #if pro and con both have half a percentage point, rounding will cause the total to be 101. In that case, round both down to get 99.
     if (pro_pct % 1 == .5) and (con_pct % 1 == .5):
         pro_pct -= 0.5
         con_pct -= 0.5
-            
+        
+    #Now round to 0 decimals and turn it back into an int:
+    pro_pct = int(round(pro_pct))
+    con_pct = int(round(con_pct))
+    
+        
     return {
         "shortdescription": shortdescription,
         "longdescription": longdescription,
