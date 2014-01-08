@@ -223,7 +223,7 @@ INSTALLED_APPS = (
     'django.contrib.markup',
     'django.contrib.sitemaps',
     'tinymce',
-    'feedback',
+    #'feedback',
     'picklefield',
     'articles',
     'debug_toolbar',

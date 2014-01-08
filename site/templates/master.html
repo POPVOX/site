@@ -124,11 +124,7 @@
 		}
 	});	
 	</script>
-	
-	{% comment %}{% include "feedback/header.html" %}{% endcomment %}
-	<link rel="stylesheet" href="/media/feedback/main.css"/>
-	<script type="text/javascript" src="/media/feedback/jquery.form.js"></script>
-	<script type="text/javascript" src="/media/feedback/main.js"></script>
+
 
 	<!--<script src="http://cdn.jquerytools.org/1.2.5/tiny/jquery.tools.min.js"></script>-->
 	
@@ -505,12 +501,6 @@ master_state(function (res) {
 {% endif %}
 
 {% block finalscript %}{% endblock %}
-
-{% block feedback_button %}
-{% with "<p style='margin-bottom: 0'>Use this form to leave comments for <b>POPVOX staff</b> about the website. Do not leave comments about legislation here.</p>" as feedback_text %}
-	{% include "feedback/button.html" %}
-{% endwith %}
-{% endblock %}
 
 </body> 
 </html>
