@@ -146,7 +146,7 @@
 
 			{% with billrec.bill as bill %}
 
-			<h5><a href="{{billrec.bill.url}}">{{ billrec.bill.nicename|truncatewords:12 }}</a></h5>
+			<h5><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
 					<a href="{{bill.url}}/report">
 			        	<div id="trending_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("trending_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
@@ -179,7 +179,7 @@
 	<ol>
 	        <li class="bill">
 					<p class="number">#{{ forloop.counter }}</p>
-	        <h5><a href="{{bill.url}}">{{bill.billnumber}} {{ bill.nicename|truncatewords:12 }}</a></h5>
+	        <h5><a href="{{bill.url}}">{{ bill.nicename|truncatewords:12 }}</a></h5>
 			{% if pro or con %}
 				<a href="{{bill.url}}/report">
 					<div id="popular_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("popular_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
