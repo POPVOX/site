@@ -1,6 +1,6 @@
 {% extends "master.html" %}
 {% block title %}Organizations{% endblock%}
-{% block description %}Organization Directory - find community groups and non-profit organizations listed on POPVOX.{% endblock%}
+{% block description %}Stakeholder Directory - find community groups, companies and non-profit organizations listed on POPVOX.{% endblock%}
 {%block nav_legstaff_class_orgs%}active{%endblock%}
 {%block nav_orgadmin_class_orgs%}active{%endblock%}
 {%block nav_citzen_class_orgs%}active{%endblock%}
@@ -93,11 +93,11 @@ function toggle_categories() {
 
 		<div class="col_9 col_top">
 			<div class="">
-				<h1>Organization Directory</h1>
+				<h1>Stakeholder Directory <span style="font: italic normal 18px georgia, serif;">(organizations and companies)</span></h1>
 				<div class="block bill_search">
 					<div class="search_box">
-						<input id="orgsearchbox" type="text" class="search" value="search for an organization"  onfocus="if (this.value=='search for an organization') this.value='';"/>
-						<span>Start typing the name of an organization</span>	
+						<input id="orgsearchbox" type="text" class="search" value="search for a stakeholder"  onfocus="if (this.value=='search for an stakeholder') this.value='';"/>
+						<span>Start typing the name of an stakeholder</span>	
 					</div>
 				    <script type="text/javascript">
 				    $(document).ready(function(){
@@ -110,7 +110,7 @@ function toggle_categories() {
 				    });
 				    </script>
 				    
-					<p><small>Don&rsquo;t see your organization on POPVOX? Any U.S. nonprofit organization or community group can <a href="/accounts/register/orgstaff">get listed</a>.</small></p>
+					<p><small>Don&rsquo;t see your organization on POPVOX? Any U.S. nonprofit organization, company or community group can <a href="/accounts/register/orgstaff">get listed</a>.</small></p>
 				</div>
 			</div>
 		</div>
@@ -144,7 +144,7 @@ function toggle_categories() {
 		</div>
 			
 		<div class="col_9 col_last">
-			<h3 id="orglist_title" class="no_rule" style="padding-top: 0">Recently updated organizations</h3>
+			<h3 id="orglist_title" class="no_rule" style="padding-top: 0">Recent stakeholder activity</h3>
 			<div id="orglist_status"></div>
 			<ul id="orglist_list" class="org_all">
 			</ul>

@@ -347,9 +347,11 @@ We would like to join your coalition.</textarea>
 		
 		{% if cams or admin %}
 		<div class="block campaigns">
-			<h3>Legislative Agenda</h3>
+			<h3>Take Action with {{org.name}}</h3>
 
             {% include "popvox/widgets/leg-agenda.html" with embed=1 %}
+            
+            <h3>Detailed Legislative Agenda</h3>
 			
 			{% for cam in cams %}
 				{% if not cam.default %}
