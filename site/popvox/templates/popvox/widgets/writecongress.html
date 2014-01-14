@@ -738,10 +738,10 @@ Notes:
             
             {% if 'franking' in permissions %}
                 if (position == "+") verb = "I just supported"; else verb = "I just opposed";
-                    f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
+                    f("{{url|escapejs}}", verb + " {{bill.nicename|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
             {% else %}
                 if (position == "+") verb = "Support"; else verb = "Oppose";
-                    f("{{url|escapejs}}", verb + " {{bill.title|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
+                    f("{{url|escapejs}}", verb + " {{bill.nicename|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
             {% endif %}
             return false;
         }
@@ -796,7 +796,7 @@ Notes:
                         {% endif %}
 
                         {% if bill.is_bill %}
-                        <p class="bill_name" title="{{bill.title}}"><span>Official Title:</span> {{bill.title|truncatewords:15}}</p>
+                        <p class="bill_name" title="{{bill.nicename}}"><span>Title:</span> {{bill.nicename|truncatewords:15}}</p>
                         {% else %}
                         <p class="bill_name" title="{{bill.description}}">{{bill.description|truncatewords:34}}</p>
                         {% endif %}
@@ -1079,7 +1079,7 @@ Notes:
                                                 {% endwith %}
                                                 {% endwith %}
                                                 
-                                                <p><a href="{{bill.url}}" target="_blank">{{bill.title|truncatewords:12}}</a></p>
+                                                <p><a href="{{bill.url}}" target="_blank">{{bill.nicename|truncatewords:12}}</a></p>
                                                 
                                                 <div class="clear"> </div>
                                             {% endfor %}
