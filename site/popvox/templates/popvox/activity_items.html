@@ -28,7 +28,7 @@
 		<div class="comment">
 			<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %} {% if item.position == "-" %}oppose{% endif %}">
 				<h4>
-					<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>
+					<a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:15}}</a>
 				</h4>
 				{% if not user.is_anonymous %}
 				<div class="" style="display: none">
@@ -87,7 +87,7 @@
 			{% if item.updated == item.created %}added{% else %}	updated{% endif %}
 			their position
 			{% if item.position == "+" %}endorsing{% endif %}{% if item.position == "-" %}opposing{% endif %}{% if item.position == "0" %}on{% endif %}
-			<a href="{{item.bill.url}}">{{item.bill.title|truncatewords:15}}</a>.
+			<a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:15}}</a>.
 			{% if item.comment %}They wrote:{% endif %}
 		</p>
 		{% if item.comment %}
@@ -109,7 +109,7 @@
 			{% else %}
 			updated
 			{% endif %}
-			a {{item.get_doctype_display}} on {{item.bill.title|truncatewords:10}} titled
+			a {{item.get_doctype_display}} on {{item.bill.nicename|truncatewords:10}} titled
 			<a href="{{item.url}}">{{item.title}}</a>.
 		</p>
 	{% endif %}

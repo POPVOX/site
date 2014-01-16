@@ -313,6 +313,15 @@ class Bill(models.Model):
             else:
                 return self.street_name[0].upper() + self.street_name[1:]
         return self.title
+    
+    @property
+    def nicename_no_number(self):
+        # The nice name of a bill is how a bill is referred to on first
+        # reference in a non-official context. It is the street name, if
+        # one is set, otherwise the title.
+        if self.street_name:
+            return self.street_name[0].upper() + self.street_name[1:]
+        return self.title_no_number
                 
     @property
     def shortname(self):
@@ -349,6 +358,8 @@ class Bill(models.Model):
         # this is used for pre-populating a comment on a bill
         if not self.is_officially_numbered():
             return self.title
+        if self.street_name:
+            return self.street_name[0].upper() + truncatewords(self.street_name[1:], 15)
         title = truncatewords(self.title, 15)
         if "..." not in title:
             return title
