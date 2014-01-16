@@ -10,7 +10,7 @@ import unicodedata
 sep = "\t"
 
 with open('campaign_info.csv','w') as info:
-    for campaign in pv.ServiceAccountCampaign.objects.filter(account__id=1901):
+    for campaign in pv.ServiceAccountCampaign.objects.filter(account__id=2581):
         for record in campaign.actionrecords.all():
             try:
                 user = User.objects.get(email=record.email)

@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load popvox_utils %}
 {% block title %}{% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock%}
-{% block description %}Weigh in and send your message to Congress about {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock %}
+{% block description %}Write Congress about {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock %}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
