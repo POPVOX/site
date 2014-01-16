@@ -42,7 +42,7 @@
 							<p class="error">{{comment.review_status}}</p>
 						{% endif %}
 						{% else %}
-						<p style="margin-bottom: 0"><small>{{comment.bill.title_no_number|truncatewords:10}}</small></p>
+						<p style="margin-bottom: 0"><small>{{comment.bill.nicename_no_number|truncatewords:10}}</small></p>
 						{% endif %}
 						<div>
 							<!--<p class="tag">you {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.shortname}}</a></p>-->
