@@ -179,6 +179,24 @@ class CongressionalCommittee(models.Model):
                 obj, new = CongressionalCommittee.objects.get_or_create(code=cx["id"])
                 if new:
                     sys.stderr.write("Initializing new committee: " + str(obj) + "\n")
+                    
+class Regulation(models.Model):
+    """A Federal Regulation that receives public comment."""
+    agency = models.CharField(max_length=10)
+    regnumber = models.CharField(max_length=25)
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True),
+    street_name = models.CharField(max_length=128, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....'")
+    ask = models.CharField(max_length=100, blank=True, null=True, help_text="This field changes the 'submit a public comment on' text on the regulation page.")
+    notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
+    hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
+    topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermregs", on_delete=models.SET_NULL)
+    issues = models.ManyToManyField(IssueArea, blank=True, null=True, related_name="regs")
+    commentperiod_open_date = models.DateField()
+    commentperiod_closed_date = models.DateField()
+    current_status = models.TextField(blank=True, null=True)
+    current_status_date = models.DateTimeField(blank=True, null=True)
+    
 
 class Bill(models.Model):
     """A bill in Congress."""
@@ -918,7 +936,8 @@ class OrgCampaignPosition(models.Model):
     """A position on a bill within an OrgCampaign."""
     POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
     campaign = models.ForeignKey(OrgCampaign, related_name="positions", on_delete=models.CASCADE) # implicitly indexed by the unique_together
-    bill = models.ForeignKey(Bill, on_delete=models.PROTECT)
+    bill = models.ForeignKey(Bill, on_delete=models.PROTECT, blank=True, null=True)
+    regulation = models.ForeignKey(Regulation, on_delete=models.PROTECT, blank=True, null=True)
     position = models.CharField(max_length=1, choices=POSITION_CHOICES)
     comment = models.TextField(blank=True, null=True)
     pdfurl = models.URLField(blank=True, null=True)
@@ -971,8 +990,9 @@ class OrgCampaignPosition(models.Model):
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 
 class PositionDocument(models.Model):
-    DOCTYPES = [(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text'), (101, 'Bill Text Comparison')]
-    bill = models.ForeignKey(Bill, related_name="documents", db_index=True, on_delete=models.PROTECT)
+    DOCTYPES = [(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text'), (101, 'Bill Text Comparison'), (200, 'Regulation Text')]
+    bill = models.ForeignKey(Bill, related_name="documents", db_index=True, on_delete=models.PROTECT, blank=True, null=True)
+    regulation = models.ForeignKey(Regulation, related_name="documents", db_index=True, on_delete=models.PROTECT, blank=True, null=True)
     doctype = models.IntegerField(choices=DOCTYPES)
     title = models.CharField(max_length=128)
     text = tinymce_models.HTMLField(blank=True) #models.TextField() # HTML document body
@@ -1361,7 +1381,7 @@ class PostalAddress(models.Model):
 class UserComment(models.Model):
     """A comment by a user on a bill."""
     
-    POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose') ]
+    POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
 
     COMMENT_NOT_REVIEWED = 0 # note that these values are hard-coded in several templates
     COMMENT_ACCEPTED = 1
@@ -1376,7 +1396,8 @@ class UserComment(models.Model):
     METHOD_NAMES = { METHOD_SITE: "POPVOX.com", METHOD_CUSTOMIZED_PAGE: "PV.com Customized Landing Page", METHOD_WIDGET: "Write Congress Widget" }
 
     user = models.ForeignKey(User, related_name="comments", db_index=True, on_delete=models.CASCADE) # user authoring the comment
-    bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True, on_delete=models.PROTECT)
+    bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True, on_delete=models.PROTECT, blank=True, null=True)
+    regulation = models.ForeignKey(Regulation, related_name="usercomments", db_index=True, on_delete=models.PROTECT, blank=True, null=True)
     
     # if this value changes, we should delete the UserCommentDiggs the user left on
     # this bill.
@@ -1435,50 +1456,60 @@ class UserComment(models.Model):
         return self.get_absolute_url()
     
     def verb(self, tense="present"):
-        # the verb used to describe the comment depends on when the comment
-        # was left in the stages of a bill's progress.
-        if self.created.date() <= govtrack.getCongressDates(self.bill.congressnumber)[1]:
-            # comment was (first) left before the end of the Congress in which the
-            # bill was introduced
-            if self.position == "+":
-                if tense=="present":
-                    return "supports"
-                elif tense=="past":
-                    return "supported"
-                elif tense=="ing":
-                    return "supporting"
-                elif tense=="imp":
-                    return "support"
+        if self.bill:
+            # the verb used to describe the comment depends on when the comment
+            # was left in the stages of a bill's progress.
+            if self.created.date() <= govtrack.getCongressDates(self.bill.congressnumber)[1]:
+                # comment was (first) left before the end of the Congress in which the
+                # bill was introduced
+                if self.position == "+":
+                    if tense=="present":
+                        return "supports"
+                    elif tense=="past":
+                        return "supported"
+                    elif tense=="ing":
+                        return "supporting"
+                    elif tense=="imp":
+                        return "support"
+                else:
+                    if tense=="present":
+                        return "opposes"
+                    elif tense=="past":
+                        return "opposed"
+                    elif tense=="ing":
+                        return "opposing"
+                    elif tense=="imp":
+                        return "oppose"
             else:
-                if tense=="present":
-                    return "opposes"
-                elif tense=="past":
-                    return "opposed"
-                elif tense=="ing":
-                    return "opposing"
-                elif tense=="imp":
-                    return "oppose"
-        else:
-            # comment was left after Congress recessed, and the comment now
-            # is about reintroduction
-            if self.position == "+":
-                if tense=="present":
-                    return "supports the reintroduction of"
-                elif tense=="past":
-                    return "supported the reintroduction of"
-                elif tense=="ing":
-                    return "supporting the reintroduction of"
-                elif tense=="imp":
-                    return "support the reintroduction of"
-            else:
-                if tense=="present":
-                    return "opposes the reintroduction of" # we have no interface for users to leave a negative comment
-                elif tense=="past":
-                    return "opposed the reintroduction of"
-                elif tense=="ing":
-                    return "opposing the reintroduction of"
-                elif tense=="imp":
-                    return "oppose the reintroduction of"
+                # comment was left after Congress recessed, and the comment now
+                # is about reintroduction
+                if self.position == "+":
+                    if tense=="present":
+                        return "supports the reintroduction of"
+                    elif tense=="past":
+                        return "supported the reintroduction of"
+                    elif tense=="ing":
+                        return "supporting the reintroduction of"
+                    elif tense=="imp":
+                        return "support the reintroduction of"
+                else:
+                    if tense=="present":
+                        return "opposes the reintroduction of" # we have no interface for users to leave a negative comment
+                    elif tense=="past":
+                        return "opposed the reintroduction of"
+                    elif tense=="ing":
+                        return "opposing the reintroduction of"
+                    elif tense=="imp":
+                        return "oppose the reintroduction of"
+        else: #Regulation
+            if tense=="present":
+                return "comments"
+            elif tense=="past":
+                return "commented"
+            elif tense=="ing":
+                return "commenting"
+            elif tense=="imp":
+                return "comment"
     def verb_imp(self):
         return self.verb(tense="imp")
     def verb_ing(self):
