@@ -296,7 +296,10 @@ def widget_render_writecongress_page(request, account, permissions):
                 ocp = OrgCampaignPosition.objects.get(id=request.GET["ocp"], campaign__visible=True, campaign__org__visible=True)
             except OrgCampaignPosition.DoesNotExist:
                 return HttpResponseBadRequest("The campaign for the bill has become hidden or the widget URL is invalid")
-            bill = ocp.bill
+            if ocp.bill:
+                bill = ocp.bill
+            else:
+                bill = ocp.regulation
             position = ocp.position
             if position == "0": position = None
             if account != None and ocp.campaign.org == account.org:
@@ -347,7 +350,7 @@ def widget_render_writecongress_page(request, account, permissions):
             other_bills = [bs[0] for bs in other_bills[0:2]]
             suggestions["0"][2] = other_bills
         else:
-            for p in OrgCampaignPosition.objects.filter(campaign__org=org, campaign__visible=True).exclude(bill=bill):
+            for p in OrgCampaignPosition.objects.filter(campaign__org=org, campaign__visible=True).exclude(bill=bill).exclude(regulation=True): #exclude regulations from suggestions
                 if len(suggestions[p.position][2]) < 2 and p.bill.isAlive():
                     suggestions[p.position][2].append(p.bill)
             if len(suggestions["+"][2]) + len(suggestions["-"][2]) >= 2:
