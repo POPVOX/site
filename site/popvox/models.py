@@ -185,7 +185,7 @@ class Regulation(models.Model):
     agency = models.CharField(max_length=10)
     regnumber = models.CharField(max_length=25)
     title = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True),
+    description = models.TextField(blank=True, null=True)
     street_name = models.CharField(max_length=128, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....'")
     ask = models.CharField(max_length=100, blank=True, null=True, help_text="This field changes the 'submit a public comment on' text on the regulation page.")
     notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
@@ -196,6 +196,10 @@ class Regulation(models.Model):
     commentperiod_closed_date = models.DateField()
     current_status = models.TextField(blank=True, null=True)
     current_status_date = models.DateTimeField(blank=True, null=True)
+    
+    def campaign_positions(self):
+        qs = self.orgcampaignposition_set.filter(campaign__visible=True, campaign__org__visible=True).select_related("campaign", "campaign__org")
+        return qs
     
 
 class Bill(models.Model):
@@ -675,7 +679,7 @@ class Org(models.Model):
     def positions(self):
         return OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org=self).order_by("-campaign__default", "campaign__name", "order", "-updated")
     def positions_can_comment(self):
-        return [p for p in self.positions() if p.bill.isAlive() or p.bill.died()]
+        return [p for p in self.positions() if p.regulation or p.bill.isAlive() or p.bill.died()]
         
     def is_admin(self, user):
         if user.is_anonymous():
