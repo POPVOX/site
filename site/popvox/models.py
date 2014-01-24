@@ -197,6 +197,13 @@ class Regulation(models.Model):
     current_status = models.TextField(blank=True, null=True)
     current_status_date = models.DateTimeField(blank=True, null=True)
     
+    def isAlive(self):
+        # alive = open for public comment
+        if self.commentperiod_open_date < datetime.datetime.now() and datetime.datetime.now() > commentperiod_closed_date:
+            return True
+        else:
+            return False
+    
     def campaign_positions(self):
         qs = self.orgcampaignposition_set.filter(campaign__visible=True, campaign__org__visible=True).select_related("campaign", "campaign__org")
         return qs
