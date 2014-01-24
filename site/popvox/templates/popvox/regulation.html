@@ -1,0 +1,55 @@
+{% extends "master.html" %}
+{% load humanize %}
+{% load popvox_utils %}
+{% block title %}{% if regulation.street_name %}{{regulation.street_name|capfirst}}: {% endif %}{{ regulation.title }}{% endblock%}
+{% block description %}Write Congress about {% if regulation.street_name %}{{regulation.street_name|capfirst}}: {% endif %}{{ regulation.title }}{% endblock %}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
+{% block finalscript %}<script>master_state(function(res) { mpmetrics.track('bill page', { 'bill': '{{regulation.displaynumber|escapejs}}', 'can_comment': res.page.canvote ? 'yes' : 'no' }); });</script>{% endblock %}
+{% block head %}
+<style>
+    h1.streetname { margin-bottom: 0; }
+    h2.streetname { font: bold 18px/24px helvetica, arial; margin-bottom: 5px; }
+</style>
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+
+{% include "popvox/track.js" %}
+</script>
+{% endblock %}
+{% block content %}
+<div class="content pgbill">
+
+    <div class="col_9 col_top">
+            <h2 class="streetname billname">{% if regulation.ask %}{{regulation.ask}}{% else %}Submit A Public Comment On{%endif%}<br />
+            <span class="streetname billname">{% if regulation.street_name %}{{regulation.street_name|capfirst}}{% else %}{{regulation.title}}{% endif %}</h2>
+
+        <div>
+                <h1 class="billname no_rule">{{ regulation.title }}</h1>
+            {% if regulation.description %}
+                <p><strong>Summary: </strong>{{ regulation.description }}<p>
+            {% endif %} 
+            {% if regulation.notes %}
+                {{regulation.notes|safe}}
+            {% endif %}    
+        </div>
+    </div>
+    <div >
+        <iframe src="https://annalee.popvox.com/services/widgets/w/account/DQZUTLYRW4K1FK1O/commentstream?iframe=1&bills=us/113/hr96:supporting&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="240" height="376" border="0" frameBorder="0" > </iframe>
+    </div>
+
+    <div>
+        <h3>Stakeholder Positions</h3>
+        {% for position in positions %}
+        <h4>{{position.campaign.org.name}}</h4>
+        <p>{{position.comment}}</p>
+        {% endfor %}
+    </div>
+    
+    <div><iframe src="https://annalee.popvox.com/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&ocp=6330&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe></div>
+    
+    {% endblock %}
+
+
