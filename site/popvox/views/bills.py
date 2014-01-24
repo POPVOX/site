@@ -592,6 +592,24 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
             "show_share_footer": True,
         }, context_instance=RequestContext(request))
 
+def regulation(request, agency, regnumber):
+    regulation = get_object_or_404(Regulation, agency=agency, regnumber=regnumber)
+    
+    #Org positions:
+    positions = regulation.campaign_positions()
+    
+    #pull all the orgs that have weighed in
+    orgs = [p.campaign.org for p in positions]
+
+    # Sort positions by org fan counts.
+    positions = sorted(positions, key=lambda position: position.campaign.org.fan_count_sort_order, reverse=True)
+    
+    return render_to_response('popvox/regulation.html', {
+            'regulation': regulation,
+            'positions': positions,
+            "show_share_footer": True,
+        }, context_instance=RequestContext(request))
+
 def billbox(bill):
     stats = bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=False, want_totalcomments=True, force_data=True)
     cosponsors = bill.cosponsors.all()

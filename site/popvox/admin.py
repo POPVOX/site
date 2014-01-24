@@ -23,6 +23,11 @@ class BillAdmin(admin.ModelAdmin):
         )
     
     #inlines = [PositionDocumentInline]
+    
+class RegulationAdmin(admin.ModelAdmin):
+    list_display = ("agency", "regnumber", "topterm", "street_name", "title")
+    search_fields = ("title", "street_name")
+    filter_horizontal = ['issues']
 
 class BillEventInline(admin.StackedInline):
     model = BillEvent
@@ -111,9 +116,9 @@ class OrgCampaignAdmin(admin.ModelAdmin):
     #inlines = [OrgCampaignPositionInline] #takes way too long to load
     
 class OrgCampaignPositionAdmin(admin.ModelAdmin):
-    search_fields = ["campaign", "bill"]
+    search_fields = ["campaign", "bill", "regulation"]
     list_display = ["campaign_name", "bill_shortname"]
-    raw_id_fields = ['campaign', "bill"]
+    raw_id_fields = ['campaign', "bill", "regulation"]
 
 class ServiceAccountAdmin(admin.ModelAdmin):
     raw_id_fields = ("user", "org")
@@ -191,6 +196,7 @@ admin.site.register(OrgCampaignPosition, OrgCampaignPositionAdmin)
 admin.site.register(OrgContact)
 admin.site.register(MemberOfCongress, MemberOfCongressAdmin)
 admin.site.register(Bill, BillAdmin)
+admin.site.register(Regulation, RegulationAdmin)
 admin.site.register(Slate, SlateAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)

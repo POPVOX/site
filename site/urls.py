@@ -90,6 +90,7 @@ urlpatterns = patterns('',
     (r'^orgs$', 'popvox.views.org.orgs'),
     
     (r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/?$', "popvox.views.bills.bill"),
+    (r'^regulations/us/(?P<agency>[a-zA-Z]+)/(?P<regnumber>[a-zA-Z0-9-]+)?/?$', "popvox.views.bills.regulation"),
     (r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/comment(/clear|/support|/oppose|/finish)?$', "popvox.views.bills.billcomment"),# Google Analytics funnel page
     (r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/comment/(\d+)$', "popvox.views.bills.billshare"),
     (r'^ajax/bills/share$', "popvox.views.bills.billshare_share"),
