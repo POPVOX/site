@@ -192,21 +192,26 @@ class Regulation(models.Model):
     hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
     topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermregs", on_delete=models.SET_NULL)
     issues = models.ManyToManyField(IssueArea, blank=True, null=True, related_name="regs")
-    commentperiod_open_date = models.DateField()
-    commentperiod_closed_date = models.DateField()
+    commentperiod_open_date = models.DateTimeField()
+    commentperiod_closed_date = models.DateTimeField()
     current_status = models.TextField(blank=True, null=True)
     current_status_date = models.DateTimeField(blank=True, null=True)
     
     def isAlive(self):
         # alive = open for public comment
-        if self.commentperiod_open_date < datetime.datetime.now() and datetime.datetime.now() > commentperiod_closed_date:
-            return True
-        else:
-            return False
+        return self.commentperiod_open_date < datetime.datetime.now() and datetime.datetime.now() < self.commentperiod_closed_date
     
     def campaign_positions(self):
         qs = self.orgcampaignposition_set.filter(campaign__visible=True, campaign__org__visible=True).select_related("campaign", "campaign__org")
         return qs
+    
+    def url(self):
+        return "/regulations/us/" + str(self.agency) + "/" + str(self.regnumber)
+    
+    def hashtag(self, always_include_session=False):
+        if self.hashtags not in (None, ""):
+            return self.hashtags
+        return "#" + str(self.regnumber)
     
 
 class Bill(models.Model):
@@ -524,24 +529,37 @@ class Bill(models.Model):
 def bill_from_url(url):
     fields = url.split("/")
     if fields[0] != "":
-        raise Exception("Invalid bill id.")
-    if fields[1] != "bills":
-        raise Exception("Invalid bill id.")
+        raise Exception("Invalid bill or regulation id.")
+    if fields[1] != "bills" and fields[1] != "regulations":
+        raise Exception("Invalid bill or regulation id.")
     if fields[2] != "us":
-        raise Exception("Invalid bill id.")
-    try :
-        congressnumber = int(fields[3])
-        m = re.match(r"([a-z]+)(\d+)(-\d+)?", fields[4])
-        billtype = Bill.slug_to_type[m.group(1)]
-        billnumber = int(m.group(2))
-        vehicle_number = m.group(3)
-    except :
-        raise Exception("Invalid bill id.")
-    bill = Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None)
-    if len(bill) == 0:
-        raise Exception("No bill with that number exists.")
-    else:
-        return bill[0]
+        raise Exception("Invalid bill or regulation id.")
+    if fields[1] == "bills":
+        try :
+            congressnumber = int(fields[3])
+            m = re.match(r"([a-z]+)(\d+)(-\d+)?", fields[4])
+            billtype = Bill.slug_to_type[m.group(1)]
+            billnumber = int(m.group(2))
+            vehicle_number = m.group(3)
+        except :
+            raise Exception("Invalid bill id.")
+        bill = Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None)
+        if len(bill) == 0:
+            raise Exception("No bill with that number exists.")
+        else:
+            return bill[0]
+    if fields[1] == "regulations":
+        try:
+            agency = str(fields[3])
+            regnumber = str(fields[4])
+        except :
+            raise Exception("Invalid regulation id.")
+        regulation = Regulation.objects.filter(agency=agency, regnumber=regnumber)
+        if len(regulation) == 0:
+            raise Exception("No regulation with that number exists.")
+        else:
+            return regulation[0]
+
         
 class BillList(models.Model):
     EVENT_TYPES = [
@@ -1407,8 +1425,8 @@ class UserComment(models.Model):
     METHOD_NAMES = { METHOD_SITE: "POPVOX.com", METHOD_CUSTOMIZED_PAGE: "PV.com Customized Landing Page", METHOD_WIDGET: "Write Congress Widget" }
 
     user = models.ForeignKey(User, related_name="comments", db_index=True, on_delete=models.CASCADE) # user authoring the comment
-    bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True, on_delete=models.PROTECT, blank=True, null=True)
-    regulation = models.ForeignKey(Regulation, related_name="usercomments", db_index=True, on_delete=models.PROTECT, blank=True, null=True)
+    bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True, on_delete=models.PROTECT, blank=True, null=True, help_text="if regulation is set, bill MUST be blank. A comment can only be on a bill or a regulation, not both.")
+    regulation = models.ForeignKey(Regulation, related_name="usercomments", db_index=True, on_delete=models.PROTECT, blank=True, null=True, help_text="if bill is set, regulation MUST be blank. A comment can only be on a bill or a regulation, not both.")
     
     # if this value changes, we should delete the UserCommentDiggs the user left on
     # this bill.
@@ -1458,10 +1476,17 @@ class UserComment(models.Model):
             ordering = ["-created"]
             unique_together = (("user", "bill"), ("bill", "seq"))
     def __unicode__(self):
-        return self.user.username + " -- " + self.bill.displaynumber() + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()
+        if self.bill:
+            display = self.bill.displaynumber()
+        else:
+            display = self.regulation.regnumber
+        return self.user.username + " -- " + display + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()
 
     def get_absolute_url(self):
-        return self.bill.url() + "/comment/" + str(self.id)
+        if self.bill:
+            return self.bill.url() + "/comment/" + str(self.id)
+        else:
+            return self.regulation.url() + "/comment/" + str(self.id)
 
     def url(self):
         return self.get_absolute_url()
@@ -1520,7 +1545,7 @@ class UserComment(models.Model):
             elif tense=="ing":
                 return "commenting"
             elif tense=="imp":
-                return "comment"
+                return "comment on"
     def verb_imp(self):
         return self.verb(tense="imp")
     def verb_ing(self):
@@ -1536,6 +1561,9 @@ class UserComment(models.Model):
         return self.shares().aggregate(models.Sum("hits"))["hits__sum"]
 
     def get_recipients(self):
+        if self.regulation:
+            recipients = "executive" #FIXME this just sets it to no recipients in the widget
+            return recipients
         if self.bill.comments_to_chamber:
             ch = self.bill.comments_to_chamber # s, h, or c to direct message to both chambers of Congress
         else:
@@ -1878,7 +1906,8 @@ class ServiceAccountCampaign(models.Model):
     """A position on a bill within a ServiceAccount."""
     POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
     account = models.ForeignKey(ServiceAccount, related_name="campaigns", on_delete=models.CASCADE) # implicitly indexed by the unique_together
-    bill = models.ForeignKey(Bill, on_delete=models.PROTECT)
+    bill = models.ForeignKey(Bill, on_delete=models.PROTECT, blank=True, null=True)
+    regulation = models.ForeignKey(Regulation, on_delete=models.PROTECT, blank=True, null=True)
     position = models.CharField(max_length=1, choices=POSITION_CHOICES)
     created = models.DateTimeField(auto_now_add=True)
     mpbucket = models.CharField(max_length=16, blank=True, null=True)

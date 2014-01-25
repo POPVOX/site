@@ -443,12 +443,14 @@ function draw_timeseries(container, data, small) {
 		<div class="block campaigns {% if not forloop.first %}rule{% endif %}">
 		{% for cam in acct.campaigns.all %}
 			<div class="support_oppose">
+                {%if cam.bill %}
 				{% bill_statistics cam.bill as stats %}
+                {% endif %}
 				
 				{% with cam.pro_actionrecords.all.count as count %}
 				<div class="col_50">
 					<h4 style="margin-bottom: 1em">
-						{{cam.bill.nicename|truncatewords:10}}
+						{%if cam.bill %}{{cam.bill.nicename|truncatewords:10}}{% else %}{{cam.regulation.title|truncatewords:10}}{% endif %}
 						<span style="color: #777"> ({% if cam.position == '+' %}Endorsing{% endif %}{% if cam.position == '-' %}Opposing{% endif %}{% if cam.position == '0' %}Neutral{% endif %})</span>
 					</h4>
 					
@@ -473,7 +475,7 @@ function draw_timeseries(container, data, small) {
 				</div>
 				{% endwith %}
 				{% if not forloop.last %}<div class="hr"> </div>{% endif %}
-				</div> <!-- e: support_oppose -->
+            </div> <!-- e: support_oppose -->
 		{% endfor %}
 		</div> <!-- e: block campaigns -->
 		{% endif %}
@@ -566,7 +568,7 @@ function draw_timeseries(container, data, small) {
 		{% for acct in accts %}
             {% if 'analytics' in acct.permissions_list %}
                 {% for cam in acct.campaigns.all %}
-                    <li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
+                    <li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{%if cam.bill%}{{cam.bill.shortname}}{%else%}{{cam.regulation.regnumber}}{%endif%}</a></li>
                     <script type="text/javascript">
                     {% regroup cam.pro_actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
                     {% with cam.mixpanel_stats as mpstats %}

@@ -358,7 +358,11 @@ def getpositions(campaigns):
     for cam in campaigns:
         campositions = list(cam.positions.all())
         #this widget only includes bills that can still be weighed in on.
-        livepositions = [position for position in campositions if position.bill.isAlive()]
+        livepositions = []
+        for position in campositions:
+            if position.bill:
+                if position.bill.isAlive():
+                    livepositions.append(position)
         positions.extend(livepositions)
     return positions
 

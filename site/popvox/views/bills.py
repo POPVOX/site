@@ -1333,10 +1333,10 @@ def user_may_change_address(existing_comment, address_record, user):
 
     return "new-record"
 
-def save_user_comment(user, bill, position, referrer, message, address_record, campaign, method):
+def save_user_comment(user, bill, regulation, position, referrer, message, address_record, campaign, method):
     # If a comment exists, update that record.
     comment = None
-    for c in user.comments.filter(bill = bill):
+    for c in user.comments.filter(bill=bill, regulation=regulation):
         if comment == None:
             comment = c
         else:
@@ -1345,23 +1345,28 @@ def save_user_comment(user, bill, position, referrer, message, address_record, c
     
     # When migrating one bill (typically a non-bill action) to another bill,
     # start saving comments on the original to the new bill.
-    if bill.migrate_to: bill = bill.migrate_to
+    if bill:
+        if bill.migrate_to: bill = bill.migrate_to
 
     # If we're not updating an existing comment record, then create a new one.
     if comment == None:
         comment = UserComment()
         comment.user = user
         comment.bill = bill
+        comment.regulation = regulation
         comment.position = position
         comment.method = method
-        comment.seq = bill.usercomments.count()
+        if bill:
+            comment.seq = bill.usercomments.count()
+        else:
+            comment.seq = regulation.usercomments.count()
     
     # We're updating an existing record.
     else:
         comment.bill = bill # make sure existing comment record gets migrated
         if comment.position != position:
             comment.position = position
-            # When the user switches sides, any comment diggs he previously left on the
+            # When the user switches sides, any comment diggs they previously left on the
             # other side must be cleared.
             comment.my_diggs.all().delete()
         
@@ -1478,6 +1483,68 @@ def billshare(request, congressnumber, billtype, billnumber, vehicleid, commenti
 
     return render_to_response('popvox/billcomment_view.html', {
             'bill': bill,
+            'regulation': None,
+            "comment": comment,
+            "message": message,
+            "includecomment": includecomment,
+            "follow_up": follow_up,
+            "user_position": user_position,
+            "SITE_ROOT_URL": SITE_ROOT_URL,
+            "finished_url": finished_url,
+            "show_share_footer": True,
+        }, context_instance=RequestContext(request))
+
+@csrf_protect_if_logged_in
+def regulationshare(request, agency, regnumber, commentid = None):
+    regulation = get_object_or_404(Regulation, agency__iexact=agency, regnumber=str(regnumber))
+            
+    # Get the user's comment.
+    user_position = None
+    if commentid != None:
+        comment = get_object_or_404(UserComment, id=int(commentid))
+        if request.user.is_authenticated():
+            try:
+                user_position = request.user.comments.get(regulation=regulation)
+            except:
+                pass
+    else:
+        if not request.user.is_authenticated():
+            return HttpResponseRedirect(regulation.url())
+        comment = request.user.comments.filter(regulation = regulation)
+        if len(comment) == 0:
+            return HttpResponseRedirect(regulation.url())
+        comment = comment[0]
+
+    # Default message text from saved session state.
+    message = None
+    includecomment = True
+    try:
+        message, includecomment = request.session["billshare_share.state"]
+        del request.session["billshare_share.state"]
+    except:
+        pass
+
+    comment_rejected = False
+    if comment.status > UserComment.COMMENT_ACCEPTED and (not request.user.is_authenticated() or (not request.user.is_staff and not request.user.is_superuser)):
+        comment_rejected = True
+
+    # Widget follow-up session state.
+    follow_up = request.session.get("follow_up", "")
+    if "follow_up" in request.session: del request.session["follow_up"]
+
+    finished_url = "/home"
+    
+    ## supercommittee feature redirect
+    ## when we ran the supercommittee feature, we wanted to bring users back to the
+    ## supercommittee page after they finished leaving a comment, but now we want
+    ## to avoid this dependency to another part of the code.
+    #from features import supercommittee_bill_list_ids
+    #if bill.id in supercommittee_bill_list_ids:
+    #    finished_url = "/supercommittee"
+
+    return render_to_response('popvox/billcomment_view.html', {
+            'bill': None,
+            'regulation': regulation,
             "comment": comment,
             "message": message,
             "includecomment": includecomment,

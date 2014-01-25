@@ -5,15 +5,17 @@
 	<div class="btn b_move" title="Move" style="margin-right: 5px; margin-left: 5px">move</div>
 	{% endif %}
 	<div class="{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}{% if position.position == "0" %}neutral{% endif %}">
-		<h5><a name="{{position.campaign.org.slug}}-{{position.bill.billtypeslug}}-{{position.bill.billnumber}}-{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}{% if position.position == "0" %}neutral{% endif %}"><a href="{{position.bill.url}}{% if admin %}/report{% endif %}">{{ position.bill.nicename|truncatewords:25 }}</a></a></h5>
+		<h5><a name="{{position.campaign.org.slug}}-{{position.bill.billtypeslug}}-{{position.bill.billnumber}}-{% if position.position == "+" %}endorse{% endif %}{% if position.position == "-" %}oppose{% endif %}{% if position.position == "0" %}neutral{% endif %}">{%if position.bill%}<a href="{{position.bill.url}}{% if admin %}/report{% endif %}">{{ position.bill.nicename|truncatewords:25 }}</a>{%else%}<a href="{{position.regulation.url}}">{{ position.regulation.title|truncatewords:25 }}</a>{% endif %}</a></h5>
 		
 		<div id="campos_{{cam.id}}_{{position.id}}_comment" class="usercomment comment" {% if admin %}title="Click to Edit"{% endif %}>{% if position.comment %}{{position.comment|wraplines:"p style='margin-bottom: .5em'"}}{% else %}{% if admin %}<em>No comment.</em>{% endif %}{% endif %}</div>
-				
+		
+        {%if position.bill%}
 		{% with position.bill.getDeadReason as deadstatus %}
 			{% if deadstatus %}
 				<div><small>(This bill {{deadstatus}}.)</small></div>
 			{% endif %}
 		{% endwith %}
+        {% endif %}
 
 		{% if admin %}
 		<div id="campos_{{cam.id}}_{{position.id}}_comment_editor" style="display: none">
@@ -27,10 +29,12 @@
 			$('#campos_{{cam.id}}_{{position.id}}_comment_textarea').input_autosize();
 		</script>
 		
+        {%if position.bill%}
 		{% with position.bill as bill %}
 			{% include "popvox/org_billaction.html" %}
 		{% endwith %}
 		{% endif %}
+        {% endif %}
 		
 		{% if not admin %}
 			{% for doc in position.documents %}
