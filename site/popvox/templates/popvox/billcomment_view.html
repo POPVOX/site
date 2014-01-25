@@ -57,13 +57,13 @@ ul.social_share_btns {
 	}
 </style>
 
-{% bill_statistics bill as stats %}
+{%if bill%}{% bill_statistics bill as stats %}{%endif%}
 {% include "popvox/billcomment_share_social_js.html" %}
 {% endblock %}
 
 {% block content %}
 
-{% bill_statistics bill as stats %}
+{%if bill%}{% bill_statistics bill as stats %}{%endif%}
 <div style="display: none">
 	<div id="share_email_box" class="colorbox" style="width: 400px">
 		<h1>Share by Email</h1>
@@ -111,14 +111,18 @@ ul.social_share_btns {
 <div class="content">
 	<div class="col_12 clear">
 		{% if comment.user != request.user %}
-			{% if not bill.street_name and bill.is_officially_numbered %}
-				<h1>Letters to Congress on {{bill.displaynumber}}</h1>
-			{% else %}
-				<h1 class="streetname">Letters to Congress</h1>
-			{% endif %}
+            {%if bill%}
+                {% if not bill.street_name and bill.is_officially_numbered %}
+                    <h1>Letters to Congress on {{bill.displaynumber}}</h1>
+                {% else %}
+                    <h1 class="streetname">Letters to Congress</h1>
+                {% endif %}
+            {% else %}
+                <h1>Public comments on {{regulation.regnumber}}</h1>
+            {% endif %}
 		{% else %}
 			{% comment %}gotta be appropriate for when a user is finishing their comment and when they stumble on it again later{% endcomment %}
-			<h1>Here&rsquo;s Your Letter!</h1>
+			<h1>Here&rsquo;s Your {%if bill%}Letter{% else %}Comment{% endif %}!</h1>
 		{% endif %}
 	</div>
 
@@ -136,10 +140,10 @@ ul.social_share_btns {
 				<p style="text-align: right;">{{comment.updated|date2}}</p>
 
 				{% if comment.message %}
-				<p style="padding-top: 20px"><span style="border-bottom: 1px solid black"><strong>{{comment.verb_imp|capfirst}}</strong> {{bill.title}}</span></p>
+				<p style="padding-top: 20px"><span style="border-bottom: 1px solid black"><strong>{%if bill%}{{comment.verb_imp|capfirst}}</strong>{{bill.title}}{% else %}Comment on {{regulation.title}}{% endif %}</span></p>
 				{% endif %}
 				
-				<p style="padding-top: 15px">Dear {{comment.get_recipients_display}}:</p>
+				<p style="padding-top: 15px">{%if bill%}Dear {{comment.get_recipients_display}}{% else %}{{regulation.agency}}{% endif %}:</p>
 				
 				{% if comment.message %}
 					{% if not comment_rejected %}
@@ -148,22 +152,26 @@ ul.social_share_btns {
 						<p>This comment has been hidden by POPVOX staff because it violates our policies for acceptable language.</p>
 					{% endif %}
 				{% else %}
-					<p>I {{comment.verb_imp}} {{bill.title}}.</p>
+					<p>{%if bill%}I {{comment.verb_imp}} {{bill.title}}{% endif %}.</p>
 				{% endif %}
 	
 				<p class="signature">
-					{% if user == comment.user %}
-						<span class="private">Signature seen by Members of Congress:</span> <br>
-						<span class="name">{{comment.address.name_string}}</span> <br>
-						<span class="citystatezip">{{comment.address.address1}}</span> <br>
-						{% if comment.address.address2 %}<span class='citystatezip'>{{comment.address.address2}}</span> <br>{% endif %}
-						<span class="citystatezip">{{comment.address.city}}, {{comment.address.state}} {{comment.address.zipcode|slice:"0:5"}}</span> <br><br>
-						<span class="private">Signature seen by other POPVOX users:</span> <br>
-						
-						<span class="name"><a href="/accounts/profile" id="screenname">{{comment.user.username}}</a></span> <br>
-					{% else %}
-						<span class="name">{{comment.user.username}}</span> <br>
-					{% endif %}
+                    {%if bill%}
+                        {% if user == comment.user %}
+                            <span class="private">Signature seen by Members of Congress:</span> <br>
+                            <span class="name">{{comment.address.name_string}}</span> <br>
+                            <span class="citystatezip">{{comment.address.address1}}</span> <br>
+                            {% if comment.address.address2 %}<span class='citystatezip'>{{comment.address.address2}}</span> <br>{% endif %}
+                            <span class="citystatezip">{{comment.address.city}}, {{comment.address.state}} {{comment.address.zipcode|slice:"0:5"}}</span> <br><br>
+                            <span class="private">Signature seen by other POPVOX users:</span> <br>
+                            
+                            <span class="name"><a href="/accounts/profile" id="screenname">{{comment.user.username}}</a></span> <br>
+                        {% else %}
+                            <span class="name">{{comment.user.username}}</span> <br>
+                        {% endif %}
+                    {% else %}
+                        <span class="name">{{comment.address.name_string}}</span> <br>
+                    {% endif %}
 					<span class="citystatezip">{{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} district{% endif %}</span>
 				</p>
 				
@@ -177,7 +185,7 @@ ul.social_share_btns {
 					{% endwith %}
 				</p>
 						
-				<p style="padding-top: 20px; text-align: center; font: bold 16px sans-serif;"><a class="orange" href="{{bill.url}}/report" {% if comment.user == request.user %}style="color: #666"{% endif %}>View More Letters on This Issue &gt;</a></p>
+				<p style="padding-top: 20px; text-align: center; font: bold 16px sans-serif;"><a class="orange" href="{%if bill%}{{bill.url}}{% else %}{{regulation.url}}{% endif %}/report" {% if comment.user == request.user %}style="color: #666"{% endif %}>View More Letters on This Issue &gt;</a></p>
 			
 			</div>
 		</div>
@@ -188,11 +196,12 @@ ul.social_share_btns {
 	<div class="col_4 col_top col_last">
 	<div style="padding-left: 30px">
 		{% if follow_up == "widget-screenname-password" %}
-			<p>Thank you for sharing your opinion using the Write Congress tool from POPVOX.</p>
-			<p>Your comment on {{bill.displaynumber}} has been saved.</p>
+			<p>Thank you for {%if bill%}sharing your opinion using the Write Congress{% else %}sharing your public comment using the regulation comment{% endif %} tool from POPVOX.</p>
+			<p>Your comment on {%if bill%}{{bill.displaynumber}}{% else %}{{regulation.regnumber}}{% endif %} has been saved.</p>
 			{% include "popvox/widgets/writecongress_followup.html" %}
 		{% endif %}
 		
+        {%if bill%}
 		{% if comment.user == request.user %}
 			{% if stats %}
 				<h1>You Changed the Pie Chart!</h1>
@@ -221,6 +230,7 @@ ul.social_share_btns {
 			<div class="clear"> </div>
 			<div class="hr" style="margin: 20px 0 20px 0;"> </div>
 		{% endif %}
+        {% endif %}
 	
 		<!--
 		<p class="commenter"><span style="font-size: 16px;">{{comment.user.username}}</span> {% comment %}from {{comment.address.statename}}{% if comment.address.congressionaldistrict != 0 %}&rsquo;s {{comment.address.congressionaldistrict|ordinal}} Congressional district{% endif %}{% endcomment %} is using POPVOX to {{comment.verb_imp}}:</p>
@@ -228,21 +238,29 @@ ul.social_share_btns {
 	
 		<div class="block">
 			<div class="bill">
-				<h3 class="no_rule"><a href="{{bill.url}}" style="color: #404045">{{ bill.title|truncatewords:10 }}</a></h3>
+				<h3 class="no_rule"><a href="{%if bill%}{{bill.url}}{% else %}{{regulation.url}}{% endif %}" style="color: #404045">{%if bill%}{{ bill.title|truncatewords:10 }}{% else %}{{ regulation.title|truncatewords:10 }}{% endif %}</a></h3>
 				<p style="margin-bottom: 0;">
-					{% if bill.description %}
-					{{ bill.description|truncatewords:10 }}
-					{% endif %}
-					(<a href="{{bill.url}}">more about this {{bill.proposition_type}}</a>)
+                    {%if bill%}
+                        {% if bill.description %}
+                        {{ bill.description|truncatewords:10 }}
+                        {% endif %}
+                    {% else %}
+                        {% if regulation.description %}
+                        {{ regulation.description|truncatewords:10 }}
+                        {% endif %}
+                    {% endif %}
+
+					(<a href="{%if bill%}{{bill.url}}{% else %}{{regulation.url}}{% endif %}">more about this {%if bill%}{{bill.proposition_type}}{% else %}regulation{% endif %}</a>)
 				</p>
 			</div>
 		</div>
-		
-		<div style="padding-left: 10px">
-		{% with 1 as chart_no_links %}
-			{% include "popvox/bill_statistics_pie_simple.html" %}
-		{% endwith %}
-		</div>
+		{%if bill%}
+            <div style="padding-left: 10px">
+            {% with 1 as chart_no_links %}
+                {% include "popvox/bill_statistics_pie_simple.html" %}
+            {% endwith %}
+            </div>
+        {% endif %}
 		
 		{% if user.is_staff or user.is_superuser %}
 		<script type="text/javascript">
@@ -296,6 +314,7 @@ ul.social_share_btns {
 		</div>
 		{% endif %}
 
+        {%if bill%}
 		{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin and user != comment.user %}
 		<h3 class="no_rule" style="margin-top: 20px">What Do You Think?</h3>
 		{% include "popvox/bill_howshouldtheyvote.html" %}
@@ -310,6 +329,7 @@ ul.social_share_btns {
 			<p>Not sure? Read <a href="{{bill.url}}">more about {{bill.shortname}}</a>.</p>
 		{% endif %}
 		{% endif %}
+        {% endif %}
 		
 
 	</div>

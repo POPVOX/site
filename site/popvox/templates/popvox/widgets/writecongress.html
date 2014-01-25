@@ -63,7 +63,7 @@ Notes:
     <script type="text/javascript" src="/media/js/mwheelIntent.js"></script>
     <script type="text/javascript" src="/media/js/jquery.jscrollpane.min.js"></script>  
     
-    <script type="text/javascript">var bill_display_number = "{{bill.shortname|escapejs}}";</script>
+    <script type="text/javascript">var bill_display_number = "{%if bill%}{{bill.shortname|escapejs}}{%else%}{{regulation.regnumber|escapejs}}{%endif%}";</script>
     <script src="/media/js/lettertips.js"> </script>
 
 <script type="text/javascript">
@@ -125,6 +125,7 @@ Notes:
     .btn.next { background: url(/services/widgets/img/writecongress/next?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=864817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
     .btn.next_support { background: url(/services/widgets/img/writecongress/support-btn?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=844817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
     .btn.next_oppose { background: url(/services/widgets/img/writecongress/oppose-btn?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=844817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
+    .btn.next_neutral { background: url(/services/widgets/img/writecongress/support-btn?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=844817,{{request.GET.fg2}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
 
     .why a.expand { background-image: url(/services/widgets/img/writecongress/expand?sub=C56825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken); }
 
@@ -132,7 +133,9 @@ Notes:
     #b_send_no_msg { background-image: url(b_send_no_msg.png); }
     #b_preview { background: url(/services/widgets/img/writecongress/preview?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken) no-repeat; }
     #b_send_to_congress a { background-image: url(/services/widgets/img/writecongress/send?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken);
-    {% if 'whitehouse' in permissions %}background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
+    {% if 'whitehouse' in permissions %}
+    background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
+    {% if regulation %}background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
     }
     {% endif %}
 
@@ -167,7 +170,7 @@ Notes:
         {% if not request.GET.demo %}
         var mixpanel_properties = {
             {% if campaign %}bucket: "{{campaign.mixpanel_bucket|escapejs}}",{% endif %}
-            bill: "{{bill.shortname|escapejs}}"
+            bill: "{%if bill%}{{bill.shortname|escapejs}}{%else%}{{regulation.regnumber|escapejs}}{%endif%}"
         };
         mixpanel.track('widget_writecongress_hit', mixpanel_properties);
         {% endif %}
@@ -273,7 +276,8 @@ Notes:
                     data: {
                         {% if request.GET.demo %}demo: true,{% endif %}
                         {% if campaign %}campaign: {{campaign.id}},{% endif %}
-                        bill: {{bill.id}},
+                        {%if bill%}bill: {{bill.id}}{%else%}bill: ""{%endif%},
+                        {%if regulation%}regulation: {{regulation.id}}{%else%}regulation: ""{%endif%},
                         action: "check-email",
                         email: email
                     },
@@ -296,7 +300,7 @@ Notes:
                         } else if (data.status == "staff-cant-do-this") {
                             $("#panel_login .error").text("That's a staff account. Use a different email address for personal comments to Congress.");
                         } else if (data.status == "already-commented") {
-                            $("#panel_login .error").text("You've already left a comment on this bill. Thanks!");
+                            $("#panel_login .error").text("You've already left a comment. Thanks!");
                         } else {
                             csrf_token = data.csrf_token;
                             //$('#panel_login .check').show();
@@ -391,9 +395,13 @@ Notes:
             {% endif %}
 
             position = chosen_position;
-            $('.position_verb').text(position == "+" ? "support" : "oppose");
-            $('#panel_write h4, #msg_preview .firstpara').addClass(position == "+" ? "support" : "oppose");
-            {% if 'franking' in permissions %}
+            var position_verb_text;
+            if(position == '+') { position_verb_text = "support"; }
+            else if(position == '-') { position_verb_text = "oppose"; }
+            else { position_verb_text = "neutral" }
+            $('.position_verb').text(position_verb_text);
+            $('#panel_write h4, #msg_preview .firstpara').addClass(position_verb_text);
+            {% if regulation or 'franking' in permissions %}
             {% else %}
             $('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
             {% endif %}
@@ -528,7 +536,8 @@ Notes:
                     data: {
                         {% if request.GET.demo %}demo: true,{% endif %}
                         {% if campaign %}campaign: {{campaign.id}},{% endif %}
-                        bill: {{bill.id}},
+                        {%if bill%}bill: {{bill.id}}{%else%}bill: ""{%endif%},
+                        {%if regulation%}regulation: {{regulation.id}}{%else%}regulation: ""{%endif%},
                         action: "address",
                         email: identity.email,
                         {%if 'email_optin' in permissions %}
@@ -557,11 +566,13 @@ Notes:
                             identity = data.identity;
                             recipients = data.recipients;
                             cdyne_response = data.cdyne_response;
+                            {%if regulation%}$('#msg_preview .greeting').text("Dear {{regulation.agency}}");
+                            {%else%}
                             if (recipients.length > 0)
                                 $('#msg_preview .greeting').text("Dear " + recipients.join(", ") + ":"); // escape?
                             else
                                 $('#msg_preview .greeting').text("Dear Member of Congress,");
-                                                        
+                            {%endif%}
                             show_panel(3);
                         }
                     },
@@ -617,7 +628,8 @@ Notes:
                     data: {
                         {% if request.GET.demo %}demo: true,{% endif %}
                         {% if campaign %}campaign: {{campaign.id}},{% endif %}
-                        bill: {{bill.id}},
+                        {%if bill%}bill: {{bill.id}}{%else%}bill: ""{%endif%},
+                        {%if regulation%}regulation: {{regulation.id}}{%else%}regulation: ""{%endif%},
                         position: position,
                         action: "submit",
                         csrf_token: csrf_token,
@@ -741,7 +753,7 @@ Notes:
                     f("{{url|escapejs}}", verb + " {{bill.nicename|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
             {% else %}
                 if (position == "+") verb = "Support"; else verb = "Oppose";
-                    f("{{url|escapejs}}", verb + " {{bill.nicename|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}");
+                    f("{{url|escapejs}}", verb + " {%if bill%}{{bill.nicename|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}"{%else%}{{regulation.title|truncatewords:7|escapejs}}", "{{regulation.hashtag|escapejs}}"{%endif%});
             {% endif %}
             return false;
         }
@@ -789,19 +801,23 @@ Notes:
                             {% endif %}
                         {% else %}
                             {% if 'franking' in permissions %}
-                                <h1>Share your views on {{bill.shortname}}</h1>
+                                <h1>Share your views on {%if bill%}{{bill.shortname}}{%else%}{{regulation.regnumber}}{%endif%}</h1>
                             {% else %}
-                                <h1>Tell Congress What You Think About {{bill.shortname}}</h1>
+                                <h1>Tell {%if bill%}Congress What You Think About {{bill.shortname}}{%else%}{{regulation.agency}} What You Think About{{regulation.regnumber}}{%endif%}</h1>
                             {% endif %}
                         {% endif %}
 
-                        {% if bill.is_bill %}
-                        <p class="bill_name" title="{{bill.nicename}}"><span>Title:</span> {{bill.nicename|truncatewords:15}}</p>
+                        {% if bill %}
+                            {% if bill.is_bill %}
+                            <p class="bill_name" title="{{bill.nicename}}"><span>Title:</span> {{bill.nicename|truncatewords:15}}</p>
+                            {% else %}
+                            <p class="bill_name" title="{{bill.description}}">{{bill.description|truncatewords:34}}</p>
+                            {% endif %}
                         {% else %}
-                        <p class="bill_name" title="{{bill.description}}">{{bill.description|truncatewords:34}}</p>
+                            <p class="bill_name" title="{{regulation.title}}">{{regulation.title|truncatewords:34}}</p>
                         {% endif %}
                         <form class="form" action="#" onsubmit="return false;" autocomplete="off">
-                            <h3>Tell Congress who you are</h3>
+                            <h3>{% if bill %}Tell Congress who you are{%else%}Please provide your address{%endif%}</h3>
                             
                             <div id="login">
                                 <input id="email" name="email" value="" size="25" maxlength="40" type="text" tabindex="1"><span class="check" style="display: none">check</span><br />
@@ -838,16 +854,20 @@ Notes:
                             </div>
                             {% if 'email_optin' in permissions %} <div class="optin">
                                 <input id="email_optin" type="checkbox" />
-                                <label for="email_optin" style="width:60%">Send me updates about this bill and related issues from {{campaign.account}}.</label>
+                                <label for="email_optin" style="width:60%">Send me updates about this {%if bill%}bill{%else%}regulation{%endif%}, and related issues from {{campaign.account}}.</label>
                             </div>
                                     {% endif %}
                             
-                            {% if position %}
-                            <input value="next" {% if 'next_btn_move' in permissions  %}style="position:absolute; margin-top: 175px"{% endif %} class="btn next disabled" onclick="return do_login('{{position}}');" type="button"/>
+                            {%if bill%}
+                                {% if position %}
+                                <input value="next" {% if 'next_btn_move' in permissions  %}style="position:absolute; margin-top: 175px"{% endif %} class="btn next disabled" onclick="return do_login('{{position}}');" type="button"/>
+                                {% else %}
+                                <input style="margin: 20px 0; /*put me in head */" value="support" class="btn or next_support disabled" onclick="return do_login('+');" type="button"/>
+                                <p class="or" style="display: block; width: 60px; height: 47px; float: left; font-weight: bold; margin: 20px 0 0; padding: 15px 0 0; text-align: center ">OR</p>
+                                <input style="margin: 20px 0; /*put me in head */" value="oppose" class="btn or next_oppose disabled" onclick="return do_login('-');" type="button"/>
+                                {% endif %}
                             {% else %}
-                            <input style="margin: 20px 0; /*put me in head */" value="support" class="btn or next_support disabled" onclick="return do_login('+');" type="button"/>
-                            <p class="or" style="display: block; width: 60px; height: 47px; float: left; font-weight: bold; margin: 20px 0 0; padding: 15px 0 0; text-align: center ">OR</p>
-                            <input style="margin: 20px 0; /*put me in head */" value="oppose" class="btn or next_oppose disabled" onclick="return do_login('-');" type="button"/>
+                                <input value="next" {% if 'next_btn_move' in permissions  %}style="position:absolute; margin-top: 175px"{% endif %} class="btn next disabled" onclick="return do_login('0');" type="button"/>
                             {% endif %}
                             <script type="text/javascript">$('#panel_login .next, #panel_login .next_support, #panel_login  .next_oppose').hover(
                                 function() { if ($('#email').hasClass("default")) { $('#email').css({'font-weight': 'bold', 'color': 'red'}); } },
@@ -872,17 +892,27 @@ Notes:
                         </script>
                         
                         {% comment %}keep in mind: large buttons for neutral widgets and at least one line for the service account owner{% endcomment %}
+                        {% if bill %}
                         <p style="margin-top: 20px; padding-right: 1em;">Your letter will be sent to {% if 'whitehouse' in permissions %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
-                        {% if 'collect_analytics' in permissions %}{% if campaign %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {{campaign.account}}.</p>{% endif %}{% endif %}
-                        <p>View <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">POPVOX's Privacy Policy</a></p>
+                        {%else%}
+                        <p style="margin-top: 20px; padding-right: 1em;">Your comment will be sent to the {{regulation.agency}} via <a href="http://regulations.gov" target="_blank">Regulations.gov</a> and will become part of the public record. Your full name will be displayed publicly on <a href="http://regulations.gov" target="_blank">Regulations.gov</a></p> 
+                        <p style="margin-top: 20px; padding-right: 1em;">Your comment, and Congressional district will be displayed anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. (You may also choose a screen name.)</p>
+                        {%endif%}
+                        {% if 'collect_analytics' in permissions %}
+                            {% if bill %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {% if campaign %}{{campaign.account}}{%else%}the widget owner{% endif %}.</p>
+                            {% else %}
+                            <p style="margin-top: 1em; padding-right: 1em;">Your comment, name, email, and zip code will also be shared with {% if campaign %}{{campaign.account}}{%else%}the widget owner{% endif %}.</p>
+                            {% endif %}
+                        {% endif %}
+                        <p>View <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">POPVOX&#39;s Privacy Policy</a></p>
                     </div> <!-- e: panel_login -->
 
                     <div id="panel_addressform" class="widget_panel" style="display: none;" >
                         <form class="form" action="#" onsubmit="return false;">
                             <h3>Tell Congress who you are</h3>
                             
-                                <p>Provide the address of your residence where you intend to vote.<br />
-                                Congressional offices only accept mail with complete contact information.</p>
+                                <p>Provide the address of your residence where you intend to vote.{% if bill %}<br />
+                                Congressional offices only accept mail with complete contact information.{%endif%}</p>
                             
                                 <label for="useraddress_prefix">Prefix*</label>
                                 <select class="c2" id="useraddress_prefix">
@@ -923,7 +953,7 @@ Notes:
                                                                 
                                 
                                 <label for="useraddress_phonenumber">Phone#*</label><input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/><br />
-                                <small class="mrg_top_0">Some Members of Congress require a phone number with your message. Don't worry, POPVOX only shares your number when your Members of Congress ask for it.</small>
+                                <small class="mrg_top_0">{% if bill %}Some Members of Congress require a phone number with your message. Don&#39;t worry, POPVOX only shares your number when your Members of Congress ask for it.{%else%}POPVOX asks for a phone number as a part of signup because it is required by some Congressional offices to receive correspondence and POPVOX facilitates that communication. It will not be shared except when required by your Member of Congress.{%endif%}</small>
                                 {% if tagvals %}
                                 <label for="useraddress_tag">{{ taglabel }}</label>
                                 <select class="c2" id="useraddress_tag" type="text" value="" maxlength="18">
@@ -945,8 +975,9 @@ Notes:
                             
                     <div id="panel_write" class="widget_panel" style="display: none;">
                         {% if reason %}
-                            {% if 'franking' in permissions %} {%comment%}done this way because I'm not positive 'not in' will work for this template tag{%endcomment%}
+                            {% if 'franking' in permissions %}
                             {% else %}
+                                {% if bill %}
                                 <div id="panel_write_why_reason">
                                 <div class="why">
                                     <h3>Why should I <span class="position_verb"> </span> {{bill.shortname}}?</h3>
@@ -961,14 +992,15 @@ Notes:
                                         function() { $('#panel_write .reason').slideDown(); },
                                         function() { $('#panel_write .reason').slideUp(); } );
                                 </script>
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                                         
                         <h3>Write a Personal Message</h3>
                         {% if 'franking' in permissions %}
-                        <h4>Here are my views on {{bill.shortname}}.</h4>
+                            <h4>Here are my views on {%if bill%}{{bill.shortname}}{%else%}{{regulation.regnumber}}{%endif%}.</h4>
                         {% else %}
-                        <h4>I <span class="position_verb"> </span> {{bill.shortname}} because...</h4>
+                            {%if bill%}<h4>I <span class="position_verb"> </span> {{bill.shortname}} because...</h4>{%else%}<h4>Here are my views on {{regulation.regnumber}}</h4>{%endif%}
                         {% endif %}
 
         
@@ -986,8 +1018,15 @@ Notes:
                         <div id="tips">
                             {% if 'franking' in permissions %}
                             {% else %}
-                            <h3>A message is optional</h3>
+                            {%if bill%}<h3>A message is optional</h3>
                             <p class="is-optional">When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. <em>To skip this step, just click Preview.</em></p>
+                            {%else%}
+                            <h3>Public Comment Tips</h3>
+                            <p class="is-optional">Agencies are required to consider your input.<br>
+                            Information-rich comments that clearly communicate and support claims are more likely to have an impact.<br>
+                            Be concise but support your claims.<br>
+                            The comment process is not a vote – one well supported comment is often more influential than a thousand form letters.</em></p>
+                            {%endif%}
                             {% endif %}
                             <!--
                             <h3>Tips</h3>
@@ -1002,21 +1041,25 @@ Notes:
                         
                         <div class="clear"> </div>
                         
-                        <p>Your letter will be sent to Congress and {% if 'whitehouse' in permissions %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}{% if 'collect_analytics' in permissions %}A copy will also go to {{campaign.account}}.{% endif %}{% endif %}</p>
+                        {%if bill%}<p>Your letter will be sent to Congress and {% if 'whitehouse' in permissions %}the Administration and {% endif %}posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. {% if campaign %}{% if 'collect_analytics' in permissions %}A copy will also go to {{campaign.account}}.{% endif %}{% endif %}</p>
+                        {%else%}
+                        <p>Your comment will be sent to the {{regulation.agency}} via <a href="http://regulations.gov" target="_blank">Regulations.gov</a> and will become part of the public record. Your full name will be displayed publicly on <a href="http://regulations.gov" target="_blank">Regulations.gov</a></p> 
+                        <p style="margin-top: 20px; padding-right: 1em;">Your comment, and Congressional district will be displayed anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
+                        {%endif%}
                         
                     </div><!-- e: panel_write -->
                     
                     <div id="panel_preview" class="widget_panel" style="display: none;" >
                                         
-                        <h3>Preview your message</h3>
+                        <h3>Preview your {%if bill%}message{%else%}comment{%endif%}</h3>
         
                         <div id="msg_preview">
-                            <p class="greeting">Dear Congressperson:</p>
+                            {%if bill %}<p class="greeting">Dear Congressperson:</p>{%else%}Dear {{regulation.agency}}{%endif%}
                             <div class="scrolled">
                                 <p class="firstpara"><span></span> <div class="message"> </div></p>
                                 <p class="write_a_personal_message">
-                                Members of Congress only respond to personal messages.
-                                Consider <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and writing a personal message.<p>
+                                {%if bill %}Members of Congress only respond to personal messages.
+                                Consider <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and writing a personal message.{%else%}The {{regulation.agency}} cannot consider blank comments. Please <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and write a comment.{%endif%}<p>
                             </div>
                             <p class="signature">
                                 <span class="name"><strong>Bob Smith</strong> | edit <a href="#" onclick="return working ? false : show_panel(2);"> address</a> or <a href="#" onclick="return working ? false : show_panel(3);">message</a></span><br />
@@ -1031,7 +1074,7 @@ Notes:
                         {% if "widget_optin" in permissions and request.GET.optin == "1" %}
                         <div class="optin">
                             <input id="optin" type="checkbox"/>
-                            <label for="optin">Send me updates about this bill and related issues from <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</label>
+                            <label for="optin">Send me updates about this {%if bill%}bill{%else%}regulation{%endif%} and related issues from <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</label>
                         </div>
                         {% endif %}
                         
@@ -1041,8 +1084,11 @@ Notes:
                     
                     <div id="panel_share" class="widget_panel" style="display: none">
                                         
-                        <h3 class="congrats">Congratulations, we sent your message to Congress!</h3>
+                        {%if bill%}<h3 class="congrats">Congratulations, we sent your message to Congress!</h3>
                         <h4 class="congrats">More information on what happened!</h4>
+                        {%else%}
+                        <h3 class="congrats">Your comment will be sent.</h3>
+                        {%endif%}
         
                         <div id="social_share">
                             {% if 'franking' in permissions %}

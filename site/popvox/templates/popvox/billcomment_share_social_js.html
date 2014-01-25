@@ -43,7 +43,7 @@ function share(method, isauto, linkcallback) {
 				   linkcallback("{{SITE_ROOT_URL|escapejs}}{{comment.url|escapejs}}");
 		   }
 		});
-	mpmetrics.track('comment share', { 'bill': '{{comment.bill.displaynumber|escapejs}}', method: method });
+	mpmetrics.track('comment share', { 'bill': '{%if comment.bill%}{{comment.bill.displaynumber|escapejs}}{% else %}{{comment.regulation.regnumber|escapejs}}{% endif %}', method: method });
 	return false;
 }
 function start_share(method) {
@@ -91,30 +91,35 @@ function facebook_share_simple(targeturl) {
 }
 
 function twitter_share_simple(targeturl) {
-	var ht = encodeURIComponent("{{bill.hashtag|escapejs}}".replace("#", ""));
-	var ht2 = "{{bill.hashtag|escapejs}}";
+	var ht = encodeURIComponent("{%if bill%}{{bill.hashtag|escapejs}}{% else %}{{regulation.hashtag|escapejs}}{% endif %}".replace("#", ""));
+	var ht2 = "{%if bill%}{{bill.hashtag|escapejs}}{% else %}{{regulation.hashtag|escapejs}}{% endif %}";
 	{% if comment.user == request.user %}
 		var text = "I'm using @POPVOX to {{comment.verb_imp}} ";
 		var sfx = ".";
 	{% else %}
-		var text = "Check out {{comment.user.username}}'s letter {{comment.verb_ing}} ";
+		var text = "Check out {{comment.user.username}}'s {%if bill%}letter {{comment.verb_ing}}{% else %}comment on{% endif %} ";
 		var sfx = " on @POPVOX.";
 	{% endif %}
 	
-	{% if bill.is_officially_numbered %}
-		{% if not bill.street_name %}
-			text += "{{bill.hashtag|escapejs}}";
-			ht = "";
-			ht2 = "";
-		{% else %}
-			text += "{{bill.street_name|escapejs}}";
-		{% endif %}
-	{% else %}
-		text += "{{bill.shortname|escapejs}}";
-	{% endif %}
+    {%if bill%}
+        {% if bill.is_officially_numbered %}
+            {% if not bill.street_name %}
+                text += "{{bill.hashtag|escapejs}}";
+                ht = "";
+                ht2 = "";
+            {% else %}
+                text += "{{bill.street_name|escapejs}}";
+            {% endif %}
+        {% else %}
+            text += "{{bill.shortname|escapejs}}";
+        {% endif %}
+    {% else %}
+        text += "{{regulation.hashtag|escapejs}}";
+    {% endif %}
 	
 	text += sfx;
 
+    {%if bill%}
 	{% if stats %}
 	var pct = {% if comment.position == "+" %}{{stats.pro_pct}}{% else %}{{stats.con_pct}}{% endif %};
 	if (pct > 50)
@@ -124,6 +129,7 @@ function twitter_share_simple(targeturl) {
 			text += " I need your help.";
 		{% endif %}
 	{% endif %}
+    {% endif %}
 	
 	var p1 = "http://twitter.com/intent/tweet?related=popvox&hashtags=" + ht + "&url=" + encodeURIComponent(targeturl) + "&text=" + encodeURIComponent(text);
 	var p2 = "http://twitter.com/home?status=" + encodeURIComponent(text + " " + ht2 + " " + targeturl);
