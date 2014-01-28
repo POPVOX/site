@@ -96,12 +96,14 @@ def get_popular_bills(searchstate = None, searchdistrict = None, newdist = False
             if not newdist:
                 for rec in comments\
                     .exclude(bill__in=seen_bills)\
+                    .exclude(bill__isnull=True)\
                     .filter(created__gt=datetime.datetime.now() - 5*time_period)\
                     .extra(select={"half":"created>='%s'" % (datetime.datetime.now() - time_period).isoformat()})\
                     .values("half", "bill")\
                     .annotate(count=Count('id')).order_by('-count')\
                     [0:50]:
-                    if not rec["bill"] in bill_data: bill_data[rec["bill"]] = [None, None]
+                    if not rec["bill"] in bill_data:
+                        bill_data[rec["bill"]] = [None, None]
                     bill_data[rec["bill"]][rec["half"]] = rec["count"]
                     max_count = max(max_count, rec["count"])
                 
@@ -2279,12 +2281,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 @csrf_protect
 @json_response
 def comment_digg(request):
-    bill = get_object_or_404(Bill, id=request.POST.get("bill", -1))
     comment = get_object_or_404(UserComment, id=request.POST.get("comment", -1))
-    
-    appreciate = can_appreciate(request, bill)
-    if not appreciate or (type(appreciate) == UserComment and appreciate.position != comment.position):
-        return { "status": "fail", "msg": "invalid action" }
         
     d = UserCommentDigg.objects.filter(comment=comment, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user)
     if request.POST["action"] == "-":
