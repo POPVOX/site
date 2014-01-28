@@ -397,10 +397,10 @@ def widget_render_writecongress_page(request, account, permissions):
             else:
                 suggestions["0"][2] = None
         else:
-            for p in OrgCampaignPosition.objects.filter(campaign__org=org, campaign__visible=True).exclude(bill=bill).exclude(regulation=True):
-            #exclude regulations from suggestions
-                if len(suggestions[p.position][2]) < 2 and p.bill.isAlive():
-                    suggestions[p.position][2].append(p.bill)
+            for p in OrgCampaignPosition.objects.filter(campaign__org=org, campaign__visible=True).exclude(bill=bill):
+                if p.bill: #excluding regulations here instead of in the query because load times.
+                    if len(suggestions[p.position][2]) < 2 and p.bill.isAlive():
+                        suggestions[p.position][2].append(p.bill)
             if len(suggestions["+"][2]) + len(suggestions["-"][2]) >= 2:
                 suggestions["0"] = []
 
