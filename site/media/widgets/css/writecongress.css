@@ -762,6 +762,10 @@ a {
 		padding: 20px 30px;
 		height: 10px;
 		}
+		
+	h3.suggest {
+		margin-top: 10px;
+	}
 	
 	.chart_info {
 		float: right;
