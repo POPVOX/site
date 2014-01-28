@@ -891,7 +891,6 @@ a {
 		}
 		
 #wrap {
-	/*background: #efefef url(http://sodiumhalogen.com/client_view/popvox/wid get_writecongress/widget_writerep-2b.jpg) left top no-repeat;*/
 	padding: 20px;
 	font-family: helvetica, arial, sans-serif;
 	}
@@ -899,6 +898,9 @@ a {
 #wrap.w420 {
 	/*background: url(http://sodiumhalogen.com/up/widg et_writerep_8fe3.jpg) left top no-repeat;*/
 	width: 420px;
+/* maybe this won't break it */
+	height: 660px;
+	border-radius: 10px;	
 	}
 #wrap.w420 .widget_body {
 	width: 420px;
@@ -1297,6 +1299,7 @@ a {
 		width: 45%;
 		float: left;
 		margin-right: 30px;
+		margin-bottom: 10px;
 		}
 		
 		#msg.form textarea {
@@ -1346,6 +1349,10 @@ a {
 			
 	a.back {
 		line-height: 25px;
+		}
+		
+	a.back3 {
+		margin-left: 15px;
 		}
 		
 		
@@ -1440,6 +1447,10 @@ a {
 			border: none;
 			float: right;
 			}	
+			
+			#b_send_message a {
+				background: url(../../widget/b_send_message.png) left top no-repeat;
+				}
 		
 			#b_send_to_congress a:hover {
 				background-position: left bottom;
