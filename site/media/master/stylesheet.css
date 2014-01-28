@@ -490,7 +490,10 @@ body.land {
     margin-right: 20px;
     }
 
-.col_12 { width: 940px  }
+.col_12 { 
+	width: 940px;
+	clear: both;
+	}
 
 /* ----Typographic Styling--- */
 
@@ -1053,7 +1056,7 @@ ul.tabs {
 	}
 	
 .pgbill h1 {
-	font: normal 18px/30px helvetica,arial,sans-serif;
+	font: normal 18px/24px helvetica,arial,sans-serif;
 	}
 	
 	.pgbill .alert_dead h2 {
@@ -2532,7 +2535,7 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
 
 .share_chart {  }
 
-.b_share_facebook 
+
 
 
 
@@ -6469,5 +6472,130 @@ font-weight: normal;
 #svo span.users {
 	display: none;
 }
+
+
+
+/*  Regulations Styles  */
+
+#pg_reg {
+	background: url("_delete_bg.jpg") repeat-x scroll center -124px;
+}
+
+	#pg_reg.pgbill h1 {
+		line-height: 18px;
+		margin-bottom: 10px;
+	}
+
+	#pg_reg h2 span.streetname.billname {
+		padding: 0 0 10px;
+		font: 35px/41px 'BebasNeueRegular',helvetica,arial,sans-serif;
+	}
+	
+	#pg_reg p {
+		
+	}
+
+
+	#social_reg {
+		display: block;
+		width: 200px;
+		margin-top: 25px;
+		float: right;
+	}
+	
+		#social_reg ul.social-links {
+			display: block;
+			padding-left: 85px;
+		}
+		#social_reg ul.social-links li a {
+			display: block;
+			float: left;
+			text-indent: -9999em;
+			width:  30px;
+			height: 32px;
+			margin-left: 7px
+		}
+			
+			#social_reg ul.social-links li a:hover {
+				background-position: left -43px;
+				text-decoration: none;
+				border: none;
+			}
+		
+		#social_reg ul li a.facebook {
+			background: url(b_icon_facebook.png) left top no-repeat;
+		}
+		
+		#social_reg ul li a.twitter {
+			background: url(b_icon_twitter.png) left top no-repeat;
+		}
+		
+		#social_reg ul li a.email {
+			background: url(b_social_email.png) left top no-repeat;
+		}
+
+
+	
+	#reg_stats {
+		background: #404045;
+		/* border: 1px solid green; */
+		display: block;
+		float: left;
+		width: 200px;
+		height: 100px;
+		margin-right: 30px; 
+		padding: 25px 20px 20px;
+		color: #fff;
+	}
+	
+		#reg_stats p {
+			font: 20px/22px helvetica, arial, sans-serif;
+		}
+		
+		#reg_stats span {
+			display: block;
+			float: left;
+			width: 125px;
+		}
+		
+		#reg_stats strong span {
+			font-size: 22px;
+			font-weight: normal;
+			padding-top: 5px;
+		}
+		
+		#reg_stats p strong {
+			display: block;
+			float: left;
+			padding-top: 5px;
+		}
+		
+		#reg_stats p strong em {
+			padding-top: 15px;
+			font: normal 60px helvetica, arial, sans-serif;
+		}
+
+	#reg_comment_widget {
+		display: block;
+		width: 245px;
+		float: left;
+		padding-top: 15px;
+		padding-right: 25px;
+	}
+
+		#reg_comment_widget p {
+			font-size: 15px;
+			font-weight: bold;
+		}
+
+		#pg_reg .col_last {
+			padding: 20px 0;
+		}
+
+	#pg_reg .col_6 {
+		margin-bottom: 20px;
+	}
+
+
 
 

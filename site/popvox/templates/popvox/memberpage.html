@@ -103,12 +103,12 @@
 		{% if memdata.website %}<a href="{{memdata.website}}">{{memdata.website}}</a>{% endif %}
 	<h3>Social</h3>
 	<ul class="social-links">
-	{% if memdata.facebook_id %}<li><a class="facebook" href="http://facebook.com/{{memdata.facebook_id}}"></a></li>{% endif %}
-	{% if memdata.youtube_url %}<li><a class="youtube" href="{{memdata.youtube_url}}"></a></li>{% endif %}
-	{% if memdata.twitter_id %}<li><a class="twitter" href="http://twitter.com/{{memdata.twitter_id}}"></a></li>{% endif %}
-	{#comment {% if memdata.flickr_id %}<li><a class="flickr" href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}{ #}
-    {% if memdata.googleplus %}<li><a class="googleplus" href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
-</ul>
+		{% if memdata.facebook_id %}<li><a class="facebook" href="http://facebook.com/{{memdata.facebook_id}}"></a></li>{% endif %}
+		{% if memdata.youtube_url %}<li><a class="youtube" href="{{memdata.youtube_url}}"></a></li>{% endif %}
+		{% if memdata.twitter_id %}<li><a class="twitter" href="http://twitter.com/{{memdata.twitter_id}}"></a></li>{% endif %}
+		{#comment {% if memdata.flickr_id %}<li><a class="flickr" href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}{ #}
+	    {% if memdata.googleplus %}<li><a class="googleplus" href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
+	</ul>
 {% if memdata.last_vid %}
 <iframe width="280" height="170" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
 <hr>

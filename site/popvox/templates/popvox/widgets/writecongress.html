@@ -135,7 +135,7 @@ Notes:
     #b_send_to_congress a { background-image: url(/services/widgets/img/writecongress/send?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken);
     {% if 'whitehouse' in permissions %}
     background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
-    {% if regulation %}background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
+    {% if regulation %}background-image: url(/media/master/b_send_message.png); height: 56px;{% endif %}
     }
     {% endif %}
 
@@ -1022,9 +1022,9 @@ Notes:
                             <p class="is-optional">When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. <em>To skip this step, just click Preview.</em></p>
                             {%else%}
                             <h3>Public Comment Tips</h3>
-                            <p class="is-optional">Agencies are required to consider your input.<br>
-                            Information-rich comments that clearly communicate and support claims are more likely to have an impact.<br>
-                            Be concise but support your claims.<br>
+                            <p class="is-optional">Agencies are required to consider your input.<br /><br />
+                            Information-rich comments that clearly communicate and support claims are more likely to have an impact.<br /><br />
+                            Be concise but support your claims.<br /><br />
                             The comment process is not a vote – one well supported comment is often more influential than a thousand form letters.</em></p>
                             {%endif%}
                             {% endif %}
@@ -1054,7 +1054,7 @@ Notes:
                         <h3>Preview your {%if bill%}message{%else%}comment{%endif%}</h3>
         
                         <div id="msg_preview">
-                            {%if bill %}<p class="greeting">Dear Congressperson:</p>{%else%}Dear {{regulation.agency}}{%endif%}
+							{%if bill %}<p class="greeting">Dear Congressperson:</p>{%else%}<p class="greeting">Dear {{regulation.agency}}</p>{%endif%}
                             <div class="scrolled">
                                 <p class="firstpara"><span></span> <div class="message"> </div></p>
                                 <p class="write_a_personal_message">
@@ -1068,8 +1068,9 @@ Notes:
                             </p>
                             
                         </div>  
-                        
+						
                         <p id="b_send_to_congress"><a class="btn" href="#" onclick="return do_send();">Send your message to Congress</a></p>
+						<a href="#" class="back back3" onclick="return working ? false : show_panel(3);">back</a>
                         
                         {% if "widget_optin" in permissions and request.GET.optin == "1" %}
                         <div class="optin">
