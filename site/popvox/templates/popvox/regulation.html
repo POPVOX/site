@@ -36,8 +36,8 @@
 		
 
 		<div class="col_4" id="reg_stats">
-			<p><span>Comments:</span> OPEN</p>
-			<p><strong><span>Days Remaining:</span> <em>28</em></strong></p>
+			<p><span>Comments:</span> {%if regulation.isAlive%}OPEN{%else%}CLOSED{%endif%}</p>
+			<p><strong><span>Days Remaining:</span> <em>{{regulation.daysleft}}</em></strong></p>
 		</div>
 		
 		<div class="col_8">
@@ -55,17 +55,16 @@
 	<div class="col_12 rule">
 
 	    <div id="reg_comment_widget">
-	        <iframe src="/services/widgets/w/account/DQZUTLYRW4K1FK1O/commentstream?iframe=1&bills=us/113/hr96:supporting&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="240" height="600" border="0" frameBorder="0" > </iframe>
+	        <iframe src="/services/widgets/w/account/DQZUTLYRW4K1FK1O/commentstream?iframe=1&regulations=us/{{ regulation.agency }}/{{ regulation.regnumber }}&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="240" height="600" border="0" frameBorder="0" > </iframe>
 	    </div>
 	    
 		<div class="col_6">	
-			<iframe src="/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&ocp=8311&franking=false&demo=true&sbg=b36015&sbg2=E8E5DF&sfg=ffffff&lnk=cc6a11&bg=fafafa&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe>
+			<iframe src="/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&regulation=us/{{ regulation.agency }}/{{ regulation.regnumber }}&franking=false&sbg=b36015&sbg2=E8E5DF&sfg=ffffff&lnk=cc6a11&bg=fafafa&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe>
 		</div>
 		<div class="col_2 col_last">	
 	    	<p><strong>We are still working on this awesome new page.</strong></p>
 	    	<p>This is a public comment.</p>
 <!-- 	    	<p><a href="#">view the regulations report</a></p> -->
-	    	<p>embed this widget sukka</p>
 		</div>
 <!--
 	    <div>

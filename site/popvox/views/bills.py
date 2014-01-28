@@ -1933,6 +1933,25 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
             "tag_cloud_oppose": tag_cloud_oppose,
             "show_share_footer": True,
         }, context_instance=RequestContext(request))
+
+@strong_cache
+def regreport(request, agency, regnumber):
+    regulation = get_object_or_404(Regulation, agency=agency, regnumber=regnumber)
+    orgpositions = regulation.campaign_positions()
+    
+    limit = 50
+    comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
+    
+    return render_to_response('popvox/regulation_report.html', {
+        'regulation': regulation,
+        "orgpositions": orgpositions,
+        "stateabbrs": 
+            [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
+        "statereps": getStateReps(),
+        "comments": comments,
+        "show_share_footer": True,
+    }, context_instance=RequestContext(request))
+
 def billreport_userstate(request, congressnumber, billtype, billnumber, vehicleid):
     ret = { }
     bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)

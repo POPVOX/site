@@ -32,6 +32,7 @@ import random, math
 from itertools import chain
 from base64 import urlsafe_b64decode
 import hashlib, hmac
+import sys
 
 INITIAL_REFERRER=""
 
@@ -259,6 +260,7 @@ def widget_render_commentstream(request, account, permissions):
         customizations = json.loads(account.customizations)
     except:
         customizations = None
+        
     
     return render_to_response('popvox/widgets/commentstream.html', {
         'title1': title1,
@@ -952,9 +954,7 @@ class WriteCongressEmailVerificationCallback:
         def g(self, request, vrec):
             @csrf_protect
             def h(request):
-                sys.stderr.write('h.1')
                 return f(self, request, vrec)
-                sys.stderr.write('h.2')
             
             return h(request)
         return g

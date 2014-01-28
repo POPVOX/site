@@ -213,6 +213,13 @@ class Regulation(models.Model):
             return self.hashtags
         return "#" + str(self.regnumber)
     
+    def daysleft(self):
+        if self.isAlive:
+            days = self.commentperiod_closed_date - datetime.datetime.now()
+            return days.days
+        else:
+            return 0
+    
 
 class Bill(models.Model):
     """A bill in Congress."""
