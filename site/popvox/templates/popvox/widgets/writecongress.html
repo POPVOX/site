@@ -1095,7 +1095,7 @@ Notes:
                             {% if 'franking' in permissions %}
                             <h3>Share on social media</h3>
                             {% else %}
-                            <h3>Tell your friends to {%if position == "+" or if position == "-" %} <span class="position_verb"> </span> this bill{%else%}comment on this regulation {%endif%}</h3>
+                            <h3>Tell your friends to {%if bill %} <span class="position_verb"> </span> this bill{%else%}comment on this regulation {%endif%}</h3>
                             {% endif %}
                             <ul class="social_share_btns">
                                 <li><a class="btn social_facebook" href="#" onclick="return do_share('facebook')" title="Facebook">facebook</a></li>
