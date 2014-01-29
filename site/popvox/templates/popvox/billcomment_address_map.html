@@ -92,9 +92,7 @@
 	{% endif %}
 
 	<div class="tab_pane commentProcess">
-	
-	#FIXME this is breaking on regulations because they don't have a bill url and that's not where the info should be posting to
-	<form method="post" id="commentform" action="{{bill.url}}/comment/{% if position == "+" %}support{% else %}oppose{% endif %}">
+	<form method="post" id="commentform" action="{%if bill%}{{bill.url}}/comment/{% if position == "+" %}support{% else %}oppose{% endif %}{% else %}{{regulation.url}}/comment/finish{% endif %}">
 	
 	{% csrf_token %}
 	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>

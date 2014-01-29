@@ -1205,8 +1205,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
         # the short URL as the referrer on the comment.
         referrer = None
         campaign = None
-        #FIXME there's not always going to be a bill:
-        '''if "comment-referrer" in request.session and type(request.session["comment-referrer"]) == dict and request.session["comment-referrer"]["bill"] == bill.id:
+        if "comment-referrer" in request.session and type(request.session["comment-referrer"]) == dict and request.session["comment-referrer"]["bill"] == bill.id:
             rx = request.session["comment-referrer"]
             
             referrer = rx.get("referrer", None)
@@ -1222,7 +1221,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
                 except:
                     pass
                 
-            del request.session["comment-referrer"]'''
+            del request.session["comment-referrer"]
 
         regulation = None
         comment = save_user_comment(request.user, bill, regulation, position, referrer, message, address_record, campaign, UserComment.METHOD_SITE)
@@ -1273,6 +1272,402 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
             axn.bill = bill.id
             axn.comment_session_state = {
                 "bill": bill.url(),
+                "position": position,
+                "message": request.POST["message"]
+                }
+            
+            r = send_email_verification(email, None, axn, send_email=not BENCHMARKING)
+            
+            request.goal = { "goal": "comment-register-start" }
+
+            # for BENCHMARKING, we want to get the activation link directly
+            if BENCHMARKING:
+                return HttpResponse(r.url(), mimetype="text/plain")
+
+            return HttpResponseRedirect("/accounts/register/check_inbox?email=" + urllib.quote(email))
+    
+    else:
+        raise Http404()
+    
+@csrf_protect
+def regcomment(request, agency, regnumber, position):
+    from settings import BENCHMARKING
+
+    position_original = position
+    if position_original == None:
+        position_original = ""
+    
+    regulation = get_object_or_404(Regulation, agency__iexact=agency, regnumber=str(regnumber))
+    
+    # Get an existing comment the user has on this regulation.
+    existing_comment = None
+    if request.user.is_authenticated():
+        try:
+            existing_comment = request.user.comments.get(regulation = regulation)
+        except UserComment.DoesNotExist:
+            pass
+    
+    # Clear out the session state for a pending comment (set e.g. if
+    # user has to go away to do oauth login) if the pending comment
+    # is for a different regulation, or if the regulation is not set (old cookie).
+    if pending_comment_session_key in request.session and (not "regulation" in request.session[pending_comment_session_key] or request.session[pending_comment_session_key]["regulation"] != regulation.url()):
+        del request.session[pending_comment_session_key]
+    
+    #position on regulations is always neutral
+    position = "0"
+        
+    # Does the user have existing address information?
+    address_record = None
+    if existing_comment:
+        # If we're editing an existing comment, then start with the address
+        # tied to that comment.
+        address_record = existing_comment.address
+    elif request.user.is_authenticated():
+        # If the user is logged in, take their most recent address as a
+        # starting point.
+        try:
+            address_record = request.user.postaladdress_set.order_by("-created")[0]
+        except IndexError:
+            pass
+    
+    # Can the user revise the address record in-place, can he create a new address record,
+    # or is his address fixed to prevent fraud?
+    address_record_allow_save = False
+    address_record_fixed = None
+    if address_record:
+        may_change = user_may_change_address(existing_comment, address_record, request.user)
+        if may_change == "in-place":
+            address_record_allow_save = True
+        elif may_change == "new-record":
+            address_record_allow_save = False
+        else:
+            address_record_fixed = may_change
+                
+    # Allow (actually require) the user to revise an address that does not have a prefix or phone number.
+    if address_record != None and address_record_fixed != None and (address_record.nameprefix == "" or address_record.phonenumber == ""):
+        address_record_fixed = None
+    
+    # See billcomment view for commented-out captcha code, should probably stick in a function if we're using it again
+    require_captcha = False
+    
+    try:
+        if len(request.POST) > 0: request.session.delete_test_cookie()
+    except:
+        pass
+    
+    if not "submitmode" in request.POST and position_original != "/finish":
+        message = None
+        has_been_delivered = False
+        message_is_new = True
+
+        request.goal = { "goal": "comment-begin" }
+            
+        # If the user has already saved a comment on this regulation, load it up
+        # as default values for the form.
+        if position != "0" and request.user.is_authenticated():
+            for c in request.user.comments.filter(regulation = regulation):
+                request.goal = { "goal": "comment-edit-begin" }
+                message = c.message
+                has_been_delivered = c.has_been_delivered()
+                message_is_new = False
+                break
+                
+        # If we have a saved session, load the saved message.
+        if pending_comment_session_key in request.session:
+            message = request.session[pending_comment_session_key]["message"]
+            
+        # If we're coming from a customized org action page...
+        if "orgcampaignposition" in request.POST:
+            regpos = get_object_or_404(OrgCampaignPosition, id=request.POST["orgcampaignposition"], regulation=regulation)
+            request.session["comment-referrer"] = {"regulation": regulation.id, "referrer": regpos.campaign }
+            request.session["comment-default-address"] = (request.POST["name_first"], request.POST["name_last"], request.POST["zip"], request.POST["email"])
+            if request.POST.get("share_with_org", "") == "1":
+                request.session["comment-referrer"]["campaign"] = regpos.get_service_account_campaign().id
+                regpos.get_service_account_campaign().add_action_record(
+                    email = request.POST["email"],
+                    firstname = request.POST["name_first"],
+                    lastname = request.POST["name_last"],
+                    zipcode = request.POST["zip"] )
+    
+        request.session.set_test_cookie() # tested in on the client side
+        return render_to_response('popvox/billcomment_start.html', {
+                'regulation': regulation,
+                "position": position,
+                "message": message,
+                "has_been_delivered": has_been_delivered,
+                "message_is_new": message_is_new,
+            }, context_instance=RequestContext(request))
+    
+    elif ("submitmode" in request.POST and request.POST["submitmode"] == "Preview >") or (not "submitmode" in request.POST and position_original == "/finish" and not request.user.is_authenticated()):
+        # The user clicks preview to get a preview page.
+        # Or the user returns from a failed login.
+        
+        if "submitmode" in request.POST:
+            # TODO: Validate that a message has been provided and that messages are
+            # not too long or too short.
+            message = request.POST.get("message", None)
+            if message != None and (message.strip() == "" or message == "None"):
+                message = None
+        else:
+            message = request.session[pending_comment_session_key]["message"]
+        
+        # If the user has to log in (via oauth etc), they will get redirected away, so
+        # we will put the comment into a session variable which we handle when
+        # they return here.
+        #
+        # This is also set in DelayedCommentAction.
+        request.session[pending_comment_session_key] = {
+            "regulation": regulation.url(),
+            "position": position,
+            "message": message
+            }
+        
+        if message != None:
+            request.goal = { "goal": "comment-preview" }
+        else:
+            request.goal = { "goal": "comment-nomessage" }
+
+        return render_to_response('popvox/billcomment_preview.html', {
+                'regulation': regulation,
+                "position": position,
+                "message": message,
+                "email": request.session["comment-default-address"][3] if "comment-default-address" in request.session and type(request.session["comment-default-address"]) == tuple else "",
+            }, context_instance=RequestContext(request))
+        
+    elif "submitmode" in request.POST and request.POST["submitmode"] == "< Go Back":
+        # After clicking Preview, the user can go back and edit.
+        request.goal = { "goal": "comment-revise" }
+        return render_to_response('popvox/billcomment_start.html', {
+                'regulation': regulation,
+                "position": position,
+                "message": request.POST["message"],
+            }, context_instance=RequestContext(request))
+        
+    elif ("submitmode" in request.POST and request.POST["submitmode"] == "Next >") or (not "submitmode" in request.POST and position_original == "/finish"):
+        if "submitmode" in request.POST:
+            # User was already logged in and is just clicking to continue.
+            message = request.POST.get("message", None)
+        else:
+            # User is returning from a login. Get the message info from the saved session.
+            # OR user is coming from the last stage of the write congress widget
+            message = request.session[pending_comment_session_key]["message"]
+
+        request.goal = { "goal": "comment-addressform" }
+        
+        if address_record == None and "comment-default-address" in request.session:
+            if type(request.session["comment-default-address"]) == PostalAddress:
+                address_record = request.session["comment-default-address"]
+            else:
+                import writeyourrep.district_lookup
+                address_record = PostalAddress()
+                address_record.firstname = request.session["comment-default-address"][0]
+                address_record.lastname = request.session["comment-default-address"][1]
+                address_record.zipcode = request.session["comment-default-address"][2]
+                address_record.state = writeyourrep.district_lookup.get_state_for_zipcode(address_record.zipcode)
+            del request.session["comment-default-address"]
+        
+        return render_to_response('popvox/billcomment_address.html', {
+                'regulation': regulation,
+                "position": position,
+                "message": message,
+                "useraddress": address_record,
+                "useraddress_fixed": address_record_fixed,
+                "useraddress_prefixes": PostalAddress.PREFIXES,
+                "useraddress_suffixes": PostalAddress.SUFFIXES,
+                "useraddress_states": govtrack.statelist,
+                "captcha": captcha_html() if require_captcha else "",
+                "recipients": get_comment_recipients(regulation, address_record),
+            }, context_instance=RequestContext(request))
+
+    elif request.POST["submitmode"] == "Use a Map >":
+        request.goal = { "goal": "comment-address-map" }
+        
+        address_record = PostalAddress()
+        address_record.user = request.user
+        address_record.load_from_form(request.POST, validate=False)
+        
+        from writeyourrep.district_metadata import get_viewport
+        bounds = get_viewport(address_record)
+        
+        return render_to_response('popvox/billcomment_address_map.html', {
+            'regulation': regulation,
+            "position": position,
+            "message": request.POST["message"],
+            "useraddress": address_record,
+            "useraddress_prefixes": PostalAddress.PREFIXES,
+            "useraddress_suffixes": PostalAddress.SUFFIXES,
+            "useraddress_states": govtrack.statelist,
+            "bounds": bounds,
+            }, context_instance=RequestContext(request))
+            
+    elif request.POST["submitmode"] == "Submit Comment >":
+        if not request.user.is_authenticated():
+            raise Http404()
+        
+        request.goal = { "goal": "comment-submit-error" }
+        
+        message = request.POST["message"].strip()
+        if message == "":
+            message = None
+        
+        # Validation.
+        
+        if request.user.userprofile.is_leg_staff():
+            return HttpResponse("Legislative staff cannot post comments on legislation.")
+        if request.user.userprofile.is_org_admin():
+            return HttpResponse("Organization staff cannot post comments on legislation.")
+        if message == None:
+            return HttpResponse("You cannot leave blank messages on regulations.")
+        
+        # More validation.
+        from writeyourrep.addressnorm import verify_adddress, AddressVerificationError
+        try:
+            # If we didn't lock the address, load it and validate it from the form.
+            if address_record_fixed == None:
+                # If we allow overwriting the existing address record, use it
+                # and mark that we can save it if it's changed.
+                if address_record and address_record_allow_save:
+                    setattr(address_record, "pv_allow_save", True)
+                # Otherwise initialize a new address object.
+                else:
+                    address_record = PostalAddress()
+                    address_record.user = request.user
+                    
+                address_record.load_from_form(request.POST) # throws ValueError, KeyError
+                
+            # We don't display a captcha when we are editing an existing comment
+            # or if the user has not left many comments yet.
+            if require_captcha and not "latitude" in request.POST and not DEBUG:
+                validate_captcha(request) # throws ValidationException and sets recaptcha_error attribute on the exception object
+                
+            if request.POST.get("latitude", "") != "":
+                # If the user went to the map and specified a coordinate, skip address normalization.
+                address_record.latitude = float(request.POST["latitude"])
+                address_record.longitude = float(request.POST["longitude"])
+                
+                # But we have to convert the coordinate to a district...
+                from writeyourrep.district_lookup import district_lookup_coordinate
+                ret = district_lookup_coordinate(address_record.longitude, address_record.latitude,)
+                if ret == None or ret[0] != address_record.state:
+                    raise ValueError("You moved the marker to a location outside of the state indicated in your address.")
+                address_record.congressionaldistrict = ret[1]
+                
+            elif BENCHMARKING:
+                address_record.congressionaldistrict = -1
+
+            elif address_record_fixed == None:
+                # Now do verification against CDYNE to get congressional district.
+                # Do this after the CAPTCHA to prevent any abuse.
+
+                # if the address matches a previously entered address, don't recompute the district
+                # (especially if we manually overrode it) --- it was probably a resubmission of
+                # their last address that we provided as default values.
+                for other in request.user.postaladdress_set.all():
+                    if address_record.nameprefix == other.nameprefix and address_record.firstname == other.firstname and address_record.lastname == other.lastname and address_record.namesuffix == other.namesuffix and address_record.address1.lower() == other.address1.lower() and address_record.address2.lower() == other.address2.lower() and address_record.city.lower() == other.city.lower() and address_record.state == other.state and address_record.zipcode == other.zipcode and address_record.phonenumber == other.phonenumber:
+                        address_record = other
+                        break
+                else:
+                    verify_adddress(address_record)
+                    
+            # Save the address if it's been modified and the modifications passed validation.
+            # If it wasn't modified, or it matched a previous address record, then we changed
+            # the address_record variable above and it will no longer have the save flag.
+            if hasattr(address_record, "pv_allow_save"):
+                address_record.save()
+        
+        except Exception, e:
+            sys.stderr.write("leaving comment failed> " + unicode(e) + "\n")
+            request.goal = { "goal": "comment-address-error" }
+            return render_to_response('popvox/billcomment_address.html', {
+                'regulation': regulation,
+                "position": position,
+                "message": request.POST["message"],
+                "useraddress": address_record,
+                "useraddress_fixed": address_record_fixed,
+                "useraddress_prefixes": PostalAddress.PREFIXES,
+                "useraddress_suffixes": PostalAddress.SUFFIXES,
+                "useraddress_states": govtrack.statelist,
+                "captcha": captcha_html(getattr(e, "recaptcha_error", None)) if require_captcha else "",
+                "error": validation_error_message(e), # accepts ValidationError, KeyError, ValueError
+                "error_is_validation": (isinstance(e, AddressVerificationError) and not e.mandatory) or str(e) == "cannot import name CDYNE_LICENSE_KEY",
+                "recipients": get_comment_recipients(regulation, address_record),
+                }, context_instance=RequestContext(request))
+        
+            
+        # Set the user's comment on this regulation.
+        
+        request.goal = { "goal": "comment-submit" }
+
+        # If the user came by a short URL to this regulation, store the owner of
+        # the short URL as the referrer on the comment.
+        referrer = None
+        campaign = None
+        if "comment-referrer" in request.session and type(request.session["comment-referrer"]) == dict and request.session["comment-referrer"]["regulation"] == regulation.id:
+            rx = request.session["comment-referrer"]
+            
+            referrer = rx.get("referrer", None)
+            
+            if "shorturl" in rx:
+                import shorturl.models
+                surl = shorturl.models.Record.objects.get(id=rx["shorturl"])
+                surl.increment_completions()
+                
+            if "campaign" in rx:
+                try: # sac/regulation mismatch, ocp deleted?
+                    campaign = ServiceAccountCampaign.objects.get(id=rx["campaign"], regulation=regulation)
+                except:
+                    pass
+                
+            del request.session["comment-referrer"]
+
+        bill = None
+        comment = save_user_comment(request.user, bill, regulation, position, referrer, message, address_record, campaign, UserComment.METHOD_SITE)
+            
+        # Clear the session state set in the preview. Don't clear until the end
+        # because if the user is redirected back to ../finish we need the session
+        # state to get the position.
+        try:
+            del request.session[pending_comment_session_key]
+        except:
+            pass
+        
+        return HttpResponseRedirect(comment.url())
+            
+    elif request.POST["submitmode"] == "Create Account >":
+        # The user is creating an account.
+            
+        from registration.helpers import validate_username, validate_password, validate_email
+        from profile import RegisterUserAction
+        
+        errors = { }
+        username = validate_username(request.POST["createacct_username"], fielderrors = errors)
+        password = validate_password(request.POST["createacct_password"], fielderrors = errors)
+        email = validate_email(request.POST["createacct_email"], fielderrors = errors)
+
+        if len(errors) > 0:
+            request.goal = { "goal": "comment-register-error" }
+            return render_to_response('popvox/billcomment_preview.html', {
+                    'regulation': regulation,
+                    "position": position,
+                    "message": request.POST["message"],
+                    "username": request.POST["createacct_username"],
+                    "password": request.POST["createacct_password"],
+                    "email": request.POST["createacct_email"],
+                    "newaccount_error": errors,
+                }, context_instance=RequestContext(request))
+            
+        else:
+            # If no errors, begin the email verification process which will
+            # delay the comment.
+
+            axn = DelayedCommentAction()
+            axn.registrationinfo = RegisterUserAction()
+            axn.registrationinfo.email = email
+            axn.registrationinfo.username = username
+            axn.registrationinfo.password = password
+            axn.regulation = regulation.id
+            axn.comment_session_state = {
+                "regulation": regulation.url(),
                 "position": position,
                 "message": request.POST["message"]
                 }
