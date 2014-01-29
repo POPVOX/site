@@ -803,7 +803,7 @@ Notes:
                             {% if 'franking' in permissions %}
                                 <h1>Share your views on {%if bill%}{{bill.shortname}}{%else%}{{regulation.regnumber}}{%endif%}</h1>
                             {% else %}
-                                <h1>Tell {%if bill%}Congress What You Think About {{bill.shortname}}{%else%}{{regulation.agency}} What You Think About {{regulation.regnumber}}{%endif%}</h1>
+                                <h1>Tell {%if bill%}Congress What You Think About {{bill.shortname}}{%else%}the {{regulation.agency}} What You Think About {{regulation.regnumber}}{%endif%}</h1>
                             {% endif %}
                         {% endif %}
 
@@ -895,8 +895,8 @@ Notes:
                         {% if bill %}
                         <p style="margin-top: 20px; padding-right: 1em;">Your letter will be sent to {% if 'whitehouse' in permissions %}the Administration and {% endif %}your representative and/or senators in Congress and posted anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>.</p>
                         {%else%}
-                        <p style="margin-top: 20px; padding-right: 1em;">Your comment will be sent to the {{regulation.agency}} via <a href="http://regulations.gov" target="_blank">Regulations.gov</a> and will become part of the public record. Your full name will be displayed publicly on <a href="http://regulations.gov" target="_blank">Regulations.gov</a></p> 
-                        <p style="margin-top: 20px; padding-right: 1em;">Your comment, and Congressional district will be displayed anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. (You may also choose a screen name.)</p>
+                        <p style="margin-top: 20px; padding-right: 1em;">Your comment will be sent to the {{regulation.agency}} via <a href="http://regulations.gov" target="_blank">Regulations.gov</a> and will become part of the public record. Your full name will be displayed publicly on <a href="http://regulations.gov" target="_blank">Regulations.gov</a>.</p> 
+                        <p style="margin-top: 20px; padding-right: 1em;">Your comment and Congressional district will be displayed anonymously on <a href="http://www.popvox.com" target="_blank">POPVOX.com</a>. (You may also choose a screen name.)</p>
                         {%endif%}
                         {% if 'collect_analytics' in permissions %}
                             {% if bill %}<p style="margin-top: 1em; padding-right: 1em;">Your comment and information (except your phone number) will also be shared with {% if campaign %}{{campaign.account}}{%else%}the widget owner{% endif %}.</p>
