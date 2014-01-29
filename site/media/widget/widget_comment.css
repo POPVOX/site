@@ -139,7 +139,10 @@
 	#comment_widget .oppose {
 		background: url(bg_opposed_bubl.png) left top no-repeat;
 		}
-		
+
+	#comment_widget .neutral {
+		background: url(bg_neutral_bubl.png) left top no-repeat;
+		}		
 
 /* widget foot */		
 	
