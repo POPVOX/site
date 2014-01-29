@@ -1,0 +1,526 @@
+{% extends "master.html" %}
+{% load humanize %}
+{% load popvox_utils %}
+{% block title %}POPVOX Report -- {% if regulation.street_name %}{{regulation.street_name|capfirst}}: {% endif %}{{ regulation.title }}{% endblock%}
+{% block description %}Public comments submited to the {{regulation.agency}} on {% if regulation.street_name %}{{regulation.street_name|capfirst}}{% else %}{{ regulation.title }}{% endif %}{% endblock%}
+{%block nav_legstaff_class_bills%}active{%endblock%}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
+{% block head %}
+<style>
+h2 span {
+    display: block;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: normal;
+    font-family: Georgia;
+    margin-bottom: 15px;
+    }
+.tag_cloud {
+    float: left;
+    width: 400px;
+    font-family: Andale Mono, Courier New;
+    border-right: 1px solid #DDD;
+    }
+.tag_cloud .line {
+    padding-bottom: 3px;
+    }
+.tabular_stats {
+    padding-top: 10px;
+    background: url(/media/master/bg_hr.png) left top repeat-x;
+    }
+    .tabular_stats h4 {
+        font-weight: bold;
+        font-size: 13px;
+        }
+    .tabular_stats h4 small {
+        font-weight: normal;
+        font-size: 11px;
+        }
+    .tabular_stats table th, .tabular_stats table td {
+        font-size: 12px;
+        padding-right: 1em;
+        }
+    .tabular_stats .container {
+        height: 8em;
+        overflow: auto;
+        }
+</style>
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
+<script>
+{% include "popvox/track.js" %}
+</script>
+{% endblock %}
+{% block content %}
+    <script>
+    var default_state;
+    var default_district;
+    var report_state = "";
+    var report_district = "";
+    var start = 0;
+    var count = 10;
+    var isloading = false;
+    
+    var statereps = {{statereps|json}};
+    
+    function update(hashchange) {
+        // Update district dropdown list options and make sure that
+        // report_district is a valid value for the current state.
+        $('#options_district').html("");
+        if (report_state == "") {
+            report_district = 0;
+            $('#options_district').hide();
+        } else if (statereps[report_state].length <= 1) {
+            $('#options_district').
+                append($("<option></option>").
+                    attr("value", 0).
+                    text("At Large"));
+            report_district = 0;
+            $('#options_district').hide();
+        } else {
+            $('#options_district').show();
+            if (report_district == 0)
+                report_district = "";
+            if (report_district > statereps[report_state].length)
+                report_district = 1;
+            $('#options_district').
+                append($("<option></option>").
+                    attr("value", "").
+                    attr("selected", report_district == 0).
+                    text("Whole State"));
+            for (var i = 1; i <= statereps[report_state].length; i++) {
+                $('#options_district').
+                    append($("<option></option>").
+                        attr("value", i).
+                        attr("selected", i == report_district).
+                        text("District " + i + " (" + statereps[report_state][i-1] + ")")); 
+            }
+        }
+        
+        if (!hashchange) {
+            if (!report_state) { // if we give an empty hash, browser scrolls to the top
+                window.location = "#nation";
+            } else {
+                var hashstate = Object();
+                hashstate.state = report_state;
+                if (report_district) hashstate.district = report_district;
+                window.location = "#" + $.param(hashstate);
+            }
+        }
+    }
+    
+    function showdata(is_first_load, is_more) {
+        $('#options_state').val(report_state);
+        $('#options_district').val(report_district);
+        $('#options_state, #options_district').prop('disabled', true);
+        $('#options_jump_nation, #options_jump_local').hide();
+        
+        update(true);
+        
+        isloading = true;
+        
+        $('#loadingstatus').text("Loading...");
+        
+        var pro_loading;
+        var con_loading;
+        if (is_more) {
+            pro_loading = $("<p>Loading...</p>");
+            $('#comments_pro').append(pro_loading);
+            
+            con_loading = $("<p>Loading...</p>");
+            $('#comments_con').append(con_loading);
+        }
+        
+        $.ajax({
+            type:"GET",
+            url: "/ajax{{regulation.url}}/report/getinfo",
+            data: {
+                state: report_state,
+                district: report_district,
+                start: (!is_more ? 0 : start),
+                count: count
+            },
+            complete: function(res, status) {
+                isloading = false;
+                
+                $('#loadingstatus').text("");
+                $('#options_state, #options_district').prop('disabled', false);
+                
+                if (status != "success") {
+                    $('#shortmessages').text("Error loading report.");
+                    return;
+                }
+                
+                if (report_state == default_state && report_district == default_district) {
+                    $('#options_jump_nation').show();
+                } else {
+                    $('#options_jump_local').show();
+                }
+                
+                res = eval('(' + res.responseText + ')');
+                
+                if (res.debug_info)
+                    $('#debug_info').text(res.debug_info);
+                
+                $('#reporttitle').text(res.reporttitle);
+                if (res.reportsubtitle == "") {
+                    $('#reportsubtitle').fadeOut();
+                } else {
+                    $('#reportsubtitle').fadeIn();
+                    $('#reportsubtitle').text(res.reportsubtitle);
+                }
+                
+                c_pro = $('#comments_pro');
+                c_con = $('#comments_con');
+                
+                if (!res.pro_more) $('#comments_pro_more').hide(); else $('#comments_pro_more').show();
+                if (!res.con_more) $('#comments_con_more').hide(); else $('#comments_con_more').show();
+                
+                if (!is_more) {
+                    c_pro.html("");
+                    c_con.html("");
+                } else {
+                    pro_loading.remove();
+                    con_loading.remove();
+                }
+                
+                var n_pro = 0, n_con = 0;
+                for (var i = 0; i < res.comments.length; i++) {
+                    c = res.comments[i];
+                    
+                    var elem = $('#comment_template div.comment').clone();
+                    
+                    elem.find("h4 span.username").text(c.user)
+                    if (c.location)
+                    elem.find("h4 span.location").html("in <a href='/district/"+c.state+"/"+c.district+"/'>" + c.location + "</a>")
+                    else
+                        elem.find("h4 span.location").text("")
+                    elem.find("h4 span.date nobr").text(c.date);
+                    elem.find(".share a").attr("href", c.share);
+
+                    elem.find("p").text('');
+                    var msgpars = c.msg.split("\n");
+                    for (var j = 0; j < msgpars.length; j++) {
+                        var par = $('<div style="margin-bottom: 5px"/>');
+                        par.text(msgpars[j]);
+                        elem.find("p").append(par);
+                    }
+                    //elem.find("p").html(elem.find("p").html().replace("\n", "<br/><br/>"))
+
+                    if (c.verb != "supported" && c.verb != "opposed")
+                        elem.find(".verb").text(c.verb + " this bill");
+                    elem.find(".endorse_oppose_image").addClass((c.pos == "+") ? "endorse" : "oppose")
+                    if (res.can_appreciate == "both" || res.can_appreciate == c.pos) {
+                        elem.find(".appreciate a").attr("commentid", c.id);
+                        elem.find(".appreciate a").text((!c.appreciated ? "appreciate" : "appreciated"));
+                        if (c.appreciated) elem.find(".appreciate").addClass("active");
+                        elem.find(".appreciate span.text").hide();
+                    } else if (res.can_appreciate == "none") {
+                        elem.find(".appreciate a").hide();
+                        elem.find(".appreciate span.text").text("appreciation");
+                        elem.find(".appreciate span.text").attr("title", "you must weigh in on the bill first");
+                    } else if (res.can_appreciate == "+") {
+                        elem.find(".appreciate a").hide();
+                        elem.find(".appreciate span.text").text("appreciation");
+                        elem.find(".appreciate span.text").attr("title", "only opposing users can appreciate this comment");
+                    } else if (res.can_appreciate == "-") {
+                        elem.find(".appreciate a").hide();
+                        elem.find(".appreciate span.text").text("appreciation");
+                        elem.find(".appreciate span.text").attr("title", "only supporting users can appreciate this comment");
+                    }
+                    elem.find(".appreciate span.num").text(c.appreciates);
+                    elem.appendTo((c.pos == "+") ? c_pro : c_con);
+                    
+                    if (c.pos == "+") n_pro++; else n_con++;
+                }
+                if (n_pro == 0)
+                    c_pro.append($("<p>No supporting comments have been left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + ".</p>"));
+                if (n_con == 0)
+                    c_con.append($("<p>No opposing comments {% if regulation.isAlive %}have been{% else %}were{% endif %} left" + (report_district != "" ? " in this district" : (report_state != "" ? " in this state" : "")) + "{% if not regulation.isAlive %} during the time the bill was up for consideration in Congress{% endif %}.</p>"));
+                
+                if (is_more) return;
+                
+                function escapeHTML(text) {
+                    var div = document.createElement('div');
+                    var text = document.createTextNode(text);
+                    div.appendChild(text);
+                    return div.innerHTML;
+                }
+
+                if ((is_first_load || !report_state || res.comments.length == 0) && res.stats.overall) {
+                    $('#map').show();
+                    $('#showmap').hide();
+                } else {
+                    $('#map').hide();
+                    if (res.stats.overall) $('#showmap').show();
+                }
+                
+                function fill_table(elemid, dataarray, colnames) {
+                    if (!dataarray || !dataarray.length) {
+                        $(elemid).hide();
+                    } else {
+                        $(elemid).show();
+                        var tbody = $(elemid).find("tbody");
+                        tbody.text("");
+                        for (var i = 0; i < dataarray.length; i++) {
+                            var row = $("<tr/>");
+                            for (var j = 0; j < colnames.length; j++) {
+                                var cell = $("<td/>").text(dataarray[i][colnames[j]]);
+                                if (j > 0) cell.attr("style", "text-align: right");
+                                row.append(cell);
+                            }
+                            tbody.append(row);
+                        }
+                    }
+                }
+
+                fill_table("#by_town", res.stats.by_town, ["name", "+", "-"])
+                fill_table("#by_source", res.stats.by_source, [0, 1])
+            }
+        });
+
+    }
+    
+    function more_comments() {
+        if (isloading) return false;
+        start = count;
+        count *= 2;
+        showdata(false, true);
+        return false;
+    }
+    
+    function digg(elem) {
+        ajax("/ajax/bills/comment/digg", {
+                comment: elem.getAttribute("commentid"),
+                action: $(elem.parentNode).hasClass("active") ? "-" : "+"
+        }, {
+            success: function(res) {
+                if (res.action == "+") {
+                    $(elem).text("appreciated");
+                    $(elem.parentNode).addClass("active");
+                } else {
+                    $(elem).text("appreciate");
+                    $(elem.parentNode).removeClass("active");
+                }
+                $(elem.parentNode).find("span.num").text(res.count);
+            }
+        });
+        return false;
+    }
+
+    $(function() {
+        $(window).bind("hashchange", function() {
+            //$(window).scrollTop(320);
+            var hashargs = $.deparam.fragment();
+            if (hashargs.state) report_state = hashargs.state;
+            if (hashargs.district) report_district = hashargs.district;
+            update(false);
+            showdata();
+        });
+    
+        master_state(function(res) {
+            // get default context from logged in state
+            default_state = res.page.default_state;
+            default_district = res.page.default_district
+            if (default_state) {
+                report_state = default_state;
+                if (default_district) report_district = default_district;
+                $('#jump_to_default').show();
+                $('#options_jump_local').text("Show " + default_state + (default_district ? ("-" + default_district) : ""));
+            }
+    
+            // override default context with fragment args
+            if (window.location.hash == "#nation") {
+                report_state = "";
+                report_district = "";
+            } else {
+                var hashargs = $.deparam.fragment();
+                if (hashargs.state) report_state = hashargs.state;
+                if (hashargs.district) report_district = hashargs.district;
+            }
+            
+            // pull data: must be in the ready state function
+            update();
+            showdata(true);
+        });
+    });
+
+    </script>
+    
+    <div class="legreport">
+    
+    <div class="section"> 
+        <div class="col_9 col_top">
+            <a class="btn b_back" href="{{regulation.url}}">
+                Back to {{regulation.regnumber}}
+            </a>
+        
+            <h2 class="billname">Bill Report</h2>
+
+            <div class="block">
+                <div id="bookmarkbutton" style="float: left; margin-left: -29px; margin-top: -7px; display: none;">
+                    {% with "+" as tracktype %}
+                    {% include "popvox/track.html" %}
+                    {% endwith %}
+                </div>
+                <script>master_state(function(res) {
+                    if (res.user) {
+                        $('#bookmarkbutton').show();
+                        track_setstate({{regulation.id}}, "+", res.page.tracked);
+                    }
+                });</script>
+                {% if not regulation.street_name %}
+                    <h2 class="billname">{{ regulation.title|truncatewords:30 }}</h2> 
+                {% else %}
+                    <h2>
+                        {{regulation.street_name|capfirst}} ({{regulation.regnumber}})
+                        <span>{{ regulation.title|truncatewords:30 }}</span>
+                    </h2>
+                {% endif %}
+            </div>
+            <div class="clear"> </div>
+                
+            <div class="stroke_top"> </div>
+        
+        
+        </div>
+        
+        
+    </div><!-- e: section -->
+    
+    {% if tag_cloud_support %}
+    <div class="tag_cloud" style="margin-right: 40px">
+        {% for line in tag_cloud_support %}
+        <div class="line">
+            {% for word in line %}<span class="tag" style="font-size: {{word.fontsize}}px; padding-left: {{word.left_padding}}px; color: {{word.color}};">{{ word.text }}</span>{% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if tag_cloud_oppose %}
+    <div class="tag_cloud">
+        {% for line in tag_cloud_oppose %}
+        <div class="line">
+            {% for word in line %}<span class="tag" style="font-size: {{word.fontsize}}px; padding-left: {{word.left_padding}}px; color: {{word.color}};">{{ word.text }}</span>{% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="section clearfix"> 
+        <div class="col_6"> 
+            <div>
+                <h3 class="no_rule">Constituents Say</h3>
+                <div id="stats_overall_info" class="" style="font-size: 12px"></div>
+                {% for index in "3"|range %}
+                <div id="chart{{index}}" class="clear" style="display: none;">
+                    <div class="col_1 past_stats">
+                        <div id="chart_pie_{{index}}" style="height: 90px; width: 90px"></div>
+                    </div>
+                     <div class="col_2 past_stats" style="padding-right: 1em; width: 110px">
+                        <p class="chart_stats">
+                            <span class="chart_title">XXX:</span> <br />
+                            <span class="bg_support">YYY% Support</span><br />
+                            <span class="bg_oppose">ZZZ% Oppose </span><br />
+                            <span class="users">(WWW users)</span>
+                        </p>
+                    </div>
+                    <div class="col_3 col_last past_stats">
+                        <div id="chart_time_{{index}}" style="height: 100px"></div>
+                        <!--<div style="font-size: 8pt; color: #999">Cumulative Number of Individuals Over Time</div>-->
+                    </div>
+                    <p class="clear pro_reintro">
+                    </p>
+                </div>
+                {% endfor %}
+                    
+                <div id="by_town" style="display: none" class="tabular_stats">
+                    <h4>By Address <small>(shown to legislative staff only in your state/district)</small></h4>
+                    <div class="container">
+                    <table>
+                        <thead>
+                            <tr><th></th> <th>Supporting</th> <th>Opposing</th></tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+                
+                <div id="by_source" style="display: none" class="tabular_stats">
+                    <h4>By Source <small>(shown to POPVOX admins only)</small></h4>
+                    <div class="container">
+                    <table>
+                        <thead>
+                            <tr><th>Source / Widget Owner</th> <th>Count (Positions)</th></tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+
+                <a href="#" onclick="$('#map').show(); $('#showmap').hide(); return false;">
+                    <div id="showmap" style="text-align: center; margin: .5em; display: none">Show National Map</div>
+                </a>
+            </div>
+        </div>
+        
+
+    
+    </div><!-- e: section --> 
+    
+    <div id="map" class="section clearfix">
+        <iframe src="/widgets/bill-comment-map?regulation={{regulation.id}}" width="940" height="590" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe><!--height="690"-->
+    </div>
+
+    <div style="display: none" id="comment_template">
+        <div class="comment clear">
+            <h4>
+                <span class="date"><nobr>Tuesday</nobr></span>
+                <span class="username">UserUser</span>
+                <span class="location">in City, State</span>
+                <span class="verb"> </span>
+            </h4>
+            <p class="usercomment endorse_oppose_image">Lorem ipsum etc etc</p>
+            <div class="clear"> </div>
+            <div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="text">...</span><span class="num">96</span></div>
+            <div class="share"><a href="">share</a></div>
+            <div class="clear"> </div>
+        </div>
+    </div>
+    
+    {% comment %}
+    {% if not bot_comments %}
+    <div class="section clearfix"> 
+        <div class="col_6 rule"> 
+            <div class="comments"> 
+                <h3 class="no_rule">Comments</h3>
+                <div id="comments_pro">Loading...</div>
+                <ul class="clear">
+                    <li><a id="comments_pro_more" href="#" class="b_more_comments" onclick="return more_comments()">more comments</a></li>
+                    <li><a class="b_add_your_comment btn" href="{{regulation.url}}" class="b_more_comments">add your comment</a></li>
+                </ul>
+            </div> 
+        </div> 
+    </div><!-- e: section -->
+    {% endif %}
+    {% endcomment %}
+
+
+    {% for c in comments %}
+        <div class="comment">
+            <h4><span class="username">{{c.user.username}}</span> <span class="location">{{c.address.nicelocation}}</span><span class="date">, {{c.created}}</span></h4>
+            <p>{{c.message}}</p>
+        </div>
+    {% endfor %}
+    
+    <p id="debug_info" style="width: 800px"> </p>
+    
+    </div>
+{% endblock %}
+

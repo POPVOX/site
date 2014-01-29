@@ -30,6 +30,7 @@ from utils import formatDateTime, cache_page_postkeyed, csrf_protect_if_logged_i
 
 from settings import DEBUG, SERVER_EMAIL, SITE_ROOT_URL
 import operator
+import sys
 
 popular_bills_cache = None
 popular_bills_cache_2 = None
@@ -1098,6 +1099,7 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
             }, context_instance=RequestContext(request))
             
     elif request.POST["submitmode"] == "Submit Comment >" or request.POST["submitmode"] == "Clear Comment >":
+        sys.stderr.write(str(request.POST))
         if not request.user.is_authenticated():
             raise Http404()
         
@@ -1177,7 +1179,6 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
                 address_record.save()
         
         except Exception, e:
-            import sys
             sys.stderr.write("leaving comment failed> " + unicode(e) + "\n")
             request.goal = { "goal": "comment-address-error" }
             return render_to_response('popvox/billcomment_address.html', {
@@ -1204,7 +1205,8 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
         # the short URL as the referrer on the comment.
         referrer = None
         campaign = None
-        if "comment-referrer" in request.session and type(request.session["comment-referrer"]) == dict and request.session["comment-referrer"]["bill"] == bill.id:
+        #FIXME there's not always going to be a bill:
+        '''if "comment-referrer" in request.session and type(request.session["comment-referrer"]) == dict and request.session["comment-referrer"]["bill"] == bill.id:
             rx = request.session["comment-referrer"]
             
             referrer = rx.get("referrer", None)
@@ -1220,9 +1222,10 @@ def billcomment(request, congressnumber, billtype, billnumber, vehicleid, positi
                 except:
                     pass
                 
-            del request.session["comment-referrer"]
+            del request.session["comment-referrer"]'''
 
-        comment = save_user_comment(request.user, bill, position, referrer, message, address_record, campaign, UserComment.METHOD_SITE)
+        regulation = None
+        comment = save_user_comment(request.user, bill, regulation, position, referrer, message, address_record, campaign, UserComment.METHOD_SITE)
             
         # Clear the session state set in the preview. Don't clear until the end
         # because if the user is redirected back to ../finish we need the session
@@ -1377,11 +1380,9 @@ def save_user_comment(user, bill, regulation, position, referrer, message, addre
     # We're updating an existing record.
     else:
         comment.bill = bill # make sure existing comment record gets migrated
+        comment.regulation = regulation
         if comment.position != position:
             comment.position = position
-            # When the user switches sides, any comment diggs they previously left on the
-            # other side must be cleared.
-            comment.my_diggs.all().delete()
         
     comment.message = message
 
