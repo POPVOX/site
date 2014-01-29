@@ -510,6 +510,9 @@ a {
 		#panel_write h4.oppose {
 			background: url(../../widget/bg_opposed_bubl.png) left top no-repeat;
 			}
+		#panel_write h4.neutral {
+			background: url(../../widget/bg_neutral_bubl.png) left top no-repeat;
+			}
 		
 	.reason {
 		clear: both;
@@ -750,6 +753,7 @@ a {
 	h3.support {
 		border-top: 1px solid #d1d1cf;
 		background: url(../../widget/bg_endorsed_bubl_sm.png) no-repeat 0px 15px;
+		margin-top: 10px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -758,15 +762,12 @@ a {
 	h3.oppose {
 		border-top: 1px solid #d1d1cf;
 		background: url(../../widget/bg_opposed_bubl_sm.png) no-repeat 0px 15px;
+		margin-top: 10px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
 		}
-		
-	h3.suggest {
-		margin-top: 10px;
-	}
-	
+			
 	.chart_info {
 		float: right;
 		width: 200px;
@@ -908,6 +909,7 @@ a {
 	}
 #wrap.w420 .widget_body {
 	width: 420px;
+	background: #000;
 	}
 #wrap.w420 .widget_panel {
 	width: 420px;
@@ -958,7 +960,9 @@ a {
 	
 	#panel_share p {
 		padding-top: 5px;
-		}/*
+		}
+		
+/*
 		
 #widget_top {
 	height: 40px;
@@ -1278,13 +1282,16 @@ a {
 		font: italic normal 18px/24px georgia, serif;
 		margin-bottom: 10px;
 		/*height: 32px;*/
-		padding: 2px 0 0 46px;
+		padding: 2px 0 6px 46px;
 		}
 		#panel_write h4.support {
 			background: url(../../widget/bg_endorsed_bubl.png) left top no-repeat;
 			}
 		#panel_write h4.oppose {
 			background: url(../../widget/bg_opposed_bubl.png) left top no-repeat;
+			}
+		#panel_write h4.neutral {
+			background: url(../../widget/bg_neutral_bubl.png) left top no-repeat;
 			}
 		
 	.reason {
@@ -1488,6 +1495,11 @@ a {
 		border-top: 1px solid #d1d1cf;
 		border-width: 1px 0 ;
 		}	
+		
+		.reg_widget h3.congrats {
+			margin-top: 10px;
+			}
+			
 	h4.congrats {
 		text-align: center;
 		font-size: 12px;
@@ -1502,6 +1514,10 @@ a {
 		/*border-bottom: 1px solid #d1d1cf;*/
 		padding: 10px;
 		}
+		
+		.reg_widget #social_share {
+			margin-bottom: -70px;
+			}
 			
 	ul.social_share_btns {
 		margin: 10px 0 10px 5px;
@@ -1541,6 +1557,7 @@ a {
 	h3.support {
 		border-top: 1px solid #d1d1cf;
 		background: url(../../widget/bg_endorsed_bubl_sm.png) no-repeat 0px 15px;
+		margin-top: 10px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -1549,10 +1566,12 @@ a {
 	h3.oppose {
 		border-top: 1px solid #d1d1cf;
 		background: url(../../widget/bg_opposed_bubl_sm.png) no-repeat 0px 15px;
+		margin-top: 10px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
-		}
+		}	
+
 	
 	.chart_info {
 		float: right;

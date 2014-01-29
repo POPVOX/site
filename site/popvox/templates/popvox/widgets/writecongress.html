@@ -776,7 +776,7 @@ Notes:
         
     </script>
 </head>
-<body>
+<body {% if regulation %}class="reg_widget"{% endif %}>
     <div id="wrap" class="w420">
         <div class="float_left">
             <div id="widget_top">
@@ -904,7 +904,7 @@ Notes:
                             <p style="margin-top: 1em; padding-right: 1em;">Your comment, name, email, and zip code will also be shared with {% if campaign %}{{campaign.account}}{%else%}the widget owner{% endif %}.</p>
                             {% endif %}
                         {% endif %}
-                        <p>View <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">POPVOX&#39;s Privacy Policy</a></p>
+                        <p style="margin-top: 1em; padding-right: 1em;">View <a href="https://www.popvox.com/legal#privacypolicy" target="_blank">POPVOX&#39;s Privacy Policy</a></p>
                     </div> <!-- e: panel_login -->
 
                     <div id="panel_addressform" class="widget_panel" style="display: none;" >
