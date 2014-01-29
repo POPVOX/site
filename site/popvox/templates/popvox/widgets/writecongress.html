@@ -953,7 +953,7 @@ Notes:
                                                                 
                                 
                                 <label for="useraddress_phonenumber">Phone#*</label><input class="c2" id="useraddress_phonenumber" type="text" value="" maxlength="18"/><br />
-                                <small class="mrg_top_0">{% if bill %}Some Members of Congress require a phone number with your message. Don&#39;t worry, POPVOX only shares your number when your Members of Congress ask for it.{%else%}POPVOX asks for a phone number as a part of signup because it is required by some Congressional offices to receive correspondence and POPVOX facilitates that communication. It will not be shared except when required by your Member of Congress.{%endif%}</small>
+                                <small class="mrg_top_0">{% if bill %}Some Members of Congress require a phone number with your message. Don&#39;t worry, POPVOX only shares your number when your Members of Congress ask for it.{%else%}POPVOX asks for a phone number as a part of signup because it is required by some lawmakers to receive correspondence and POPVOX facilitates that communication. It will not be shared except when required by your lawmaker.{%endif%}</small>
                                 {% if tagvals %}
                                 <label for="useraddress_tag">{{ taglabel }}</label>
                                 <select class="c2" id="useraddress_tag" type="text" value="" maxlength="18">
@@ -969,7 +969,7 @@ Notes:
                         <input value="next" class="btn next" onclick="return do_address();" type="button">
                         
                         {% if not tagvals %}
-                        <p class="clear optional">We ask for only as much information as Congressional offices have told us they require.</p>
+                        <p class="clear optional">We ask for only as much information as your lawmakers have told us they require.</p>
                         {% endif %}
                     </div>
                             
