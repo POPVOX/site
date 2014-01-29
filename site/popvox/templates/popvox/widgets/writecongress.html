@@ -566,7 +566,7 @@ Notes:
                             identity = data.identity;
                             recipients = data.recipients;
                             cdyne_response = data.cdyne_response;
-                            {%if regulation%}$('#msg_preview .greeting').text("Dear {{regulation.agency}}");
+                            {%if regulation%}$('#msg_preview .greeting').text("Dear {{regulation.agency}}:");
                             {%else%}
                             if (recipients.length > 0)
                                 $('#msg_preview .greeting').text("Dear " + recipients.join(", ") + ":"); // escape?
@@ -681,17 +681,17 @@ Notes:
                                $('h3.congrats').text({% if 'whitehouse' in permissions %}'One More Step!'{% else %}'Check your email!'{% endif %});
                                $('h4.congrats').text({% if 'whitehouse' in permissions %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
                             } else if (data.status == "confirm-email") {
-                               $('h3.congrats').text({% if 'whitehouse' in permissions %}'One More Step!'{% else %}'Check your email!'{% endif %});
+                               $('h3.congrats').text({% if 'whitehouse' in permissions %}'One More Step!'{% else %}'Check your email to verify your address!'{% endif %});
                                $('h4.congrats').text({% if 'whitehouse' in permissions %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
                                 
                             } else if (data.status == "demo-submitted") {
                                 $('h3.congrats').text('Your message will (NOT) be sent!')
                                 $('h4.congrats').text('This widget is in demo mode. No information was saved.');
                             } else if (data.status == "demo-confirm-address") {
-                                $('h3.congrats').text('[DEMO] Check your email! [DEMO]');
+                                $('h3.congrats').text('[DEMO] You need to verify your email to complete the process [DEMO]');
                                 $('h4.congrats').text({% if 'whitehouse' in permissions %}' Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
                             } else if (data.status == "demo-confirm-email") {
-                                $('h3.congrats').text('[DEMO] Check your email! [DEMO]');
+                                $('h3.congrats').text('[DEMO] You need to verify your email to complete the process. [DEMO]');
                                 $('h4.congrats').text({% if 'whitehouse' in permissions %}'One More Step! Please check your email for a confirmation message and click on the link inside it. We cannot deliver your message until you take this action.'{% else %}'We need to confirm your address before delivering your message.'{% endif %});
                             }
                             
@@ -803,7 +803,7 @@ Notes:
                             {% if 'franking' in permissions %}
                                 <h1>Share your views on {%if bill%}{{bill.shortname}}{%else%}{{regulation.regnumber}}{%endif%}</h1>
                             {% else %}
-                                <h1>Tell {%if bill%}Congress What You Think About {{bill.shortname}}{%else%}the {{regulation.agency}} What You Think About {{regulation.regnumber}}{%endif%}</h1>
+                                <h1>Tell {%if bill%}Congress What You Think About {{bill.shortname}}{%else%}The {{regulation.agency}} What You Think About {{regulation.regnumber}}{%endif%}</h1>
                             {% endif %}
                         {% endif %}
 
@@ -1022,10 +1022,10 @@ Notes:
                             <p class="is-optional">When Members of Congress are undecided on a bill, they are most influenced by personal communications from constituents. <em>To skip this step, just click Preview.</em></p>
                             {%else%}
                             <h3>Public Comment Tips</h3>
-                            <p class="is-optional">Agencies are required to consider your input.<br /><br />
-                            Information-rich comments that clearly communicate and support claims are more likely to have an impact.<br /><br />
-                            Be concise but support your claims.<br /><br />
-                            The comment process is not a vote – one well supported comment is often more influential than a thousand form letters.</em></p>
+                            <p class="is-optional">Federal agencies are required to consider your input.<br /><br />
+                            Detailed comments that clearly communicate and support your claims are more likely to be effective.<br /><br />
+                            Be concise!<br /><br />
+                            One well-supported comment is often more influential than a thousand form letters or petitions.</em></p>
                             {%endif%}
                             {% endif %}
                             <!--
