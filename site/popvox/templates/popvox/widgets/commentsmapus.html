@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
     <head>
-        <title>Comments Map - United States - {{bill}}</title>
+        <title>Comments Map - United States - {% if bill %}{{bill}}{% else %}{{ regulation.agency }} - {{regulation.regnumber}}{% endif %}</title>
         <link rel="stylesheet" href="/media/master/map_style.css" type="text/css" media="screen" /> 
 
         <style>
@@ -58,7 +58,7 @@
                 
                 $('#infobox div').text(label);
                 
-                {% if bill or request.GET.point == "allcount" %}
+                {% if bill or regulation or request.GET.point == "allcount" %}
                 var support = parseFloat(this.getAttribute("pv_support"));
                 var count = parseInt(this.getAttribute("pv_count"));
                 $('#support').text(Math.round(support*100) + "%")
@@ -117,6 +117,9 @@
             /* totals: {{totals}} */
         </script>
     </head>
+    {% if regulation %}
+        <body class="colormode_1 width_{{width}}">
+    {% else %}
     {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
     <body id="anaap" class="colormode_3 width_{{width}}">
     {% else %}
@@ -125,6 +128,7 @@
         {% else %}
             <body class="colormode_1 width_{{width}}">
         {% endif %}
+    {% endif %}
     {% endif %}
         <div id="mapdots">
         {% for district, count in data %}
@@ -137,7 +141,7 @@
         {% endfor %}
         <div id="infobox" style="display: none;">
             <div id="district"> </div>
-            {% if bill or request.GET.point == "allcount" %}<p><span id="support"></span> <span id="oppose"> </span> <span id="activity"> </span></p>{% endif %}
+            {% if bill or regulation or request.GET.point == "allcount" %}<p><span id="support"></span> <span id="oppose"> </span> <span id="activity"> </span></p>{% endif %}
         </div>
         </div>
         
@@ -170,6 +174,7 @@
             </div>
             <div class="label last">{% if bill %}Oppose{% else %}R{% endif %}</div>
         </div>
+        {% endif %}
         {% if max_sz_num != min_sz_num %}
         <div id="legend_sz">
             <div class="label first">{{max_sz_num}} {% if bill %}User{% else %}Pos'n{% endif %}{{max_sz_num|pluralize}}</div>
@@ -181,7 +186,6 @@
             </div>
             <div class="label last">{{min_sz_num}} {% if bill %}User{% else %}Pos'n{% endif %}{{min_sz_num|pluralize}}</div>
         </div>
-        {% endif %}
         {% endif %}
         <div id="legend_text">
             Circles are Congressional Districts.

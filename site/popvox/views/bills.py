@@ -406,6 +406,17 @@ def bill_comments(bill, **filterargs):
     
     return bill.usercomments.filter(**filter_null_args(filterargs))\
         .select_related("user")
+    
+def regulation_comments(regulation, **filterargs):
+    def filter_null_args(kv):
+        ret = { }
+        for k, v in kv.items():
+            if v != None:
+                ret[k] = v
+        return ret
+    
+    return regulation.usercomments.filter(**filter_null_args(filterargs))\
+        .select_related("user")
 
 def bill_statistics_cache(f):
     def g(bill, shortdescription, longdescription, want_timeseries=False, want_totalcomments=False, force_data=False, as_of=None, **filterargs):
@@ -1939,14 +1950,18 @@ def billreport(request, congressnumber, billtype, billnumber, vehicleid):
 @strong_cache
 def regreport(request, agency, regnumber):
     regulation = get_object_or_404(Regulation, agency=agency, regnumber=regnumber)
-    orgpositions = regulation.campaign_positions()
+    orgs = {}
+    for pos in regulation.campaign_positions():
+        orgs[pos.campaign.org] = {
+                "has_document": False,
+                }
     
     limit = 50
     comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
     
     return render_to_response('popvox/regulation_report.html', {
         'regulation': regulation,
-        "orgpositions": orgpositions,
+        "orgs": orgs,
         "stateabbrs": 
             [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
         "statereps": getStateReps(),

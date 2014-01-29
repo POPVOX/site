@@ -67,10 +67,10 @@ class UserLegStaffRoleAdmin(admin.ModelAdmin):
     list_display = ["user", "member", "committee", "position", "verified"]
 
 class UserCommentAdmin(admin.ModelAdmin):
-    raw_id_fields = ("user", "bill", "address")
-    readonly_fields = ("user","bill","address", "delivery_attempts", "created", "updated")
-    search_fields = ("user__username", "user__email")
-    list_display = ['created', 'user', 'position', 'bill', 'message_trunc', 'address', 'status_info']
+    raw_id_fields = ("user", "bill", "regulation", "address")
+    readonly_fields = ("user","bill", "regulation", "address", "delivery_attempts", "created", "updated")
+    search_fields = ["user__username", "user__email" "bill__billnumber", "regulation__regnumber"]
+    list_display = ['created', 'user', 'position', 'bill', 'regulation', 'message_trunc', 'address', 'status_info']
     actions = ['set_status_hold']
     def message_trunc(self, obj):
         return obj.message[0:15] if obj.message != None else None

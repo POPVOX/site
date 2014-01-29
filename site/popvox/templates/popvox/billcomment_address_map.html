@@ -3,7 +3,7 @@
 {% block title %}Finish Comment on {%if bill%}{{ bill.title }}{%else%}{{ regulation.title }}{%endif%}{% endblock%}
 {% block description %}We couldn&rsquo;t locate your Congressional district based on the address you entered earlier. We need your help to determine where you live.{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block finalscript %}{%if bill%}<script type="text/javascript">mpmetrics.track('comment addressmap', { 'bill': '{{bill.displaynumber|escapejs}}' );</script>{% endblock %}
+{% block finalscript %}<script type="text/javascript">mpmetrics.track('comment addressmap', { 'bill': '{%if bill%}{{bill.displaynumber|escapejs}}{%else%}{{bill.regnumber|escapejs}}{%endif%}' );</script>{% endblock %}
 {% block head %}
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	{% if request.META.HTTP_DNT != "1" %}

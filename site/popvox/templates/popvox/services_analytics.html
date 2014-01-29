@@ -485,7 +485,8 @@ function draw_timeseries(container, data, small) {
 			{% for pos in cam.positions.all %}
 				{% if not pos.has_service_account_campaign %}
 					{% ifchanged %}<h2>{{cam.name}}</h2>{% endifchanged %}
-				
+                    
+                    {%if pos.bill %}
 					{% bill_statistics pos.bill as stats %}
 					<div class="clear hr"> </div>
 					<div class="col_50">
@@ -509,6 +510,7 @@ function draw_timeseries(container, data, small) {
 						{% endwith %}
 						{% endwith %}
 					</div>
+                    {% endif %}
 				{% endif %}
 			{% endfor %}
 		{% endfor %}	

@@ -401,7 +401,7 @@ Notes:
             else { position_verb_text = "neutral" }
             $('.position_verb').text(position_verb_text);
             $('#panel_write h4, #msg_preview .firstpara').addClass(position_verb_text);
-            {% if regulation or 'franking' in permissions %}
+            {% if 'franking' in permissions or regulation %}
             {% else %}
             $('#message').text("I " + (position == "+" ? "support" : "oppose") + " {{bill.title_parens_if_too_long|escapejs}} because...");
             {% endif %}
@@ -601,7 +601,7 @@ Notes:
                 $('#msg_preview .write_a_personal_message').hide();
             } else {
                 if (position == "+") verb = "support"; else verb = "oppose";
-                msghtml = "<p><i>I " + verb + " {{bill.shortname}}.</i></p>";
+                msghtml = {% if bill %}"<p><i>I " + verb + " {{bill.shortname}}.</i></p>";{% else %}"<p></p>"{% endif %}
                 $('#msg_preview .write_a_personal_message').show();
             }
             
@@ -749,11 +749,11 @@ Notes:
             if (method == "link") f = link_share;
             
             {% if 'franking' in permissions %}
-                if (position == "+") verb = "I just supported"; else verb = "I just opposed";
+                if (position == "+") verb = "I just supported"; else if (position == "-") verb = "I just opposed"; else verb = "commented on";
                     f("{{url|escapejs}}", verb + " {{bill.nicename|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
             {% else %}
-                if (position == "+") verb = "Support"; else verb = "Oppose";
-                    f("{{url|escapejs}}", verb + " {%if bill%}{{bill.nicename|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}"{%else%}{{regulation.title|truncatewords:7|escapejs}}", "{{regulation.hashtag|escapejs}}"{%endif%});
+                if (position == "+") verb = "Support"; else if (position == "-") verb = "Oppose"; else verb = "Comment on"
+                    f("{{url|escapejs}}", {%if bill%}verb + " {{bill.nicename|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}"{%else%}" comment on {{regulation.title|truncatewords:7|escapejs}}", "{{regulation.hashtag|escapejs}}"{%endif%});
             {% endif %}
             return false;
         }
@@ -909,7 +909,7 @@ Notes:
 
                     <div id="panel_addressform" class="widget_panel" style="display: none;" >
                         <form class="form" action="#" onsubmit="return false;">
-                            <h3>Tell Congress who you are</h3>
+                            <h3>{% if bill %}Tell Congress who you are{%else%}Please provide your address{%endif%}</h3>
                             
                                 <p>Provide the address of your residence where you intend to vote.{% if bill %}<br />
                                 Congressional offices only accept mail with complete contact information.{%endif%}</p>
@@ -1059,7 +1059,7 @@ Notes:
                                 <p class="firstpara"><span></span> <div class="message"> </div></p>
                                 <p class="write_a_personal_message">
                                 {%if bill %}Members of Congress only respond to personal messages.
-                                Consider <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and writing a personal message.{%else%}The {{regulation.agency}} cannot consider blank comments. Please <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and write a comment.{%endif%}<p>
+                                Consider <a href="#" onclick="return working ? false : show_panel(3);">going back</a> and writing a personal message.{%else%}The {{regulation.agency}} cannot consider blank comments. Please <a href="#" onclick="return working ? false : show_panel(3);">go back</a> and write a comment.{%endif%}<p>
                             </div>
                             <p class="signature">
                                 <span class="name"><strong>Bob Smith</strong> | edit <a href="#" onclick="return working ? false : show_panel(2);"> address</a> or <a href="#" onclick="return working ? false : show_panel(3);">message</a></span><br />

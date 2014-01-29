@@ -98,7 +98,6 @@ def bill_inline(request):
 
 @do_not_track_compliance
 def commentmapus(request):
-    print "0"
     count = { }
     totals = None
     max_count = 0
@@ -106,6 +105,8 @@ def commentmapus(request):
     width = int(request.GET.get("width", "720"))
     
     comments = None
+    bill = None
+    regulation = None
 
     import widgets_usmap
     
@@ -121,6 +122,17 @@ def commentmapus(request):
         request.session = None
         request.user = AnonymousUser()
         
+    elif "regulation" in request.GET and request.GET["regulation"].isdigit():
+        regulation = get_object_or_404(Regulation, id=request.GET["regulation"])
+        
+        comments = regulation.usercomments.only("state", "congressionaldistrict", "position")
+        
+        # strongly cache the page, but only for bill maps because sac maps
+        # require authentication.
+        #request.strong_cache = True
+        request.session = None
+        request.user = AnonymousUser()
+        
     elif "sac" in request.GET and request.user.is_authenticated():
         if not request.user.has_perm("popvox.can_snoop_service_analytics"):
             # validate the service account campaign is in one of the accounts accessible
@@ -130,8 +142,12 @@ def commentmapus(request):
         else:
             sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"])
         
-        bill = sac.bill
-        comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
+        if sac.bill:
+            bill = sac.bill
+            comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
+        else:
+            regulation = sac.regulation
+            comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
         
     elif "file" in request.GET:
         
@@ -197,13 +213,19 @@ def commentmapus(request):
         if not by_date:
             max_count = 0
             for district in count:
-                max_count = max(max_count, count[district]["+"] + count[district]["-"])
-            
-            def chartcolor(district):
-                return "dot_clr_%d dot_sz_%d" % (
-                    int(district["sentiment"]*4.9999) + 1,
-                    int(float(district["count"]) / float(max_count) * 4.9999) + 1
-                    )
+                max_count = max(max_count, count[district]["+"] + count[district]["-"] + count[district]["0"])
+                
+            if bill:
+                def chartcolor(district):
+                    return "dot_clr_%d dot_sz_%d" % (
+                        int(district["sentiment"]*4.9999) + 1,
+                        int(float(district["count"]) / float(max_count) * 4.9999) + 1
+                        )
+            else:
+                def chartcolor(district):
+                    return "dot_clr_5 dot_sz_%d" % (
+                        int(float(district["count"]) / float(max_count) * 4.9999) + 1
+                        )
 
             if request.GET.get("point", "") == "allcount":
                 def chartcolor(district):
@@ -232,8 +254,8 @@ def commentmapus(request):
             continue
 
         if comments:
-            count[district]["sentiment"] = float(count[district]["+"])/float(count[district]["+"] + count[district]["-"])
-            count[district]["count"] = count[district]["+"] + count[district]["-"]
+            count[district]["sentiment"] = float(count[district]["+"])/float(count[district]["+"] + count[district]["-"] + count[district]["0"])
+            count[district]["count"] = count[district]["+"] + count[district]["-"] + count[district]["0"]
             
             count[district]["class"] = chartcolor(count[district])
             
@@ -248,6 +270,7 @@ def commentmapus(request):
     
     return render_to_response('popvox/widgets/commentsmapus.html', {
         "bill": bill,
+        "regulation": regulation,
         "data": count.items(),
         "min_sz_num": int(float(max_count)/5.0) if max_count > 5 else 1,
         "max_sz_num": max_count,

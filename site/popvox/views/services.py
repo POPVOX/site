@@ -711,6 +711,9 @@ def widget_render_writecongress_action(request, account, permissions):
             return { "status": "fail", "msg": "CSRF check failed: Missing field." }
         if request.POST["csrf_token"] != compute_csrf_token(request):
             return { "status": "fail", "msg": "CSRF check failed: Incorrect value." }
+        if request.POST["regulation"] and not request.POST["message"]:
+            sys.stderr.write("message is indeed blank!")
+            return { "status": "fail", "msg": "Please go back and enter a comment on this regulation." } 
         
         cdyne_response = json.loads(request.POST["cdyne_response"])
         
