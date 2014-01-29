@@ -93,6 +93,7 @@
 
 	<div class="tab_pane commentProcess">
 	
+	#FIXME this is breaking on regulations because they don't have a bill url and that's not where the info should be posting to
 	<form method="post" id="commentform" action="{{bill.url}}/comment/{% if position == "+" %}support{% else %}oppose{% endif %}">
 	
 	{% csrf_token %}
