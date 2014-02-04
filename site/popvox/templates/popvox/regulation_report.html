@@ -350,40 +350,70 @@ h2 span {
 
     </script>
     
-    <div class="legreport">
+    <div class="legreport regreport">
     
     <div class="section"> 
-        <div class="col_9 col_top">
-            <a class="btn b_back" href="{{regulation.url}}">
+        <div class="col_12 col_top">
+		<div id="social_reg">
+			<ul class="social-links">
+				<li><a class="facebook" href="#"></a></li>
+				<li><a class="twitter" href="#"></a></li>
+			    <li><a class="email" href="#"></a></li>
+			</ul>
+			<a class="btn b_back" href="{{regulation.url}}">
                 Back to {{regulation.regnumber}}
             </a>
-        
-            <h2 class="billname">Bill Report</h2>
+		</div>
 
+            
+        
+            <h2 class="billname">Regulation Report for</h2>
+
+<!--
             <div class="block">
                 <div id="bookmarkbutton" style="float: left; margin-left: -29px; margin-top: -7px; display: none;">
                     {% with "+" as tracktype %}
                     {% include "popvox/track.html" %}
                     {% endwith %}
                 </div>
+
                 <script>master_state(function(res) {
                     if (res.user) {
                         $('#bookmarkbutton').show();
                         track_setstate({{regulation.id}}, "+", res.page.tracked);
                     }
                 });</script>
-                {% if not regulation.street_name %}
-                    <h2 class="billname">{{ regulation.title|truncatewords:30 }}</h2> 
-                {% else %}
-                    <h2>
-                        {{regulation.street_name|capfirst}} ({{regulation.regnumber}})
-                        <span>{{ regulation.title|truncatewords:30 }}</span>
-                    </h2>
-                {% endif %}
             </div>
+-->
+
+            {% if not regulation.street_name %}
+                <h2 class="billname">{{ regulation.title|truncatewords:30 }}</h2> 
+            {% else %}
+                <h2 class="rename">
+                    {{regulation.street_name|capfirst}} ({{regulation.regnumber}})
+                </h2>
+            {% endif %}
+
+
+			<div class="col_4" id="reg_stats">
+				<p><span>Comments:</span> {%if regulation.isAlive%}OPEN{%else%}CLOSED{%endif%}</p>
+				<p><strong><span>Days Remaining:</span> <em>{{regulation.daysleft}}</em></strong></p>
+			</div>
+			
+			<div class="col_8">
+				<h1 class="billname no_rule"><a href="#">{{ regulation.title }}</a></h1>
+	            {% if regulation.description %}
+	                <p><strong>Summary: </strong>{{ regulation.description }}<p>
+					<p>Source: <a href="#">regulations.gov</a></p>  
+	            {% endif %} 
+	            {% if regulation.notes %}
+	                <p>{{regulation.notes|safe}}</p>
+	            {% endif %}
+	        </div>
+
             <div class="clear"> </div>
                 
-            <div class="stroke_top"> </div>
+            <div class="rule"> </div>
         
         
         </div>
@@ -478,22 +508,90 @@ h2 span {
         <iframe src="/widgets/bill-comment-map?regulation={{regulation.id}}" width="940" height="590" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe><!--height="690"-->
     </div>
 
-    <div style="display: none" id="comment_template">
-        <div class="comment clear">
-            <h4>
-                <span class="date"><nobr>Tuesday</nobr></span>
-                <span class="username">UserUser</span>
-                <span class="location">in City, State</span>
-                <span class="verb"> </span>
-            </h4>
-            <p class="usercomment endorse_oppose_image">Lorem ipsum etc etc</p>
-            <div class="clear"> </div>
-            <div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="text">...</span><span class="num">96</span></div>
-            <div class="share"><a href="">share</a></div>
-            <div class="clear"> </div>
-        </div>
+<!-- style="display: none" -->
+    <div id="comment_template" class="section clearfix">
+        <div class="col_6">
+	        <div class="comments">
+		        <div class="comment clear">
+		            <h4>
+		                <span class="date"><nobr>Tuesday</nobr></span>
+		                <span class="username">UserUser</span>
+		                <span class="location">in <a>City, State</a></span>
+		                <span class="verb"> </span>
+		            </h4>
+		            <p class="usercomment endorse_oppose_image neutral">
+		            	Lorem ipsum etc etcLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		            </p>
+		            <div class="clear"> </div>
+		            <div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="num">96</span></div>
+		            <div class="share"><a href="">share</a></div>
+		            <div class="clear"> </div>
+		        </div>
+			</div>
+		</div>
+		<div class="col_6 col_last">
+	        <div class="comments">
+		        <div class="comment clear">
+		            <h4>
+		                <span class="date"><nobr>Tuesday</nobr></span>
+		                <span class="username">UserUser</span>
+		                <span class="location">in <a>City, State</a></span>
+		                <span class="verb"> </span>
+		            </h4>
+		            <p class="usercomment endorse_oppose_image neutral">
+		            	Lorem ipsum etc etcLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		            </p>
+		            <div class="clear"> </div>
+		            <div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="num">96</span></div>
+		            <div class="share"><a href="">share</a></div>
+		            <div class="clear"> </div>
+		        </div>
+			</div>
+		</div>		
+<div class="col_6">
+	        <div class="comments">
+		        <div class="comment clear">
+		            <h4>
+		                <span class="date"><nobr>Tuesday</nobr></span>
+		                <span class="username">UserUser</span>
+		                <span class="location">in <a>City, State</a></span>
+		                <span class="verb"> </span>
+		            </h4>
+		            <p class="usercomment endorse_oppose_image neutral">
+		            	Lorem ipsum etc etcLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		            </p>
+		            <div class="clear"> </div>
+		            <div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="num">96</span></div>
+		            <div class="share"><a href="">share</a></div>
+		            <div class="clear"> </div>
+		        </div>
+			</div>
+		</div>
+		<div class="col_6 col_last">
+	        <div class="comments">
+		        <div class="comment clear">
+		            <h4>
+		                <span class="date"><nobr>Tuesday</nobr></span>
+		                <span class="username">UserUser</span>
+		                <span class="location">in <a>City, State</a></span>
+		                <span class="verb"> </span>
+		            </h4>
+		            <p class="usercomment endorse_oppose_image neutral">
+		            	Lorem ipsum etc etcLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		            </p>
+		            <div class="clear"> </div>
+		            <div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="num">96</span></div>
+		            <div class="share"><a href="">share</a></div>
+		            <div class="clear"> </div>
+		        </div>
+			</div>
+		</div>		
+
     </div>
     
+    <div class="clearfix"> </div>
+    
+<!--
     {% comment %}
     {% if not bot_comments %}
     <div class="section clearfix"> 
@@ -507,9 +605,10 @@ h2 span {
                 </ul>
             </div> 
         </div> 
-    </div><!-- e: section -->
+    </div>
     {% endif %}
     {% endcomment %}
+
 
 
     {% for c in comments %}
@@ -518,6 +617,7 @@ h2 span {
             <p>{{c.message}}</p>
         </div>
     {% endfor %}
+-->
     
     <p id="debug_info" style="width: 800px"> </p>
     

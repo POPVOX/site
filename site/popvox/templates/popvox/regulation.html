@@ -23,12 +23,16 @@
 <div class="content pgbill" id="pg_reg">
 
     <div class="col_12 col_top">
+
 		<div id="social_reg">
 			<ul class="social-links">
 				<li><a class="facebook" href="#"></a></li>
 				<li><a class="twitter" href="#"></a></li>
 			    <li><a class="email" href="#"></a></li>
 			</ul>
+			<a class="btn b_view_report" href="{{bill.url}}/report">
+				View {{bill.shortname}} report
+			</a>
 		</div>
 		<h2 class="streetname billname">{% if regulation.ask %}{{regulation.ask}}{% else %}Submit A Public Comment On{%endif%}<br />
 			<span class="streetname billname">{% if regulation.street_name %}{{regulation.street_name|capfirst}}{% else %}{{regulation.title}}{% endif %}
@@ -62,8 +66,8 @@
 			<iframe src="/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&regulation=us/{{ regulation.agency }}/{{ regulation.regnumber }}&franking=false&sbg=b36015&sbg2=E8E5DF&sfg=ffffff&lnk=cc6a11&bg=ffffff&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe>
 		</div>
 		<div class="col_2 col_last">	
-	    	<p><strong>We are still working on this awesome new page.</strong></p>
-	    	<p>This is a public comment.</p>
+	    	<p><strong>You are leaving a public comment.</strong></p>
+	    	<p></p>
 <!-- 	    	<p><a href="#">view the regulations report</a></p> -->
 		</div>
 <!--
