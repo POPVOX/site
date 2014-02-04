@@ -494,6 +494,7 @@ body.land {
 	width: 940px;
 	clear: both;
 	}
+	
 
 /* ----Typographic Styling--- */
 
@@ -1526,6 +1527,8 @@ ul.support_oppose li {
     margin-left: -25px;
     padding-left: 25px;
     }
+
+.neutral { background: url(bg_neutral_bubl.png) left 5px no-repeat     }
 
 .comment .endorse_oppose_image {
     height: 100%;
@@ -6499,7 +6502,7 @@ font-weight: normal;
 	#social_reg {
 		display: block;
 		width: 200px;
-		margin-top: 25px;
+		margin-top: -13px;
 		float: right;
 	}
 	
@@ -6533,6 +6536,14 @@ font-weight: normal;
 		#social_reg ul li a.email {
 			background: url(b_social_email.png) left top no-repeat;
 		}
+		
+		#social_reg .b_view_report {
+		    background: url(b_view_report.png) left top no-repeat;
+		    width: 176px;
+		    height: 23px;
+		    margin: 10px -10px 0 0;
+		    float: right;
+		    }
 
 
 	
@@ -6595,6 +6606,62 @@ font-weight: normal;
 	#pg_reg .col_6 {
 		margin-bottom: 20px;
 	}
+
+
+/* regulation report */
+
+.legreport.regreport {
+/*	background: url(_trash_reg_report.jpg) center -124px no-repeat; */
+}
+
+.legreport.regreport .b_back {
+    background: url(b_back_reg.png) left top no-repeat;
+    width: 140px;
+    height: 23px;
+    margin: 10px 0 0 0;
+	float: right;
+    }
+    
+    .legreport.regreport .b_back:hover {
+    	background-position: left bottom;
+    }
+    
+.legreport.regreport .block {
+	background: none;
+	padding-left: 0;
+}
+
+	.legreport.regreport h2 {
+		margin-bottom: 0;
+	}
+	
+	.legreport.regreport h2.billname {
+		margin-top: 15px;
+	}
+
+	.legreport.regreport h2.regname, .legreport.regreport h2.rename  {
+		padding: 0 0 15px;
+		font: 35px/41px 'BebasNeueRegular',helvetica,arial,sans-serif;
+	}
+	
+	.legreport.regreport h1 {
+		font: normal 18px/20px helvetica, arial;
+		background: none;
+		padding-bottom: 10px;
+	}
+	
+	.legreport.regreport .col_6 h3 {
+		padding: 0;
+	}
+	
+
+
+
+
+
+
+
+
 
 
 
