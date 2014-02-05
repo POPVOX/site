@@ -118,7 +118,7 @@
         </script>
     </head>
     {% if regulation %}
-        <body class="colormode_1 width_{{width}}">
+        <body class="colormode_2 width_{{width}}">
     {% else %}
     {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
     <body id="anaap" class="colormode_3 width_{{width}}">
@@ -158,7 +158,7 @@
         {% endif %}
         </script>
         
-		{% if request.GET.width != "274" %}
+		{% if request.GET.width != "274" and not regulation %}
         <div id="colormode" title="Switch Colors" onclick="togglecolors()">Alternate Colors</div>
 		{% endif %}
     

@@ -1385,6 +1385,14 @@ class PostalAddress(models.Model):
             [x["name"] for x in govtrack.getMembersOfCongressForDistrict(self.state + str(self.congressionaldistrict))]
             )
         return ret
+    
+    def nicelocation_no_reps(self):
+        ret = govtrack.statenames[self.state]
+        if self.congressionaldistrict > 0:
+             ret += "'s " + ordinal(self.congressionaldistrict) + " District"
+        else:
+            ret += " At Large"
+        return ret
         
     def set_timezone(self):
         # This is correct only to the majority of a state. Some states split timezones.
