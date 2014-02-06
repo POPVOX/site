@@ -6489,9 +6489,14 @@ font-weight: normal;
 		margin-bottom: 10px;
 	}
 
+	#pg_reg h2.streetname {
+		font-size: 20px;
+	}
+	
 	#pg_reg h2 span.streetname.billname {
-		padding: 0 0 10px;
-		font: 35px/41px 'BebasNeueRegular',helvetica,arial,sans-serif;
+		padding: 5px 0 10px;
+		font: 35px/35px 'BebasNeueRegular',helvetica,arial,sans-serif;
+		width: 720px;
 	}
 	
 	#pg_reg p {
@@ -6640,8 +6645,10 @@ font-weight: normal;
 	}
 
 	.legreport.regreport h2.regname, .legreport.regreport h2.rename  {
+		margin-top: 5px;
 		padding: 0 0 15px;
-		font: 35px/41px 'BebasNeueRegular',helvetica,arial,sans-serif;
+		font: 35px/35px 'BebasNeueRegular',helvetica,arial,sans-serif;
+		width: 720px;
 	}
 	
 	.legreport.regreport h1 {
@@ -6654,6 +6661,12 @@ font-weight: normal;
 		padding: 0;
 	}
 	
+	.legreport.regreport .comment {
+		border-top: 1px solid #D4D1CA;
+		border-bottom: 0;
+		padding-top: 15px;
+		margin-bottom: 0;
+	}
 
 
 

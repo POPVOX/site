@@ -387,7 +387,8 @@ h2 span {
 -->
 
             {% if not regulation.street_name %}
-                <h2 class="billname">{{ regulation.title|truncatewords:30 }}</h2> 
+<!-- example on irs is a reg,but if else is not triggering #fixme -->
+                <h2 class="billname rename">{{ regulation.title|truncatewords:30 }}</h2> 
             {% else %}
                 <h2 class="rename">
                     {{regulation.street_name|capfirst}} ({{regulation.regnumber}})
