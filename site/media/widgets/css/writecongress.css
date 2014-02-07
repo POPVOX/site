@@ -1265,7 +1265,8 @@ a {
 		
 		.why h3 {
 			float: left;
-			margin-top: 5px;
+			margin-top: 0px;
+			height: 36px;
 			}
 			
 		.why a.expand {
@@ -1276,13 +1277,17 @@ a {
 			height: 21px;
 			margin-left: 17px;
 			display: block;
+			position: absolute;
+			right: 0;
+			top: 14px;
 			}
 	
 	#panel_write h4 {
 		font: italic normal 18px/24px georgia, serif;
 		margin-bottom: 10px;
-		/*height: 32px;*/
+		height: 38px;
 		padding: 2px 0 6px 46px;
+		overflow: hidden;
 		}
 		#panel_write h4.support {
 			background: url(../../widget/bg_endorsed_bubl.png) left top no-repeat;
