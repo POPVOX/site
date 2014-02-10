@@ -12,12 +12,12 @@ class BillAdmin(admin.ModelAdmin):
     list_display_links = ("title",)
     search_fields = ("title", "street_name")
     raw_id_fields = ('vehicle_for','sponsor','reintroduced_as', 'migrate_to')
-    filter_horizontal = ("cosponsors", 'committees', 'issues')
+    filter_horizontal = ['cosponsors', 'committees', 'issues', 'executive_recipients']
     exclude = ('srcfilehash',)
     fieldsets = (
         ("Primary Key", { "fields": ('congressnumber', 'billtype', 'billnumber', 'vehicle_for')}),
         ("Required Metadata", { "fields": ('title', 'introduced_date', 'current_status', 'current_status_date', 'num_cosponsors')}),
-        ("Usual Metadata", { "fields": ('description', 'street_name', 'ask', 'notes', 'hashtags', 'topterm', 'comments_to_chamber')}),
+        ("Usual Metadata", { "fields": ('description', 'street_name', 'ask', 'notes', 'hashtags', 'topterm', 'comments_to_chamber', 'executive_recipients')}),
         ("Optional Metadata", { "fields": ('sponsor', 'cosponsors', 'committees', 'issues', 'latest_action', 'reintroduced_as', 'migrate_to', 'hold_metadata')}),
         ("Upcoming Event", { "fields": ( 'upcoming_event_post_date', 'upcoming_event' ) }),
         )
@@ -27,7 +27,11 @@ class BillAdmin(admin.ModelAdmin):
 class RegulationAdmin(admin.ModelAdmin):
     list_display = ("agency", "regnumber", "topterm", "street_name", "title")
     search_fields = ("title", "street_name")
-    filter_horizontal = ['issues']
+    filter_horizontal = ['issues', 'executive_recipients']
+    
+class FederalAgencyAdmin(admin.ModelAdmin):
+    list_display = ("id", "acronym", "name")
+    search_fields = ("acronym", "name")
 
 class BillEventInline(admin.StackedInline):
     model = BillEvent
@@ -190,6 +194,7 @@ class UserTagAdmin(admin.ModelAdmin):
 
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
+admin.site.register(FederalAgency, FederalAgencyAdmin)
 admin.site.register(Org, OrgAdmin)
 admin.site.register(OrgCampaign, OrgCampaignAdmin)
 admin.site.register(OrgCampaignPosition, OrgCampaignPositionAdmin)

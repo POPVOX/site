@@ -186,13 +186,13 @@ common_fieldnames = {
     "org_url": "org_url",
     "advocacyorganizationurl": "org_url",
     "org_name": "org_name",
+    "delivery_agent": "delivery_agent",
+
+    # other aliases
     "organization": "org_name",
     "advocacyorganizationname": "org_name",
     "organizationcontact": "org_contact",
     "organizationdescription": "org_description",
-    "delivery_agent": "delivery_agent",
-
-    # other aliases
     "mailing_county": "county",
     "deliveryagent": "delivery_agent",
     "delivery_agent_contact": "delivery_agent_contact",
@@ -373,6 +373,18 @@ common_fieldnames = {
     
     'view_select': 'support_oppose',
     
+    #NPS fields:
+    'id_authorOrg': "org_name",
+    'id_authorCity': "city",
+    'stateprovince': "state",
+    "authorstateprovdd": "state",
+    'id_authorPostalCode': "zipcode",
+    'id_authorAddress1': "address1",
+    'id_authorAddress2': "address2",
+    'id_authorEmail': "email",
+    'id_pubComments': "message",
+    
+    
     #Numbered senate fields
     "a01": "prefix",
     "b01": "firstname",
@@ -480,6 +492,9 @@ skippable_fields = (
     #Gosar radios
     "help",
     "meeting",
+    
+    #National Park Service
+    "authormiddleinitial", "howdidyouhear", "liketohear", "usertype", "id_member", "country",
 
 
     "agency", "prefixother", "middle", "middlename", "suffix", "preferredname",
@@ -732,6 +747,7 @@ custom_overrides = {
     "886_submitted[delivery_agent_email]_email" : "info@popvox.com",   
     "930_newsletter_radio": "noAction",
     '1060_phonetype_radio': 'voice',
+    '1088_id_authorCountryAbbr_select': 'USA',
 }
 
 # Supply additional POST data from the message object that doesn't correspond to a form field.
@@ -1133,14 +1149,14 @@ def test_subject_toolong(webform, deliveryrec):
         deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
         raise SubjectTooLongException()
     
-def send_message_webform(di, msg, deliveryrec):
+def send_message_webform(endpoint, msg, deliveryrec):
     # Load the web form and parse the fields.
     
-    if not "#" in di.webform:
+    if not "#" in endpoint.webform:
         raise WebformParseException("Webform URL should specify a # and the id, name, .class, or @action of the form")
         
     alternate_post_url = None
-    webformurl, webformid = di.webform.split("#")
+    webformurl, webformid = endpoint.webform.split("#")
     webform_stages = webformid.split(',')
 
     # enforce a delay between hits to the same target
@@ -1171,7 +1187,7 @@ def send_message_webform(di, msg, deliveryrec):
         webformid_stage1 = webform_stages.pop(0)[len("zipstage:"):]
         
         # Parse the fields.
-        field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, webform, webformid_stage1, di.id, deliveryrec)
+        field_map, field_options, field_default, webformurl, formmethod = parse_webform(webformurl, webform, webformid_stage1, endpoint.id, deliveryrec)
         
         # Submit the zipcode to get the second stage form.
         postdata = { }
@@ -1193,7 +1209,7 @@ def send_message_webform(di, msg, deliveryrec):
             
         webform = urlopen(webformurl, postdata, formmethod, deliveryrec).read()
         
-        if di.id != 361: # text is always present in form
+        if endpoint.id != 361: # text is always present in form
             test_zipcode_rejected(webform, deliveryrec)
 
         # Rep. Chandler via House WYR
@@ -1208,25 +1224,35 @@ def send_message_webform(di, msg, deliveryrec):
 
     webformid = webform_stages.pop(0) if len(webform_stages) > 0 else "<not entered>"
     try:
-        field_map, field_options, field_default, formaction, formmethod = parse_webform(webformurl, webform, webformid, di.id, deliveryrec)
+        field_map, field_options, field_default, formaction, formmethod = parse_webform(webformurl, webform, webformid, endpoint.id, deliveryrec)
     except:
         deliveryrec.trace += u"\n" + webform.decode('utf8', 'replace') + u"\n\n"
         raise
 
     # Make sure that we've found the equivalent of all of the fields
     # that the form should be accepting.
-    for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined", "address_split_street"), ("address2", "address_combined", "address_split_street"), ("zipcode", "zip5"), "message"):
-        if field == "email" and di.id in [839, 886]: #form doesn't actually collect email address
-            continue
-        if field == "city" and di.id == 554: # no need to collect city since there is only one city in DC
-            continue
-        if type(field) == str:
-            field = [field]
-        for f in field:
-            if f in field_map.values():
-                break
-        else:
-            raise WebformParseException("Form does not seem to accept field " + repr(field) + " (we got " + ", ".join(field_map.values()) + ")")
+    if endpoint.endpointtype is 'c':
+        for field in ("email", ("firstname", "name"), ("lastname", "name"), ("address1", "address_combined", "address_split_street"), ("address2", "address_combined", "address_split_street"), ("zipcode", "zip5"), "message"):
+            if field == "email" and endpoint.id in [839, 886]: #form doesn't actually collect email address
+                continue
+            if field == "city" and endpoint.id == 554: # no need to collect city since there is only one city in DC
+                continue
+            if type(field) == str:
+                field = [field]
+            for f in field:
+                if f in field_map.values():
+                    break
+            else:
+                raise WebformParseException("Form does not seem to accept field " + repr(field) + " (we got " + ", ".join(field_map.values()) + ")")
+    else: #executive endpoints generally require far less information.
+        for field in ("email", ("firstname", "name"), ("lastname", "name"), "message"):
+            if type(field) == str:
+                field = [field]
+            for f in field:
+                if f in field_map.values():
+                    break
+            else:
+                raise WebformParseException("Form does not seem to accept field " + repr(field) + " (we got " + ", ".join(field_map.values()) + ")")
 
     # Deliver message.
     
@@ -1239,8 +1265,8 @@ def send_message_webform(di, msg, deliveryrec):
         
         # Make sure that if there were options given for a prefix that they accept our
         # prefixes. We'll deal with the wrath of an unexpected response.
-        if v == "prefix" and postdata[k] == "Reverend" and msg.firstname in ("Jacob", "Mike") and di.id in (677, 691): postdata[k] = "Mr."
-        if v == "prefix" and postdata[k] == "Dr." and msg.firstname in ("James","David") and di.id in (57,710): postdata[k] = "Mr."
+        if v == "prefix" and postdata[k] == "Reverend" and msg.firstname in ("Jacob", "Mike") and endpoint.id in (677, 691): postdata[k] = "Mr."
+        if v == "prefix" and postdata[k] == "Dr." and msg.firstname in ("James","David") and endpoint.id in (57,710): postdata[k] = "Mr."
             # pretend they accept this... confusing to diagnose tho!
         #if v == "prefix" and field_options[k] != None: field_options[k]["reverend"] = "Reverend"
         #if v == "prefix" and field_options[k] != None: field_options[k]["pastor"] = "Pastor"
@@ -1318,12 +1344,12 @@ def send_message_webform(di, msg, deliveryrec):
                 postdata[k] = "Y"
 
         # Calvert has a fake form item
-        if di.id == 934:
+        if endpoint.id == 934:
             if k == "ctl00$ctl14$Subject":
                 postdata[k] = ''
                 
         #Isakson won't take subjects over 100 chars
-        if di.id == 49:
+        if endpoint.id == 49:
             if v == 'subjectline':
                 postdata[k] = postdata[k][0:99]
                 
@@ -1333,7 +1359,7 @@ def send_message_webform(di, msg, deliveryrec):
         
     # Thess guys have some weird restrictions on the text input to prevent the user from submitting
     # SQL... rather than just escaping the input.
-    if di.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 663, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 850, 851, 857, 861, 869, 878, 882, 892, 899, 916, 946, 962, 988, 990, 1016, 1037, 1040, 1054, 1056, 1060, 1080):
+    if endpoint.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 663, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 850, 851, 857, 861, 869, 878, 882, 892, 899, 916, 946, 962, 988, 990, 1016, 1037, 1040, 1054, 1056, 1060, 1080, 1088):
         re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
         for k in postdata:
             postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -1364,7 +1390,7 @@ def send_message_webform(di, msg, deliveryrec):
         deliveryrec.trace += u"\n" + ret.decode('utf8', 'replace') + u"\n\n"
         raise WebformParseException("Page did not change after form submission.")
     
-    if di.id != 361: # text is always present in form
+    if endpoint.id != 361: # text is always present in form
         test_zipcode_rejected(ret, deliveryrec)
 
     # If this form has a final stage where the user is supposed to verify
@@ -1468,11 +1494,11 @@ def send_message_webform(di, msg, deliveryrec):
         if x in ret:
             return
             
-    if di.webformresponse == None or di.webformresponse.strip() == "":
+    if endpoint.webformresponse == None or endpoint.webformresponse.strip() == "":
         deliveryrec.trace += u"\n" + ret + u"\n\n"
         raise SubmissionSuccessUnknownException("Webform's webformresponse text is not set.")
     
-    if di.webformresponse in ret:
+    if endpoint.webformresponse in ret:
         return
         
     deliveryrec.trace += u"\n" + ret + u"\n\n"
@@ -1572,7 +1598,7 @@ def send_message_housewyr(msg, deliveryrec):
     
     return True
 
-def send_message(msg, moc, previous_attempt, loginfo):
+def send_message(msg, endpoint, previous_attempt, loginfo):
     global extra_cookies
     global http_last_url
 
@@ -1582,16 +1608,17 @@ def send_message(msg, moc, previous_attempt, loginfo):
     
     # Check for delivery information.
     
-    method = moc.method
-    govtrackrecipientid = moc.govtrackid
-    mm = getMemberOfCongress(govtrackrecipientid)
-    if "current" not in mm or mm["type"] not in ('sen', 'rep'):
-        if govtrackrecipientid != 400629:
-            raise Exception("Recipient is not currently in office as a senator or representative.")
+    method = endpoint.method
+    govtrackrecipientid = endpoint.govtrackid
+    if govtrackrecipientid != 0:
+        mm = getMemberOfCongress(govtrackrecipientid)
+        if "current" not in mm or mm["type"] not in ('sen', 'rep'):
+            if govtrackrecipientid != 400629:
+                raise Exception("Recipient is not currently in office as a senator or representative.")
 
-    if moc.method == Endpoint.METHOD_NONE:
-        if mm["type"] == "rep":
-            method = Endpoint.METHOD_HOUSE_WRITEREP
+        if endpoint.method == Endpoint.METHOD_NONE:
+            if mm["type"] == "rep":
+                method = Endpoint.METHOD_HOUSE_WRITEREP
 
     if method == Endpoint.METHOD_NONE:
         return None
@@ -1599,19 +1626,19 @@ def send_message(msg, moc, previous_attempt, loginfo):
     # Create a new DeliveryRecord as a trace of what we are about to do.
 
     deliveryrec = DeliveryRecord()
-    deliveryrec.target = moc
-    deliveryrec.method = moc.method
+    deliveryrec.target = endpoint
+    deliveryrec.method = endpoint.method
     deliveryrec.success = False
-    deliveryrec.trace = unicode(loginfo) + u" to " + getMemberOfCongress(govtrackrecipientid)["sortkey"] + u" (" + unicode(govtrackrecipientid) + u")\n" + unicode(msg.xml()) + u"\n\n"
+    if govtrackrecipientid == 0:
+        deliveryrec.trace = unicode(loginfo) + u" to " + endpoint.office + u"\n" + unicode(msg.xml()) + u"\n\n"
+    else:
+        deliveryrec.trace = unicode(loginfo) + u" to " + getMemberOfCongress(govtrackrecipientid)["sortkey"] + u" (" + unicode(govtrackrecipientid) + u")\n" + unicode(msg.xml()) + u"\n\n"
     deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
     deliveryrec.save()
 
     if previous_attempt != None:
         previous_attempt.next_attempt = deliveryrec
         previous_attempt.save()
-
-    #print mm["name"].encode('utf8'), msg.zipcode
-    #print moc.admin_url()    
     
     # Generate some additional fields.
     msg.name = msg.firstname + " " + msg.lastname
@@ -1675,7 +1702,7 @@ def send_message(msg, moc, previous_attempt, loginfo):
         
         if method == Endpoint.METHOD_WEBFORM:
             try:
-                send_message_webform(moc, msg, deliveryrec)
+                send_message_webform(endpoint, msg, deliveryrec)
                 deliveryrec.success = True
                 deliveryrec.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE
             except SelectOptionNotMappable, e: # is a type of WebformParseException so must go first
@@ -1704,18 +1731,18 @@ def send_message(msg, moc, previous_attempt, loginfo):
         
             # If we got this far, House WYR supports this office. Since we
             # might have been guessing...
-            if deliveryrec.success and moc.method != method:
-                moc.method = Endpoint.METHOD_HOUSE_WRITEREP
-                moc.save()
+            if deliveryrec.success and endpoint.method != method:
+                endpoint.method = Endpoint.METHOD_HOUSE_WRITEREP
+                endpoint.save()
                 
         elif method == Endpoint.METHOD_SMTP:
-            deliveryrec.trace += u"sending email to " + unicode(moc.webform) + u"\n\n"
+            deliveryrec.trace += u"sending email to " + unicode(endpoint.webform) + u"\n\n"
             deliveryrec.trace += u"from: " + msg.email + u"\n"
             deliveryrec.trace += u"subject: " + msg.subjectline + u"\n\n"
             
-            if moc.template == None or moc.template.strip() == "":
+            if endpoint.template == None or endpoint.template.strip() == "":
                 msg_body = msg.text()
-            elif moc.template.strip() == "@IQ":
+            elif endpoint.template.strip() == "@IQ":
                 if "no" in msg.response_requested:
                     msg.response_yn = "N"
                 elif "yes" in msg.response_requested:
@@ -1746,7 +1773,7 @@ def send_message(msg, moc, previous_attempt, loginfo):
                 msg.subjectline,
                 msg_body,
                 msg.email,
-                [moc.webform],
+                [endpoint.webform],
                 fail_silently=False)
 
             deliveryrec.success = True
