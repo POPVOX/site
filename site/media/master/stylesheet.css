@@ -6605,11 +6605,26 @@ font-weight: normal;
 		}
 
 		#pg_reg .col_last {
-			padding: 20px 0;
+			padding: 0;
 		}
+
+		#pg_reg .col_2.col_last {
+			width: 180px;
+			height: 670px;
+			margin-top: 15px;
+			padding: 15px;
+			background: #D4D1CA;
+			word-wrap: break-word;
+		}
+		
+		#pg_reg .col_2.col_last h2 {
+			font: normal 15px helvetica, arial, sans-serif;
+		}
+
 
 	#pg_reg .col_6 {
 		margin-bottom: 20px;
+		margin-top: 15px;
 	}
 
 
