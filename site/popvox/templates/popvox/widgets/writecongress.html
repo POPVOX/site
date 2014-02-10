@@ -135,7 +135,7 @@ Notes:
     #b_send_to_congress a { background-image: url(/services/widgets/img/writecongress/send?sub=C66825,{{request.GET.sbg}}&sub=00AEEF,{{request.GET.sfg}}&sub=EC0082,{{request.GET.sbg}},darken);
     {% if 'whitehouse' in permissions %}
     background-image: url(/media/master/b_send_to_congress_wh_blue.png){% endif %}
-    {% if regulation %}background-image: url(/media/master/b_send_message.png); height: 56px;{% endif %}
+    {% if regulation %}{%if request.GET.ocp == "8435" %}background-image: url(/media/master/b_send_message_lilly.png);{%else%} background-image: url(/media/master/b_send_message.png);{% endif %} height: 56px; {% endif %}
     }
     {% endif %}
 
