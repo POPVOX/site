@@ -865,6 +865,7 @@ a {
 	font-size: 12px;
 		}
 	.optin input {
+		width: 20px !important;
 		float: left;
 		margin: 0 5px 20px 0;
 		}
@@ -1676,9 +1677,10 @@ a {
 	.optin input {
 		float: left;
 		margin: 0 5px 20px 0;
-		width: 20px;
+		width: 5%;
 		}
 	.form .optin label {
+		width: 300px !important;
 		line-height: 20px;
 		padding-bottom: 10px;
 		}
