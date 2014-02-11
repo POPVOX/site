@@ -100,7 +100,7 @@ if "LAST_ERR" in os.environ:
     if os.environ["LAST_ERR"] == "CAPTCHA":
         comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE, delivery_attempts__trace__contains="CAPTCHA")
 if "RECENT" in os.environ:
-    comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=45))
+    comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=3))
 if "REDISTRICTED" in os.environ:
     #Only run comments for users whose new districts we know we have.
     comments_iter = comments_iter.filter(address__congressionaldistrict2013__isnull=False)
