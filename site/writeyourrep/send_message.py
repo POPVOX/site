@@ -377,13 +377,13 @@ common_fieldnames = {
     'id_authorOrg': "org_name",
     'id_authorCity': "city",
     'stateprovince': "state",
+    'authorstateprov': "state",
     "authorstateprovdd": "state",
     'id_authorPostalCode': "zipcode",
     'id_authorAddress1': "address1",
     'id_authorAddress2': "address2",
     'id_authorEmail': "email",
     'id_pubComments': "message",
-    
     
     #Numbered senate fields
     "a01": "prefix",
