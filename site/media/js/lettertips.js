@@ -23,7 +23,7 @@ function bangcount(txt) {
 function validate(box) {
 	var v = $('#' + box).val();
 	var billnum = bill_display_number.replace(/ /g, " *").replace(/\./g, "[\\. ]*").replace(/\(/g, "\\(").replace(/\)/g, "\\)")
-	var charlimit = 1200;
+	var charlimit = 2400;
 	
 	// checks for validity
 	$('#' + box + "error").text('');
