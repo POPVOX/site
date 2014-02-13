@@ -127,6 +127,7 @@ class ServiceAccountAdmin(admin.ModelAdmin):
     filter_horizontal = ["permissions"]
 
 class ServiceAccountCampaignAdmin(admin.ModelAdmin):
+    search_fields = ("account__name", "bill__title")
     raw_id_fields = ("account", "bill")
     readonly_fields = ("account", "bill")
 
