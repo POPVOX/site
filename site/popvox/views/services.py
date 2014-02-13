@@ -849,9 +849,11 @@ def widget_render_writecongress_get_identity(user, address=None):
         }
 
 def widget_render_writecongress_getsubmitparams(post, account):
+    #FIXME needs to return share_record, but that's going to cause 'too many values to unpack errors so leaving it be till I'm ready to fix this for real
     referrer = account
     campaign = None
     optin = None
+    share_record = None
     if "campaign" in post:
         try:
             # Because this is called from an email callback and a
@@ -866,8 +868,8 @@ def widget_render_writecongress_getsubmitparams(post, account):
     message = post["message"]
     if len(message.strip()) < 8: message = None
     
-    optin = None
     if "optin" in post: optin = post.get("optin", "0") == "1"
+    if "share_record" in post: share_record = post.get("share_record", "0") == "1"
     
     return referrer, campaign, message, optin
 

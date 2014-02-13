@@ -67,6 +67,18 @@ class IssueArea(models.Model):
 
     def orgs(self):
         return (Org.objects.filter(visible=True, issues=self) | Org.objects.filter(visible=True, issues__parent=self)).distinct()
+    
+class FederalAgency(models.Model):
+    #id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=255,null=False)
+    acronym = models.CharField(max_length=255,null=False)
+    urlstring = models.CharField(max_length=255,null=False)
+    parent = models.ForeignKey('self', blank= True, null=True)
+    description = models.TextField(blank= True, null=True)
+    article = models.CharField(max_length=10,blank= True, null=True) #grammar!
+    
+    def __unicode__(self):
+        return unicode(self.name)
         
 class MemberOfCongress(models.Model):
     """A Member of Congress or former member."""
@@ -196,6 +208,7 @@ class Regulation(models.Model):
     commentperiod_closed_date = models.DateTimeField()
     current_status = models.TextField(blank=True, null=True)
     current_status_date = models.DateTimeField(blank=True, null=True)
+    executive_recipients = models.ManyToManyField(FederalAgency, blank=True, null=True, related_name="regulations")
     
     def isAlive(self):
         # alive = open for public comment
@@ -208,7 +221,7 @@ class Regulation(models.Model):
     def url(self):
         return "/regulations/us/" + str(self.agency) + "/" + str(self.regnumber)
     
-    def hashtag(self, always_include_session=False):
+    def hashtag(self):
         if self.hashtags not in (None, ""):
             return self.hashtags
         return "#" + str(self.regnumber)
@@ -259,6 +272,7 @@ class Bill(models.Model):
     hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
     hold_metadata = models.BooleanField(default=False)
     comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House',), ('c', 'Congress House+Senate')], blank=True, null=True, help_text="This is required for Generic Proposal-type bill actions to route messages to the right place.")
+    executive_recipients = models.ManyToManyField(FederalAgency, blank=True, null=True, related_name="bills")
     
     upcoming_event_post_date = models.DateTimeField(help_text="When adding an upcoming event, set this date to the date you are posting the information (i.e. now).", blank=True, null=True, db_index=True)
     upcoming_event = models.CharField(max_length=64, blank=True, null=True, help_text="The text of an upcoming event. Start with a verb that would follow the bill number, e.g. \"is coming up for a vote on Aug. 1\". Do not end with a period.")
@@ -1077,6 +1091,9 @@ class UserTag(models.Model):
     org = models.ForeignKey('Org')
     label = models.TextField()
     value = models.TextField()
+    
+    def __unicode__(self):
+        return unicode(self.label) + u": " + unicode(self.value)
 
 class UserProfile(models.Model):
     """A user profile extends the basic user model provided by Django."""
@@ -1622,6 +1639,12 @@ class UserComment(models.Model):
                 not self.delivery_attempts.exclude(target__govtrackid=g["id"]).filter(success = True, target__office=g["office_id"]).exists()]
             
         return govtrackrecipients
+    
+    def get_executive_recipients(self):
+        if self.bill:
+            return self.bill.executive_recipients.all()
+        else:
+            return self.regulation.executive_recipients.all()
         
     def get_recipients_display(self):
         recips = self.get_recipients()
@@ -2018,12 +2041,14 @@ class ServiceAccountCampaign(models.Model):
             else:
                 optin = False
         setattr(rec,"optin",optin)
-        share_record = False
+
         if "share_record" in kwargs:
             share_record = kwargs.pop("share_record")
             if share_record == "1":
                 share_record = True
-        setattr(rec,"share_record",share_record)
+            else:
+                share_record = False
+            setattr(rec,"share_record",share_record)
         
         rec.save()
         if not isnew or "created" in kwargs:

@@ -1355,6 +1355,9 @@ def regcomment(request, agency, regnumber, position):
     except:
         pass
     
+    #FIXME I left a lot of this code intact in case we need it, but most of
+    #these ifs can't be triggered right now because the urls for them don't even
+    #exist. Should remove the erroneous ones.
     if not "submitmode" in request.POST and position_original != "/finish":
         message = None
         has_been_delivered = False
