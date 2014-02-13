@@ -216,6 +216,7 @@ common_fieldnames = {
     "name_last": "lastname",
     "lastname_require": "lastname",
     "fullname": "name",
+    "fname": "name",
     "name_suffix": "suffix",
     "suffix2": "suffix",
     "address": "address_combined",
@@ -385,6 +386,15 @@ common_fieldnames = {
     'id_authorEmail': "email",
     'id_pubComments': "message",
     
+    #FCC:
+    'address.line1': "address1",
+    'address.line2': "address2",
+    'address.city': "city",
+    'address.state.id': "state",
+    'address.zip': "zipcode",
+    'briefComment': "message",
+    
+    
     #Numbered senate fields
     "a01": "prefix",
     "b01": "firstname",
@@ -494,7 +504,7 @@ skippable_fields = (
     "meeting",
     
     #National Park Service
-    "authormiddleinitial", "howdidyouhear", "liketohear", "usertype", "id_member", "country",
+    "authormiddleinitial", "howdidyouhear", "liketohear", "country",
 
 
     "agency", "prefixother", "middle", "middlename", "suffix", "preferredname",
@@ -654,6 +664,7 @@ custom_mapping = {
     "978_phone3_text" : "phone_prefix",
     "978_phone4_text" : "phone_line",
     "1028_required-response_select":"response_requested",
+    "1089_proceeding_select": "topicarea",
 }
 
 custom_overrides = {
@@ -748,6 +759,8 @@ custom_overrides = {
     "930_newsletter_radio": "noAction",
     '1060_phonetype_radio': 'voice',
     '1088_id_authorCountryAbbr_select': 'USA',
+    '1088_usertype_radio': 'member',
+    #'1088_id_member_radio': 'member',
 }
 
 # Supply additional POST data from the message object that doesn't correspond to a form field.
@@ -1156,7 +1169,9 @@ def send_message_webform(endpoint, msg, deliveryrec):
         raise WebformParseException("Webform URL should specify a # and the id, name, .class, or @action of the form")
         
     alternate_post_url = None
-    webformurl, webformid = endpoint.webform.split("#")
+    
+    #regulations.gov uses hashmarks in their urls. Accounting for that with rsplit.
+    webformurl, webformid = endpoint.webform.rsplit("#", 1)
     webform_stages = webformid.split(',')
 
     # enforce a delay between hits to the same target

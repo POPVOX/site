@@ -278,7 +278,7 @@ ARTICLES_TEASER_LIMIT = 100 #The number of words to display in the teaser. Defau
 ARTICLES_AUTO_TAG = False #Whether or not to automatically tag articles. Defaults to True.
 
 # Cut-off age for a message with no comment before we stop trying to deliver the message
-POSITION_DELIVERY_CUTOFF_DAYS = 14
+POSITION_DELIVERY_CUTOFF_DAYS = 10
 
 #settings for Django Debug Toolbar
 def show_toolbar(request):

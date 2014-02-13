@@ -59,16 +59,17 @@ else:
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
-lcenddate = getCongressDates(CURRENT_CONGRESS -1)[1] #end date of the previous congress. this is already a datetime object.
+
+lcenddate = getCongressDates(CURRENT_CONGRESS -1 )[1] #end date of the previous congress. this is already a datetime object.
 comments_iter = UserComment.objects.filter(
     bill__congressnumber=CURRENT_CONGRESS,
     status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
     #this next line is to send only recent comments:
-    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=5)
+    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=45)
     #to send very old comments:
     #updated__lt=datetime.datetime.now()-datetime.timedelta(days=45), updated__gt=lcenddate
     #this line is our standard send:
-    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
+    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
     )
 
 if "COMMENT" in os.environ:
@@ -87,7 +88,7 @@ if "TARGET" in os.environ:
 if "AGENCY" in os.environ:
     #this is fuuuugly
     agency = FederalAgency.objects.get(acronym__iexact = str(os.environ["AGENCY"]))
-    comments_iter.filter(Q(bill__executive_recipients=agency) | Q(regulation__executive_recipients=agency))
+    comments_iter = comments_iter.filter(Q(bill__executive_recipients=agency) | Q(regulation__executive_recipients=agency))
 
 if "LAST_ERR" in os.environ:
     if os.environ["LAST_ERR"] == "ANY":
@@ -121,7 +122,6 @@ def process_comment(comment, thread_id):
     # the legstaff mail download function.
     if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=POSITION_DELIVERY_CUTOFF_DAYS):
         return
-    
     # skip flagged addresses... when I put this into the .filter(),
     # a SQL error is generated over ambiguous 'state' column
     try:
@@ -149,7 +149,6 @@ def process_comment(comment, thread_id):
     
     
     # Set up the message record.
-    
     msg = Message()
     msg.email = comment.user.email
     msg.prefix = comment.address.nameprefix
@@ -284,10 +283,9 @@ def process_comment(comment, thread_id):
     # Begin delivery.
     #Executive Delivery:
     for agency in execrecipients:
-        print 'line 287'
         if "TARGET" in os.environ:
             continue
-        if "AGENCY" in os.environ and agency.acronym.lower() == str(os.environ["AGENCY"]).lower():
+        if "AGENCY" in os.environ and agency.acronym.lower() != str(os.environ["AGENCY"]).lower():
             continue
         
         #we don't deliver blank messages to agencies. If there's no personal comment, skip.
@@ -422,7 +420,7 @@ def process_comment(comment, thread_id):
         # Get the last attempt to deliver to this recipient.
         last_delivery_attempt = None
         try:
-            last_delivery_attempt = comment.delivery_attempts.get(target__office = gid, next_attempt__isnull = True)
+            last_delivery_attempt = comment.delivery_attempts.get(target__govtrackid = gid, next_attempt__isnull = True)
         except DeliveryRecord.DoesNotExist:
             pass
         except MultipleObjectsReturned:
