@@ -16,8 +16,9 @@ class Endpoint(models.Model):
 	
 	METHOD_CHOICES = [(METHOD_NONE, 'No Method Available'), (METHOD_WEBFORM, 'Webform'), (METHOD_HOUSE_WRITEREP, "WriteRep.House.Gov"), (METHOD_SMTP, "Email/SMTP"), (METHOD_INPERSON, "In-Person Delivery"), (METHOD_STAFFDOWNLOAD, "Staff Download"), (METHOD_OFFSITE_DELIVERY, "Dropped off at 160 D Street NE")]
 	
-	govtrackid = models.IntegerField(help_text="Do not change the GovTrack ID, i.e. the person, once it is set. An Endpoint is for a particular person in a particular office.")
-	office = models.CharField(max_length=6, help_text="Identify the office that this person is currently serving, e.g. CA-H01 for CA's 1st district congressman, TX-S3 for the Texas Senate office that is Class 3. The office identifier is used to prevent re-submission of a comment to the same office when the person serving in that office changes (i.e. resignation followed by replacement). Do not change the office field once it is set. An Endpoint is for a particular person in a particular office.")
+	govtrackid = models.IntegerField(help_text="For Agencies: the Govtrack ID is 000000. For Congress: Do not change the GovTrack ID, i.e. the person, once it is set. An Endpoint is for a particular person in a particular office.")
+	office = models.CharField(max_length=20, help_text="For Agencies: this is the agency's official regulations.gov abbreviation. For Congress: Identify the office that this person is currently serving, e.g. CA-H01 for CA's 1st district congressman, TX-S3 for the Texas Senate office that is Class 3. The office identifier is used to prevent re-submission of a comment to the same office when the person serving in that office changes (i.e. resignation followed by replacement). Do not change the office field once it is set. An Endpoint is for a particular person in a particular office.")
+	endpointtype = models.CharField(max_length=1, choices=[('e', 'executive'), ('c', 'Congress')], blank=True, null=True, help_text="we're not using this for anything yet.")
 
 	method = models.IntegerField(choices=METHOD_CHOICES)
 	
@@ -43,8 +44,8 @@ class Endpoint(models.Model):
 
 	def save(self, *args, **kwargs):
 		import re
-		if not re.match(r"[A-Z][A-Z]-(H\d\d|S\d)", self.office):
-			raise ValueError("Invalid office.")
+		#if not re.match(r"[A-Z][A-Z]-(H\d\d|S\d)", self.office):
+		#	raise ValueError("Invalid office.")
 		super(Endpoint, self).save(*args, **kwargs)
 
 	def mocname(self):
@@ -63,11 +64,12 @@ class DeliveryRecord(models.Model):
 	FAILURE_NO_DELIVERY_METHOD = 6
 	FAILURE_DISTRICT_DISAGREEMENT = 7
 	FAILURE_ADDRESS_REJECTED = 8
+	FAILURE_EXECUTIVE_DELIVERY = 9
 	
 	target = models.ForeignKey(Endpoint, on_delete=models.PROTECT)
 	trace = models.TextField()
 	success = models.BooleanField()
-	failure_reason = models.IntegerField(choices=[(FAILURE_NO_FAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response"), (FAILURE_NO_DELIVERY_METHOD, "No Delivery Method Available"), (FAILURE_DISTRICT_DISAGREEMENT, "District Disagreement"), (FAILURE_ADDRESS_REJECTED, "Address Rejected")])
+	failure_reason = models.IntegerField(choices=[(FAILURE_NO_FAILURE, "Not A Failure"), (FAILURE_UNHANDLED_EXCEPTION, "Unhandled Exception"), (FAILURE_HTTP_ERROR, "HTTP Error"), (FAILURE_FORM_PARSE_FAILURE, "Form Parse Fail"), (FAILURE_SELECT_OPTION_NOT_MAPPABLE, "Select Option Not Mappable"), (FAILURE_UNEXPECTED_RESPONSE, "Unexpected Response"), (FAILURE_NO_DELIVERY_METHOD, "No Delivery Method Available"), (FAILURE_DISTRICT_DISAGREEMENT, "District Disagreement"), (FAILURE_ADDRESS_REJECTED, "Address Rejected"),(FAILURE_EXECUTIVE_DELIVERY, "Executive Delivery")])
 	method = models.IntegerField(choices=Endpoint.METHOD_CHOICES)
 	next_attempt = models.OneToOneField("DeliveryRecord", blank=True, null=True, db_index=True, related_name="previous_attempt", on_delete=models.CASCADE)
 	created = models.DateTimeField(auto_now_add=True)
