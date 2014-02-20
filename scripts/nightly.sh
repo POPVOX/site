@@ -15,7 +15,7 @@ annalee/attendancechecker.py
 ./manage cleanup
 ./manage clear_expired_email_verifications
 
-sudo indexer --all --rotate
+sudo -u sphinxsearch indexer --all --rotate
 sudo service sphinxsearch restart
 
 cd /mnt/persistent
