@@ -35,7 +35,7 @@
           src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
         {% endif %}
 		
-		<p><span class="member_name">{{memdata.title}} {{memdata.first_name}} {{memdata.last_name}}</span> <span class="member_partydata">[{%if memdata.chamber == "house" %}{%if memdata.state == "DC" or memdata.state == "PR" %}<a href="/district/{{memdata.state}}">{{memdata.party}}, {{memdata.state}}</a>{% else %}<a href="/district/{{memdata.state}}/{{memdata.district}}">{{memdata.party}}, {{memdata.state}}-{{memdata.district}}</a>{% endif %}{% else %}<a href="/state/{{memdata.state}}">{{memdata.party}}, {{memdata.state}}</a>{% endif %}]</span></p>
+		<p><span class="member_name">{{memdata.title}} {{memdata.first_name}} {{memdata.last_name}}</span> <span class="member_partydata">[{%if memdata.chamber == "house" %}{%if memdata.state == "DC" or memdata.state == "PR" %}{{memdata.party}}, <a href="/district/{{memdata.state}}">{{memdata.state}}</a>{% else %}{{memdata.party}}, <a href="/district/{{memdata.state}}/{{memdata.district}}"> {{memdata.state}}-{{memdata.district}}</a>{% endif %}{% else %}{{memdata.party}}, <a href="/state/{{memdata.state}}">{{memdata.state}}</a>{% endif %}]</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
 		<table>
@@ -103,12 +103,12 @@
 		{% if memdata.website %}<a href="{{memdata.website}}">{{memdata.website}}</a>{% endif %}
 	<h3>Social</h3>
 	<ul class="social-links">
-	{% if memdata.facebook_id %}<li><a class="facebook" href="http://facebook.com/{{memdata.facebook_id}}"></a></li>{% endif %}
-	{% if memdata.youtube_url %}<li><a class="youtube" href="{{memdata.youtube_url}}"></a></li>{% endif %}
-	{% if memdata.twitter_id %}<li><a class="twitter" href="http://twitter.com/{{memdata.twitter_id}}"></a></li>{% endif %}
-	{#comment {% if memdata.flickr_id %}<li><a class="flickr" href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}{ #}
-    {% if memdata.googleplus %}<li><a class="googleplus" href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
-</ul>
+		{% if memdata.facebook_id %}<li><a class="facebook" href="http://facebook.com/{{memdata.facebook_id}}"></a></li>{% endif %}
+		{% if memdata.youtube_url %}<li><a class="youtube" href="{{memdata.youtube_url}}"></a></li>{% endif %}
+		{% if memdata.twitter_id %}<li><a class="twitter" href="http://twitter.com/{{memdata.twitter_id}}"></a></li>{% endif %}
+		{#comment {% if memdata.flickr_id %}<li><a class="flickr" href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}{ #}
+	    {% if memdata.googleplus %}<li><a class="googleplus" href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
+	</ul>
 {% if memdata.last_vid %}
 <iframe width="280" height="170" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
 <hr>

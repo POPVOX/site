@@ -213,19 +213,29 @@ ul#nav_2 {
 		}
 
 /* ----dropnav---- */
-#subnav li div {
-		background: url("../_images/dbgt.png") no-repeat scroll left top transparent;
+#subnav li div#master_profile_orglist {
+		background: url("dbgt.png") no-repeat scroll left top transparent;
 		display: block;
-		left: 0;
-		padding-top: 15px;
+		left: 338px;
+		top: 95px;
+		padding-top: 13px;
 		position: absolute;
-		top: 40px;
 		width: 246px;
 		}
 
 	#subnav li:hover div {
 		display: block;
 		}
+		
+/*
+	#subnav li div div {
+		background: #fff;
+		margin: 0;
+		padding: 0;
+		top: 0;
+		left: 0;
+	}
+*/
 
 
 
@@ -243,7 +253,8 @@ ul#nav_2 {
     }
 
 .orglist_li {
-    background: url("bg_grey_drop.png") left top;
+/*     background: url("bg_grey_drop.png") left top; */
+	background: #fff;
     border: 1px solid #000;
     border-width: 0 1px 1px;
     margin-top: 1px;
@@ -479,7 +490,11 @@ body.land {
     margin-right: 20px;
     }
 
-.col_12 { width: 940px  }
+.col_12 { 
+	width: 940px;
+	clear: both;
+	}
+	
 
 /* ----Typographic Styling--- */
 
@@ -1042,7 +1057,7 @@ ul.tabs {
 	}
 	
 .pgbill h1 {
-	font: normal 18px/30px helvetica,arial,sans-serif;
+	font: normal 18px/24px helvetica,arial,sans-serif;
 	}
 	
 	.pgbill .alert_dead h2 {
@@ -1212,6 +1227,7 @@ div.block.leg_agenda .no_pie {
     
 
 .chart_notlast { background: url(bg_hr.png) left bottom repeat-x    }
+
 
 .pro_reintro {
     background: none repeat scroll 0 0 #D4D1CA;
@@ -1511,6 +1527,8 @@ ul.support_oppose li {
     margin-left: -25px;
     padding-left: 25px;
     }
+
+.neutral { background: url(bg_neutral_bubl.png) left 5px no-repeat     }
 
 .comment .endorse_oppose_image {
     height: 100%;
@@ -2520,7 +2538,7 @@ h1.h1_smaller { font: normal 26px/24px 'BebasNeueRegular', helvetica, arial, san
 
 .share_chart {  }
 
-.b_share_facebook 
+
 
 
 
@@ -2959,7 +2977,19 @@ ul#issuearealist { margin-top: 10px     }
     }
 
 
+/* ----what is popvox---- */
+.what_popvox p {
+	font: normal 14px/22px helvetica, arial, sans-serif;
+}
 
+.what_popvox .img_r, .what_popvox .img_sign {
+	border: 3px solid #CC6A11;
+	margin-left: 20px;
+}
+
+.img_sign {
+	margin-top: 25px;
+}
 
 /* ----landing---- */
 
@@ -5741,6 +5771,11 @@ body.gettoknow h1 {
     	display: block;
 		}
 
+		#lilly .mini-map p.chart_stats span.bg_support {
+			color: #0077d8;
+	    	background: url(../widget/i_wdgt_support_lilly.png) left top no-repeat;
+	    	}
+
 	.mini-map p.chart_stats span.bg_oppose {
     	font: normal 22px/24px 'BebasNeueRegular', helvetica, arial, sans-serif;
     	background: url(../widget/i_wdgt_oppose.png) left top no-repeat;
@@ -5759,6 +5794,11 @@ body.gettoknow h1 {
 	    	background: url(../widget/i_wdgt_oppose_ylw.png) left top no-repeat;
 		}
 		
+		#lilly .mini-map p.chart_stats span.bg_oppose {
+			color: #eb5c32;
+    		background: url(../widget/i_wdgt_oppose_lilly.png) left top no-repeat;
+		}
+				
 	.mini-map p.chart_stats span.users {
 		font: normal 12px/14px helvetica, arial, sans-serif;
 		color: #75757d;
@@ -6435,5 +6475,222 @@ font-weight: normal;
 #svo span.users {
 	display: none;
 }
+
+
+
+/*  Regulations Styles  */
+
+#pg_reg {
+	background: url("_delete_bg.jpg") repeat-x scroll center -124px;
+}
+
+	#pg_reg.pgbill h1 {
+		line-height: 18px;
+		margin-bottom: 10px;
+	}
+
+	#pg_reg h2.streetname {
+		font-size: 20px;
+	}
+	
+	#pg_reg h2 span.streetname.billname {
+		padding: 5px 0 10px;
+		font: 35px/35px 'BebasNeueRegular',helvetica,arial,sans-serif;
+		width: 720px;
+	}
+	
+	#pg_reg p {
+		
+	}
+
+
+	#social_reg {
+		display: block;
+		width: 200px;
+		margin-top: -13px;
+		float: right;
+	}
+	
+		#social_reg ul.social-links {
+			display: block;
+			padding-left: 85px;
+		}
+		#social_reg ul.social-links li a {
+			display: block;
+			float: left;
+			text-indent: -9999em;
+			width:  30px;
+			height: 32px;
+			margin-left: 7px
+		}
+			
+			#social_reg ul.social-links li a:hover {
+				background-position: left -43px;
+				text-decoration: none;
+				border: none;
+			}
+		
+		#social_reg ul li a.facebook {
+			background: url(b_icon_facebook.png) left top no-repeat;
+		}
+		
+		#social_reg ul li a.twitter {
+			background: url(b_icon_twitter.png) left top no-repeat;
+		}
+		
+		#social_reg ul li a.email {
+			background: url(b_social_email.png) left top no-repeat;
+		}
+		
+		#social_reg .b_view_report {
+		    background: url(b_view_report.png) left top no-repeat;
+		    width: 176px;
+		    height: 23px;
+		    margin: 10px -10px 0 0;
+		    float: right;
+		    }
+
+
+	
+	#reg_stats {
+		background: #404045;
+		/* border: 1px solid green; */
+		display: block;
+		float: left;
+		width: 200px;
+		height: 100px;
+		margin-right: 30px; 
+		padding: 25px 20px 20px;
+		color: #fff;
+	}
+	
+		#reg_stats p {
+			font: 20px/22px helvetica, arial, sans-serif;
+		}
+		
+		#reg_stats span {
+			display: block;
+			float: left;
+			width: 125px;
+		}
+		
+		#reg_stats strong span {
+			font-size: 22px;
+			font-weight: normal;
+			padding-top: 5px;
+		}
+		
+		#reg_stats p strong {
+			display: block;
+			float: left;
+			padding-top: 5px;
+		}
+		
+		#reg_stats p strong em {
+			padding-top: 15px;
+			font: normal 60px helvetica, arial, sans-serif;
+		}
+
+	#reg_comment_widget {
+		display: block;
+		width: 245px;
+		float: left;
+		padding-top: 15px;
+		padding-right: 25px;
+	}
+
+		#reg_comment_widget p {
+			font-size: 15px;
+			font-weight: bold;
+		}
+
+		#pg_reg .col_last {
+			padding: 0;
+		}
+
+		#pg_reg .col_2.col_last {
+			width: 180px;
+			height: 670px;
+			margin-top: 15px;
+			padding: 15px;
+			background: #D4D1CA;
+			word-wrap: break-word;
+		}
+		
+		#pg_reg .col_2.col_last h2 {
+			font: normal 15px helvetica, arial, sans-serif;
+		}
+
+
+	#pg_reg .col_6 {
+		margin-bottom: 20px;
+		margin-top: 15px;
+	}
+
+
+/* regulation report */
+
+.legreport.regreport {
+/*	background: url(_trash_reg_report.jpg) center -124px no-repeat; */
+}
+
+.legreport.regreport .b_back {
+    background: url(b_back_reg.png) left top no-repeat;
+    width: 140px;
+    height: 23px;
+    margin: 10px 0 0 0;
+	float: right;
+    }
+    
+    .legreport.regreport .b_back:hover {
+    	background-position: left bottom;
+    }
+    
+.legreport.regreport .block {
+	background: none;
+	padding-left: 0;
+}
+
+	.legreport.regreport h2 {
+		margin-bottom: 0;
+	}
+	
+	.legreport.regreport h2.billname {
+		margin-top: 15px;
+	}
+
+	.legreport.regreport h2.regname, .legreport.regreport h2.rename  {
+		margin-top: 5px;
+		padding: 0 0 15px;
+		font: 35px/35px 'BebasNeueRegular',helvetica,arial,sans-serif;
+		width: 720px;
+	}
+	
+	.legreport.regreport h1 {
+		font: normal 18px/20px helvetica, arial;
+		background: none;
+		padding-bottom: 10px;
+	}
+	
+	.legreport.regreport .col_6 h3 {
+		padding: 0;
+	}
+	
+	.legreport.regreport .comment {
+		border-top: 1px solid #D4D1CA;
+		border-bottom: 0;
+		padding-top: 15px;
+		margin-bottom: 0;
+	}
+
+
+
+
+
+
+
+
+
+
 
 

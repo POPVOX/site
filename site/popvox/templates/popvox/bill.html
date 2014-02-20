@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load popvox_utils %}
 {% block title %}{% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock%}
-{% block description %}Weigh in and send your message to Congress about {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock %}
+{% block description %}Write Congress about {% if bill.street_name %}{{bill.street_name|capfirst}}: {% endif %}{{ bill.title }}{% endblock %}
 {%block nav_orgadmin_class_bills%}active{%endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
 {%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
@@ -96,7 +96,7 @@ function getshorturl() {
     <script>master_state(function(res) { if (!res.page.canvote) $('#deadbox').hide(); });</script>
     {% endif %}
 
-    <div class="col_9 col_top">
+    <div class="col_12 col_top">
         <a class="btn b_view_report" href="{{bill.url}}/report">
             View {{bill.shortname}} report
         </a>
@@ -129,9 +129,9 @@ function getshorturl() {
                 <h1 class="billname no_rule">{{ bill.title }}</h1>
             {% endif %}
             {% if bill.description and not bill.notes %}
-            <p><strong>Summary: </strong>{{ bill.description }} {% if bill.is_bill %}(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Info</a>){% endif %}</p>
+                <p><strong>Summary: </strong>{{ bill.description }} {% if bill.is_bill %}(<a href="http://beta.congress.gov/bill/{{bill.congressnumber|ordinal}}-congress/{{bill.congressgov_billtype}}/{{bill.billnumber}}" title="More information on Congress.Gov" class="blank">More Info</a>){% endif %}</p>
             {% else %}
-                {% if bill.is_bill %}<p>(<a href="{{bill.govtrack_link}}" title="More information on www.GovTrack.us" class="blank">More Information at GovTrack</a>)</p>{% endif %}
+                {% if bill.is_bill %}<p>(<a href="http://beta.congress.gov/bill/{{bill.congressnumber|ordinal}}-congress/{{bill.congressgov_billtype}}/{{bill.billnumber}}" title="More information on Congress.Gov" class="blank">More Info on Congress.Gov</a>)</p>{% endif %}
             {% endif %}
             {% if not bill.isAlive and not deadbox %}
                 <p><strong>This {{bill.proposition_type}} {{bill.getDeadReason}}.</strong></p>
@@ -431,7 +431,7 @@ function getshorturl() {
                 {% if not orgset %}<p>No organization has {% if position == "support" %}endorsed{% else %}opposed{% endif %} this {{bill.proposition_type}} yet on POPVOX.</p>{% endif %}
                 {% for org in orgset %}
                 <div>
-                    <h5><a href="{{org.url}}">{{org.name}}</a>
+                    <h5><a name="{{org.slug}}-{{bill.billtypeslug}}-{{bill.billnumber}}-{{position}}"><a href="{{org.url}}">{{org.name}}</a></a>
                         {% if org.object.facebook_fan_count %}
                             <small>{{org.object.facebook_fan_count|intcomma}} Facebook fans</small>
                         {% endif %}

@@ -4,7 +4,7 @@
  
 <head profile="http://gmpg.org/xfn/11"> 
 	<meta name="msvalidate.01" content="AAB0CC0BF4F5C4B3069B1B2D77798217" />
-	<meta name="alexaVerifyID" content="NUmEZVeFCXOnEAQaqaZbnp_G6qI" />
+	<meta name="alexaVerifyID" content="Nyu2St_4pPb3iubVrOBsD97TctQ" />
 
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" /><!--[if lte IE 8]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
@@ -124,11 +124,7 @@
 		}
 	});	
 	</script>
-	
-	{% comment %}{% include "feedback/header.html" %}{% endcomment %}
-	<link rel="stylesheet" href="/media/feedback/main.css"/>
-	<script type="text/javascript" src="/media/feedback/jquery.form.js"></script>
-	<script type="text/javascript" src="/media/feedback/main.js"></script>
+
 
 	<!--<script src="http://cdn.jquerytools.org/1.2.5/tiny/jquery.tools.min.js"></script>-->
 	
@@ -192,7 +188,7 @@
 <div id="signup">
 	<div>
 		<!--<p class="close_x">close</p>-->
-		<p><span class="signup_txt">Please <a href="/blog/">visit our blog</a> and stay in touch with us on <a href="https://www.facebook.com/POPVOXnation">Facebook</a> and <a href="https://twitter.com/POPVOX">Twitter</a>.</span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></p>
+		<p><span class="signup_txt">Check out our guide, <a href="https://www.popvox.com/files/washingtonian.pdf">How to Speak Washingtonian</a>--stay in touch with us on <a href="https://www.facebook.com/POPVOXnation">Facebook</a> and <a href="https://twitter.com/POPVOX">Twitter</a>.</span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></p>
 	</div>
 </div><!-- e: signup -->
 <div class="clear"> </div>
@@ -431,7 +427,7 @@ function share_footer_share() {
 		// For the blog, we can't call the AJAX interface to get a shorturl.
 		// We don't have a shorturl anyway.
 		share_link(share_type, $('title').text(), window.location.href, null);
-		mpmetrics.track("master_share", { service: share_type, view: "http", url: window.location.href });
+		mixpanel.track("master_share", { service: share_type, view: "http", url: window.location.href });
 		return false;
 	}
 	
@@ -443,7 +439,7 @@ function share_footer_share() {
 		success: function(res) {
 			if (!res.title) res.title = $('title').text();
 			share_link(share_type, res.title, res.shorturl, res.hashtag);
-			mpmetrics.track("master_share", { service: share_type, view: res.view, url: window.location.href });
+			mixpanel.track("master_share", { service: share_type, view: res.view, url: window.location.href });
 		}
 	});
 	return false;
@@ -467,29 +463,33 @@ $(function() {
 
 <!-- mixpanel -->
 {% if not debug %}
-<script type='text/javascript'> var mp_protocol = (('https:' == document.location.protocol) ? 'https://' : 'http://'); document.write(unescape('%3Cscript src="' + mp_protocol + 'api.mixpanel.com/site_media/js/api/mixpanel.js" type="text/javascript"%3E%3C/script%3E')); </script>
+<!-- start Mixpanel --><script type="text/javascript">(function(e,b){if(!b.__SV){var a,f,i,g;window.mixpanel=b;a=e.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===e.location.protocol?"https:":"http:")+'//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';f=e.getElementsByTagName("script")[0];f.parentNode.insertBefore(a,f);b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==
+typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");for(g=0;g<i.length;g++)f(c,i[g]);
+b._i.push([a,e,d])};b.__SV=1.2}})(document,window.mixpanel||[]);
+mixpanel.init("6db7097c351adc437da30e64e0d86d1");</script><!-- end Mixpanel -->
 {% endif %}
-<script type='text/javascript'> try {  var mpmetrics = new MixpanelLib('6db7097c351adc437da30e64e0d86d12'); } catch(err) { null_fn = function () {}; var mpmetrics = {  track: function(event,props,callback) { if (callback) callback(); },  track_funnel: null_fn,  register: null_fn,  register_once: null_fn, register_funnel: null_fn, identify: null_fn, name_tag: null_fn }; } </script>
+
+
 <script type="text/javascript">
 {% comment %}wont work on cached page...
 {% with request.session.shorturl.target.meta as surlm %}
 	{% if surlm.mixpanel_event %}
-		mpmetrics.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
+		mixpanel.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
 	{% endif %}
 {% endwith %}
 {% endcomment %}
 master_state(function (res) {
 	if (!res.user) {
-		mpmetrics.register({ 'user type': "anonymous" });
+		mixpanel.register({ 'user type': "anonymous" });
 	} else {
-		mpmetrics.identify("pv_uid_" + res.user.id);
-		mpmetrics.name_tag(res.user.email);
+		mixpanel.identify("pv_uid_" + res.user.id);
+		mixpanel.name_tag(res.user.email);
 		if (res.user.legstaffrole)
-			mpmetrics.register({ 'user type': "legstaff" });
+			mixpanel.register({ 'user type': "legstaff" });
 		else if (res.user.orgs.length > 0)
-			mpmetrics.register({ 'user type': "orgstaff" });
+			mixpanel.register({ 'user type': "orgstaff" });
 		else
-			mpmetrics.register({ 'user type': "individual" });
+			mixpanel.register({ 'user type': "individual" });
 	}
 });
 </script>
@@ -501,12 +501,6 @@ master_state(function (res) {
 {% endif %}
 
 {% block finalscript %}{% endblock %}
-
-{% block feedback_button %}
-{% with "<p style='margin-bottom: 0'>Use this form to leave comments for <b>POPVOX staff</b> about the website. Do not leave comments about legislation here.</p>" as feedback_text %}
-	{% include "feedback/button.html" %}
-{% endwith %}
-{% endblock %}
 
 </body> 
 </html>

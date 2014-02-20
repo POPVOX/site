@@ -62,6 +62,7 @@ body.width_600 #brought_to_you {
 .colormode_1 .dots { background-image: url("bg_dots.png");  }
 .colormode_2 .dots { background-image: url("bg_dots_alt.png");  }
 .colormode_3 .dots { background-image: url("bg_dots_new.png");  }
+.colormode_4 .dots { background-image: url("bg_dots_lilly.png");  }
 
 .dot_clr_1.dot_sz_1 { background-position: -80px -0px; }
 .dot_clr_2.dot_sz_1 { background-position: -80px -20px; }
@@ -187,6 +188,21 @@ body.width_600 #brought_to_you {
 #legend_sz div, #legend_clr div {
 	float: left;
 	}
+	
+	
+/* Widget Custom Colors */
+	#lilly .mini-map p.chart_stats span.bg_support {
+    	background: url(../widget/i_wdgt_support_lilly.png) left top no-repeat;
+	}
+	
+	#lilly .mini-map p.chart_stats span.bg_oppose {
+    	background: url(../widget/i_wdgt_oppose_lilly.png) left top no-repeat;
+	}
+
+	
+	
+	
+	
 .label.first {
 	width: 75px;
 	text-align: right;
@@ -320,6 +336,9 @@ body.width_274 #legend_sz .last {
 body.width_274 #legend_sz .dotholder {
 	display: none;
 }
+
+/* Widget Custom Colors */
+.mini-map p.chart_stats span.bg_support {
 
 
 

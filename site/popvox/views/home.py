@@ -1705,14 +1705,25 @@ def user_activity_feed(user):
         # Turn the hashtag into a regular expression that admits spaces and
         # periods between its characters, to account for how bill numbers
         # are formatted in titles versus hashtags
-        regex = r"[\.\s]*".join(re.escape(c) for c in c.bill.hashtag().replace("#", ""))
-        title = re.sub(regex, c.bill.hashtag(), c.bill.nicename, flags=re.I)
+        if c.bill:
+            regex = r"[\.\s]*".join(re.escape(c) for c in c.bill.hashtag().replace("#", ""))
+            title = re.sub(regex, c.bill.hashtag(), c.bill.nicename, flags=re.I)
+        else:
+            regex = r"[\.\s]*".join(re.escape(c) for c in c.regulation.hashtag().replace("#", ""))
+            title = re.sub(regex, c.regulation.hashtag(), c.regulation.regnumber, flags=re.I)
         
-        return (
-            "share your comment" if c.message else "share this bill",
-            "I " + c.verb(tense="past") + " " + title + " on @POPVOX",
-            c.url() if c.message else c.bill.url(),
-            c.bill.hashtag() if not c.bill.hashtag() in title else None)
+        if c.bill:
+            return (
+                "share your comment" if c.message else "share this bill",
+                "I " + c.verb(tense="past") + " " + title + " on @POPVOX",
+                c.url() if c.message else c.bill.url(),
+                c.bill.hashtag() if not c.bill.hashtag() in title else None)
+        else:
+            return (
+                "share your comment" if c.message else "share this regulation",
+                "I " + c.verb(tense="past") + " " + title + " on @POPVOX",
+                c.url() if c.message else c.regulation.url(),
+                c.regulation.hashtag() if not c.regulation.hashtag() in title else None)            
     
     def your_comments(limit):
         # the positions you left
@@ -2038,13 +2049,19 @@ def adorn_bill_stats(bills):
     if len(bills) == 0: return
     bill_list = { }
     for bill in bills:
-        bill_list[bill.id] = { "+": 0, "-": 0 }
+        try: #FIXME breaks on regulations
+            bill_list[bill.id] = { "+": 0, "-": 0 }
+        except:
+            continue
     c = connection.cursor()
     c.execute("SELECT bill_id, position, COUNT(*) as count FROM popvox_usercomment WHERE bill_id IN (%s) GROUP BY bill_id, position" % ",".join([str(id) for id in bill_list.keys()]))
     for row in c.fetchall():
         bill_list[row[0]][row[1]] = row[2]
     for bill in bills:
-        bill.stats = (bill_list[bill.id]["+"], bill_list[bill.id]["-"], bill_list[bill.id]["+"]+bill_list[bill.id]["-"])
+        try:
+            bill.stats = (bill_list[bill.id]["+"], bill_list[bill.id]["-"], bill_list[bill.id]["+"]+bill_list[bill.id]["-"])
+        except: #FIXME breaks on regulations
+            continue
 
 @csrf_protect
 @login_required

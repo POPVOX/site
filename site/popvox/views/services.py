@@ -32,6 +32,7 @@ import random, math
 from itertools import chain
 from base64 import urlsafe_b64decode
 import hashlib, hmac
+import sys
 
 INITIAL_REFERRER=""
 
@@ -222,6 +223,21 @@ def widget_render_commentstream(request, account, permissions):
             title1 = "Comments sent to Congress"
             title2 = bx[0].nicename
             url = SITE_ROOT_URL + bx[0].url()
+            
+    if "regulations" in request.GET:
+        show_bill_number = False
+        title1 = "Public Comments Submitted"
+        for reg in request.GET["regulations"].split(","):
+            try:
+                regulation = bill_from_url("/regulations/" + reg)
+                cx.append(comments.filter(regulation=regulation))
+                bx.append(regulation)
+            except:
+                #invalid regulation
+                title2 = "Invalid Regulation Number"
+        if len(cx) == 1: # the comments have to be processed first
+            title2 = bx[0].title
+            url = SITE_ROOT_URL + bx[0].url()
 
     if "issue" in request.GET:
         try:
@@ -240,10 +256,17 @@ def widget_render_commentstream(request, account, permissions):
                 
     comments = comments[0:50]
     
+    try:
+        customizations = json.loads(account.customizations)
+    except:
+        customizations = None
+        
+    
     return render_to_response('popvox/widgets/commentstream.html', {
         'title1': title1,
         'title2': title2,
         'comments': comments,
+        'customizations': customizations,
         "show_bill_number": show_bill_number,
         "url": url,
         "permissions": permissions,
@@ -264,29 +287,34 @@ def widget_render_writecongress_page(request, account, permissions):
         campaign = None # indicates where to save user response data for the org to get
         org = None
         reason = None
-
-        franking = None
-        if "franking" in request.GET:
-            franking = request.GET["franking"]
-            
-        whitehouse = None
-        if "whitehouse" in request.GET:
-            whitehouse = request.GET["whitehouse"]
+        bill = None
+        regulation = None
         
         if "ocp" not in request.GET:
-            if not "bill" in request.GET:
+            if not "bill" in request.GET and not "regulation" in request.GET:
                 return HttpResponseBadRequest("Invalid URL.")
-            try:
-                bill = bill_from_url("/bills/" + request.GET["bill"])
-            except:
-                return HttpResponseBadRequest("No bill with that number exists.")
-            position_verb = request.GET.get("position", "")
-            if position_verb == "support":
-                position = "+"
-            elif position_verb == "oppose":
-                position = "-"
-            else:
-                position = None
+            if "bill" in request.GET:
+                try:
+                    bill = bill_from_url("/bills/" + request.GET["bill"])
+                except:
+                    return HttpResponseBadRequest("No bill with that number exists.")
+            if "regulation" in request.GET:
+                try:
+                    regulation = bill_from_url("/regulations/" + request.GET["regulation"])
+                except:
+                    return HttpResponseBadRequest("No regulation with that number exists.")
+                
+            position = None
+            if bill:   
+                if bill.migrate_to:
+                    bill = bill.migrate_to
+                position_verb = request.GET.get("position", "")
+                if position_verb == "support":
+                    position = "+"
+                elif position_verb == "oppose":
+                    position = "-"
+                else:
+                    position = None
                 
         else:
             # ocp argument specifies the OrgCampaignPosition, which has all of the
@@ -294,9 +322,13 @@ def widget_render_writecongress_page(request, account, permissions):
             try:
                 ocp = OrgCampaignPosition.objects.get(id=request.GET["ocp"], campaign__visible=True, campaign__org__visible=True)
             except OrgCampaignPosition.DoesNotExist:
-                return HttpResponseBadRequest("The campaign for the bill has become hidden or the widget URL is invalid")
-            bill = ocp.bill
-            position = ocp.position
+                return HttpResponseBadRequest("The campaign for this item has become hidden or the widget URL is invalid")
+            if ocp.bill:
+                bill = ocp.bill
+                position = ocp.position
+            else:
+                regulation = ocp.regulation
+                position = None
             if position == "0": position = None
             if account != None and ocp.campaign.org == account.org:
                 # We'll let the caller use an OCP id to get the bill and position, but
@@ -306,13 +338,28 @@ def widget_render_writecongress_page(request, account, permissions):
                 reason = ocp.comment
             
         if account != None:
-            campaign, is_new = ServiceAccountCampaign.objects.get_or_create(
-                account = account,
-                bill = bill,
-                position = position if position != None else "0")
+            if bill:
+                campaign, is_new = ServiceAccountCampaign.objects.get_or_create(
+                    account = account,
+                    bill = bill,
+                    position = position if position != None else "0")
+            else:
+                campaign, is_new = ServiceAccountCampaign.objects.get_or_create(
+                    account = account,
+                    regulation = regulation,
+                    position = position if position != None else "0")
             
-        if not bill.isAlive():
-            return HttpResponseBadRequest("This letter-writing widget has been turned off because the bill is no longer open for comments.")
+        try:
+            customizations = json.loads(account.customizations)
+        except:
+            customizations = None
+        
+        if bill:
+            if not bill.isAlive():
+                return HttpResponseBadRequest("This letter-writing widget has been turned off because the bill is no longer open for comments.")
+        else:
+            if not regulation.isAlive():
+                return HttpResponseBadRequest("This regulation comment widget has been turned off because the regulation is no longer open for public comment.")
             
         # get the target URL for the share function, which can be overridden
         # in the url GET parameter, or it comes from the HTTP referrer, or
@@ -320,10 +367,15 @@ def widget_render_writecongress_page(request, account, permissions):
         #
         # NOTE: This is safe here because widget URLs are cached with the
         # HTTP_REFERER in the cache key.
-        url = request.GET.get("url",
-            request.META.get("HTTP_REFERER",
-                SITE_ROOT_URL + bill.url()))
-        
+        if bill:
+            url = request.GET.get("url",
+                request.META.get("HTTP_REFERER",
+                    SITE_ROOT_URL + bill.url()))
+        else:
+            url = request.GET.get("url",
+                request.META.get("HTTP_REFERER",
+                    SITE_ROOT_URL + regulation.url()))
+                
         # compute up to two suggestions for further action
         suggestions = {
             "+": ["support", "These bills also need your support", []],
@@ -333,17 +385,22 @@ def widget_render_writecongress_page(request, account, permissions):
         tagvals = None
         taglabel = None
         if org == None:
-            # compute by bill similarity
-            other_bills = [bs for bs in
-                chain(( (s.bill2, s.similarity) for s in bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in bill.similar_bills_two.all().select_related("bill1")))
-                if bs[0].isAlive() and bs[0].id != bill.id]
-            other_bills.sort(key = lambda bs : -bs[1])
-            other_bills = [bs[0] for bs in other_bills[0:2]]
-            suggestions["0"][2] = other_bills
+            #FIXME we'll eventually want suggestions to work for regulations too
+            if bill:
+                # compute by bill similarity
+                other_bills = [bs for bs in
+                    chain(( (s.bill2, s.similarity) for s in bill.similar_bills_one.all().select_related("bill2")), ( (s.bill1, s.similarity) for s in bill.similar_bills_two.all().select_related("bill1")))
+                    if bs[0].isAlive() and bs[0].id != bill.id]
+                other_bills.sort(key = lambda bs : -bs[1])
+                other_bills = [bs[0] for bs in other_bills[0:2]]
+                suggestions["0"][2] = other_bills
+            else:
+                suggestions["0"][2] = None
         else:
             for p in OrgCampaignPosition.objects.filter(campaign__org=org, campaign__visible=True).exclude(bill=bill):
-                if len(suggestions[p.position][2]) < 2 and p.bill.isAlive():
-                    suggestions[p.position][2].append(p.bill)
+                if p.bill: #excluding regulations here instead of in the query because load times.
+                    if len(suggestions[p.position][2]) < 2 and p.bill.isAlive():
+                        suggestions[p.position][2].append(p.bill)
             if len(suggestions["+"][2]) + len(suggestions["-"][2]) >= 2:
                 suggestions["0"] = []
 
@@ -359,10 +416,13 @@ def widget_render_writecongress_page(request, account, permissions):
         # Render.
         response = render_to_response('popvox/widgets/writecongress.html', {
             "permissions": permissions,
+            "customizations": customizations,
+            "none": None,
             
             "campaign": campaign,
             "reason": reason,
             "bill": bill,
+            "regulation": regulation,
             "position": position,
             "url": url,
             
@@ -371,8 +431,6 @@ def widget_render_writecongress_page(request, account, permissions):
             "useraddress_prefixes": PostalAddress.PREFIXES,
             "useraddress_suffixes": PostalAddress.SUFFIXES,
 
-            "franking": franking,
-            "whitehouse": whitehouse,
             "taglabel": taglabel,
             "tagvals": tagvals,
             
@@ -386,6 +444,9 @@ def widget_render_writecongress_page(request, account, permissions):
 def widget_render_writecongress_action(request, account, permissions):
     from settings import BENCHMARKING
     
+    regulation = None
+    bill = None
+    
     def meta_log(meta):
         ret = {}
         for k in ('HTTP_REFERER', 'HTTP_HOST', 'PATH_INFO', 'HTTP_ORIGIN', 'HTTP_USER_AGENT', 'HTTP_COOKIE', 'REMOTE_ADDR'):
@@ -396,6 +457,13 @@ def widget_render_writecongress_action(request, account, permissions):
         sha1 = hashlib.sha1()
         sha1.update(SECRET_KEY + "|" + request.POST["email"].lower())
         return sha1.hexdigest()
+    
+    #The 'share record' flag tells us if the record was created on a pro widget.
+    #If so, the record will be shared with the org, and the user will be warned.
+    share_record = False
+    if "collect_analytics" in permissions:
+        share_record = True
+
     
     ########################################
     if request.POST["action"] == "get-user-info":
@@ -441,14 +509,17 @@ def widget_render_writecongress_action(request, account, permissions):
         if u.userprofile.is_org_admin() or u.userprofile.is_leg_staff():
             return { "status": "staff-cant-do-this" }
 
-        if u.comments.filter(bill=request.POST["bill"]).exists():
+        if request.POST["bill"] and u.comments.filter(bill=request.POST["bill"]).exists():
+            return { "status": "already-commented" } # TODO: Privacy??
+        
+        if request.POST["regulation"] and u.comments.filter(regulation=request.POST["regulation"]).exists():
             return { "status": "already-commented" } # TODO: Privacy??
 
         if not u.postaladdress_set.all().exists():
             return { "status": "not-registered", "csrf_token": csrf_token } # if the user is registered but has no address info, pretend they are not registered
 
         # In order to do single-sign-on login, we have to redirect away from the widget
-        # and then come back. This messes up the referer header in Chrome, making
+        # and then come back. This messes up the referrer header in Chrome, making
         # API key validation problematic, and also messs up cookies set by XHR if
         # third-party cookies are disabled (tested in Chrome). With third-party cookies
         # enabled, we could pass a simple cookie forward instructing us to trust the
@@ -491,6 +562,7 @@ def widget_render_writecongress_action(request, account, permissions):
             "state": get_state_for_zipcode(request.POST["zipcode"].strip()),
             "zipcode": request.POST["zipcode"].strip(),
             }
+
         if not re.search("[A-Za-z]", identity["firstname"]): return { "status": "fail", "msg": "Enter your first name." }
         if not re.search("[A-Za-z]", identity["lastname"]): return { "status": "fail", "msg": "Enter your last name." }
         if identity["state"] == None: return { "status": "fail", "msg": "That's not a ZIP code within a U.S. congressional district. Please enter the ZIP code where you vote." } 
@@ -501,13 +573,21 @@ def widget_render_writecongress_action(request, account, permissions):
         
         # Record the information for the org. This also occurs at the point of returning user login, checking address, and submit.
         if "campaign" in request.POST and "demo" not in request.POST:
-            ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
+            
+            campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
+            if "email_optin" in request.POST:
+                optin = request.POST["email_optin"]
+            else:
+                optin = None
+            campaign.add_action_record(
                 firstname = identity["firstname"],
                 lastname = identity["lastname"],
                 zipcode = identity["zipcode"],
                 email = identity["email"],
+                optin = optin,
                 completed_stage = "start",
                 referrer = INITIAL_REFERRER,
+                share_record = share_record,
                 request_dump = meta_log(request.META)  )
         
         return {
@@ -539,9 +619,15 @@ def widget_render_writecongress_action(request, account, permissions):
 
             # Record the information for the org. This also occurs at the point of new user information, checking the address, and submit.
             if "campaign" in request.POST and "demo" not in request.POST:
+                if "email_optin" in request.POST:
+                    optin = request.POST["email_optin"]
+                else:
+                    optin = None
                 ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
                     email = email,
+                    optin = optin,
                     completed_stage = "login",
+                    share_record = share_record,
                     request_dump = meta_log(request.META) )
 
             return {
@@ -566,7 +652,8 @@ def widget_render_writecongress_action(request, account, permissions):
             recipients = []
         else:
             cx = UserComment()
-            cx.bill = Bill.objects.get(id=request.POST["bill"])
+            if request.POST["bill"]: cx.bill = Bill.objects.get(id=request.POST["bill"])
+            if request.POST["regulation"]: cx.regulation = Regulation.objects.get(id=request.POST["regulation"])
             cx.address = p
             recipients = cx.get_recipients()
             if type(recipients) == str:
@@ -574,13 +661,20 @@ def widget_render_writecongress_action(request, account, permissions):
 
         # Record the information for the org. This also occurs at the point of new user and returning user login and submit.
         if "campaign" in request.POST and "demo" not in request.POST:
+            if "email_optin" in request.POST:
+                optin = request.POST["email_optin"]
+            else:
+                optin = None
             ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
                 email = request.POST["email"],
                 firstname = request.POST["useraddress_firstname"],
                 lastname = request.POST["useraddress_lastname"],
                 zipcode = request.POST["useraddress_zipcode"],
+                optin = optin,
+                share_record = share_record,
                 completed_stage = "address",
                 request_dump = meta_log(request.META) )
+
             campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
             saccount = campaign.account
             try:
@@ -617,6 +711,9 @@ def widget_render_writecongress_action(request, account, permissions):
             return { "status": "fail", "msg": "CSRF check failed: Missing field." }
         if request.POST["csrf_token"] != compute_csrf_token(request):
             return { "status": "fail", "msg": "CSRF check failed: Incorrect value." }
+        if request.POST["regulation"] and not request.POST["message"]:
+            sys.stderr.write("message is indeed blank!")
+            return { "status": "fail", "msg": "Please go back and enter a comment on this regulation." } 
         
         cdyne_response = json.loads(request.POST["cdyne_response"])
         
@@ -627,7 +724,8 @@ def widget_render_writecongress_action(request, account, permissions):
         except Exception as e:
             return { "status": "fail", "msg": "Address error: " + validation_error_message(e) }
 
-        bill = Bill.objects.get(id=request.POST["bill"])
+        if request.POST["bill"]: bill = Bill.objects.get(id=request.POST["bill"])
+        if request.POST["regulation"]: regulation = Regulation.objects.get(id=request.POST["regulation"])
         referrer, campaign, message, optin = widget_render_writecongress_getsubmitparams(request.POST, account)
             # note that optin is ignored if the user is already registered, so it
             # is ignored in this function
@@ -669,7 +767,7 @@ def widget_render_writecongress_action(request, account, permissions):
             
             if getattr(p, "congressionaldistrict", None) != None:
                 if "demo" in request.POST: return { "status": "demo-submitted", }
-                save_user_comment(user, bill, request.POST["position"], referrer, message, p, campaign, UserComment.METHOD_WIDGET)
+                save_user_comment(user, bill, regulation, request.POST["position"], referrer, message, p, campaign, UserComment.METHOD_WIDGET)
                 status = "submitted"
 
             else:
@@ -689,11 +787,17 @@ def widget_render_writecongress_action(request, account, permissions):
 
         # Record the information for the org. This also occurs at the point of new user and returning user login and address.
         if "campaign" in request.POST and "demo" not in request.POST:
+            if "email_optin" in request.POST:
+                optin = request.POST["email_optin"]
+            else:
+                optin = None
             ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
                 email = request.POST["email"],
                 firstname = request.POST["useraddress_firstname"],
                 lastname = request.POST["useraddress_lastname"],
                 zipcode = request.POST["useraddress_zipcode"],
+                optin = optin,
+                share_record = share_record,
                 completed_stage = status if status != "submitted" else "finished",
                 request_dump = meta_log(request.META) )
 
@@ -745,8 +849,11 @@ def widget_render_writecongress_get_identity(user, address=None):
         }
 
 def widget_render_writecongress_getsubmitparams(post, account):
+    #FIXME needs to return share_record, but that's going to cause 'too many values to unpack errors so leaving it be till I'm ready to fix this for real
     referrer = account
     campaign = None
+    optin = None
+    share_record = None
     if "campaign" in post:
         try:
             # Because this is called from an email callback and a
@@ -761,8 +868,8 @@ def widget_render_writecongress_getsubmitparams(post, account):
     message = post["message"]
     if len(message.strip()) < 8: message = None
     
-    optin = None
     if "optin" in post: optin = post.get("optin", "0") == "1"
+    if "share_record" in post: share_record = post.get("share_record", "0") == "1"
     
     return referrer, campaign, message, optin
 
@@ -772,7 +879,7 @@ class WriteCongressEmailVerificationCallback:
     account = None
     
     def email_subject(self):
-        referrer, campaign, message, optin = widget_render_writecongress_getsubmitparams(self.post, self.account)
+        referrer, campaign, message, optin  = widget_render_writecongress_getsubmitparams(self.post, self.account)
         if campaign:
             org = campaign.account.org
         else:
@@ -796,7 +903,8 @@ class WriteCongressEmailVerificationCallback:
                 return True
         
         bill = Bill.objects.get(id=self.post["bill"])
-        if not user.comments.filter(bill=bill).exists():
+        regulation = Regulation.objects.get(id=self.post["regulation"])
+        if not user.comments.filter(bill=bill, regulation=regulation).exists():
             # the comment does not exist, so the action has not been completed..... unless the user
             # decided to delete his comment after, which is why we need tracking of hits to the
             # verification URL and not test if the action was completed. 
@@ -859,7 +967,7 @@ class WriteCongressEmailVerificationCallback:
     @csrf_protect_me # because writecongress_followup calls back to set username/password
     def get_response(self, request, vrec):
         # Get the comment details.
-        referrer, campaign, message, optin = widget_render_writecongress_getsubmitparams(self.post, self.account)
+        referrer, campaign, message, optin, = widget_render_writecongress_getsubmitparams(self.post, self.account)
 
         # Create user record if this is a new user and it is the first time they 
         # hit the verification link.
@@ -876,11 +984,16 @@ class WriteCongressEmailVerificationCallback:
             request.session["follow_up"] = "widget-screenname-password"
         
         # if a comment on the bill does not exist in the indicated account....
-        bill = Bill.objects.get(id=self.post["bill"])
-        if user.comments.filter(bill=bill).exists():
+        if self.post["bill"]:
+            bill = Bill.objects.get(id=self.post["bill"])
+            regulation = None
+        else:
+            regulation = Regulation.objects.get(id=self.post["regulation"])
+            bill = None
+        if user.comments.filter(bill=bill, regulation=regulation).exists():
             # the session state will be used if we need to pop-up a lightbox
             # to get more info
-            return HttpResponseRedirect(user.comments.get(bill=bill).url())
+            return HttpResponseRedirect(user.comments.get(bill=bill, regulation=regulation).url())
         else:
             # Fill in the address.
             p = PostalAddress()
@@ -892,7 +1005,7 @@ class WriteCongressEmailVerificationCallback:
 
             # If the address was OK, save the comment now.
             if getattr(p, "congressionaldistrict", None) != None:
-                comment = save_user_comment(user, bill, self.post["position"], referrer, message, p, campaign, UserComment.METHOD_WIDGET)
+                comment = save_user_comment(user, bill, regulation, self.post["position"], referrer, message, p, campaign, UserComment.METHOD_WIDGET)
                 
                 # the session state will be used if we need to pop up a lightbox
                 return HttpResponseRedirect(comment.url())
@@ -901,14 +1014,25 @@ class WriteCongressEmailVerificationCallback:
             # to the drag-your-home map.
             else:
                 from bills import pending_comment_session_key
+                if bill:
+                    billurl = bill.url()
+                    regulationurl = None
+                else:
+                    billurl = None
+                    regulationurl = regulation.url()
+
                 request.session[pending_comment_session_key] = {
-                    "bill": bill.url(),
+                    "bill": billurl,
+                    "regulation": regulationurl,
                     "position": self.post["position"],
                     "message": self.post["message"]
                     }            
                 request.session["comment-default-address"] = p
                 if campaign != None or referrer != None:
-                    request.session["comment-referrer"] = { "bill": bill.id }
+                    if bill:
+                        request.session["comment-referrer"] = { "bill": bill.id }
+                    else:
+                        request.session["comment-referrer"] = { "regulation": regulation.id }
                     if referrer != None:
                         request.session["comment-referrer"]["referrer"] = referrer
                     if campaign != None:
@@ -921,6 +1045,7 @@ class WriteCongressEmailVerificationCallback:
                 
                 return render_to_response('popvox/billcomment_address_map.html', {
                     'bill': bill,
+                    'regulation': regulation,
                     "position": self.post["position"],
                     "message": message,
                     "useraddress": p,
@@ -1015,7 +1140,9 @@ def download_supporters(request, campaignid, dataformat):
     
     ret = []
     
-    recs = campaign.actionrecords.all()
+    #we only share user records for pro widgets, where the user has been warned their info is being shared.
+    #in these cases, share_record will be True.
+    recs = campaign.actionrecords.filter(share_record = True)
     total_records = recs.count()
     if request.GET.get("iSortingCols", "") != "":
         order = []
@@ -1067,6 +1194,8 @@ def analytics(request):
     accts = request.user.userprofile.service_accounts()
     if request.user.has_perm("popvox.can_snoop_service_analytics") and "org" in request.GET:
         accts = ServiceAccount.objects.filter(org__slug=request.GET["org"])
+        
+        
     
     return render_to_response('popvox/services_analytics.html', {
             "accts": accts,

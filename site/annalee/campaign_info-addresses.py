@@ -1,6 +1,5 @@
 #!runscript
 
-# (Paste this into a ./manage shell)
 # It'll make a file in the dir you ran it from called campaign_info-addresses.csv
 
 import popvox.models as pv
@@ -8,10 +7,11 @@ from django.contrib.auth.models import User
 import unicodedata
 
 sep = "\t"
-sac = pv.ServiceAccount.objects.get(id=1940)
+sac = pv.ServiceAccount.objects.get(id=1196)
 
 #paidaccount ids:
     #Mayors Against Illegal Guns: 2882
+    #Airlines for America: 5143
 
 with open('campaign_info-addresses.csv','w') as info:
     for campaign in pv.ServiceAccountCampaign.objects.filter(account__id=sac.id):

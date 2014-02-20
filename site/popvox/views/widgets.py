@@ -29,6 +29,8 @@ def do_not_track_compliance(f):
 def bill_js(request):
     try:
         bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
+        if bill.migrate_to:
+            bill = bill.migrate_to
     except:
         bill = None
     
@@ -43,8 +45,11 @@ def bill_js(request):
 def bill_iframe(request):
     try:
         bill = None if not "bill" in request.GET else bill_from_url("/bills/us/" + request.GET["bill"])
+        if bill.migrate_to:
+            bill = bill.migrate_to
     except:
         bill = None
+       
     
     return HttpResponse("""<html><body><script src="/widgets/js/bill.js?%sstats=%d&title=%d&iframe=%d"> </script></body></html>""" % (
         ("bill=" + bill.url().replace("/bills/us/", "") + "&") if bill else "",
@@ -63,6 +68,10 @@ def bill_inline(request):
                 return HttpResponseBadRequest("<small>(No bill with that number exists)</small>.")
     else:
         return HttpResponseBadRequest("Invalid URL.")
+    
+    if bill.migrate_to:
+        bill = bill.migrate_to
+    
     billtype = bill.billtypeslug().upper()
     billnum = billtype+' '+str(bill.billnumber)
     total = bill.usercomments.get_query_set().count()
@@ -73,12 +82,15 @@ def bill_inline(request):
         pro = (100.0) * bill.usercomments.get_query_set().filter(position='+').count()/total
         con = (100.0) * bill.usercomments.get_query_set().filter(position='-').count()/total
     
+    url = "/bills/us/"+request.GET["bill"]
+
     return HttpResponse("""<html><head> <link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
     <link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
-    <link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> </head><body style="background:transparent"><div class="widget_mini"><p><strong width="4em">%s</strong><span class="w_stats"><em class="supporting">%d&#37;</em><em class="opposing">%d&#37;</em> by <a href="#">POPVOX</a></span><span class="w_end"></span></p></div> </body></html>""" % (
+    <link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> </head><body style="background:transparent"><div class="widget_mini"><p><strong width="4em">%s</strong><span class="w_stats"><em class="supporting">%d&#37;</em><em class="opposing">%d&#37;</em> by <a href="%s" target="_blank">POPVOX</a></span><span class="w_end"></span></p></div> </body></html>""" % (
     billnum,
     int(pro),
-    int(con)))
+    int(con),
+    url))
 
     '''except:
         bill = None
@@ -86,7 +98,6 @@ def bill_inline(request):
 
 @do_not_track_compliance
 def commentmapus(request):
-    print "0"
     count = { }
     totals = None
     max_count = 0
@@ -94,6 +105,8 @@ def commentmapus(request):
     width = int(request.GET.get("width", "720"))
     
     comments = None
+    bill = None
+    regulation = None
 
     import widgets_usmap
     
@@ -109,6 +122,17 @@ def commentmapus(request):
         request.session = None
         request.user = AnonymousUser()
         
+    elif "regulation" in request.GET and request.GET["regulation"].isdigit():
+        regulation = get_object_or_404(Regulation, id=request.GET["regulation"])
+        
+        comments = regulation.usercomments.only("state", "congressionaldistrict", "position")
+        
+        # strongly cache the page, but only for bill maps because sac maps
+        # require authentication.
+        #request.strong_cache = True
+        request.session = None
+        request.user = AnonymousUser()
+        
     elif "sac" in request.GET and request.user.is_authenticated():
         if not request.user.has_perm("popvox.can_snoop_service_analytics"):
             # validate the service account campaign is in one of the accounts accessible
@@ -118,8 +142,12 @@ def commentmapus(request):
         else:
             sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"])
         
-        bill = sac.bill
-        comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
+        if sac.bill:
+            bill = sac.bill
+            comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
+        else:
+            regulation = sac.regulation
+            comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
         
     elif "file" in request.GET:
         
@@ -185,13 +213,19 @@ def commentmapus(request):
         if not by_date:
             max_count = 0
             for district in count:
-                max_count = max(max_count, count[district]["+"] + count[district]["-"])
-            
-            def chartcolor(district):
-                return "dot_clr_%d dot_sz_%d" % (
-                    int(district["sentiment"]*4.9999) + 1,
-                    int(float(district["count"]) / float(max_count) * 4.9999) + 1
-                    )
+                max_count = max(max_count, count[district]["+"] + count[district]["-"] + count[district]["0"])
+                
+            if bill:
+                def chartcolor(district):
+                    return "dot_clr_%d dot_sz_%d" % (
+                        int(district["sentiment"]*4.9999) + 1,
+                        int(float(district["count"]) / float(max_count) * 4.9999) + 1
+                        )
+            else:
+                def chartcolor(district):
+                    return "dot_clr_5 dot_sz_%d" % (
+                        int(float(district["count"]) / float(max_count) * 4.9999) + 1
+                        )
 
             if request.GET.get("point", "") == "allcount":
                 def chartcolor(district):
@@ -220,8 +254,8 @@ def commentmapus(request):
             continue
 
         if comments:
-            count[district]["sentiment"] = float(count[district]["+"])/float(count[district]["+"] + count[district]["-"])
-            count[district]["count"] = count[district]["+"] + count[district]["-"]
+            count[district]["sentiment"] = float(count[district]["+"])/float(count[district]["+"] + count[district]["-"] + count[district]["0"])
+            count[district]["count"] = count[district]["+"] + count[district]["-"] + count[district]["0"]
             
             count[district]["class"] = chartcolor(count[district])
             
@@ -236,6 +270,7 @@ def commentmapus(request):
     
     return render_to_response('popvox/widgets/commentsmapus.html', {
         "bill": bill,
+        "regulation": regulation,
         "data": count.items(),
         "min_sz_num": int(float(max_count)/5.0) if max_count > 5 else 1,
         "max_sz_num": max_count,
@@ -340,6 +375,19 @@ document.write("<iframe id='popvox_billtext_widget' src='https://%s/widgets/bill
 """ % (request.get_host(), urllib.urlencode(request.GET), width, height)
     , mimetype="text/javascript")
 
+def getpositions(campaigns):
+    #Positions include the bill, org position, and other useful data. We'll be building the actual table of bills from these.
+    positions =  []
+    for cam in campaigns:
+        campositions = list(cam.positions.all())
+        #this widget only includes bills that can still be weighed in on.
+        livepositions = []
+        for position in campositions:
+            if position.bill:
+                if position.bill.isAlive():
+                    livepositions.append(position)
+        positions.extend(livepositions)
+    return positions
 
 @do_not_track_compliance
 def leg_agenda(request):
@@ -353,15 +401,9 @@ def leg_agenda(request):
         campaigns = [campaign]
     else:'''
     campaign = False
-    campaigns = OrgCampaign.objects.filter(org = org)
+    campaigns = org.campaigns()
     
-    #Positions include the bill, org position, and other useful data. We'll be building the actual table of bills from these.
-    positions =  []
-    for cam in campaigns:
-        campositions = list(cam.positions.all())
-        #this widget only includes bills that can still be weighed in on.
-        livepositions = [position for position in campositions if position.bill.isAlive()]
-        positions.extend(livepositions)
+    positions = getpositions(campaigns)
     
     return render_to_response('popvox/widgets/leg-agenda.html', {
         "org": org,

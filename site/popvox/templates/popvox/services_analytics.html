@@ -443,12 +443,14 @@ function draw_timeseries(container, data, small) {
 		<div class="block campaigns {% if not forloop.first %}rule{% endif %}">
 		{% for cam in acct.campaigns.all %}
 			<div class="support_oppose">
+                {%if cam.bill %}
 				{% bill_statistics cam.bill as stats %}
+                {% endif %}
 				
-				{% with cam.actionrecords.all.count as count %}
+				{% with cam.pro_actionrecords.all.count as count %}
 				<div class="col_50">
 					<h4 style="margin-bottom: 1em">
-						{{cam.bill.nicename|truncatewords:10}}
+						{%if cam.bill %}{{cam.bill.nicename|truncatewords:10}}{% else %}{{cam.regulation.title|truncatewords:10}}{% endif %}
 						<span style="color: #777"> ({% if cam.position == '+' %}Endorsing{% endif %}{% if cam.position == '-' %}Opposing{% endif %}{% if cam.position == '0' %}Neutral{% endif %})</span>
 					</h4>
 					
@@ -473,7 +475,7 @@ function draw_timeseries(container, data, small) {
 				</div>
 				{% endwith %}
 				{% if not forloop.last %}<div class="hr"> </div>{% endif %}
-				</div> <!-- e: support_oppose -->
+            </div> <!-- e: support_oppose -->
 		{% endfor %}
 		</div> <!-- e: block campaigns -->
 		{% endif %}
@@ -483,7 +485,8 @@ function draw_timeseries(container, data, small) {
 			{% for pos in cam.positions.all %}
 				{% if not pos.has_service_account_campaign %}
 					{% ifchanged %}<h2>{{cam.name}}</h2>{% endifchanged %}
-				
+                    
+                    {%if pos.bill %}
 					{% bill_statistics pos.bill as stats %}
 					<div class="clear hr"> </div>
 					<div class="col_50">
@@ -507,6 +510,7 @@ function draw_timeseries(container, data, small) {
 						{% endwith %}
 						{% endwith %}
 					</div>
+                    {% endif %}
 				{% endif %}
 			{% endfor %}
 		{% endfor %}	
@@ -564,38 +568,66 @@ function draw_timeseries(container, data, small) {
 
 	<ul class="ul_tags">
 		{% for acct in accts %}
-			{% for cam in acct.campaigns.all %}
-					<li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
-					<script type="text/javascript">
-					{% regroup cam.actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
-					{% with cam.mixpanel_stats as mpstats %}
-					campaigns_info["{{cam.id}}"] = {
-						account_name: "{{acct|escapejs}}",
-						billnumber: "{{cam.bill.shortname|escapejs}}",
-						title: "{{cam.bill.nicename|truncatewords:10|escapejs}}",
-						descr: "{% if cam.bill.description %}{{cam.bill.description|truncatewords:25|escapejs}}{% endif %}",
-						position: "{{cam.position|escapejs}}",
-						date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
-						date_end: "{{cam.last_action_date|date:'n-j-y'|escapejs}}",
-						download_url: "/services/api/campaign/{{cam.id}}/supporters/",
-						counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": {{stage.list|length}}, {% endfor %} total: {{cam.total_widget_records}}, hits: {{mpstats.hit}}},
-						mpstats: {{mpstats.events|safe}},
-						mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
-						latest_data: [{% for item in cam.recent_comments %}{
-							link: "{{item.completed_comment.url|escapejs}}",
-							date: "{{item.completed_comment.created|date:"DATE_FORMAT"|escapejs}} at {{item.completed_comment.created|date:"TIME_FORMAT"|escapejs}}",
-							name: "{{item.completed_comment.address.firstname|escapejs}} {{item.completed_comment.address.lastname|escapejs}}",
-							district: "{{item.completed_comment.state|escapejs}}{{item.completed_comment.congressionaldistrict|escapejs}}",
-							{% if item.completed_comment.message %}message: "{{item.completed_comment.message|truncatewords:25|escapejs}}",{% endif %}
-							recipients: "{{item.completed_comment.get_recipients_display|escapejs}}",
-							position1: "{{item.completed_comment.position|escapejs}}",
-							position: "{{item.completed_comment.verb_imp|escapejs}}"
-						}{% if not forloop.last %},{% endif %}{% endfor %}]
-					};
-					draw_timeseries('analytics_{{cam.id}}', {{mpstats.events|safe}}, true);
-					{% endwith %}
-					</script>
-			{% endfor %}
+            {% if 'analytics' in acct.permissions_list %}
+                {% for cam in acct.campaigns.all %}
+                    <li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{%if cam.bill%}{{cam.bill.shortname}}{%else%}{{cam.regulation.regnumber}}{%endif%}</a></li>
+                    <script type="text/javascript">
+                    {% regroup cam.pro_actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
+                    {% with cam.mixpanel_stats as mpstats %}
+                    campaigns_info["{{cam.id}}"] = {
+                        permission: 1,
+                        account_name: "{{acct|escapejs}}",
+                        billnumber: "{{cam.bill.shortname|escapejs}}",
+                        title: "{{cam.bill.nicename|truncatewords:10|escapejs}}",
+                        descr: "{% if cam.bill.description %}{{cam.bill.description|truncatewords:25|escapejs}}{% endif %}",
+                        position: "{{cam.position|escapejs}}",
+                        date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
+                        date_end: "{{cam.last_action_date|date:'n-j-y'|escapejs}}",
+                        download_url: "/services/api/campaign/{{cam.id}}/supporters/",
+                        counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": {{stage.list|length}}, {% endfor %} total: {{cam.total_widget_records}}, hits: {{mpstats.hit}}},
+                        mpstats: {{mpstats.events|safe}},
+                        mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
+                        latest_data: [{% for item in cam.recent_comments %}{
+                            link: "{{item.completed_comment.url|escapejs}}",
+                            date: "{{item.completed_comment.created|date:"DATE_FORMAT"|escapejs}} at {{item.completed_comment.created|date:"TIME_FORMAT"|escapejs}}",
+                            name: "{{item.completed_comment.address.firstname|escapejs}} {{item.completed_comment.address.lastname|escapejs}}",
+                            district: "{{item.completed_comment.state|escapejs}}{{item.completed_comment.congressionaldistrict|escapejs}}",
+                            {% if item.completed_comment.message %}message: "{{item.completed_comment.message|truncatewords:25|escapejs}}",{% endif %}
+                            recipients: "{{item.completed_comment.get_recipients_display|escapejs}}",
+                            position1: "{{item.completed_comment.position|escapejs}}",
+                            position: "{{item.completed_comment.verb_imp|escapejs}}"
+                        }{% if not forloop.last %},{% endif %}{% endfor %}]
+                    };
+                    draw_timeseries('analytics_{{cam.id}}', {{mpstats.events|safe}}, true);
+                    {% endwith %}
+                    </script>
+                {% endfor %}
+            {% else %} {% comment %} zero out the stats for free service accts {% endcomment %}
+                {% for cam in acct.campaigns.all %}
+                    <li id="analytics_campaign_{{cam.id}}"><a href="#details={{cam.id}}" title="{{acct}}">{{cam.bill.shortname}}</a></li>
+                    <script type="text/javascript">
+                    {% regroup cam.pro_actionrecords.all|dictsort:"completed_stage" by completed_stage as pos_record_stage %}
+                    {% with cam.mixpanel_stats as mpstats %}
+                    campaigns_info["{{cam.id}}"] = {
+                        permission: 0,
+                        account_name: "{{acct|escapejs}}",
+                        billnumber: "{{cam.bill.shortname|escapejs}}",
+                        title: "{{cam.bill.nicename|truncatewords:10|escapejs}}",
+                        descr: "{% if cam.bill.description %}{{cam.bill.description|truncatewords:25|escapejs}}{% endif %}",
+                        position: "{{cam.position|escapejs}}",
+                        date_start: "{{cam.first_action_date|date:'n-j-y'|escapejs}}",
+                        date_end: "{{cam.last_action_date|date:'n-j-y'|escapejs}}",
+                        download_url: "",
+                        counts: { {% for stage in pos_record_stage %}"{{stage.grouper|escapejs}}": 00, {% endfor %} total: 000, hits: 00},
+                        mpstats: 000,
+                        mapurl: '/widgets/bill-comment-map?sac={{cam.id}}',
+                        latest_data: []
+                    };
+                    draw_timeseries('analytics_{{cam.id}}', {{mpstats.events|safe}}, true);
+                    {% endwith %}
+                    </script>
+                    {% endfor %}
+            {% endif %}
 		{% endfor %}
 		<div class="clear"> </div>
 	</ul>
@@ -704,26 +736,29 @@ function draw_timeseries(container, data, small) {
 		</div>
 		<div class="clear"> </div>
 	</div>
+
+    <div id="paywall"></div>
 	
-	<h3>Widget Activity</h3>
-	<p id="analytics_alt">There are no analytics to display for this campaign.</p>
-	<div id="analytics_frame" style="width: 680px; margin-bottom: 15px;">
-		<div style="float: left;">
-			<!--<div class="chart_title">Widget Usage</div>-->
-			<div id="analytics_activity" style="width: 680px;"> </div>
-		</div>
-		<!--
-		<div style="float: left;">
-			<div class="chart_title">Wrote a Personal Message?</div>
-			<div id="analytics_personalized" style="width: 300px; height: 250px;"> </div>
-		</div>
-		-->
-		<div class='clear'> </div>
-	</div>
+    <div id="noanalytics">
+        <h3>Widget Activity</h3>
+        <p id="analytics_alt">There are no analytics to display for this campaign.</p>
+        <div id="analytics_frame" style="width: 680px; margin-bottom: 15px;">
+            <div style="float: left;">
+                <!--<div class="chart_title">Widget Usage</div>-->
+                <div id="analytics_activity" style="width: 680px;"> </div>
+            </div>
+            <!--
+            <div style="float: left;">
+                <div class="chart_title">Wrote a Personal Message?</div>
+                <div id="analytics_personalized" style="width: 300px; height: 250px;"> </div>
+            </div>
+            -->
+            <div class='clear'> </div>
+        </div>
 
-	<h3>Supporters</h3>
-	<p id="supporters_alt">There are no supporters for this campaign yet. Why don&rsquo;t you create a <a href="/services/widgets#writecongress">widget</a> to drive your supporters to take action!</p>
-
+        <h3>Supporters</h3>
+        <p id="supporters_alt">There are no supporters for this campaign yet. Why don&rsquo;t you create a <a href="/services/widgets#writecongress">widget</a> to drive your supporters to take action!</p>
+    </div>
 	<p id="supporter_map_help" class="help">The map below shows each congressional district from which a letter to Congress was completed using your widget. The size of the circle indicates the number of individuals in that district.</p>
 	<iframe id="supporters_map" width="940" height="590" border="0" marginheight="0" marginwidth="0" frameborder="0"></iframe>
 
@@ -742,6 +777,7 @@ function draw_timeseries(container, data, small) {
 	</table>
 	<a id="supporters_download" href="#overview">Download</a>
 </div> <!-- tab_details -->
+
 </div> <!-- e:tabs_panel -->	
 {% endif %}
 
@@ -767,16 +803,25 @@ function draw_timeseries(container, data, small) {
 			$('.tab_details .wSubTitle').text(campaign_info.title);
 			$('#analytics_campaign_' + id).addClass("active");
 		}
-		
+
 		if (id == null || !campaign_info.counts.total) {
 			$("#analytics_alt, #supporters_alt").show();
 			
 			$('.tab_details .headRight').hide();
 			$('#analytics_frame, #analyticsFunnel, #latest_activity').hide();
 			$("#supporters_grid, #supporters_download, #supporters_map, #supporter_map_help").hide();
+
+            if (!campaign_info.permission){
+                $("#noanalytics").hide();
+                $("#paywall" ).empty();
+                $("#paywall").append("<a href='https://popvox.wufoo.com/forms/r1oubxng1x5pznk/' onclick='window.open(this.href,  null, 'height=628, width=680, toolbar=0, location=0, status=1, scrollbars=1, resizable=1'); return false'><img src='/media/images/org-analytics-gopro.gif' alt='go pro to track analytics for this campaign.'/></a>");
+            }
+
+            console.log("Hi!", id, campaign_info.permission)
 			return;
 		}
 		
+        $("#paywall" ).empty();
 		$('#analytics_alt, #supporters_alt').hide();
 		
 		$('.tab_details .headRight').show();

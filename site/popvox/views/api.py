@@ -13,6 +13,7 @@ from popvox.models import *
 from popvox import govtrack
 from popvox.govtrack import CURRENT_CONGRESS
 from popvox.views.services import validate_widget_request
+from popvox.views.bills import bill_statistics
 
 import re, base64, json, urlparse, urllib
 from itertools import chain
@@ -378,8 +379,50 @@ class bill_metadata(BillHandler):
         return Bill.objects.get(id=billid)
 
 @api_handler
+class bill_sentiment(BaseHandler):
+    url_pattern_args = [("000", "BILL_ID")]
+    url_example_args = (14113,)
+    description = "Retreives popvox user sentiment for a bill."
+    qs_args = (
+        ('state', 'Optional. Restrict stats to users from a state. Set to a USPS state abbreviation.', 'NY'),
+        ('district', 'Optional. Restrict stats to users from a congressional district. Set this parameter to an integer, the Congressional district, and also set the state parameter.', '2'),
+        )
+    response_summary = "Returns popvox user sentiment for a bill."
+    response_fields = (
+        ("shortdescription", 'a short description of the scope of the stats (POPVOX, State, or state and district)'),
+        ("longdescription", 'a longer description of the scope of the stats (POPVOX, State, or state and district)'),
+        ("total", 'total number of user comments on a bill, including comments with and without personal messages'),
+        ("pro", 'total number of users who have supported the bill'),
+        ("con", 'total number of users who have opposed the bill'),
+        ("pro_pct", 'percentage of comments that are supporting the bill'),
+        ("con_pct", 'percentage of comments that are opposing the bill'),
+        ("total_comments", 'total number of comments that include a personal message'),
+        ("pro_reintro", 'number of comments supporting reintroduction'),
+        )
+    
+    def read(self, request, account, billid):
+        bill = Bill.objects.get(id=billid)
+        if "state" in request.GET and "district" in request.GET:
+            state = request.GET["state"]
+            district = request.GET["district"]
+            shortdescription = state + "-" + str(district)
+            longdescription = state + "-" + str(district)
+            stats = bill_statistics(bill, shortdescription, longdescription, state=state, congressionaldistrict=district)
+        elif "state" in request.GET:
+            state = request.GET["state"]
+            shortdescription = state
+            longdescription = govtrack.statenames[state]
+            stats = bill_statistics(bill, shortdescription, longdescription, state=state)
+        else:
+            shortdescription = "POPVOX"
+            longdescription = "POPVOX Nation"
+            stats = bill_statistics(bill, shortdescription, longdescription)
+            
+        return stats
+
+@api_handler
 class bill_positions(BaseHandler):
-    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created', 'documents', 'updated']
+    orgcampaignposition_fields = ['id', 'organization', 'position', 'comment', 'created', 'documents', 'updated', 'positionlink']
     positiondocument_deferred_text_fields = ['id', 'title', 'created', 'pdf_url']
     org_fields = ["id", "name", "link"]
     url_pattern_args = [("000", "BILL_ID")]
@@ -393,16 +436,17 @@ class bill_positions(BaseHandler):
         ('organization/id', 'a numeric identifier for the organization'),
         ('organization/name', 'the display name for the organization'),
         ('organization/link', 'a link to the primary page on POPVOX for the organization'),
-        ('position', 'the position of the organization on the bill, one of + for endorse, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
+        ('position', 'the position of the organization on the bill, one of + for support, - for oppose, and 0 (zero) for a neutral position, usually with a comment set'),
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
         ('documents', 'a list of organization documents uploaded to accompany their position on the bill, plain text format; optional'),
         ('updated', 'the date and time when the position record was last modified on POPVOX'),
+        ('positionlink', 'a direct link to the position on popvox')
         )
     allow_public_api_key = True
-    
+
     @paginate
-    def read(self, request, acount, billid):
+    def read(self, request, account, billid):
         return Bill.objects.get(id=billid).campaign_positions(position=request.GET.get("position", None))
 
     @staticmethod
@@ -412,10 +456,20 @@ class bill_positions(BaseHandler):
     @staticmethod
     def link(obj, request, acct):
         return SITE_ROOT_URL + obj.url()
+
+    @staticmethod
+    def positionlink(obj, request, acct):
+        if obj.position == "+":
+            pos = "endorse"
+        elif obj.position == "-":
+            pos = "oppose"
+        else:
+            pos = "neutral"
+        return SITE_ROOT_URL+str(obj.campaign.org.url())+'/'+obj.campaign.slug+'#'+obj.campaign.org.slug+'-'+str(obj.bill.billtypeslug())+'-'+str(obj.bill.billnumber)+'-'+pos
         
 @api_handler
 class org_positions(BillHandler):
-    orgcampaignposition_fields = ['id', 'bill', 'organization', 'position', 'comment', 'created', 'documents', 'updated']
+    orgcampaignposition_fields = ['id', 'bill', 'organization', 'position', 'comment', 'created', 'documents', 'updated', 'positionlink']
     positiondocument_deferred_text_fields = ['id', 'title', 'created', 'pdf_url']
     bill_fields = ['id', 'congressnumber','billtype', 'billnumber']
     org_fields = ["id", "name", "link"]
@@ -439,21 +493,19 @@ class org_positions(BillHandler):
         ('comment', 'a comment on the bill from the organization; plain text format; optional'),
         ('created', 'the date and time when the position record was entered into POPVOX'),
         ('updated', 'the date and time when the position record was last modified on POPVOX'),
+        ('positionlink', 'a direct link to the position on popvox'),
         )
     allow_public_api_key = False
 
-    
-    @paginate
     def read(self, request, acct, inputdate=None):
         account, permissions = validate_widget_request(request, request.GET["api_key"],False)
-        #permissions = ['api_congress']
         if not 'api_congress' in permissions:
             return HttpResponseBadRequest("This API key is not authorized for access to this API.")
         if inputdate:   
             dt = datetime.strptime(inputdate, "%Y-%m-%d-%H:%M:%S")
-            return OrgCampaignPosition.objects.filter(Q(created__gte=dt) | Q(updated__gte=dt))
+            return paginate_items(OrgCampaignPosition.objects.filter(Q(created__gte=dt) | Q(updated__gte=dt)), request)
         else:
-            return OrgCampaignPosition.objects.all()
+            return paginate_items(OrgCampaignPosition.objects.all(), request)
 
     @staticmethod
     def organization(obj, request, account):
@@ -462,6 +514,16 @@ class org_positions(BillHandler):
     @staticmethod
     def link(obj, request, acct):
         return SITE_ROOT_URL + obj.url()
+    
+    @staticmethod
+    def positionlink(obj, request, acct):
+        if obj.position == "+":
+            pos = "endorse"
+        elif obj.position == "-":
+            pos = "oppose"
+        else:
+            pos = "neutral"
+        return SITE_ROOT_URL+str(obj.campaign.org.url())+'/'+obj.campaign.slug+'#'+obj.campaign.org.slug+'-'+str(obj.bill.billtypeslug())+'-'+str(obj.bill.billnumber)+'-'+pos
         
 class DocumentHandler(BaseHandler):
     @staticmethod
@@ -499,7 +561,7 @@ class document_metadata(DocumentHandler):
     bill_fields = ["id", "title", "link"]
     positiondocument_fields = ['id', 'bill', 'title', 'created', 'doctype', 'pdf_url', 'link', 'pages', 'formats', 'toc']
     url_pattern_args = [("000", "DOCUMENT_ID")]
-    url_example_args = (248,)
+    url_example_args = (2021,)
     description = "Returns metadata about a document."
     response_summary = "Metadata about a document."
     response_fields = (
@@ -537,7 +599,7 @@ class document_pages(BaseHandler):
     documentpage_fields = ['page', 'text']
     description = "Retreives complete data for all pages of a document, except binary data associated with a page (such as its image)."
     url_pattern_args = (("000",'DOCUMENT_ID'),)
-    url_example_args = (248,)
+    url_example_args = (97,)
     response_summary = "Returns a paginated list of pages."
     response_fields = (
         ('page', 'the one-based page number'),
@@ -581,7 +643,7 @@ def document_page(request, docid, pagenum, format):
         raise Http404("Page number out of range.")
 document_page.description = "Retreives one page of a document as either a PNG, a single-page PDF, or in plain text. Result is either image/png, application/pdf, or text/plain. The formats available for a document are given in the document metadata API method."
 document_page.url_pattern_args = (("000",'DOCUMENT_ID'), ("001",'PAGE_NUMBER'), ('aaa', '{png|pdf|txt}'))
-document_page.url_example_args = (248,20,'png')
+document_page.url_example_args = (25261,2,'png')
 document_page.has_read = True
 document_page.has_post = False
 
@@ -597,7 +659,7 @@ class document_search(BaseHandler):
         ('results/context', 'text surrounding the match'),
         )
     url_pattern_args = (("000",'DOCUMENT_ID'),)
-    url_example_args = (248,)
+    url_example_args = (2021,)
     qs_args = (('q', 'The search query.', 'budget authority'),)
     allow_public_api_key = True
     

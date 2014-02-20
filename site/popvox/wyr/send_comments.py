@@ -1,6 +1,7 @@
 #!runscript
 
 import os, os.path, sys
+import re
 import datetime
 from django.db.models import Q
 from django.core.exceptions import MultipleObjectsReturned
@@ -10,7 +11,7 @@ from django.core.exceptions import MultipleObjectsReturned
 # email address.
 os.environ["EMAIL_BACKEND"] = "BASIC"
 
-from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, OrgCampaign, Bill, MemberOfCongress, IssueArea
+from popvox.models import UserComment, UserCommentOfflineDeliveryRecord, Org, OrgCampaign, Bill, MemberOfCongress, IssueArea, FederalAgency
 from popvox.govtrack import CURRENT_CONGRESS, getMemberOfCongress, getCongressDates
 
 from writeyourrep.send_message import Message, send_message, Endpoint, DeliveryRecord
@@ -34,6 +35,7 @@ success = 0
 failure = 0
 duplicate_records = {}
 needs_attention = 0
+exec_delivery_failed = 0
 held_for_offline = 0
 pending = 0
 target_counts = { }
@@ -57,29 +59,37 @@ else:
 # don't need to send but what are those conditions, given that there
 # are several potential recipients for a message (two sens, one rep,
 # maybe wh in the future).
-lcenddate = getCongressDates(CURRENT_CONGRESS -1)[1] #end date of the previous congress. this is already a datetime object.
+
+lcenddate = getCongressDates(CURRENT_CONGRESS -1 )[1] #end date of the previous congress. this is already a datetime object.
 comments_iter = UserComment.objects.filter(
     bill__congressnumber=CURRENT_CONGRESS,
     status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
-    #this next line is to send only very recent comments:
-    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=2), updated__gt=datetime.datetime.now()-datetime.timedelta(hours=16)
+    #this next line is to send only recent comments:
+    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=45)
+    #to send very old comments:
+    #updated__lt=datetime.datetime.now()-datetime.timedelta(days=45), updated__gt=lcenddate
     #this line is our standard send:
-    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
+    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
     )
 
 if "COMMENT" in os.environ:
     comments_iter = comments_iter.filter(id=int(os.environ["COMMENT"]))
 if "ADDR" in os.environ:
     comments_iter = comments_iter.filter(address__id=int(os.environ["ADDR"]))
-#whitehouse = [1866, 1872]
+#whitehouse = [1866, 1872, 2731]
 if "TARGET" in os.environ:
     if int(os.environ["TARGET"]) == 400629:
-        comments_iter = comments_iter.filter(Q(actionrecord__campaign__id__contains=2731) | Q(actionrecord__campaign__id__contains=1872) | Q(actionrecord__campaign__id__contains=1866)) #whitehouse campaigns
+        comments_iter = comments_iter.filter(Q(actionrecord__campaign__id__contains=3658) | Q(actionrecord__campaign__id__contains=1872) | Q(actionrecord__campaign__id__contains=1866)) #whitehouse campaigns
     else:
         m = getMemberOfCongress(int(os.environ["TARGET"]))
         comments_iter = comments_iter.filter(state=m["state"])
         if m["type"] == "rep":
             comments_iter = comments_iter.filter(congressionaldistrict=m["district"])
+if "AGENCY" in os.environ:
+    #this is fuuuugly
+    agency = FederalAgency.objects.get(acronym__iexact = str(os.environ["AGENCY"]))
+    comments_iter = comments_iter.filter(Q(bill__executive_recipients=agency) | Q(regulation__executive_recipients=agency))
+
 if "LAST_ERR" in os.environ:
     if os.environ["LAST_ERR"] == "ANY":
         comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__success=False)
@@ -98,30 +108,29 @@ if "LAST_ERR" in os.environ:
     if os.environ["LAST_ERR"] == "CAPTCHA":
         comments_iter = comments_iter.filter(delivery_attempts__next_attempt__isnull=True, delivery_attempts__failure_reason=DeliveryRecord.FAILURE_FORM_PARSE_FAILURE, delivery_attempts__trace__contains="CAPTCHA")
 if "RECENT" in os.environ:
-    comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=14))
+    comments_iter = comments_iter.filter(created__gt=datetime.datetime.now()-datetime.timedelta(days=3))
 if "REDISTRICTED" in os.environ:
     #Only run comments for users whose new districts we know we have.
     comments_iter = comments_iter.filter(address__congressionaldistrict2013__isnull=False)
     print comments_iter.count()
     
 def process_comment(comment, thread_id):
-    global success, failure, duplicate_records, needs_attention, pending, held_for_offline
+    global success, failure, exec_delivery_failed, needs_attention, pending, held_for_offline
 
     # since we don't deliver message-less comments, when we activate an endpoint we
     # end up sending the backlog of those comments. don't bother. This is also in
     # the legstaff mail download function.
     if comment.message == None and comment.updated < datetime.datetime.now()-datetime.timedelta(days=POSITION_DELIVERY_CUTOFF_DAYS):
         return
-    
     # skip flagged addresses... when I put this into the .filter(),
     # a SQL error is generated over ambiguous 'state' column
     try:
         if comment.address.flagged_hold_mail:
+            print "mail is being held."
             return
     except:
         duplicate_records[comment.id] = ['exception'] #postal address does not exist
         return
-    
     # Who are we delivering to? Anyone?
     try:
         govtrackrecipients = comment.get_recipients()
@@ -130,11 +139,16 @@ def process_comment(comment, thread_id):
     except KeyError:
         duplicate_records[comment.id] = ['KeyError'] #key error issue with the endpoint
         return
-        
+    
     govtrackrecipientids = [g["id"] for g in govtrackrecipients]
     
-    # Set up the message record.
+    execrecipients = []
+    if comment.get_executive_recipients():
+        execrecipients = comment.get_executive_recipients()
+        
     
+    
+    # Set up the message record.
     msg = Message()
     msg.email = comment.user.email
     msg.prefix = comment.address.nameprefix
@@ -149,52 +163,76 @@ def process_comment(comment, thread_id):
     msg.zipcode = comment.address.zipcode
     msg.county = comment.address.county # may be None!
     msg.phone = comment.address.phonenumber
-    msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
-    msg.billnumber = comment.bill.shortname
-
+    if comment.bill:
+        msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
+        msg.billnumber = comment.bill.shortname
+    else:
+        msg.subjectline = comment.regulation.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.regulation.title
+        msg.billnumber = comment.regulation.regnumber
     msg.message = comment.updated.strftime("%x") + ". "
     if comment.message != None:
-        msg.message += comment.message + \
-            "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
+        if "OLDMAIL" in os.environ and comment.created < datetime.datetime.now()-datetime.timedelta(days=45):
+            msg.message += "We experienced problems delivering this message, which caused a significant delay in receipt by your office. The problem has been rectified and the individual notified that this was an issue in the POPVOX system -- not the Congressional office. We tremendously regret the delay and are committed to timely delivery. If you have any questions about this, please contact POPVOX CEO, Marci Harris, marci@popvox.com. We always welcome your feedback.\n\n"
+        if comment.bill:
+            msg.message += comment.message + \
+                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
+        else:
+            msg.message += comment.message + \
+                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.regulation.url() + "/report"
         if comment.created < datetime.datetime.now()-datetime.timedelta(days=16):
             msg.message += "\npopvox holds letters on bills until they are pending a vote in your chamber"
         msg.message_personal = "yes"
         msg.response_requested = ("yes", "response needed", "WEBRN","Yes","Y", "Yes, please contact me")
     else:
-        msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
+        if comment.bill:
+            msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
+        else:
+            msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.regulation.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.regulation.url() + "/report. Contact info@popvox.com with delivery concerns.]"
         msg.message_personal = "no"
         msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","no response needed","WEBNRN","No, I wanted to voice my opinion", "N","")
+    if comment.bill:    
+        topterm = comment.bill.topterm
+    else:
+        topterm = comment.regulation.topterm
+    
+    #Try to pull a topterm if we don't have one. Only bills need this.
+    if comment.bill:
+        # if the bill has no top term assigned, look at another bill with the same number
+        # from a previous Congress that has the same title.
+        if topterm == None:
+            b2 = Bill.objects.filter(billtype=comment.bill.billtype, billnumber=comment.bill.billnumber, topterm__isnull=False)
+            if len(b2) > 0 and comment.bill.title_no_number() == b2[0].title_no_number():
+                topterm = b2[0].topterm
         
-    topterm = comment.bill.topterm
-    
-    # if the bill has no top term assigned, look at another bill with the same number
-    # from a previous Congress that has the same title.
-    if topterm == None:
-        b2 = Bill.objects.filter(billtype=comment.bill.billtype, billnumber=comment.bill.billnumber, topterm__isnull=False)
-        if len(b2) > 0 and comment.bill.title_no_number() == b2[0].title_no_number():
-            topterm = b2[0].topterm
-    
-    # Private Legislation, Native Americans are too vague. Don't use those.
-    if topterm in excluded_top_terms:
-        topterm = None
+        # Private Legislation, Native Americans are too vague. Don't use those.
+        if topterm in excluded_top_terms:
+            topterm = None
+            
+        # if there is still no top term, guess using the Baysean model
+        if topterm == None:
+            ix, score = top_term_model.guess(get_bill_model_text(comment.bill))[0]
+            if score > .03:
+                topterm = IssueArea.objects.get(id = ix)
         
-    # if there is still no top term, guess using the Baysean model
-    if topterm == None:
-        ix, score = top_term_model.guess(get_bill_model_text(comment.bill))[0]
-        if score > .03:
-            topterm = IssueArea.objects.get(id = ix)
-    
     if topterm != None:
         msg.topicarea = (topterm.name, "legislation")
     else:
-        msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title, "legislation")
+        if comment.bill:
+            msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title, "legislation")
+        else:
+            msg.topicarea = (comment.regulation.hashtag, comment.regulation.title, "regulation.")
     
     if comment.position == "+":
         msg.support_oppose = ('i support',)
-    else:
+    elif comment.position == "-":
         msg.support_oppose = ('i oppose',)
+    else:
+        msg.support_oppose = ('',)
     
-    msg.simple_topic_code = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
+    if comment.bill:
+        msg.simple_topic_code = "http://popvox.com" + comment.bill.url() + "#" + ("support" if comment.position == "+" else "oppose")
+    else:
+        msg.simple_topic_code = "http://popvox.com" + comment.regulation.url()
     
     try:
         comment.referrer = comment.referrers()[0]
@@ -243,8 +281,114 @@ def process_comment(comment, thread_id):
     msg.delivery_agent_contact = "Annalee Flower Horne, POPVOX.com -- annalee@popvox.com"
     
     # Begin delivery.
+    #Executive Delivery:
+    for agency in execrecipients:
+        if "TARGET" in os.environ:
+            continue
+        if "AGENCY" in os.environ and agency.acronym.lower() != str(os.environ["AGENCY"]).lower():
+            continue
+        
+        #we don't deliver blank messages to agencies. If there's no personal comment, skip.
+        if msg.message_personal == "no":
+            continue
+
+        #The NPS uses a CAPTCHA if there's links in the message. Try to get around this.
+        if agency.acronym.lower() == "nps":
+            re_sql = re.compile(r"http://|https://|www|.com|.org|.net", re.I)
+            msg.message = re_sql.sub(lambda m : m.group(0)[0] + " " + m.group(0)[1:] + " ", msg.message) # the final period is for when "--" repeats
+        
+        # Get the last attempt to deliver to this recipient.
+        last_delivery_attempt = None
+        try:
+            last_delivery_attempt = comment.delivery_attempts.get(target__office = agency.acronym, next_attempt__isnull = True)
+        except DeliveryRecord.DoesNotExist:
+            pass
+        except MultipleObjectsReturned:
+            last_delivery_attempts = comment.delivery_attempts.filter(target__office = agency.acronym, next_attempt__isnull = True)
+            attemptids = [int(x.id) for x in last_delivery_attempts]
+            duplicate_records[comment.id] = attemptids
+            continue
+        
+        # Should we send the comment to this recipient?
+        
+        # Have we already successfully delivered this message?
+        if last_delivery_attempt != None and last_delivery_attempt.success:
+            continue
+        
+        endpoints = Endpoint.objects.filter(office__iexact=str(agency.acronym))
+        if len(endpoints) == 0:
+            endpoint = None
+        else:
+            endpoint = endpoints[0]
+    
+        # If the delivery resulted in a FAILURE_UNEXPECTED_RESPONSE (which requires us to
+        # take a look) then skip electronic delivery till we can resolve it.
+        if last_delivery_attempt != None and last_delivery_attempt.failure_reason == DeliveryRecord.FAILURE_UNEXPECTED_RESPONSE:
+            needs_attention += 1
+            exec_delivery_failed +=1
+            continue
+            
+        # If the delivery resulted in a FAILURE_DISTRICT_DISAGREEMENT/ADDRESS_REJECTED then don't retry
+        # for a week.
+        if last_delivery_attempt != None and last_delivery_attempt.failure_reason in (DeliveryRecord.FAILURE_DISTRICT_DISAGREEMENT, DeliveryRecord.FAILURE_ADDRESS_REJECTED) \
+           and "COMMENT" not in os.environ \
+           and "TARGET" not in os.environ \
+           and "ADDR" not in os.environ \
+           and False: #and datetime.datetime.now() - last_delivery_attempt.created < datetime.timedelta(days=7):
+            needs_attention += 1
+            exec_delivery_failed +=1
+            continue
+    
+        # if the name has no prefix, or if we know we need a phone number but don't have one,
+        # then skip delivery.        
+        if (comment.address.nameprefix == "" and gid not in (412317,)) \
+                or (comment.address.phonenumber == "" and gid in mocs_require_phone_number):
+            failure += 1
+            exec_delivery_failed +=1
+            continue
+
+        # If we know we have no delivery method for this target, fail fast.
+        if endpoint == None or endpoint.method == Endpoint.METHOD_NONE:
+            failure += 1
+            exec_delivery_failed +=1
+            continue
+        
+        if stats_only:
+            pending += 1
+            continue
+        
+        # Send the comment.
+        delivery_record = send_message(msg, endpoint, last_delivery_attempt, u"comment #" + unicode(comment.id))
+
+        if delivery_record == None:
+            print thread_id, gid, comment.address.zipcode, endpoint
+            if not agency.acronym in target_counts: target_counts[agency.acronym] = 0
+            target_counts[agency.acronym] += 1
+            failure += 1
+            exec_delivery_failed +=1
+            continue
+        
+        # If we got this far, a delivery attempt was made although it
+        # may not have been successful. Whatever happened, record it
+        # so we know not to try again.
+        try:
+            comment.delivery_attempts.add(delivery_record)
+        except:
+            print delivery_record
+            duplicate_records[comment.id] = ['really unhandled exception.']
+            continue
+        
+        print thread_id, comment.created, delivery_record
+        
+        if delivery_record.success:
+            success += 1
+        else:
+            failure += 1
+            exec_delivery_failed +=1
+    
+    #Congressional Delivery:
     for gid in govtrackrecipientids:
-        if gid == 412597: #6/13/13: Jeff Chiesa is new. TODO: add him to MemberOfCongress table & set up his webform.
+        if "AGENCY" in os.environ:
             continue
         if "TARGET" in os.environ and gid != int(os.environ["TARGET"]):
             continue
@@ -302,7 +446,6 @@ def process_comment(comment, thread_id):
             else:
                 ucodr.delete() # will recreate if needed, and delete records for messages whose content has been removed
         except (UserCommentOfflineDeliveryRecord.DoesNotExist, MemberOfCongress.DoesNotExist):
-            print gid
             pass
 
         endpoints = Endpoint.objects.filter(govtrackid=gid, office=getMemberOfCongress(gid)["office_id"])
@@ -447,6 +590,7 @@ else:
 
 print "Success:", success
 print "Failure:", failure
+print "Agency Failures:", exec_delivery_failed
 if duplicate_records:
     for comment, records in duplicate_records.iteritems():
         print "comment id: "+str(comment)

@@ -67,6 +67,18 @@ class IssueArea(models.Model):
 
     def orgs(self):
         return (Org.objects.filter(visible=True, issues=self) | Org.objects.filter(visible=True, issues__parent=self)).distinct()
+    
+class FederalAgency(models.Model):
+    #id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=255,null=False)
+    acronym = models.CharField(max_length=255,null=False)
+    urlstring = models.CharField(max_length=255,null=False)
+    parent = models.ForeignKey('self', blank= True, null=True)
+    description = models.TextField(blank= True, null=True)
+    article = models.CharField(max_length=10,blank= True, null=True) #grammar!
+    
+    def __unicode__(self):
+        return unicode(self.name)
         
 class MemberOfCongress(models.Model):
     """A Member of Congress or former member."""
@@ -80,7 +92,7 @@ class MemberOfCongress(models.Model):
     namemod = models.CharField(max_length=255, blank=True, null=True)
     lastnameenc = models.CharField(max_length=255, blank=True, null=True)
     lastnamealt = models.CharField(max_length=255, blank=True, null=True)
-    birthday = models.DateField(default=datetime.date.min)
+    birthday = models.DateField(default=datetime.date.min, blank=True, null=True)
     gender = models.CharField(max_length=1, null=False, default='')
     religion = models.CharField(max_length=255, blank=True, null=True)
     osid = models.CharField(max_length=50, default=None, blank=True, null=True)
@@ -179,6 +191,48 @@ class CongressionalCommittee(models.Model):
                 obj, new = CongressionalCommittee.objects.get_or_create(code=cx["id"])
                 if new:
                     sys.stderr.write("Initializing new committee: " + str(obj) + "\n")
+                    
+class Regulation(models.Model):
+    """A Federal Regulation that receives public comment."""
+    agency = models.CharField(max_length=10)
+    regnumber = models.CharField(max_length=25)
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    street_name = models.CharField(max_length=128, blank=True, null=True, help_text="Give a 'street name' for the bill. Enter it in a format that completes the sentence 'What do you think of....'")
+    ask = models.CharField(max_length=100, blank=True, null=True, help_text="This field changes the 'submit a public comment on' text on the regulation page.")
+    notes = models.TextField(blank=True, null=True, help_text="Special notes to display with the bill. Enter HTML.")
+    hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
+    topterm = models.ForeignKey(IssueArea, db_index=True, blank=True, null=True, related_name="toptermregs", on_delete=models.SET_NULL)
+    issues = models.ManyToManyField(IssueArea, blank=True, null=True, related_name="regs")
+    commentperiod_open_date = models.DateTimeField()
+    commentperiod_closed_date = models.DateTimeField()
+    current_status = models.TextField(blank=True, null=True)
+    current_status_date = models.DateTimeField(blank=True, null=True)
+    executive_recipients = models.ManyToManyField(FederalAgency, blank=True, null=True, related_name="regulations")
+    
+    def isAlive(self):
+        # alive = open for public comment
+        return self.commentperiod_open_date < datetime.datetime.now() and datetime.datetime.now() < self.commentperiod_closed_date
+    
+    def campaign_positions(self):
+        qs = self.orgcampaignposition_set.filter(campaign__visible=True, campaign__org__visible=True).select_related("campaign", "campaign__org")
+        return qs
+    
+    def url(self):
+        return "/regulations/us/" + str(self.agency) + "/" + str(self.regnumber)
+    
+    def hashtag(self):
+        if self.hashtags not in (None, ""):
+            return self.hashtags
+        return "#" + str(self.regnumber)
+    
+    def daysleft(self):
+        if self.isAlive:
+            days = self.commentperiod_closed_date - datetime.datetime.now()
+            return days.days
+        else:
+            return 0
+    
 
 class Bill(models.Model):
     """A bill in Congress."""
@@ -205,7 +259,7 @@ class Bill(models.Model):
     title = models.TextField()
     description = models.TextField(blank=True, null=True)
     introduced_date = models.DateField()
-    current_status = models.TextField(help_text="For non-bill actions, enter DRAFT.")
+    current_status = models.TextField(help_text="For non-bill actions, enter DRAFT. To turn off the campaign, enter NBA:ENDED. For non-sponsored campaigns, like the debt limit deal, enter NONSPONSORED:ENDED.")
     current_status_date = models.DateTimeField(help_text="For non-bill actions, just choose today.", db_index=True)
     num_cosponsors = models.IntegerField()
     latest_action = models.TextField(blank=True)
@@ -218,6 +272,7 @@ class Bill(models.Model):
     hashtags = models.CharField(max_length=128, blank=True, null=True, help_text="List relevant hashtags for the bill. Separate hashtags with spaces. Include the #-sign.")
     hold_metadata = models.BooleanField(default=False)
     comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House',), ('c', 'Congress House+Senate')], blank=True, null=True, help_text="This is required for Generic Proposal-type bill actions to route messages to the right place.")
+    executive_recipients = models.ManyToManyField(FederalAgency, blank=True, null=True, related_name="bills")
     
     upcoming_event_post_date = models.DateTimeField(help_text="When adding an upcoming event, set this date to the date you are posting the information (i.e. now).", blank=True, null=True, db_index=True)
     upcoming_event = models.CharField(max_length=64, blank=True, null=True, help_text="The text of an upcoming event. Start with a verb that would follow the bill number, e.g. \"is coming up for a vote on Aug. 1\". Do not end with a period.")
@@ -273,6 +328,34 @@ class Bill(models.Model):
         if not self.is_bill(): raise Exception("Invalid call on non-bill.")
         return "http://www.govtrack.us/congress/bill.xpd?bill=" + self.govtrack_code()
     
+    #used for generating links to congress.gov
+    def congressgov_billtype(self):
+        if not self.is_bill(): raise Exception("Invalid call on non-bill.")
+        if self.billtype   == 'h':
+            slug = "house-bill"
+        elif self.billtype == 's':
+            slug = "senate-bill"
+        elif self.billtype == 'hr':
+            slug = "house-resolution"
+        elif self.billtype == 'sr':
+            slug = "senate-resolution"
+        elif self.billtype == 'hj':
+            slug = "house-joint-resolution"
+        elif self.billtype == 'sj':
+            slug = "senate-joint-resolution"
+        elif self.billtype == 'hc':
+            slug = "house-concurrent-resolution"
+        elif self.billtype == 'sc':
+            slug = "house-concurrent-resolution"
+        elif self.billtype == 'sa':
+            slug = "senate-amendment"
+        elif self.billtype =='ha':
+            slug = "house-amendment"
+        else:
+            raise Exception("This billtype is not supported by Congress.Gov.")
+    
+        return slug
+    
     @property
     def nicename(self):
         # The nice name of a bill is how a bill is referred to on first
@@ -285,6 +368,15 @@ class Bill(models.Model):
             else:
                 return self.street_name[0].upper() + self.street_name[1:]
         return self.title
+    
+    @property
+    def nicename_no_number(self):
+        # The nice name of a bill is how a bill is referred to on first
+        # reference in a non-official context. It is the street name, if
+        # one is set, otherwise the title.
+        if self.street_name:
+            return self.street_name[0].upper() + self.street_name[1:]
+        return self.title_no_number
                 
     @property
     def shortname(self):
@@ -321,6 +413,8 @@ class Bill(models.Model):
         # this is used for pre-populating a comment on a bill
         if not self.is_officially_numbered():
             return self.title
+        if self.street_name:
+            return self.street_name[0].upper() + truncatewords(self.street_name[1:], 15)
         title = truncatewords(self.title, 15)
         if "..." not in title:
             return title
@@ -354,18 +448,19 @@ class Bill(models.Model):
     def isAlive(self):
         # alive = pending further Congressional action
         if not self.is_bill():
-            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
-            if self.id==28896:
+            if self.current_status == "NBA:ENDED":
                 return False
-            else:
-                return self.congressnumber == govtrack.CURRENT_CONGRESS
+            if self.current_status == "NONSPONSORED:ENDED":
+                return False
+            return self.congressnumber == govtrack.CURRENT_CONGRESS
         return govtrack.billFinalStatus(self) == None
     def getDeadReason(self):
         # dead = no longer pending action because it passed, failed, or died in a previous session
         if not self.is_bill():
-            #Hard-coded FAA furlough bill. FIXME: don't hard-code this crap.
-            if self.id==28896:
-                return "is no longer active"
+            if self.current_status == "NBA:ENDED":
+                return "was a sponsored campaign that has now ended"
+            if self.current_status == "NONSPONSORED:ENDED":
+                return "is closed to comments"
             if self.congressnumber != govtrack.CURRENT_CONGRESS:
                 return "was proposed in a previous session of Congress"
             return None
@@ -455,24 +550,37 @@ class Bill(models.Model):
 def bill_from_url(url):
     fields = url.split("/")
     if fields[0] != "":
-        raise Exception("Invalid bill id.")
-    if fields[1] != "bills":
-        raise Exception("Invalid bill id.")
+        raise Exception("Invalid bill or regulation id.")
+    if fields[1] != "bills" and fields[1] != "regulations":
+        raise Exception("Invalid bill or regulation id.")
     if fields[2] != "us":
-        raise Exception("Invalid bill id.")
-    try :
-        congressnumber = int(fields[3])
-        m = re.match(r"([a-z]+)(\d+)(-\d+)?", fields[4])
-        billtype = Bill.slug_to_type[m.group(1)]
-        billnumber = int(m.group(2))
-        vehicle_number = m.group(3)
-    except :
-        raise Exception("Invalid bill id.")
-    bill = Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None)
-    if len(bill) == 0:
-        raise Exception("No bill with that number exists.")
-    else:
-        return bill[0]
+        raise Exception("Invalid bill or regulation id.")
+    if fields[1] == "bills":
+        try :
+            congressnumber = int(fields[3])
+            m = re.match(r"([a-z]+)(\d+)(-\d+)?", fields[4])
+            billtype = Bill.slug_to_type[m.group(1)]
+            billnumber = int(m.group(2))
+            vehicle_number = m.group(3)
+        except :
+            raise Exception("Invalid bill id.")
+        bill = Bill.objects.filter(congressnumber=congressnumber, billtype=billtype, billnumber=billnumber, vehicle_for=None)
+        if len(bill) == 0:
+            raise Exception("No bill with that number exists.")
+        else:
+            return bill[0]
+    if fields[1] == "regulations":
+        try:
+            agency = str(fields[3])
+            regnumber = str(fields[4])
+        except :
+            raise Exception("Invalid regulation id.")
+        regulation = Regulation.objects.filter(agency=agency, regnumber=regnumber)
+        if len(regulation) == 0:
+            raise Exception("No regulation with that number exists.")
+        else:
+            return regulation[0]
+
         
 class BillList(models.Model):
     EVENT_TYPES = [
@@ -617,7 +725,7 @@ class Org(models.Model):
     def positions(self):
         return OrgCampaignPosition.objects.filter(campaign__visible=True, campaign__org=self).order_by("-campaign__default", "campaign__name", "order", "-updated")
     def positions_can_comment(self):
-        return [p for p in self.positions() if p.bill.isAlive() or p.bill.died()]
+        return [p for p in self.positions() if p.regulation or p.bill.isAlive() or p.bill.died()]
         
     def is_admin(self, user):
         if user.is_anonymous():
@@ -878,7 +986,8 @@ class OrgCampaignPosition(models.Model):
     """A position on a bill within an OrgCampaign."""
     POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
     campaign = models.ForeignKey(OrgCampaign, related_name="positions", on_delete=models.CASCADE) # implicitly indexed by the unique_together
-    bill = models.ForeignKey(Bill, on_delete=models.PROTECT)
+    bill = models.ForeignKey(Bill, on_delete=models.PROTECT, blank=True, null=True)
+    regulation = models.ForeignKey(Regulation, on_delete=models.PROTECT, blank=True, null=True)
     position = models.CharField(max_length=1, choices=POSITION_CHOICES)
     comment = models.TextField(blank=True, null=True)
     pdfurl = models.URLField(blank=True, null=True)
@@ -931,8 +1040,9 @@ class OrgCampaignPosition(models.Model):
 # POSITION DOCUMENTS and BILL TEXT (for iPad App) #
 
 class PositionDocument(models.Model):
-    DOCTYPES = [(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text'), (101, 'Bill Text Comparison')]
-    bill = models.ForeignKey(Bill, related_name="documents", db_index=True, on_delete=models.PROTECT)
+    DOCTYPES = [(0, 'Press Release'), (1, 'Floor Introductory Statement'), (2, 'Dear Colleague Letter'), (3, "Report"), (4, "Letter to Congress"), (5, "Coalition Letter"), (99, 'Other'), (100, 'Bill Text'), (101, 'Bill Text Comparison'), (200, 'Regulation Text')]
+    bill = models.ForeignKey(Bill, related_name="documents", db_index=True, on_delete=models.PROTECT, blank=True, null=True)
+    regulation = models.ForeignKey(Regulation, related_name="documents", db_index=True, on_delete=models.PROTECT, blank=True, null=True)
     doctype = models.IntegerField(choices=DOCTYPES)
     title = models.CharField(max_length=128)
     text = tinymce_models.HTMLField(blank=True) #models.TextField() # HTML document body
@@ -953,7 +1063,6 @@ class PositionDocument(models.Model):
             owner = unicode(self.owner_org.all()[0]) + ": "
         return owner + self.bill.title + " [" + self.get_doctype_display() + "]"
     def get_absolute_url(self):
-	print "made it to get_absolute_url"
         if self.owner_org.all().exists():
             return self.bill.url() + "/docs/" + self.owner_org.all()[0].slug + "/" + str(self.doctype)
         if self.owner_memberbio.all().exists():
@@ -982,6 +1091,9 @@ class UserTag(models.Model):
     org = models.ForeignKey('Org')
     label = models.TextField()
     value = models.TextField()
+    
+    def __unicode__(self):
+        return unicode(self.label) + u": " + unicode(self.value)
 
 class UserProfile(models.Model):
     """A user profile extends the basic user model provided by Django."""
@@ -1290,6 +1402,14 @@ class PostalAddress(models.Model):
             [x["name"] for x in govtrack.getMembersOfCongressForDistrict(self.state + str(self.congressionaldistrict))]
             )
         return ret
+    
+    def nicelocation_no_reps(self):
+        ret = govtrack.statenames[self.state]
+        if self.congressionaldistrict > 0:
+             ret += "'s " + ordinal(self.congressionaldistrict) + " District"
+        else:
+            ret += " At Large"
+        return ret
         
     def set_timezone(self):
         # This is correct only to the majority of a state. Some states split timezones.
@@ -1322,7 +1442,7 @@ class PostalAddress(models.Model):
 class UserComment(models.Model):
     """A comment by a user on a bill."""
     
-    POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose') ]
+    POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
 
     COMMENT_NOT_REVIEWED = 0 # note that these values are hard-coded in several templates
     COMMENT_ACCEPTED = 1
@@ -1337,7 +1457,8 @@ class UserComment(models.Model):
     METHOD_NAMES = { METHOD_SITE: "POPVOX.com", METHOD_CUSTOMIZED_PAGE: "PV.com Customized Landing Page", METHOD_WIDGET: "Write Congress Widget" }
 
     user = models.ForeignKey(User, related_name="comments", db_index=True, on_delete=models.CASCADE) # user authoring the comment
-    bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True, on_delete=models.PROTECT)
+    bill = models.ForeignKey(Bill, related_name="usercomments", db_index=True, on_delete=models.PROTECT, blank=True, null=True, help_text="if regulation is set, bill MUST be blank. A comment can only be on a bill or a regulation, not both.")
+    regulation = models.ForeignKey(Regulation, related_name="usercomments", db_index=True, on_delete=models.PROTECT, blank=True, null=True, help_text="if bill is set, regulation MUST be blank. A comment can only be on a bill or a regulation, not both.")
     
     # if this value changes, we should delete the UserCommentDiggs the user left on
     # this bill.
@@ -1387,59 +1508,76 @@ class UserComment(models.Model):
             ordering = ["-created"]
             unique_together = (("user", "bill"), ("bill", "seq"))
     def __unicode__(self):
-        return self.user.username + " -- " + self.bill.displaynumber() + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()
+        if self.bill:
+            display = self.bill.displaynumber()
+        else:
+            display = self.regulation.regnumber
+        return self.user.username + " -- " + display + " -- " + (self.message[0:40] if self.message != None else "NONE") + " | " + self.delivery_status()
 
     def get_absolute_url(self):
-        return self.bill.url() + "/comment/" + str(self.id)
+        if self.bill:
+            return self.bill.url() + "/comment/" + str(self.id)
+        else:
+            return self.regulation.url() + "/comment/" + str(self.id)
 
     def url(self):
         return self.get_absolute_url()
     
     def verb(self, tense="present"):
-        # the verb used to describe the comment depends on when the comment
-        # was left in the stages of a bill's progress.
-        if self.created.date() <= govtrack.getCongressDates(self.bill.congressnumber)[1]:
-            # comment was (first) left before the end of the Congress in which the
-            # bill was introduced
-            if self.position == "+":
-                if tense=="present":
-                    return "supports"
-                elif tense=="past":
-                    return "supported"
-                elif tense=="ing":
-                    return "supporting"
-                elif tense=="imp":
-                    return "support"
+        if self.bill:
+            # the verb used to describe the comment depends on when the comment
+            # was left in the stages of a bill's progress.
+            if self.created.date() <= govtrack.getCongressDates(self.bill.congressnumber)[1]:
+                # comment was (first) left before the end of the Congress in which the
+                # bill was introduced
+                if self.position == "+":
+                    if tense=="present":
+                        return "supports"
+                    elif tense=="past":
+                        return "supported"
+                    elif tense=="ing":
+                        return "supporting"
+                    elif tense=="imp":
+                        return "support"
+                else:
+                    if tense=="present":
+                        return "opposes"
+                    elif tense=="past":
+                        return "opposed"
+                    elif tense=="ing":
+                        return "opposing"
+                    elif tense=="imp":
+                        return "oppose"
             else:
-                if tense=="present":
-                    return "opposes"
-                elif tense=="past":
-                    return "opposed"
-                elif tense=="ing":
-                    return "opposing"
-                elif tense=="imp":
-                    return "oppose"
-        else:
-            # comment was left after Congress recessed, and the comment now
-            # is about reintroduction
-            if self.position == "+":
-                if tense=="present":
-                    return "supports the reintroduction of"
-                elif tense=="past":
-                    return "supported the reintroduction of"
-                elif tense=="ing":
-                    return "supporting the reintroduction of"
-                elif tense=="imp":
-                    return "support the reintroduction of"
-            else:
-                if tense=="present":
-                    return "opposes the reintroduction of" # we have no interface for users to leave a negative comment
-                elif tense=="past":
-                    return "opposed the reintroduction of"
-                elif tense=="ing":
-                    return "opposing the reintroduction of"
-                elif tense=="imp":
-                    return "oppose the reintroduction of"
+                # comment was left after Congress recessed, and the comment now
+                # is about reintroduction
+                if self.position == "+":
+                    if tense=="present":
+                        return "supports the reintroduction of"
+                    elif tense=="past":
+                        return "supported the reintroduction of"
+                    elif tense=="ing":
+                        return "supporting the reintroduction of"
+                    elif tense=="imp":
+                        return "support the reintroduction of"
+                else:
+                    if tense=="present":
+                        return "opposes the reintroduction of" # we have no interface for users to leave a negative comment
+                    elif tense=="past":
+                        return "opposed the reintroduction of"
+                    elif tense=="ing":
+                        return "opposing the reintroduction of"
+                    elif tense=="imp":
+                        return "oppose the reintroduction of"
+        else: #Regulation
+            if tense=="present":
+                return "comments"
+            elif tense=="past":
+                return "commented"
+            elif tense=="ing":
+                return "commenting"
+            elif tense=="imp":
+                return "comment on"
     def verb_imp(self):
         return self.verb(tense="imp")
     def verb_ing(self):
@@ -1455,6 +1593,9 @@ class UserComment(models.Model):
         return self.shares().aggregate(models.Sum("hits"))["hits__sum"]
 
     def get_recipients(self):
+        if self.regulation:
+            recipients = "executive" #FIXME this just sets it to no recipients in the widget
+            return recipients
         if self.bill.comments_to_chamber:
             ch = self.bill.comments_to_chamber # s, h, or c to direct message to both chambers of Congress
         else:
@@ -1483,7 +1624,7 @@ class UserComment(models.Model):
             campaignid = self.actionrecord.all()[0].campaign.id
         except:
             campaignid = 0 #not all comments have campaign action records
-        if campaignid in [1866,1872]: # these were MAIG's campaign IDs for the first WH widget
+        if campaignid in [1866,1872, 3658]: # these are campaign ids for White House delivery
             obama = govtrack.getMemberOfCongress(400629)
             obama["office_id"] = "WH-S44"
             obama["type"] = "pres"
@@ -1498,10 +1639,14 @@ class UserComment(models.Model):
                 not self.delivery_attempts.exclude(target__govtrackid=g["id"]).filter(success = True, target__office=g["office_id"]).exists()]
             
         return govtrackrecipients
+    
+    def get_executive_recipients(self):
+        if self.bill:
+            return self.bill.executive_recipients.all()
+        else:
+            return self.regulation.executive_recipients.all()
         
     def get_recipients_display(self):
-        if self.address.congressionaldistrict2013 is None:
-            return "your representatives"
         recips = self.get_recipients()
         if not type(recips) == list:
             # Normally, show recipients that we would deliver to now.
@@ -1728,6 +1873,8 @@ class ServiceAccount(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     options = PickledObjectField(default={})
+    
+    customizations = models.TextField(blank=True, null=True, help_text="Appearance Customizations for this account's widgets, stored in JSON.")
 
     def __unicode__(self):
         if self.name: return self.name
@@ -1763,6 +1910,9 @@ class ServiceAccount(models.Model):
 
     def has_permission(self, name):
         return self.permissions.filter(name=name).exists()
+    
+    def permissions_list(self):
+        return [p.name for p in self.permissions.all()]
         
     def getopt(self, key, default=None):
         if self.options == None or type(self.options) == str: # not initialized (null or empty string)
@@ -1794,7 +1944,8 @@ class ServiceAccountCampaign(models.Model):
     """A position on a bill within a ServiceAccount."""
     POSITION_CHOICES = [ ('+', 'Support'), ('-', 'Oppose'), ('0', 'Neutral') ]
     account = models.ForeignKey(ServiceAccount, related_name="campaigns", on_delete=models.CASCADE) # implicitly indexed by the unique_together
-    bill = models.ForeignKey(Bill, on_delete=models.PROTECT)
+    bill = models.ForeignKey(Bill, on_delete=models.PROTECT, blank=True, null=True)
+    regulation = models.ForeignKey(Regulation, on_delete=models.PROTECT, blank=True, null=True)
     position = models.CharField(max_length=1, choices=POSITION_CHOICES)
     created = models.DateTimeField(auto_now_add=True)
     mpbucket = models.CharField(max_length=16, blank=True, null=True)
@@ -1806,6 +1957,8 @@ class ServiceAccountCampaign(models.Model):
             )
     def __unicode__(self):
         return unicode(self.account) + " -- " + unicode(self.bill) + " -- " + self.position
+    def pro_actionrecords(self):
+        return self.actionrecords.filter(share_record = True)
     def mixpanel_bucket(self):
         if self.mpbucket: return self.mpbucket
         return "sac_" + str(self.id)
@@ -1861,24 +2014,43 @@ class ServiceAccountCampaign(models.Model):
         return { "hit": hits, "share": shares, "events": json.dumps(events["data"]) }
     def first_action_date(self):
         try:
-            return self.actionrecords.order_by('created')[0].created
+            return self.actionrecords.filter(share_record = True).order_by('created')[0].created
         except:
             return None
     def last_action_date(self):
         try:
-            return self.actionrecords.order_by('-created')[0].created
+            return self.actionrecords.filter(share_record = True).order_by('-created')[0].created
         except:
             return None
     def recent_comments(self):
-        return self.actionrecords.filter(completed_comment__isnull=False).order_by('-created')[0:6]
+        return self.actionrecords.filter(completed_comment__isnull=False, share_record = True).order_by('-created')[0:6]
     def total_widget_records(self):
-        return self.actionrecords.filter(completed_stage__isnull=False).count()
+        return self.actionrecords.filter(completed_stage__isnull=False, share_record = True).count()
     def add_action_record(self, **kwargs):
+        #sys.stderr.write(str(kwargs))
         email = kwargs.pop("email")
         rec, isnew = ServiceAccountCampaignActionRecord.objects.get_or_create(
             campaign=self,
             email=email,
             defaults = kwargs)
+        optin = None
+        if "optin" in kwargs:
+            optin = kwargs.pop("optin")
+            if optin == "1":
+                optin = True
+            else:
+                optin = False
+        setattr(rec,"optin",optin)
+
+        if "share_record" in kwargs:
+            share_record = kwargs.pop("share_record")
+            if share_record == "1":
+                share_record = True
+            else:
+                share_record = False
+            setattr(rec,"share_record",share_record)
+        
+        rec.save()
         if not isnew or "created" in kwargs:
             # Update the record with the new values.
             for k, v in kwargs.items():
@@ -1892,12 +2064,14 @@ class ServiceAccountCampaignActionRecord(models.Model):
     zipcode = models.CharField(max_length=16, blank=True, db_index=True)
     email = models.EmailField(db_index=True)
     usertags = models.ManyToManyField(UserTag,blank=True,null=True)
+    optin = models.NullBooleanField(default=False, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
     completed_comment = models.ForeignKey("UserComment", blank=True, null=True, db_index=True, related_name="actionrecord", on_delete=models.SET_NULL)
     completed_stage = models.CharField(max_length=16, blank=True, null=True)
     request_dump = models.TextField(blank=True, null=True)
     referrer = models.TextField(blank=True, null=True)
+    share_record = models.BooleanField(default=False)
     # various indexing above is for the data table sort on the analytics page
     class Meta:
         ordering = ['created']

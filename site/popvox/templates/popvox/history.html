@@ -29,27 +29,37 @@
 					<p>You have not made any comments on legislation yet. Go <a href="/bills">find a bill</a> that you have an opinion about.</p>
 				{% endif %}
 				{% for comment in comments %}
-					<div class="{% if comment.position == "+" %}endorse{% else %}oppose{% endif %}">
+					<div class="{% if comment.position == "+" %}endorse{% else %}{% if comment.position == "-" %}oppose{% else %}neutral{% endif %}{% endif %}">
 						<p class="date">{{comment.updated|date2}}</p>
-						<h4>You {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.shortname}}</a></h4>
+						<h4>You {% if comment.position == "+" %}support{% else %}{% if comment.position == "-" %}oppose{% else %}commented on{% endif %}{% endif %} <a href="{%if comment.bill%}{{comment.bill.url}}">{{comment.bill.shortname}}{% else %}{{comment.regulation.url}}">{{comment.regulation.regnumber}}{% endif %}</a></h4>
 						{% if comment.message %}
-						<p style="margin-bottom: 0">&ldquo;{{comment.message|truncatewords:30}}&rdquo; </p>
-						<p style="margin-bottom: 0"><small>({{comment.delivery_status}})</small></p>
-						{% if comment.status = 1 %}
-							<p><small>({{comment.review_status}})</small></p>
-						{% endif %}
-						{% if comment.status > 1 %}
-							<p class="error">{{comment.review_status}}</p>
-						{% endif %}
+                            <p style="margin-bottom: 0">&ldquo;{{comment.message|truncatewords:30}}&rdquo; </p>
+                            {% if comment.bill %}
+                                <p style="margin-bottom: 0"><small>({{comment.delivery_status}})</small></p>
+                                {% if comment.status = 1 %}
+                                    <p><small>({{comment.review_status}})</small></p>
+                                {% endif %}
+                                {% if comment.status > 1 %}
+                                    <p class="error">{{comment.review_status}}</p>
+                                {% endif %}
+                            {% endif %}
 						{% else %}
-						<p style="margin-bottom: 0"><small>{{comment.bill.title_no_number|truncatewords:10}}</small></p>
+                            <p style="margin-bottom: 0"><small>{{comment.bill.nicename_no_number|truncatewords:10}}</small></p>
 						{% endif %}
+                        {% if comment.regulation %}
+                        <p style="margin-bottom: 0"><small>{{comment.regulation.title|truncatewords:10}}</small></p>{% endif %}
 						<div>
 							<!--<p class="tag">you {% if comment.position == "+" %}support{% else %}oppose{% endif %} <a href="{{comment.bill.url}}">{{comment.bill.shortname}}</a></p>-->
 							<p class="edit edit_box">
+                                {%if comment.bill%}
 								<a href="{{comment.bill.url}}/comment">change</a> |
 								<a href="{{comment.url}}">share</a> |
 								<a href="{{comment.bill.url}}/report">what others wrote</a>
+                                {% else %}
+                                <a href="{{comment.regulation.url}}">change</a> |
+                                <a href="{{comment.url}}">share</a> |
+                                {%comment%}<a href="{{comment.regulation.url}}/report">what others wrote</a>{%endcomment%}
+                                {% endif %}
 							</p>
 						</div>
 					</div>

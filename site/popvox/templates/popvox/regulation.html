@@ -1,0 +1,89 @@
+{% extends "master.html" %}
+{% load humanize %}
+{% load popvox_utils %}
+{% block title %}{% if regulation.street_name %}{{regulation.street_name|capfirst}}: {% endif %}{{ regulation.title }}{% endblock%}
+{% block description %}Write Congress about {% if regulation.street_name %}{{regulation.street_name|capfirst}}: {% endif %}{{ regulation.title }}{% endblock %}
+{%block nav_orgadmin_class_bills%}active{%endblock%}
+{%block nav_citzen_class_bills%}active{%endblock%}
+{%block subnav%}{% include "popvox/subnav_bills.html" %}{%endblock%}
+{% block finalscript %}<script>master_state(function(res) { mpmetrics.track('bill page', { 'bill': '{{regulation.displaynumber|escapejs}}', 'can_comment': res.page.canvote ? 'yes' : 'no' }); });</script>{% endblock %}
+{% block head %}
+<style>
+    h1.streetname { margin-bottom: 0; }
+    h2.streetname { font: bold 18px/24px helvetica, arial; margin-bottom: 5px; }
+</style>
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+<script>
+
+{% include "popvox/track.js" %}
+</script>
+{% endblock %}
+{% block content %}
+<div class="content pgbill" id="pg_reg">
+
+    <div class="col_12 col_top">
+
+		<div id="social_reg">
+			<!--<ul class="social-links">
+				<li><a class="facebook" href="#"></a></li>
+				<li><a class="twitter" href="#"></a></li>
+			    <li><a class="email" href="#"></a></li>
+			</ul>-->
+			<a class="btn b_view_report" href="{{regulation.url}}/report">
+				View {{bill.shortname}} report
+			</a>
+		</div>
+		<h2 class="streetname billname">{% if regulation.ask %}{{regulation.ask}}{% else %}Submit A Public Comment On{%endif%}<br />
+			<span class="streetname billname">{% if regulation.street_name %}{{regulation.street_name|capfirst}}{% else %}{{regulation.title}}{% endif %}
+		</h2>
+		
+
+		<div class="col_4" id="reg_stats">
+			<p><span>Comments:</span> {%if regulation.isAlive%}OPEN{%else%}CLOSED{%endif%}</p>
+			<p><strong><span>Days Remaining:</span> <em>{{regulation.daysleft}}</em></strong></p>
+		</div>
+		
+		<div class="col_8">
+			<h1 class="billname no_rule"><a href="#">{{ regulation.title }}</a></h1>
+            {% if regulation.description %}
+                <p><strong>Summary: </strong>{{ regulation.description }}<p>
+				<p>Source: <a href="#">regulations.gov</a></p>  
+            {% endif %} 
+            {% if regulation.notes %}
+                <p>{{regulation.notes|safe}}</p>
+            {% endif %}
+        </div>
+    </div>
+    
+	<div class="col_12 rule">
+
+	    <div id="reg_comment_widget">
+	        <iframe src="/services/widgets/w/account/DQZUTLYRW4K1FK1O/commentstream?iframe=1&regulations=us/{{ regulation.agency }}/{{ regulation.regnumber }}&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555" width="240" height="600" border="0" frameBorder="0" > </iframe>
+	    </div>
+	    
+		<div class="col_6 col_last">	
+			<iframe src="/services/widgets/w/account/DQZUTLYRW4K1FK1O/writecongress?iframe=1&regulation=us/{{ regulation.agency }}/{{ regulation.regnumber }}&franking=false&sbg=b36015&sbg2=E8E5DF&sfg=ffffff&lnk=cc6a11&bg=ffffff&fg=404045&fg2=555555" width="460" height="700" border="0" frameBorder="0" > </iframe>
+		</div>
+		<div class="col_2 col_last">	
+			<h2>TIPS FOR COMMENTING</h2>
+			<p>You are submitting a public comment on a regulatory action.</p>
+			<p>Your comment will be read by the agency and taken into account in the rulemaking process.</p>
+			<p>Explain your position: a comment is not a "vote." Original examples, and sound reasoning are much more effective than form letters.</p>
+			<p>For more tips for submitting effective comments, see: <a class="blank" href="http://www.regulations.gov/docs/Tips_For_Submitting_Effective_Comments.pdf">http://www.regulations.gov/docs/Tips_For_Submitting_Effective_Comments.pdf</a></p>
+			<p>Source: <a class="blank" href="http://Regulations.gov">Regulations.gov</a></p>
+<!-- 	    	<p><a href="#">view the regulations report</a></p> -->
+		</div>
+<!--
+	    <div>
+	        <h3>Stakeholder Positions</h3>
+	        {% for position in positions %}
+	        <h4>{{position.campaign.org.name}}</h4>
+	        <p>{{position.comment}}</p>
+	        {% endfor %}
+	    </div>
+-->
+	</div>    
+    {% endblock %}
+
+

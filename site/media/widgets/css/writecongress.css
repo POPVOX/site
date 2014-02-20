@@ -98,7 +98,16 @@ a {
 	width: 100%;
 	}
 	
-
+/* wm adds styles 11/27/13 */
+#wrap.w420 #widget_top {	
+	width: 96%;
+	margin-left: 5px;
+	}
+		
+#wrap.w420 #panel_holder {	
+	width: 96%;
+	margin-left: 5px;
+	}
 	
 #widget_body {
 /*	overflow: hidden;*/
@@ -501,6 +510,9 @@ a {
 		#panel_write h4.oppose {
 			background: url(../../widget/bg_opposed_bubl.png) left top no-repeat;
 			}
+		#panel_write h4.neutral {
+			background: url(../../widget/bg_neutral_bubl.png) left top no-repeat;
+			}
 		
 	.reason {
 		clear: both;
@@ -741,6 +753,7 @@ a {
 	h3.support {
 		border-top: 1px solid #d1d1cf;
 		background: url(../../widget/bg_endorsed_bubl_sm.png) no-repeat 0px 15px;
+		margin-top: 10px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -749,11 +762,12 @@ a {
 	h3.oppose {
 		border-top: 1px solid #d1d1cf;
 		background: url(../../widget/bg_opposed_bubl_sm.png) no-repeat 0px 15px;
+		margin-top: 10px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
 		}
-	
+			
 	.chart_info {
 		float: right;
 		width: 200px;
@@ -826,7 +840,7 @@ a {
 			
 /* foot */			
 #widget_foot {
-	margin-top: 300px;
+	margin-top: 275px;
 	border-top: 1px solid #d1d1cf;
 	padding: 10px 30%;
 	text-align: center;
@@ -851,6 +865,7 @@ a {
 	font-size: 12px;
 		}
 	.optin input {
+		width: 20px !important;
 		float: left;
 		margin: 0 5px 20px 0;
 		}
@@ -882,7 +897,6 @@ a {
 		}
 		
 #wrap {
-	/*background: #efefef url(http://sodiumhalogen.com/client_view/popvox/wid get_writecongress/widget_writerep-2b.jpg) left top no-repeat;*/
 	padding: 20px;
 	font-family: helvetica, arial, sans-serif;
 	}
@@ -890,9 +904,13 @@ a {
 #wrap.w420 {
 	/*background: url(http://sodiumhalogen.com/up/widg et_writerep_8fe3.jpg) left top no-repeat;*/
 	width: 420px;
+/* maybe this won't break it */
+	height: 660px;
+	border-radius: 10px;	
 	}
 #wrap.w420 .widget_body {
 	width: 420px;
+	background: #000;
 	}
 #wrap.w420 .widget_panel {
 	width: 420px;
@@ -943,7 +961,9 @@ a {
 	
 	#panel_share p {
 		padding-top: 5px;
-		}/*
+		}
+		
+/*
 		
 #widget_top {
 	height: 40px;
@@ -1190,7 +1210,8 @@ a {
 			}
 			#panel_addressform .next {
 				margin-left: 285px;
-				}
+				}			
+				
 			.btn {
 				text-indent: -9999em;
 				background-color: white; /* IE8 with inherit yields a grey */
@@ -1245,7 +1266,8 @@ a {
 		
 		.why h3 {
 			float: left;
-			margin-top: 5px;
+			margin-top: 0px;
+			height: 36px;
 			}
 			
 		.why a.expand {
@@ -1256,19 +1278,26 @@ a {
 			height: 21px;
 			margin-left: 17px;
 			display: block;
+			position: absolute;
+			right: 0;
+			top: 14px;
 			}
 	
 	#panel_write h4 {
 		font: italic normal 18px/24px georgia, serif;
 		margin-bottom: 10px;
-		/*height: 32px;*/
-		padding: 2px 0 0 46px;
+		height: 38px;
+		padding: 2px 0 6px 46px;
+		overflow: hidden;
 		}
 		#panel_write h4.support {
 			background: url(../../widget/bg_endorsed_bubl.png) left top no-repeat;
 			}
 		#panel_write h4.oppose {
 			background: url(../../widget/bg_opposed_bubl.png) left top no-repeat;
+			}
+		#panel_write h4.neutral {
+			background: url(../../widget/bg_neutral_bubl.png) left top no-repeat;
 			}
 		
 	.reason {
@@ -1287,6 +1316,7 @@ a {
 		width: 45%;
 		float: left;
 		margin-right: 30px;
+		margin-bottom: 10px;
 		}
 		
 		#msg.form textarea {
@@ -1336,6 +1366,10 @@ a {
 			
 	a.back {
 		line-height: 25px;
+		}
+		
+	a.back3 {
+		margin-left: 15px;
 		}
 		
 		
@@ -1430,6 +1464,10 @@ a {
 			border: none;
 			float: right;
 			}	
+			
+			#b_send_message a {
+				background: url(../../widget/b_send_message.png) left top no-repeat;
+				}
 		
 			#b_send_to_congress a:hover {
 				background-position: left bottom;
@@ -1463,6 +1501,11 @@ a {
 		border-top: 1px solid #d1d1cf;
 		border-width: 1px 0 ;
 		}	
+		
+		.reg_widget h3.congrats {
+			margin-top: 10px;
+			}
+			
 	h4.congrats {
 		text-align: center;
 		font-size: 12px;
@@ -1477,6 +1520,10 @@ a {
 		/*border-bottom: 1px solid #d1d1cf;*/
 		padding: 10px;
 		}
+		
+		.reg_widget #social_share {
+			margin-bottom: -70px;
+			}
 			
 	ul.social_share_btns {
 		margin: 10px 0 10px 5px;
@@ -1516,6 +1563,7 @@ a {
 	h3.support {
 		border-top: 1px solid #d1d1cf;
 		background: url(../../widget/bg_endorsed_bubl_sm.png) no-repeat 0px 15px;
+		margin-top: 10px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
@@ -1524,10 +1572,12 @@ a {
 	h3.oppose {
 		border-top: 1px solid #d1d1cf;
 		background: url(../../widget/bg_opposed_bubl_sm.png) no-repeat 0px 15px;
+		margin-top: 10px;
 		margin-bottom: 0px;
 		padding: 20px 30px;
 		height: 10px;
-		}
+		}	
+
 	
 	.chart_info {
 		float: right;
@@ -1601,7 +1651,7 @@ a {
 			
 /* foot */			
 #widget_foot {
-	margin-top: 300px;
+	margin-top: 275px;
 	border-top: 1px solid #d1d1cf;
 	padding: 10px 30%;
 	text-align: center;
@@ -1622,13 +1672,19 @@ a {
 			}
 		
 .optin {
-	margin-left: 10px;
 	font-size: 12px;
 		}
 	.optin input {
 		float: left;
 		margin: 0 5px 20px 0;
+		width: 5%;
 		}
+	.form .optin label {
+		width: 300px !important;
+		line-height: 20px;
+		padding-bottom: 10px;
+		}
+	
 
 }
 

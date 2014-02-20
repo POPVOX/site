@@ -3,21 +3,35 @@ from django.contrib import admin
 from django.db.models import Count
 from django.forms import ModelForm
 
+class PositionDocumentInline(admin.StackedInline):
+    model = PositionDocument
+    extra = 1
+
 class BillAdmin(admin.ModelAdmin):
     list_display = ("congressnumber", "billtype", "billnumber", "title", "street_name")
     list_display_links = ("title",)
     search_fields = ("title", "street_name")
-    #readonly_fields = ("congressnumber", "billtype", "billnumber", "sponsor", "committees", "topterm", "issues", "num_cosponsors", "latest_action")
     raw_id_fields = ('vehicle_for','sponsor','reintroduced_as', 'migrate_to')
-    filter_horizontal = ("cosponsors", 'committees', 'issues')
+    filter_horizontal = ['cosponsors', 'committees', 'issues', 'executive_recipients']
     exclude = ('srcfilehash',)
     fieldsets = (
         ("Primary Key", { "fields": ('congressnumber', 'billtype', 'billnumber', 'vehicle_for')}),
         ("Required Metadata", { "fields": ('title', 'introduced_date', 'current_status', 'current_status_date', 'num_cosponsors')}),
-        ("Usual Metadata", { "fields": ('description', 'street_name', 'ask', 'notes', 'hashtags', 'topterm', 'comments_to_chamber')}),
+        ("Usual Metadata", { "fields": ('description', 'street_name', 'ask', 'notes', 'hashtags', 'topterm', 'comments_to_chamber', 'executive_recipients')}),
         ("Optional Metadata", { "fields": ('sponsor', 'cosponsors', 'committees', 'issues', 'latest_action', 'reintroduced_as', 'migrate_to', 'hold_metadata')}),
         ("Upcoming Event", { "fields": ( 'upcoming_event_post_date', 'upcoming_event' ) }),
         )
+    
+    #inlines = [PositionDocumentInline]
+    
+class RegulationAdmin(admin.ModelAdmin):
+    list_display = ("agency", "regnumber", "topterm", "street_name", "title")
+    search_fields = ("title", "street_name")
+    filter_horizontal = ['issues', 'executive_recipients']
+    
+class FederalAgencyAdmin(admin.ModelAdmin):
+    list_display = ("id", "acronym", "name")
+    search_fields = ("acronym", "name")
 
 class BillEventInline(admin.StackedInline):
     model = BillEvent
@@ -57,10 +71,10 @@ class UserLegStaffRoleAdmin(admin.ModelAdmin):
     list_display = ["user", "member", "committee", "position", "verified"]
 
 class UserCommentAdmin(admin.ModelAdmin):
-    raw_id_fields = ("user", "bill", "address")
-    readonly_fields = ("user","bill","address", "delivery_attempts", "created", "updated")
-    search_fields = ("user__username", "user__email")
-    list_display = ['created', 'user', 'position', 'bill', 'message_trunc', 'address', 'status_info']
+    raw_id_fields = ("user", "bill", "regulation", "address")
+    readonly_fields = ("user", "bill", "regulation", "address", "delivery_attempts", "created", "updated")
+    search_fields = ["user__username", "user__email", "bill__billnumber", "regulation__regnumber"]
+    list_display = ['created', 'user', 'position', 'bill', 'regulation', 'message_trunc', 'address', 'status_info']
     actions = ['set_status_hold']
     def message_trunc(self, obj):
         return obj.message[0:15] if obj.message != None else None
@@ -75,6 +89,10 @@ class UserCommentAdmin(admin.ModelAdmin):
         
 class UserCommentDiggAdmin(admin.ModelAdmin):
     list_display = ['created', 'user', 'comment', 'diggtype']
+    
+class PositionDocumentAdmin(admin.ModelAdmin):
+    list_display = ["bill", "title", "doctype"]
+    search_fields = ["title"]
 
 class PostalAddressAdmin(admin.ModelAdmin):
     search_fields = ("user__username","user__email","firstname","lastname","address1", "zipcode")
@@ -91,17 +109,29 @@ class OrgAdmin(admin.ModelAdmin):
     readonly_fields = ('logo', 'documents')
     raw_id_fields = ('coalitionmembers',)
     
+class OrgCampaignPositionInline(admin.TabularInline):
+    model = OrgCampaignPosition
+    extra = 1
+    
+class OrgCampaignAdmin(admin.ModelAdmin):
+    search_fields = ["name", "org__name"]
+    list_display = ["org", "name"]
+    
+    #inlines = [OrgCampaignPositionInline] #takes way too long to load
+    
 class OrgCampaignPositionAdmin(admin.ModelAdmin):
-    search_fields = ["Campaign", "Bill"]
+    search_fields = ["campaign", "bill", "regulation"]
     list_display = ["campaign_name", "bill_shortname"]
-    raw_id_fields = ['campaign', "bill"]
+    raw_id_fields = ['campaign', "bill", "regulation"]
 
 class ServiceAccountAdmin(admin.ModelAdmin):
     raw_id_fields = ("user", "org")
     readonly_fields = ("api_key", "secret_key")
     search_fields = ["user__username", "user__email", "org__name", "api_key", "secret_key", "name", "notes"]
+    filter_horizontal = ["permissions"]
 
 class ServiceAccountCampaignAdmin(admin.ModelAdmin):
+    search_fields = ("account__name", "bill__title")
     raw_id_fields = ("account", "bill")
     readonly_fields = ("account", "bill")
 
@@ -109,7 +139,7 @@ class ServiceAccountCampaignActionRecordAdmin(admin.ModelAdmin):
     raw_id_fields = ("campaign","completed_comment")
     readonly_fields = ("campaign","completed_comment")
     search_fields = ["firstname", "lastname", "zipcode", "email"]
-    list_display = ["created", "info", "zipcode", "email"]
+    list_display = ["created", "info", "zipcode", "email", "share_record"]
 
     def info(self, obj):
         return obj.campaign.bill.displaynumber()
@@ -165,12 +195,14 @@ class UserTagAdmin(admin.ModelAdmin):
 
 admin.site.register(MailListUser)
 admin.site.register(IssueArea)
+admin.site.register(FederalAgency, FederalAgencyAdmin)
 admin.site.register(Org, OrgAdmin)
-admin.site.register(OrgCampaign)
+admin.site.register(OrgCampaign, OrgCampaignAdmin)
 admin.site.register(OrgCampaignPosition, OrgCampaignPositionAdmin)
 admin.site.register(OrgContact)
 admin.site.register(MemberOfCongress, MemberOfCongressAdmin)
 admin.site.register(Bill, BillAdmin)
+admin.site.register(Regulation, RegulationAdmin)
 admin.site.register(Slate, SlateAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserComment, UserCommentAdmin)
@@ -178,7 +210,7 @@ admin.site.register(UserCommentDigg, UserCommentDiggAdmin)
 admin.site.register(UserOrgRole, UserOrgRoleAdmin)
 admin.site.register(UserLegStaffRole, UserLegStaffRoleAdmin)
 admin.site.register(PostalAddress, PostalAddressAdmin)
-admin.site.register(PositionDocument)
+admin.site.register(PositionDocument, PositionDocumentAdmin)
 admin.site.register(ServiceAccount, ServiceAccountAdmin)
 admin.site.register(ServiceAccountPermission)
 admin.site.register(ServiceAccountCampaign, ServiceAccountCampaignAdmin)

@@ -36,7 +36,8 @@ def loginform(request):
         try:
             password = forms.CharField().clean(request.POST["password"])
         except forms.ValidationError, e:
-            #print e
+            sys.stderr.write("email and password in post")
+            sys.stderr.write( e)
             pass
     
         if email != None and password != None:
@@ -49,7 +50,8 @@ def loginform(request):
                             validate_next(request, request.POST["next"]) # raises exception on error
                             return HttpResponseRedirect(request.POST["next"])
                         except Exception, e:
-                            #print e
+                            sys.stderr.write("non-blank email and password")
+                            sys.stderr.write(e)
                             pass # fall through
                     return HttpResponseRedirect(LOGIN_REDIRECT_URL)
                 else:
@@ -132,6 +134,7 @@ def external_start(request, login_associate, provider):
     scope = request.GET.get("scope", None)
     mode = request.GET.get("mode", None)
 
+    # the following may call openid2_get_redirect, oauth1_get_redirect, or oauth2_get_redirect
     response = HttpResponseRedirect( providers.methods[providers.providers[provider]["method"]]["get_redirect"](request, provider, callback, scope, mode))
     response['Cache-Control'] = 'no-store'
     return response
@@ -181,7 +184,7 @@ def external_return(request, login_associate, provider):
         # a new AuthRecord.
         elif "trust_email" in providers.providers[provider] and providers.providers[provider]["trust_email"] and "email" in profile:
             try:
-                user = User.objects.get(email = profile["email"])
+                user = User.objects.get(email_iexact = profile["email"])
                 request.goal = { "goal": "oauth-login" }
             except:
                 pass
@@ -369,7 +372,7 @@ class RegisterUserAction:
 
         try:
             # If this user has already been created, just log the user in.
-            user = authenticate(user_object = User.objects.get(email=self.email))
+            user = authenticate(user_object = User.objects.get(email_iexact=self.email))
             login(request, user)
             return HttpResponseRedirect(self.next)
         except:
@@ -429,7 +432,7 @@ class DirectLoginBackend(ModelBackend):
 def ajax_get_login_type(request):
     email = validate_email(request.POST["email"], for_login=True)
     try:
-        u = User.objects.get(email=email)
+        u = User.objects.get(email__iexact=email)
     except User.DoesNotExist:
         return { "status": "success", "result": "not-recognized" }
 

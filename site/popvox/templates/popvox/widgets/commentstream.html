@@ -153,7 +153,7 @@
 				</p>
 	
 				<div class="comment">
-					<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %} {% if item.position == "-" %}oppose{% endif %}">
+					<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %}{% if item.position == "-" %}oppose{% endif %}{% if item.position == "0" %}neutral{% endif %}">
 						<div class="icon"></div>
 						{{item.message|wraplines:"p"|truncatewords_html:50}}
 						<p class="share"><span class="date">{% display_date item.updated %}</span> <a href="https://www.popvox.com{{item.url}}" target="_blank">view &amp; share</a></p>

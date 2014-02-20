@@ -1,9 +1,9 @@
 {% extends "master.html" %}
 {% load popvox_utils %}
-{% block title %}Finish Comment on {{ bill.title }}{% endblock%}
+{% block title %}Finish Comment on {%if bill%}{{ bill.title }}{%else%}{{ regulation.title }}{%endif%}{% endblock%}
 {% block description %}We couldn&rsquo;t locate your Congressional district based on the address you entered earlier. We need your help to determine where you live.{% endblock%}
 {%block nav_citzen_class_bills%}active{%endblock%}
-{% block finalscript %}<script type="text/javascript">mpmetrics.track('comment addressmap', { 'bill': '{{bill.displaynumber|escapejs}}' );</script>{% endblock %}
+{% block finalscript %}<script type="text/javascript">mpmetrics.track('comment addressmap', { 'bill': '{%if bill%}{{bill.displaynumber|escapejs}}{%else%}{{bill.regnumber|escapejs}}{%endif%}' );</script>{% endblock %}
 {% block head %}
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	{% if request.META.HTTP_DNT != "1" %}
@@ -92,8 +92,7 @@
 	{% endif %}
 
 	<div class="tab_pane commentProcess">
-	
-	<form method="post" id="commentform" action="{{bill.url}}/comment/{% if position == "+" %}support{% else %}oppose{% endif %}">
+	<form method="post" id="commentform" action="{%if bill%}{{bill.url}}/comment/{% if position == "+" %}support{% else %}oppose{% endif %}{% else %}{{regulation.url}}/comment/finish{% endif %}">
 	
 	{% csrf_token %}
 	<input id="submitmode" type="hidden" name="submitmode" value="Submit Comment >"/>
@@ -106,7 +105,7 @@
 	{% else %}
 	<h1>Finish Your Letter to Congress</h1>
 	{% if referrer %}
-		<p>{{referrer}} is using POPVOX to help you get your message to Congress.</p>
+		<p>{{referrer}} is using POPVOX to help you get your message to decision-makers.</p>
 	{% endif %}
 	{% endif %}
 	

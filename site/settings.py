@@ -223,7 +223,7 @@ INSTALLED_APPS = (
     'django.contrib.markup',
     'django.contrib.sitemaps',
     'tinymce',
-    'feedback',
+    #'feedback',
     'picklefield',
     'articles',
     'debug_toolbar',
@@ -253,7 +253,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'height': '300px',
     'theme_advanced_toolbar_location': "top",
     'theme_advanced_toolbar_align': "left",
-    'extended_valid_elements' : "iframe[src|frameborder|style|scrolling|class|width|height|name|align]"
+    'extended_valid_elements' : "iframe[src|frameborder|style|scrolling|class|width|height|name|align],img[src|border=0|alt|title|width|height|align|name]"
 }
 
 FEEDBACK_BLOCKED_IPS = ["91.212.226.143"]
@@ -278,7 +278,7 @@ ARTICLES_TEASER_LIMIT = 100 #The number of words to display in the teaser. Defau
 ARTICLES_AUTO_TAG = False #Whether or not to automatically tag articles. Defaults to True.
 
 # Cut-off age for a message with no comment before we stop trying to deliver the message
-POSITION_DELIVERY_CUTOFF_DAYS = 14
+POSITION_DELIVERY_CUTOFF_DAYS = 10
 
 #settings for Django Debug Toolbar
 def show_toolbar(request):
@@ -291,5 +291,6 @@ def show_toolbar(request):
 
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+    'INTERCEPT_REDIRECTS': False,
     # Rest of config
 }
