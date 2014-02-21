@@ -759,7 +759,7 @@ Notes:
                     f("{{url|escapejs}}", verb + " {{bill.nicename|truncatewords:7|escapejs}}"+"Find out why", "{{bill.hashtag|escapejs}}");
             {% else %}
                 if (position == "+") verb = "Support"; else if (position == "-") verb = "Oppose"; else verb = "Comment on"
-                    f("{{url|escapejs}}", {%if bill%}verb + " {{bill.nicename|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}"{%else%}" Comment on {{regulation.title|truncatewords:7|escapejs}}", "{{regulation.hashtag|escapejs}}"{%endif%});
+                    f("{{url|escapejs}}", {%if bill%}verb + " {{bill.nicename|truncatewords:7|escapejs}}", "{{bill.hashtag|escapejs}}"{%else%}" Comment on {{regulation.title|truncatewords:5|escapejs}}"{%endif%});
             {% endif %}
             return false;
         }
