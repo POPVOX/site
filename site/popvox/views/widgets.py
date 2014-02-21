@@ -395,13 +395,13 @@ def leg_agenda(request):
     org = Org.objects.get(id=request.GET["org"])
     
     #legagenda widgets can cover all an org's bills, or just one campaign.
-    '''if request.GET["campaign"]:
+    if request.GET["campaign"]:
         #if there's one campaign, we'll want its name for the page, so storing it separately
         campaign = OrgCampaign.objects.get(id=request.GET["campaign"])
         campaigns = [campaign]
-    else:'''
-    campaign = False
-    campaigns = org.campaigns()
+    else:
+        campaign = False
+        campaigns = org.campaigns()
     
     positions = getpositions(campaigns)
     
