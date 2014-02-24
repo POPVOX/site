@@ -141,7 +141,7 @@
         {% endfor %}
         <div id="infobox" style="display: none;">
             <div id="district"> </div>
-            {% if bill or regulation or request.GET.point == "allcount" %}<p><span id="support"></span> <span id="oppose"> </span> <span id="activity"> </span></p>{% endif %}
+            {% if bill or request.GET.point == "allcount" %}<p><span id="support"></span> <span id="oppose"> </span> <span id="activity"> </span></p>{% endif %}
         </div>
         </div>
         
