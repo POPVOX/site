@@ -2042,15 +2042,13 @@ class ServiceAccountCampaign(models.Model):
             else:
                 optin = False
         setattr(rec,"optin",optin)
-
+        
         if "share_record" in kwargs:
             share_record = kwargs.pop("share_record")
-            if share_record == "1":
-                share_record = True
-            else:
+            if share_record != True:
                 share_record = False
             setattr(rec,"share_record",share_record)
-        
+                
         rec.save()
         if not isnew or "created" in kwargs:
             # Update the record with the new values.
