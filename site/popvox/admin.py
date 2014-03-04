@@ -117,7 +117,7 @@ class OrgCampaignAdmin(admin.ModelAdmin):
     search_fields = ["name", "org__name"]
     list_display = ["org", "name"]
     
-    inlines = [OrgCampaignPositionInline] #takes way too long to load
+    #inlines = [OrgCampaignPositionInline] #takes way too long to load
     
 class OrgCampaignPositionAdmin(admin.ModelAdmin):
     search_fields = ["campaign__name", "bill__title", "regulation__title"]
