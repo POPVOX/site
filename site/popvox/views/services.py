@@ -335,7 +335,10 @@ def widget_render_writecongress_page(request, account, permissions):
                 # don't tie this request to the org if the request is not under a
                 # verified api_key for that org.
                 org = ocp.campaign.org
-                reason = ocp.comment
+                if ocp.shortcomment:
+                    reason = ocp.shortcomment
+                else:
+                    reason = ocp.comment
             
         if account != None:
             if bill:

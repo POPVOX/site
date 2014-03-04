@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import django.db.models.signals
 from django.core.mail import send_mail
 from django.core.cache import cache
+from django.core.validators import MaxLengthValidator
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.humanize.templatetags.humanize import ordinal
@@ -990,6 +991,7 @@ class OrgCampaignPosition(models.Model):
     regulation = models.ForeignKey(Regulation, on_delete=models.PROTECT, blank=True, null=True)
     position = models.CharField(max_length=1, choices=POSITION_CHOICES)
     comment = models.TextField(blank=True, null=True)
+    shortcomment = models.TextField(blank=True, null=True, validators=[MaxLengthValidator(300)])
     pdfurl = models.URLField(blank=True, null=True)
     action_headline = models.CharField(max_length=128, blank=True, null=True)
     action_body = tinymce_models.HTMLField(blank=True, null=True) #models.TextField()
