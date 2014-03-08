@@ -782,7 +782,7 @@ def delivery_status_report(request):
             
         moc["endpoint"] = ep.id
             
-        d = DeliveryRecord.objects.filter(target=ep, next_attempt__isnull=True)
+        d = DeliveryRecord.objects.filter(target=ep, next_attempt__isnull=True, created__gt=datetime.now()-timedelta(days=30))
         d_delivered = d.filter(success=True)
         d_delivered_electronically = d_delivered.exclude(method=Endpoint.METHOD_INPERSON)
             
