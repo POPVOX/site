@@ -1,6 +1,6 @@
 #!runscript
 
-# It'll make a file in the dir you ran it from called campaign_info-addresses.csv
+# It'll make a file in the dir you ran it from called campaign_info-reg.csv
 
 from popvox.models import *
 from django.contrib.auth.models import User
