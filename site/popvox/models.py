@@ -1007,6 +1007,14 @@ class OrgCampaignPosition(models.Model):
         return self.campaign.org.name
     def bill_shortname(self):
         return self.bill.shortname
+    def slug(self):
+        #This is the org slug, the bill type slug, the bill number, and the position, separated by dashes.
+        #For regulations, the org slug, the regnumber, and the position.
+        if self.bill:
+            return str(self.campaign.org.slug) + "-" + self.bill.billtypeslug() + "-" + str(self.bill.billnumber) + "-" + str(self.get_position_display()).lower()
+        else:
+            return self.campaign.org.slug + "-" + self.regulation.regnumber + "-" + self.get_position_display().lower()
+
     def get_absolute_url(self):
         return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
     def documents(self):
