@@ -15,7 +15,7 @@ from settings import SITE_ROOT_URL
 
 providers = { }
 
-providers["google_openid"] = \
+'''providers["google_openid"] = \
 	{	"displayname": "Google",
 		"method": "openid2",
 		"xrds": "https://www.google.com/accounts/o8/id",
@@ -144,7 +144,7 @@ try:
 		}
 except:
 	# silently fail if any of the settings aren't set
-	pass
+	pass'''
 
 try:
 	def facebook_get_profile(access_token):
