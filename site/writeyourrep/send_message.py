@@ -313,6 +313,7 @@ common_fieldnames = {
     "body": "message",
     "claim": "message",
     "message_require": "message",
+    "additionalcomments": "message",
     
     "textmodified": "message_personal",
     "modified": "message_personal",
@@ -393,6 +394,21 @@ common_fieldnames = {
     'address.state.id': "state",
     'address.zip': "zipcode",
     'briefComment': "message",
+    
+    #Reid's Form
+    "cf_field_2": "prefix",
+    "cf_field_3": "firstname",
+    "cf_field_4": "lastname",
+    "cf_field_5": "address1",
+    "cf_field_6": "city",
+    "cf_field_7": "state",
+    "cf_field_8": "zipcode",
+    "cf_field_9": "email",
+    "cf_field_10": "phone",
+    "cf_field_11": "phone",
+    "cf_field_12": "topicarea",
+    "cf_field_13": "message",
+    
     
     
     #Numbered senate fields
@@ -490,6 +506,9 @@ skippable_fields = (
     "submitted[delivery_agent_non_us_state]",
     "submitted[delivery_agent_country]",
     
+    #Reid's Form
+    "cf_field_9", "cf_field_10",
+    
     #Cantor's survey
     "ratings[how_is_the_113th_congress_doing?]",
     "ratings[is_the_113th_congress_addressing_the_issues_that_concern_you?]",
@@ -505,6 +524,8 @@ skippable_fields = (
     
     #National Park Service
     "authormiddleinitial", "howdidyouhear", "liketohear", "country",
+    
+    "ctl03$facebookidcontrol",
 
 
     "agency", "prefixother", "middle", "middlename", "suffix", "preferredname",
@@ -551,6 +572,7 @@ skippable_fields = (
     "ctl04$facebookidcontrol",
     "uscgr",
     "twitter",
+    "input_17",
     )
 
 radio_choices = {
@@ -625,6 +647,7 @@ custom_mapping = {
     "741_field_a8731eec-5954-4ac5-a623-b840d3f4d9fc_select": "topicarea",
     "741_field_59e68b70-1f23-4b9a-a19c-e40156896a9b_textarea": "message",
     "752_input_1_12_select": "prefix",
+    "752_input_1_16_text": "message",
     "755_field_e5d28fe4-5b68-4619-9940-81168686475d_radio": "response_requested",
     "757_name_text": "firstname",
     "761_phone1_text": "phone_areacode",
