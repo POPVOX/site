@@ -2044,14 +2044,14 @@ class ServiceAccountCampaign(models.Model):
             campaign=self,
             email=email,
             defaults = kwargs)
-        optin = None
+
         if "optin" in kwargs:
             optin = kwargs.pop("optin")
             if optin == "1":
                 optin = True
             else:
                 optin = False
-        setattr(rec,"optin",optin)
+            setattr(rec,"optin",optin)
         
         if "share_record" in kwargs:
             share_record = kwargs.pop("share_record")
