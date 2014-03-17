@@ -106,7 +106,11 @@ class MemberOfCongress(models.Model):
     lismemberid = models.CharField(max_length=6, default=None, blank=True, null=True)
     icpsrid = models.IntegerField(default=None, blank=True, null=True)
     fbid = models.IntegerField(default=None, blank=True, null=True)
-    thomasid = models.IntegerField(default=None)
+    thomasid = models.IntegerField(default=None, blank=True, null=True)
+    googleplus = models.URLField(blank=True, null= True)
+    flickr_id = models.CharField(max_length=100, blank=True, null=True)
+    slug = models.CharField(max_length=100, blank=True, null=True)
+    documents = models.ManyToManyField("PositionDocument", blank=True, null=True, related_name="owner_moc")
 
 
     def __unicode__(self):
