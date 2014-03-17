@@ -180,6 +180,10 @@ class MemberOfCongressAdmin(admin.ModelAdmin):
     list_display = ['id', 'lastname', 'firstname']
     readonly_fields = ["id"]
 
+class MemberOfCongressRoleAdmin(admin.ModelAdmin):
+    search_fields = ["personid", "state", "address"]
+    list_display = ['personid', 'title', 'state', 'district']
+
 class MemberBioAdmin(admin.ModelAdmin):
     def name (self,obj):
         member = MemberOfCongress.objects.get(id=obj.id)
@@ -201,6 +205,7 @@ admin.site.register(OrgCampaign, OrgCampaignAdmin)
 admin.site.register(OrgCampaignPosition, OrgCampaignPositionAdmin)
 admin.site.register(OrgContact)
 admin.site.register(MemberOfCongress, MemberOfCongressAdmin)
+admin.site.register(MemberOfCongressRole, MemberOfCongressRoleAdmin)
 admin.site.register(Bill, BillAdmin)
 admin.site.register(Regulation, RegulationAdmin)
 admin.site.register(Slate, SlateAdmin)
