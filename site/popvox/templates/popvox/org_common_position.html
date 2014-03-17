@@ -48,7 +48,7 @@
 		{% if position.campaign.org.createdbyus %}
 		<small><em>* The organization&rsquo;s position on this bill was entered by POPVOX.</em></small>
 		{% endif %}
-        <small><a href="{{org.url}}#{{position.slug}}">link to this position</a></small>
+        <small>Direct link to this position: <a href="{{org.url}}#{{position.slug}}">https://www.popvox.com{{org.get_absolute_url}}#{{position.slug}}</a></small>
 		
 		<div class="hr"> </div>
 	</div>
