@@ -13,8 +13,11 @@ from urllib import urlencode
 from xml.dom import minidom
 from lxml import etree
 from datetime import datetime, date
+import sys
 import re
 import feedparser
+import yaml
+import settings
 
 stateabbrs = ["AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "MP", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV", "WI", "WY"]
 
@@ -131,67 +134,105 @@ def loadpeople():
     if not None in (people, people_list, senators, congresspeople):
         return
 
+    import settings
     people = { }
     senators = { }
     congresspeople = { }
-    xml = etree.parse(open_govtrack_file("us/people.xml"))
-    for node in xml.xpath("person"):
+    stream = open(settings.DATADIR + "govtrack/unitedstates/legislators-current.yaml")
+    docs = yaml.load(stream)
+    stream.close()
+    
+    for doc in docs:
+        sortkey = doc["name"]["last"] + ", " + doc["name"]["first"]
+        if "middle" in doc["name"]:
+            sortkey = sortkey + " " + doc["name"]["middle"]
+        if "official_full" in doc["name"]:
+            fullname = doc["name"]["official_full"]
+        else:
+            fullname = sortkey
         px = {
-            "id": int(node.get("id")),
-            "name": node.get("name"),
-            "lastname": node.get("lastname"),
+            "id": int(doc["id"]["govtrack"]),
+            "name": fullname,
+            "lastname": doc["name"]["last"],
             "current": False,
-            "sortkey": node.get("lastname") + ", " + node.get("firstname") + ((" " + node.get("middlename")) if node.get("middlename") else "")
+            "sortkey": sortkey
         }
-        people[int(node.get("id"))] = px
-                
-        for role in node.xpath("role"):
-            # roles are in chronological order, so the last party sticks
-            if role.get("party") != "":
-                px["party"] = role.get("party")[0]
-            else:
-                px["party"] = "?"
-            
-            if role.get("current") == "1" and role.get("type") in ("sen", "rep"):
+        people[int(doc["id"]["govtrack"])] = px
+# count all terms, get the topmost term, thats the current one
+# since we are pulling data from legislators_current, we assume that all records are of current legislaators
+        count = yaml_count(doc, "type")
+        #sys.stderr.write(" count = " + str(count))
+        obj = doc["terms"][count-1]
+        #sys.stderr.write(" obj = " + str(obj))
+        px["party"] = obj["party"]
+        if "type" in obj:
+            if obj["type"] == "sen" or  obj["type"] == "rep":
                 px["current"] = True
-                px["type"] = role.get("type")
-                px["state"] = role.get("state")
-                px["district"] = int(role.get("district")) if role.get("type") == "rep" else None
-                px["class"] = int(role.get("class")) if role.get("type") == "sen" else None
-                px["address"] = role.get("address")
-                px["url"] = role.get("url")
-                
-                if node.get("facebookgraphid"):
-                    px["facebookgraphid"] = node.get("facebookgraphid")
-            
-                if role.get("type") == "sen":
-                    if not role.get("state") in senators:
-                        senators[role.get("state")] = []
-                    senators[role.get("state")].append(int(node.get("id")))
-                    senators[role.get("state")].sort(key = lambda x : people[x]["sortkey"])
-                    px["sortkey"] += " (Senate)"
+                px["type"] = obj["type"]
+                px["state"] = obj["state"]
+                px["district"] = int(obj["district"]) if obj["type"] == "rep" else None
+                px["class"] = obj["class"] if "class" in obj else None
+                px["address"] = obj["address"] if "address" in obj else None
+                if "url" in obj:
+                    px["url"] = obj["url"]
+
+                px["facebookgraphid"] = node.get("facebookgraphid") if "facebookgraphid" in obj else None
+
+                if obj["type"] == "sen":
+                    if not obj["state"] in senators:
+                        state = obj["state"]
+                        senators[state] = []
+                    state = obj["state"]
+                    senators[state].append(int(doc["id"]["govtrack"]))
+                    senators[state].sort(key = lambda x : people[x]["sortkey"])
+                    sortkey = px["sortkey"]
+                    sortkey = sortkey + " Senator"
+                    px["sortkey"] = sortkey 
                     px["office_id"] = ("%s-S%d" % (px["state"], px["class"]))
-                
-                if role.get("type") == "rep":
-                    congresspeople[role.get("state")+role.get("district")] = int(node.get("id"))
-                    px["sortkey"] += " (House)"
-                    px["office_id"] = ("%s-H%02d" % (px["state"], px["district"]))
+
+                if obj["type"] == "rep":
+                    sortkey1 = px["sortkey"]
+                    sortkey1 = sortkey1 + " (House)"
+                    px["sortkey"] = sortkey1
+                    statedist = str(px["state"]) + str(px["district"])
+                    congresspeople[statedist] = int(doc["id"]["govtrack"])
+
 
     # committee assignments
-    #xml = etree.parse(open_govtrack_file("us/%d/committees.xml" % CURRENT_CONGRESS))
-    xml = etree.parse(open_govtrack_file("us/committees.xml"))
-    for node in xml.xpath("committee|subcommittee"):
-        cid = node.get("code")
+    stream = open(settings.DATADIR + "govtrack/unitedstates/committees-current.yaml")
+    committees = yaml.load(stream)
+    stream.close()
+
+    stream = open(settings.DATADIR + "govtrack/unitedstates/committee-membership-current.yaml")
+    members = yaml.load(stream)
+    stream.close()
+    
+    #sys.stderr.write("after opem")
+    for committee in committees:
+        cid = committee["thomas_id"]
         if cid == "": continue # subcommittee without a code?
-        if node.tag == "subcommittee":
-            cid = node.getparent().get("code") + cid
-        for mnode in node.xpath("member"):
-            pid = int(mnode.get("id"))
+        for member in members[cid]:
+            pid = get_govtrack_person_id( "bioguide", member["bioguide"] )
             if not pid in people: continue
             px = people[pid]
             if not "committees" in px: px["committees"] = []
             if not cid in px["committees"]: px["committees"].append(cid)
-
+        if "subcommittees" in committee:
+            for subcommittee in committee["subcommittees"]:
+                if "thomas_id" in subcommittee:
+                    scid = cid + subcommittee["thomas_id"] 
+                    if scid == "": continue
+                    if scid not in members: continue
+                    #sys.stderr.write(", scid: " + scid)
+                    for member in members[scid]:
+                        pid = get_govtrack_person_id( "bioguide", member["bioguide"] )
+                        if not pid in people: continue
+                        px = people[pid]
+                        if not "committees" in px: px["committees"] = []
+                        if not scid in px["committees"]: px["committees"].append(scid)
+        
+ 
+    #sys.stderr.write(", setting cache now")
     people_list = [ ]
     people_list.extend([p for p in people.values() if p["current"]])
     people_list.sort(key = lambda x : x["sortkey"])
@@ -200,6 +241,52 @@ def loadpeople():
     cache.set("govtrack_people_list", people_list, 60*60*24)
     cache.set("govtrack_senators", senators, 60*60*24)
     cache.set("govtrack_congresspeople", congresspeople, 60*60*24)
+
+def yaml_count(d, s):
+    c = 0
+    if isinstance(d, dict):
+        for k, v in d.iteritems():
+            if k == s: c += 1
+            c += yaml_count(v, s)
+    elif isinstance(d, list):
+        for l in d:
+            c += yaml_count(l, s) 
+    return c
+
+govtrack_person_id_map = {}
+
+# XXX: Modified from congress.get_govtrack_person_id() to reap the benefits of having legislators in scope.
+def get_govtrack_person_id( source_id_type, source_id ):
+    # Load the legislators database to map various IDs to GovTrack IDs.
+    # Cache in a pickled file because loading the whole YAML db is super slow.
+    global govtrack_person_id_map
+    #sys.stderr.write("; in get govetrack person ")
+
+    # On the first call to this function...
+    if not govtrack_person_id_map:
+        govtrack_person_id_map = {}
+        for fn in [ "legislators-historical", "legislators-current" ]:
+            m = {}
+            stream =  open(settings.DATADIR + "govtrack/unitedstates/" + fn + ".yaml" )
+            govtrackmoc = yaml.load(stream)
+            stream.close()
+            for moc in govtrackmoc:
+                if "govtrack" in moc["id"]:
+                    for k, v in moc["id"].items():
+                        if k in [ "bioguide", "lis", "thomas" ]:
+                            m[( k, v )] = moc["id"]["govtrack"]
+
+            # Combine the mappings from the historical and current files.
+            govtrack_person_id_map.update( m )
+
+    # Now do the lookup.
+    if (source_id_type, source_id) not in govtrack_person_id_map:
+        raise UnmatchedIdentifer()
+
+    return str( govtrack_person_id_map[( source_id_type, source_id )] )
+    #congress.get_govtrack_person_id = get_govtrack_person_id
+
+
     
 def getMembersOfCongress():
     global people_list
