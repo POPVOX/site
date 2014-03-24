@@ -37,6 +37,8 @@ with open('campaign_info.csv','w') as info:
             '''except:
                 message = sep
                 position = sep'''
+                
+            optin = record.optin
             
             try:
                 info.write( str(record.campaign) +sep+ str(record.firstname) +sep+ str(record.lastname) +sep+ statedist +sep+ str(record.zipcode) +sep+ str(record.email) +sep+ str(record.created) +sep+ str(record.updated) +sep+ str(record.completed_stage)+ sep +str(position) + sep +str(message) +"\n" )

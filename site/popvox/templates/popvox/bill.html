@@ -440,7 +440,8 @@ function getshorturl() {
                         {% endif %}
                     </h5>
                     {% if org.comment %}
-                        {{org.comment|wraplines:"p style='margin: 0 0 .5em 0'"}}
+                        {{org.comment|truncatewords_html:100|wraplines:"p style='margin: 0 0 .5em 0'"}}
+                        <p><a href="{{org.url}}#{{org.positionslug}}">Read full position statement</a>.</p>
                     {% endif %}
                     {% for cam in org.campaigns %}
                         <p>More Info: <a href="{{cam.url}}">{{cam.name}}</a></p>

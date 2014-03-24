@@ -48,7 +48,7 @@
 			<h1 class="billname no_rule"><a href="#">{{ regulation.title }}</a></h1>
             {% if regulation.description %}
                 <p><strong>Summary: </strong>{{ regulation.description }}<p>
-				<p>Source: <a href="#">regulations.gov</a></p>  
+				<p>Source: <a href="http://www.regulations.gov/#!documentDetail;D={{regulation.regnumber}}">regulations.gov</a></p>  
             {% endif %} 
             {% if regulation.notes %}
                 <p>{{regulation.notes|safe}}</p>

@@ -162,7 +162,7 @@ def org_update_fields(request, field, value, validate_only):
     elif field == "website":
         if value != "" and value[0:7] != "http://":
             value = "http://" + value
-        value = forms.URLField(required=False, verify_exists = True).clean(value) # raises ValidationException
+        value = forms.URLField(required=False).clean(value)
         if not validate_only and value != org.website:
             org.website = value
             org.save()
@@ -206,17 +206,26 @@ def org_update_fields(request, field, value, validate_only):
                     pass
             return { "status": "success", "value": value }
         else:
-            from urllib import urlopen, quote_plus
+            org.twittername = value
+            org.save()
+            return { "status": "success", "value": value }
+            #twitter name verification is broken. The t variable isn't being set right.
+            #for now, just pulling that out and accepting what users enter.
+            '''from urllib import urlopen, quote_plus
             from xml.dom import minidom
             try:
                 t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(value.encode('utf-8'))))
+                sys.stderr.write('line 213\n')
                 er = t.getElementsByTagName('error')
+                sys.stderr.write('line 215\n')
                 if len(er) > 0 and "Rate limit exceeded." in er[0].firstChild.data:
                     if not validate_only and value != org.twittername:
                         org.twittername = value
                         org.save()
                     return { "status": "success", "value": value }
+                sys.stderr.write('line 221\n')
                 value = t.getElementsByTagName('screen_name')[0].firstChild.data
+                sys.stderr.write('line 223\n')
                 if not validate_only and value != org.twittername:
                     org.twittername = value
                     org.save()
@@ -225,8 +234,9 @@ def org_update_fields(request, field, value, validate_only):
                     except:
                         pass
                 return { "status": "success", "value": value }
+                sys.stderr.write('line 232\n')
             except Exception, e:
-                raise ValueError("That is not a Twitter name.")
+                raise ValueError("That is not a Twitter name.")'''
     elif field == "gplusurl":
         if value == "":
             if not validate_only and org.gplusurl != None:

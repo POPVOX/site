@@ -577,13 +577,15 @@ def bill(request, congressnumber, billtype, billnumber, vehicleid):
             }
         if cam.default or grp[cam.org.slug]["comment"] == None:
             grp[cam.org.slug]["comment"] = p.comment
+            grp[cam.org.slug]["positionslug"] = p.slug()
         if not cam.default:
             grp[cam.org.slug]["campaigns"].append(
                 { "name": cam.name,
                      "url": cam.url(),
                      "description": cam.description,
                      "message": cam.message,
-                     "comment": p.comment
+                     "comment": p.comment,
+                     "positionslug": p.slug()
                      })
     # Sort orgs by fan counts.
     def sort_orgs(orgs):

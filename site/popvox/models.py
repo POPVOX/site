@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import django.db.models.signals
 from django.core.mail import send_mail
 from django.core.cache import cache
+from django.core.validators import MaxLengthValidator
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.humanize.templatetags.humanize import ordinal
@@ -990,6 +991,7 @@ class OrgCampaignPosition(models.Model):
     regulation = models.ForeignKey(Regulation, on_delete=models.PROTECT, blank=True, null=True)
     position = models.CharField(max_length=1, choices=POSITION_CHOICES)
     comment = models.TextField(blank=True, null=True)
+    shortcomment = models.TextField(blank=True, null=True, validators=[MaxLengthValidator(300)])
     pdfurl = models.URLField(blank=True, null=True)
     action_headline = models.CharField(max_length=128, blank=True, null=True)
     action_body = tinymce_models.HTMLField(blank=True, null=True) #models.TextField()
@@ -1005,6 +1007,14 @@ class OrgCampaignPosition(models.Model):
         return self.campaign.org.name
     def bill_shortname(self):
         return self.bill.shortname
+    def slug(self):
+        #This is the org slug, the bill type slug, the bill number, and the position, separated by dashes.
+        #For regulations, the org slug, the regnumber, and the position.
+        if self.bill:
+            return str(self.campaign.org.slug) + "-" + self.bill.billtypeslug() + "-" + str(self.bill.billnumber) + "-" + str(self.get_position_display()).lower()
+        else:
+            return self.campaign.org.slug + "-" + self.regulation.regnumber + "-" + self.get_position_display().lower()
+
     def get_absolute_url(self):
         return "/orgs/" + self.campaign.org.slug + "/_action/" + str(self.id)
     def documents(self):
@@ -1838,8 +1848,9 @@ class BillSimilarity(models.Model):
 class ServiceAccountPermission(models.Model):
     name = models.CharField(max_length=20, unique=True)
     notes = models.TextField(blank=True, null=True)
+    
     def __unicode__(self):
-        return self.name
+        return self.name.encode('utf-8')
 
 class ServiceAccount(models.Model):
     """A ServiceAccount contains billing information for an account holder. It may be associated
@@ -1877,9 +1888,9 @@ class ServiceAccount(models.Model):
     customizations = models.TextField(blank=True, null=True, help_text="Appearance Customizations for this account's widgets, stored in JSON.")
 
     def __unicode__(self):
-        if self.name: return self.name
-        if self.user and self.org: return unicode(self.user) + "/" + unicode(self.org)
-        if self.user: return unicode(self.user)
+        if self.name: return unicode(self.name).encode('utf-8', replace)
+        if self.user and self.org: return unicode(self.user.username, 'utf-8') + "/" + unicode(self.org)
+        if self.user: return unicode(self.user.username, 'utf-8')
         if self.org: return unicode(self.org)
         return "Anonymous ServiceAccount"
 
@@ -2033,23 +2044,21 @@ class ServiceAccountCampaign(models.Model):
             campaign=self,
             email=email,
             defaults = kwargs)
-        optin = None
+
         if "optin" in kwargs:
             optin = kwargs.pop("optin")
             if optin == "1":
                 optin = True
             else:
                 optin = False
-        setattr(rec,"optin",optin)
-
+            setattr(rec,"optin",optin)
+        
         if "share_record" in kwargs:
             share_record = kwargs.pop("share_record")
-            if share_record == "1":
-                share_record = True
-            else:
+            if share_record != True:
                 share_record = False
             setattr(rec,"share_record",share_record)
-        
+                
         rec.save()
         if not isnew or "created" in kwargs:
             # Update the record with the new values.
