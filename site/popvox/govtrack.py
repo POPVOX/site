@@ -150,13 +150,35 @@ def loadpeople():
             fullname = doc["name"]["official_full"]
         else:
             fullname = sortkey
+  
         px = {
             "id": int(doc["id"]["govtrack"]),
             "name": fullname,
+            "firstname": doc["name"]["first"],
             "lastname": doc["name"]["last"],
             "current": False,
             "sortkey": sortkey
         }
+        
+        #Yes, I know this is fugly.
+        try:
+            px['thomas'] = int(doc["id"]["thomas"])
+        except:
+            pass
+        try:
+            px['religion'] = doc['bio']['religion']
+        except:
+            pass
+        try:
+            px['birthday'] = doc['bio']['birthday']
+        except:
+            pass
+        try:
+            px['gender'] = doc['bio']['gender']
+        except:
+            pass
+        
+          
         people[int(doc["id"]["govtrack"])] = px
 # count all terms, get the topmost term, thats the current one
 # since we are pulling data from legislators_current, we assume that all records are of current legislaators
