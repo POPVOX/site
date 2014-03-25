@@ -105,7 +105,7 @@ class MemberOfCongress(models.Model):
     twitterid = models.CharField(max_length=255, blank=True, null=True)
     lismemberid = models.CharField(max_length=6, default=None, blank=True, null=True)
     icpsrid = models.IntegerField(default=None, blank=True, null=True)
-    fbid = models.IntegerField(default=None, blank=True, null=True)
+    facebookid = models.CharField(max_length=255, blank=True, null=True)
     thomasid = models.IntegerField(default=None, blank=True, null=True)
     googleplus = models.URLField(blank=True, null= True)
     flickr_id = models.CharField(max_length=100, blank=True, null=True)
