@@ -1087,10 +1087,9 @@ def member_page(request, membername=None):
     member = None
     
     try:
-        memberid = MemberBio.objects.get(pvurl=membername).id
-        member = MemberOfCongress.objects.get(id=memberid)
+        member = MemberOfCongress.objects.get(pvurl=membername)
         
-    except (MemberBio.DoesNotExist, KeyError):
+    except (MemberOfCongress.DoesNotExist, KeyError):
         raise Http404()
         #Now that we have all the members ever, supporting url-hacking is too hard.
         membername = membername.replace("-"," ")
@@ -1146,9 +1145,10 @@ def member_page(request, membername=None):
     if 'age' in mem_data:
         mem_data['age'] = age
     
-    bio = popvox.models.MemberBio.objects.get(id=member.id)
-    mem_data['flickr_id'] = bio.flickr_id
-    mem_data['googleplus'] = bio.googleplus
+    #bio = popvox.models.MemberBio.objects.get(id=member.id)
+    
+    mem_data['flickr_id'] = member.flickr_id
+    mem_data['googleplus'] = member.googleplus
         
 
     govtrack_data = popvox.govtrack.getMemberOfCongress(member.id)
@@ -1248,7 +1248,6 @@ def district_info(request, searchstate=None, searchdistrict=None):
         members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
         members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
         try:
-            print "now here!"
 	        # FIXME when there's census data
             #censusdata = popvox.models.CensusData.objects.get(id=sd)
             censusdata = popvox.models.CensusData.objects.get(id=searchstate)
@@ -1272,7 +1271,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
     
 
     for member in members:
-        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
+        member['pvurl'] = MemberOfCongress.objects.get(id=member['id']).pvurl
 
     filters = {}
     filters["state"] = searchstate
