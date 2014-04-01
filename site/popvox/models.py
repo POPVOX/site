@@ -136,6 +136,15 @@ class MemberOfCongress(models.Model):
         bio = MemberBio.objects.get(id=self.id)
         return bio.pvurl
     
+    def most_recent_role(self):
+        return self.roles.order_by("-enddate")[0]
+    
+    def is_current(self):
+        #this does not handle the case we had last time where congress ran right
+        #up till noon on its last day. we'll need to switch the fields to
+        #datetimes to handle that.
+        return self.most_recent_role().startdate <= datetime.date.today() and datetime.date.today() < self.most_recent_role().enddate
+    
     # Make sure there is a record for every Member of Congress.
     @classmethod
     def init_members(clz):
@@ -152,17 +161,18 @@ class MemberOfCongress(models.Model):
 class MemberOfCongressRole(models.Model):
     TITLE_CHOICES = [ ('REP', 'Rep.'), ('DEL', 'Del.'), ('SEN','Sen.')]
     personeroleid = models.AutoField(primary_key=True,null=False)
-    personid = models.IntegerField(null=False, default=0)
-    type = models.CharField(max_length=8, null=False, default='')
+    member = models.ForeignKey('MemberOfCongress', related_name='roles', blank=True, null=True)
+    personid = models.IntegerField(blank=True, null=True, default=0)
+    type = models.CharField(max_length=8, null=True, blank=True, default='')
     startdate = models.DateField(default=datetime.date.min)
     enddate = models.DateField(default=datetime.date.min)
-    party = models.CharField(max_length=255)
-    state = models.CharField(max_length=5, default=None)
-    district = models.IntegerField(default=None)
-    senateclass = models.IntegerField(default=None)
-    url = models.CharField(max_length=100, default=None)
+    party = models.CharField(max_length=255, blank=True, null=True)
+    state = models.CharField(max_length=5, default=None, blank=True, null=True)
+    district = models.IntegerField(default=None, blank=True, null=True)
+    senateclass = models.IntegerField(default=None, blank=True, null=True)
+    url = models.CharField(max_length=100, default=None, blank=True, null=True)
     title = models.CharField(max_length=3,choices=TITLE_CHOICES, null=False, default='REP')
-    address = models.TextField()
+    address = models.TextField(blank=True, null=True)
                     
 class MemberBio(models.Model):
     id = models.IntegerField(primary_key=True)
