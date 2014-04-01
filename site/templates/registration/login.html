@@ -8,7 +8,7 @@
 	
 		<div class="col_9">
 
-			<h3 class="no_rule">Sign in with your Google, Facebook, or Twitter account <div>or <a href="/accounts/register{% if next %}?next={{next|urlencode}}{% endif %}">create a POPVOX account</a>.</div></h3>
+			<h3 class="no_rule">Sign in with your Facebook account <div>or <a href="/accounts/register{% if next %}?next={{next|urlencode}}{% endif %}">create a POPVOX account</a>.</div></h3>
 			
 			<form method="post" class="login">
 				{% csrf_token %}
@@ -29,7 +29,7 @@
 					</div>
 				</div>
 			
-				<p style="padding-bottom: 1em; border-bottom: 1px dotted #AAA; width: 375px"><span style="font: bold 12px helvetica, arial, sans-serif; text-transform: uppercase;">Don&rsquo;t have an account?</span> If you have a Google, Facebook, or Twitter account, click the appropriate icon on the right. Otherwise, <a href="/accounts/register{% if next %}?next={{next|urlencode}}{% endif %}" style="font-weight: bold">register an account</a>.</p>
+				<p style="padding-bottom: 1em; border-bottom: 1px dotted #AAA; width: 375px"><span style="font: bold 12px helvetica, arial, sans-serif; text-transform: uppercase;">Don&rsquo;t have an account?</span> If you have a Facebook account, click the icon on the right. Otherwise, <a href="/accounts/register{% if next %}?next={{next|urlencode}}{% endif %}" style="font-weight: bold">register an account</a>.</p>
 			
 				{% if errors %}
 				<p class="error">{{errors}} Please try again.</p>
