@@ -1087,7 +1087,7 @@ def member_page(request, membername=None):
     member = None
     
     try:
-        member = MemberOfCongress.objects.get(pvurl=membername)
+        member = MemberOfCongress.objects.get(slug=membername)
         
     except (MemberOfCongress.DoesNotExist, KeyError):
         raise Http404()

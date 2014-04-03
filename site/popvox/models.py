@@ -116,7 +116,16 @@ class MemberOfCongress(models.Model):
     def __unicode__(self):
         return unicode(self.id) + u" " + self.name()
     def name(self):
-        return self.info()["name"]
+        role = self.most_recent_role()
+        if role: 
+            try:
+                party = role.party[0].upper()
+            except:
+                party = ''
+            name = role.title+'. '+self.firstname+' '+self.lastname+' ['+party+' '+role.state+']'
+        else:
+            name = self.firstname+' '+self.lastname
+        return name
     '''def lastname(self):
         return self.info()["lastname"]'''
     def party(self):
@@ -133,17 +142,20 @@ class MemberOfCongress(models.Model):
         return govtrack.getMemberOfCongress(self.id)
         
     def pvurl(self):
-        bio = MemberBio.objects.get(id=self.id)
-        return bio.pvurl
+        return slug
     
     def most_recent_role(self):
-        return self.roles.order_by("-enddate")[0]
+        try:
+            role = self.roles.order_by("-enddate")[0]
+        except:
+            role = None
+        return role
     
     def is_current(self):
-        #this does not handle the case we had last time where congress ran right
-        #up till noon on its last day. we'll need to switch the fields to
-        #datetimes to handle that.
-        return self.most_recent_role().startdate <= datetime.date.today() and datetime.date.today() < self.most_recent_role().enddate
+        if self.most_recent_role():
+            return self.most_recent_role().startdate <= datetime.datetime.now() and datetime.datetime.now() < self.most_recent_role().enddate
+        else:
+            return False
     
     # Make sure there is a record for every Member of Congress.
     @classmethod
@@ -162,10 +174,9 @@ class MemberOfCongressRole(models.Model):
     TITLE_CHOICES = [ ('REP', 'Rep.'), ('DEL', 'Del.'), ('SEN','Sen.')]
     personeroleid = models.AutoField(primary_key=True,null=False)
     member = models.ForeignKey('MemberOfCongress', related_name='roles', blank=True, null=True)
-    personid = models.IntegerField(blank=True, null=True, default=0)
-    type = models.CharField(max_length=8, null=True, blank=True, default='')
-    startdate = models.DateField(default=datetime.date.min)
-    enddate = models.DateField(default=datetime.date.min)
+    memtype = models.CharField(max_length=8, null=True, blank=True, default='')
+    startdate = models.DateTimeField()
+    enddate = models.DateTimeField()
     party = models.CharField(max_length=255, blank=True, null=True)
     state = models.CharField(max_length=5, default=None, blank=True, null=True)
     district = models.IntegerField(default=None, blank=True, null=True)
