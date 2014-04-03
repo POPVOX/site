@@ -127,7 +127,7 @@ def loadpeople():
         
     cache = FileBasedCache("/tmp/popvox%s/cache" % ("_" + os.environ["USER"] if "USER" in os.environ else ""), { })
         
-    #people = cache.get("govtrack_people")
+    people = cache.get("govtrack_people")
     people_list = cache.get("govtrack_people_list")
     senators = cache.get("govtrack_senators")
     congresspeople = cache.get("govtrack_congresspeople")
