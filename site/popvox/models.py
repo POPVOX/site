@@ -122,7 +122,7 @@ class MemberOfCongress(models.Model):
                 party = role.party[0].upper()
             except:
                 party = ''
-            name = role.title+'. '+self.firstname+' '+self.lastname+' ['+party+' '+role.state+']'
+            name = role.get_title_display()+' '+self.firstname+' '+self.lastname+' ['+party+' '+role.state+']'
         else:
             name = self.firstname+' '+self.lastname
         return name
