@@ -381,6 +381,7 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
         b = [c for c in b if c.strip() != ""]
         recs = recs.filter(batch__in = b)
     for ucodr in recs:
+        
         dr = DeliveryRecord()
         dr.target = Endpoint.objects.get(govtrackid=ucodr.target.id, office=getMemberOfCongress(ucodr.target.id)["office_id"])
         dr.trace = "comment #" + unicode(ucodr.comment.id) + " " + methodname + "\nbatch " + ucodr.batch + "\n"
