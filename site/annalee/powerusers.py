@@ -46,8 +46,8 @@ with open('powerusers.csv','w') as info:
         try:
             postaladdress = user.postaladdress_set.order_by('-created')[0]
         except IndexError:
-            print str(user.id)+' '+user.email+' '+str(skipped)
             skipped +=1
+            print str(user.id)+' '+user.email+' '+str(skipped)
             continue
             
         firstname = postaladdress.firstname
@@ -66,7 +66,8 @@ with open('powerusers.csv','w') as info:
             print success
             success +=1
         except UnicodeDecodeError:
-            print str(user.id)+' '+user.email+' '+str(skipped)
             skipped +=1
+            print str(user.id)+' '+user.email+' '+str(skipped)
+            
     print skipped
 
