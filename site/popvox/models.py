@@ -12,7 +12,7 @@ from django.template.defaultfilters import slugify
 
 import sys
 import os, os.path
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from urllib import urlopen
 from xml.dom import minidom
 import re
@@ -29,6 +29,7 @@ import govtrack
 from writeyourrep.models import DeliveryRecord
 
 from popvox import http_rest_json
+
 
 # GENERAL METADATA #
 
@@ -110,7 +111,8 @@ class MemberOfCongress(models.Model):
     googleplus = models.URLField(blank=True, null= True)
     flickr_id = models.CharField(max_length=100, blank=True, null=True)
     slug = models.CharField(max_length=100, blank=True, null=True)
-    documents = models.ManyToManyField("PositionDocument", blank=True, null=True, related_name="owner_moc")
+    current = models.BooleanField(default=False)
+    #documents = models.ManyToManyField("PositionDocument", blank=True, null=True, related_name="owner_moc") #this slows everything way down.
 
 
     def __unicode__(self):
@@ -128,21 +130,20 @@ class MemberOfCongress(models.Model):
         return name
     '''def lastname(self):
         return self.info()["lastname"]'''
-    def party(self):
-        if "party" in self.info():
-            return self.info()["party"]
-        else:
-            return "?"
+        
+    def state(self):
+        return self.most_recent_role().state
             
     def state_district(self):
-        x = self.info()
-        return x["state"] + ("-" + str(x["district"]) if x["type"] == "rep" else "")
+        role = self.most_recent_role()
+        return role.state + ("-" + str(role.district) if role.memtype == "rep" else "")
             
     def info(self):
         return govtrack.getMemberOfCongress(self.id)
         
     def pvurl(self):
-        return slug
+        #holdover from when this lived on a separate table
+        return self.slug
     
     def most_recent_role(self):
         try:
@@ -156,6 +157,30 @@ class MemberOfCongress(models.Model):
             return self.most_recent_role().startdate <= datetime.datetime.now() and datetime.datetime.now() < self.most_recent_role().enddate
         else:
             return False
+        
+    def party(self):
+        if self.most_recent_role().party:
+            return self.most_recent_role().party_initial()
+        else:
+            return "?"
+        
+    def title(self):
+        if self.most_recent_role():
+            return self.most_recent_role().get_title_display()
+        else:
+            return None
+        
+    def age(self):
+        today = date.today()
+        try: # raised when birth date is February 29 and the current year is not a leap year
+            bday = self.birthday.replace(year=today.year)
+        except ValueError:
+            bday = self.birthday.replace(year=today.year, day=born.day-1)
+        if bday > today:
+            age = today.year - self.birthday.year - 1
+        else:
+            age = today.year - self.birthday.year
+        return age
     
     # Make sure there is a record for every Member of Congress.
     @classmethod
@@ -184,6 +209,20 @@ class MemberOfCongressRole(models.Model):
     url = models.CharField(max_length=100, default=None, blank=True, null=True)
     title = models.CharField(max_length=3,choices=TITLE_CHOICES, null=False, default='REP')
     address = models.TextField(blank=True, null=True)
+    
+    def chamber(self):
+        return 'senate' if self.memtype == 'sen' else 'house'
+    
+    def party_initial(self):
+        return self.party[0].upper()
+    
+    def save(self, *args, **kwargs):
+        # After saving a Role, update the Member of congress's current status.
+        super(MemberOfCongressRole, self).save(*args, **kwargs)
+        role = self.member.most_recent_role()
+        current = role.startdate <= datetime.datetime.now() and datetime.datetime.now() < role.enddate
+        self.member.current = current
+        self.member.save()
                     
 class MemberBio(models.Model):
     id = models.IntegerField(primary_key=True)
