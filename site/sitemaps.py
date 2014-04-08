@@ -11,19 +11,12 @@ class MemberpageSitemap(Sitemap):
         return 'daily'
 
     def items(self):
-        today = datetime.today()
-        currentmems = [m for m in MemberOfCongress.objects.all() if m.info()['current']]
-        memlist = []
-        for mem in currentmems:
-            personid = mem.id
-            member = MemberOfCongress.objects.get(id=personid)
-            memlist.append(member)
-        return memlist #excluding past members who don't have member pages anymore.
+        return MemberOfCongress.objects.filter(current=True)
         
     def location(self, obj):
         try:
             return '/member/'+str(obj.pvurl())+"/"
-        except MemberBio.DoesNotExist:
+        except:
             return
     
 
