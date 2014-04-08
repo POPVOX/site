@@ -29,20 +29,20 @@
 	<div class="member">
         {% if memdata.nophoto %}
           <div class="member-photo"><img
-          src="/media/master/nophoto-{{memdata.gender}}.jpg" alt="{{member.name}}"/></div>
+          src="/media/master/nophoto-{{member.gender.lower}}.jpg" alt="{{member.name}}"/></div>
 		{% else %}
           <div class="member-photo"><img
           src="/static/member_photos/{{member.id}}-200px.jpeg" alt="{{member.name}}"/></div>
         {% endif %}
 		
-		<p><span class="member_name">{{memdata.title}} {{memdata.first_name}} {{memdata.last_name}}</span> <span class="member_partydata">[{%if memdata.chamber == "house" %}{%if memdata.state == "DC" or memdata.state == "PR" %}{{memdata.party}}, <a href="/district/{{memdata.state}}">{{memdata.state}}</a>{% else %}{{memdata.party}}, <a href="/district/{{memdata.state}}/{{memdata.district}}"> {{memdata.state}}-{{memdata.district}}</a>{% endif %}{% else %}{{memdata.party}}, <a href="/state/{{memdata.state}}">{{memdata.state}}</a>{% endif %}]</span></p>
+		<p><span class="member_name">{{member.title}} {{member.firstname}} {{member.lastname}}</span> <span class="member_partydata">[{%if memseat.chamber == "house" %}{%if memseat.state == "DC" or memseat.state == "PR" %}{{memseat.party_initial}}, <a href="/district/{{memseat.state}}">{{memseat.state}}</a>{% else %}{{memseat.party_initial}}, <a href="/district/{{memseat.state}}/{{memseat.district}}"> {{memseat.state}}-{{memseat.district}}</a>{% endif %}{% else %}{{memseat.party_initial}}, <a href="/state/{{memseat.state}}">{{memseat.state}}</a>{% endif %}]</span></p>
 	<div class="member-stats">
 		<h3>Member Stats</h3>
 		<table>
 			{% if memdata.committees %}<tr><th>Committees</th>
 				<td><ul>{% for committee in memdata.committees %} <li>{{ committee }}</li> {% endfor %}</ul></td></tr>{%endif%}
-			<!--<tr><th>Age</th><td>{{ memdata.age }}</td></tr>-->
-			<tr><th>Birth Date</th>	<td>{{ memdata.birthday|date:"m/d/Y" }}</td></tr>
+			<tr><th>Age</th><td>{{ member.age }}</td></tr>
+			<tr><th>Birth Date</th>	<td>{{ member.birthday|date:"m/d/Y" }}</td></tr>
 		</table>
 	</div><!--end member-stats -->
 	</div><!--end member -->
@@ -64,9 +64,9 @@
 									<a href="{{bill.url}}/report">
 	                           			<div id="sponsoredtwo_part_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("sponsoredtwo_part_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div>
 							   		</a>
-								<p class="usercount">sentiment of {{total}} users in {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s {{scope}}</p>
+								<p class="usercount">sentiment of {{total}} users in {{member.title}} {{member.firstname}} {{member.lastname}}'s {{scope}}</p>
 								{% else %}
-								<p class="toofew">Too few of {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
+								<p class="toofew">Too few of {{member.title}} {{member.firstname}} {{member.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
 									<p class="takeaction">For comments left so far <a href="{{bill.url}}/report">view  the report.</a></p>
 								{% endif %}
 	                              </li>
@@ -83,9 +83,9 @@
 								{% if pro or con %}
 									<a href="{{bill.url}}/report">
 	                					<div id="cosponsored_bar_{{forloop.counter}}" class="bar_graph"><script type="text/javascript">two_part_bar_chart("cosponsored_bar_{{forloop.counter}}", {{pro|floatformat}}, {{con|floatformat}}, { bg: "#D4D1CA", nopad: true, left_label: "Support", right_label: "Oppose" });</script></div></a>
-								<p class="usercount">sentiment of {{total}} users in {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s district</p>
+								<p class="usercount">sentiment of {{total}} users in {{member.title}} {{member.firstname}} {{member.lastname}}'s district</p>
 								{% else %}
-									<p class="toofew">Too few {{memdata.title}} {{memdata.firstname}} {{memdata.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
+									<p class="toofew">Too few {{member.title}} {{member.firstname}} {{member.lastname}}'s constituents have commented on {{bill.shortname}} to display statistics.</p>
 									<p class="takeaction">For comments left so far <a href="{{bill.url}}/report">View report.</a></p>
 								{% endif %}
 	             </li>
@@ -100,19 +100,20 @@
 	<h2>Info</h2>
 	<div class="member-info-inner">
 	<h3>Web</h3>
-		{% if memdata.website %}<a href="{{memdata.website}}">{{memdata.website}}</a>{% endif %}
+		{% if memseat.url %}<a href="{{memseat.url}}">{{memseat.url}}</a>{% endif %}
 	<h3>Social</h3>
 	<ul class="social-links">
-		{% if memdata.facebook_id %}<li><a class="facebook" href="http://facebook.com/{{memdata.facebook_id}}"></a></li>{% endif %}
-		{% if memdata.youtube_url %}<li><a class="youtube" href="{{memdata.youtube_url}}"></a></li>{% endif %}
-		{% if memdata.twitter_id %}<li><a class="twitter" href="http://twitter.com/{{memdata.twitter_id}}"></a></li>{% endif %}
-		{#comment {% if memdata.flickr_id %}<li><a class="flickr" href="http://flickr.com/photos/{{memdata.flickr_id}}">Flickr</a></li>{% endif %}{ #}
-	    {% if memdata.googleplus %}<li><a class="googleplus" href="{{memdata.googleplus}}">G Plus</a></li>{% endif %}
+		{% if member.facebookid %}<li><a class="facebook" href="http://facebook.com/{{member.facebookid}}"></a></li>{% endif %}
+		{% if member.youtubeid %}<li><a class="youtube" href="https://www.youtube.com/channel/{{member.youtubeid}}"></a></li>{% endif %}
+		{% if member.twitterid %}<li><a class="twitter" href="http://twitter.com/{{member.twitterid}}"></a></li>{% endif %}
+		{% if member.flickr_id %}<li><a class="flickr" href="http://flickr.com/photos/{{member.flickr_id}}">Flickr</a></li>{% endif %}
+	    {% if member.googleplus %}<li><a class="googleplus" href="{{member.googleplus}}">G Plus</a></li>{% endif %}
 	</ul>
 {% if memdata.last_vid %}
-<iframe width="280" height="170" src="http://www.youtube-nocookie.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>{% endif %}
+<iframe width="280" height="170" src="//www.youtube.com/embed/{{memdata.last_vid}}" frameborder="0" allowfullscreen></iframe>
+{% endif %}
 <hr>
-{% if memdata.twitter_id %}
+{% if member.twitterid %}
     <script type="text/javascript" charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
     <script type="text/javascript">
     new TWTR.Widget({
@@ -139,13 +140,13 @@
         live: true,
         behavior: 'all'
       }
-    }).render().setUser('{{memdata.twitter_id}}').start();
+    }).render().setUser('{{member.twitterid}}').start();
     </script>
 {% endif %}
 
 	<h3>Address</h3>
 	<p>Washington, DC:<br/>
-{{memdata.office}}<br/>
+{{memseat.address}}<br/>
 Washington, DC 20515</p>
 	</div></div><!--end member-info -->
 
