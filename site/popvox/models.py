@@ -292,7 +292,7 @@ class Regulation(models.Model):
         return "#" + str(self.regnumber)
     
     def daysleft(self):
-        if self.isAlive:
+        if self.isAlive():
             days = self.commentperiod_closed_date - datetime.datetime.now()
             return days.days
         else:
