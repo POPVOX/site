@@ -127,7 +127,7 @@ def congress_match(request):
         members.append(popvox.govtrack.getMemberOfCongress(id))
 
     for member in members:
-        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
+        member['pvurl'] = popvox.models.MemberOfCongress.objects.get(id=member['id']).pvurl
         
     return render_to_response('popvox/home_match.html', {'billvotes': billvotes, 'members': members, 'most_recent_address': most_recent_address, 'changeddistrict': changeddistrict, 'stats': stats, 'had_abstain': had_abstain, 'type':"match"},
         context_instance=RequestContext(request))
@@ -219,7 +219,7 @@ def key_votes(request, orgslug=None, slateslug=None):
 
 
     for member in members:
-        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
+        member['pvurl'] = popvox.models.MemberOfCongress.objects.get(id=member['id']).pvurl
         
     #merging stats into member info
     x = 0

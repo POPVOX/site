@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 import unicodedata
 
 sep = "\t"
-sac = pv.ServiceAccount.objects.get(id=1196)
+sac = pv.ServiceAccount.objects.get(id=6045)
 
 #paidaccount ids:
     #Mayors Against Illegal Guns: 2882
@@ -38,15 +38,23 @@ with open('campaign_info-addresses.csv','w') as info:
                 comment = None
                 
             if comment:
-                address1 = unicodedata.normalize('NFKD',comment.address.address1).encode('ascii','ignore').replace("\n"," ")
-                address2 = unicodedata.normalize('NFKD',comment.address.address2).encode('ascii','ignore').replace("\n"," ")
-                city    = comment.address.city
-                state   = comment.address.state
-                message = comment.message
+                try:
+                    address1 = unicodedata.normalize('NFKD',comment.address.address1).encode('ascii','ignore').replace("\n"," ")
+                    address2 = unicodedata.normalize('NFKD',comment.address.address2).encode('ascii','ignore').replace("\n"," ")
+                    city    = comment.address.city
+                    state   = comment.address.state
+                    message = comment.message
                 
-                if message:
-                    message = unicodedata.normalize('NFKD',message).encode('ascii','ignore').replace("\n"," ")
-                    message = message.replace("\r","")
+                    if message:
+                        message = unicodedata.normalize('NFKD',message).encode('ascii','ignore').replace("\n"," ")
+                        message = message.replace("\r","")
+                        
+                except:
+                    address1 = ''
+                    address2 = ''
+                    city     = ''
+                    state    = ''
+                    message  = ''
             else:
                 address1 = ''
                 address2 = ''
@@ -64,6 +72,7 @@ with open('campaign_info-addresses.csv','w') as info:
             else:
                 tags = ''
                 
-            
-            info.write( str(firstname) +sep+ str(lastname) +sep+ statedist +sep+ str(address1)+sep+ str(address2)+sep+ str(city)+sep+ str(state) +sep+ str(record.zipcode) +sep+ str(record.email) +sep+ str(record.created) +sep+ str(record.updated) +sep+ str(record.completed_stage)+ sep +str(message) + sep + str(tags) +"\n" )
+            optin = record.optin
+
+            info.write( str(firstname) +sep+ str(lastname) +sep+ statedist +sep+ str(address1)+sep+ str(address2)+sep+ str(city)+sep+ str(state) +sep+ str(record.zipcode) +sep+ str(record.email) +sep+ str(record.created) +sep+ str(record.updated) +sep+ str(record.completed_stage)+ sep +str(message) + sep + str(tags) + str(optin)+"\n" )
             

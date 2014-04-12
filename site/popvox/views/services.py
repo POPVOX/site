@@ -335,7 +335,10 @@ def widget_render_writecongress_page(request, account, permissions):
                 # don't tie this request to the org if the request is not under a
                 # verified api_key for that org.
                 org = ocp.campaign.org
-                reason = ocp.comment
+                if ocp.shortcomment:
+                    reason = ocp.shortcomment
+                else:
+                    reason = ocp.comment
             
         if account != None:
             if bill:
@@ -463,7 +466,6 @@ def widget_render_writecongress_action(request, account, permissions):
     share_record = False
     if "collect_analytics" in permissions:
         share_record = True
-
     
     ########################################
     if request.POST["action"] == "get-user-info":
@@ -576,15 +578,15 @@ def widget_render_writecongress_action(request, account, permissions):
             
             campaign = ServiceAccountCampaign.objects.get(id=request.POST["campaign"])
             if "email_optin" in request.POST:
-                optin = request.POST["email_optin"]
+                email_optin = request.POST["email_optin"]
             else:
-                optin = None
+                email_optin = None
             campaign.add_action_record(
                 firstname = identity["firstname"],
                 lastname = identity["lastname"],
                 zipcode = identity["zipcode"],
                 email = identity["email"],
-                optin = optin,
+                optin = email_optin,
                 completed_stage = "start",
                 referrer = INITIAL_REFERRER,
                 share_record = share_record,
@@ -619,13 +621,14 @@ def widget_render_writecongress_action(request, account, permissions):
 
             # Record the information for the org. This also occurs at the point of new user information, checking the address, and submit.
             if "campaign" in request.POST and "demo" not in request.POST:
+
                 if "email_optin" in request.POST:
-                    optin = request.POST["email_optin"]
+                    email_optin = request.POST["email_optin"]
                 else:
-                    optin = None
+                    email_optin = None
                 ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
                     email = email,
-                    optin = optin,
+                    optin = email_optin,
                     completed_stage = "login",
                     share_record = share_record,
                     request_dump = meta_log(request.META) )
@@ -661,16 +664,17 @@ def widget_render_writecongress_action(request, account, permissions):
 
         # Record the information for the org. This also occurs at the point of new user and returning user login and submit.
         if "campaign" in request.POST and "demo" not in request.POST:
+            
             if "email_optin" in request.POST:
-                optin = request.POST["email_optin"]
+                email_optin = request.POST["email_optin"]
             else:
-                optin = None
+                email_optin = None
             ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
                 email = request.POST["email"],
                 firstname = request.POST["useraddress_firstname"],
                 lastname = request.POST["useraddress_lastname"],
                 zipcode = request.POST["useraddress_zipcode"],
-                optin = optin,
+                optin = email_optin,
                 share_record = share_record,
                 completed_stage = "address",
                 request_dump = meta_log(request.META) )
@@ -712,7 +716,6 @@ def widget_render_writecongress_action(request, account, permissions):
         if request.POST["csrf_token"] != compute_csrf_token(request):
             return { "status": "fail", "msg": "CSRF check failed: Incorrect value." }
         if request.POST["regulation"] and not request.POST["message"]:
-            sys.stderr.write("message is indeed blank!")
             return { "status": "fail", "msg": "Please go back and enter a comment on this regulation." } 
         
         cdyne_response = json.loads(request.POST["cdyne_response"])
@@ -787,16 +790,17 @@ def widget_render_writecongress_action(request, account, permissions):
 
         # Record the information for the org. This also occurs at the point of new user and returning user login and address.
         if "campaign" in request.POST and "demo" not in request.POST:
+            
             if "email_optin" in request.POST:
-                optin = request.POST["email_optin"]
+                email_optin = request.POST["email_optin"]
             else:
-                optin = None
+                email_optin = None
             ServiceAccountCampaign.objects.get(id=request.POST["campaign"]).add_action_record(
                 email = request.POST["email"],
                 firstname = request.POST["useraddress_firstname"],
                 lastname = request.POST["useraddress_lastname"],
                 zipcode = request.POST["useraddress_zipcode"],
-                optin = optin,
+                optin = email_optin,
                 share_record = share_record,
                 completed_stage = status if status != "submitted" else "finished",
                 request_dump = meta_log(request.META) )
@@ -849,11 +853,9 @@ def widget_render_writecongress_get_identity(user, address=None):
         }
 
 def widget_render_writecongress_getsubmitparams(post, account):
-    #FIXME needs to return share_record, but that's going to cause 'too many values to unpack errors so leaving it be till I'm ready to fix this for real
     referrer = account
     campaign = None
     optin = None
-    share_record = None
     if "campaign" in post:
         try:
             # Because this is called from an email callback and a
@@ -869,7 +871,6 @@ def widget_render_writecongress_getsubmitparams(post, account):
     if len(message.strip()) < 8: message = None
     
     if "optin" in post: optin = post.get("optin", "0") == "1"
-    if "share_record" in post: share_record = post.get("share_record", "0") == "1"
     
     return referrer, campaign, message, optin
 

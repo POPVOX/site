@@ -65,11 +65,11 @@ comments_iter = UserComment.objects.filter(
     bill__congressnumber=CURRENT_CONGRESS,
     status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
     #this next line is to send only recent comments:
-    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=45)
+    updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=30)
     #to send very old comments:
     #updated__lt=datetime.datetime.now()-datetime.timedelta(days=45), updated__gt=lcenddate
     #this line is our standard send:
-    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate# let users revise
+    #updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=lcenddate
     )
 
 if "COMMENT" in os.environ:
@@ -592,11 +592,13 @@ print "Success:", success
 print "Failure:", failure
 print "Agency Failures:", exec_delivery_failed
 if duplicate_records:
+    print "Duplicate Records:"
     for comment, records in duplicate_records.iteritems():
-        print "comment id: "+str(comment)
+        print records
+        '''print "comment id: "+str(comment)
         print "duplicates:"
         for rec in records:
-            print rec
+            print rec'''
 print "Needs Attention:", needs_attention
 print "Pending:", pending
 print "Held for Offline Delivery:", held_for_offline

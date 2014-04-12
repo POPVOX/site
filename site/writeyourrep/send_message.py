@@ -286,6 +286,7 @@ common_fieldnames = {
     "home-phone": "phone",
     "required-phone": "phone",
     "daytime-phone": "phone",
+    "phn": "phone",
     "emailaddress": "email",
     "email_address": "email",
     "email_verify": "email",
@@ -313,10 +314,12 @@ common_fieldnames = {
     "body": "message",
     "claim": "message",
     "message_require": "message",
+    "additionalcomments": "message",
     
     "textmodified": "message_personal",
     "modified": "message_personal",
 
+    "subject": "subjectline",
     "messagesubject": "subjectline",
     "messageSubject_required": "subjectline",
     "email_subject": "subjectline",
@@ -348,6 +351,8 @@ common_fieldnames = {
     "field_6544a2ff-bc89-4c03-b786-c7927f5bc6f7": "topicarea",
     "field_ff576494-50ce-42fc-aff0-a14f510dc4d8": "topicarea",
     "subject_require": "topicarea",
+    "leg-issues": "topicarea",
+    "issue": "topicarea",
     
     "responserequested": "response_requested",
     "responserequest": "response_requested",
@@ -393,6 +398,24 @@ common_fieldnames = {
     'address.state.id': "state",
     'address.zip': "zipcode",
     'briefComment': "message",
+    
+    #Reid's Form
+    "cf_field_2": "prefix",
+    "cf_field_3": "firstname",
+    "cf_field_4": "lastname",
+    "cf_field_5": "address1",
+    "cf_field_6": "city",
+    "cf_field_7": "state",
+    "cf_field_8": "zipcode",
+    "cf_field_9": "email",
+    "cf_field_10": "phone",
+    "cf_field_11": "phone",
+    "cf_field_12": "topicarea",
+    "cf_field_13": "message",
+    
+    #McGovern
+    "ctl00_ctl06_Street": "address1",
+    
     
     
     #Numbered senate fields
@@ -442,6 +465,9 @@ common_fieldnames = {
     
     "field_6dce4fee-bdb8-4dad-9496-d121f71a4bd9": "topicarea",
     "field_4bbb4940-5fa9-43e1-9f05-0a9eb169c378": "message",
+    
+    "field_3a2a6994-b89f-41c9-92a7-06d732a05c98": "zip4",
+    "field_9982fec2-4791-45e6-863f-a2622820da95": "phone",
     }
 
 # Here are field names that we assume are optional everywhere.
@@ -490,6 +516,9 @@ skippable_fields = (
     "submitted[delivery_agent_non_us_state]",
     "submitted[delivery_agent_country]",
     
+    #Reid's Form
+    "cf_field_9", "cf_field_10",
+    
     #Cantor's survey
     "ratings[how_is_the_113th_congress_doing?]",
     "ratings[is_the_113th_congress_addressing_the_issues_that_concern_you?]",
@@ -505,9 +534,17 @@ skippable_fields = (
     
     #National Park Service
     "authormiddleinitial", "howdidyouhear", "liketohear", "country",
+    
+    "ctl03$facebookidcontrol",
+    
+    #search bar on zipstage:zipauthform,custom_form:
+    "searchkey",
+    
+    #what?
+    "gender",
 
 
-    "agency", "prefixother", "middle", "middlename", "suffix", "preferredname",
+    "agency-issues", "agency", "prefixother", "middle", "middlename", "suffix", "preferredname",
     "name_middle",     "middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "esignup", "townhall", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
     "countdown",
     "affll",
@@ -551,6 +588,7 @@ skippable_fields = (
     "ctl04$facebookidcontrol",
     "uscgr",
     "twitter",
+    "input_17",
     )
 
 radio_choices = {
@@ -625,6 +663,7 @@ custom_mapping = {
     "741_field_a8731eec-5954-4ac5-a623-b840d3f4d9fc_select": "topicarea",
     "741_field_59e68b70-1f23-4b9a-a19c-e40156896a9b_textarea": "message",
     "752_input_1_12_select": "prefix",
+    "752_input_1_16_text": "message",
     "755_field_e5d28fe4-5b68-4619-9940-81168686475d_radio": "response_requested",
     "757_name_text": "firstname",
     "761_phone1_text": "phone_areacode",
@@ -738,6 +777,7 @@ custom_overrides = {
     "757_affl_select": "no-action",
     "761_contact_nature_select": "comment or question",
     "761_enews_radio": "no",
+    '764_phonetype_radio': 'voice',
     "776_formfield1234567891_text":"0",
     "776_formfield1234567892_text":"2",
     "776_formfield1234567894_text": "",
@@ -760,7 +800,7 @@ custom_overrides = {
     '1060_phonetype_radio': 'voice',
     '1088_id_authorCountryAbbr_select': 'USA',
     '1088_usertype_radio': 'member',
-    #'1088_id_member_radio': 'member',
+    '1093_subscribe_select': 'N',
 }
 
 # Supply additional POST data from the message object that doesn't correspond to a form field.
@@ -1374,7 +1414,7 @@ def send_message_webform(endpoint, msg, deliveryrec):
         
     # Thess guys have some weird restrictions on the text input to prevent the user from submitting
     # SQL... rather than just escaping the input.
-    if endpoint.id in (13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 663, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 850, 851, 857, 861, 869, 878, 882, 892, 899, 916, 946, 962, 988, 990, 1016, 1037, 1040, 1054, 1056, 1060, 1080, 1088):
+    if endpoint.id in (6, 13, 37, 61, 121, 124, 140, 147, 150, 159, 161, 166, 176, 192, 209, 221, 226, 228, 235, 244, 246, 280, 316, 319, 332, 324, 341, 386, 390, 410, 426, 458, 528, 556, 570, 577, 585, 586, 588, 598, 599, 600, 604, 605, 606, 607, 608, 610, 611, 613, 621, 639, 641, 646, 649, 652, 654, 663, 665, 674, 678, 688, 691, 693, 703, 706, 709, 710, 711, 713, 717, 718, 725, 730, 734, 736, 739, 746, 749, 750, 753, 756, 774, 775, 780, 783, 784, 787, 788, 789, 791, 798, 805, 807, 808, 809, 811, 826, 827, 837, 840, 850, 851, 857, 861, 869, 878, 882, 892, 899, 916, 946, 962, 988, 990, 1016, 1037, 1040, 1054, 1056, 1060, 1080, 1088):
         re_sql = re.compile(r"select|insert|update|delete|drop|--|alter|xp_|execute|declare|information_schema|table_cursor", re.I)
         for k in postdata:
             postdata[k] = re_sql.sub(lambda m : m.group(0)[0] + "." + m.group(0)[1:] + ".", postdata[k]) # the final period is for when "--" repeats
@@ -1493,6 +1533,7 @@ def send_message_webform(endpoint, msg, deliveryrec):
     "Thank you for your e-mail submission",
     "Thank you for your email",
     "Thank you for contacting my office",
+    "Thank you for contacting our office",
     "Thank you for your message",
     "Thank you for submitting your information",
     "The following information was sent to us",
@@ -1502,8 +1543,13 @@ def send_message_webform(endpoint, msg, deliveryrec):
     "Thank you for taking the time to write me"
     "Thank you, your message has been submitted",
     "Thank you for taking the time to write me",
+    "Thank you for taking the time to share your thoughts and concerns with me",
+    "Thank you for taking the time to contact me",
+    "Your form has been successfully submitted",
+    "Your request has been successfully submitted",
     "Your message has been successfully submitted",
-    "Your message has been submitted"]
+    "Your message has been submitted",
+    "Your message has been received"]
     
     for x in common_responses:
         if x in ret:

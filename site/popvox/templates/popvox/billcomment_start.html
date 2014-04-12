@@ -15,15 +15,15 @@ mpmetrics.track('comment start', { 'bill': '{{bill.displaynumber|escapejs}}', 'p
 <script type="text/javascript" src="/media/js/lettertips.js"> </script>
 <script type="text/javascript">
 function validate_form() {
-	var m = $('#message').hasClass('default') ? "" : $('#message').val().replace(/^\s+|\s+$/g, '');
-	if (m == "") {
-		alert("You must enter a message explaining your view.");
-		return false;
-	} else if (m.length > 2400) {
-		alert("Your message is too long.");
-		return false;
-	}
-	return true;
+    var m = $('#message').hasClass('default') ? "" : $('#message').val().replace(/^\s+|\s+$/g, '');
+    if (m == "") {
+        alert("You must enter a message explaining your view.");
+        return false;
+    } else if (m.length > 2400) {
+        alert("Your message is too long.");
+        return false;
+    }
+    return true;
 }
 </script>
 <style>
@@ -33,137 +33,138 @@ function validate_form() {
 {% block content %}
 <div class="content">
 
-	{% with "start" as billcomment_progress_step %}
-	{% include "popvox/billcomment_progress.html" %}
-	{% endwith %}
+    {% with "start" as billcomment_progress_step %}
+    {% include "popvox/billcomment_progress.html" %}
+    {% endwith %}
 
-	<div class="tab_pane commentProcess">
+    <div class="tab_pane commentProcess">
 
-	{% if has_been_delivered %}
-	<div class="calloutr">
-		<p>Your letter has already been delivered to one or more of your Members of Congress. You can still revise your letter as it
-		is displayed publicly on POPVOX. If we have not yet sent your letter to all of your Members of Congress, we will send your latest
-		changes. However, we will not send your revised letter to Members of Congress that we have already delivered your comment to.</p>
-	</div>
-	{% endif %}
-	
-	<noscript>
-		<p><strong>We are not able to check if you have cookies enabled in your browser. Cookies
-		are required to leave a comment on legislation on POPVOX.</strong></p>
-		<hr/>
-	</noscript>
+    {% if has_been_delivered %}
+    <div class="calloutr">
+        <p>Your letter has already been delivered to one or more of your Members of Congress. You can still revise your letter as it
+        is displayed publicly on POPVOX. If we have not yet sent your letter to all of your Members of Congress, we will send your latest
+        changes. However, we will not send your revised letter to Members of Congress that we have already delivered your comment to.</p>
+    </div>
+    {% endif %}
+    
+    <noscript>
+        <p><strong>We are not able to check if you have cookies enabled in your browser. Cookies
+        are required to leave a comment on legislation on POPVOX.</strong></p>
+        <hr/>
+    </noscript>
 
-	<h1 class="h1_smaller" style="font-size: 35px; margin-bottom: 30px;">Send a Letter to Congress</h1>
-	
-	{% if position == "0" %}
-		<p style="margin-top: 1em; margin-bottom: 1em;">You are about to clear your position on this bill.</p>
+    <h1 class="h1_smaller" style="font-size: 35px; margin-bottom: 30px;">Send a Letter to Congress</h1>
+    
+    {% if position == "0" %}
+        <p style="margin-top: 1em; margin-bottom: 1em;">You are about to clear your position on this bill.</p>
 
-		<form name="clearcomment" method="post">
-		{% csrf_token %}
-		<p><input id="submitcomment_clear" type="submit" name="submitmode" value="Clear Comment >"/></p>
-		</form>
-	{% endif %}
-	
+        <form name="clearcomment" method="post">
+        {% csrf_token %}
+        <p><input id="submitcomment_clear" type="submit" name="submitmode" value="Clear Comment >"/></p>
+        </form>
+    {% endif %}
+    
 
-	{% if position != "0" %}
-		{% if bill.died %}
-		<p>{{bill.displaynumber_nosession}} was introduced in a previous Congress. You are about to show your support for the reintroduction of this bill.</p>
-		{% else %}
-			<p style="padding: 15px 0 15px 30px; font-size: 120%; background: #d4d1ca;">&ldquo;I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.nicename|truncatewords:7 }}.&rdquo;</p>
-			{% if not message_is_new %}
-				<p style="padding: 8px 0 0 30px; font: normal italic 12px/18px georgia, serif;">change from {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} to <a href="{{bill.url}}/comment/{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}">{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}</a>
-				or <a href="{{bill.url}}/comment/clear">delete your comment</a></p>
-			{% endif %}
-		{% endif %}
-	
-		<p style="margin-top: 2em; margin-bottom: 1em;">Would you like to add a personal message to your letter?</p>
-		<div class="pad_btm">
-			<input id="writemessage0"  type="radio" name="writemessage" {% if not message %}checked="1"{% endif %} onclick="$('#message_container').hide(); $('#nomessage_container').fadeIn()"/>
-			<label for="writemessage0">No, I have nothing personal to add.</label>
-		</div>
-		<div>
-			<input id="writemessage1" type="radio" name="writemessage" {% if message %}checked="1"{% endif %} onclick="$('#message_container').fadeIn(); $('#nomessage_container').hide()"/>
-			<label for="writemessage1">Yes, I have a personal story to tell my Members of Congress.</label>
-		</div>
+    {% if position != "0" %}
+        {% if bill.died %}
+        <p>{{bill.displaynumber_nosession}} was introduced in a previous Congress. You are about to show your support for the reintroduction of this bill.</p>
+        {% else %}
+            <p style="padding: 15px 0 15px 30px; font-size: 120%; background: #d4d1ca;">&ldquo;I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.nicename|truncatewords:7 }}.&rdquo;</p>
+            {% if not message_is_new %}
+                <p style="padding: 8px 0 0 30px; font: normal italic 12px/18px georgia, serif;">change from {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} to <a href="{{bill.url}}/comment/{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}">{% if position == "+" %}oppose{% endif %}{% if position == "-" %}support{% endif %}</a>
+                or <a href="{{bill.url}}/comment/clear">delete your comment</a></p>
+            {% endif %}
+        {% endif %}
+                
+        <p style="margin-top: 2em; margin-bottom: 1em;">Would you like to add a personal message to your letter?</p>
+        <div class="pad_btm">
+            <input id="writemessage0"  type="radio" name="writemessage" onclick="$('#message_container').hide(); $('#nomessage_container').fadeIn()"/>
+            <label for="writemessage0">No, I have nothing personal to add.</label>
+        </div>
+        <div>
+            <input id="writemessage1" type="radio" name="writemessage" checked="1" onclick="$('#message_container').fadeIn(); $('#nomessage_container').hide()"/>
+            <label for="writemessage1">Yes, I have a personal story to tell my Members of Congress.</label>
+                       
+        </div>
 
-		<div id="nomessage_container"  {% if message %}style="display: none"{% endif %}>
+        <div id="nomessage_container" style="display: none">
 
-		<p style="margin-top: 1em; margin-bottom: 1.75em;">When Members of Congress are undecided on a bill, they are most influenced by personalized communications from constituents. Your position will be sent to your Representative and Senators. </p>
-		
-		<form name="nocomment" method="post">
-		{% csrf_token %}
-		<p>
-			<input class="b_back btn" type="button" value="Cancel" onclick="document.location = '{{bill.url|escapejs}}';"/>
-			{% if user.is_authenticated %}
-			<input class="b_next btn" type="submit" name="submitmode" value="Next >"/>
-			{% else %}
-			<input class="b_next btn" id="submitcomment_nocomment" type="submit" name="submitmode" value="Preview >"/>
-			{% endif %}
-		</p>
-		</form>
-		<!--<p><strong>Click Next to continue! Your position hasn&rsquo;t been saved yet.</strong></p>-->
-		</div>		
-		
-		<div id="message_container" {% if not message %}style="display: none"{% endif %}>
-	
-		<p style="margin-top: 1.5em;">Explain why your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.shortname}}.</p>
-		
-		<form name="yescomment" method="post" onsubmit="return validate_form()">
-		{% csrf_token %}
+        <p style="margin-top: 1em; margin-bottom: 1.75em;">When Members of Congress are undecided on a bill, they are most influenced by personalized communications from constituents. Your position will be sent to your Representative and Senators. </p>
+        
+        <form name="nocomment" method="post">
+        {% csrf_token %}
+        <p>
+            <input class="b_back btn" type="button" value="Cancel" onclick="document.location = '{{bill.url|escapejs}}';"/>
+            {% if user.is_authenticated %}
+            <input class="b_next btn" type="submit" name="submitmode" value="Next >"/>
+            {% else %}
+            <input class="b_next btn" id="submitcomment_nocomment" type="submit" name="submitmode" value="Preview >"/>
+            {% endif %}
+        </p>
+        </form>
+        <!--<p><strong>Click Next to continue! Your position hasn&rsquo;t been saved yet.</strong></p>-->
+        </div>      
+        
+        <div id="message_container">
+    
+        <p style="margin-top: 1.5em;">Explain why your Members of Congress should {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{bill.shortname}}.</p>
+        
+        <form name="yescomment" method="post" onsubmit="return validate_form()">
+        {% csrf_token %}
 
-		<div class="commentTip">
-			<div class="tip_point"></div>
-			<p class="commentP">We will send your message to your Representative or Senator and will post it anonymously on POPVOX.
-			{% comment %}{% if user.is_authenticated %}Privacy Note: Your comment will be shared with others on POPVOX who will see your name as <strong>{{user.username}}</strong>, and with your Members of Congress who will see your full name and address.{% endif %}{% endcomment %}</p>
+        <div class="commentTip">
+            <div class="tip_point"></div>
+            <p class="commentP">We will send your message to your Representative or Senator and will post it anonymously on POPVOX.
+            {% comment %}{% if user.is_authenticated %}Privacy Note: Your comment will be shared with others on POPVOX who will see your name as <strong>{{user.username}}</strong>, and with your Members of Congress who will see your full name and address.{% endif %}{% endcomment %}</p>
 
-		<div id="messagetipcontainer" style="display: none">
-			<h5 style="padding-top: 0">Letter Writing Tips</h5>
-			<p id="messagetip"></p>
-		</div>
-		</div>
+        <div id="messagetipcontainer" style="display: none">
+            <h5 style="padding-top: 0">Letter Writing Tips</h5>
+            <p id="messagetip"></p>
+        </div>
+        </div>
 
-		<div class="form mar_top">
-			<textarea class="c5 h4" id="message" name="message" wrap="virtual">{% if message %}{{message}}{% else %}I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_parens_if_too_long }} because...{% endif %}</textarea>
-			<div id="messageerror"></div>
-			<script type="text/javascript">
-			{% if not message %}
-			$('#message').input_default();
-			{% endif %}
-			$('#message').textchange(function() { validate('message'); });
-			</script>
-		</div>
-		
-		<p id="submitstatus" style="font-weight: bold"/>
-		
-		<p>
-			<input class="b_back btn" type="button" value="Cancel" onclick="if ($('#message').hasClass('default') || confirm('Are you sure you want to cancel and discard your comment?')) document.location = '{{bill.url|escapejs}}';"/>
-			<input class="b_preview btn" id="submitcomment_yescomment" type="submit" name="submitmode" value="Preview >"/>
-		</p>
-	
-		{% comment %}<p>During the testing phase of POPVOX we are not yet sending comments to Members of Congress, but they will be able to find your message here.</p>{% endcomment %}
-		
-		</form>
-		
-		</div>
-		
-		
-	{% endif %}
-	
-	<div class="clear"> </div>
-	
-	</div>
+        <div class="form mar_top">
+            <textarea class="c5 h4" id="message" name="message" wrap="virtual">{% if message %}{{message}}{% else %}I {% if position == "+" %}support{% endif %}{% if position == "-" %}oppose{% endif %} {{ bill.title_parens_if_too_long }} because...{% endif %}</textarea>
+            <div id="messageerror"></div>
+            <script type="text/javascript">
+            {% if not message %}
+            $('#message').input_default();
+            {% endif %}
+            $('#message').textchange(function() { validate('message'); });
+            </script>
+        </div>
+        
+        <p id="submitstatus" style="font-weight: bold"/>
+        
+        <p>
+            <input class="b_back btn" type="button" value="Cancel" onclick="if ($('#message').hasClass('default') || confirm('Are you sure you want to cancel and discard your comment?')) document.location = '{{bill.url|escapejs}}';"/>
+            <input class="b_preview btn" id="submitcomment_yescomment" type="submit" name="submitmode" value="Preview >"/>
+        </p>
+    
+        {% comment %}<p>During the testing phase of POPVOX we are not yet sending comments to Members of Congress, but they will be able to find your message here.</p>{% endcomment %}
+        
+        </form>
+        
+        </div>
+        
+        
+    {% endif %}
+    
+    <div class="clear"> </div>
+    
+    </div>
 
         {% if not user.is_authenticated %}
-	<div class="col_3 col_last commentProcessHints">
-	<div>
-		<h3>Registration is Next</h3>
-		<p>Verifying that you are a constituent is a crucial part of making your message more effective.
-		We know that from our experience here in DC.</p>
+    <div class="col_3 col_last commentProcessHints">
+    <div>
+        <h3>Registration is Next</h3>
+        <p>Verifying that you are a constituent is a crucial part of making your message more effective.
+        We know that from our experience here in DC.</p>
 
-		<p>One of the only ways we can verify constituents and limit gaming of the system is to require an account. Just like you have to have a Gmail account to send a message through the Gmail system, you have to have a POPVOX account to send a message through the POPVOX system.</p>
-	</div>
-	</div>
-	{% endif %}
+        <p>One of the only ways we can verify constituents and limit gaming of the system is to require an account. Just like you have to have a Gmail account to send a message through the Gmail system, you have to have a POPVOX account to send a message through the POPVOX system.</p>
+    </div>
+    </div>
+    {% endif %}
 </div>
 <script type="text/javascript">
 if (!document.cookie)

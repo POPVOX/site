@@ -182,13 +182,20 @@
 	</script>
 	{% endcomment %}
 	{% endif %}
+
+    {% if not debug %}{% comment %}analytics code from Sam{% endcomment %}
+    <script type="text/javascript">
+      var heap=heap||[];heap.load=function(a){window._heapid=a;var b=document.createElement("script");b.type="text/javascript",b.async=!0,b.src=("https:"===document.location.protocol?"https:":"http:")+"//cdn.heapanalytics.com/js/heap.js";var c=document.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c);var d=function(a){return function(){heap.push([a].concat(Array.prototype.slice.call(arguments,0)))}},e=["identify","track"];for(var f=0;f<e.length;f++)heap[e[f]]=d(e[f])};
+      heap.load("3285596539");
+    </script>
+    {% endif %}
 </head>
 <body {% block bodyattributes %}{% endblock %}>
 
 <div id="signup">
 	<div>
 		<!--<p class="close_x">close</p>-->
-		<p><span class="signup_txt">Check out our guide, <a href="https://www.popvox.com/files/washingtonian.pdf">How to Speak Washingtonian</a>--stay in touch with us on <a href="https://www.facebook.com/POPVOXnation">Facebook</a> and <a href="https://twitter.com/POPVOX">Twitter</a>.</span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></p>
+		<p><span class="signup_txt">Create a POPVOX Organization Page to elevate your profile and share your issue expertise with Congress and verified constituents. <a href="https://www.popvox.com/organization">Get Started</a></span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></p>
 	</div>
 </div><!-- e: signup -->
 <div class="clear"> </div>
