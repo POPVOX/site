@@ -1492,7 +1492,19 @@ def gettoknow(request):
       if state[0] in ['AS', 'GU', 'MP', 'VI']:
         diststateabbrs.remove(state)
 
-    members = MemberOfCongress.objects.filter(current=True)
+    #members = MemberOfCongress.objects.filter(current=True)
+    members = MemberOfCongress.objects.raw('''
+        WITH current_roles AS (select
+            member_id,
+            title,
+            state,
+            district,
+            party
+        FROM popvox_memberofcongressrole where enddate > now()
+        )
+        SELECT id, firstname, lastname, title, state, district, party, slug from popvox_memberofcongress
+        JOIN current_roles ON member_id = id;''')
+
 
     return render_to_response('popvox/gettoknow.html', {"stateabbrs": stateabbrs, "diststateabbrs": diststateabbrs, "members": members},
         

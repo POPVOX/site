@@ -69,8 +69,8 @@ function subscribe(validate) {
 						{% for member in members %}
 						<tr>
 							<td class="td_st"><a href="#">{{member.state}}</a></td>
-							<td class="td_moc"><a href="member/{{member.slug}}">{{member.title}} {{member.firstname}} {{member.lastname}}</a></td>
-							<td class="td_rd">({{member.party}}, {{member.state_district}})</td>
+							<td class="td_moc"><a href="member/{{member.slug}}">{{member.title|lower|capfirst}} {{member.firstname}} {{member.lastname}}</a></td>
+							<td class="td_rd">({{member.party}}, {{member.state}}{% if member.memtype == 'REP' %}-{{member.district}}{%endif%})</td>
 						</tr>
 						{% endfor %}
 					</tbody>
