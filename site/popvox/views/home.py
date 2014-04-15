@@ -23,6 +23,7 @@ from popvox.models import *
 from popvox.views.bills import bill_statistics, get_default_statistics_context
 from popvox.views.bills import get_popular_bills, get_popular_bills2
 import popvox.govtrack
+from popvox.members import *
 import popvox.match
 
 from settings import SITE_ROOT_URL
@@ -1211,35 +1212,31 @@ def district_info(request, searchstate=None, searchdistrict=None):
             sd = searchstate.upper()+str(searchdistrict)
         else:
             sd = searchstate.upper()+str(searchdistrict).lstrip('0')
+            
+        members = getMembersOfCongressForDistrict(searchstate.upper(), searchdistrict)
 
-        members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
-        members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
+        #members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
+        members = sorted(members, key=lambda member: member.most_recent_role().memtype) #sorting so reps come before senators on the district page
         try:
 	        # FIXME when there's census data
             #censusdata = popvox.models.CensusData.objects.get(id=sd)
             censusdata = popvox.models.CensusData.objects.get(id=searchstate)
             maxdist = popvox.govtrack.stateapportionment[searchstate.upper()] 
-            print "searchdistrict: "+str(searchdistrict)
-            print "maxdist: "+str(maxdist)
             if int(searchdistrict) > int(maxdist):
-                print "wtf"
                 raise Http404()
 	    
         except:
             raise Http404()
 	    pass
     else:
-        members = popvox.govtrack.getMembersOfCongressForState(searchstate.upper())
-        members = sorted(members, key=lambda member: member['type'],reverse=True) #sorting so reps come before senators on the district page
+        members = getMembersForState(searchstate.upper())
+        #members = popvox.govtrack.getMembersOfCongressForState(searchstate.upper())
+        members = sorted(members, key=lambda member: member.most_recent_role().memtype, reverse=True) #sorting so reps come before senators on the district page
         try:
             censusdata = popvox.models.CensusData.objects.get(id=searchstate)
         except:
             raise Http404()
     
-
-    for member in members:
-        member['pvurl'] = MemberOfCongress.objects.get(id=member['id']).pvurl
-
     filters = {}
     filters["state"] = searchstate
     if searchdistrict:

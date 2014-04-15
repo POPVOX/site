@@ -112,6 +112,7 @@ class MemberOfCongress(models.Model):
     flickr_id = models.CharField(max_length=100, blank=True, null=True)
     slug = models.CharField(max_length=100, blank=True, null=True)
     current = models.BooleanField(default=False)
+    #current_role = models.OneToOneField('MemberOfCongressRole', blank=True, null=True, on_delete=models.PROTECT)
     #documents = models.ManyToManyField("PositionDocument", blank=True, null=True, related_name="owner_moc") #this slows everything way down.
 
 
@@ -128,8 +129,6 @@ class MemberOfCongress(models.Model):
         else:
             name = self.firstname+' '+self.lastname
         return name
-    '''def lastname(self):
-        return self.info()["lastname"]'''
         
     def state(self):
         return self.most_recent_role().state
@@ -145,6 +144,7 @@ class MemberOfCongress(models.Model):
         #holdover from when this lived on a separate table
         return self.slug
     
+    #Helper function to populate current_role--use that instead where possible.
     def most_recent_role(self):
         try:
             role = self.roles.order_by("-enddate")[0]
