@@ -14,7 +14,8 @@ from django.conf import settings
 from writeyourrep.models import *
 from writeyourrep.district_lookup import get_zip_plus_four
 
-from popvox.govtrack import getMemberOfCongress, statenames
+from popvox.govtrack import getMemberOfCongress, statenames, CURRENT_CONGRESS
+import pdb
 
 last_connect_time = { }
 
@@ -1340,12 +1341,15 @@ def send_message_webform(endpoint, msg, deliveryrec):
         else:
             # Must map postdata[k] onto one of the available options.
             if isinstance(postdata[k], str) or isinstance(postdata[k], unicode):
-                postdata[k] = [postdata[k]]
+                postdata[k] = postdata[k].split(' #')
+                if postdata[k][0].startswith("#"):
+                    postdata[k][0] = postdata[k][0]+"/"+str(CURRENT_CONGRESS)
             alts = []
             # For each value we have coming in from the message, also
             # try any of its mapped synonyms in the database,
             # and one transitive step for the case where a bill hashtag
             # maps to a CRS term which in turn has been mapped to a form option.
+
             for q in postdata[k]:
                 alts.append((q, -1))
                 for rec in Synonym.objects.filter(term1 = q):
@@ -1421,6 +1425,7 @@ def send_message_webform(endpoint, msg, deliveryrec):
 
     # Debugging...
     if False:
+        pdb.set_trace()
         print formaction
         for k, v in postdata.items():
             print k, v
@@ -1771,10 +1776,15 @@ def send_message(msg, endpoint, previous_attempt, loginfo):
                 deliveryrec.failure_reason = DeliveryRecord.FAILURE_SELECT_OPTION_NOT_MAPPABLE
                 
                 sr = SynonymRequired()
-                sr.term1set = "\n".join(e.values)
-                sr.term2set = "\n".join(sorted(e.options))
+                tags = e.values
+                if len(tags) == 1 and tags[0][0] == "#":
+                    tags = tags[0].split(' #')
+                    tags[0] = tags[0]+"/"+str(CURRENT_CONGRESS)
+                sr.term1set = u"\n".join(tags)
+                sr.term2set = u"\n".join(sorted(e.options))
                 if not SynonymRequired.objects.filter(term1set=sr.term1set, term2set=sr.term2set).exists():
                     sr.save()
+                    
                 
             except WebformParseException, e:
                 deliveryrec.trace += unicode(e) + u"\n"
