@@ -275,6 +275,9 @@ class Regulation(models.Model):
     current_status_date = models.DateTimeField(blank=True, null=True)
     executive_recipients = models.ManyToManyField(FederalAgency, blank=True, null=True, related_name="regulations")
     
+    def __unicode__(self):
+        return self.title[0:30]
+    
     def isAlive(self):
         # alive = open for public comment
         return self.commentperiod_open_date < datetime.datetime.now() and datetime.datetime.now() < self.commentperiod_closed_date
