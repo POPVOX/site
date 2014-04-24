@@ -727,8 +727,10 @@ class Org(models.Model):
     ORG_TYPE_COMMUNITY_GROUP = 7
     ORG_TYPE_ISSUE_ASSOC = 8
     ORG_TYPE_RESEARCH_ORG = 9
+    ORG_TYPE_COMPANY = 10
     ORG_TYPES = (
         (ORG_TYPE_NOT_SET, "Not Set"),
+        (ORG_TYPE_COMPANY, "Company, corporation, or business not classified as tax-exempt."),
         (ORG_TYPE_501C3, "501(c)(3) organization (e.g. charitable, religious, educational, research or scientific organization)"),
         (ORG_TYPE_501C4, "501(c)(4) organization (e.g. civic leagues, lobbying or other social welfare organization)"),
         (ORG_TYPE_501C5, "501(c)(5) organization (e.g. labor union or allied group)"),
