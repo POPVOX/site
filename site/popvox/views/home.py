@@ -1490,7 +1490,7 @@ def gettoknow(request):
         diststateabbrs.remove(state)
 
     #members = MemberOfCongress.objects.filter(current=True)
-    members = MemberOfCongress.objects.raw('''
+    mems = MemberOfCongress.objects.raw('''
         WITH current_roles AS (select
             member_id,
             title,
@@ -1502,6 +1502,17 @@ def gettoknow(request):
         SELECT id, firstname, lastname, title, state, district, party, slug from popvox_memberofcongress
         JOIN current_roles ON member_id = id;''')
 
+    #doing formatting here so I don't have to clunk up the template with it
+    members = []
+    for mem in mems:
+        members.append({
+            'state': mem.state,
+            'slug': mem.slug,
+            'title': mem.title.capitalize()+'.',
+            'firstname': mem.firstname,
+            'lastname': mem.lastname, 
+            'party': mem.party[0].capitalize(),
+            'district': mem.district})
 
     return render_to_response('popvox/gettoknow.html', {"stateabbrs": stateabbrs, "diststateabbrs": diststateabbrs, "members": members},
         
