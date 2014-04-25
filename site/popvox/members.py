@@ -37,5 +37,5 @@ def getMembersOfCongressForDistrict(state, district, moctype="all"):
         roles = MemberOfCongressRole.objects.filter(state=state, memtype="rep", district=district, member__current=True)
     else: #get both.
         roles = list(MemberOfCongressRole.objects.filter(state=state, memtype="sen", member__current=True))
-        roles.append(MemberOfCongressRole.objects.filter(state=state, memtype="rep", district=district, member__current=True))   
+        roles = roles + list(MemberOfCongressRole.objects.filter(state=state, memtype="rep", district=district, member__current=True)) 
     return getMembersFromRoles(roles)

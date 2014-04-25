@@ -210,6 +210,12 @@ class MemberOfCongressRole(models.Model):
     title = models.CharField(max_length=3,choices=TITLE_CHOICES, null=False, default='REP')
     address = models.TextField(blank=True, null=True)
     
+    def __unicode__(self):
+        if self.title == "REP":
+            return self.member.name() +','+ self.title+','+self.state+'-'+unicode(self.district)
+        else:
+            return self.member.name() +','+ self.title+','+self.state
+    
     def chamber(self):
         return 'senate' if self.memtype == 'sen' else 'house'
     
