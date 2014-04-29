@@ -419,7 +419,7 @@ def widget_render_writecongress_page(request, account, permissions):
                 taglabel = usertags[0].label
                 
                 
-        #Moving the 'tell congress' text back here because the customizations are junking up the view:
+        #If you need to change the "tell congress" text, do it here to keep from junking up the view:
         if position == "+":
             if 'jointext' in permissions:
                 verb = "Supporting"
