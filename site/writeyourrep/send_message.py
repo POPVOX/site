@@ -1061,17 +1061,20 @@ def parse_webform(webformurl, webform, webformid, id, dr):
         elif ax == "zip4":
             field_default[attr] = ""
             continue
-            
-        elif ax == "recaptcha_challenge_field":
+        #commenting out the first part of the fix for the recaptcha forms we can't break, because
+        #fixing it part way makes it call dbc and return incorrect values, which takes time and
+        #money. The pdb.set_trace()s below are for debugging why they're returning bad values.
+        elif ax == "recaptcha_challenge_field": #or re.match(r'captcha_[0-9a-f\-_]*', ax):
             # Use DeathByCaptcha to solve it!
             
             # get the iframe URL which will open HTML which will have a challenge field and
             # an image URL, and load that image.
             m = re.search(r'<iframe src="(https?://www.google.com/recaptcha/api/noscript\?k=[\w\-]+)"', webform)
+            #pdb.set_trace()
             if not m: raise WebformParseException("Form uses reCAPTCHA but the reCAPTCHA noscript iframe wasn't found.")
             recaptcha_iframe = m.group(1)
             iframe_content = urllib2.urlopen(recaptcha_iframe).read()
-            m = re.search(r'<input type="hidden" name="recaptcha_challenge_field" id="recaptcha_challenge_field" value="(.*?)">', iframe_content)            
+            m = re.search(r'<input type="hidden" name="recaptcha_challenge_field" id="recaptcha_challenge_field" value="(.*?)">', iframe_content)
             if not m: raise WebformParseException("Form uses reCAPTCHA but the reCAPTCHA iframe content challenge field wasn't found.")
             recaptcha_challenge_field = m.group(1)
             m = re.search(r'<img width="300" height="57" alt="" src="(image\?.*?)">', iframe_content)
@@ -1083,6 +1086,7 @@ def parse_webform(webformurl, webform, webformid, id, dr):
             dbc = deathbycaptcha.SocketClient(settings.DEATHBYCAPTCHA_USERNAME, settings.DEATHBYCAPTCHA_PASSWORD)
             print 'Calling DeathByCaptcha, remaining balance $%s.' % (dbc.get_balance()/100.0)
             solution = dbc.decode(StringIO.StringIO(image_content))
+            #pdb.set_trace()
             if not solution: raise WebformParseException("Form uses reCAPTCHA but DeathByCaptcha returned nothing.")
                 
             # post solution back to reCAPTCHA to get the manual solution key
@@ -1098,7 +1102,10 @@ def parse_webform(webformurl, webform, webformid, id, dr):
             and ax not in ("captcha_code", "captcha_0ad40428-0789-4ce6-91ca-b7b15180caca","captcha_a989233d-1b27-4ab7-a270-e7767f58cb9e",):
         #elif ax in ("captcha_28f3334f-5551-4423-a1b9-b5f136dab92d", "captcha_e90e060e-8c67-4c62-9950-da8c62b3aa45", "captcha_cfe7dc28-a627-4272-acd0-8b34aa43828a", "captcha_9214d983-ad97-49c8-ac2a-a860df3ee1df"):
             m = re.search(r'<img src="(/CFFileServlet/_cf_captcha/_captcha_img-?\d+\.png)"', webform)
-            if not m: raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
+            #m = re.search(r'src="(http://www.google.com/recaptcha/api/image\?c=[a-zA-Z0-9_-]*)"', webform)
+            if not m:
+                #pdb.set_trace()
+                raise WebformParseException("Form uses a CAPTCHA but the CAPTCHA img element wasn't found.")
             try:
                 print urlparse.urljoin(webformurl, m.group(1))
                 image_content = urllib2.urlopen(urlparse.urljoin(webformurl, m.group(1))).read()
@@ -1425,7 +1432,7 @@ def send_message_webform(endpoint, msg, deliveryrec):
 
     # Debugging...
     if False:
-        pdb.set_trace()
+        #pdb.set_trace()
         print formaction
         for k, v in postdata.items():
             print k, v

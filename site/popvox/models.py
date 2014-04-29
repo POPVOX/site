@@ -25,6 +25,7 @@ from picklefield import PickledObjectField
 import settings
 
 import govtrack
+import members
 
 from writeyourrep.models import DeliveryRecord
 
@@ -129,6 +130,13 @@ class MemberOfCongress(models.Model):
         else:
             name = self.firstname+' '+self.lastname
         return name
+    
+    def shortname(self):
+        role = self.most_recent_role()
+        if role:
+            return role.get_title_display()+' '+self.firstname+' '+self.lastname
+        else:
+            return self.firstname+' '+self.lastname
         
     def state(self):
         return self.most_recent_role().state
@@ -144,7 +152,6 @@ class MemberOfCongress(models.Model):
         #holdover from when this lived on a separate table
         return self.slug
     
-    #Helper function to populate current_role--use that instead where possible.
     def most_recent_role(self):
         try:
             role = self.roles.order_by("-enddate")[0]
@@ -167,6 +174,18 @@ class MemberOfCongress(models.Model):
     def title(self):
         if self.most_recent_role():
             return self.most_recent_role().get_title_display()
+        else:
+            return None
+        
+    def officeid(self):
+        if self.most_recent_role():
+            role = self.most_recent_role()
+            if role.memtype == 'pres':
+                return 'WH' + '-S' + str(role.senateclass)
+            elif role.memtype == 'sen':
+                return role.state + '-S' + str(role.senateclass)
+            else:
+                return role.state + '-H' +  "%02d" % (role.district,)
         else:
             return None
         
@@ -196,7 +215,7 @@ class MemberOfCongress(models.Model):
 
                     
 class MemberOfCongressRole(models.Model):
-    TITLE_CHOICES = [ ('REP', 'Rep.'), ('DEL', 'Del.'), ('SEN','Sen.')]
+    TITLE_CHOICES = [ ('REP', 'Rep.'), ('DEL', 'Del.'), ('SEN','Sen.'), ('PRES','Pres.')]
     personeroleid = models.AutoField(primary_key=True,null=False)
     member = models.ForeignKey('MemberOfCongress', related_name='roles', blank=True, null=True)
     memtype = models.CharField(max_length=8, null=True, blank=True, default='')
@@ -207,7 +226,7 @@ class MemberOfCongressRole(models.Model):
     district = models.IntegerField(default=None, blank=True, null=True)
     senateclass = models.IntegerField(default=None, blank=True, null=True)
     url = models.CharField(max_length=100, default=None, blank=True, null=True)
-    title = models.CharField(max_length=3,choices=TITLE_CHOICES, null=False, default='REP')
+    title = models.CharField(max_length=8,choices=TITLE_CHOICES, null=False, default='REP')
     address = models.TextField(blank=True, null=True)
     
     def __unicode__(self):
@@ -1689,20 +1708,22 @@ class UserComment(models.Model):
                 return "The comment will not be delivered because the bill is not pending a vote in Congress."
             
         d = self.address.state + str(self.address.congressionaldistrict)
+        state = self.address.state
+        district = self.address.congressionaldistrict
         
         # Get the recipients according to the user's current representation in the House or
         # Senate, depending on where the next action for the bill is.
-        govtrackrecipients = []
+        recipients = []
         if ch == "s":
             # send to all of the senators for the state
-            govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="sen")
-            if len(govtrackrecipients) == 0:
+            recipients = members.getMembersOfCongressForDistrict(state, district, moctype="sen")
+            if len(recipients) == 0:
                 # state has no senators, fall back to representative
-                govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
+                recipients = members.getMembersOfCongressForDistrict(state, district, moctype="rep")
         elif ch == "h":
-            govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
+            recipients = members.getMembersOfCongressForDistrict(state, district, moctype="rep")
         else: # ch == "c", direct messages to all reps
-            govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d)
+            recipients = members.getMembersOfCongressForDistrict(state, district)
 
         # FIXME later, using permissions and stuffs
         try:
@@ -1710,20 +1731,19 @@ class UserComment(models.Model):
         except:
             campaignid = 0 #not all comments have campaign action records
         if campaignid in [1866,1872, 3658]: # these are campaign ids for White House delivery
-            obama = govtrack.getMemberOfCongress(400629)
-            obama["office_id"] = "WH-S44"
-            obama["type"] = "pres"
-            govtrackrecipients.append(obama)
+            presrole = MemberOfCongressRole.objects.get(memtype='pres', startdate__lt=datetime.now(), enddate__gt=datetime.now())
+            pres = presrole.member
+            recipients.append(pres)
 
         # Remove recipients for whom we've already delivered to another Member in the same
         # office, because of e.g. a resignation followed by a replacement. This would raise a M2M
         # error if the user comment isn't stored in the database yet, but happens when we're just
         # testing for delivery of a hypothetical comment.
         if self.id != None:
-            govtrackrecipients = [g for g in govtrackrecipients if
-                not self.delivery_attempts.exclude(target__govtrackid=g["id"]).filter(success = True, target__office=g["office_id"]).exists()]
+            recipients = [g for g in recipients if
+                not self.delivery_attempts.exclude(target__govtrackid=g.id).filter(success = True, target__office=g.officeid).exists()]
             
-        return govtrackrecipients
+        return recipients
     
     def get_executive_recipients(self):
         if self.bill:
