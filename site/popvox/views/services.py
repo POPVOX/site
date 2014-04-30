@@ -433,8 +433,8 @@ def widget_render_writecongress_page(request, account, permissions):
         else:
             verb = ""
             
-        if ocp and ocp.id in [9132, 9140]: #airlines
-            tellcongress = "Tell the Administration and Congress that you "+verb+" "
+        if ocp and ocp.id in [9132, 9140, 9157]: #airlines
+            tellcongress = "Tell the Administration and Members of Congress that you "+verb+" "
         elif 'jointext' in permissions:
             tellcongress = "Join " + campaign.account + " in " + verb + " "
         elif 'whitehouse' in permissions:
@@ -728,7 +728,7 @@ def widget_render_writecongress_action(request, account, permissions):
         return {
             "status": "success",
             "identity": widget_render_writecongress_get_identity(user, address=p),
-            "recipients": [m["name"] for m in recipients],
+            "recipients": [m.shortname() for m in recipients],
             "cdyne_response": p.cdyne_response,
             }
 
