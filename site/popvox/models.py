@@ -1764,7 +1764,7 @@ class UserComment(models.Model):
         def nicename(name):
             import re
             return re.sub(r"\s*\[.*\]", "", name)
-        recips = [nicename(m["name"]) for m in recips]
+        recips = [nicename(m.name()) for m in recips]
         if len(recips) > 1:
             recips[-1] = "and " + recips[-1]
         if len(recips) <= 2:
@@ -1776,7 +1776,7 @@ class UserComment(models.Model):
         from writeyourrep.models import Endpoint
         
         recips_ = self.get_recipients()
-        recips = [g["id"] for g in recips_] if type(recips_) == list else []
+        recips = [g.id for g in recips_] if type(recips_) == list else []
         
         
         # First, we're dealing with deliveries that we actually attempted.
