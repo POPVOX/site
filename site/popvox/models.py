@@ -12,7 +12,7 @@ from django.template.defaultfilters import slugify
 
 import sys
 import os, os.path
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from urllib import urlopen
 from xml.dom import minidom
 import re
@@ -25,10 +25,12 @@ from picklefield import PickledObjectField
 import settings
 
 import govtrack
+import members
 
 from writeyourrep.models import DeliveryRecord
 
 from popvox import http_rest_json
+
 
 # GENERAL METADATA #
 
@@ -106,31 +108,98 @@ class MemberOfCongress(models.Model):
     lismemberid = models.CharField(max_length=6, default=None, blank=True, null=True)
     icpsrid = models.IntegerField(default=None, blank=True, null=True)
     facebookid = models.CharField(max_length=255, blank=True, null=True)
-    thomasid = models.IntegerField(default=None)
+    thomasid = models.IntegerField(default=None, blank=True, null=True)
+    googleplus = models.URLField(blank=True, null= True)
+    flickr_id = models.CharField(max_length=100, blank=True, null=True)
+    slug = models.CharField(max_length=100, blank=True, null=True)
+    current = models.BooleanField(default=False)
+    #current_role = models.OneToOneField('MemberOfCongressRole', blank=True, null=True, on_delete=models.PROTECT)
+    #documents = models.ManyToManyField("PositionDocument", blank=True, null=True, related_name="owner_moc") #this slows everything way down.
 
 
     def __unicode__(self):
         return unicode(self.id) + u" " + self.name()
     def name(self):
-        return self.info()["name"]
-    '''def lastname(self):
-        return self.info()["lastname"]'''
-    def party(self):
-        if "party" in self.info():
-            return self.info()["party"]
+        role = self.most_recent_role()
+        if role: 
+            try:
+                party = role.party[0].upper()
+            except:
+                party = ''
+            name = role.get_title_display()+' '+self.firstname+' '+self.lastname+' ['+party+' '+role.state+']'
         else:
-            return "?"
+            name = self.firstname+' '+self.lastname
+        return name
+    
+    def shortname(self):
+        role = self.most_recent_role()
+        if role:
+            return role.get_title_display()+' '+self.firstname+' '+self.lastname
+        else:
+            return self.firstname+' '+self.lastname
+        
+    def state(self):
+        return self.most_recent_role().state
             
     def state_district(self):
-        x = self.info()
-        return x["state"] + ("-" + str(x["district"]) if x["type"] == "rep" else "")
+        role = self.most_recent_role()
+        return role.state + ("-" + str(role.district) if role.memtype == "rep" else "")
             
     def info(self):
         return govtrack.getMemberOfCongress(self.id)
         
     def pvurl(self):
-        bio = MemberBio.objects.get(id=self.id)
-        return bio.pvurl
+        #holdover from when this lived on a separate table
+        return self.slug
+    
+    def most_recent_role(self):
+        try:
+            role = self.roles.order_by("-enddate")[0]
+        except:
+            role = None
+        return role
+    
+    def is_current(self):
+        if self.most_recent_role():
+            return self.most_recent_role().startdate <= datetime.datetime.now() and datetime.datetime.now() < self.most_recent_role().enddate
+        else:
+            return False
+        
+    def party(self):
+        if self.most_recent_role().party:
+            return self.most_recent_role().party_initial()
+        else:
+            return "?"
+        
+    def title(self):
+        if self.most_recent_role():
+            return self.most_recent_role().get_title_display()
+        else:
+            return None
+        
+    def officeid(self):
+        if self.most_recent_role():
+            role = self.most_recent_role()
+            if role.memtype == 'pres':
+                return 'WH' + '-S' + str(role.senateclass)
+            elif role.memtype == 'sen':
+                return role.state + '-S' + str(role.senateclass)
+            else:
+                return role.state + '-H' +  "%02d" % (role.district,)
+        else:
+            return None
+        
+    def age(self):
+        today = date.today()
+        try: # raised when birth date is February 29 and the current year is not a leap year
+            bday = self.birthday.replace(year=today.year)
+        except ValueError:
+            bday = self.birthday.replace(year=today.year, day=born.day-1)
+        if bday > today:
+            age = today.year - self.birthday.year - 1
+        else:
+            age = today.year - self.birthday.year
+        return age
     
     # Make sure there is a record for every Member of Congress.
     @classmethod
@@ -146,19 +215,39 @@ class MemberOfCongress(models.Model):
 
                     
 class MemberOfCongressRole(models.Model):
-    TITLE_CHOICES = [ ('REP', 'Rep.'), ('DEL', 'Del.'), ('SEN','Sen.')]
+    TITLE_CHOICES = [ ('REP', 'Rep.'), ('DEL', 'Del.'), ('SEN','Sen.'), ('PRES','Pres.')]
     personeroleid = models.AutoField(primary_key=True,null=False)
-    personid = models.IntegerField(null=False, default=0)
-    type = models.CharField(max_length=8, null=False, default='')
-    startdate = models.DateField(default=datetime.date.min)
-    enddate = models.DateField(default=datetime.date.min)
-    party = models.CharField(max_length=255)
-    state = models.CharField(max_length=5, default=None)
-    district = models.IntegerField(default=None)
-    senateclass = models.IntegerField(default=None)
-    url = models.CharField(max_length=100, default=None)
-    title = models.CharField(max_length=3,choices=TITLE_CHOICES, null=False, default='REP')
-    address = models.TextField()
+    member = models.ForeignKey('MemberOfCongress', related_name='roles', blank=True, null=True)
+    memtype = models.CharField(max_length=8, null=True, blank=True, default='')
+    startdate = models.DateTimeField()
+    enddate = models.DateTimeField()
+    party = models.CharField(max_length=255, blank=True, null=True)
+    state = models.CharField(max_length=5, default=None, blank=True, null=True)
+    district = models.IntegerField(default=None, blank=True, null=True)
+    senateclass = models.IntegerField(default=None, blank=True, null=True)
+    url = models.CharField(max_length=100, default=None, blank=True, null=True)
+    title = models.CharField(max_length=8,choices=TITLE_CHOICES, null=False, default='REP')
+    address = models.TextField(blank=True, null=True)
+    
+    def __unicode__(self):
+        if self.title == "REP":
+            return self.member.name() +','+ self.title+','+self.state+'-'+unicode(self.district)
+        else:
+            return self.member.name() +','+ self.title+','+self.state
+    
+    def chamber(self):
+        return 'senate' if self.memtype == 'sen' else 'house'
+    
+    def party_initial(self):
+        return self.party[0].upper()
+    
+    def save(self, *args, **kwargs):
+        # After saving a Role, update the Member of congress's current status.
+        super(MemberOfCongressRole, self).save(*args, **kwargs)
+        role = self.member.most_recent_role()
+        current = role.startdate <= datetime.datetime.now() and datetime.datetime.now() < role.enddate
+        self.member.current = current
+        self.member.save()
                     
 class MemberBio(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -211,6 +300,9 @@ class Regulation(models.Model):
     current_status_date = models.DateTimeField(blank=True, null=True)
     executive_recipients = models.ManyToManyField(FederalAgency, blank=True, null=True, related_name="regulations")
     
+    def __unicode__(self):
+        return self.title[0:30]
+    
     def isAlive(self):
         # alive = open for public comment
         return self.commentperiod_open_date < datetime.datetime.now() and datetime.datetime.now() < self.commentperiod_closed_date
@@ -228,7 +320,7 @@ class Regulation(models.Model):
         return "#" + str(self.regnumber)
     
     def daysleft(self):
-        if self.isAlive:
+        if self.isAlive():
             days = self.commentperiod_closed_date - datetime.datetime.now()
             return days.days
         else:
@@ -660,8 +752,10 @@ class Org(models.Model):
     ORG_TYPE_COMMUNITY_GROUP = 7
     ORG_TYPE_ISSUE_ASSOC = 8
     ORG_TYPE_RESEARCH_ORG = 9
+    ORG_TYPE_COMPANY = 10
     ORG_TYPES = (
         (ORG_TYPE_NOT_SET, "Not Set"),
+        (ORG_TYPE_COMPANY, "Company, corporation, or business not classified as tax-exempt."),
         (ORG_TYPE_501C3, "501(c)(3) organization (e.g. charitable, religious, educational, research or scientific organization)"),
         (ORG_TYPE_501C4, "501(c)(4) organization (e.g. civic leagues, lobbying or other social welfare organization)"),
         (ORG_TYPE_501C5, "501(c)(5) organization (e.g. labor union or allied group)"),
@@ -1614,20 +1708,22 @@ class UserComment(models.Model):
                 return "The comment will not be delivered because the bill is not pending a vote in Congress."
             
         d = self.address.state + str(self.address.congressionaldistrict)
+        state = self.address.state
+        district = self.address.congressionaldistrict
         
         # Get the recipients according to the user's current representation in the House or
         # Senate, depending on where the next action for the bill is.
-        govtrackrecipients = []
+        recipients = []
         if ch == "s":
             # send to all of the senators for the state
-            govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="sen")
-            if len(govtrackrecipients) == 0:
+            recipients = members.getMembersOfCongressForDistrict(state, district, moctype="sen")
+            if len(recipients) == 0:
                 # state has no senators, fall back to representative
-                govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
+                recipients = members.getMembersOfCongressForDistrict(state, district, moctype="rep")
         elif ch == "h":
-            govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d, moctype="rep")
+            recipients = members.getMembersOfCongressForDistrict(state, district, moctype="rep")
         else: # ch == "c", direct messages to all reps
-            govtrackrecipients = govtrack.getMembersOfCongressForDistrict(d)
+            recipients = members.getMembersOfCongressForDistrict(state, district)
 
         # FIXME later, using permissions and stuffs
         try:
@@ -1635,20 +1731,19 @@ class UserComment(models.Model):
         except:
             campaignid = 0 #not all comments have campaign action records
         if campaignid in [1866,1872, 3658]: # these are campaign ids for White House delivery
-            obama = govtrack.getMemberOfCongress(400629)
-            obama["office_id"] = "WH-S44"
-            obama["type"] = "pres"
-            govtrackrecipients.append(obama)
+            presrole = MemberOfCongressRole.objects.get(memtype='pres', startdate__lt=datetime.now(), enddate__gt=datetime.now())
+            pres = presrole.member
+            recipients.append(pres)
 
         # Remove recipients for whom we've already delivered to another Member in the same
         # office, because of e.g. a resignation followed by a replacement. This would raise a M2M
         # error if the user comment isn't stored in the database yet, but happens when we're just
         # testing for delivery of a hypothetical comment.
         if self.id != None:
-            govtrackrecipients = [g for g in govtrackrecipients if
-                not self.delivery_attempts.exclude(target__govtrackid=g["id"]).filter(success = True, target__office=g["office_id"]).exists()]
+            recipients = [g for g in recipients if
+                not self.delivery_attempts.exclude(target__govtrackid=g.id).filter(success = True, target__office=g.officeid).exists()]
             
-        return govtrackrecipients
+        return recipients
     
     def get_executive_recipients(self):
         if self.bill:
@@ -1669,7 +1764,7 @@ class UserComment(models.Model):
         def nicename(name):
             import re
             return re.sub(r"\s*\[.*\]", "", name)
-        recips = [nicename(m["name"]) for m in recips]
+        recips = [nicename(m.name()) for m in recips]
         if len(recips) > 1:
             recips[-1] = "and " + recips[-1]
         if len(recips) <= 2:
@@ -1681,7 +1776,7 @@ class UserComment(models.Model):
         from writeyourrep.models import Endpoint
         
         recips_ = self.get_recipients()
-        recips = [g["id"] for g in recips_] if type(recips_) == list else []
+        recips = [g.id for g in recips_] if type(recips_) == list else []
         
         
         # First, we're dealing with deliveries that we actually attempted.

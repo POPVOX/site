@@ -23,6 +23,7 @@ from popvox.models import *
 from popvox.views.bills import bill_statistics, get_default_statistics_context
 from popvox.views.bills import get_popular_bills, get_popular_bills2
 import popvox.govtrack
+from popvox.members import *
 import popvox.match
 
 from settings import SITE_ROOT_URL
@@ -829,14 +830,15 @@ def get_legstaff_undelivered_messages(user):
     if not role.verified or role.member == None:
         return None
 
-    member = role.member.info()
-    if not member["current"]:
+    member = role.member
+    if not member.current:
         return None
     
+    memseat = member.most_recent_role()
     filters = { }    
-    filters["state"] = member["state"]
-    if member["type"] == "rep":
-        filters["congressionaldistrict"] = member["district"]
+    filters["state"] = memseat.state
+    if member.memtype == "rep":
+        filters["congressionaldistrict"] = memseat.district
         
     # Return undelivered messages that are also not queued for off-line delivery.
     q = UserComment.objects.filter(
@@ -1087,10 +1089,9 @@ def member_page(request, membername=None):
     member = None
     
     try:
-        memberid = MemberBio.objects.get(pvurl=membername).id
-        member = MemberOfCongress.objects.get(id=memberid)
+        member = MemberOfCongress.objects.get(slug=membername)
         
-    except (MemberBio.DoesNotExist, KeyError):
+    except (MemberOfCongress.DoesNotExist, KeyError):
         raise Http404()
         #Now that we have all the members ever, supporting url-hacking is too hard.
         membername = membername.replace("-"," ")
@@ -1102,25 +1103,15 @@ def member_page(request, membername=None):
                 
     if member is None:
         raise Http404()
-    if not member.info()['current']:
+    if not member.current:
         raise Http404()
     
     memberids = [member.id] #membermatch needs a list
     
-    #Social media links and bio info from the sunlight API (and our own db, where necessary)
+    #social media links and bio info
     mem_data = {}
-    try:
-        #url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member.id)
-        url = "http://congress.api.sunlightfoundation.com/legislators?apikey=2dfed0d65519430593c36b031f761a11&&govtrack_id=\""+str(member.id)+"\""
-        json_data = "".join(urllib2.urlopen(url).readlines())
-        loaded_data = json.loads(json_data)
-        mem_data = loaded_data['results'][0]
-    except (urllib2.HTTPError, IndexError):
-        pass
-
-    if 'youtube_url' in mem_data and mem_data['youtube_url'] != "":
-        youtube_id = mem_data['youtube_url'].rsplit("/",1)[1]
-        url = "http://gdata.youtube.com/feeds/base/users/"+youtube_id+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
+    if member.youtubeid:
+        url = "http://gdata.youtube.com/feeds/base/users/"+member.youtubeid+"/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;"
         try:
             rss_data = "".join(urllib2.urlopen(url).readlines())
             mem_data['last_vid'] = None
@@ -1130,26 +1121,6 @@ def member_page(request, membername=None):
             mem_data['last_vid'] = guid.firstChild.data.rsplit("/",1)[1]
         except (IndexError, urllib2.HTTPError):
             pass
-        
-    if 'birthday' in mem_data:
-        birthdate = datetime.strptime(mem_data['birthday'],"%Y-%m-%d").date()
-        today = date.today()
-        try: # raised when birth date is February 29 and the current year is not a leap year
-            birthday = birthdate.replace(year=today.year)
-        except ValueError:
-            birthday = birthdate.replace(year=today.year, day=born.day-1)
-        if birthday > today:
-            age = today.year - birthdate.year - 1
-        else:
-            age = today.year - birthdate.year
-        mem_data['birthday'] = datetime.strptime(mem_data['birthday'],"%Y-%m-%d")
-    if 'age' in mem_data:
-        mem_data['age'] = age
-    
-    bio = popvox.models.MemberBio.objects.get(id=member.id)
-    mem_data['flickr_id'] = bio.flickr_id
-    mem_data['googleplus'] = bio.googleplus
-        
 
     govtrack_data = popvox.govtrack.getMemberOfCongress(member.id)
     committees = []
@@ -1160,8 +1131,6 @@ def member_page(request, membername=None):
     mem_data['committees'] = committees
     
     #checking if we have the member's picture:
-    if 'gender' in mem_data:
-        mem_data["gender"] = mem_data["gender"].lower()
     if not os.path.isfile("/home/www/sources/site/static/member_photos/"+str(member.id)+"-200px.jpeg"):
         mem_data["nophoto"] = True
     
@@ -1185,7 +1154,7 @@ def member_page(request, membername=None):
 
     stateabbrs = [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs]
 
-    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills, "stateabbrs": stateabbrs},
+    return render_to_response('popvox/memberpage.html', {'memdata' : mem_data, 'member': member, 'memseat': member.most_recent_role(), 'sponsored': sponsored_bills, 'cosponsored': cosponsored_bills, "stateabbrs": stateabbrs},
         context_instance=RequestContext(request))
     
     #This return has the membermatch variables; uncomment when we're ready for them
@@ -1239,41 +1208,35 @@ def district_info(request, searchstate=None, searchdistrict=None):
 
     trending_bills = sorted(trending_bills, key=lambda bills: bills[3], reverse=True)
     if searchdistrict:
-        print "in here!"
         if int(searchdistrict) == 0:
             sd = searchstate.upper()+str(searchdistrict)
         else:
             sd = searchstate.upper()+str(searchdistrict).lstrip('0')
+            
+        members = getMembersOfCongressForDistrict(searchstate.upper(), searchdistrict)
 
-        members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
-        members = sorted(members, key=lambda member: member['type']) #sorting so reps come before senators on the district page
+        #members = popvox.govtrack.getMembersOfCongressForDistrict(sd)
+        members = sorted(members, key=lambda member: member.most_recent_role().memtype) #sorting so reps come before senators on the district page
         try:
-            print "now here!"
 	        # FIXME when there's census data
             #censusdata = popvox.models.CensusData.objects.get(id=sd)
             censusdata = popvox.models.CensusData.objects.get(id=searchstate)
             maxdist = popvox.govtrack.stateapportionment[searchstate.upper()] 
-            print "searchdistrict: "+str(searchdistrict)
-            print "maxdist: "+str(maxdist)
             if int(searchdistrict) > int(maxdist):
-                print "wtf"
                 raise Http404()
 	    
         except:
             raise Http404()
 	    pass
     else:
-        members = popvox.govtrack.getMembersOfCongressForState(searchstate.upper())
-        members = sorted(members, key=lambda member: member['type'],reverse=True) #sorting so reps come before senators on the district page
+        members = getMembersForState(searchstate.upper())
+        #members = popvox.govtrack.getMembersOfCongressForState(searchstate.upper())
+        members = sorted(members, key=lambda member: member.most_recent_role().memtype, reverse=True) #sorting so reps come before senators on the district page
         try:
             censusdata = popvox.models.CensusData.objects.get(id=searchstate)
         except:
             raise Http404()
     
-
-    for member in members:
-        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
-
     filters = {}
     filters["state"] = searchstate
     if searchdistrict:
@@ -1323,6 +1286,7 @@ def district_info(request, searchstate=None, searchdistrict=None):
     context_instance=RequestContext(request))
     
 def new_district_info(request, searchstate=None, searchdistrict=None, csv=False):
+    #This page was created during redistricting. It's deprecated now; if you want to use it, be advised that it's going to need to be overhauled.
     newdist = True
     trending = get_popular_bills2(searchstate.upper(), searchdistrict, newdist) 
     
@@ -1382,6 +1346,7 @@ def new_district_info(request, searchstate=None, searchdistrict=None, csv=False)
         return r
         
 def district_archive(request, searchstate=None, searchdistrict=None, archive=None):
+    #This page was created during redistricting. It's deprecated now; if you want to use it, be advised that it's going to need to be overhauled.
     if archive == str(2012):
         congress = 112
         archived = True
@@ -1421,7 +1386,7 @@ def district_archive(request, searchstate=None, searchdistrict=None, archive=Non
         raise Http404()
 
     for member in members:
-        member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
+        member['pvurl'] = member.slug
 
     filters = {}
     filters["state"] = searchstate
@@ -1524,32 +1489,30 @@ def gettoknow(request):
       if state[0] in ['AS', 'GU', 'MP', 'VI']:
         diststateabbrs.remove(state)
 
-    all_members = govtrack.getMembersOfCongress()
+    #members = MemberOfCongress.objects.filter(current=True)
+    mems = MemberOfCongress.objects.raw('''
+        WITH current_roles AS (select
+            member_id,
+            title,
+            state,
+            district,
+            party
+        FROM popvox_memberofcongressrole where enddate > now()
+        )
+        SELECT id, firstname, lastname, title, state, district, party, slug from popvox_memberofcongress
+        JOIN current_roles ON member_id = id;''')
+
+    #doing formatting here so I don't have to clunk up the template with it
     members = []
-    for member in all_members:
-        if member['current'] == True:
-            try:
-                mem = popvox.models.MemberOfCongress.objects.get(id=member['id'])
-                member['pvurl'] = popvox.models.MemberBio.objects.get(id=member['id']).pvurl
-            except (MemberOfCongress.DoesNotExist, MemberBio.DoesNotExist):
-                sys.stderr.write("DoesNotExist on GetToKnow: "+str(member['id'])+"\n")
-                continue
-            loaded_data=[]
-            try:
-                url = "http://services.sunlightlabs.com/api/legislators.get.json?apikey=2dfed0d65519430593c36b031f761a11&govtrack_id="+str(member['id'])
-                json_data = "".join(urllib2.urlopen(url).readlines())
-                loaded_data = json.loads(json_data)
-                mem_data = loaded_data['response']['legislator']
-            except urllib2.HTTPError:
-                pass
-
-            member['plain_name'] = mem_data['title']+" "+mem_data['firstname']+" "+mem_data['lastname']
-            if mem_data['chamber'] == "house":
-                member['party_state'] = "("+mem_data['party']+", "+mem_data['state']+"-"+mem_data['district']+")"
-            else:
-                member['party_state'] = "("+mem_data['party']+", "+mem_data['state']+")"
-            members.append(member)
-
+    for mem in mems:
+        members.append({
+            'state': mem.state,
+            'slug': mem.slug,
+            'title': mem.title.capitalize()+'.',
+            'firstname': mem.firstname,
+            'lastname': mem.lastname, 
+            'party': mem.party[0].capitalize(),
+            'district': mem.district})
 
     return render_to_response('popvox/gettoknow.html', {"stateabbrs": stateabbrs, "diststateabbrs": diststateabbrs, "members": members},
         

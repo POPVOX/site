@@ -15,7 +15,7 @@ from django.core.mail import EmailMultiAlternatives
 
 import datetime, re, shutil, subprocess, sys, tempfile, os.path
 
-from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign
+from popvox.models import UserCommentOfflineDeliveryRecord, Bill, Org, OrgCampaign, MemberOfCongress
 from popvox.govtrack import getMemberOfCongress, getCongressDates, CURRENT_CONGRESS
 from writeyourrep.models import DeliveryRecord, Endpoint
 from settings import SERVER_EMAIL, POSITION_DELIVERY_CUTOFF_DAYS
@@ -163,7 +163,7 @@ def create_tex(tex, serial):
         outfile.write(r"}" + "\n")
 
         outfile.write(r"{\Large \bf \noindent ")
-        outfile.write_esc(getMemberOfCongress(govtrack_id)["name"])
+        outfile.write_esc(MemberOfCongress.objects.get(id=govtrack_id).shortname())
         outfile.write(r"} \bigskip" + "\n\n" + r"\noindent ")
 
         try:
@@ -219,7 +219,7 @@ def create_tex(tex, serial):
 
                 fr = t3.failure_reason
                 if fr == "bad-webform": # get our comment from the Endpoint notes field
-                    endpoints = Endpoint.objects.filter(govtrackid=govtrack_id, office=getMemberOfCongress(govtrack_id)["office_id"], method=Endpoint.METHOD_NONE)
+                    endpoints = Endpoint.objects.filter(govtrackid=govtrack_id, office=MemberOfCongress.objects.get(id=govtrack_id).officeid, method=Endpoint.METHOD_NONE)
                     if len(endpoints) > 0:
                         fr = endpoints[0].notes
                 target_errors[fr] = True
@@ -353,7 +353,7 @@ def clean_ucodrs():
     # e.g. the district changed because of a district disagreement.
     for uc in UserCommentOfflineDeliveryRecord.objects.filter(batch=None).select_related("comment", "comment__address", "target"):
         recips = uc.comment.get_recipients()
-        if not recips or type(recips) == str or not uc.target.id in [r["id"] for r in recips]:
+        if not recips or type(recips) == str or not uc.target.id in [r.id for r in recips]:
             uc.delete()
 
 if len(sys.argv) == 2 and sys.argv[1] == "resetbatchnumbers":
@@ -383,7 +383,7 @@ elif len(sys.argv) >= 3 and sys.argv[1] == "delivered":
     for ucodr in recs:
         
         dr = DeliveryRecord()
-        dr.target = Endpoint.objects.get(govtrackid=ucodr.target.id, office=getMemberOfCongress(ucodr.target.id)["office_id"])
+        dr.target = Endpoint.objects.get(govtrackid=ucodr.target.id, office=MemberOfCongress.objects.get(id=ucodr.target.id).officeid)
         dr.trace = "comment #" + unicode(ucodr.comment.id) + " " + methodname + "\nbatch " + ucodr.batch + "\n"
         dr.success = True
         dr.failure_reason = DeliveryRecord.FAILURE_NO_FAILURE

@@ -12,13 +12,13 @@ class BillAdmin(admin.ModelAdmin):
     list_display_links = ("title",)
     search_fields = ("title", "street_name")
     raw_id_fields = ('vehicle_for','sponsor','reintroduced_as', 'migrate_to')
-    filter_horizontal = ['cosponsors', 'committees', 'issues', 'executive_recipients']
-    exclude = ('srcfilehash',)
+    filter_horizontal = ['committees', 'issues', 'executive_recipients']
+    exclude = ['srcfilehash', 'cosponsors'] #cosponsors goes in filter_horizontal when it's not breaking stuff.
     fieldsets = (
         ("Primary Key", { "fields": ('congressnumber', 'billtype', 'billnumber', 'vehicle_for')}),
         ("Required Metadata", { "fields": ('title', 'introduced_date', 'current_status', 'current_status_date', 'num_cosponsors')}),
         ("Usual Metadata", { "fields": ('description', 'street_name', 'ask', 'notes', 'hashtags', 'topterm', 'comments_to_chamber', 'executive_recipients')}),
-        ("Optional Metadata", { "fields": ('sponsor', 'cosponsors', 'committees', 'issues', 'latest_action', 'reintroduced_as', 'migrate_to', 'hold_metadata')}),
+        ("Optional Metadata", { "fields": ('sponsor', 'committees', 'issues', 'latest_action', 'reintroduced_as', 'migrate_to', 'hold_metadata')}), #'cosponsors',
         ("Upcoming Event", { "fields": ( 'upcoming_event_post_date', 'upcoming_event' ) }),
         )
     
@@ -180,6 +180,10 @@ class MemberOfCongressAdmin(admin.ModelAdmin):
     list_display = ['id', 'lastname', 'firstname']
     readonly_fields = ["id"]
 
+class MemberOfCongressRoleAdmin(admin.ModelAdmin):
+    search_fields = ["member", "state", "address"]
+    list_display = ['member', 'title', 'state', 'district']
+
 class MemberBioAdmin(admin.ModelAdmin):
     def name (self,obj):
         member = MemberOfCongress.objects.get(id=obj.id)
@@ -201,6 +205,7 @@ admin.site.register(OrgCampaign, OrgCampaignAdmin)
 admin.site.register(OrgCampaignPosition, OrgCampaignPositionAdmin)
 admin.site.register(OrgContact)
 admin.site.register(MemberOfCongress, MemberOfCongressAdmin)
+admin.site.register(MemberOfCongressRole, MemberOfCongressRoleAdmin)
 admin.site.register(Bill, BillAdmin)
 admin.site.register(Regulation, RegulationAdmin)
 admin.site.register(Slate, SlateAdmin)

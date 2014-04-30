@@ -291,6 +291,7 @@ def widget_render_writecongress_page(request, account, permissions):
         regulation = None
         
         if "ocp" not in request.GET:
+            ocp = False
             if not "bill" in request.GET and not "regulation" in request.GET:
                 return HttpResponseBadRequest("Invalid URL.")
             if "bill" in request.GET:
@@ -339,6 +340,7 @@ def widget_render_writecongress_page(request, account, permissions):
                     reason = ocp.shortcomment
                 else:
                     reason = ocp.comment
+                    
             
         if account != None:
             if bill:
@@ -415,6 +417,30 @@ def widget_render_writecongress_page(request, account, permissions):
                 tagvals.insert(0,'None')
                 tagvals.append('Other')
                 taglabel = usertags[0].label
+                
+                
+        #If you need to change the "tell congress" text, do it here to keep from junking up the view:
+        if position == "+":
+            if 'jointext' in permissions:
+                verb = "Supporting"
+            else:
+                verb = "Support"
+        elif position == "-":
+            if 'jointext' in permissions:
+                verb = "Opposing"
+            else:
+                verb = "Oppose"
+        else:
+            verb = ""
+            
+        if ocp and ocp.id in [9132, 9140, 9157]: #airlines
+            tellcongress = "Tell the Administration and Members of Congress that you "+verb+" "
+        elif 'jointext' in permissions:
+            tellcongress = "Join " + campaign.account + " in " + verb + " "
+        elif 'whitehouse' in permissions:
+            tellcongress = "Tell Congress and the Administration that you " + verb + " "
+        else:
+            tellcongress = "Tell Congress that you " + verb + " "
         
         # Render.
         response = render_to_response('popvox/widgets/writecongress.html', {
@@ -430,6 +456,7 @@ def widget_render_writecongress_page(request, account, permissions):
             "url": url,
             
             "suggestions": suggestions.values(),
+            "tellcongress": tellcongress,
             
             "useraddress_prefixes": PostalAddress.PREFIXES,
             "useraddress_suffixes": PostalAddress.SUFFIXES,
@@ -701,7 +728,7 @@ def widget_render_writecongress_action(request, account, permissions):
         return {
             "status": "success",
             "identity": widget_render_writecongress_get_identity(user, address=p),
-            "recipients": [m["name"] for m in recipients],
+            "recipients": [m.shortname() for m in recipients],
             "cdyne_response": p.cdyne_response,
             }
 

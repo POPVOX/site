@@ -140,7 +140,7 @@ def process_comment(comment, thread_id):
         duplicate_records[comment.id] = ['KeyError'] #key error issue with the endpoint
         return
     
-    govtrackrecipientids = [g["id"] for g in govtrackrecipients]
+    govtrackrecipientids = [g.id for g in govtrackrecipients]
     
     execrecipients = []
     if comment.get_executive_recipients():
@@ -448,7 +448,7 @@ def process_comment(comment, thread_id):
         except (UserCommentOfflineDeliveryRecord.DoesNotExist, MemberOfCongress.DoesNotExist):
             pass
 
-        endpoints = Endpoint.objects.filter(govtrackid=gid, office=getMemberOfCongress(gid)["office_id"])
+        endpoints = Endpoint.objects.filter(govtrackid=gid, office=MemberOfCongress.objects.get(id=gid).officeid)
         if len(endpoints) == 0:
             endpoint = None
         else:

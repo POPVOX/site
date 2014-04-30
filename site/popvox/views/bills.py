@@ -1783,6 +1783,9 @@ def save_user_comment(user, bill, regulation, position, referrer, message, addre
         comment.regulation = regulation
         if comment.position != position:
             comment.position = position
+            # When the user switches sides, any comment diggs they previously left on the
+            # other side must be cleared.
+            comment.my_diggs.all().delete()
         
     comment.message = message
 
@@ -2389,12 +2392,18 @@ def billreport_get_object(request, congressnumber, billtype, billnumber, vehicle
 billreport.get_object = billreport_get_object
 
 def can_appreciate(request, bill):
-    # Can I appreciate comments? Only if I've weighed in on this bill and
-    # then only on the side I've weighed in on, or if I'm leg staff. Returns
-    # None if the user cannot appreciate any comments, True if the user
-    # can appreciate all comments, or the user's comment if he is restricted
-    # to commenting on the same side.
+    # [outdated, see below] Can I appreciate comments? Only if I've weighed in
+    # on this bill and then only on the side I've weighed in on, or if I'm leg
+    # staff. Returns None if the user cannot appreciate any comments, True if
+    # the user can appreciate all comments, or the user's comment if he is
+    # restricted to commenting on the same side.
     if request.user.is_authenticated():
+        # We're trying a thing where every logged-in user can appreciate, no
+        # matter how/if they've weighed in.
+        return True
+        #all logged-in users can appreciate regulations
+        if isinstance(bill, Regulation):
+            return True
         if request.user.userprofile.is_leg_staff():
             return True
         comments = request.user.comments.filter(bill = bill)
@@ -2697,7 +2706,12 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 @csrf_protect
 @json_response
 def comment_digg(request):
+    bill = get_object_or_404(Bill, id=request.POST.get("bill", -1))
     comment = get_object_or_404(UserComment, id=request.POST.get("comment", -1))
+    
+    appreciate = can_appreciate(request, bill)
+    if not appreciate or (type(appreciate) == UserComment and appreciate.position != comment.position):
+        return { "status": "fail", "msg": "invalid action" }
         
     d = UserCommentDigg.objects.filter(comment=comment, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user)
     if request.POST["action"] == "-":

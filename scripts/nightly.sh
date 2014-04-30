@@ -17,6 +17,3 @@ annalee/attendancechecker.py
 
 sudo -u sphinxsearch indexer --all --rotate
 sudo service sphinxsearch restart
-
-#cd /mnt/persistent
-$SCRIPTS/backup.sh

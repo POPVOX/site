@@ -157,7 +157,7 @@ Notes:
     }
     {% endif %}
 
-    @media screen and (min-width: 420px){
+    @media screen and (min-width:420px){
         #widget_top li:nth-of-type(1).active span:after{
             content:" Start";
         }
@@ -800,11 +800,7 @@ Notes:
             
                     <div id="panel_login" class="widget_panel">
                         {% if position %}
-                            {% if 'jointext' in permissions %}
-                            <h1>Join {{campaign.account}} in {% if position == "+" %}Supporting{% else %}Opposing{% endif %} {{bill.shortname}}</h1>
-                            {% else %}
-                            <h1>Tell Congress {% if 'whitehouse' in permissions %}and the Administration {%endif%}that you {% if position == "+" %}Support{% else %}Oppose{% endif %} {{bill.shortname}}</h1>
-                            {% endif %}
+                            <h1>{{tellcongress}} {{bill.shortname}}</h1>
                         {% else %}
                             {% if 'franking' in permissions %}
                                 <h1>Share your views on {%if bill%}{{bill.shortname}}{%else%}{{regulation.regnumber}}{%endif%}</h1>
