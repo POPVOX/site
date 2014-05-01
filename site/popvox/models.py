@@ -1731,7 +1731,7 @@ class UserComment(models.Model):
         except:
             campaignid = 0 #not all comments have campaign action records
         if campaignid in [1866,1872, 3658]: # these are campaign ids for White House delivery
-            presrole = MemberOfCongressRole.objects.get(memtype='pres', startdate__lt=datetime.now(), enddate__gt=datetime.now())
+            presrole = MemberOfCongressRole.objects.get(memtype='pres', startdate__lt=datetime.datetime.now(), enddate__gt=datetime.datetime.now())
             pres = presrole.member
             recipients.append(pres)
 
@@ -1758,7 +1758,7 @@ class UserComment(models.Model):
             # But if the bill is dead, show who we delivered to already, if any.
             delivered_recips = self.delivery_attempts.filter(success=True, next_attempt__isnull=True)
             if delivered_recips.count():
-                recips = [govtrack.getMemberOfCongress(d.target.govtrackid) for d in delivered_recips]
+                recips = [MemberOfCongress.objects.get(id=d.target.govtrackid) for d in delivered_recips]
             else:
                 return "[" + recips + "]"
         def nicename(name):
