@@ -107,6 +107,8 @@ def commentmapus(request):
     comments = None
     bill = None
     regulation = None
+    show = False
+    position = False
 
     import widgets_usmap
     
@@ -133,21 +135,32 @@ def commentmapus(request):
         request.session = None
         request.user = AnonymousUser()
         
-    elif "sac" in request.GET and request.user.is_authenticated():
-        if not request.user.has_perm("popvox.can_snoop_service_analytics"):
-            # validate the service account campaign is in one of the accounts accessible
-            # by the logged in user.
-            user_accounts = request.user.userprofile.service_accounts(create=False)
-            sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"], account__in=user_accounts)
-        else:
-            sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"])
-        
+    elif "sac" in request.GET:
+        sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"])
+        if ServiceAccountPermission.objects.get(name='public-map') in sac.account.permissions.all():
+            show = True
+        elif request.user.is_authenticated():
+            if request.user.has_perm("popvox.can_snoop_service_analytics"):
+                show = True
+            else:
+                # validate the service account campaign is in one of the accounts accessible
+                # by the logged in user.
+                user_accounts = request.user.userprofile.service_accounts(create=False)
+                if ServiceAccountCampaign.objects.get(id=request.GET["sac"], account__in=user_accounts):
+                    show = True
+                    
+        if not show:
+            raise Http404
         if sac.bill:
             bill = sac.bill
-            comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
         else:
             regulation = sac.regulation
-            comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
+            
+        if sac.position != '0':
+            position = sac.position
+                
+        comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
+
         
     elif "file" in request.GET:
         
@@ -270,6 +283,7 @@ def commentmapus(request):
     
     return render_to_response('popvox/widgets/commentsmapus.html', {
         "bill": bill,
+        "position": position,
         "regulation": regulation,
         "data": count.items(),
         "min_sz_num": int(float(max_count)/5.0) if max_count > 5 else 1,
