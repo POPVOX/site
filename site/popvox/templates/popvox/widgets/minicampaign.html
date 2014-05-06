@@ -1,0 +1,47 @@
+{% load humanize %}
+{% load popvox_utils %}
+{% block content %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <title>Amplification Widget - POPVOX</title> 
+
+        <link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
+        <link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="/media/widget/la_widget.css">
+
+</head>
+
+<div class="content">
+Logo: <img src="https://s3.amazonaws.com:443/static.popvox.com/{{org.logo}}"><br>
+Campaign: {{sac.get_position_display}} {{sac.bill.nicename}}<br>
+name: {{org.name}} members are making their voices heard.<br>
+Campaign: {{sac.get_position_display}} for {{sac.bill.nicename}}, by the numbers<br>
+
+How many messages were sent? {{total}} total messages<br>
+
+Where were the messages sent from?<br>
+<iframe width="274" scrolling="no" height="250" frameborder="0" style="overflow:hidden" marginwidth="0" marginheight="0" border="0" src="/widgets/bill-comment-map?sac={{sac.id}}&width=274&hover=0"></iframe><br>
+
+Where were the messages sent?<br>
+{{senate}} Senate<br>
+{{commentcount}} House of Representatives<br>
+{%if bill.executive_recipients%}
+    {%for agency in bill.executive_recipients.all%}
+        {{commentcount}} {{agency.article}} {{agency.name}}<br>
+    {%endfor%}
+{%endif%}
+<a class="{{sac.get_position_display|lower}} lg fire_modal" href="/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{ocp.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">Take Action</a><br>
+<a href="{{bill.url}}/report">View Messages</a>
+
+</div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="/media/js/qtip.js"></script>
+    <script src="/media/js/jquery.fancybox.pack.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <script src="/media/js/main.js"></script>
+
+
+{% endblock %}

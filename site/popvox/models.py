@@ -1952,7 +1952,7 @@ class ServiceAccount(models.Model):
     with either a User for an individual account or an Org."""
     
     user = models.OneToOneField(User, blank=True, null=True, on_delete=models.PROTECT)
-    org = models.OneToOneField(Org, blank=True, null=True, on_delete=models.PROTECT)
+    org = models.OneToOneField(Org, related_name="serviceaccount", blank=True, null=True, on_delete=models.PROTECT)
     name = models.CharField(max_length=100, blank=True, null=True)
     
     permissions = models.ManyToManyField(ServiceAccountPermission, blank=True)

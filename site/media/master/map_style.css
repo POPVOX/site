@@ -20,6 +20,9 @@ body {
 body.width_274 {
 	background: url(../widget/bg_mini-map.gif) left 7px no-repeat;
 }
+body.no_legend {
+    background: url(../widget/bg_mini-map-no-legend.gif) left 7px no-repeat;
+}
 body.width_238 {
 	background: url(/media/gis/map_background_cds.png) 0 24px no-repeat;
 	background-size: 238px;
