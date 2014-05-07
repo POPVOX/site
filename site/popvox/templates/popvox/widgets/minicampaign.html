@@ -7,13 +7,51 @@
         <title>Amplification Widget - POPVOX</title> 
 
         <link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
-        <link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="/media/widget/la_widget.css">
+        <!-- <link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" />  -->
+        <link rel="stylesheet" href="/media/widget/widget_amplify.css">
 
-</head>
+	</head>
+	
+	<body id="widget_amplify">
+	
+		<div class="content" id="amplify">
+			<!-- <img id="logo" src="https://s3.amazonaws.com:443/static.popvox.com/{{org.logo}}"> -->
+			<img id="logo" src="https://william.popvox.com/media/widget/_a4a_logo.gif">
+			<h2 id="campaign">{{sac.get_position_display}} {{sac.bill.nicename}},<br />
+				By the Numbers
+			</h2>
+			<h3>How many messages sent?</h3>
+			<h4><em>{{total}}</em> Total<br />Messages*</h4>
+			<p id="asterisk">*Estimated number. Actual number may vary due to vacant Senate or House seats.</p>
+			
+			<div class="hr"> </div>
+		
+			<h3>Who received the messages?</h3>
+			<h4><em>{{senate}}</em> Senate</h4>
+			<h4><em>{{commentcount}}</em> House of Representatives</h4>
+		{%if bill.executive_recipients%}
+		    {%for agency in bill.executive_recipients.all%}
+	        <h4><em>{{commentcount}}</em> {{agency.article}} {{agency.name}}</h4>
+		    {%endfor%}
+		{%endif%}
+		
+			<div class="hr"> </div>
+	
+			<h3 class="map_title">Who sent the messages?</h3>
+			<iframe id="map" width="274" scrolling="no" height="230" frameborder="0" style="overflow:hidden" marginwidth="0" marginheight="0" border="0" src="/widgets/bill-comment-map?sac={{sac.id}}&width=274&hover=0"></iframe><br>
+	
+			<div id="foot">
+				<a class="{{sac.get_position_display|lower}} lg fire_modal btn" href="/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{ocp.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">Take Action</a>
+				<a class="btn" href="{{bill.url}}/report">View Messages</a>
+				<div class="hr"> </div>
 
-<div class="content">
+				<p class="poweredby">Powered by <a href="#">POPVOX</a></p>
+			</div>
+		</div>
+
+<!--
+<div class="content" id="amplify">
 Logo: <img src="https://s3.amazonaws.com:443/static.popvox.com/{{org.logo}}"><br>
 Campaign: {{sac.get_position_display}} {{sac.bill.nicename}}<br>
 name: {{org.name}} members are making their voices heard.<br>
@@ -34,8 +72,7 @@ Where were the messages sent?<br>
 {%endif%}
 <a class="{{sac.get_position_display|lower}} lg fire_modal" href="/services/widgets/w/account/{{org.serviceaccount.api_key}}/writecongress?iframe=1&ocp={{ocp.id}}&franking=false&sbg=b36015&sbg2=e7e4dd&sfg=ffffff&lnk=cc6A11&bg=fafafa&fg=404045&fg2=555555">Take Action</a><br>
 <a href="{{bill.url}}/report">View Messages</a>
-
-</div>
+-->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
     <script src="/media/js/qtip.js"></script>
@@ -45,3 +82,5 @@ Where were the messages sent?<br>
 
 
 {% endblock %}
+
+</body>
