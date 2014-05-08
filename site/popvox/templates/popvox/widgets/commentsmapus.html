@@ -9,7 +9,7 @@
             body {
                 margin: 0;
                 padding: 0;
-                {% if request.GET.background == "white" %}background: white;{% endif %}
+                {% if bg %}background: {{bg}};{%endif%}
             }
             
             #mapdots .dots { display: none; }

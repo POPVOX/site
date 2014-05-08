@@ -110,6 +110,10 @@ def commentmapus(request):
     regulation = None
     show = False
     position = False
+    
+    bgcolor = False
+    if request.GET["background"]:
+        bgcolor = str(request.GET["bg"])
 
     import widgets_usmap
     
@@ -284,6 +288,7 @@ def commentmapus(request):
             count[district]["label"] = statenames[district[0:2]] + u"\u2019s " + district[2:] + ordinate(int(district[2:])) + " District"
     
     return render_to_response('popvox/widgets/commentsmapus.html', {
+        "bg": bgcolor,
         "bill": bill,
         "position": position,
         "regulation": regulation,
