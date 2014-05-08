@@ -113,7 +113,7 @@ def commentmapus(request):
     
     bgcolor = False
     if request.GET["background"]:
-        bgcolor = str(request.GET["bg"])
+        bgcolor = str(request.GET["background"])
 
     import widgets_usmap
     
