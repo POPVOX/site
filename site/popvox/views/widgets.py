@@ -13,6 +13,7 @@ from popvox.govtrack import statenames, ordinate, CURRENT_CONGRESS
 from settings import SITE_ROOT_URL
 
 import urllib
+import sys
 
 def do_not_track_compliance(f):
     def g(request, *args, **kwargs):
@@ -158,6 +159,7 @@ def commentmapus(request):
             
         if sac.position != '0':
             position = sac.position
+        sys.stderr.write(str(position))
                 
         comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
 
@@ -363,6 +365,43 @@ def minimap(request):
         "con": con,
         "comments":total,
     }, context_instance=RequestContext(request))
+
+@strong_cache
+@do_not_track_compliance
+def minicampaign(request):
+    import sys
+    
+    if not request.GET["sac"]:
+        return HttpResponseBadRequest("This embed code is invalid.")
+    
+    sac = get_object_or_404(ServiceAccountCampaign, id=request.GET["sac"])
+    account = sac.account
+    
+    #This is a pro feature; make sure they've got permission
+    if not ServiceAccountPermission.objects.get(name='mini-campaign-widget') in account.permissions.all():
+        return HttpResponseBadRequest("Embed failed. Please contact POPVOX about this pro feature.")
+    
+    org = get_object_or_404(Org, serviceaccount=account)
+    try:
+        bill = sac.bill
+    except:
+        raise HttpResponseBadRequest("This widget only works for campaigns on legislation, not regulations.")
+    ocp = OrgCampaignPosition.objects.get(campaign__org=org, bill=bill)
+    commentcount = ServiceAccountCampaignActionRecord.objects.filter(campaign=sac, completed_stage='finished', share_record=True).count()
+    agencies = bill.executive_recipients.all().count()
+    total = commentcount * (3 + agencies)
+    senate = commentcount * 2
+    
+    return render_to_response('popvox/widgets/minicampaign.html', {
+        "sac": sac,
+        "org": org,
+        "bill": bill,
+        "ocp": ocp,
+        "commentcount": commentcount,
+        "total": total,
+        "senate": senate,
+    }, context_instance=RequestContext(request))
+    
 
 @do_not_track_compliance
 def bill_text(request):

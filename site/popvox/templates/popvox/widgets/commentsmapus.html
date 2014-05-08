@@ -117,6 +117,9 @@
             /* totals: {{totals}} */
         </script>
     </head>
+    {% if position and width == 274 %}
+        <body class="colormode_1 width_{{width}} no_legend">
+    {% else %}
     {% if regulation %}
         <body class="colormode_2 width_{{width}}">
     {% else %}
@@ -128,6 +131,7 @@
         {% else %}
             <body class="colormode_1 width_{{width}}">
         {% endif %}
+    {% endif %}
     {% endif %}
     {% endif %}
         <div id="mapdots">

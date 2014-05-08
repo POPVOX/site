@@ -20,6 +20,9 @@ body {
 body.width_274 {
 	background: url(../widget/bg_mini-map.gif) left 7px no-repeat;
 }
+body.no_legend {
+    background: url(../widget/bg_mini-map-no-legend.gif) left 7px no-repeat;
+}
 body.width_238 {
 	background: url(/media/gis/map_background_cds.png) 0 24px no-repeat;
 	background-size: 238px;
@@ -173,7 +176,7 @@ body.width_600 #brought_to_you {
 	color: #666;
 	}
 	body.width_558  #legend_sz { top: 402px; }
-    body.width_274  #legend_sz { top: 210px;  }
+    body.width_274  #legend_sz { top: 200px;  }
 #legend_text {
 	font-weight: normal;
 	top: 455px;
@@ -326,8 +329,8 @@ body.width_274 #legend_sz .first,
 body.width_274 #legend_sz .last {
 	font-size: 8px;
 	display: block;
-	width: 30px;
-	margin: 5px 45px 0 0;
+	width: 35px;
+	margin: 5px 45px -5px 0;
 }
 
 body.width_274 #legend_sz .last {
