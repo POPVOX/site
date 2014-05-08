@@ -196,8 +196,12 @@ class MemberBioAdmin(admin.ModelAdmin):
 class UserTagAdmin(admin.ModelAdmin):
     list_display = ("org","label","value")
     search_fields = ["org","label","value"]
+    
+class MailListUserAdmin(admin.ModelAdmin):
+    list_display = ["email"]
+    search_fields = ["email"]
 
-admin.site.register(MailListUser)
+admin.site.register(MailListUser, MailListUserAdmin)
 admin.site.register(IssueArea)
 admin.site.register(FederalAgency, FederalAgencyAdmin)
 admin.site.register(Org, OrgAdmin)
