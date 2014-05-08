@@ -11,7 +11,7 @@ import re
 sep = "\t"
 
 with open('qpc-campaign_info.csv','w') as info:
-    for ServiceAccountCampaign.objects.filter(account__id=1196):
+    for campaign in ServiceAccountCampaign.objects.filter(account__id=1196):
         for record in campaign.actionrecords.all():
             try:
                 user = User.objects.get(email=record.email)
