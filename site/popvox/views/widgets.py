@@ -112,8 +112,14 @@ def commentmapus(request):
     position = False
     
     bgcolor = False
-    if request.GET["background"]:
-        bgcolor = str(request.GET["background"])
+    if "background" in request.GET:
+        #check if it's a hex value or just a color like 'white'
+        try:
+            bg = int(request.GET["background"], 16)
+            bg = '#'+ request.GET["background"]
+        except ValueError:
+            bg = request.GET["background"]
+        bgcolor = str(bg)
 
     import widgets_usmap
     
@@ -163,7 +169,6 @@ def commentmapus(request):
             
         if sac.position != '0':
             position = sac.position
-        sys.stderr.write(str(position))
                 
         comments = UserComment.objects.filter(actionrecord__campaign=sac).only("state", "congressionaldistrict", "position")
 
@@ -374,7 +379,6 @@ def minimap(request):
 @strong_cache
 @do_not_track_compliance
 def minicampaign(request):
-    import sys
     
     if not request.GET["sac"]:
         return HttpResponseBadRequest("This embed code is invalid.")
