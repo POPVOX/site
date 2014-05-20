@@ -302,6 +302,12 @@ class Regulation(models.Model):
     
     def __unicode__(self):
         return self.title[0:30]
+        
+    def get_absolute_url(self):
+        return self.url()
+
+    def url(self):
+        return "/regulations/us/" + str(self.agency) + "/" + self.regnumber
     
     def isAlive(self):
         # alive = open for public comment
