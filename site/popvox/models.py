@@ -30,6 +30,9 @@ import members
 from writeyourrep.models import DeliveryRecord
 
 from popvox import http_rest_json
+import json
+import requests
+import tweepy
 
 
 # GENERAL METADATA #
@@ -941,6 +944,7 @@ class Org(models.Model):
                         else:
                             print "facebook person page without auth", self
             except Exception, e:
+                print "facebook is busted."
                 print e
                 pass
 
@@ -949,16 +953,14 @@ class Org(models.Model):
             updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, None)
         else: # add/update record
             try: # ignore network errors, etc.
-                from urllib import urlopen, quote_plus
-                from xml.dom import minidom
-                t = minidom.parse(urlopen("http://api.twitter.com/1/users/show.xml?screen_name=" + quote_plus(self.twittername.encode('utf-8'))))
-                er = t.getElementsByTagName('error')
-                if len(er) > 0:
-                    print self.twittername.encode("utf8"), er[0].firstChild.data.encode("utf8")
-                else:
-                    fc = t.getElementsByTagName('followers_count')
-                    count = int(fc[0].firstChild.data)
-                    updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, count)
+                auth = tweepy.OAuthHandler(settings.TWITTER_OAUTH_TOKEN, settings.TWITTER_OAUTH_TOKEN_SECRET)
+                auth.set_access_token(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET)
+
+                user = tweepy.API(auth).get_user(self.twittername.encode('utf-8'))
+                count = user.followers_count
+                
+                updateRecord(OrgExternalMemberCount.TWITTER_FOLLOWERS, count)
+                
             except Exception, e:
                 print self.twittername.encode("utf8"), e
                 pass
