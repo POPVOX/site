@@ -311,6 +311,15 @@ class Regulation(models.Model):
 
     def url(self):
         return "/regulations/us/" + str(self.agency) + "/" + self.regnumber
+        
+    def nicename(self):
+        # The nice name of a bill is how a bill is referred to on first
+        # reference in a non-official context. It is the street name, if
+        # one is set, with the bill number, if the bill has one, otherwise
+        # the title.
+        if self.street_name:
+                return self.street_name
+        return self.title
     
     def isAlive(self):
         # alive = open for public comment

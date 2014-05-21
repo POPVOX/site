@@ -28,7 +28,7 @@
 		<div class="comment">
 			<div class="usercomment endorse_oppose_image {% if item.position == "+" %}endorse{% endif %} {% if item.position == "-" %}oppose{% endif %}">
 				<h4>
-					<a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:15}}</a>
+					{% if item.bill %}<a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:15}}</a>{% else %}<a href="{{item.regulation.url}}">{{item.regulation.nicename|truncatewords:15}}</a>{% endif %}
 				</h4>
 				{% if not user.is_anonymous %}
 				<div class="" style="display: none">
