@@ -217,7 +217,6 @@ common_fieldnames = {
     "name_last": "lastname",
     "lastname_require": "lastname",
     "fullname": "name",
-    "fname": "name",
     "name_suffix": "suffix",
     "suffix2": "suffix",
     "address": "address_combined",
@@ -377,6 +376,7 @@ common_fieldnames = {
     "response_require": "response_requested",
     "response-needed": "response_requested",
     "radiogroup1": "response_requested",
+    "field_response_requested[und]": "response_requested",
     
     'view_select': 'support_oppose',
     
@@ -417,6 +417,23 @@ common_fieldnames = {
     #McGovern
     "ctl00_ctl06_Street": "address1",
     
+    #Renacci
+    "field_1BDF891F-B1AA-4BC0-9EEB-7507CCA03AFA": "prefix",
+    "field_067F5CC0-E4A5-4B4B-BD0E-714DBF4A797E": "firstname",
+    "field_744F331D-F0B5-4713-B150-DC32777C7BB4": "lastname",
+    "field_EBCF1290-DB1F-49D6-8039-A6C3BD6F02EA": "address1",
+    "field_0F26F776-FF16-4E0D-AFA4-C0874A8DBDE1": "address2",
+    "field_328DEB57-810A-44F0-99F2-5FB14FD96EBB": "city",
+    "field_9FFAB92C-E0CC-4053-A581-9FDCB7E5F2EA": "state",
+    "field_2891FFBE-1214-4A9A-96E3-7A9316F267BC": "zip5",
+    "field_8b65f647-f47f-4482-ad11-c94379c3330b": "zip4",
+    "field_96741AC5-3E05-45BE-AF0B-564673AD7194": "email",
+    "field_97698BF0-168D-44BF-AEAA-0C8BBEAE8F5B": "phone",
+    "field_2C5B5245-43D8-4AA0-8B6F-D1A7F1E8B0D5": "topicarea",
+    "field_CAE2B870-76B8-4AB1-BE3F-785E757F4787": "subjectline",
+    "field_57554A95-21E9-4705-AAF9-04F948CA65C6": "message",
+    "field_079666C8-6C16-4A8F-BC14-C0BA698A280F": "response_requested",
+    "telephonenumber": "phone",
     
     
     #Numbered senate fields
@@ -519,6 +536,12 @@ skippable_fields = (
     
     #Reid's Form
     "cf_field_9", "cf_field_10",
+    
+    #Renacci
+    "field_BD43206E-B2C5-4EF9-952D-DE3F1C00F6CA",
+    "field_6EB7928D-D662-4BB0-A89B-402395CE1C38",
+    "form_2BDE1712-8A30-41E5-815B-785CC6B44D37",
+    
     
     #Cantor's survey
     "ratings[how_is_the_113th_congress_doing?]",
@@ -1201,6 +1224,7 @@ def test_zipcode_rejected(webform, deliveryrec):
         or "The zip code which was entered was not found." in webform\
         or "You belong to a different Congressional District" in webform\
         or "That address falls outside" in webform\
+        or "We are sorry, but it appears that the zip code entered indicates that you reside outside of" in webform\
         or "The zip code (or zip+4) entered was not found to be a valid zip code or zip +4" in webform:
         deliveryrec.trace += u"\n" + webform.decode("utf8", "replace") + u"\n\n"
         raise DistrictDisagreementException()
@@ -1560,8 +1584,10 @@ def send_message_webform(endpoint, msg, deliveryrec):
     "Your form has been successfully submitted",
     "Your request has been successfully submitted",
     "Your message has been successfully submitted",
+    "Your email has been successfully submitted",
     "Your message has been submitted",
-    "Your message has been received"]
+    "Your message has been received",
+    "We have received your message"]
     
     for x in common_responses:
         if x in ret:

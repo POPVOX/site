@@ -61,8 +61,7 @@ else:
 # maybe wh in the future).
 
 lcenddate = getCongressDates(CURRENT_CONGRESS -1 )[1] #end date of the previous congress. this is already a datetime object.
-comments_iter = UserComment.objects.filter(
-    bill__congressnumber=CURRENT_CONGRESS,
+comments_iter = UserComment.objects.filter(Q(bill__congressnumber=CURRENT_CONGRESS) | Q(regulation__commentperiod_closed_date__gt=datetime.datetime.now()),
     status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED, UserComment.COMMENT_REJECTED), # everything but rejected-no-delivery and rejected-revised
     #this next line is to send only recent comments:
     updated__lt=datetime.datetime.now()-datetime.timedelta(hours=16), updated__gt=datetime.datetime.now()-datetime.timedelta(days=30)
