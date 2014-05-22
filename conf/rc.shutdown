@@ -1,8 +1,0 @@
-#!/bin/sh -e
-
-# Symlinked to /etc/rcX.d to execute on reboot and shutdown.
-# Used to end the www FastCGI process so that it is take out
-# of the master server's backend list.
-# Warning: This of course runs as root.
-
-su www -c "cd; cd sources/site; ./fcgi stop"

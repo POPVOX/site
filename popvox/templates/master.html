@@ -1,0 +1,514 @@
+{% load popvox_utils %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml">
+ 
+<head profile="http://gmpg.org/xfn/11"> 
+	<meta name="msvalidate.01" content="AAB0CC0BF4F5C4B3069B1B2D77798217" />
+	<meta name="alexaVerifyID" content="Nyu2St_4pPb3iubVrOBsD97TctQ" />
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" /><!--[if lte IE 8]><meta http-equiv="X-UA-Compatible" content="chrome=1"><![endif]--> 
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+	
+<!--
+                      _                                      
+ _| _ _. _  _  __ |_.(_. _   _ _  _ . _  _ _ _. _  _   |_    
+(_|(-_)|(_)| )    |_|| |(_  (-| )(_)|| )(-(-| || )(_)  |_)\/ 
+        _/                       _/               _/      /  
+ ____            _ _                 _   _       _                        
+/ ___|  ___   __| (_)_   _ _ __ ___ | | | | __ _| | ___   __ _  ___ _ __  
+\___ \ / _ \ / _` | | | | | '_ ` _ \| |_| |/ _` | |/ _ \ / _` |/ _ \ '_ \ 
+ ___) | (_) | (_| | | |_| | | | | | |  _  | (_| | | (_) | (_| |  __/ | | |
+|____/ \___/ \__,_|_|\__,_|_| |_| |_|_| |_|\__,_|_|\___/ \__, |\___|_| |_|.com
+                                                         |___/           
+-->
+
+		
+
+	<title>{% block title %}{% endblock %}{% block title2 %} - POPVOX.com{% endblock %}</title>
+	<meta name="description" content="{% block description %}{% endblock %}"/>
+	
+	<link rel="shortcut icon" href="/favicon.ico" />
+
+	<meta property="og:site_name" content="POPVOX"/>
+	<meta property="og:image" content="http://www.popvox.com/media/logo.png"/>
+	<meta property="fb:app_id" content="150910028257528"/>
+	
+	<link rel="stylesheet" href="/media/master/reset.css" type="text/css" media="screen" /> 
+	<link rel="stylesheet" href="/media/master/stylesheet.css" type="text/css" media="screen" /> 
+	<link rel="stylesheet" href="/media/master/fonts.css" type="text/css" media="screen" /> 
+	<link rel="stylesheet" href="/media/master/elizabeth.css" type="text/css" media="screen" /> 
+	
+	<script type="text/javascript" src="/media/js/jquery.js"></script>
+	<script type="text/javascript">
+		var csrf_token = "{{csrf_token}}";
+		$('html').ajaxSend(function(event, xhr, settings) { if (!/^https?:.*/.test(settings.url)) xhr.setRequestHeader("X-CSRFToken", csrf_token); });
+
+		if (/Firefox[\/\s](\d+\.\d+)/.test(navigator.userAgent)) { jQuery.fx.off = true; }
+	</script>
+	<script type="text/javascript" src="/media/js/ajaxforms.js"></script>
+	<script type="text/javascript" src="/media/js/popvox.js"></script>
+	
+	<link href="/media/css/jquery-ui-1.8.14.custom.css" rel="stylesheet" type="text/css"/> <!-- autocomplete -->
+	<script type="text/javascript" src="/media/js/jquery-ui-1.8.14.custom.min.js"></script>
+	
+	<link rel="stylesheet" href="/media/css/colorbox/colorbox.css" type="text/css" />
+	<script type="text/javascript" src="/media/js/jquery.colorbox-min.js"></script>
+
+	<script type="text/javascript" src="/media/tiny_mce/tiny_mce.js"></script>
+	<script type="text/javascript">
+	tinyMCE.init({
+		mode : "none",
+		plugins : "save",
+		theme : "advanced",
+		theme_advanced_buttons1 : "save,bold,italic,link,unlink,bullist,numlist,blockquote,undo,redo,removeformat,cleanup,code",
+		theme_advanced_buttons2 : "",
+		theme_advanced_buttons3 : "", 
+		theme_advanced_toolbar_location : "top",
+		theme_advanced_toolbar_align : "left",
+		save_onsavecallback: "tinymce_save_callback"
+		});
+	function tinymce_save_callback() {
+		if (tinyMCE.activeEditor.on_save)
+			tinyMCE.activeEditor.on_save();
+		else
+			eval(tinyMCE.activeEditor.id + "_on_save()");
+		return false;
+	}
+	
+	var master_state_obj = null;
+	var on_master_state_load = [];
+	function master_state(func) {
+		if (master_state_obj)
+			func(master_state_obj);
+		else
+			on_master_state_load.push(func);
+	}
+	if (document.cookie != "") {
+		// Normally, it is unnecessary to call the master-state view if there
+		// are no cookies because the view will return nothing useful.
+		// (TODO: Detect for only cookies that influence the response, like
+		// sessionid and csrftoken? If the user is not logged in but has
+		// a tracking cookie then there's no need to call this. Although it
+		// might be useful for server-side session tracking.)
+		$.ajax({
+			url: "/ajax/master-state",
+			data: { url: window.location.pathname },
+			dataType: "json",
+			success: function(res) {
+				csrf_token = res.csrf_token;
+				master_state_obj = res;
+				for (var i = 0; i < on_master_state_load.length; i++)
+					on_master_state_load[i](res);
+			},
+			error: function() {
+				// If the user navigates to another page before this request completes,
+				// which is fairly common, then this error handler will execute. Unfortunately,
+				// I can't seem to get it to detect when the page is unloading, so an
+				// alert here would show up at a bad time. The best thing is to not do
+				// anything (or perhaps show something on the page in a non-blocking
+				// way).
+				// alert("There was an error loading the page. Please try again.");
+			}
+		});
+	}	
+	
+	var kkeys = [], konami = "38,38,40,40,37,39,37,39,66,65";
+	$(document).keydown(function(e) {
+		kkeys.push( e.keyCode );
+		if ( kkeys.toString().indexOf( konami ) >= 0 ){
+			$(document).unbind('keydown',arguments.callee);
+			$('#wrap').append("<img src='/media/photos/easteregg.png' alt='photo of the POPVOX team' style='position: absolute; left: 150px; top: 200px; border: 1px solid black'/>");
+		} else if (konami.indexOf(e.keyCode) == -1) {
+			kkeys = [];
+		}
+	});	
+	</script>
+
+
+	<!--<script src="http://cdn.jquerytools.org/1.2.5/tiny/jquery.tools.min.js"></script>-->
+	
+	<script type="text/javascript">
+	var login_redirect = "";
+	{% block disable_login_redirect %}
+	login_redirect = '?next=' + document.location.pathname + document.location.search;
+	{% endblock %}
+	</script>
+
+    <style>
+    #signup p {
+        color: #FFFFFF;
+        font-size: 14px;
+        line-height: 20px;
+        margin: 0;
+    }
+
+    #signup span.signup_txt {
+        display: block;
+        float: left;
+        margin-top: -10px;
+        width: 700px;
+    }
+
+    #signup p span a {
+        color: #FFFFFF;
+        text-decoration: underline;
+        font: italic 16px georgia;
+    }
+
+    p span.signup_txt > strong {
+        font-size: 18px;
+    }
+    </style>
+
+	{% block head %}
+	{% endblock %}
+
+	{% if not debug %}
+	<script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-18126194-1']);
+	  _gaq.push(['_trackPageview']);
+	
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>
+	{% comment %} this is disabled since cached pages don't know who the user is
+	<script type="text/javascript">
+	_gaq.push(['_setCustomVar', 1, 'usertype', {% if not user.is_authenticated %}"anonymous"{% else %}{% if user.userprofile.is_leg_staff %}'legstaff'{% endif %}{% if user.userprofile.is_org_admin %}'orgstaff'{% endif %}{% if not user.userprofile.is_leg_staff and not user.userprofile.is_org_admin %}"individual"{% endif %}{% endif %}, 1]);
+	</script>
+	{% endcomment %}
+	{% endif %}
+
+    {% if not debug %}{% comment %}analytics code from Sam{% endcomment %}
+    <script type="text/javascript">
+      var heap=heap||[];heap.load=function(a){window._heapid=a;var b=document.createElement("script");b.type="text/javascript",b.async=!0,b.src=("https:"===document.location.protocol?"https:":"http:")+"//cdn.heapanalytics.com/js/heap.js";var c=document.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c);var d=function(a){return function(){heap.push([a].concat(Array.prototype.slice.call(arguments,0)))}},e=["identify","track"];for(var f=0;f<e.length;f++)heap[e[f]]=d(e[f])};
+      heap.load("3285596539");
+    </script>
+    {% endif %}
+</head>
+<body {% block bodyattributes %}{% endblock %}>
+
+<div id="signup">
+	<div>
+		<!--<p class="close_x">close</p>-->
+		<p><span class="signup_txt">Check out our guide, <a href="https://www.popvox.com/files/washingtonian.pdf">How to Speak Washingtonian</a>--stay in touch with us on <a href="https://www.facebook.com/POPVOXnation">Facebook</a> and <a href="https://twitter.com/POPVOX">Twitter</a>.</span><a href="http://popvox.wufoo.com/forms/z7x3x5/" target="_blank" class="btn b_signup_updates">sign up for updates</a></p>
+	</div>
+</div><!-- e: signup -->
+<div class="clear"> </div>
+
+<div id="wrap"> 
+	<div id="head"> 
+		<a href="/" id="logo">POPVOX</a>
+		<div id="beta">beta</div> 
+		
+		<div {% block navattributes %}id="content_head_r"{% endblock %}>
+			<ul id="nav"> 
+				{% block navbarlinks %}{% endblock %}
+				<li class="last admin" style="display: none;"><a style="font-weight: bold; color: #FCC" href="/admin">ADMIN</a></li>
+				{% block loginblock %}
+				<li class="profilelink" style="display: none;"><a href="/accounts/profile">Account</a></li>
+				<li class="logoutlink" style="display: none;"><a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a></li>
+				{% comment %}
+				<li id="profilemenu" style="display: none;">
+					<a href="#"></a>
+					<ul>
+						<a href="/home">Home</a>
+						<a href="/accounts/profile">Account Settings</a>
+						<a href="/accounts/logout" onclick="document.location = '/accounts/logout' + login_redirect; return false;">Logout</a>
+					</ul>
+				</li>
+				{% endcomment %}
+				<li class="loginlink" style="display: none;"><a href="/accounts/login" onclick="document.location = '/accounts/login' + login_redirect; return false;">Join or Login</a></li>
+				{% endblock %}
+				<li><a href="/blog">Blog</a></li>
+				<li><a href="/press">Press</a></li>
+				<li><a href="/about" class="last">About</a></li>
+				{% if page == "homepage" %}
+				<li>
+					<div id="search_head" style="margin-top: 8px">
+						<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
+							<input type="text" value="" name="q" class="search" id="master_billsearch_q"><br />
+							<input type="submit" value="Search" class="submit_search btn">
+							<script type="text/javascript">$('#master_billsearch_q').input_default("bill number or keywords");</script>
+						</form>
+					</div>
+				</li>
+				{% endif %}
+			</ul>
+			
+			{% block head_r_content %}
+				{% comment %} On the homepage, this is replaced by Verified, Quantified, ... {% endcomment %}
+			<ul id="nav_2"> 
+				<div class="legstaff_role" style="display: none;">
+					<li class="{%block nav_legstaff_class_dashboard%}{%endblock%}"><a href="/home">Dashboard</a></li>
+					<li class="{%block nav_legstaff_class_docket%}{%endblock%}"><a href="/docket">Docket</a></li>
+					<li class="{%block nav_legstaff_class_comments%}{%endblock%}"><a href="/activity">Comments</a></li>
+					<li class="last {%block nav_legstaff_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
+					<li class="last {%block nav_legstaff_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
+				</div>
+				<div class="orgadmin_role" style="display: none;">
+					<li class="{%block nav_orgadmin_class_dashboard%}{%endblock%}"><a href="/home">Home</a></li>				
+                    <li class="last {%block nav_orgadmin_class_bills%}{%endblock%}"><a href="/bills">Bills</a></li>
+                    <li class="{%block nav_orgadmin_class_congress%}{%endblock%}"><a href="/gettoknow">Congress</a></li>
+					<li class="last {%block nav_orgadmin_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
+                    <li class="{%block nav_orgadmin_class_reports%}{%endblock%}"><a href="/services/widgets">Services</a></li>
+                    <li class="last {%block nav_orgadmin_class_calendar%}{%endblock%}"><a href="/calendar">Calendar</a></li>
+				</div>
+				<div class="individual_role">
+					<li class="homelink {%block nav_citzen_class_home%}{%endblock%}"><a href="/">Home</a></li>
+					<li class="{%block nav_citzen_class_bills%}{%endblock%}"><a href="/bills">Bills in Congress</a></li> 
+                    <li class="{%block nav_citzen_class_congress%}{%endblock%}"><a href="/gettoknow">Congress</a></li>
+					<li class="last {%block nav_citzen_class_orgs%}{%endblock%}"><a href="/orgs">Organizations</a></li>
+                    <li class="{%block nav_citzen_class_reports%}{%endblock%}"><a href="/services/widgets">Services</a></li>
+				</div>
+				<div id="search_head">
+					<form method="get" action="/bills/search" onsubmit="return !$('#master_billsearch_q').hasClass('default')">
+						<fieldset>
+							<input type="text" value="" name="q" class="search" id="master_billsearch_q"/><br />
+							<input type="submit" value="Search" class="submit_search btn"/>
+						</fieldset>
+						<script type="text/javascript">$('#master_billsearch_q').input_default("bill number or keywords");</script>
+					</form>
+				</div>
+			</ul>
+			{% endblock %}
+			{% block subnav %}
+			{% include "popvox/home_user_subnav.html" %}
+			{% endblock %}
+			{% comment %}
+			<ul id="subnav">
+				<li><a href="#">Item One</a></li>
+				<li><a href="#">Item Two</a></li>
+					<div>
+						<ul class="dropnav">
+							<li><a href="#">Blog Home</a></li>
+							<li><a href="#">Press Releases</a></li>
+							<li><a href="#">Why POPVOX Works</a></li>
+							<li><a href="#">Team Bios</a></li>
+						</ul>
+					</div>
+			</ul>
+			{% endcomment %}
+		</div>
+	</div><!-- e: head --> 
+
+	<script type="text/javascript">master_state(function (res) {
+		if (!res.user) {
+			$('#nav .loginlink').show();
+			$('#nav_2 .individual_role').show();
+            $('#master_profile_orglist_li').remove();
+		} else {
+			$('#nav .profilelink, #nav .logoutlink').show();
+			if (res.user.admin)
+				$('#nav .admin').show();
+
+			if (res.user.legstaffrole) {
+				$('#nav_2 .legstaff_role').show();
+				$('#nav_2 .individual_role').hide();
+				$('#nav .profilelink a').text(res.user.fullname);
+                $('#master_profile_orglist_li').remove();
+			} else if (res.user.orgs.length > 0) {
+				$('#nav_2 .individual_role').hide();
+				$('#nav_2 .orgadmin_role').show();
+				if (res.user.orgs.length == 1) {
+					$('#master_profile_orglist_li a').attr('href', res.user.orgs[0].url)
+				} else {
+					$('#master_profile_orglist_li a').attr('onclick', 'return false;');
+					$('#master_profile_orglist_li').hover(function() {
+						$('#master_profile_orglist').show();
+					}, function() {
+						$('#master_profile_orglist').fadeOut();
+					});
+					for (var i = 0; i < res.user.orgs.length; i++)
+						$('#master_profile_orglist_li .orglist_li').append(
+							$("<a href=''/>").attr('href', res.user.orgs[i].url)
+								.text(res.user.orgs[i].name)
+							);
+				}
+				$('#nav .profilelink a').text(res.user.fullname);
+			} else {
+				$('#nav_2 .individual_role').show();
+				$('#nav_2 .individual_role .homelink a').attr('href', '/home');
+				if (res.user.serviceaccounts.length > 0)
+					$('#nav_2 .individual_role .analyticslink').show();
+				$('#nav .profilelink a').text(res.user.screenname);
+                $('#master_profile_orglist_li').remove();
+			}
+		}
+	});
+	</script>
+	
+	<div id="page"> 
+		{% block body %} {% comment %} the articles app uses 'content' for the article content, so we surround it here with 'body' so we kill "content" if a "body" is given {% endcomment %}
+		{% block content %}
+		{% endblock content %}
+		{% block sidebar %}
+		{% endblock sidebar %}
+		{% endblock body %}
+		
+		<div class="clear"> </div> 
+	</div><!-- e: page --> 
+	
+	
+	<div id="footer"> 
+		<span class="legal"><a href="/about">Learn more about POPVOX</a> or <a href="/about/contact">contact us</a>.
+		<br/>Copyright © {% now "Y" %} POPVOX.</span> 
+		<ul> 
+			<li><a href="/about">About</a></li> 
+			<li><a href="/blog">Blog</a></li>
+			<li><a href="/press">Press</a></li>
+			<li><a href="/advertising">Advertising</a></li> 
+			<li><a href="/faq">FAQ</a></li>
+			<li><a href="/legal">Privacy and Terms</a></li>
+		</ul>
+		
+		<ul id="staff_switch_user" style="display: none">
+			<li><a href="/accounts/switchuser/demo_user">demo_user</a></li>
+			<li><a href="/accounts/switchuser/demo_leg_staffer">demo_leg_staffer</a></li>
+			<li><a href="/accounts/switchuser/demo_org_staffer">demo_org_staffer</a></li>
+		</ul>
+		<script>
+		master_state(function(res) {
+			if (!res.user) return;
+			if (res.user.admin || res.user.screenname == "POPVOXTweets" || res.user.screenname == "demo_org_staffer" || res.user.screenname == "demo_leg_staffer")
+				$('#staff_switch_user').show();
+		});
+		</script>
+
+		{% block footer %}{% endblock %}
+		
+		{% if debug %}<div>Adserver targets: {{request.adserver_targets}}</div>{% endif %}
+		{% for sql in sql_queries %}
+			{% if forloop.first %}
+				<div>
+				<table>
+			{% endif %}
+			<tr><td style="border-bottom: 1px solid black; padding-right: 2em">{{sql.time}}</td> <td style="border-bottom: 1px solid black">{{sql.sql}} <pre>{{sql.stack}}</pre></td></tr>
+			{% if forloop.last %}
+				</table>
+				</div>
+			{% endif %}
+		{% endfor %}
+	</div><!-- e: footer -->
+		
+</div><!-- e: wrap --> 
+
+{% if show_share_footer %}
+<div id="share_footer">
+	<h3>Share This Page</h3>
+	<ul>
+		<li><a href="#" class="icon twitter">twitter</a></li>
+		<li><a href="#" class="icon facebook">facebook</a></li>
+		<li><a href="#" class="icon reddit">reddit</a></li>
+		<li><a href="#" class="icon tumblr">tumblr</a></li>
+		
+		{% if request.META.HTTP_DNT != 1 %}
+		<li class="facebook_like">
+			<iframe src="//www.facebook.com/plugins/like.php?href={{request.build_absolute_uri|urlencode}}&amp;send=false&amp;layout=button_count&amp;width=50&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font=verdana&amp;height=21&amp;appId=247867291947651" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:21px;" allowTransparency="true"></iframe>
+		</li>
+		<li class="google_plusone">
+			<!-- Place this tag where you want the +1 button to render -->
+			<div class="g-plusone" data-size="small" data-href="{{request.build_absolute_uri}}"></div>
+			
+			<!-- Place this render call where appropriate -->
+			<script type="text/javascript">
+			  (function() {
+				var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+				po.src = 'https://apis.google.com/js/plusone.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+			  })();
+			</script>
+		</li>
+		{% endif %}
+	</ul>
+</div>
+<script type="text/javascript">
+function share_footer_share() {
+	var share_type = $(this).text();
+	
+	if (window.location.protocol == "http:") {
+		// For the blog, we can't call the AJAX interface to get a shorturl.
+		// We don't have a shorturl anyway.
+		share_link(share_type, $('title').text(), window.location.href, null);
+		mixpanel.track("master_share", { service: share_type, view: "http", url: window.location.href });
+		return false;
+	}
+	
+	$.ajax({
+		url: "/ajax/get-short-url",
+		data: { url: "{{request.path|escapejs}}" },
+		type: "POST",
+		dataType: "json",
+		success: function(res) {
+			if (!res.title) res.title = $('title').text();
+			share_link(share_type, res.title, res.shorturl, res.hashtag);
+			mixpanel.track("master_share", { service: share_type, view: res.view, url: window.location.href });
+		}
+	});
+	return false;
+}
+$('#share_footer a.icon').click(share_footer_share);
+
+// Mobile Safari before iOS 5 does not support fixed positioning, so revert to static
+// so that it goes to the bottom of the page.
+if (navigator.userAgent.match(/Mobile\//) && navigator.userAgent.match(/Safari\//) && !navigator.userAgent.match(/OS 5_\d+ like Mac/)) {
+	$('#share_footer').css({ position: "static", marginLeft: "0" });
+}
+</script>
+{% endif %}
+
+<script type="text/javascript">
+{% comment %}// http://www.badlydrawntoy.com/2009/03/03/replacing-target_blank-for-strict-xhtml-using-jquery-redux/ {% endcomment %}
+$(function() {
+	$("a[class=blank]").attr("target", "_blank");
+});
+</script>
+
+<!-- mixpanel -->
+{% if not debug %}
+<!-- start Mixpanel --><script type="text/javascript">(function(e,b){if(!b.__SV){var a,f,i,g;window.mixpanel=b;a=e.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===e.location.protocol?"https:":"http:")+'//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';f=e.getElementsByTagName("script")[0];f.parentNode.insertBefore(a,f);b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==
+typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");for(g=0;g<i.length;g++)f(c,i[g]);
+b._i.push([a,e,d])};b.__SV=1.2}})(document,window.mixpanel||[]);
+mixpanel.init("6db7097c351adc437da30e64e0d86d1");</script><!-- end Mixpanel -->
+{% endif %}
+
+
+<script type="text/javascript">
+{% comment %}wont work on cached page...
+{% with request.session.shorturl.target.meta as surlm %}
+	{% if surlm.mixpanel_event %}
+		mixpanel.track("{{request.session.shorturl.target.meta.mixpanel_event|escapejs}}"{% if surlm.mixpanel_properties %}, {{surlm.mixpanel_properties|json}}{% endif %});
+	{% endif %}
+{% endwith %}
+{% endcomment %}
+master_state(function (res) {
+	if (!res.user) {
+		mixpanel.register({ 'user type': "anonymous" });
+	} else {
+		mixpanel.identify("pv_uid_" + res.user.id);
+		mixpanel.name_tag(res.user.email);
+		if (res.user.legstaffrole)
+			mixpanel.register({ 'user type': "legstaff" });
+		else if (res.user.orgs.length > 0)
+			mixpanel.register({ 'user type': "orgstaff" });
+		else
+			mixpanel.register({ 'user type': "individual" });
+	}
+});
+</script>
+
+{% if request.META.HTTP_DNT != 1 %}
+<!-- Start of HubSpot Tracking Code -->
+<script type="text/javascript" language="javascript"> var hs_portalid=119824; var hs_salog_version = "2.00"; var hs_ppa = "popvox1.app10.hubspot.com"; document.write(unescape("%3Cscript src='" + document.location.protocol + "//" + hs_ppa + "/salog.js.aspx' type='text/javascript'%3E%3C/script%3E")); </script>
+<!-- End of HubSpot Tracking Code -->
+{% endif %}
+
+{% block finalscript %}{% endblock %}
+
+</body> 
+</html>
+

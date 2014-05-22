@@ -1,6 +1,0 @@
-#!/bin/bash
-export MASTER=10.91.9.144
-sudo apt-get -y install git
-git clone --bare git://$MASTER/sources.git sources.git
-GIT_DIR=sources.git git show master:ec2/sysinit > sysinit
-

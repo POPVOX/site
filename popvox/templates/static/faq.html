@@ -1,0 +1,839 @@
+{% extends "master.html" %}
+{% load popvox_utils %}
+{% block title %}POPVOX Frequently Asked Questions{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}Learn about how POPVOX works through frequently asked questions.{% endblock %}
+{% block head %}
+<style>
+    .active {
+        font-weight: bold;
+        }
+    
+    #searchbox.error {
+        color: red;
+        }
+        
+.faq .col_9 {
+    padding-top: 0;
+    }
+    
+.faq_item {
+    border-top: 1px solid #a7a599;
+    padding-bottom: 15px;
+    }   
+
+.faq h1 {
+    background: url("/media/master/bg_rule.gif") repeat-x left bottom;
+    }
+    
+.faq h2 {
+    font: normal 28px/28px 'BebasNeueRegular', helvetica, arial, sans-serif;
+    border-top: 1px solid #a7a599;
+    background: none repeat scroll 0 0 #D4D1CA;
+    padding: 15px 0 10px 20px;
+    }
+    
+    /*.faq h2.c_bills   {
+        background: url(bg_icon_privacy.png) left top no-repeat;
+        }
+        
+    .faq h2.c_orgs  {
+        background: url(bg_icon_privacy.png) left center no-repeat;
+        }
+
+    .faq h2.c_message {
+        background: url(bg_icon_privacy.png) left center no-repeat;
+        }
+
+    .faq h2.c_hill  {
+        background: url(bg_icon_privacy.png) left center no-repeat;
+        }*/
+
+.faq h3 {
+    font: bold 18px/24px helvetica,arial,sans-serif;
+    text-transform: none;
+    color: #404045;
+    background: none;
+    margin: 20px 0 10px;
+    padding: 0;
+    }
+    
+#search_faq {
+    display: block;
+    float: right;
+    height: 42px;
+    width: 215px;
+    background: #d4d1ca;
+    margin-top: 5px;
+    }
+
+    #search_faq input {
+        border: 1px solid #b0aea3;
+        border-radius: 12px;
+        -moz-border-radius: 12px;
+        -webkit-border-radius: 12px;
+        -khtml-border-radius: 12px;
+        background: #fff url(/media/master/bg_mag.png) 160px center no-repeat;
+        margin: 10px 15px;
+        padding: 3px 10px;
+        width: 160px;
+        }
+        
+
+.faq .img_r {
+    border: 2px solid #CC6A11;
+    margin: 0 0 10px 15px;
+    cursor: pointer;
+    }
+    
+.faq .b_expand {
+    font-size: 11px;
+    padding: 1px 5px;
+    }
+.faq .b_collapse {
+    float: right;
+    font-weight: bold;
+    font-size: 11px;
+    padding: 1px 5px;
+    height: 16px;
+    }
+    
+    .faq .b_expand:hover, .faq .b_collapse:hover {
+        color: #fff;
+        background: #CC6A11;
+        cursor: pointer;
+        }
+        
+.faq .tags {
+    clear: both;
+    margin-top: -5px;
+    }
+
+.faq .tags li {
+    float: left;
+    margin: 0 3px 3px 0;
+    padding: 3px;
+    background: #CC6A11;
+    color: #fff;
+    font: bold 11px/11px helvetica, arial, sans-serif;
+    cursor: pointer;
+    }           
+    
+.faq .tags a {
+    display: block;
+    float: left;
+    margin: 0 3px 3px 15px;
+    padding: 3px;
+    font: bold 11px/11px helvetica, arial, sans-serif;
+    }           
+    .faq .tags a:hover {
+        border: none;
+    }
+
+
+/* faq col_right */
+
+/* temp */
+            .faq .ad {              
+                background: #d4d1ca;
+                /*height: 66px;*/
+                margin-bottom: 15px;
+                }
+                
+            .faq .item {
+                display: none;
+                }
+    
+.faq .sub {
+    background: #d4d1ca;
+    margin-bottom: 15px;
+    }
+    
+    .faq .sub h2 {
+        font: bold 18px/18px helvetica, arial, sans-serif;
+        text-transform: uppercase;
+        margin: 0 0 10px;
+        padding: 0;
+        border: 0;
+        }
+
+    .faq .sub ul li {
+        line-height: 18px;
+        }
+        
+        .faq .sub li a {
+            color: #CC6A11;
+            font-weight: bold;
+            }
+    
+            .faq .sub li.active a {
+                border: 1px solid #CC6A11;
+                padding: 2px 10px;
+                -moz-border-radius: 12px;
+                -webkit-border-radius: 12px;
+                -khtml-border-radius: 12px;
+                border-radius: 12px;
+                }
+                
+    #tags li {
+        margin: 8px 0;
+        height: 13px;
+        text-transform: lowercase;
+        }
+        
+    #tags li a {
+        margin: 0 0 3px 0;
+        padding: 3px;
+        background: #CC6A11;
+        color: #fff;
+        font: bold 11px/11px helvetica, arial, sans-serif;
+        }
+        
+.faq_category h2 { /* temporary improvement till we have icons */
+    background: none repeat scroll 0 0 #D4D1CA;
+    padding: 15px 0 10px 60px;
+}
+</style>
+<script>
+    function populate_categories_tags() {
+        $('.faq_category').each(function() {
+            var tag = $("<li/>");
+            var tag_a = $("<a href=\"#\"/>");
+            var tag_n = $("<span class=\"name\"/>");
+            var tag_s = $("<span/>");
+            tag.append(tag_a);
+            tag_a.append(tag_n);
+            tag_n.text($(this).find("h2").text());
+            tag_a.append(tag_s);
+            tag_s.text(" (" + $(this).find(".faq_item").length + ")");
+            $('#categories').append(tag);
+            tag_a.click(function(e) { return show_cat_tag('categories', tag); });
+        });
+        
+        var all_tags = { };
+        var tag_count_max = 0;
+        
+        $('.faq_item ul.tags li').each(function() {
+            var tag = $(this).text();
+            if (!all_tags[tag]) all_tags[tag] = 0;
+            all_tags[tag] += 1;
+            tag_count_max = Math.max(all_tags[tag], tag_count_max);
+        });
+        
+        // write out tags in descending order of number of questions with that tag
+        for (var i = tag_count_max; i > 0; i--) {
+            for (var j in all_tags) {
+                if (all_tags[j] == i) {
+                    var f = function() {
+                        var tag = $("<li/>");
+                        var tag_a = $("<a href=\"#\"/>");
+                        var tag_n = $("<span class=\"name\"/>");
+                        var tag_s = $("<span/>");
+                        tag.append(tag_a);
+                        tag_a.append(tag_n);
+                        tag_a.append(tag_s);
+                        tag_n.text(j);
+                        tag_s.text(" (" + all_tags[j] + ")");
+                        $('#tags').append(tag);
+                        tag_a.click(function(e) { return show_cat_tag('tags', tag); });
+                    }();
+                }
+            }
+        }
+    }
+    
+    function show_cat_tag(cattag, item) {
+        var is_active = item.hasClass("active");
+        $('#' + cattag + ' li').removeClass("active");
+        item.toggleClass("active", !is_active);
+        do_search();
+        return false;
+    }
+    
+    function do_search(count_only) {
+        // If no items match the result, don't hide them all. Just
+        // indicate an error.
+        if (!count_only) {
+            if (!do_search(true)) {
+                $('#searchbox').addClass("error")
+                return false;
+            }
+            
+            $('#searchbox').removeClass("error")
+        }
+        
+        // hide and show each faq item
+        var q = $('#searchbox').hasClass("default") ? "" : $('#searchbox').val().toLowerCase();
+        var cat = $('#categories .active a span.name').text();
+        var tag = $('#tags .active a span.name').text();
+        
+        var has_any_item = false;
+        
+        $('.faq_category').each(function() {
+            var has_item = false; 
+            $(this).find('.faq_item').each(function() {
+                    var matches_tag = false;
+                    $(this).find('ul.tags li').each(function() {
+                        if (tag == $(this).text()) matches_tag = true; 
+                    });
+                            
+                    var show =
+                              (q == "" || $(this).text().toLowerCase().indexOf(q) >= 0 || $(this).find(">a").attr("name") == q)
+                        && (cat == "" || $(this.parentNode).find("h2").text() == cat)
+                        && (tag == "" || matches_tag)
+                        ;
+                    if (show) has_item = true;
+                    if (!count_only) $(this).toggle(show);
+                    return 0;
+            });
+            if (!count_only) $(this).toggle(has_item);
+            if (has_item) has_any_item = true;
+        });
+        
+        if (!count_only) {
+            $('h2').removeClass('c_first');
+            $('h2:visible:first').addClass('c_first');
+        }
+        
+        return has_any_item;
+    }
+    
+    function show_popup() {
+        $('#image_popup img').attr('src', this.getAttribute("src").replace("thumb_", ""));
+        $.colorbox({inline: true, href:"#image_popup", width: 800, height: 630, transition: "none"});
+    }
+    
+    $(function() {
+            populate_categories_tags();
+            
+            $('#searchbox').input_default("search faq");
+            $('#searchbox').textchange(function() { do_search(false); });
+            
+            $('h2:first').addClass('c_first');
+            
+            // add expand/collapse links
+            
+            $('.faq_item').each(function() {
+                    var p = $(this).find('p');
+                    if (p.length > 1) {
+                        $(p[0]).append('<a class="b_expand">read more...</a>');
+                        $(p[p.length-1]).append('<a class="b_collapse">collapse [-]</a>');
+                        $('.faq_item').find('p:not(:first)').hide();
+                    }
+            });
+            
+            $('.b_expand').each(function() {
+                var node = this;
+                $(node).click(function() {
+                    $(node).fadeOut();
+                    $(node.parentNode.parentNode).find('p').fadeIn();
+                });
+            });
+
+            $('.b_collapse').each(function() {
+                var node = this;
+                $(node).click(function() {
+                    $(node.parentNode.parentNode).find('p:not(:first)').fadeOut();
+                    $(node.parentNode.parentNode).find('.b_expand').fadeIn();
+                });
+            });
+            
+            // add permalinks
+            
+            $('.faq_item').each(function() {
+                var a = $(this).find(">a");
+                if (a) {
+                    var name = a.attr("name");
+                    $(this).find('.tags').append("<a href=\"#" + name + "\">permalink</a>");
+                }
+            });
+            
+            // make the item tag list active
+            
+            $('.tags li').each(function() {
+                $(this).click(function() {
+                    var tag = $(this).text();
+                    $('#tags li a').each(function() {
+                        if ($(this).find('span.name').text() == tag)
+                            $(this).click();
+                    });
+                });
+            });
+            
+            // make the image thumbnails active
+            
+            $('.faq_item .img_r').click(show_popup);
+            
+            // default search
+            
+            if (window.location.hash.length > 1) {
+                $('#searchbox').set_text(window.location.hash.substr(1));
+                do_search();
+            }
+    });
+    
+</script>
+{% endblock %}
+{% block content %}
+
+<div style="display: none">
+    <div id="image_popup">
+        <img/>
+    </div>
+</div>
+
+<div class="content">
+<div class="col_12 col_top faq">
+
+    <div class="col_9">
+        
+        <h1>Frequently Asked Questions</h1>
+
+        <p>Here are some questions frequently asked by real POPVOX users, and our answers to them. If you have a question, please email us at <a  href="mailto:info@popvox.com">info@popvox.com</a>. Chances are that other POPVOX users are thinking about the same question, so do us a favor and let us know!</p>
+
+        <div id="search_faq">
+            <form onsubmit="return false;">
+                <input id="searchbox" type="text" />
+            </form>
+        </div>
+
+        <div class="faq_category">
+            
+            <h2 class="c_bills">Bills, Lists, and Alerts</h2>
+            
+            <div class="faq_item">
+                <a name="billtitles"><h3>Where do the bill titles come from? Some seem so biased.</h3></a>
+                <p>The titles listed on each bill page are the official titles of the legislation.  The Congressional sponsor of the bill picks the bill&rsquo;s title.  Some official titles are short and sound like a traditional title (i.e., the <a href="/bills/us/112/hr1124">Fairness in Taxation Act</a>) while others are long descriptions of what the bill actually does: "<a href="/bills/us/112/s797">S. 797: A bill to amend the Fair Labor Standards Act of 1938 to provide more effective remedies to victims of discrimination in the payment of wages on the basis ...</a>", (commonly known as the <a href="/bills/us/112/s797">Paycheck Fairness Act</a>.)</p>
+                <p>Remember the 2010 Tax Cut Extension? Well, officially, it was &ldquo;<a href="/blog/2010/the-tax-cut-extension-or-senate-amendment-to-the-h/">the Senate amendment to the House amendment to the Senate amendment to H.R. 4853</a>.″ Seriously.</p>
+                <p>For confusing, long-winded titles like these, POPVOX may display a popular &ldquo;street&rdquo; name for the bill instead. The street name comes either from Congress&rsquo;s own research team, the Congressional Research Service, or the POPVOX team based on how the bill is referred to in the media or by the public.</p>
+                <ul class="tags">
+                    <li>bills</li>
+                    <li>balance</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="howtrends"><h3>How are bills and organizations categorized on POPVOX? Where do these categories come from?</h3></a>
+                <p>The issue categories that POPVOX uses comes from Congress&rsquo;s own issue area designations.</p>
+                <ul class="tags">
+                    <li>bills</li>
+                    <li>trending</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+            
+            <div class="faq_item">
+                <a name="nosummary"><h3>Wouldn&rsquo;t it be nice if you summarized the bills so we knew what they were really about?</h3></a>
+                <p>We think it is important to understand what a bill is before weighing in on it, but at the same time we are constrained by our company principle of not editorializing. So rather than us providing summaries of bills, we allow organizations to provide their own perspectives. On many pages for bills the statements of advocacy organizations about the bill are listed.</p> 
+                <p>The trouble is that for exactly those bills that are complicated enough to need a lot of explanation, there is really no way to provide an objective summary. A summary has to choose what aspects of the bill are important and which are not, and then requires some interpretation to explain how the legalese in the bill will make an impact. Rather than adding our own subjective interpretations of bills into the mix, we hope that the variety of opinions coming from advocacy organizations gives a good, broad overview of the issues surrounding a bill.</p>
+                <ul class="tags">
+                    <li>bills</li>
+                    <li>balance</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="howalerts"><h3>How are the POPVOX Alerts put together?</h3></a>
+                <p>Some users receive occasional &ldquo;POPVOX Alert&rdquo; bill recommendations via email. These recommendations are our response to a large number of POPVOX users who told us they want two things: (1) bills related to their interests, and (2) bills that are especially popular among others on POPVOX.</p>
+
+                <p>While we test this feature, Rachna compiles the lists manually. So, for example, if you weighed in on <a href="/bills/us/112/hr25">H.R. 25, the Fair Tax Act</a>, you may receive an email with a few other tax-related bills, along with a list of Trending Bills on POPVOX. Since you already weighed in on H.R. 25, it won&rsquo;t be included on the email Alerts list.  The list also won&rsquo;t include every tax-related bill (the email would be too long!), just a select few we think may interest you. POPVOX will never take positions on bills or issues.</p>
+                <ul class="tags">
+                    <li>bills</li>
+                    <li>alerts</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="howtrends"><h3>How is the Trending Bills of the Week list compiled?</h3></a>
+                <img class="img_r" src="/media/faq/thumb_trendingbills.jpg" alt="trending bills image thumbnail" width="102" height="71"/>
+                <p>These are the most popular bills from the last seven days. It updates in real time, so keep checking back often to see what other POPVOX users are weighing in on!</p>
+                <ul class="tags">
+                    <li>bills</li>
+                    <li>trending</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="howtrends"><h3>How can I stay in touch with POPVOX and get updated on bills pending before Congress?</h3></a>
+                <p>You can find us on Facebook at <a href="http://facebook.com/POPVOXnation">facebook.com/POPVOXnation</a> or on Twitter <a href="https://twitter.com/#!/popvox">@POPVOX</a>. You can also subscribe to a daily email of our Bill Picks.</p>
+                <ul class="tags">
+                    <li>bills</li>
+                    <li>contact</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+        </div> <!-- end of category -->
+
+        <div class="faq_category">
+            
+            <h2 class="c_popvox">POPVOX and You</h2>
+            
+            <div class="faq_item">
+                <a name="privacy"><h3>POPVOX asks for a lot of personal information. How can I be sure that I trust you?</h3></a>
+                
+                <p>POPVOX asks for detailed contact information, including your home address and in some cases your phone number, because we need this in order to ensure that your message to Congress reaches the appropriate Congressional office.</p>
+
+                <p>We recently introduced a new, <A HREF="/blog/2011/new-popvox-privacy-tool/">cutting-edge privacy policy</a> that shows you exactly what POPVOX can see about you. We created an up-front policy because we care about our users&rsquo; privacy, and we discussed the issue of privacy with some national privacy experts to make sure we tackled the issue the right way.</p>
+
+                <p>You can see exactly what we know about you at <a href="/legal">https://www.popvox.com/legal</a>.</p>
+                
+                <ul class="tags">
+                    <li>privacy</li>
+                    <li>profile</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="change_profile"><h3>How do I make changes to my POPVOX profile?</h3></a>
+                
+                <p>You can make changes to your profile from your <A HREF="/home">POPVOX home page</a>. From there, click on your screen name on the upper right of the page and configure your settings.</p>
+                
+                <ul class="tags">
+                    <li>profile</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="change_password"><h3>How can I reset my POPVOX password?</h3></a>
+                
+                <p>To reset your password, please visit: <a href="/registration/reset-password">https://www.popvox.com/registration/reset-password</a></p>
+                
+                <ul class="tags">
+                    <li>profile</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="change_address"><h3>How can I change my address so my comment goes to my new Members of Congress?</h3></a>
+                
+                <p>You'll be able to change your address the next time you weigh in on a bill. As you go to complete your position or comment, you'll see your address, and a "change address" link. You can revise your address at that time.</p>
+
+                <p>The positions you've taken in the past have most likely already been delivered to your Representative prior to the move, but won't be re-sent to your new Representative. We will soon offer an easier option to simply change your address as we make improvements to the site.</p>
+
+                <p>You can also change the address on a position you've already submitted by clicking the change link next to your position on your home page, if that position has not yet been delivered to your Members of Congress. If you have recently changed your address several times, you may need to wait before you can make another change.</p>
+                
+                <ul class="tags">
+                    <li>profile</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="redistricting"><h3>I have been redistricted. Please update my congressional district on POPVOX.</h3></a>
+                
+                <p>The redistricting that has been taking place this year will be in effect for the 113th Congress, starting in January 2013. Until the new members are sworn in, you continue to be represented according to the old district lines. When the 113th Congress is in place, we will change our districting to reflect your new member inside of the new districts. We are working on some transitional information to help you learn more about your new district.</p>
+                
+                <ul class="tags">
+                    <li>profile</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="bill_life_cycle"><h3>How can I opt-out or unsubscribe from POPVOX emails?</h3></a>
+                
+                <p>You can opt-out of future email from us on your <a href="mailto:https://www.popvox.com/accounts/profile%20">account settings page</a>.</p>
+                
+                <ul class="tags">
+                    <li>profile</li>
+                    <li>contact</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+        </div> <!-- end of category -->     
+
+        <div class="faq_category">
+            
+            <h2 class="c_orgs">Organizations and Popvox</h2>
+            
+            <div class="faq_item">
+                <a name="wheresorgx"><h3>Why isn&rsquo;t the American Association of You-Name-It listed on POPVOX? How does POPVOX list organizations?</h3></a>
+                <p>POPVOX launched in January 2011 with a few hundred organizations seeded in our <a href="/orgs">Organization Directory</a>. Since then, hundreds of organizations have come to POPVOX to "claim their profiles." We encourage these organizations to upload position statements and press releases on specific bills, and to urge their membership and activist base to weigh in on bills on POPVOX.</p>
+
+                <p>As campaigns around bills heat up in Congress, the POPVOX team also uploads the positions organizations take on these bills as an added value to our POPVOX users and Congressional staffers. From our conversations with our users, we know that they want to hear from trusted sources of information before weighing in on a bill—including issue experts and analysts, as well as other individuals in their community or state.</p>
+
+                <p>If you know of an organization you&rsquo;d like to see on POPVOX, please let Rachna know at <a href="mailto:rachna@popvox.com?subject=I Want To See This Organization On Popvox!">rachna@popvox.com.</a> We&rsquo;d also love a reference to that organization, so reach out and ask them to get on POPVOX! And feel free to share this <a href="/files/organization_intro.pdf">Organizational Overview</a> with them.</p>
+
+                <ul class="tags">
+                    <li>orgs</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="convincemyboss"><h3>I want my organization/trade association to start using POPVOX for their legislative campaigns. POPVOX is new and some folks are still skeptical. What can I tell them to change their minds?</h3></a>
+
+                <p>Nonprofit organizations and community groups, especially nowadays, are stretched thin on resources and staff time and sometimes find it difficult to try out a new technology. We get many emails from organization staff requesting: "I know POPVOX makes sense and will help me get my organization&rsquo;s message to Congress. How do I convince my higher-ups?"</p>
+
+                <p>Here are some points that make POPVOX unique and compelling for organizations:</p>
+
+                <p>1. The POPVOX team knows advocacy. We created POPVOX to address the &ldquo;<a href="http://www.huffingtonpost.com/jake-brewer/the-tragedy-of-political_b_773734.html">Tragedy of Advocacy</a>&rdquo; and make campaigns more effective. <a href="/about/team">Our CMO and co-founder, Rachna Choudhry</a>, worked for various nonprofit advocacy organizations for a dozen years, lobbying Congress and mobilizing grassroots support. <a href="/about/team">CEO, Marci Harris</a>, worked for a Member of Congress for several years, on the receiving end of advocacy. (Read <a href="/about">about us</a>, and <a href="/blog/2010/why-im-excited-to-join-popvox">Rachna&rsquo;s story</a>)</p>
+
+                <p>2. POPVOX is not just for big organizations; there are many features for smaller, niche organizations. Big organizations have a team of full-time lobbyists pounding the halls of Congress. Congress wants to hear from smaller organizations too. Niche organizations and those outside the Beltway have their &ldquo;feet on the ground&rdquo; and may know an issue better than a DC-based organization. That&rsquo;s why the POPVOX Organization Directory is so important: Congressional staffers, trade associations and issue groups can reach out to organizations that may not be the biggest, but are the experts in their issue.</p>
+
+                <p>3. Advocacy campaigns on POPVOX are public—so individuals can learn about an issue before they weigh in with their Members of Congress. For organizations, this means they can access quantified data on an issue. Look at our Bill Reports, chock-full of pie charts, line graphs and maps. This information especially helps when organization staff and their members are talking to Senators and Representatives, and with other organizations. (Imagine saying, "Congresswoman, 50 constituents in your district support this bill. Please cosponsor it.&rdquo;)</p>
+
+                <p>4. Think of POPVOX as the "Netflix" for bills. When a POPVOX user weighs in on a bill, we then offer them other bills they might be interested in on the home page. Using the Netflix example, if you rent a Meg Ryan/Tom Hanks movie, then Netflix prompts you with other romantic comedies. On POPVOX, this means that individuals with similar interests can easily find your issue or bill with our recommendations feature.</p>
+
+                <p>5. POPVOX is a low-cost provider for advocacy tools. Every message or position that a POPVOX user takes on our site gets sent to their member of Congress at no cost to them. This isn&rsquo;t a petition site, which Congressional staffers agree is not as effective. Nor do we fax to Congress (unless an office specifically requests it), which in a <a href="http://pmpu.org/wp-content/uploads/CWC-Perceptions-of-Citizen-Advocacy.pdf">recent study</a> was deemed least effective for advocacy.</p>
+
+                <p>6. <b>POPVOX also offers organizations (and individuals) "widgets" on their website for people to take action with their members of Congress—at no cost</b>. These widgets will enable organizations to embed fresh content on their own websites, as well as a Write-Congress tool. Visit <a href="/services/widgets">our Widget Info page</a>.</p>
+                <ul class="tags">
+                    <li>orgs</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+        </div> <!-- end of category -->
+
+        <div class="faq_category">
+            
+            <h2 class="c_hill">Congress</h2>
+            
+            <div class="faq_item">
+                <a name="forcongress"><h3>What does Congress see on POPVOX? Does POPVOX seek feedback from Congressional staffers?</h3></a>
+                <img class="img_r" src="/media/faq/thumb_legdash.jpg" alt="faq_thumb" width="102" height="71" />
+                <p>We are regularly asking Congressional staffers to "beta test" various features of the site—before and after we launch major features. In addition, we regularly survey Congressional staffers about POPVOX.</p>
+
+                <p>In fact, these conversations with Congressional staffers drove the functionality of the Congressional staffer "dashboard.&rdquo; (To get an overview of that, please visit <a href="/blog/2011/what-congress-sees-on-popvox/">What Congress Sees On POPVOX</a>.) The POPVOX team meets regularly with staffers from both sides of the aisle to get feedback.</p>
+
+                <p>POPVOX is still a new tool for Congressional staffers, but the success of POPVOX and the effectiveness of letters written on POPVOX do not depend on Congressional staff coming to POPVOX. We are very committed to delivering our users&rsquo; messages to Congress, whether or not the Congressional office uses other tools POPVOX provides.</p>
+                <ul class="tags">
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="forcongress"><h3>Do Members of Congress support POPVOX?  Do they actually take messages from POPVOX seriously, rather than organic messages on their own website contact forms?  Have you talked to any Congressional offices about what they think of POPVOX?</h3></a>
+                <img class="img_r" src="/media/faq/thumb_legdash.jpg" alt="faq_thumb" width="102" height="71" />
+                <p>We talk with Congressional offices on a regular basis. (In fact, two people on the POPVOX team, including our CEO, worked on the Hill not too long ago.) We also are in touch with other companies that do message delivery to Congress like POPVOX does, as well as groups such as the <a href="http://www.congressfoundation.org/">Congressional Management Foundation</a>.</p>
+
+                <p>What POPVOX does—delivering messages to Congress electronically through Congressional offices’ webforms—is not unique. What makes POPVOX unique is that we: </p>
+                <p>1. Verify constituent addresses (so that Congressional offices are assured that it’s coming from a constituent);</p>
+                <p>2. Focus comments on specific bills pending before Congress (rather than accepting comments on broad subject like &ldquo;the environment&rdquo; or &ldquo;guns&rdquo;;</li>
+                <p>3. Discourage form letters from constituents, but instead give our users an opportunity to simply &ldquo;support&rdquo; or &ldquo;oppose&rdquo; a bill if they don’t want to write a personal comment.</p>
+
+                <p>These features certainly add value and are appreciated by Congressional offices.</p>
+                <ul class="tags">
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+        </div> <!-- end of category -->
+
+        <div class="faq_category">
+            
+            <h2 class="c_message">Your Message</h2>
+            
+            <div class="faq_item">
+                <a name="howsent"><h3>How is my message sent to Congress?</h3></a>
+                <p>Comments left on POPVOX are delivered to your Representative and/or Senators in Congress. Your POPVOX home page displays the status of the delivery of your message.</p>
+
+                <p>POPVOX delivers messages to Congress electronically* because <a href="http://www.cmfweb.org/index.php?option=com_content&task=view&id=62&Itemid=">that&rsquo;s how the offices prefer to receive them</a>.  Your message goes into the office&rsquo;s database that lets them track their constituents&rsquo; sentiment on bills and group similar letters together for their replies. (Printed letters and faxes are so much harder for offices to process. Your name and address would be keyed into their database by the nearest intern, and what you wrote will probably never be seen by a policy staff member.)</p>
+
+                <p>*A small number of Congressional offices do not accept electronic delivery from third party services. In those cases we will actually print out your message walk down to Capitol Hill and deliver your message in person.</p>
+
+                <p>Either way, you&rsquo;ll see a note on your POPVOX Home page that we&rsquo;ve delivered your comment once we hand it off to the Congressional office.</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="howlong"><h3>How long does it take for Congress to get my letter?</h3></a>
+                <p>Letters on POPVOX are typically delivered to Members of Congress within 33 hours.</p>
+
+                <p>During those 33 hours, or until your letter is delivered, POPVOX staff are busy keeping our delivery system up to date with each of the 541 Congressional offices. Each office accepts mail in a slightly different way, and POPVOX must keep up with each office&rsquo;s frequent changes to their mail systems. Additionally, while most offices accept most mail electronically, letters from constituents with unusual addresses are often not accepted electronically and must be printed out and delivered in person, which creates an additional delay. Fewer than 5% of letters take more than 4.5 days.</p>
+
+                <p>For comparison, postal mail sent to Congress may take more than two weeks to be delivered, as all postal mail is irradiated for safety reasons before its arrival in the Capitol.</p>
+
+                <p>In addition to delivering your letters, POPVOX staff are working with Congressional staff on improving Congressional mail systems to make this process better for everyone.</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+            
+            <div class="faq_item">
+                <a name="campaigncontact"><h3>How do I know my members of congress won't use my contact information to spam me during election season?</h3></a>
+                <p>While there are many gray areas in Congressional rules, the prohibition against using official resources for campaign purposes is crystal clear and strictly enforced. Representatives and Senators must keep their official business, including receiving and responding to constituent mail, completely separate from their campaign.</p>
+
+                <p>From the House of Representatives Member Handbook: “[o]fficial mailing lists may not be shared with a Member’s campaign committee, any other campaign entity, or otherwise be used for campaign purposes.” The <a href="http://ethics.house.gov/general-prohibition-against-using-official-resources-campaign-or-political-purposes">House Ethics Committee</a> also says: "office files may not be reviewed to obtain names of individuals to solicit for campaign contributions." The <a href="http://ethics.senate.gov/public/index.cfm/ethicsrules">Senate Select Committee on Ethics</a> has similar prohibitions in place for senators: their official office may only share information with their campaign office that they would make available to the general public, so they can't hand over constituent contact information.</p>
+
+                <p>Members of Congress who violate ethics rules are subject to very serious disciplinary action, such as censure or even expulsion from Congress. A Member's campaign might get your contact information from another source (like your voter registration), but they can never get it from a message you write to Congress.</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>privacy</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="paperlist"><h3>I know that POPVOX makes every effort to deliver all positions and comments by its users to Congress. Yet, I&rsquo;m sure that not all Congressional offices accept these communications electronically. Is there a list of offices that don&rsquo;t accept them electronically and POPVOX delivers to by hand?</h3></a>
+                <p>Almost every office accepts mail from POPVOX electronically. However, we don&rsquo;t publish a list of the &lsquo;stragglers&rsquo; because it&rsquo;s really up to the Congressional office how they prefer to receive the comments from us. If it&rsquo;s easier for them to take it by hand (that is, on paper), we&rsquo;re happy to do that!</p>
+                <ul class="tags">
+                    <li>messages</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="nocomment"><h3>What if I don&rsquo;t leave a comment?</h3></a>
+                <p>As you weigh in on bills, you have the option to skip the personal message. When you skip the personal message, POPVOX sends a simple notification to legislators (if they accept electronic delivery), which says: &ldquo;(your name) supported/opposed this bill on POPVOX and chose not to leave a comment.  He/she is not expecting a response.&rdquo;</p>
+
+                <p>At this time if your Member of Congress is one of the few that does not accept electronic delivery, your position will be counted toward the totals on POPVOX but will not be delivered to your Member of Congress.</p>
+                <ul class="tags">
+                    <li>messages</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="payhand"><h3>Can I pay a fee to POPVOX to have my message to my Member of Congress hand delivered?</h3></a>
+                <p>POPVOX aims to deliver our users&rsquo; positions and comments to Congressional offices in the most efficient way possible for that office. This, we believe, maximizes the effectiveness of that message to Congress. The most efficient method of delivery varies by Congressional office, of course. That&rsquo;s why POPVOX works hard to develop relationships with Congressional offices: so we know how best to deliver our users&rsquo; messages.</p> 
+
+                <p>Another point that comes to mind with a fee-based delivery option are the moral implications of a &lsquo;pay-to-play&rsquo; system where some messages are deemed more important than others. This would contradict many of the <a href="/about/principles">guiding principles</a> established by <a href="/about/team">POPVOX&rsquo;s founders (Marci, Josh and Rachna)</a>.</p>
+                <ul class="tags">
+                    <li>messages</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="whogets"><h3>Who gets my letter?</h3></a>
+                <p>One reason <a href="/about/whyitworks">POPVOX is effective</a> is that all letters to Congress sent through POPVOX are about something your Members of Congress can take action on, such as voting in favor or against a bill or cosponsoring a bill. That&rsquo;s why POPVOX lets you write messages only in support or opposition to bills in Congress.</p>
+
+                <p>When we deliver your letter, we are also careful to initially deliver it only to either your Representative or to your two Senators, depending on whether the bill is up for a vote next in the House or Senate. If the bill is up for a vote in the House next, we send your letter initially only to your Representative in the House (since there is nothing your Senators can do about the bill at that time). However, if the bill passes the House, we will then send your original letter to your two senators (if you live in one of the 50 states and not a territory, of course).</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="redistricting"><h3>I've just found out that I'm being redistricted in the next few months, and I imagine I'm not the only one! How is POPVOX addressing redistricting issues?</h3></a>
+                
+                <p>Redistricting is an odd process. Even though states are starting to finalize their new districts, they aren't generally taken to be in effect until the next election. In other words, your Representative will most likely continue to consider you a constituent and will do so until this Congress adjourns sometime by the end of 2012. Likewise, your future Representative won't consider you as a constituent this year, but rather in the next Congress, beginning January 2013.</p>
+
+                <p>POPVOX will send your comments to your current Representative. When the next Congressional session begins, your new comments on new bills will be sent to your new Representative.</p>
+                
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="response"><h3>Will I receive responses from my Members of Congress to the comments I sent to them using POPVOX?</h3></a>
+                <p>POPVOX includes your email address and postal address with message to your Members of Congress precisely because we want them to respond to you. While many of our users tell us that they receive responses from their Members of Congress, the type of response (e.g. generic or tailored letter) and the frequency of response varies. Unfortunately, not all Congressional offices reply to all communications—and some are simply overloaded.</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="oldbills"><h3>What about letters I write regarding bills from previous years?</h3></a>
+                <p>We also allow you to write comments in support of reintroducing a bill that &ldquo;died&rdquo; in a previous session of Congress. (Every two years Congress clears its list of pending bills and starts fresh.  See: <a href="/blog/2010/what-happens-to-bills-after-congress-adjourns/">what happens to bills after Congress adjourns</a>)</p>
+
+                <p>In this case, the former sponsor of the original bill is the most appropriate recipient, but we can&rsquo;t deliver all messages to them because Members of Congress only want to hear from their own constituents. At this time, we do not deliver messages about reintroduction but leave it up to advocacy organizations to reach out to the original sponsor when they have grown a sufficient grassroots base.</p>
+
+                <p>(To read more about what happens to the messages, please visit <a href="/blog/2011/what-happens-after-you-click-submit-hold-the-middl/">What happens after you click submit? (Hold the middle man accountable.)</a>).</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="billpass"><h3>When the House passes a bill, it then goes to the Senate. Does the position I took (or the letter I wrote) about the bill go to my Senators as well? </h3></a>
+
+                <p>Yes! When the House passes a bill you weighed in on, your position on the bill is automatically sent to your Senators. In some cases, you might receive a note from your Senator responding to your comment.  We are considering whether to send an update to POPVOX users when this happens, and <a href="/about/contact">we&rsquo;d love your thoughts</a>. Would you prefer to receive an update via email or on your POPVOX Home Page stating: "You weighed in on HR ###. It was passed by the House and has moved on to the Senate. POPVOX will deliver your comments on the bill to your Senators."</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="whogetsletter"><h3>Why don&rsquo;t you deliver my message to the Speaker of the House, the whole committee, etc.?</h3></a>
+
+                <p>We know from our extensive experience that Members of Congress only read messages from their own constituents. There are several reasons for this. One is that Members believe it is a courtesy to not engage with another Member&rsquo;s constituents. In any case, since we know that a letter to a Member of Congress that is not <em>your</em> Member of Congress won&rsquo;t be read, there is just no point in us delivering your message to them. We&rsquo;ll save our efforts for things that make a real difference.</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+            
+            <div class="faq_item">
+                <a name="twoptions"><h3>Why only two options: support and oppose?</h3></a>
+
+                <p>Most bills that you can weigh-in on on POPVOX have both a support and an oppose button. The only exception is weighing-in on bills that had died in previous sessions of Congress, for which there is only a support-reintroduction option.</p>
+                <p>We chose our options carefully to match what we considered to be effective forms of communication with Congress, based on our experience here in DC. These three options correspond with actions a Member of Congress can take (cosponsor or vote for a bill, vote against a bill, or reintroduce a bill), while letters advocating other positions are difficult for Congressional offices to process because they don&rsquo;t advocate for a particular action a Member is likely to take. That makes a letter less effective. Our choices are designed to steer you toward effective advocacy.</p>
+                <ul class="tags">
+                    <li>messages</li>
+                    <li>congress</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+        </div> <!-- end of category -->
+
+        <div class="faq_category">
+            
+            <h2 class="c_popvox">About POPVOX</h2>
+            
+            <div class="faq_item">
+                <a name="funding"><h3>How is POPVOX Funded?</h3></a>
+                
+                <p>We are a private company, currently financed by ourselves, some friends and family investment and some seed money from our senior advisor, Tim O&rsquo;Reilly (see our <a href="/blog/2010/popvox-announces-tim-oreilly-as-an-angel-investor/">press release</a>).  We are a startup in the truest sense, with three co-founders working nonstop for no pay and a few talented friends helping us for much less than they are worth.  We are currently trying to raise money, so we enter startup competitions like this one at <a href="http://sxsw.com/node/7079">South-by-Southwest</a> in Austin (which we won!) and are pitching investors to try to convince them that our idea has merit.  We have also tried a few unconventional fundraising methods, like <a href="/blog/2011/328/">this "crowd-funding" effort for our iPad app</a>.</p>
+
+                <p>We eventually plan to make money by selling "pro" services to organizations to help them track bills and organize their grassroots supporters through the site.</p>
+
+                <p>Read more about <a href="/about/team">the team and advisors</a>, and about <a href="/about/principles">our company philosophy</a>.</p>
+                <ul class="tags">
+                    <li>popvox</li>
+                    <li>business</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+
+            <div class="faq_item">
+                <a name="funding"><h3>Why isn’t there POPVOX for state legislatures? Will there be a state version soon?</h3></a>
+                
+                <p>We just launched POPVOX for federal legislation in January 2011 and haven&rsquo;t yet gotten to address state level legislative activity yet. We’ve gotten this request from many POPVOX users and hope this is something we can tackle in the future! Stay tuned!.</p>
+                <ul class="tags">
+                    <li>popvox</li>
+                    <li>features</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+        </div> <!-- end of category -->
+        
+        
+        <div class="faq_category">
+            
+            <h2 class="c_popvox">How Congress Works</h2>
+            
+            <div class="faq_item">
+                <a name="bill_life_cycle"><h3>How does a bill become a law?</h3></a>
+                
+                <p>You probably know the basics, and an explanation of the full life cycle of a bill could be several large volumes long! Congress has developed 235 years of precedents and procedures that can make it hard to follow a bill from start to finish. Two pretty good overviews are <a href="http://www.mikewirthart.com/wp-content/uploads/2010/05/howlawsmadeWIRTH2.jpg">this graphic</a> and <a href="http://www.votesmart.org/resource_govt101_02.php">this explanation from Project Vote Smart</a>.</p>
+                
+                <ul class="tags">
+                    <li>bills</li>
+                    <li>congress</li>
+                    <li>procedure</li>
+                </ul><div class="clear"> </div>
+            </div> <!-- end of item -->
+        </div> <!-- end of category -->     
+    </div>
+    
+    <div class="col_3 col_last col_top">
+        
+        <div class="sub">
+            <h2>Categories</h2>
+            <ul id="categories">
+            </ul>
+        </div>
+
+        <div class="sub">
+            <h2>Tags</h2>
+            <ul id="tags">
+            
+            </ul>
+        </div>
+        
+    </div>
+    
+</div>
+</div>
+
+{% endblock %}

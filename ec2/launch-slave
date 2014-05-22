@@ -1,3 +1,0 @@
-ec2-run-instance ami-21f53948 -g default -k slave -t m1.large --availability-zone us-east-1a \
-	-K /mnt/persistent/config/aws/pk.pem -C /mnt/persistent/config/aws/cert.pem
-

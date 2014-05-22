@@ -1,0 +1,455 @@
+{% extends "master.html" %}
+{% load humanize %}
+{% load popvox_utils %}
+{% block title %}Dashboard{% endblock%}
+{% block description %}Your POPVOX dashboard alerts you to recent activity on POPVOX and in Congress and gives you suggestions for other bills to write about.{% endblock %}
+{%block nav_citzen_class_home%}active{%endblock%}
+{% block head %}
+<link rel="stylesheet" href="/media/assets/dashboard/dashboard.css" type="text/css" media="screen" /> 
+<script type="text/javascript" src="/media/js/highcharts.js"></script>
+<script type="text/javascript" src="/media/js/charts.js"></script>
+
+<script type="text/javascript">
+var is_sug_hide_animating = 0;
+
+function click_prompt(billid, billindex, link, sugtype, href) {
+	mpmetrics.track('dashboard_suggestion_click', { bill: billid, position: billindex, link: link, type: sugtype}, function() { window.open(href, "_self"); });
+	return false;
+}
+
+function hide_prompt(billid, billindex, sugtype) {
+	if (is_sug_hide_animating) return false;
+
+	// Lock the suggestions in place. Go in reverse order so that changing each to
+	// abs positioning doesn't affect later ones.
+	$('#suggestions li:visible').reverse().each(function() {
+		$(this).css({ position: "absolute", left: $(this).position().left, top: $(this).position().top });
+	});
+	
+	// Animate each starting after the one to remove to the position of the previous.
+	// Fade out the one being removed. They remain absolutely positioned afterwards.
+	var overall_index = 0;
+	var index = 0;
+	var found = false;
+	var prev_position = null;
+	$('#suggestions li:visible').each(function() {
+		var mypos = { left: $(this).position().left, top: $(this).position().top };
+		if (this.getAttribute("billid") == billid) {
+			$(this).fadeOut("slow");
+			found = true;
+		} else {
+			if (found) {
+				is_sug_hide_animating++;
+				$(this).delay(Math.pow(index, 1.2)*75).animate(prev_position, function() { is_sug_hide_animating--; if (!is_sug_hide_animating) $('#suggestions .hide').fadeIn(); });
+				if (overall_index % 2 == 0) { $(this).addClass("left"); }
+					else { $(this).removeClass("left"); }
+				index++;
+			}
+			overall_index++;
+		}
+		prev_position = mypos;
+	});
+	
+	if (overall_index == 0) {
+		$('#nomoresugs').fadeIn();
+	} else if (index > 0) {
+		// don't let the user try to hide while we're still animating.
+		$('#suggestions .hide').fadeOut();
+	}
+	
+	mpmetrics.track("dashboard_suggestion_hide", { bill: billid, position: billindex, type: sugtype }); 
+				
+	ajax(
+		"/ajax/accounts/profile/trackbill",
+		{
+			bill: billid,
+			track: "-"
+		},
+		{
+			success: function(ret) {
+				// Assuming success...
+			}
+		});
+	return false;
+}
+
+function activity_feedback(node, relevant) {
+	var info = $(node).parents("p.feedback");
+	
+	var event = {
+		relevant: relevant ? "yes" : "no",
+		item_type: info.attr("item_type"),
+		item_position: info.attr("item_position")
+		 };
+	
+	if (info.attr("item_props") != "") {
+		var props = eval("[" + info.attr("item_props") + "]")[0];
+		for (var key in props)
+			event[key] = props[key];
+	}
+	
+	mpmetrics.track("dashboard_activity_feedback", event);
+	
+	info.find("*").fadeOut(function() { info.text("Your feedback makes POPVOX better. Thank you."); });
+	
+	return false;
+}
+
+function share_activity_item(share_type, url, itemindex) {
+	$.ajax({
+		url: "/ajax/get-short-url",
+		data: { url: url },
+		type: "POST",
+		dataType: "json",
+		success: function(res) {
+			share_link(share_type, res.title, res.shorturl, res.hashtag);
+			mpmetrics.track("dashboard_share", { service: share_type, position: itemindex });
+		}
+	});
+	return false;
+}
+
+function g_plusone_callback(info) {
+	if (info.state == "on")
+		mpmetrics.track("dashboard_share", { service: "g_plusone", position: "unknown" });
+}
+
+$(function() {
+	mpmetrics.track("dashboard_load");
+});
+</script>
+
+<style>
+sup { font-size: 85%; font-style: italic; vertical-align:super; }
+p.feedback { border-top: 1px solid #BBB; padding: 2px 10px 2px 10px; font-size: 10px; color: #666; }
+p.feedback a { color: #CC7722; }
+</style>
+{% endblock %}
+{% block subnav %}{% include "popvox/home_user_subnav.html" %}{% endblock %}
+{% block content %}
+<div class="content userdash">
+
+	<div class="col_9 col_top">
+		<h1 class="rule_btm">Your Dashboard</h1>
+		
+		<p><strong><big>Stay Updated on Congress with POPVOX!</big></strong></p>
+			<li class="bullet"><a href="http://popvox.wufoo.com/forms/z7x3x5/">Sign up to get Weekly Updates</a> on what Congress will be considering and voting on. </li>
+			<li class="bullet">Make sure you're not missing a hot issue on POPVOX by <a href="https://popvox.wufoo.com/forms/sign-up-for-the-popvox-weekly-top-20/">signing up for the Weekly Top 20</a>.</li>
+			<li class="bullet">Check out the <a href="../../../../files/organization_intro.pdf">"How to Speak Washingtonian” guide</a> for a cheat sheet on those wonky words.</li>
+		
+		
+		{% if random_user %}
+		<p>Lock to this user with <a href="/home/_dashboard_?user={{userid}}">?user={{userid}}</a></p>
+		{% endif %}
+	</div>
+	<div class="clear"> </div>
+	
+	<div class="col_12 col_top user_dash">
+		<ul id="bar">
+			<li class="c6">Activity Feed</li>
+			<li class="c6l">Suggestions</li>
+			<!--<li class="c3l">Following</li>-->
+		</ul>
+		
+		<div class="col_6">
+			<ul class="activity">
+				{% for item in feed_items %}
+					<li class="{{item.action_type}}">
+						<div class="date">
+							<p><span>{{item.date|date2}}</span> {% comment %}<a href="#" class="hide">hide</a> {% endcomment %}</p>
+
+							<div class="pie">
+								{% if item.action_type == "comment" or item.action_type == "bill_now" or item.action_type == "bill_current_status" or item.action_type == "bill_upcoming_event" %}
+									<div class="pie" id="act_pie_{{forloop.counter0}}"> </div>
+									<script type="text/javascript">bill_chart("act_pie_{{forloop.counter0}}", {{item.bill.stats.0}}, {{item.bill.stats.1}}, { bg: "#D4D1CA", nopad: true });</script>
+								{% endif %}
+								
+								{% if item.action_type == "org_position" and 0 %}
+									{% if item.org.logo %}
+										<img src="{{item.org.logo.url}}" width="55" height="42" title="{{item.org.name}}"/>
+									{% endif %}
+								{% endif %}
+							</div>
+							
+							<div class="clear"> </div>
+						</div>
+					
+						{% if item.action_type == "comment" and not item.comment.message %}
+							<h3>You {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncate:75}}</a>.</h3>
+							<div class="details">
+								<p>You were the {{item.comment.seq|add:1|ordinal_html}} person to weigh in.</p>
+							</div>
+						{% endif %}
+
+						{% if item.action_type == "comment" and item.comment.message %}
+							<h3>You wrote <a href="{{item.comment.url}}">a comment {{item.comment.verb_ing}}</a> {{item.bill.nicename|truncate:75}}.</h3>
+							<div class="details">
+								<p>You wrote, &ldquo;{{item.comment.message|truncate:100}}&rdquo;</p>
+								<p>{{item.comment.delivery_status}}</p>
+							</div>
+						{% endif %}
+
+						{% if item.action_type == "delivery" %}
+							<h3>Your {% if item.message %}letter{% else %}position{% endif %} {{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> was delivered to {{item.recipient}}.</h3>
+						{% endif %}
+						
+						{% if item.action_type == "org_position" %}
+							<h3><a href="{{item.org.url}}">{{item.org.name}}</a> <span class="secondary">{{item.verb}} <a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a>.</span></h3>
+							<div class="details">
+								<p class="detail">This organization shares your position on {{item.numagreements}} bill{{item.numagreements|pluralize}}.</p>
+							</div>
+						{% endif %}
+						
+						{% if item.action_type == "bill_now" %}
+							{% comment %}<h3><a href="{{item.bill.url}}">{{item.bill.shortname}}</a> <span class="secondary">has {% if item.comment.position == "+" %}{{item.bill.stats.0|intcomma}} supporters{% else %}{{item.bill.stats.1|intcomma}} opponents{% endif %}.</span></h3>{% endcomment %}
+							<h3>{{item.new_count|intcomma}} people have now weighed in on <a href="{{item.bill.url}}/report">{{item.bill.nicename|truncate:75}}</a>.</h3>
+							<div class="details">
+								<p class="detail bill">
+									{% if item.comment.message %}
+									You wrote <a href="{{item.comment.url}}">a comment {{item.comment.verb_ing}}</a> this {{item.comment.bill.proposition_type}} on {{item.comment.created|date2}}.
+									{% endif %}
+									You were the {{item.your_number|ordinal_html}} person to weigh in.
+								</p>
+							</div>
+						{% endif %}
+						
+						{% if item.action_type == "bill_current_status" %}
+							{% with item.comment as comment %}
+							{% with item.bill.status_sentence as status %}
+							<h3>{% if status.0 %}{{status.0}} {% endif %}<a href="{{item.bill.url}}">{{item.bill.nicename|truncate:100}}</a>{% if status.1 %} {{status.1}}{% endif %}.</h3>
+							<div class="details">
+								<p class="detail">{{item.bill.status}}
+								{% with item.recorded_vote as vote %}
+									{% if vote.0 == "no-data" %}{{vote.1}}{% endif %}
+									{% if vote.0 == "table" %}
+										Here is how your elected officials voted:</p>
+										{% for row in vote.1 %}
+											<p class="subdetail" style="margin-left: 1.5em; margin-bottom: .5em; font-style: italic;">{{row.0.name}} {{row.1}}.</p>
+										{% endfor %}
+										<p>For more, see <a href="/home/match">Congress Match</a>.
+									{% endif %}
+								{% endwith %}
+								</p>
+								
+								{% if comment and comment.message %}
+									<p class="detail bill">You wrote <a href="{{comment.url}}">a comment {{comment.verb_ing}}</a> this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
+								{% endif %}
+								{% if comment and not comment.message %}
+									<p class="detail bill">You {{comment.verb_past}} this {{item.bill.proposition_type}} on {{comment.created|date2}}.</p>
+								{% endif %}
+							</div>
+							{% endwith %}
+							{% endwith %}
+						{% endif %}
+						
+						{% if item.action_type == "bill_upcoming_event" %}
+							<h3><a href="{{item.bill.url}}">{{item.bill.nicename|truncatewords:10}}</a> {{item.bill.upcoming_event}}.</h3>
+							<div class="details">
+								{% with item.comment as comment %}
+								{% if item.comment %}
+									<p class="detail bill">You {{item.comment.verb_past}} this {{item.bill.proposition_type}} on {{item.comment.created|date2}}.</p>
+								{% endif %}
+								{% endwith %}
+							</div>
+						{% endif %}
+						
+						<p class="take_action">
+							{% comment %}
+							<span class="action"><a href="{{item.button.2}}" class="{{item.button.1}}">{{item.button.0}}</a></span>
+							
+							<span class="action_descr">{{item.share.0}}</span>
+							{% endcomment %}
+							
+							<span class="social">
+								{% comment %}
+								--- this is for ShareThis, which we're not using anymore ---
+								<span class="st_facebook" st_title="{{item.share.1}}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								<span class="st_twitter" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								<span class="st_email" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}" st_summary="{{item.share.1}}"></span>
+								<span class="st_plusone" st_title="{{item.share.1}}{% if item.share.3 %} {{item.share.3}}{% endif %}" st_url="{{SITE_ROOT_URL}}{{item.share.2}}"></span>
+								{% endcomment %}
+								
+								<a href="#" class="facebook" onclick="return share_activity_item('facebook', '{{item.share.2|escapejs}}', {{forloop.counter0}})">facebook</a>
+								<a href="#" class="twitter" onclick="return share_activity_item('twitter', '{{item.share.2|escapejs}}', {{forloop.counter0}})">twitter</a>
+														
+								{% if request.META.HTTP_DNT != 1 %}
+								{% comment %}g+'s default div tag breaks the parse of the page because we are inside a span now{% endcomment %}
+								<span style="margin: 2px 4px 0 0px">
+									<g:plusone size="small" href="{{SITE_ROOT_URL}}{{item.share.2}}" annotation="none" callback="g_plusone_callback"> </g:plusone>
+								</span>
+								{% endif %}
+		
+								{% comment %}<a href="#" class="google">google</a>
+								<a href="#" class="reddit">reedit</a>
+								<a href="#" class="tumblr">tumblr</a>
+								<a href="#" class="email">email</a>{% endcomment %}
+							</span>
+							
+							{% comment %}<a href="#" class="fav">favorite</a>{% endcomment %}
+						</p>
+
+						<p class="feedback" item_type="{{item.action_type}}" item_props="{{item.metrics_props|json|force_escape}}" item_position="{{forloop.counter0}}">
+							<span>Is this update useful to you?</span>
+							&nbsp;
+							<a href="#" onclick="return activity_feedback(this, true);">Yes</a> | <a href="#" onclick="return activity_feedback(this, false);">No</a>
+						</p>
+					</li>
+				{% empty %}
+					<p>We have no activity items to show you. Start by <a href="/bills">finding a bill</a> you have an opinion about and send a message to Congress.</p>
+				{% endfor %}
+
+			</ul>
+		</div> <!-- e: col_6 -->
+		
+		<div class="col_6 col_last">
+			<p id="nomoresugs" style="display: none">You&rsquo;ve cleared out all of your suggestions. Try <a href="javascript:window.location.reload()">reloading this page</a> for more suggestions.</p>
+			
+			<ul id="suggestions" class="suggest_bills">
+			{% for sug in suggestions %}
+				{% if forloop.counter0 == 0 %}
+					<script type="text/javascript">
+					$(function() {
+						mpmetrics.track('dashboard_suggestion_hit', { bill: {{sug.bill.id}}, position: {{forloop.counter0}}, type: '{{sug.type|escapejs}}' });
+					});
+					</script>
+				{% endif %}
+				<li billid="{{sug.bill.id}}" {% if forloop.counter0|divisibleby:2 %}class="left"{% endif %}>
+					<div class="btn_r">
+						<a class="hide" href="#" onclick="return hide_prompt({{sug.bill.id}}, {{forloop.counter0}}, '{{sug.type|escapejs}}');">hide</a>
+						<div class="pie" id="sug_pie_{{sug.bill.id}}"> </div>
+						<script type="text/javascript">bill_chart("sug_pie_{{sug.bill.id}}", {{sug.bill.stats.0}}, {{sug.bill.stats.1}}, { nopad: true });</script>
+					</div>
+					<h3><a href="{{sug.bill.url}}" onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'main', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');" title="{{sug.bill.nicename|truncate:250}}">{{sug.bill.nicename|truncate:55}}</a></h3>
+					<div class="weigh">
+						<a href="{{sug.bill.url}}" class="weigh_in"  onclick="return click_prompt({{sug.bill.id}}, {{forloop.counter0}}, 'secondary', '{{sug.type|escapejs}}', '{{sug.bill.url|escapejs}}');">weigh in</a>
+					</div>
+					<a href="#" class="fav faved">favorite</a>
+					<p class="info">
+						{% if sug.source %}
+							Because you weighed in on <a href="{{sug.source.url}}" title="{{sug.source.nicename|truncate:250}}" class="suggested">{{sug.source.shortname}}</a>.
+						{% else %}
+							{% if sug.type == "trending" %}
+								This {{sug.bill.proposition_type}} is trending on POPVOX.
+							{% else %}
+								Because {{sug.because}}.
+							{% endif %}
+						{% endif %}
+					</p>
+					<div class="clear"> </div>
+				</li>
+			
+			{% empty %}
+			
+				<p>We have no suggested actions for you at this time.</p>
+			
+			{% endfor %}
+		</div>
+
+		{% comment %}
+		<div class="col_3 col_follow">
+			<ul class="following_congress">
+				<h2>Congress People</h2>
+				<li>
+					<img src="/media/master/_temp/fattah.jpg" alt="rep name"/>
+					<h3><a href="#">Sen. Chaka Fattah<br /><span>[D, PA]</span></a></h3>
+				</li>
+				<li>
+					<img src="/media/master/_temp/smith.jpg" alt="rep name"/>
+					<h3><a href="#">Rep. John Smith<br /><span>[R, TN-7]</span></a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<img src="/media/master/_temp/fattah.jpg" alt="rep name"/>
+					<h3><a href="#">Sen. Chaka Fattah<br /><span>[D, PA]</span></a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<img src="/media/master/_temp/smith.jpg" alt="rep name"/>
+					<h3><a href="#">Rep. John Smith<br /><span>[R, TN-7]</span></a></h3>
+				</li>
+			</ul>
+			<ul class="following_bills">
+				<h2>Bills</h2>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">HR 456: Debt Free America Act</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">HR 456: Debt Free America Act</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">HR 456: Debt Free America Act</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">HR 456: Debt Free America Act</a></h3>
+				</li>
+			</ul>
+			<ul class="following_issues">
+				<h2>Issue Areas</h2>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">Arts, Culture, REligion (25)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">Education (316)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">Health (625)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav">favorite</a>
+					<h3><a href="#">Taxation (619)</a></h3>
+				</li>
+			</ul>
+			<ul class="following_orgs">
+				<h2>Organizations</h2>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_beer.jpg" alt="org name"/>
+					<h3><a href="#">Beer Institute</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_aacp.jpg" alt="org name"/>
+					<h3><a href="#">American Association of Colleges of Pharmacy (AACP)</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_ctj.jpg" alt="org name"/>
+					<h3><a href="#">Citizens for Tax Stuff</a></h3>
+				</li>
+				<li>
+					<a href="#" class="fav faved">favorite</a>
+					<img src="/media/master/_temp/org_ghlf.jpg" alt="org name"/>
+					<h3><a href="#">Global Healthy Living Foundation (GHLF)</a></h3>
+				</li>
+			</ul>
+
+		</div><!-- e: col_3 -->
+		{% endcomment %}
+			
+		<div class="clear"> </div>
+		
+	</div><!-- e: col_12 -->
+	
+	
+</div>
+
+{% if request.META.HTTP_DNT != 1 %}
+{% comment %}Our master share bar is disabled on this page, otherwise we'd be loading this script twice.{% endcomment %}
+<script type="text/javascript">
+  (function() {
+	var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+	po.src = 'https://apis.google.com/js/plusone.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+{% endif %}
+
+{% endblock %}
+

@@ -1,0 +1,225 @@
+{% extends "master.html" %}
+{% load registration_providers %}
+{% block title %}POPVOX - Get To Know - A District - A Member of Congress{% endblock %}
+{% block title2 %}{% endblock %}
+{% block description %}POPVOX - Select Memberof Congress or Congressional District to see facts, stats, sponsored bills, constituent sentiment, and social media links{% endblock %}
+{% block bodyattributes %}class="gettoknow"{% endblock %}
+
+{%block subnav%}{% include "popvox/subnav_congress.html" %}{%endblock%}
+{%block nav_citzen_class_congress%}active{%endblock%}
+{%block nav_orgadmin_class_congress%}active{%endblock%}
+
+{% block disable_login_redirect %}{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/media/css/datatables/popvox_table.css" type="text/css"/>
+<style>
+	.colorbox { width: 500px; height: 500px; }
+	#whoami { display: none; }*/
+
+</style>
+<script type="text/javascript">
+function zoompop(id) {
+	$.colorbox({
+                transition: "none",
+                inline: true,
+                href: '#' + id,
+                opacity: .5
+		});
+	return false;
+}
+function subscribe(validate) {
+	if ($('#subscribe_email').hasClass("default")) return false;
+	ajaxform("post/home/subscribe",
+		{ "validate": (validate ? "validate" : "submit") },
+		{ "email": "#subscribe_email" },
+		{ "statusfield": "subscribe_status",
+		   "statussuccess": (validate ? null : "Thanks!")} );
+	return false;
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="hm_slide gtk">
+	<div class="hm_slide_mid">
+		<div class="hm_slide_div">
+			<div class="left_gtk">
+                <h2>A State or District</h2>
+                <div class="search_live">
+                        <input type="text" value="live search"  id="dist_search"/>
+				</div> <!-- /search_live -->
+                <table id="district_table"></table>
+			</div> <!-- /left_gtk -->
+
+			<div class="right_gtk">
+				<h2>A Member of Congress</h2>
+				<div class="search_live">
+					<input type="text" value="live search"  id="mem_search"/>
+				</div> <!-- /right_gtk -->
+
+				<table id="congress_member_table">
+					<thead>
+						<tr>
+							<th class="state">State</th>
+							<th class="moc">Member of Congress</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for member in members %}
+						<tr>
+							<td class="td_st"><a href="#">{{member.state}}</a></td>
+							<td class="td_moc"><a href="member/{{member.pvurl}}">{{member.plain_name}}</a></td>
+							<td class="td_rd">{{member.party_state}}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div> <!-- /right_gtk -->
+			<div class="clear"> </div>
+						
+		</div> <!-- /hm_slide_div -->
+	</div> <!-- /hm_slide_mid -->
+</div> <!-- /hm_slide gtk -->
+<div class="clear"> </div>
+
+
+<div class="content">
+	<div class="col_9 rule">
+		{% comment %}
+		<div class="block hot">
+			<h2>HOT TWEETS</h2>
+			<img src="/media/master/_sh_twitterface.jpg" alt="_sh_twitterface" width="32" height="32" />
+			<p class="tweet"><strong>sodiumhalogen</strong> <a href="http://popvox.com">http://popvox.com</a> - exciting new site we are working on where you can let congress know your opinion. effectively. <a href="#">#popvox</a></p>
+			<div class="tweet_info">
+				<p class="tweets">23</p>
+				<a class="retweet btn" href="#">retweet</a>
+			</div>
+			<div class="clear"> </div>
+		</div>
+		{% endcomment %}
+		
+		<div class="block about">
+			<h2>About POPVOX</h2>
+			<p>POPVOX bridges the gap between the input the public wants to provide and the information Members of Congress want and need to receive. Designed by <a href="/about/team">people who understand Congress</a>, POPVOX is different from other political sites. It is not a discussion forum. It is a place for action. For more about the site, see <a href="/about">About POPVOX</a> or <a href="/about/whyitworks">Why It Works</a>.</p>
+			<p>POPVOX is a nonpartisan, transparent, public platform for activity on bills pending before Congress.</p>
+		</div>
+			
+	</div><!-- e: col_6 -->
+	
+	{% comment %}
+	<div class="col_3 rule">
+		<div class="block signup">
+			<h2>Email Signup</h2>
+			<p>Want updates on what is new with POPVOX?</p>
+			<form id="signup_form" action="#" method="post" name="signup"><br />
+			
+				<input id="subscribe_email" class="signup_input" name="email" size="25" maxlength="60" type="text"><br />
+				
+				<p id="subscribe_status" class="error"></p>
+				
+				<input value="join" id="subscribe_button" onclick="return subscribe(false)" type="button">
+				<script type="text/javascript">
+				$('.subscribe_email').input_default("email");
+				$('.signup_input').textchange(function() { subscribe(true); return true; });
+				$('.signup_input').keydown_enter(function() { return subscribe(false); });
+				</script>
+			</form>
+		</div>		
+	</div><!-- e: col_3 -->
+	{% endcomment %}
+	
+	<div class="col_3 col_last rule">
+		<div class="block follow_us">
+			<h2>Follow Us</h2>
+			<ul class="social" style="height: 60px">
+				<li><a class="twitter" href="http://www.twitter.com/popvox">twitter</a></li>
+				<li><a class="facebook" href="http://www.facebook.com/POPVOXnation">facebook</a></li>
+				<!--<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fapps%2Fapplication.php%3Fid%3D150910028257528&amp;layout=box_count&amp;show_faces=true&amp;width=60&amp;action=like&amp;colorscheme=light&amp;height=65" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:60px; height:65px;" allowTransparency="true"></iframe>-->
+				<!--<li class="linked_in"></li>-->
+			</ul>
+		</div>
+		
+		
+	</div><!-- e: col_3 -->
+	<div class="clear"> </div>
+</div>
+
+<script type="text/javascript" src="/media/js/jquery.dataTables.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+			memTable = $('#congress_member_table').dataTable();
+            $('#mem_search').keypress(function(){
+                memTable.fnFilter( $(this).val() );
+            });
+            $('#mem_search').focus(function(){
+                $(this).val('');
+            });
+            $('#mem_search').blur(function(){
+                $(this).val('live search');
+            });
+            $('#congress_member_table_filter').hide();
+
+            var $stateabbrs = new Array();
+            {% for abbr,statename in diststateabbrs %}
+                $stateabbrs["{{abbr}}"] ="{{statename}}";
+            {% endfor %}
+
+            $.each($stateabbrs, function(abbr,name) {
+                alert(abbr+": "+name);
+            });
+
+            var distData = new Array();
+            $.each(memurls, function(abbr, array) {
+                if (abbr != "GU" && abbr != "VI" && abbr != "MP" && abbr != "AS") {
+
+                    var numdists = array.length -2;
+                    if (abbr == "DC" || abbr == "PR") {
+                        var $tmp = new Array(
+                            '<a href="/district/'+abbr+'/">'+abbr+'</a>', 
+                            '<a href="/district/'+abbr+'/">'+$stateabbrs[abbr]+'</a>',
+                            '<a href="/district/'+abbr+'/">All</a>');
+                    } else {
+                        var $tmp = new Array(
+                            '<a href="/state/'+abbr+'/">'+abbr+'</a>', 
+                            '<a href="/state/'+abbr+'/">'+$stateabbrs[abbr]+'</a>',
+                            '<a href="/state/'+abbr+'/">All</a>');
+                    }
+                    distData.push($tmp);
+
+                    if (numdists > 1) {
+                    
+                        for (i=1;i<=numdists;i++) {
+                            var $tmp = new Array(
+                                '<a href="/district/'+abbr+'/'+i+'/">'+abbr+'</a>', 
+                                '<a href="/district/'+abbr+'/'+i+'/">'+$stateabbrs[abbr]+'</a>',
+                                '<a href="/district/'+abbr+'/'+i+'/">'+i+'</a>');
+                            distData.push($tmp);
+                        }
+                    }
+                }
+            });
+
+            distTable = $('#district_table').dataTable( {
+                "aaData": distData,
+                "aoColumns": [
+                    {"sTitle": "Abbr"},
+                    {"sTitle": "State"},
+                    {"sTitle": "District"}
+                ]
+            } );
+            $('#dist_search').keypress(function(){
+                distTable.fnFilter( $(this).val() );
+            });
+            $('#dist_search').focus(function(){
+                $(this).val('');
+            });
+            $('#dist_search').blur(function(){
+                $(this).val('live search');
+            });
+            $('#district_table_filter').hide();
+		} );
+</script>
+
+<script type="text/javascript" src="/media/js/gettoknow.js"></script>
+{% endblock %}
