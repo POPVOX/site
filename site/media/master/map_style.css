@@ -20,6 +20,10 @@ body {
 body.width_274 {
 	background: url(../widget/bg_mini-map.gif) left 7px no-repeat;
 }
+body.width_274 #legend_sz {
+    top: 200px;
+    line-height: 4em; 
+}
 body.no_legend {
     background: url(../widget/bg_mini-map-no-legend.gif) left 7px no-repeat;
 }
