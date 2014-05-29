@@ -771,16 +771,40 @@ def delivery_status_report(request):
     from writeyourrep.models import Endpoint, DeliveryRecord
     report = []
     totals = [0, 0, 0]
-    for moc in sorted(popvox.govtrack.getMembersOfCongress(), key = lambda m : m["type"] == "rep"):
-        moc = dict(moc) # clone
+    
+    mems = MemberOfCongress.objects.raw('''
+        WITH current_roles AS (select
+            member_id,
+            title,
+            state,
+            district,
+            party,
+            senateclass,
+            url
+        FROM popvox_memberofcongressrole where enddate > now()
+        )
+        SELECT id, firstname, lastname, title, state, district, party, senateclass, url from popvox_memberofcongress
+        JOIN current_roles ON member_id = id;''')
+    
+    for mem in mems:
+        moc = mem.__dict__
         report.append(moc)
         
+        if mem.title == 'PRES':
+            office = 'WH' + '-S' + str(mem.senateclass)
+        elif mem.title == 'SEN':
+            office = mem.state + '-S' + str(mem.senateclass)
+        else:
+            office = mem.state + '-H' +  "%02d" % (mem.district,)
+        
         try:
-            ep = Endpoint.objects.get(govtrackid=moc["id"], office=moc["office_id"])
+            ep = Endpoint.objects.get(govtrackid=mem.id, office=office)
         except Endpoint.DoesNotExist:
             moc["delivery_status"] = "No Endpoint Defined"
             continue
             
+        moc['title'] = str(mem.title.capitalize()+'.')
+        moc['party'] = str(mem.party[0].capitalize())    
         moc["endpoint"] = ep.id
             
         d = DeliveryRecord.objects.filter(target=ep, next_attempt__isnull=True, created__gt=datetime.now()-timedelta(days=30))

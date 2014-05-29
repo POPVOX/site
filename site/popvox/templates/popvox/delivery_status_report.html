@@ -8,11 +8,11 @@
 	<p>{{delivered_pct}}% of {{total_count}} messages have been delivered; {{delivered_electronically_pct}}% of deliveries are electronic.</p>
 
 	<table>
-	{% for moc in report %}
+	{% for member in report %}
 	<tr valign="top">
-		<td style="padding-bottom: .5em"><a href="{{moc.url}}">{{moc.name}}</a> [<a href="/admin/writeyourrep/endpoint/{{moc.endpoint}}/">EP</a>]</td>
-		<td>{{moc.delivery_status}}</td>
-		<td>{{moc.breaks}}</td>
+		<td style="padding-bottom: .5em"><a href="{{member.url}}">{{member.title|safe}} {{member.firstname}} {{member.lastname}} [{{member.party|safe}}, {{member.state}}{% if member.title == 'Rep.' %}-{{member.district}}{%endif%}]</a> [<a href="/admin/writeyourrep/endpoint/{{member.endpoint}}/">EP</a>]</td>
+		<td>{{member.delivery_status}}</td>
+		<td>{{member.breaks}}</td>
 	</tr>
 	{% endfor %}
 	</table>
