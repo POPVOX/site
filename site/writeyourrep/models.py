@@ -85,8 +85,8 @@ class DeliveryRecord(models.Model):
 		return sanitize_html(self.trace)
 	
 class Synonym(models.Model):
-	term1 = models.CharField(max_length=128, db_index=True)
-	term2 = models.CharField(max_length=128)
+	term1 = models.TextField(db_index=True)
+	term2 = models.TextField()
 	last_resort = models.BooleanField(default=False)
 	created = models.DateTimeField(auto_now_add=True)
 	auto = models.BooleanField(default=False)

@@ -134,7 +134,7 @@ def process_comment(comment, thread_id):
     try:
         govtrackrecipients = comment.get_recipients()
         if not type(govtrackrecipients) == list:
-            return
+            govtrackrecipients = []
     except KeyError:
         duplicate_records[comment.id] = ['KeyError'] #key error issue with the endpoint
         return
@@ -166,7 +166,7 @@ def process_comment(comment, thread_id):
         msg.subjectline = comment.bill.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.bill.title
         msg.billnumber = comment.bill.shortname
     else:
-        msg.subjectline = comment.regulation.hashtag() + " #" + ("support" if comment.position == "+" else "oppose") + " " + comment.regulation.title
+        msg.subjectline = comment.regulation.hashtag() + " " + comment.regulation.title
         msg.billnumber = comment.regulation.regnumber
     msg.message = comment.updated.strftime("%x") + ". "
     if comment.message != None:
@@ -214,7 +214,10 @@ def process_comment(comment, thread_id):
                 topterm = IssueArea.objects.get(id = ix)
         
     if topterm != None:
-        msg.topicarea = (topterm.name, "legislation")
+        if comment.bill:
+            msg.topicarea = (topterm.name, "legislation")
+        else:
+            msg.topicarea = (topterm.name, "regulation")
     else:
         if comment.bill:
             msg.topicarea = (comment.bill.hashtag(always_include_session=True), comment.bill.title, "legislation")
@@ -277,7 +280,7 @@ def process_comment(comment, thread_id):
         msg.org_contact = "" # "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
     
     msg.delivery_agent = "POPVOX.com"
-    msg.delivery_agent_contact = "Annalee Flower Horne, POPVOX.com -- annalee@popvox.com"
+    msg.delivery_agent_contact = "Ben Harris, POPVOX.com -- ben@popvox.com"
     
     # Begin delivery.
     #Executive Delivery:
@@ -387,7 +390,7 @@ def process_comment(comment, thread_id):
     
     #Congressional Delivery:
     for gid in govtrackrecipientids:
-        if "AGENCY" in os.environ:
+        if "AGENCY" in os.environ and agency.acronym.lower() != str(os.environ["AGENCY"]).lower():
             continue
         if "TARGET" in os.environ and gid != int(os.environ["TARGET"]):
             continue
@@ -570,7 +573,7 @@ def process_comments_group(thread_index, thread_count):
         from django import db
         db.reset_queries()
         
-if not "THREADS" in os.environ or "TARGET" in os.environ:
+if not "THREADS" in os.environ or "TARGET" in os.environ or "AGENCY" in os.environ:
     # when we are targetting a single endpoint, don't multi-thread it
     process_comments_group(0, 1)
 else:

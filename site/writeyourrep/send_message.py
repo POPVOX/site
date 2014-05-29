@@ -1374,7 +1374,7 @@ def send_message_webform(endpoint, msg, deliveryrec):
             if isinstance(postdata[k], str) or isinstance(postdata[k], unicode):
                 postdata[k] = postdata[k].split(' #')
                 if postdata[k][0].startswith("#"):
-                    postdata[k][0] = postdata[k][0]+"/"+str(CURRENT_CONGRESS)
+                    postdata[k][0] = postdata[k][0][:75]+"/"+str(CURRENT_CONGRESS)
             alts = []
             # For each value we have coming in from the message, also
             # try any of its mapped synonyms in the database,
@@ -1393,14 +1393,21 @@ def send_message_webform(endpoint, msg, deliveryrec):
             # normalize
             for kk, vv in field_options[k].items():
                 field_options[k][normalize_synreq_term2(kk)] = vv
+                
             field_options_values = dict( (normalize_synreq_term2(v), v) for v in field_options[k].values() )
             
             for q, l_r in alts:
                 if q.lower() in field_options[k]:
                     postdata[k] = field_options[k][q.lower()]
                     break
+                elif q.lower()[:75] in field_options[k]:
+                    postdata[k] = field_options[k][q.lower()[:75]]
+                    break
                 if q in field_options_values:
                     postdata[k] = field_options_values[q]
+                    break
+                elif q[:75] in field_options_values:
+                    postdata[k] = field_options_values[q][:75]
                     break
             else:
                 # There were no mappings from the keyword we have in the message to
@@ -1420,6 +1427,7 @@ def send_message_webform(endpoint, msg, deliveryrec):
                 # Issue a delivery error that will also trigger an INSERT into the synonym required
                 # table with term1set set to the keyword alternatives in the message postdata[k]
                 # and term2set set to select_opts.
+                #print postdata[k]
                 raise SelectOptionNotMappable("Can't map value %s for %s into available option from %s." % (postdata[k], k, field_options[k]), k, postdata[k], select_opts)
         
         postdata[k] = postdata[k].encode("utf8")

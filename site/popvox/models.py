@@ -155,6 +155,9 @@ class MemberOfCongress(models.Model):
         #holdover from when this lived on a separate table
         return self.slug
     
+    def url(self):
+        return self.most_recent_role().url
+    
     def most_recent_role(self):
         try:
             role = self.roles.order_by("-enddate")[0]
@@ -302,6 +305,8 @@ class Regulation(models.Model):
     current_status = models.TextField(blank=True, null=True)
     current_status_date = models.DateTimeField(blank=True, null=True)
     executive_recipients = models.ManyToManyField(FederalAgency, blank=True, null=True, related_name="regulations")
+    congressional_delivery = models.BooleanField(default=False, help_text="Check this box if comments on this regulation should also go to Congress.")
+    comments_to_chamber = models.CharField(max_length=1, choices=[('s', 'Senate'), ('h', 'House',), ('c', 'Congress House+Senate')], blank=True, null=True, help_text="If a reg's messages also need to be delivered to congress, set the correct chamber.")
     
     def __unicode__(self):
         return self.title[0:30]
@@ -1223,7 +1228,7 @@ class UserProfile(models.Model):
     # user_saved_callback to initialize the fields on new user profiles
     # or put in a default value.
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     
     fullname = models.CharField(max_length=100, blank=True, null=True)
     
@@ -1715,14 +1720,17 @@ class UserComment(models.Model):
 
     def get_recipients(self):
         if self.regulation:
-            recipients = "executive" #FIXME this just sets it to no recipients in the widget
-            return recipients
-        if self.bill.comments_to_chamber:
-            ch = self.bill.comments_to_chamber # s, h, or c to direct message to both chambers of Congress
+            if self.regulation.congressional_delivery:
+                ch = self.regulation.comments_to_chamber
+            else:
+                return "executive"
         else:
-            ch = self.bill.getChamberOfNextVote()
-            if ch == None:
-                return "The comment will not be delivered because the bill is not pending a vote in Congress."
+            if self.bill.comments_to_chamber:
+                ch = self.bill.comments_to_chamber # s, h, or c to direct message to both chambers of Congress
+            else:
+                ch = self.bill.getChamberOfNextVote()
+                if ch == None:
+                    return "The comment will not be delivered because the bill is not pending a vote in Congress."
             
         d = self.address.state + str(self.address.congressionaldistrict)
         state = self.address.state
