@@ -1,6 +1,6 @@
 #!runscript
 
-# It'll make a file in the dir you ran it from called campaign_info-reg.csv
+# It'll make a file in the dir you ran it from called campaign_info-addresses.csv
 
 from popvox.models import *
 from django.contrib.auth.models import User
@@ -10,10 +10,10 @@ from django.core.mail import EmailMultiAlternatives
 from settings import SERVER_EMAIL
 
 sep = "\t"
-reg = Regulation.objects.get(id=4)
+bill = Bill.objects.get(id=34304)
 
-with open('campaign_info-reg.csv','w') as info:
-    for comment in reg.usercomments.all():
+with open('x151-comments.csv','w') as info:
+    for comment in bill.usercomments.all():
         if not comment.message:
             #no sense delivering empty comments to regulatory agencies
             continue
@@ -41,13 +41,12 @@ with open('campaign_info-reg.csv','w') as info:
             +sep+ str(lastname) +sep+ statedist +sep+ str(address1)+sep+\
                 str(address2)+sep+ str(city)+sep+ str(state) +sep+ str(address.zipcode)\
                 +sep+ str(address.user.email) +sep+ str(comment.created) +sep+\
-                str(comment.updated) +sep+ str(message) + sep +"\n" )
+                str(comment.updated) +sep+ str(comment.position) +sep+ str(message) + sep +"\n" )
         
-
-with open('campaign_info-reg.csv','r') as info:
-    msg = EmailMultiAlternatives("Regulation Comments on "+reg.regnumber,
+with open('x151-comments.csv','r') as info:
+    msg = EmailMultiAlternatives("Comments on Bill "+bill.shortname,
         "",
         SERVER_EMAIL,
         ["annalee@popvox.com"])
-    msg.attach('regulation_comments_' + reg.regnumber + '_' + str(date.today()) + '.csv', info.read(), "text/csv")
+    msg.attach('bill_comments_' + bill.shortname + '_' + str(date.today()) + '.csv', info.read(), "text/csv")
     msg.send()
