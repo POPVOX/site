@@ -1228,7 +1228,7 @@ class UserProfile(models.Model):
     # user_saved_callback to initialize the fields on new user profiles
     # or put in a default value.
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     
     fullname = models.CharField(max_length=100, blank=True, null=True)
     
