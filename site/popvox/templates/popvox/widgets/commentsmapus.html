@@ -138,7 +138,7 @@
         <body class="colormode_1 width_{{width}} no_legend">
     {% else %}
     {% if regulation %}
-        <body class="colormode_2 width_{{width}}">
+        <body id="regulation-map" class="colormode_2 width_{{width}}">
     {% else %}
     {% if request.GET.client == 'anaap' or request.GET.client == 'anaap2' %}
     <body id="anaap" class="colormode_3 width_{{width}}">
@@ -215,6 +215,12 @@
         </div>
         
         <div id="brought_to_you"> </div>
+        <script type="text/javascript">
+ +            $('body#regulation-map #mapdots a').on('click', function()
+ +            {
+ +               return false;
+ +            });
+ +        </script>
     </body>
 </html>
 
