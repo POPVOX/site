@@ -6589,9 +6589,8 @@ font-weight: normal;
 		}
 		
 		#reg_stats p strong em {
-            font-size: 2.2em;
 			padding-top: 15px;
-			font: normal 60px helvetica, arial, sans-serif;
+			font: normal 2.2em helvetica, arial, sans-serif;
 		}
 
 	#reg_comment_widget {
