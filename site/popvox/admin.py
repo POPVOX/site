@@ -181,7 +181,7 @@ class MemberOfCongressAdmin(admin.ModelAdmin):
     readonly_fields = ["id"]
 
 class MemberOfCongressRoleAdmin(admin.ModelAdmin):
-    search_fields = ["member", "state", "address"]
+    search_fields = ["state", "address"]
     list_display = ['member', 'title', 'state', 'district']
 
 class MemberBioAdmin(admin.ModelAdmin):
