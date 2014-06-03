@@ -399,6 +399,7 @@ h2 span {
 			<div class="col_4" id="reg_stats">
 				<p><span>Comments:</span> {%if regulation.isAlive%}OPEN{%else%}CLOSED{%endif%}</p>
 				<p><strong><span>Days Remaining:</span> <em>{{regulation.daysleft}}</em></strong></p>
+                <p><strong><span>Comments sent via POPVOX:</span> <em>{{comments.count}}</em></strong></p>
 			</div>
 			
 			<div class="col_8">
@@ -407,7 +408,7 @@ h2 span {
 	                <p><strong>Summary: </strong>{{ regulation.description }}<p>
 	            {% endif %} 
 	            {% if regulation.notes %}
-	                <p>{{regulation.notes|safe}}</p>
+	                <p>{{regulation.notes|safe|truncatewords:100}}</p>
 	            {% endif %}
 	        </div>
 
@@ -523,7 +524,9 @@ h2 span {
 		            <p class="usercomment endorse_oppose_image neutral">{{c.message}}</p>
 		            <div class="clear"> </div>
 		            <!--<div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="num">96</span></div>-->
-		            <div class="share"><a href="">share</a></div>
+		            <!--
+                    <div class="share"><a href="">share</a></div>
+                    -->
 		            <div class="clear"> </div>
 		        </div>
 			</div>

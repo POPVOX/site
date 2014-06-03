@@ -6560,7 +6560,7 @@ font-weight: normal;
 		display: block;
 		float: left;
 		width: 200px;
-		height: 120px;
+		height: 190px;
 		margin-right: 30px; 
 		padding: 25px 20px 20px;
 		color: #fff;
@@ -6590,7 +6590,7 @@ font-weight: normal;
 		
 		#reg_stats p strong em {
 			padding-top: 15px;
-			font: normal 60px helvetica, arial, sans-serif;
+			font: normal 2.2em helvetica, arial, sans-serif;
 		}
 
 	#reg_comment_widget {
