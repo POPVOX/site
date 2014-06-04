@@ -2360,7 +2360,7 @@ def regreport(request, agency, regnumber):
                 "has_document": False,
                 }
 
-    #comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
+    comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
 
     return render_to_response('popvox/regulation_report.html', {
         'regulation': regulation,
@@ -2368,7 +2368,7 @@ def regreport(request, agency, regnumber):
         "stateabbrs":
             [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
         "statereps": getStateReps(),
-        "comments": regulation.usercomments,
+        "comments": comments,
         "show_share_footer": True,
     }, context_instance=RequestContext(request))
 
