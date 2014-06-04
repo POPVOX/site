@@ -2374,8 +2374,7 @@ def regreport(request, agency, regnumber):
 
 def regreport_comments(request, agency, regnumber, start):
     regulation = get_object_or_404(Regulation, agency=agency, regnumber=regnumber)
-    end = start + 10
-    comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[start:end]
+    comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[start:21]
 
     return render_to_response('popvox/regulation_comments.html', {
         "comments": comments,
