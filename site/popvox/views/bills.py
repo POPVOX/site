@@ -2372,7 +2372,7 @@ def regreport(request, agency, regnumber):
         "show_share_footer": True,
     }, context_instance=RequestContext(request))
 
-def regreport_comments(request, agency, regnumber, start)
+def regreport_comments(request, agency, regnumber, start):
     regulation = get_object_or_404(Regulation, agency=agency, regnumber=regnumber, start=start)
     end = start + 10
     comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[start:end]
