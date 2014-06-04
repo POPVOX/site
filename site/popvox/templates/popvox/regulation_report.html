@@ -511,7 +511,7 @@ h2 span {
 
 <!-- style="display: none" -->
     <div id="comment_template" class="section clearfix">
-    {% for c in comments|slice:"10:20" %}
+    {% for c in comments|slice:":10" %}
         <div class="{% cycle 'col_6' 'col_6 col_last' %}">
 	        <div class="comments">
 		        <div class="comment clear">
