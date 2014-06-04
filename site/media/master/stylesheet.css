@@ -6690,8 +6690,6 @@ font-weight: normal;
 }
 
 .comment-loader {
-    position: fixed;
-    bottom: 30px;
     text-align: center;
     display: none;
 }
