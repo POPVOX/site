@@ -301,7 +301,8 @@ h2 span {
               $('.comment-loader').show();
               $.get('/ajax/regulations/us/FCC/FCC-14-28/'+ commentsLoad +'/comments', function(data)
               {
-                  $('.comment-loader').hide().before(data);
+                  $('.comment-loader').hide();
+                  $('.comment-spacer').before(data);
                   commentsLoad = commentsLoad + 10;
               });
           }
@@ -570,7 +571,7 @@ h2 span {
 
     
     <p id="debug_info" style="width: 800px"> </p>
-    <div class="clear">&nbsp;</div>
+    <div class="comment-spacer clear">&nbsp;</div>
     <p class="comment-loader">Loading...</p>
     </div>
 {% endblock %}
