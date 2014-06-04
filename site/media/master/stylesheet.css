@@ -6685,10 +6685,15 @@ font-weight: normal;
 		margin-bottom: 0;
 	}
 
+#comment_template {
+    position: relative;
+}
+
 .comment-loader {
+    position: fixed;
+    bottom: 30px;
     text-align: center;
     display: none;
-    font-size: 14px;
 }
 
 

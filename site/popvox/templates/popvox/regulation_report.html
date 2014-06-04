@@ -301,8 +301,7 @@ h2 span {
               $('.comment-loader').show();
               $.get('/ajax/regulations/us/FCC/FCC-14-28/'+ commentsLoad +'/comments', function(data)
               {
-                  $('.comment-loader').hide();
-                  $('#comment_template').append(data);
+                  $('.comment-loader').hide().before(data);
                   commentsLoad = commentsLoad + 10;
               });
           }
