@@ -303,7 +303,11 @@ h2 span {
     {
         $('#footer').onScreen({
           doIn: function() {
-            console.log('adding more comments');
+              $.get('/ajax/regulations/us/FCC/FCC-14-28/'+ commentsLoad +'/comments', function(data)
+              {
+                  $('#comment_template').append(data);
+                  commentsLoad = commentsLoad + 10;
+              });
           }
         });
     }
