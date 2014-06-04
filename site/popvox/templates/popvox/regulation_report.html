@@ -294,17 +294,14 @@ h2 span {
         return false;
     }
 
-    function more_reg_comments()
-    {
-
-    }
-
     function append_comments()
     {
         $('#footer').onScreen({
           doIn: function() {
+              $('.comment-loader').show();
               $.get('/ajax/regulations/us/FCC/FCC-14-28/'+ commentsLoad +'/comments', function(data)
               {
+                  $('.comment-loader').hide();
                   $('#comment_template').append(data);
                   commentsLoad = commentsLoad + 10;
               });
@@ -574,7 +571,7 @@ h2 span {
 
     
     <p id="debug_info" style="width: 800px"> </p>
-    
+    <p class="comment-loader">Loading...</p>
     </div>
 {% endblock %}
 

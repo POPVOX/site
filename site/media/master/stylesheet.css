@@ -6685,7 +6685,11 @@ font-weight: normal;
 		margin-bottom: 0;
 	}
 
-
+.comment-loader {
+    text-align: center;
+    display: none;
+    font-size: 14px;
+}
 
 
 
