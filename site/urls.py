@@ -104,7 +104,7 @@ urlpatterns = patterns('',
     
     (r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/report$', "popvox.views.bills.billreport"),
     (r'^regulations/us/(?P<agency>[a-zA-Z]+)/(?P<regnumber>[a-zA-Z0-9-]+)?/report$', "popvox.views.bills.regreport"),
-    (r'^ajax/regulations/us/(?P<agency>[a-zA-Z]+)/(?P<regnumber>[a-zA-Z0-9-]+)/(?P<start>[0-9])/comments$', "popvox.views.bills.regreport_comments"),
+    (r'^ajax/regulations/us/(?P<agency>[a-zA-Z]+)/(?P<regnumber>[a-zA-Z0-9-]+)/(?P<start>[0-9]+)/comments$', "popvox.views.bills.regreport_comments"),
     (r'^ajax/bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/report/getinfo$', "popvox.views.bills.billreport_getinfo"),
     (r'^ajax/bills/comment/digg$', "popvox.views.bills.comment_digg"),
     (r'^bills/us/(\d+)/([a-z]+)(\d+)(-\d+)?/docs/([\w\-]+)/(\d+)$', "popvox.views.bills.billdoc"),
