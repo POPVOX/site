@@ -2359,10 +2359,8 @@ def regreport(request, agency, regnumber):
         orgs[pos.campaign.org] = {
                 "has_document": False,
                 }
-    
-    limit = 50
-    all_comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
-    comments = all_comments[0:limit]
+
+    comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
 
     return render_to_response('popvox/regulation_report.html', {
         'regulation': regulation,
@@ -2371,7 +2369,6 @@ def regreport(request, agency, regnumber):
             [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
         "statereps": getStateReps(),
         "comments": comments,
-        "comment_total": all_comments,
         "show_share_footer": True,
     }, context_instance=RequestContext(request))
 
@@ -2386,7 +2383,7 @@ def billreport_userstate(request, congressnumber, billtype, billnumber, vehiclei
         default_state, default_district = get_default_statistics_context(request.user, individuals=False)
         ret["default_state"] = default_state if default_state else ""
         ret["default_district"] = default_district if default_district else ""
-        
+
     return ret
 billreport.user_state = billreport_userstate
 def billreport_get_object(request, congressnumber, billtype, billnumber, vehicleid):
@@ -2416,21 +2413,21 @@ def can_appreciate(request, bill):
 @json_response
 def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid):
     # Get report information.
-    
+
     bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
-    
+
     state = request.REQUEST["state"] if "state" in request.REQUEST and request.REQUEST["state"].strip() != "" else None
-    
+
     district = int(request.REQUEST["district"]) if state != None and "district" in request.REQUEST and request.REQUEST["district"].strip() != "" else None
-    
+
     start = int(request.REQUEST.get("start", "0"))
     limit = int(request.REQUEST.get("count", "50"))
-    
+
     def fetch(p):
         cache_key = ("billreport_getinfo_%d,%s,%s,%s,%d,%d" % (bill.id, p, state, str(district), start, limit))
         ret = cache.get(cache_key)
         if ret != None: return ret
-        
+
         q = bill_comments(bill, position=p, state=state, congressionaldistrict=district)\
             .filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))\
             .only("id", "created", "updated", "message", "position", "state", "congressionaldistrict", "bill__id", "bill__congressnumber", "bill__billtype", "bill__billnumber", "user__username", "address__id", "user__email")\
@@ -2442,35 +2439,35 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             limited = True
         else:
             q = q[start:]'''
-            
+
         cache.set(cache_key, (q,count), 60*15) # cache results for two minutes
-            
+
         '''return q, limited'''
         return q, count
-    
 
-    
+
+
     if state == None:
         reporttitle = "Legislative Report for POPVOX Nation"
     elif district == None or district == 0:
         reporttitle = "Legislative Report for " +  govtrack.statenames[state]
     else:
         reporttitle = "District Report for " + state + "-" + str(district)
-    
+
     reportsubtitle = ""
     if state != None:
         reportsubtitle = \
             "Represented by " \
-            + re.sub(r"\[[^\]]*\]", "", 
+            + re.sub(r"\[[^\]]*\]", "",
                 " and ".join(
-                    [p["name"] for p in 
+                    [p["name"] for p in
                         getMembersOfCongressForDistrict(state + str(district),
                             moctype="rep" if district != None else "sen")]
                     )
                 )
-            
+
     # Functions for formatting comments.
-    
+
     re_whitespace = re.compile(r"\n+\W*$") # remove trailing non-textual characters
     t = re.escape(bill.title).replace(":", ":?")
     re_because = re.compile(r"I (support|oppose) " + t + r" because[\s\.:]*(\S)") # remove common text
@@ -2518,15 +2515,15 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     if request.user.is_authenticated():
         for c in UserComment.objects.filter(diggs__diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, diggs__user=request.user):
             user_appreciated.add(c.id)
-    
 
-        
+
+
     # Legislative staff?
     show_private_info = False
     if state != None and request.user.is_authenticated() and request.user.userprofile.is_leg_staff() and request.user.legstaffrole.member:
         moc = govtrack.getMemberOfCongress(request.user.legstaffrole.member_id)
         show_private_info = moc["current"] and moc["state"] == state and (moc["type"] == "sen" or moc["district"] == district)
-        
+
     # For legislative staff, show a town-by-town breakdown?
     by_town = None
     if show_private_info:
@@ -2541,7 +2538,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             by_town[rec["address__city"]][rec["position"]] = rec["count"]
         # Sort.
         by_town = sorted(by_town.values(), key=lambda x : x["name"].lower())
-        
+
     # For admins, show a breakdown by source.
     by_source = None
     if request.user.is_superuser or request.user.is_staff:
@@ -2550,7 +2547,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
             .values("method", "usercommentreferral__referrer_content_type", "usercommentreferral__referrer_object_id")\
             .annotate(count=Count('id'))\
             .order_by():
-                
+
             # convert dict of content type and obj id into object
             method_name = UserComment.METHOD_NAMES[rec["method"]]
             if rec["usercommentreferral__referrer_content_type"] == None:
@@ -2565,20 +2562,20 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
                 except ServiceAccount.DoesNotExist:
                     referrer = "[Service Account Deleted]"
                 referrer += " (" + method_name + ")"
-            
+
             by_source[referrer] = rec["count"]
         by_source = sorted(by_source.items(), key=lambda x : -x[1]) # Sort
-        
-            
+
+
     # Return.
-    
+
     bill_url = bill.url()
-    
+
     debug_info = None
     #if DEBUG:
     #    from django.db import connection
     #    debug_info = "".join(["%s: %s\n" % (q["time"], q["sql"]) for q in connection.queries])
-        
+
 
     def get_comments():
         comment_cache_key = ("billreport_getcomments_%d,%s,%s,%d,%d" % (bill.id, state, str(district), start, limit))
@@ -2626,7 +2623,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
                     "state": c.state,
                     "district": c.congressionaldistrict
                     } for c in pro_comments ]
-                    
+
 
 
         if pro_count > limit:
@@ -2651,7 +2648,7 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
                     "state": c.state,
                     "district": c.congressionaldistrict
                     } for c in con_comments ]
-                    
+
 
         if con_count > limit:
             con_comments_data = sorted(con_comments_data_basic, key=operator.itemgetter('appreciates'), reverse=True)[start:limit]
@@ -2672,16 +2669,16 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
     return {
         "reporttitle": reporttitle,
         "reportsubtitle": reportsubtitle,
-        
+
         "can_appreciate": appreciate,
-        
+
         "pro_more": pro_limited,
         "con_more": con_limited,
-        
+
         "debug_info": debug_info,
-        
+
         "approved_for_private_info": show_private_info,
-    
+
         "comments": comments_data,
         "stats": {
             "overall": bill_statistics(bill, "POPVOX", "POPVOX Nation", want_timeseries=True, want_totalcomments=True, force_data=True),
@@ -2710,11 +2707,11 @@ def billreport_getinfo(request, congressnumber, billtype, billnumber, vehicleid)
 def comment_digg(request):
     bill = get_object_or_404(Bill, id=request.POST.get("bill", -1))
     comment = get_object_or_404(UserComment, id=request.POST.get("comment", -1))
-    
+
     appreciate = can_appreciate(request, bill)
     if not appreciate or (type(appreciate) == UserComment and appreciate.position != comment.position):
         return { "status": "fail", "msg": "invalid action" }
-        
+
     d = UserCommentDigg.objects.filter(comment=comment, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE, user=request.user)
     if request.POST["action"] == "-":
         d.delete()
@@ -2729,18 +2726,18 @@ def comment_digg(request):
                 d.source_comment = appreciate
             d.save()
         action = "+"
-        
+
     return { "status": "success", "action": action, "count": UserCommentDigg.objects.filter(comment=comment, diggtype=UserCommentDigg.DIGG_TYPE_APPRECIATE).count() }
 
 @json_response
 def getbillshorturl(request):
     if "billposid" in request.POST:
         pos = get_object_or_404(OrgCampaignPosition, id=request.POST["billposid"])
-        
+
         org = pos.campaign.org
         if not org.is_admin(request.user) :
             return HttpResponseForbidden("Not authorized.")
-            
+
         owner = pos.campaign
         bill = pos.bill
     elif "billid" in request.POST:
@@ -2751,15 +2748,15 @@ def getbillshorturl(request):
         bill = get_object_or_404(Bill, id=request.POST["billid"])
     else:
         raise Http404()
-    
+
     import shorturl
     surl, created = shorturl.models.Record.objects.get_or_create(owner=owner, target=bill)
-    
+
     return { "status": "success", "url": surl.url(), "new": created }
 
 def uploaddoc1(request):
     prof = request.user.userprofile
-    
+
     if request.user.is_anonymous():
         raise Http404()
     elif prof.is_leg_staff() and request.user.legstaffrole.member != None:
@@ -2775,21 +2772,21 @@ def uploaddoc1(request):
         docs = org.documents
     else:
         raise Http404()
-        
+
     return types, whose, docs
 
 @csrf_protect
 @login_required
 def uploaddoc(request, congressnumber, billtype, billnumber, vehicleid):
     types, whose, docs = uploaddoc1(request)
-        
+
     bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
-    
+
     # check which documents are already uploaded
     types = [
         (typecode, typename, docs.filter(bill=bill, doctype=typecode).exists())
         for (typecode, typename) in types]
-    
+
     return render_to_response('popvox/bill_uploaddoc.html', {
         'whose': whose,
         'types': types,
@@ -2800,9 +2797,9 @@ def uploaddoc(request, congressnumber, billtype, billnumber, vehicleid):
 @json_response
 def getdoc(request):
     types, whose, docs = uploaddoc1(request)
-        
+
     bill = get_object_or_404(Bill, id=request.POST["billid"])
-    
+
     doctype = int(request.POST["doctype"])
 
     try:
@@ -2816,10 +2813,10 @@ def getdoc(request):
 @json_response
 def uploaddoc2(request):
     types, whose, docs = uploaddoc1(request)
-    
+
     bill = get_object_or_404(Bill, id=request.POST["billid"])
     doctype = int(request.POST["doctype"])
-    
+
     if request.POST.get("title", "").strip() == "" and strip_tags(request.POST.get("text", "").replace("&nbsp;", "")).strip() == "" and request.POST.get("link", "").strip() == "":
         try:
             doc = docs.get(bill = bill, doctype = doctype)
@@ -2830,15 +2827,15 @@ def uploaddoc2(request):
             pass
 
     title = forms.CharField(min_length=5, max_length=128, error_messages = {'min_length': "The title is too short.", "max_length": "The title is too long.", "required": "The title is required."}).clean(request.POST.get("title", "")) # raises ValidationException
-        
+
     text = forms.CharField(min_length=100, max_length=32767, error_messages = {'min_length': "The body text is too short.", "max_length": "The body text is too long.", "required": "The document text is required."}).clean(request.POST.get("text", "")) # raises ValidationException
     text = sanitize_html(text)
-    
-    link = request.POST.get("link", "")    
+
+    link = request.POST.get("link", "")
     if link != "" and link[0:7] != "http://":
         link = "http://" + link
     link = forms.URLField(required=False, verify_exists = True).clean(link) # raises
-    
+
     if request.POST["validate"] != "validate":
         doc, is_new = docs.get_or_create(
             bill = bill,
@@ -2848,21 +2845,21 @@ def uploaddoc2(request):
         doc.text = text
         doc.link = link
         doc.save()
-    
+
     return { "status": "success", "action": "upload" }
 
 def billdoc(request, congressnumber, billtype, billnumber, vehicleid, orgslug, doctype):
     bill = getbill(congressnumber, billtype, billnumber, vehicleid=vehicleid)
-    
+
     from org import set_last_campaign_viewed
     org = get_object_or_404(Org, slug=orgslug, visible=True)
     set_last_campaign_viewed(request, org)
-    
+
     try:
         doc = org.documents.get(bill=bill, doctype=doctype)
     except:
         raise Http404()
-        
+
     return render_to_response('popvox/bill_doc_org.html', {
         'org': org,
         'bill': bill,

@@ -399,7 +399,7 @@ h2 span {
 			<div class="col_4" id="reg_stats">
 				<p><span>Comments:</span> {%if regulation.isAlive%}OPEN{%else%}CLOSED{%endif%}</p>
 				<p><strong><span>Days Remaining:</span> <em>{{regulation.daysleft}}</em></strong></p>
-                <p><strong><span>Comments sent via POPVOX:</span> <em>{{comment_total.count}}</em></strong></p>
+                <p><strong><span>Comments sent via POPVOX:</span> <em>{{comments.count}}</em></strong></p>
 			</div>
 			
 			<div class="col_8">
