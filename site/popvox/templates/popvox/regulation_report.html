@@ -299,13 +299,14 @@ h2 span {
 
     }
 
-    function append_comments() {
+    function append_comments()
+    {
         $('#footer').onScreen({
           doIn: function() {
             console.log('adding more comments');
           }
         });
-      }
+    }
     
     function digg(elem) {
         ajax("/ajax/bills/comment/digg", {
@@ -327,6 +328,8 @@ h2 span {
     }
 
     $(function() {
+        append_comments();
+
         $(window).bind("hashchange", function() {
             //$(window).scrollTop(320);
             var hashargs = $.deparam.fragment();
