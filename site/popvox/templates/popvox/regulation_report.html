@@ -64,6 +64,7 @@ h2 span {
     var start = 0;
     var count = 10;
     var isloading = false;
+    var commentsLoad = 11;
     
     var statereps = {{statereps|json}};
     
@@ -297,6 +298,14 @@ h2 span {
     {
 
     }
+
+    function append_comments() {
+        $('#footer').onScreen({
+          doIn: function() {
+            console.log('adding more comments');
+          }
+        });
+      }
     
     function digg(elem) {
         ajax("/ajax/bills/comment/digg", {
