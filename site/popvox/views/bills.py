@@ -2361,15 +2361,17 @@ def regreport(request, agency, regnumber):
                 }
     
     limit = 50
-    comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))[0:limit]
-    
+    all_comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
+    comments = all_comments[0:limit]
+
     return render_to_response('popvox/regulation_report.html', {
         'regulation': regulation,
         "orgs": orgs,
-        "stateabbrs": 
+        "stateabbrs":
             [ (abbr, govtrack.statenames[abbr]) for abbr in govtrack.stateabbrs],
         "statereps": getStateReps(),
         "comments": comments,
+        "comment_total": all_comments,
         "show_share_footer": True,
     }, context_instance=RequestContext(request))
 
