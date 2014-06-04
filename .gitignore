@@ -4,6 +4,7 @@
 *.tsv
 *.bak
 *~
+/.idea
 site/database.*
 libs/*/
 oughttabealaw/database.*
