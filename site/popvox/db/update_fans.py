@@ -23,6 +23,7 @@ else:
 
 fb_tw_ratio = []
 for org in orgs_to_update:
+    print "now updating: " + org.twittername
 	if org.twittername == "":
 		org.twittername = None
 	if org.facebookurl == "":
