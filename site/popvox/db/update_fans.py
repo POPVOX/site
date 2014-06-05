@@ -16,35 +16,35 @@ drop_rate = 150.0 / float(twitterers)
 orgs_to_update = Org.objects.filter(visible=True)
 
 if len(sys.argv) == 2:
-	drop_rate = 1
-	orgs_to_update = Org.objects.filter(slug=sys.argv[1])
+    drop_rate = 1
+    orgs_to_update = Org.objects.filter(slug=sys.argv[1])
 else:
-	print "updating", drop_rate, "of orgs"
+    print "updating", drop_rate, "of orgs"
 
 fb_tw_ratio = []
 for org in orgs_to_update:
-	if org.twittername == "":
+    if org.twittername == "":
         print "now updating: " + org.twittername
-		org.twittername = None
-	if org.facebookurl == "":
-		org.facebookurl = None
-	
-	# TODO: We don't really want this because if an org goes from
-	# having a page to not having a page, then we want to clear
-	# the count record. But it makes it go faster when run remotely.
-	if settings.DEBUG and org.twittername == None and org.facebookurl == None:
-		continue
+        org.twittername = None
+    if org.facebookurl == "":
+        org.facebookurl = None
 
-	# twitter rate limiting
-	if random.random() <= drop_rate:
-		org.sync_external_members()
+    # TODO: We don't really want this because if an org goes from
+    # having a page to not having a page, then we want to clear
+    # the count record. But it makes it go faster when run remotely.
+    if settings.DEBUG and org.twittername == None and org.facebookurl == None:
+        continue
 
-	ft = (org.facebook_fan_count(), org.twitter_follower_count())
-	if not 0 in ft:
-		fb_tw_ratio.append( float(ft[0])/float(ft[1]) )
+    # twitter rate limiting
+    if random.random() <= drop_rate:
+        org.sync_external_members()
+
+    ft = (org.facebook_fan_count(), org.twitter_follower_count())
+    if not 0 in ft:
+        fb_tw_ratio.append( float(ft[0])/float(ft[1]) )
 
 if len(orgs_to_update) < 5:
-	sys.exit()
+    sys.exit()
 
 # Compute the median of the facebook-to-twitter ratios. Better than the
 # mean which is thrown off by outliers. Probably more accurate than
@@ -55,6 +55,6 @@ fb_tw_ratio = numpy.median(fb_tw_ratio)
 # Update the fan_count_sort_order based on a single number that takes into
 # account this ratio.
 for org in Org.objects.filter(visible=True):
-	org.fan_count_sort_order = org.facebook_fan_count() + fb_tw_ratio * org.twitter_follower_count()
-	org.save()
-	
+    org.fan_count_sort_order = org.facebook_fan_count() + fb_tw_ratio * org.twitter_follower_count()
+    org.save()
+
