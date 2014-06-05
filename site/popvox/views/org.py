@@ -54,6 +54,9 @@ def org(request, orgslug):
     positions = getpositions(cams)
     serviceacct = org.service_account(create=True)
     set_last_campaign_viewed(request, org)
+
+    # quick fix in case the org twitter account hasn't been updated
+    twitter_update = org.sync_external_members()
     
     
     return render_to_response('popvox/org.html', {
