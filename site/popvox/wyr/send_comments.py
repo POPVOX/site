@@ -5,6 +5,7 @@ import re
 import datetime
 from django.db.models import Q
 from django.core.exceptions import MultipleObjectsReturned
+from django.core.mail import EmailMultiAlternatives
 
 # set the backend flag to anything to avoid Amazon SES because
 # when we do delivery by plain SMTP, we send from the user's
@@ -18,7 +19,7 @@ from writeyourrep.send_message import Message, send_message, Endpoint, DeliveryR
 from writeyourrep.addressnorm import verify_adddress, validate_phone
 from writeyourrep.district_lookup import county_lookup_coordinate
 
-from settings import POSITION_DELIVERY_CUTOFF_DAYS
+from settings import POSITION_DELIVERY_CUTOFF_DAYS, SERVER_EMAIL
 import time
 
 mocs_require_phone_number = (
@@ -608,4 +609,17 @@ print "Potential print-out size:", UserCommentOfflineDeliveryRecord.objects.all(
 
 #for gid in target_counts:
 #    print target_counts[gid], gid, Endpoint.objects.get(govtrackid=gid).id, getMemberOfCongress(gid)["name"]
+
+#have to turn this into a float so it'll calculate percentages right
+total = float(success)+failure
+
+msg = EmailMultiAlternatives("Message Delivery Report for " + str(datetime.date.today()),
+    "The message delivery script has run.\n\
+    Success: "+ str(success)+" ("+str((success/total)*100.00)+"%)"+"\n\
+    Failure: "+ str(failure)+" ("+str((failure/total)*100.00)+"%)"+"\n\
+    Needs Attention: "+ str(needs_attention)+"\n\
+    Potential print-out size: "+ str(UserCommentOfflineDeliveryRecord.objects.all().count()),
+    SERVER_EMAIL,
+    ["annalee@popvox.com", "tech@popvox.com"])
+msg.send()
 
