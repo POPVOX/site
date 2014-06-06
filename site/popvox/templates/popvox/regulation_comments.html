@@ -1,0 +1,21 @@
+    {% for c in comments %}
+        <div class="{% cycle 'col_6' 'col_6 col_last' %}">
+	        <div class="comments">
+		        <div class="comment clear">
+		            <h4>
+		                <span class="date"><nobr>{{c.created|date:"D d M Y" }}</nobr></span>
+		                <span class="username">{{c.user.username}}</span>
+		                <span class="location">in <a href='/district/{{c.state}}/{{c.congressionaldistrict}}/'>{{c.address.nicelocation_no_reps}}</a></span>
+		                <span class="verb"> </span>
+		            </h4>
+		            <p class="usercomment endorse_oppose_image neutral">{{c.message}}</p>
+		            <div class="clear"> </div>
+		            <!--<div class="appreciate"><a href="#" onclick="return digg(this);">appreciate</a><span class="num">96</span></div>-->
+		            <!--
+                    <div class="share"><a href="">share</a></div>
+                    -->
+		            <div class="clear"> </div>
+		        </div>
+			</div>
+		</div>
+    {% endfor %}

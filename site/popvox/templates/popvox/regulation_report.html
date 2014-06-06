@@ -50,6 +50,7 @@ h2 span {
 <script type="text/javascript" src="/media/js/highcharts.js"></script>
 <script type="text/javascript" src="/media/js/charts.js"></script>
 <script type="text/javascript" src="/media/js/jquery.ba-bbq.min.js"></script>
+<script type="text/javascript" src="/media/js/onscreen.js"></script>
 <script>
 {% include "popvox/track.js" %}
 </script>
@@ -63,6 +64,7 @@ h2 span {
     var start = 0;
     var count = 10;
     var isloading = false;
+    var commentsLoad = 11;
     
     var statereps = {{statereps|json}};
     
@@ -291,6 +293,21 @@ h2 span {
         showdata(false, true);
         return false;
     }
+
+    function append_comments()
+    {
+        $('#footer').onScreen({
+          doIn: function() {
+              $('.comment-loader').show();
+              $.get('/ajax/regulations/us/FCC/FCC-14-28/'+ commentsLoad +'/comments', function(data)
+              {
+                  $('.comment-loader').hide();
+                  $('.comment-spacer').before(data);
+                  commentsLoad = commentsLoad + 10;
+              });
+          }
+        });
+    }
     
     function digg(elem) {
         ajax("/ajax/bills/comment/digg", {
@@ -312,6 +329,8 @@ h2 span {
     }
 
     $(function() {
+        append_comments();
+
         $(window).bind("hashchange", function() {
             //$(window).scrollTop(320);
             var hashargs = $.deparam.fragment();
@@ -511,7 +530,7 @@ h2 span {
 
 <!-- style="display: none" -->
     <div id="comment_template" class="section clearfix">
-    {% for c in comments %}
+    {% for c in comments|slice:":10" %}
         <div class="{% cycle 'col_6' 'col_6 col_last' %}">
 	        <div class="comments">
 		        <div class="comment clear">
@@ -552,7 +571,8 @@ h2 span {
 
     
     <p id="debug_info" style="width: 800px"> </p>
-    
+    <div class="comment-spacer clear">&nbsp;</div>
+    <p class="comment-loader"><img src="/media/images/ajax-loader.gif" alt=""/></p>
     </div>
 {% endblock %}
 
