@@ -2363,6 +2363,8 @@ def regreport(request, agency, regnumber):
     comments = regulation.usercomments.filter(message__isnull = False, status__in=(UserComment.COMMENT_NOT_REVIEWED, UserComment.COMMENT_ACCEPTED))
 
     return render_to_response('popvox/regulation_report.html', {
+        'agency': agency,
+        'regnumber': regnumber,
         'regulation': regulation,
         "orgs": orgs,
         "stateabbrs":
