@@ -299,7 +299,7 @@ h2 span {
         $('#footer').onScreen({
           doIn: function() {
               $('.comment-loader').show();
-              $.get('/ajax/regulations/us/'+ {{ agency }} +'/'+ {{ regnumber }} +'/'+ commentsLoad +'/comments', function(data)
+              $.get('/ajax/regulations/us/{{ agency }}/{{ regnumber }}/'+ commentsLoad +'/comments', function(data)
               {
                   $('.comment-loader').hide();
                   $('.comment-spacer').before(data);
