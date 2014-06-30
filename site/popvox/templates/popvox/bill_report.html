@@ -589,7 +589,7 @@ h2 span {
     {% if bill.is_bill or bill.cosponsors.all|length > 0 %}
     <div class="col_6 rule btm_10 col_last"> 
         <div class="cosponsor"> 
-            <h3 class="no_rule">Co-Sponsors</h3> 
+            <h3 class="no_rule">Co-Sponsors ({{ bill.cosponsors.all|length }})</h3> 
             {% if bill.cosponsors.all|length == 0 %}
                 <ul class="smalllist"> 
                     <li>(none)</li>
@@ -601,7 +601,7 @@ h2 span {
                 <ul class="smalllist">
                 {% for grp in col|split_at:3 %}
                     {% if coli == 1 and forloop.counter0 == 1 %}
-                        <p id="cosponsors_more"><a href="#" onclick="$('#cosponsors01, #cosponsors11').fadeIn(); $('#cosponsors_more').hide(); $('#cosponsors_less').show(); return false;">show {{bill.cosponsors.all|length|add:-6}} more</a></p>
+                        <p id="cosponsors_more"><a href="#" onclick="$('#cosponsors01, #cosponsors11').fadeIn(); $('#cosponsors_more').hide(); $('#cosponsors_less').show(); return false;">show more</a></p>
                     {% endif %}
                     <div id="cosponsors{{coli}}{{forloop.counter0}}" {% if forloop.counter0 == 1 %}style="display: none"{% endif %}>
                     {% for cs in grp %}
