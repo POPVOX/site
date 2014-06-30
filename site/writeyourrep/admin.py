@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 
 class EndpointAdmin(admin.ModelAdmin):
-    list_display = ("govtrackid", "method", "office", "mocname", "webform", "notes", "govtrackid", "office")
+    list_display = ("govtrackid", "method", "office", "mocname", "webform", "notes")
     list_filter = ("method",)
     search_fields = ["govtrackid", "notes"]
     #readonly_fields = ("govtrackid", "office")
