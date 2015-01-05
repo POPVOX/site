@@ -1,6 +1,6 @@
 # TODO: Caching needs to be thread-safe?
 
-CURRENT_CONGRESS = 113
+CURRENT_CONGRESS = 114
 
 #govtrack ids of the current congressional leadership. Used for example members for slates, and might come in handy for other purposes later. Currently it's Boehner, Pelosi, Reid, and McConnell, in that order.
 CURRENT_LEADERSHIP = [400036, 400314, 300082, 300072]
