@@ -291,6 +291,7 @@ common_fieldnames = {
     "email_address": "email",
     "email_verify": "email",
     "verify_email": "email",
+    "email_confirmation": "email",
     "vemail": "email",
     "valid-email": "email",
     "email2": "email",
