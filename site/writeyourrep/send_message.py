@@ -415,6 +415,9 @@ common_fieldnames = {
     "cf_field_12": "topicarea",
     "cf_field_13": "message",
     
+    #Boxer's Form
+    
+    
     #McGovern
     "ctl00_ctl06_Street": "address1",
     
