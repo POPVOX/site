@@ -171,14 +171,12 @@ def process_comment(comment, thread_id):
         msg.billnumber = comment.regulation.regnumber
     msg.message = comment.updated.strftime("%x") + ". "
     if comment.message != None:
-        if "OLDMAIL" in os.environ and comment.created < datetime.datetime.now()-datetime.timedelta(days=45):
-            msg.message += "We experienced problems delivering this message, which caused a significant delay in receipt by your office. The problem has been rectified and the individual notified that this was an issue in the POPVOX system -- not the Congressional office. We tremendously regret the delay and are committed to timely delivery. If you have any questions about this, please contact POPVOX CEO, Marci Harris, marci@popvox.com. We always welcome your feedback.\n\n"
         if comment.bill:
             msg.message += comment.message + \
-                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
+                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url()
         else:
             msg.message += comment.message + \
-                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.regulation.url() + "/report"
+                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.regulation.url()
         if comment.created < datetime.datetime.now()-datetime.timedelta(days=16):
             msg.message += "\npopvox holds letters on bills until they are pending a vote in your chamber"
         msg.message_personal = "yes"
@@ -277,8 +275,7 @@ def process_comment(comment, thread_id):
         msg.form_url = "http://www.popvox.com" + comment.bill.url()
         msg.org_url = "" # "popvox.com" # harkin: no leading http://www.
         msg.org_name = "" # "POPVOX.com Message Delivery Agent"
-        msg.org_description = "" # "POPVOX.com delivers constituent messages to Congress."
-        msg.org_contact = "" # "Josh Tauberer, CTO, POPVOX.com -- josh@popvox.com -- cell: 516-458-9919"
+        msg.org_description = 
     
     msg.delivery_agent = "POPVOX.com"
     msg.delivery_agent_contact = "Ben Harris, POPVOX.com -- ben@popvox.com"
@@ -397,7 +394,7 @@ def process_comment(comment, thread_id):
             continue
             
         # Special field cleanups for particular endpoints.
-        if gid in (412246,400050) and msg.county == None:
+        if gid in (412246,400050,400418) and msg.county == None:
             if comment.address.cdyne_response == None:
                 print thread_id, "Normalize Address", comment.address.id
                 comment.address.normalize()
