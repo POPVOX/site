@@ -322,6 +322,7 @@ common_fieldnames = {
     "modified": "message_personal",
 
     "subject": "subjectline",
+    "msubject": "subjectline",
     "messagesubject": "subjectline",
     "messageSubject_required": "subjectline",
     "email_subject": "subjectline",
