@@ -1580,6 +1580,7 @@ def send_message_webform(endpoint, msg, deliveryrec):
     #A lot of the forms use the same/similar responses; checking if any of those match before calling it an error:
     common_responses = [ "Thank you for contacting me",
     "Your form has been submitted",
+    "Thank You! Your message has been sent",
     "Thank you for your e-mail submission",
     "Thank you for your email",
     "Thank you for contacting my office",
