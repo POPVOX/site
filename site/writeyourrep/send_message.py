@@ -288,6 +288,7 @@ common_fieldnames = {
     "daytime-phone": "phone",
     "phn": "phone",
     "emailaddress": "email",
+    "email_confirmation": "email",
     "email_address": "email",
     "email_verify": "email",
     "verify_email": "email",
