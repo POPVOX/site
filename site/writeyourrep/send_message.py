@@ -1093,8 +1093,7 @@ def parse_webform(webformurl, webform, webformid, id, dr):
         #commenting out the first part of the fix for the recaptcha forms we can't break, because
         #fixing it part way makes it call dbc and return incorrect values, which takes time and
         #money. The pdb.set_trace()s below are for debugging why they're returning bad values.
-        elif ax == "recaptcha_challenge_field": or re.match(r'captcha_[0-9a-f\-_]*', ax):
-            #Use DeathByCaptcha to solve it!
+        elif ax == "recaptcha_challenge_field": or re.match(r'captcha_[0-9a-f\-_]*', ax): Use DeathByCaptcha to solve it!
             
             # get the iframe URL which will open HTML which will have a challenge field and
             # an image URL, and load that image.
