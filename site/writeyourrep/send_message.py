@@ -317,11 +317,13 @@ common_fieldnames = {
     "claim": "message",
     "message_require": "message",
     "additionalcomments": "message",
+    "required-message": "message",
     
     "textmodified": "message_personal",
     "modified": "message_personal",
 
     "subject": "subjectline",
+    "required-subject": "subjectline",
     "msubject": "subjectline",
     "messagesubject": "subjectline",
     "messageSubject_required": "subjectline",
