@@ -502,6 +502,7 @@ skippable_fields = (
     #Whitehouse skippables:
     "submitted[prefix]",
     "submitted[middle_name]",
+    "submitted[mname]",
     "submitted[phone]",
     "submitted[title]",
     "submitted[organization]",
