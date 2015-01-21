@@ -320,6 +320,7 @@ common_fieldnames = {
     "message_require": "message",
     "additionalcomments": "message",
     "required-message": "message",
+    "message": "message",
     
     "textmodified": "message_personal",
     "modified": "message_personal",
