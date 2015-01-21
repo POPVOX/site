@@ -303,6 +303,7 @@ common_fieldnames = {
     "emailcheck": "email",
     "emailadress": "email",
     "required-valid-email": "email",
+    "signup-email": "email",
     
     "messagebody": "message",
     "comment": "message",
