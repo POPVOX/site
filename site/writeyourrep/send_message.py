@@ -577,7 +577,7 @@ skippable_fields = (
     "gender",
 
 
-    "agency-issues", "agency", "prefixother", "middle", "middlename", "suffix", "preferredname",
+    "agency-issues", "agency", "prefixother", "mname", "middle", "middlename", "suffix", "preferredname",
     "name_middle",     "middle-initial", "title", "addr3", "unit", "areacode", "exchange", "final4", "daytimephone", "workphone", "phonework", "work_phone_number", "worktel", "phonebusiness", "business-phone", "phone_b", "phone_c", "ephone", "mphone", "cell", "newsletter", "esignup", "townhall", "subjectother", "plusfour", "nickname", "firstname_spouse", "lastname_spouse", "mi", "cellphone", "rank", "branch", "militaryrank", "middleinitial", "other", "organization", "enews_subscribe", "district-contact", "appelation", "company",
     "countdown",
     "affll",
