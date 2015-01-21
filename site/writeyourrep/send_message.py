@@ -238,6 +238,7 @@ common_fieldnames = {
     "street-address": "address_combined",
     "streetaddress": "address1",
     "street": "address1",
+    "addressline1": "address1",
     "addressline2": "address2",
     "address-line1": "address1",
     "address-line2": "address2",
