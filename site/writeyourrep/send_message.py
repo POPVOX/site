@@ -302,6 +302,7 @@ common_fieldnames = {
     "EmailCheck": "email",
     "emailcheck": "email",
     "emailadress": "email",
+    "required-valid-email": "email",
     
     "messagebody": "message",
     "comment": "message",
