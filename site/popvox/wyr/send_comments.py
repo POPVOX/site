@@ -175,19 +175,19 @@ def process_comment(comment, thread_id):
             msg.message += "We experienced problems delivering this message, which caused a significant delay in receipt by your office. The problem has been rectified and the individual notified that this was an issue in the POPVOX system -- not the Congressional office. We tremendously regret the delay and are committed to timely delivery. If you have any questions about this, please contact POPVOX CEO, Marci Harris, marci@popvox.com. We always welcome your feedback.\n\n"
         if comment.bill:
             msg.message += comment.message + \
-                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() + "/report"
+                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.bill.url() 
         else:
             msg.message += comment.message + \
-                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.regulation.url() + "/report"
+                "\n\n-----\nsent via popvox.com; info@popvox.com; see http://www.popvox.com" + comment.regulation.url() 
         if comment.created < datetime.datetime.now()-datetime.timedelta(days=16):
             msg.message += "\npopvox holds letters on bills until they are pending a vote in your chamber"
         msg.message_personal = "yes"
         msg.response_requested = ("yes", "response needed", "WEBRN","Yes","Y", "Yes, please contact me")
     else:
         if comment.bill:
-            msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "/report. Contact info@popvox.com with delivery concerns.]"
+            msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.bill.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.bill.url() + "Contact info@popvox.com with delivery concerns.]"
         else:
-            msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.regulation.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.regulation.url() + "/report. Contact info@popvox.com with delivery concerns.]"
+            msg.message += ("Support" if comment.position == "+" else "Oppose") + " " + comment.regulation.title + "\n\n[This constituent weighed in at POPVOX.com but chose not to leave a personal comment and is not expecting a response. See http://www.popvox.com" + comment.regulation.url() + "Contact info@popvox.com with delivery concerns.]"
         msg.message_personal = "no"
         msg.response_requested = ("no","n","NRNW","no response necessary","Comment","No Response","no, i do not require a response.","i do not need a response.","no response needed","WEBNRN","No, I wanted to voice my opinion", "N","")
     if comment.bill:    
