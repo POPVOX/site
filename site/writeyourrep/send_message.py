@@ -651,6 +651,8 @@ radio_choices = {
 custom_mapping = {
     "2_field_420f4180-d327-4c63-aac5-efd047b1b463_text": "zip5",
     "21_subject_select" : "topicarea",
+    "message topic": "topicarea",
+    "message_topic": "topicarea",
     "18_field_1f16bf7a-1773-4479-bc8f-995d37e73f17_radio": "response_requested",
     "23_field_db3de26e-1334-48c8-ac2a-d173968c6236_radio": "response_requested",
     "23_field_d401e225-88e5-407f-8efa-da1a2e2b979e_radio" : "response_requested",
