@@ -669,8 +669,8 @@ radio_choices = {
     "enewsletteroption": "eoptout",
     "rsptype": "email",
     "forums": "forums_no",
-    "required-newsletter": "noAction"
-    "887_ctl00$ctl22$ReplyChoice_radio": "Yes, I would like a response."
+    "required-newsletter": "noAction",
+    "887_ctl00$ctl22$ReplyChoice_radio": "Yes, I would like a response.",
 
 }
 
