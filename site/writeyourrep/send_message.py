@@ -362,6 +362,29 @@ common_fieldnames = {
     "subject_require": "topicarea",
     "leg-issues": "topicarea",
     "issue": "topicarea",
+    "submitted[message_details][topic]": "topicarea",
+    "submitted[message_details][please_type_the_subject_of_your_message]": "subject line",
+    "submitted[message_details][message]": "message",
+    "68_actions_select": "opinion", 
+    "69_actions_select": "opinion",
+    "528_actions_select": "opinion",
+    "33_actions_select": "opinion",
+    "584_actions_select": "opinion",
+    "735_Subject_select": "topicarea",
+    "92_subject_select": "topicarea",
+    "1075_topic_select": "topicarea",
+    "92_county'_select": "county",
+    "561_whatlegislativeissueareyoucontactingmeabout_select": "topicarea",
+    "579_field_f33b2309-b7af-40ca-aaf8-e40952fff259_select": "topicarea",
+    "650_website_text": "www.popvox.com",
+    "661_Issues_select": "topicarea",
+    "661_Issues2_select": "topicarea",
+    "795_topic_select": "topicarea",
+    "795_subject_text": "subject line",
+
+
+    
+    
     
     "responserequested": "response_requested",
     "responserequest": "response_requested",
@@ -568,6 +591,7 @@ skippable_fields = (
     #Gosar radios
     "help",
     "meeting",
+    "Yes, I would like a response."
     
     #National Park Service
     "authormiddleinitial", "howdidyouhear", "liketohear", "country",
@@ -646,6 +670,8 @@ radio_choices = {
     "rsptype": "email",
     "forums": "forums_no",
     "required-newsletter": "noAction"
+    "887_ctl00$ctl22$ReplyChoice_radio": "Yes, I would like a response."
+
 }
 
 custom_mapping = {
