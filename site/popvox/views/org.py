@@ -580,25 +580,25 @@ def org_support_oppose(request):
         message = "A new campaign named %s was created and %s (%s) was added to its legislative agenda. (%s)" % (cam.name, p.bill.shortname, support, p.bill.title)
 
     # Send an email to all of the org's administrators.
-    send_mail("POPVOX: Legislative Agenda Changed: " + org.name,
-"""This is an automated email to confirm the following change to the
-legislative agenda of %s. The following action was taken:
+#     send_mail("POPVOX: Legislative Agenda Changed: " + org.name,
+# """This is an automated email to confirm the following change to the
+# legislative agenda of %s. The following action was taken:
 
-   %s
+#   %s
 
-For more information please see your organization profile:
-%s
+# For more information please see your organization profile:
+# %s
 
-Thanks for participating!
+# Thanks for participating!
 
-POPVOX
-""" % (org.name, message, SITE_ROOT_URL + org.url() + "/_edit"),
-        EMAILVERIFICATION_FROMADDR, [admin.user.email for admin in org.admins.all()], fail_silently=True)
+# POPVOX
+# """ % (org.name, message, SITE_ROOT_URL + org.url() + "/_edit"),
+#         EMAILVERIFICATION_FROMADDR, [admin.user.email for admin in org.admins.all()], fail_silently=True)
     
-    # Add a session message to be displayed on the next page.
-    messages.success(request, message)
+#     # Add a session message to be displayed on the next page.
+#     messages.success(request, message)
 
-    return { "status": "success", "camurl": cam.url() }
+#     return { "status": "success", "camurl": cam.url() }
         
 @csrf_protect
 @login_required
