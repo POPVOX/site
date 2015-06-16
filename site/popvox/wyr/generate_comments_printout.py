@@ -70,7 +70,7 @@ def create_tex(tex, serial):
     outfile.write_esc = lambda x : outfile.write(escape_latex(x))
     
     outfile.write(r"\documentclass[twocolumn,notitlepage]{report}" + "\n")
-    outfile.write(r"\usepackage[top=1in, bottom=3.20in, left=.85in, right=.85in]{geometry}" + "\n")
+    outfile.write(r"\usepackage[top=1in, bottom=2.0in, left=.85in, right=.85in]{geometry}" + "\n")
     outfile.write(r"\pagestyle{myheadings}" + "\n")
     outfile.write(r"\usepackage{fontspec}" + "\n")
     outfile.write(r"\setromanfont[BoldFont={* Bold}]{Linux Libertine O}" + "\n")
